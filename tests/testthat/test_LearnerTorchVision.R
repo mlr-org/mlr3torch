@@ -185,11 +185,19 @@ skip_if(!identical(Sys.getenv("INCLUDE_IGNORED"),  "1"), "Slow vision tests")
 # these two instead of letting them run out of memory.
 memory_heavy = c("vit_l_16", "vit_h_14")
 
+# The tests below perform one optimizer step, which is the point of them: only a backward pass
+# exercises the gradients of the replaced head. They use SGD instead of the default optimizer Adam,
+# which allocates two state tensors per parameter on its first step and therefore needs four times
+# the parameter memory (parameters, gradients and the two Adam states). SGD without momentum keeps
+# no state and needs only two times, which the largest networks (~300M parameters) need to stay
+# within the memory of the CI runners.
+
 # Train every other network from scratch. This needs no downloads and therefore covers all of them.
 for (vision_id in torchvision_models$id) {
   test_that(paste0("network can be trained: ", vision_id), {
     skip_if(vision_id %in% memory_heavy, "Network does not fit into the memory of small runners")
-    learner = lrn(paste0("classif.", vision_id), epochs = 1L, batch_size = 2L, pretrained = FALSE)
+    learner = lrn(paste0("classif.", vision_id), epochs = 1L, batch_size = 2L, pretrained = FALSE,
+      optimizer = t_opt("sgd", lr = 0.01))
     t = task_for(vision_id)
     learner$train(t, sample(t$nrow, 2L))
     pred = learner$predict(t, sample(t$nrow, 1L))
@@ -211,7 +219,7 @@ test_that("one network per architecture is covered by the pretrained tests", {
 for (vision_id in pretrained_ids) {
   test_that(paste0("pretrained network can be fine-tuned: ", vision_id), {
     learner = lrn(paste0("classif.", vision_id), epochs = 1L, batch_size = 2L, pretrained = TRUE,
-      predict_type = "prob")
+      predict_type = "prob", optimizer = t_opt("sgd", lr = 0.01))
     t = task_for(vision_id)
     # two rows and one epoch, so that a single fine-tuning step is actually performed
     learner$train(t, sample(t$nrow, 2L))
