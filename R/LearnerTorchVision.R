@@ -13,20 +13,6 @@
 #'
 #' @eval torchvision_learner_section()
 #'
-#' @section Input Size:
-#' The *Input Size* column of the table above states which spatial input sizes a network accepts.
-#' Inputs do not have to be square, and any size at or above the stated minimum works.
-#'
-#' * `any`: the convolutional networks that pool their feature map to a fixed size before the
-#'   classifier accept arbitrarily small inputs.
-#' * A minimum (`at least NxN`): `AlexNet`, `VGG`, `ConvNeXt` and `Inception v3` shrink the feature
-#'   map below one pixel for smaller inputs. Note that these are the sizes at which the networks
-#'   still run, not the sizes at which they were trained, which is 224x224 for `AlexNet`, `VGG` and
-#'   `ConvNeXt` and 299x299 for `Inception v3`.
-#' * A fixed size (`NxN`): the vision transformers do not interpolate their position embeddings and
-#'   `MaxViT` needs an input that its window partitioning divides evenly, so these require exactly
-#'   the size that they were configured with.
-#'
 #' @section Parameters:
 #' Parameters from [`LearnerTorchImage`] and
 #'
@@ -63,6 +49,13 @@
 #'   The label of the network.
 #' @param jittable (`logical(1)`)\cr
 #'   Whether to use jitting.
+#' @param extra_param_set ([`ParamSet`][paradox::ParamSet] or `NULL`)\cr
+#'   Parameters that this network has in addition to `pretrained`, or `NULL` if it has none.
+#'   They are added to the learner's [`ParamSet`][paradox::ParamSet].
+#' @param network_args (`character()`)\cr
+#'   The ids of those parameters of `extra_param_set` that are passed on to `module_generator`.
+#'   The remaining ones are interpreted by the learner itself, such as `aux_weight`, which is
+#'   used to wrap the loss and never reaches the network.
 #' @eval torchvision_references()
 #' @include LearnerTorchImage.R
 #' @export
@@ -268,6 +261,9 @@ maxvit_generator = function(...) {
 # * min_size  : smallest spatial input size that the network accepts, NA if it accepts any size.
 # * exact_size: the only spatial input size that the network accepts, NA if it accepts more than
 #               one size. At most one of `min_size` and `exact_size` is given.
+#               `min_size` and `exact_size` are not documented: the accepted input sizes follow
+#               from the architecture and are described by the upstream model and its paper.
+#               They exist so that the tests can pick an input size that a network accepts.
 # * jittable  : whether the network can be traced with `torch::jit_trace()`.
 torchvision_models = local({
   tvm = function(id, generator, label, arch, bib, file, min_size = NA_integer_,
@@ -471,29 +467,17 @@ local({
   }
 })
 
-# Human-readable form of the `min_size` / `exact_size` columns of `torchvision_models`.
-torchvision_input_size = function(min_size, exact_size) {
-  if (!is.na(exact_size)) {
-    sprintf("%1$ix%1$i", exact_size)
-  } else if (!is.na(min_size)) {
-    sprintf("at least %1$ix%1$i", min_size)
-  } else {
-    "any"
-  }
-}
-
 # Roxygen block listing which original model each learner implements, which paper introduced it,
 # and where its implementation can be found. Used via `@eval`.
 torchvision_learner_section = function() {
   rows = map_chr(seq_len(nrow(torchvision_models)), function(i) {
     keys = torchvision_bib_keys(torchvision_models$bib[i])
-    sprintf("| `classif.%s` | %s | %s | [%s](%s) | %s |",
+    sprintf("| `classif.%s` | %s | %s | [%s](%s) |",
       torchvision_models$id[i],
       torchvision_models$arch[i],
       invoke(cite_bib, .args = as.list(keys), bibentries = bibentries),
       torchvision_models$file[i],
-      torchvision_source_url(torchvision_models$file[i]),
-      torchvision_input_size(torchvision_models$min_size[i], torchvision_models$exact_size[i])
+      torchvision_source_url(torchvision_models$file[i])
     )
   })
   c(
@@ -502,8 +486,8 @@ torchvision_learner_section = function() {
     "paper that introduced this architecture, and the file in `torchvision` that contains the",
     "implementation.",
     "",
-    "| Learner | Architecture | Reference | Implementation | Input Size |",
-    "| --- | --- | --- | --- | --- |",
+    "| Learner | Architecture | Reference | Implementation |",
+    "| --- | --- | --- | --- |",
     rows
   )
 }

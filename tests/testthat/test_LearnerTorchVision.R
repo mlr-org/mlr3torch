@@ -189,9 +189,9 @@ memory_heavy = c("vit_l_16", "vit_h_14")
 for (vision_id in torchvision_models$id) {
   test_that(paste0("network can be trained: ", vision_id), {
     skip_if(vision_id %in% memory_heavy, "Network does not fit into the memory of small runners")
-    learner = lrn(paste0("classif.", vision_id), epochs = 0L, batch_size = 2L, pretrained = FALSE)
+    learner = lrn(paste0("classif.", vision_id), epochs = 1L, batch_size = 2L, pretrained = FALSE)
     t = task_for(vision_id)
-    learner$train(t, sample(t$nrow, 1L))
+    learner$train(t, sample(t$nrow, 2L))
     pred = learner$predict(t, sample(t$nrow, 1L))
     expect_class(pred, "PredictionClassif")
   })
@@ -210,10 +210,11 @@ test_that("one network per architecture is covered by the pretrained tests", {
 
 for (vision_id in pretrained_ids) {
   test_that(paste0("pretrained network can be fine-tuned: ", vision_id), {
-    learner = lrn(paste0("classif.", vision_id), epochs = 0L, batch_size = 2L, pretrained = TRUE,
+    learner = lrn(paste0("classif.", vision_id), epochs = 1L, batch_size = 2L, pretrained = TRUE,
       predict_type = "prob")
     t = task_for(vision_id)
-    learner$train(t, sample(t$nrow, 1L))
+    # two rows and one epoch, so that a single fine-tuning step is actually performed
+    learner$train(t, sample(t$nrow, 2L))
     pred = learner$predict(t, sample(t$nrow, 1L))
     expect_class(pred, "PredictionClassif")
     # replace_head() gave the network a head that matches the number of classes of the task
