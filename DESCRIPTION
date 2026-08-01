@@ -156,7 +156,6 @@ Collate:
     'multi_tensor_dataset.R'
     'nn.R'
     'nn_graph.R'
-    'num_embeddings.R'
     'paramset_torchlearner.R'
     'preprocess.R'
     'rd_info.R'

@@ -76,10 +76,8 @@ Parameters of the embeddings for the numerical features:
 \itemize{
 \item \code{num_embeddings} :: \code{character(1)}\cr
 The type of the numerical feature embeddings, one of \code{"none"} (default),
-\code{"linear_relu"} (\code{\link[=nn_linear_relu_embeddings]{nn_linear_relu_embeddings()}}), \code{"periodic"}
-(\code{\link[=nn_periodic_embeddings]{nn_periodic_embeddings()}}) or \code{"piecewise_linear"}
-(\code{\link[=nn_piecewise_linear_embeddings]{nn_piecewise_linear_embeddings()}} with \code{version = "B"}, the variant required by
-TabM). The last two usually perform best.
+\code{"linear_relu"}, \code{"periodic"} or \code{"piecewise_linear"} (in the \code{version = "B"} variant
+that TabM requires). The last two usually perform best.
 \item \code{d_embedding} :: \code{integer(1)}\cr
 The embedding size. If unset, \code{32} is used for \code{"linear_relu"}, \code{24} for
 \code{"periodic"} and \code{16} for \code{"piecewise_linear"}.
@@ -97,8 +95,7 @@ the embedding. If unset, \code{TRUE} is used for \code{"periodic"} and \code{FAL
 \code{"piecewise_linear"}.
 \item \code{n_bins} :: \code{integer(1)}\cr
 \code{"piecewise_linear"} only: the number of quantile bins, computed from the training
-data with \code{\link[=compute_bins]{compute_bins()}}. Must be smaller than the number of training
-observations. Default is \code{48}.
+data. Must be smaller than the number of training observations. Default is \code{48}.
 }
 }
 
