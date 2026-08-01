@@ -75,6 +75,7 @@ Other PipeOps:
 [`mlr_pipeops_nn_merge_cat`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_merge_cat.md),
 [`mlr_pipeops_nn_merge_prod`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_merge_prod.md),
 [`mlr_pipeops_nn_merge_sum`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_merge_sum.md),
+[`mlr_pipeops_nn_multihead_attention`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_multihead_attention.md),
 [`mlr_pipeops_nn_prelu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_prelu.md),
 [`mlr_pipeops_nn_reglu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_reglu.md),
 [`mlr_pipeops_nn_relu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_relu.md),
@@ -233,16 +234,16 @@ po_model$state
 #> $optimizer$state$`1`
 #> $optimizer$state$`1`$exp_avg
 #> torch_tensor
-#> Columns 1 to 7    3.4920    53.7565   118.2021  5078.7607    54.0097    55.6550  3050.4951
+#> Columns 1 to 6     9.4293    124.7185    255.3595  10632.4971    121.5976    127.0546
 #> 
-#> Columns 8 to 10  275.0704     2.8947    60.2546
+#> Columns 7 to 10  6640.4668    620.0634      8.2652    133.5345
 #> [ CPUFloatType{1,10} ]
 #> 
 #> $optimizer$state$`1`$exp_avg_sq
 #> torch_tensor
-#> Columns 1 to 6 6.7512e-01  1.7354e+02  7.9813e+02  1.4886e+06  1.6273e+02  1.7322e+02
+#> Columns 1 to 6 4.9103e+00  8.6175e+02  3.7691e+03  6.7089e+06  8.3793e+02  9.0455e+02
 #> 
-#> Columns 7 to 10 5.3728e+05  4.2607e+03  5.5154e-01  2.1295e+02
+#> Columns 7 to 10 2.5050e+06  2.1815e+04  3.9385e+00  1.0186e+03
 #> [ CPUFloatType{1,10} ]
 #> 
 #> $optimizer$state$`1`$max_exp_avg_sq
@@ -258,12 +259,12 @@ po_model$state
 #> $optimizer$state$`2`
 #> $optimizer$state$`2`$exp_avg
 #> torch_tensor
-#>  16.0510
+#>  35.8369
 #> [ CPUFloatType{1} ]
 #> 
 #> $optimizer$state$`2`$exp_avg_sq
 #> torch_tensor
-#>  14.5240
+#>  73.1419
 #> [ CPUFloatType{1} ]
 #> 
 #> $optimizer$state$`2`$max_exp_avg_sq
@@ -285,7 +286,7 @@ po_model$state
 #> named list()
 #> 
 #> $seed
-#> [1] 568237855
+#> [1] 58725755
 #> 
 #> $task_col_info
 #>         id    type levels

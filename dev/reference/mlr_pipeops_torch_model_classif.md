@@ -75,6 +75,7 @@ Other PipeOps:
 [`mlr_pipeops_nn_merge_cat`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_merge_cat.md),
 [`mlr_pipeops_nn_merge_prod`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_merge_prod.md),
 [`mlr_pipeops_nn_merge_sum`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_merge_sum.md),
+[`mlr_pipeops_nn_multihead_attention`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_multihead_attention.md),
 [`mlr_pipeops_nn_prelu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_prelu.md),
 [`mlr_pipeops_nn_reglu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_reglu.md),
 [`mlr_pipeops_nn_relu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_relu.md),
@@ -233,17 +234,17 @@ po_model$state
 #> $optimizer$state$`1`
 #> $optimizer$state$`1`$exp_avg
 #> torch_tensor
-#> -0.1307 -0.0220 -0.4490 -0.3080
-#>  0.6384  0.2077  1.0515  0.5797
-#> -0.5077 -0.1857 -0.6025 -0.2717
+#>  0.8680  0.2997  1.0659  0.4743
+#> -0.3617 -0.1149 -0.4678 -0.2050
+#> -0.5063 -0.1848 -0.5981 -0.2693
 #> [ CPUFloatType{3,4} ]
 #> 
 #> $optimizer$state$`1`$exp_avg_sq
 #> torch_tensor
 #> 0.01 *
-#>  0.0702  0.0020  0.8294  0.3894
-#>   1.6678  0.1771  4.5024  1.3675
-#>   1.0632  0.1428  1.4983  0.3040
+#>  3.0687  0.3652  4.6276  0.9166
+#>   0.5400  0.0547  0.9017  0.1751
+#>   1.0474  0.1390  1.4605  0.2963
 #> [ CPUFloatType{3,4} ]
 #> 
 #> $optimizer$state$`1`$max_exp_avg_sq
@@ -259,17 +260,17 @@ po_model$state
 #> $optimizer$state$`2`
 #> $optimizer$state$`2`$exp_avg
 #> torch_tensor
-#> -0.0898
-#>  0.1812
-#> -0.0914
+#>  0.1675
+#> -0.0770
+#> -0.0906
 #> [ CPUFloatType{3} ]
 #> 
 #> $optimizer$state$`2`$exp_avg_sq
 #> torch_tensor
 #> 0.001 *
-#>  0.3308
-#>  1.3344
-#>  0.3440
+#>  1.1444
+#>  0.2445
+#>  0.3351
 #> [ CPUFloatType{3} ]
 #> 
 #> $optimizer$state$`2`$max_exp_avg_sq
@@ -291,7 +292,7 @@ po_model$state
 #> named list()
 #> 
 #> $seed
-#> [1] 801930564
+#> [1] 705850732
 #> 
 #> $task_col_info
 #> Key: <id>
@@ -355,7 +356,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.066 
+#>   0.067 
 #> 
 #> $task_hash
 #> [1] "abc694dd29a7a8ce"

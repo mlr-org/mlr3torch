@@ -301,6 +301,9 @@ vision behind the project.
 - [`mlr_learners.tab_resnet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tab_resnet.md)
   [`LearnerTorchTabResNet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tab_resnet.md)
   : Tabular ResNet
+- [`mlr_learners.tabm`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tabm.md)
+  [`LearnerTorchTabM`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tabm.md)
+  : TabM
 - [`mlr_learners.torch_featureless`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torch_featureless.md)
   [`LearnerTorchFeatureless`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torch_featureless.md)
   : Featureless Torch Learner
