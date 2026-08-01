@@ -60,6 +60,10 @@ mode, i.e. when predicting and when calculating the validation scores.
 contribute to the loss during training and are never scored.
 }
 
+During training, \code{\link{ContextTorch}} makes both available: \code{ctx$y_hats} is the complete output of
+the network, i.e. what the loss is applied to, and \code{ctx$y_hat} is always the primary
+prediction. For a network that returns a single tensor the two are identical.
+
 Because the configured loss is applied to a single tensor, a learner whose network returns a
 list has to wrap it by overloading \code{.loss_fn()}, see the list of methods below.
 

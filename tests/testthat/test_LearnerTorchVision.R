@@ -157,6 +157,23 @@ test_that("inception_v3 wraps the configured loss when aux_logits is enabled", {
     "nn_cross_entropy_loss")
 })
 
+test_that("jittable is forwarded, so jit_trace is available exactly for traceable networks", {
+  # `LearnerTorchVision` has to pass `jittable` on to `super$initialize()`, otherwise the whole
+  # `jittable` column of `torchvision_models` has no effect and no network can be traced.
+  for (i in seq_len(nrow(torchvision_models))) {
+    vision_id = torchvision_models$id[i]
+    expect_equal("jit_trace" %in% lrn(paste0("classif.", vision_id))$param_set$ids(),
+      torchvision_models$jittable[i], info = vision_id)
+  }
+})
+
+test_that("inception_v3 is not traceable", {
+  # with an enabled auxiliary classifier the network returns a list of predictions, which
+  # torch::jit_trace() cannot represent, so the learner offers no jit_trace parameter at all
+  expect_false("jit_trace" %in% lrn("classif.inception_v3")$param_set$ids())
+  expect_false(torchvision_models[list("inception_v3"), on = "id"]$jittable)
+})
+
 # these tests are run the CI, but they should basically never fail, so
 # we skip them in the local run
 # models are also cached in the CI, so it is not too slow
@@ -234,4 +251,34 @@ test_that("inception_v3 can be trained with an auxiliary classifier", {
   learner_measured = lrn("classif.inception_v3", pretrained = FALSE, aux_logits = TRUE,
     epochs = 1L, batch_size = 2L, measures_train = msrs("classif.acc"))
   expect_no_error(learner_measured$train(task_aux))
+})
+
+test_that("ctx exposes the primary prediction and the complete network output", {
+  task_aux = as_task_classif(data.table(
+    y = as.factor(rep(c("a", "b", "c"), each = 2)),
+    x = as_lazy_tensor(torch_randn(6, 3, 299, 299))
+  ), id = "test_task_aux", target = "y")
+
+  seen = new.env(parent = emptyenv())
+  cb = torch_callback("test_yhats",
+    on_batch_end = function() {
+      seen$y_hat = self$ctx$y_hat
+      seen$y_hats = self$ctx$y_hats
+    }
+  )
+
+  # with an auxiliary classifier `y_hats` is the list, `y_hat` its first element
+  learner = lrn("classif.inception_v3", pretrained = FALSE, aux_logits = TRUE, epochs = 1L,
+    batch_size = 2L, callbacks = cb)
+  learner$train(task_aux)
+  expect_list(seen$y_hats, len = 2L)
+  expect_class(seen$y_hat, "torch_tensor")
+  expect_true(torch_equal(seen$y_hat, seen$y_hats[[1L]]))
+
+  # without one, both are the same tensor
+  learner_plain = lrn("classif.inception_v3", pretrained = FALSE, epochs = 1L, batch_size = 2L,
+    callbacks = cb)
+  learner_plain$train(task_aux)
+  expect_class(seen$y_hats, "torch_tensor")
+  expect_true(torch_equal(seen$y_hat, seen$y_hats))
 })

@@ -23,7 +23,6 @@ implementation.\tabular{lllll}{
    \code{classif.convnext_tiny_1k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \tab at least 32x32 \cr
    \code{classif.convnext_tiny_22k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \tab at least 32x32 \cr
    \code{classif.convnext_small_22k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \tab at least 32x32 \cr
-   \code{classif.convnext_small_22k1k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \tab at least 32x32 \cr
    \code{classif.convnext_base_1k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \tab at least 32x32 \cr
    \code{classif.convnext_base_22k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \tab at least 32x32 \cr
    \code{classif.convnext_large_1k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \tab at least 32x32 \cr

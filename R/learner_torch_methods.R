@@ -159,13 +159,17 @@ train_loop = function(ctx, cbs) {
 
       call("on_batch_begin")
 
-      if (length(ctx$batch$x) == 1L) {
-        ctx$y_hat = ctx$network(ctx$batch$x[[1L]])
+      ctx$y_hats = if (length(ctx$batch$x) == 1L) {
+        ctx$network(ctx$batch$x[[1L]])
       } else {
-        ctx$y_hat = do.call(ctx$network, ctx$batch$x)
+        do.call(ctx$network, ctx$batch$x)
       }
+      # A network with auxiliary classifiers returns one prediction per classifier, of which the
+      # first one is the primary prediction, see the section 'Network Head and Target Encoding'
+      # of `LearnerTorch`. `y_hat` is always that primary prediction, `y_hats` the complete output.
+      ctx$y_hat = if (is.list(ctx$y_hats)) ctx$y_hats[[1L]] else ctx$y_hats
 
-      loss = ctx$loss_fn(ctx$y_hat, ctx$batch$y)
+      loss = ctx$loss_fn(ctx$y_hats, ctx$batch$y)
 
       loss$backward()
 
@@ -173,11 +177,7 @@ train_loop = function(ctx, cbs) {
 
       ctx$last_loss = loss$item()
       if (eval_train) {
-        # A network with auxiliary classifiers returns one prediction per classifier, of which the
-        # first one is the primary prediction that is scored, see the section
-        # 'Network Head and Target Encoding' of `LearnerTorch`.
-        y_hat = if (is.list(ctx$y_hat)) ctx$y_hat[[1L]] else ctx$y_hat
-        predictions[[length(predictions) + 1]] = y_hat$detach()
+        predictions[[length(predictions) + 1]] = ctx$y_hat$detach()
         indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
       }
       ctx$optimizer$step()

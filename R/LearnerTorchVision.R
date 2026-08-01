@@ -92,7 +92,8 @@ LearnerTorchVision = R6Class("LearnerTorchVision",
         loss = loss,
         callbacks = callbacks,
         label = label,
-        packages = "torchvision"
+        packages = "torchvision",
+        jittable = jittable
       )
     }
   ),
@@ -289,10 +290,17 @@ torchvision_models = local({
     tvm("convnext_small_22k", "model_convnext_small_22k", "ConvNeXt-S (ImageNet-22k)",
       "ConvNeXt", "liu2022convnet", "models-convnext.R",
       min_size = 32L),
-    tvm("convnext_small_22k1k", "model_convnext_small_22k1k",
-      "ConvNeXt-S (ImageNet-22k, fine-tuned on ImageNet-1k)",
-      "ConvNeXt", "liu2022convnet", "models-convnext.R",
-      min_size = 32L),
+    # `classif.convnext_small_22k1k` is not registered, because `model_convnext_small_22k1k()`
+    # cannot load its own pretrained weights: the model is fine-tuned on ImageNet-1k and its
+    # weights have a 1000-class head, but torchvision builds it with `num_classes = 21841`, so
+    # loading the state dict fails with "The size of tensor a (21841) must match the size of
+    # tensor b (1000)". Passing `num_classes` does not help, because torchvision loads the state
+    # dict with `strict = FALSE`, which `load_state_dict()` of torch for R does not support.
+    # Re-enable this once torchvision has fixed the default.
+    # tvm("convnext_small_22k1k", "model_convnext_small_22k1k",
+    #   "ConvNeXt-S (ImageNet-22k, fine-tuned on ImageNet-1k)",
+    #   "ConvNeXt", "liu2022convnet", "models-convnext.R",
+    #   min_size = 32L),
     tvm("convnext_base_1k", "model_convnext_base_1k", "ConvNeXt-B (ImageNet-1k)",
       "ConvNeXt", "liu2022convnet", "models-convnext.R",
       min_size = 32L),
@@ -329,8 +337,11 @@ torchvision_models = local({
     tvm("efficientnet_v2_l", "model_efficientnet_v2_l", "EfficientNetV2-L",
       "EfficientNetV2", "tan2021efficientnetv2", "models-efficientnetv2.R"),
 
+    # With an enabled auxiliary classifier the network returns a list of predictions, which
+    # torch::jit_trace() cannot represent, so Inception v3 is not traceable.
     tvm("inception_v3", "inception_v3_generator", "Inception v3",
-      "Inception v3", "szegedy2016rethinking", "models-inception.R", min_size = 75L),
+      "Inception v3", "szegedy2016rethinking", "models-inception.R", min_size = 75L,
+      jittable = FALSE),
 
     tvm("maxvit", "maxvit_generator", "MaxViT-T",
       "MaxViT", "tu2022maxvit", "models-maxvit.R", exact_size = 224L),

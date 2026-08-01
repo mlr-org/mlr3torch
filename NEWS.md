@@ -8,10 +8,24 @@
   Inception v3 (`classif.inception_v3`), MaxViT (`classif.maxvit`), MobileNetV3
   (`classif.mobilenet_v3_{large,small}`), Vision Transformers (`classif.vit_*`) and
   Wide ResNet (`classif.wide_resnet{50_2,101_2}`).
-* `classif.inception_v3` gained the parameters `aux_logits` and `aux_weight`, which enable the
-  auxiliary classifier of Inception v3 and weight its loss. The configured loss is applied to the
-  predictions of both classifiers and does not have to be adapted for this.
-  Note that the auxiliary classifier raises the minimum input size from 75x75 to 299x299.
+* `LearnerTorch` gained a private `.loss_fn(task, param_vals)` method, which constructs the loss
+  that is applied to the output of the network and by default returns `self$loss$generate(task)`.
+  Learners can overload it to wrap the loss that was configured by the user, instead of the loss
+  being generated inline in the training loop.
+* A network can now return more than one prediction during training: it may return a `list()` of
+  tensors, where the first element is the primary prediction that is scored by `measures_train` and
+  returned when predicting, and the remaining elements are the predictions of auxiliary classifiers
+  that only contribute to the loss.
+  This is documented in the "Network Head and Target Encoding" section of `LearnerTorch`.
+* `ContextTorch` gained the field `y_hats`, which holds the complete output of the network for the
+  current batch, i.e. what the loss is applied to. `y_hat` now always holds the *primary*
+  prediction, so callbacks that read it keep working for networks with auxiliary classifiers.
+  For a network that returns a single tensor the two are identical.
+* Fix: `LearnerTorchVision` did not pass its `jittable` argument on to its parent class, so none
+  of the `torchvision` learners had a `jit_trace` parameter and none of them could be traced.
+  `jit_trace` is now available for all of them except the vision transformers, whose attention
+  blocks cannot be traced, and Inception v3, whose auxiliary classifier makes the network return
+  more than one prediction.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
   (including the validation data during training) when it is set.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training,
