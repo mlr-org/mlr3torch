@@ -192,7 +192,7 @@ test_that("nn_tabm_one_hot checks the number of categorical features", {
 })
 
 test_that("nn_tabm works for all architecture types", {
-  for (arch_type in c("tabm", "tabm-mini", "tabm-packed")) {
+  for (arch_type in c("tabm", "tabm-mini")) {
     net = nn_tabm(n_num_features = 4L, cat_cardinalities = c(3L, 2L), d_out = 3L,
       arch_type = arch_type, k = 5L, n_blocks = 2L, d_block = 8L, dropout = 0.1)
     expect_class(net, "nn_tabm")
@@ -227,10 +227,6 @@ test_that("nn_tabm gives informative errors", {
     "at least one numerical or one categorical feature")
   expect_error(nn_tabm(n_num_features = 2L, d_out = 1L, arch_type = "wrong"),
     "arch_type")
-  expect_error(
-    nn_tabm(n_num_features = 2L, d_out = 1L, arch_type = "tabm-packed",
-      start_scaling_init = "normal"),
-    "start_scaling_init must be NULL")
   net = nn_tabm(n_num_features = 2L, cat_cardinalities = 3L, d_out = 1L, k = 2L,
     n_blocks = 1L, d_block = 4L, dropout = 0)
   expect_error(net(x_num = torch_randn(3, 2)), "x_cat is NULL")
@@ -291,7 +287,7 @@ test_that("the learner works on tasks without numerical features", {
 
 test_that("LearnerTorchTabM works for all architecture types", {
   task = tsk("iris")
-  for (arch_type in c("tabm", "tabm-mini", "tabm-packed")) {
+  for (arch_type in c("tabm", "tabm-mini")) {
     learner = lrn("classif.tabm", epochs = 1L, batch_size = 50L, arch_type = arch_type,
       k = 3L, n_blocks = 1L, d_block = 8L, predict_type = "prob")
     learner$train(task)
@@ -567,9 +563,11 @@ test_that("the activation can be a name, a module generator or a function", {
   }
   expect_equal(activation_class("relu"), "nn_relu")
   expect_equal(activation_class("nn_gelu"), "nn_gelu")
-  # the torch.nn spelling used by upstream
+  expect_equal(activation_class("leaky_relu"), "nn_leaky_relu")
+  # the name is matched case-insensitively, so "ReLU" resolves as well
   expect_equal(activation_class("ReLU"), "nn_relu")
-  expect_equal(activation_class("LeakyReLU"), "nn_leaky_relu")
+  # the torch.nn class names of upstream are deliberately not resolved
+  expect_error(activation_class("LeakyReLU"), "Cannot resolve the activation")
   expect_equal(activation_class(nn_tanh), "nn_tanh")
   expect_equal(activation_class(function() nn_elu(alpha = 2)), "nn_elu")
 

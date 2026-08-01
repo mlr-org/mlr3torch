@@ -50,7 +50,6 @@ The architecture type, one of:
 multiplicative adapters except the very first one are initialized with ones.
 \item \code{"tabm-mini"} -- all non-shared parameters are concentrated in a single
 elementwise affine transformation applied to the input.
-\item \code{"tabm-packed"} -- \code{k} fully independent (packed) MLPs.
 }
 \item \code{k} :: \code{integer(1)}\cr
 The number of ensemble members. Default is \code{32}.
@@ -68,7 +67,7 @@ the \code{torch} package (e.g. \code{"relu"}, \code{"nn_relu"} or \code{"ReLU"})
 function returning an \code{\link[torch:nn_module]{nn_module}}. Default is \code{"relu"}.
 \item \code{start_scaling_init} :: \code{character(1)}\cr
 The initialization of the very first (non-shared) scaling, either \code{"random-signs"}
-or \code{"normal"}. Ignored for \code{arch_type = "tabm-packed"}. If unset, \code{"normal"} is
+or \code{"normal"}. If unset, \code{"normal"} is
 used when \code{num_embeddings} is set and \code{"random-signs"} otherwise.
 }
 

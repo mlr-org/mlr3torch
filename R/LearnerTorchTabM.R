@@ -19,11 +19,11 @@
 #  * Categorical features are encoded with **1-based** integer codes, because that is what
 #    mlr3torch's `batchgetter_categ()` produces and what R torch's `nnf_one_hot()` expects.
 #    Upstream uses 0-based codes.
-#  * The one-hot encoding is cast to float. Upstream returns a `long` tensor, which is
-#    implicitly promoted when numerical features are concatenated, but makes purely
-#    categorical input fail for `arch_type = "tabm-packed"` ("expected scalar type Long but
-#    found Float"). Casting unconditionally, as `paper/bin/model.py` does, fixes that case
-#    and is a no-op everywhere else.
+#  * The one-hot encoding is cast to float, as `paper/bin/model.py` does. Upstream's
+#    `_OneHotEncoding` returns a `long` tensor, which is implicitly promoted as soon as
+#    numerical features are concatenated, so the cast changes nothing for the supported
+#    architectures. It makes the purely categorical case robust rather than relying on that
+#    promotion.
 #  * `share_training_batches = FALSE` is NOT supported: `forward()` only accepts
 #    two-dimensional `x_num` / `x_cat`, so all k submodels always see the same batch.
 #  * `activation` additionally accepts an `nn_module_generator` or a function returning an
@@ -640,22 +640,10 @@ tabm_activation = function(activation) {
     generator = get(nm, envir = ns)
     if (inherits(generator, "nn_module_generator")) generator else NULL
   }
-  # fast path: "nn_relu", "relu", "ReLU"
   for (nm in unique(c(activation, paste0("nn_", activation), paste0("nn_", tolower(activation))))) {
     generator = get_generator(nm)
     if (!is.null(generator)) {
       return(tabm_activation(generator))
-    }
-  }
-  # slow path: match the torch.nn spelling, e.g. "LeakyReLU" -> `nn_leaky_relu`
-  normalize = function(x) sub("^nn", "", gsub("[^a-z0-9]", "", tolower(x)))
-  target = normalize(activation)
-  for (nm in ls(ns, pattern = "^nn_")) {
-    if (normalize(nm) == target) {
-      generator = get_generator(nm)
-      if (!is.null(generator)) {
-        return(tabm_activation(generator))
-      }
     }
   }
   stopf("Cannot resolve the activation '%s'. Provide the name of an activation of the torch package (e.g. \"relu\", \"nn_relu\" or \"ReLU\"), an `nn_module_generator` (e.g. `nn_relu`), or a function returning an `nn_module`.", activation) # nolint
@@ -675,26 +663,6 @@ tabm_make_blocks = function(d_in, n_blocks, d_block, dropout, activation, make_l
     )
   }))
 }
-
-# Used by arch_type "tabm-packed".
-nn_tabm_mlp_backbone_ensemble = nn_module("nn_tabm_mlp_backbone_ensemble",
-  initialize = function(d_in, n_blocks, d_block, dropout, activation = "relu", k) {
-    self$n_blocks = n_blocks
-    self$k = k
-    self$d_out = d_block
-    self$blocks = tabm_make_blocks(d_in, n_blocks, d_block, dropout, activation,
-      function(index, in_features, out_features) {
-        nn_tabm_linear_ensemble(in_features, out_features, k = k)
-      })
-  },
-  forward = function(input) {
-    x = input
-    for (i in seq_len(self$n_blocks)) {
-      x = self$blocks[[i]](x)
-    }
-    x
-  }
-)
 
 # Used by arch_type "tabm-mini".
 nn_tabm_mlp_backbone_mini_ensemble = nn_module("nn_tabm_mlp_backbone_mini_ensemble",
@@ -753,11 +721,7 @@ nn_tabm_mlp_backbone_batch_ensemble = nn_module("nn_tabm_mlp_backbone_batch_ense
 
 tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, arch_type,
   start_scaling_init, start_scaling_init_chunks) {
-  if (arch_type == "tabm-packed") {
-    if (!is.null(start_scaling_init)) {
-      stopf("When arch_type is '%s', start_scaling_init must be NULL.", arch_type)
-    }
-  } else if (is.null(start_scaling_init)) {
+  if (is.null(start_scaling_init)) {
     stopf("When arch_type is '%s', start_scaling_init must not be NULL.", arch_type)
   }
 
@@ -773,10 +737,6 @@ tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, a
       activation = activation, k = k, affine_bias = FALSE,
       affine_scaling_init = start_scaling_init,
       affine_scaling_init_chunks = start_scaling_init_chunks
-    ),
-    "tabm-packed" = nn_tabm_mlp_backbone_ensemble(
-      d_in = d_in, n_blocks = n_blocks, d_block = d_block, dropout = dropout,
-      activation = activation, k = k
     ),
     stopf("Unknown arch_type '%s'.", arch_type)
   )
@@ -834,7 +794,7 @@ tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, a
 #'   do. If `NULL` (default), the numerical features enter the backbone
 #'   unchanged.
 #' @param arch_type (`character(1)`)\cr
-#'   One of `"tabm"` (default), `"tabm-mini"` or `"tabm-packed"`.
+#'   One of `"tabm"` (default) or `"tabm-mini"`.
 #' @param k (`integer(1)`)\cr
 #'   The number of ensemble members.
 #' @param n_blocks (`integer(1)`)\cr
@@ -851,7 +811,7 @@ tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, a
 #'   function returning an [`nn_module`][torch::nn_module]. Default is `"relu"`.
 #' @param start_scaling_init (`character(1)` or `NULL`)\cr
 #'   The initialization of the very first (non-shared) scaling, either `"random-signs"`
-#'   or `"normal"`. Must be `NULL` for `arch_type = "tabm-packed"`.
+#'   or `"normal"`.
 #'   If `NULL` otherwise, `"normal"` is used when `num_embeddings` is given and
 #'   `"random-signs"` otherwise (this is upstream's `TabM.make()` heuristic).
 #'
@@ -887,7 +847,7 @@ nn_tabm = nn_module("nn_tabm",
     cat_cardinalities = assert_integerish(cat_cardinalities %??% integer(0),
       lower = 1L, any.missing = FALSE, coerce = TRUE)
     d_out = assert_int(d_out, lower = 1L, null.ok = TRUE, coerce = TRUE)
-    arch_type = assert_choice(arch_type, c("tabm", "tabm-mini", "tabm-packed"))
+    arch_type = assert_choice(arch_type, c("tabm", "tabm-mini"))
     k = assert_int(k, lower = 1L, coerce = TRUE)
     assert_number(dropout, lower = 0, upper = 1)
     assert_choice(start_scaling_init, c("random-signs", "normal"), null.ok = TRUE)
@@ -922,16 +882,10 @@ nn_tabm = nn_module("nn_tabm",
     self$num_module = num_embeddings
     self$cat_module = if (length(cat_cardinalities)) nn_tabm_one_hot(cat_cardinalities) else NULL
 
-    if (arch_type == "tabm-packed") {
-      if (!is.null(start_scaling_init)) {
-        stopf("When arch_type is '%s', start_scaling_init must be NULL.", arch_type)
-      }
-    } else {
-      # Upstream `TabM.make()`: "normal" if there are non-trivial modules before the
-      # backbone (i.e. num_embeddings), "random-signs" otherwise.
-      start_scaling_init = start_scaling_init %??%
-        if (is.null(num_embeddings)) "random-signs" else "normal"
-    }
+    # Upstream `TabM.make()`: "normal" if there are non-trivial modules before the
+    # backbone (i.e. num_embeddings), "random-signs" otherwise.
+    start_scaling_init = start_scaling_init %??%
+      if (is.null(num_embeddings)) "random-signs" else "normal"
     # Upstream `TabM.make()`: 2 blocks with embeddings, 3 without.
     n_blocks = n_blocks %??% if (is.null(num_embeddings)) 3L else 2L
 
@@ -1095,7 +1049,6 @@ tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NU
 #'     multiplicative adapters except the very first one are initialized with ones.
 #'   * `"tabm-mini"` -- all non-shared parameters are concentrated in a single
 #'     elementwise affine transformation applied to the input.
-#'   * `"tabm-packed"` -- `k` fully independent (packed) MLPs.
 #' * `k` :: `integer(1)`\cr
 #'   The number of ensemble members. Default is `32`.
 #' * `n_blocks` :: `integer(1)`\cr
@@ -1112,7 +1065,7 @@ tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NU
 #'   function returning an [`nn_module`][torch::nn_module]. Default is `"relu"`.
 #' * `start_scaling_init` :: `character(1)`\cr
 #'   The initialization of the very first (non-shared) scaling, either `"random-signs"`
-#'   or `"normal"`. Ignored for `arch_type = "tabm-packed"`. If unset, `"normal"` is
+#'   or `"normal"`. If unset, `"normal"` is
 #'   used when `num_embeddings` is set and `"random-signs"` otherwise.
 #'
 #' Parameters of the embeddings for the numerical features:
@@ -1163,7 +1116,7 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
       })
 
       private$.param_set_base = ps(
-        arch_type = p_fct(levels = c("tabm", "tabm-mini", "tabm-packed"),
+        arch_type = p_fct(levels = c("tabm", "tabm-mini"),
           init = "tabm", tags = "train"),
         k = p_int(lower = 1L, init = 32L, tags = "train"),
         # no init: the default depends on `num_embeddings` (upstream `TabM.make()`)
@@ -1246,8 +1199,7 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
         d_block = param_vals$d_block %??% 512L,
         dropout = param_vals$dropout %??% 0.1,
         activation = param_vals$activation %??% "relu",
-        # upstream requires this to be NULL for the packed architecture
-        start_scaling_init = if (arch_type == "tabm-packed") NULL else param_vals$start_scaling_init
+        start_scaling_init = param_vals$start_scaling_init
       )
     },
     # The network returns one prediction per submodel, i.e. a tensor of shape
