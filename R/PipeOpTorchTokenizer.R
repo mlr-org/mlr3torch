@@ -261,8 +261,10 @@ PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg",
         stopf("PipeOp '%s' needs categorical features, but task '%s' has none. Either use a task with factor features or set the 'cardinalities' parameter.", # nolint
           self$id, task$id)
       }
-      # the module indexes the embedding with one offset per category, so a known input width
-      # that is neither 1 nor the number of categories cannot work
+      # The module adds one offset per categorical feature to the input, i.e. `(batch, n_features)`
+      # is added to `(1, n_tokens)`. torch broadcasts that only if `n_features` is `n_tokens` (one
+      # code per feature) or 1 (the same code looked up in every feature's block of the embedding);
+      # any other width fails at runtime.
       n_features = shapes_in[[1L]][[2L]]
       if (!is.na(n_features) && n_features != 1L && n_features != n_tokens) {
         stopf("PipeOp '%s' was given %i cardinalities, which does not match the %i features of the input shape %s.", # nolint

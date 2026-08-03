@@ -35,9 +35,9 @@ Infer the shapes of the output of a function based on the shapes of the input.
 This is a heuristic and is only used for operators that the \emph{user} supplies, i.e. \code{\link[=mlr_pipeops_nn_fn]{nn_fn}}
 without a \code{shapes_out} argument and \code{\link[=pipeop_preproc_torch]{pipeop_preproc_torch()}} with \code{shapes_out = "infer"}.
 Every operator that \code{mlr3torch} itself provides computes its output shapes exactly.
-Tracing cannot be exact: an operator whose output size is a step function of the input size can
-return the same value for the traced inputs although it varies for others, in which case a
-dimension is reported as known although it is not.
+Tracing cannot be exact: the function is only called for a few input sizes, so a dimension that
+happens to be the same for all of them is reported as known, even when it varies for other
+inputs.
 Specify the output shapes explicitly if this matters.
 
 The inference is done as follows:

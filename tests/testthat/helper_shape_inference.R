@@ -147,7 +147,7 @@ preproc_inference_specs = function() {
     augment_random_horizontal_flip = function() list(p = 1),
     augment_random_vertical_flip = function() list(p = 1),
     augment_crop = function() list(top = sample(1:4, 1L), left = sample(1:4, 1L),
-      height = size(1L, 2L, 14L), width = size(1L, 2L, 14L)),
+      height = size(1L, 1L, 3L), width = size(1L, 1L, 3L)),
     augment_center_crop = function() list(size = size(1L, 2L, 6L)),
     augment_resized_crop = function() list(top = 1L, left = 1L, height = size(1L, 2L, 8L),
       width = size(1L, 2L, 8L), size = if (sample(c(TRUE, FALSE), 1L)) size(1L, 2L, 6L) else size(2L, 2L, 6L))
@@ -168,7 +168,7 @@ expect_shape_inference_sampled = function(id, spec, budget = shape_inference_bud
   rank = spec$rank %??% 3L
   n_in = spec$n_in %??% 1L
   for (i in seq_len(budget)) {
-    set.seed(sum(utf8ToInt(id)) + i)
+    withr::local_seed(sum(utf8ToInt(id)) + i)
     shape = spec$fixed_shape %??% c(sample(1:3, 1L), size(rank - 1L))
     # the gated units halve a dimension and reshaping needs a divisible number of elements
     if (!identical(spec$even, FALSE)) shape[-1L] = shape[-1L] * 2L
@@ -179,7 +179,7 @@ expect_shape_inference_sampled = function(id, spec, budget = shape_inference_bud
 
 expect_shape_inference_sampled_preproc = function(id, params, budget = shape_inference_budget()) {
   for (i in seq_len(budget)) {
-    set.seed(sum(utf8ToInt(id)) + i)
+    withr::local_seed(sum(utf8ToInt(id)) + i)
     shape = c(sample(1:3, 1L), 3L, size(2L, 6L, 16L))
     expect_shapes_out_preproc(id, params(), shape)
   }

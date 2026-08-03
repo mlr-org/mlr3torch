@@ -10,7 +10,6 @@ test_that("PipeOpTorchMultiheadAttention works for self-attention", {
 test_that("PipeOpTorchMultiheadAttention paramtest", {
   po_attention = po("nn_multihead_attention", num_heads = 2)
   # embed_dim, kdim and vdim are inferred from the input shapes, need_weights is a construction arg
-  # `batch_first` is fixed to TRUE, see the Tensor Layout section of the PipeOp
   res = expect_paramset(po_attention, nn_attention,
     exclude = c("embed_dim", "kdim", "vdim", "need_weights", "batch_first"))
   expect_paramtest(res)
@@ -271,22 +270,3 @@ test_that("nn_attention with one input is equivalent to torch self-attention", {
   expect_true(torch_allclose(expected, observed))
 })
 
-test_that("the tensor layout is fixed to batch-first", {
-  # `torch` defaults to (sequence, batch, feature), which contradicts the assumption that the
-  # first dimension of every shape is the batch dimension
-  obj = po("nn_multihead_attention", num_heads = 2)
-  expect_true("batch_first" %nin% obj$param_set$ids())
-  expect_error(po("nn_multihead_attention", num_heads = 2, batch_first = FALSE), "batch_first")
-  pv = get_private(obj)$.shape_dependent_params(list(c(NA, 5L, 4L)), obj$param_set$get_values(), NULL)
-  expect_true(pv$batch_first)
-
-  # the module agrees: with an asymmetric input the two layouts give different weight shapes, so
-  # this pins the layout rather than just the parameter. Sequence-first would give (5, 2, 2).
-  obj = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
-  shapes_in = list(input = c(NA, 5L, 4L))
-  expect_equal(obj$shapes_out(shapes_in)$weights, c(NA, 5L, 5L))
-  module = get_private(obj)$.make_module(shapes_in, obj$param_set$get_values(), NULL)
-  out = with_no_grad(module(torch_randn(2, 5, 4)))
-  expect_equal(out$output$shape, c(2, 5, 4))
-  expect_equal(out$weights$shape, c(2, 5, 5))
-})

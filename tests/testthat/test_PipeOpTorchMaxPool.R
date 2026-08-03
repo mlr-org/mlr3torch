@@ -31,7 +31,7 @@ test_that("PipeOpTorchMaxPool3D autotest", {
   po_test = po("nn_max_pool3d", kernel_size = c(2, 3, 4))
   task = nano_imagenet()
   graph = po("torch_ingress_ltnsr") %>>%
-    po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
+    po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>%
     po_test
 
   expect_pipeop_torch(graph, "nn_max_pool3d", task)
@@ -69,7 +69,6 @@ test_that("max_output_shape works", {
 })
 
 test_that("max_output_shape requires a batch dimension", {
-  # the PipeOp rejects such a shape via assert_ndim() before the shape function is reached
   expect_error(
     max_output_shape(shape_in = c(3, 20, 20), conv_dim = 2, padding = 1, stride = 1,
       kernel_size = 3),
@@ -90,14 +89,12 @@ test_that("shape inference matches the operator", {
 })
 
 test_that("shape inference requires the batch dimension and a non-empty output", {
-  # dimension 2 is only the channel dimension when the batch dimension is present
   expect_error(po("nn_max_pool2d", kernel_size = 2)$shapes_out(list(c(NA, 28L, 28L))),
     "requires an input with 4 dimensions", fixed = TRUE)
-  # a kernel that does not fit gives negative sizes, a kernel of 0 gives `Inf`
   expect_error(po("nn_max_pool2d", kernel_size = 20, stride = 1)$shapes_out(list(c(NA, 3L, 8L, 8L))),
-    "the output would have the size", fixed = TRUE)
+    "which no tensor can have", fixed = TRUE)
   expect_error(po("nn_max_pool1d", kernel_size = 0)$shapes_out(list(c(2L, 3L, 8L))),
-    "the output would have the size", fixed = TRUE)
+    "which no tensor can have", fixed = TRUE)
 })
 
 test_that("shape inference agrees with the module for random shapes and parameters", {

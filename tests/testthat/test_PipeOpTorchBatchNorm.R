@@ -30,7 +30,7 @@ test_that("PipeOpTorchBatchNorm3D autotest", {
   po_test = po("nn_batch_norm3d")
   task = nano_imagenet()
   graph = po("torch_ingress_ltnsr") %>>%
-    po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
+    po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>%
     po_test
 
   expect_pipeop_torch(graph, "nn_batch_norm3d", task)

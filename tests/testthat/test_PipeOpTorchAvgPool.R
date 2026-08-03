@@ -29,7 +29,7 @@ test_that("PipeOpTorchAvgPool3D autotest", {
   po_test = po("nn_avg_pool3d", kernel_size = c(2, 3, 4))
   task = nano_imagenet()
   graph = po("torch_ingress_ltnsr") %>>%
-    po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
+    po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>%
     po_test
 
   expect_pipeop_torch(graph, "nn_avg_pool3d", task)

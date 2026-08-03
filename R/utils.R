@@ -148,8 +148,6 @@ uniqueify = function(new, existing) {
 }
 
 shape_to_str = function(x) {
-  # this is used to build error messages, so it must not error itself: a shape that is not
-  # integerish (`Inf`, out of the integer range) is exactly what the caller wants to report
   if (is.numeric(x) || is.logical(x)) { # single shape
     return(sprintf("(%s)", paste0(x, collapse = ",")))
   }
@@ -165,8 +163,6 @@ shape_to_str = function(x) {
     paste0("(", paste(y, collapse = ",", recycle0 = TRUE), ")")
   })
   if (test_named(x)) {
-    # names(x) is a vector, so names and shapes must be pasted together before the shapes are
-    # collapsed into a single string, otherwise the result is a character vector
     repr = paste0("[", paste(paste0(names(x), ": ", shapedescs), collapse = "; ", recycle0 = TRUE), "]")
     return(repr)
   }

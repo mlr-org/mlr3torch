@@ -38,9 +38,12 @@
   `torch::nn_multihead_attention()`.
 * Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension, so
   networks can be built for inputs whose extent is not known in advance, e.g. images of varying
-  height and width. Operators that read specific dimensions require only those to be known.
+  height and width.
+* The `shape` parameter of `po("nn_reshape")` can now be a `function(shape)` of the input shape,
+  e.g. `\(shape) c(shape[1:2], 10)`. It is called again on the shape of the actual tensor when the
+  network runs, so a reshape can be expressed for inputs whose sizes are not known in advance.
 * Error messages about shapes now name the `PipeOp`, the shape it was given and the dimension it
-  needs, instead of failing inside `libtorch`.
+  needs.
 
 ## Breaking changes
 

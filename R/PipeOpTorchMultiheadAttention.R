@@ -43,16 +43,9 @@ nn_attention = nn_module(
 #'
 #' @section Tensor Layout:
 #' All inputs and outputs are `(batch, sequence, feature)`, i.e. the `batch_first` layout of
-#' [`torch::nn_multihead_attention()`].
-#' Unlike in `torch`, where `batch_first` defaults to `FALSE` and inputs are
-#' `(sequence, batch, feature)`, this is fixed and cannot be changed: like every other operator,
-#' this one is part of a network whose shapes all have the batch size in their first dimension.
-#' Operators read dimensions by position -- a convolution reads dimension 2 as the channel
-#' dimension, and the shape inference reports dimension 1 as the batch size -- so a tensor whose
-#' first dimension is the sequence would be misinterpreted downstream.
-#'
-#' The attention weights (see the construction argument `need_weights`) are batch-first in `torch`
-#' as well, so their shape is unaffected.
+#' [`torch::nn_multihead_attention()`], which is fixed and not a hyperparameter.
+#' `torch` defaults to `(sequence, batch, feature)`, but the first dimension of every shape has to
+#' be the batch dimension here.
 #'
 #' @section nn_module:
 #' Calls [`torch::nn_multihead_attention()`] when trained, where the parameters `embed_dim`, `kdim`
@@ -213,10 +206,6 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
       list(query_shape, weights_shape)
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      # `torch` defaults to `(sequence, batch, feature)`, but we require the first dimension of
-      # every shape to be the batch dimension: operators read dimensions by position, so a tensor
-      # whose first dimension is the sequence would be misinterpreted by everything downstream.
-      # `batch_first` is therefore fixed here instead of being a hyperparameter.
       param_vals$batch_first = TRUE
       param_vals$embed_dim = tail(shapes_in[[1L]], 1L)
       if (private$.mode != "self") {

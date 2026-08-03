@@ -37,7 +37,7 @@ test_that("PipeOpTorchAdaptiveAvgPool3D works with a 1d output size", {
   po_test = po("nn_adaptive_avg_pool3d", output_size = 10)
   task = nano_imagenet()
   graph = po("torch_ingress_ltnsr") %>>%
-    po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
+    po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>%
     po_test
 
   expect_pipeop_torch(graph, "nn_adaptive_avg_pool3d", task)
@@ -47,7 +47,7 @@ test_that("PipeOpTorchAdaptiveAvgPool3D works with a 3d output size", {
   po_test = po("nn_adaptive_avg_pool3d", output_size = c(10, 11, 12))
   task = nano_imagenet()
   graph = po("torch_ingress_ltnsr") %>>%
-    po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
+    po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>%
     po_test
 
   expect_pipeop_torch(graph, "nn_adaptive_avg_pool3d", task)

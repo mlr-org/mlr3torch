@@ -4,8 +4,16 @@
 #' Calls [`nn_reshape()`] when trained.
 #' This internally calls [`torch::torch_reshape()`] with the given `shape`.
 #' @section Parameters:
-#' * `shape` :: `integer(1)`\cr
-#'   The desired output shape. Unknown dimension (one at most) can either be specified as `-1`.
+#' * `shape` :: `integer()` | `function()`\cr
+#'   The desired output shape. One dimension at most can be `-1`, which torch infers from the
+#'   number of elements. The first dimension is the batch dimension.
+#'
+#'   It can also be a `function(shape)` that is called on the input shape and returns the output
+#'   shape, e.g. `\(shape) c(shape[1:2], 10)`. This expresses a reshape for inputs whose sizes are
+#'   not known in advance, because the function is called again on the shape of the actual tensor
+#'   when the network runs. Note that it is called with a shape that can contain `NA`s during shape
+#'   inference, and that it is stored with the learner, so it should not capture a large
+#'   environment.
 #' @templateVar id nn_reshape
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
@@ -19,7 +27,12 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
     #' @template params_pipelines
     initialize = function(id = "nn_reshape", param_vals = list()) {
       param_set = ps(
-        shape = p_uty(tags = c("train", "required"), custom_check = check_integerish)
+        shape = p_uty(tags = c("train", "required"), custom_check = crate(function(x) {
+          if (is.function(x)) {
+            return(check_function(x, nargs = 1L))
+          }
+          check_integerish(x, min.len = 1L)
+        }))
       )
       super$initialize(
         id = id,
@@ -34,7 +47,8 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
       list(reshape_output_shape(shapes_in[[1L]], param_vals$shape, self$id))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      param_vals$shape[is.na(param_vals$shape)] = -1
+      # a function is passed on unchanged: the module calls it on the shape of the tensor it gets,
+      # which is the only place where a dimension that the inference does not know is available
       param_vals
     }
   )
@@ -45,9 +59,10 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
 #' @section nn_module:
 #' Calls [`nn_squeeze()`] when trained.
 #' @section Parameters:
-#' * `dim` :: `integer(1)`\cr
-#'   The dimension to squeeze. If `NULL`, all dimensions of size 1 will be squeezed.
+#' * `dim` :: `integer()`\cr
+#'   The dimensions to squeeze, which may include the batch dimension.
 #'   Negative values are interpreted downwards from the last dimension.
+#'   A dimension whose size is not known to be 1 is kept, because it may be larger at runtime.
 #' @templateVar id nn_squeeze
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
@@ -60,7 +75,8 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "nn_squeeze", param_vals = list()) {
-      param_set = ps(dim = p_uty(tags = "train", custom_check = check_integerish_or_null))
+      param_set = ps(dim = p_uty(tags = c("train", "required"),
+        custom_check = crate(function(x) check_integerish(x, min.len = 1L, any.missing = FALSE))))
 
       super$initialize(
         id = id,
@@ -73,17 +89,9 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1]]
-      true_dim = param_vals$dim
-
-      if (is.null(true_dim)) {
-        # An unknown dimension is assumed to not be 1 and is therefore kept:
-        # rejecting the shape would rule out networks that are perfectly valid at runtime.
-        # `.shape_dependent_params()` passes the squeezed dimensions on to the module, so that
-        # the module squeezes exactly those dimensions that are squeezed here.
-        return(list(shape[squeeze_dims(shape, keep = TRUE)]))
-      }
       # `dim` may select more than one dimension, which `nn_squeeze()` supports
-      dim = true_dim
+      dim = param_vals$dim
+      true_dim = dim
       true_dim = resolve_dim(true_dim, shape)
       # the range is checked before deduplication, so the reported value is the user's
       for (i in seq_along(dim)) {
@@ -91,7 +99,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
       }
       true_dim = unique(true_dim)
 
-      # an unknown dimension is assumed not to be 1 and is kept, as for `dim = NULL`;
+      # an unknown dimension is assumed not to be 1 and is kept;
       # `.shape_dependent_params()` pins the module to the dimensions squeezed here
       squeezed = true_dim[!is.na(shape[true_dim]) & shape[true_dim] == 1L]
       if (length(squeezed)) shape = shape[-squeezed]
@@ -100,10 +108,6 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       dim = param_vals[["dim"]]
-      if (is.null(dim)) {
-        param_vals$dim = squeeze_dims(shapes_in[[1L]])
-        return(param_vals)
-      }
       # the dimensions that are known to be 1 are selected below, which indexes `shape` and
       # therefore needs positive indices: in R, `shape[-1]` drops the first element instead of
       # addressing the last one
@@ -116,16 +120,6 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
     }
   )
 )
-
-# The dimensions that `nn_squeeze` removes when no `dim` is given: those that are known to be 1,
-# except the batch dimension (which is never squeezed, because its size is a property of the batch
-# and not of the network).
-# With `keep = TRUE` the complementary logical vector is returned, i.e. the dimensions that remain.
-squeeze_dims = function(shape, keep = FALSE) {
-  squeezed = !is.na(shape) & shape == 1
-  squeezed[1L] = FALSE
-  if (keep) !squeezed else which(squeezed)
-}
 
 #' @title Unqueeze a Tensor
 #' @inherit nn_unsqueeze description
@@ -233,17 +227,21 @@ PipeOpTorchFlatten = R6Class("PipeOpTorchFlatten",
 #' @title Reshape
 #'
 #' @description Reshape a tensor to the given shape.
-#' @param shape (`integer()`)\cr
-#'   The desired output shape.
+#' @param shape (`integer()` | `function()`)\cr
+#'   The desired output shape, or a `function(shape)` that is called on the shape of the input
+#'   tensor and returns it.
 #' @export
 nn_reshape = nn_module(
   "nn_reshape",
   initialize = function(shape) {
-    assert_integerish(shape)
+    if (!is.function(shape)) assert_integerish(shape, min.len = 1L)
     self$shape = shape
   },
   forward = function(input) {
-    input$reshape(self$shape)
+    # a function is called on the shape of the tensor at hand, so that dimensions which are not
+    # known when the network is built can be used
+    shape = if (is.function(self$shape)) self$shape(dim(input)) else self$shape
+    input$reshape(shape)
   }
 )
 
@@ -255,20 +253,13 @@ nn_reshape = nn_module(
 #' @export
 nn_squeeze = nn_module(
   "nn_squeeze",
-  initialize = function(dim = NULL) {
-    self$dim = if (is.null(dim)) NULL else assert_integerish(dim, coerce = TRUE)
+  initialize = function(dim) {
+    # `PipeOpTorchSqueeze` passes only the dimensions that are known to be 1, which can be none:
+    # squeezing nothing is then the operation that matches the inferred shape
+    self$dim = assert_integerish(dim, any.missing = FALSE, coerce = TRUE)
   },
   forward = function(input) {
-    dims = if (is.null(self$dim)) {
-      # All dimensions of size 1 are squeezed, except the batch dimension: `PipeOpTorchSqueeze`
-      # cannot know the batch size, so squeezing it would not match the inferred output shape.
-      which(input$shape[-1L] == 1L) + 1L
-    } else {
-      self$dim
-    }
-    # all dimensions are removed in one call, so the indices are resolved against `input` and not
-    # against a tensor that previous removals already shrunk
-    input$squeeze(dims)
+    input$squeeze(self$dim)
   }
 )
 

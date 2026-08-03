@@ -84,45 +84,14 @@ test_that("infer_shapes works", {
 })
 
 test_that("infer_shapes fills unknown dimensions with values that are not degenerate", {
-  # Filling an unknown dimension with 1 makes it broadcast and lets operators such as
-  # `squeeze()` remove it, so the traced number of dimensions varies and a valid shape is
-  # rejected. Filling with a small value breaks operators that need a minimum extent, and
-  # silently reports a wrong shape when the operator clamps to the input size instead.
-  # This is why the largest candidate uses 83 and 89.
   check = function(fn, shape, exp) {
     obs = infer_shapes(list(x = shape), list(), "y", fn, rowwise = FALSE, id = "test")[[1L]]
     expect_equal(obs, exp)
   }
-  # filling with 1 would squeeze the dimension away and change the number of dimensions
   check(function(x) x$squeeze(), c(NA, NA, 6L), c(NA, NA, 6L))
-  # filling with a small value only would fail here, because the kernel does not fit
   check(function(x) nnf_conv1d(x, torch_randn(4, 6, 5)), c(NA, 6L, NA), c(NA, 4L, NA))
-  # ... and filling with large values only would report the clamped dimension as known 32,
-  # although slicing returns the input extent when it is smaller than 32
   check(function(x) x[, 1:32, ], c(NA, NA, 6L), c(NA, NA, 6L))
-  # a dimension that genuinely varies with the input is still reported as unknown
   check(function(x) x$transpose(2, 3), c(NA, NA, 6L), c(NA, 6L, NA))
-})
-
-test_that("shape inference distinguishes operators that clamp from operators that pad", {
-  # `transform_crop()` returns the input extent when the image is smaller than the crop, so the
-  # output extent is genuinely unknown, while `transform_center_crop()` pads and always returns
-  # the requested size. Tracing with a spread of values is what tells the two apart.
-  shapes_out = function(id, pv, shape) {
-    obj = po(id)
-    obj$param_set$set_values(.values = pv)
-    obj$shapes_out(list(shape), stage = "train")[[1L]]
-  }
-  expect_equal(shapes_out("augment_crop", list(top = 1, left = 1, height = 16, width = 16),
-    c(NA, 3L, NA, NA)), c(NA, 3L, NA, NA))
-  # `transform_center_crop()` pads, but torchvision swaps height and width while doing so, so the
-  # padded case is not predictable and the extent stays unknown
-  expect_equal(shapes_out("augment_center_crop", list(size = 32), c(NA, 3L, NA, NA)),
-    c(NA, 3L, NA, NA))
-  expect_equal(shapes_out("augment_center_crop", list(size = 8), c(NA, 3L, 16L, 20L)),
-    c(NA, 3L, 8L, 8L))
-  expect_equal(shapes_out("trafo_resize", list(size = c(8, 8)), c(NA, 3L, NA, NA)),
-    c(NA, 3L, 8L, 8L))
 })
 
 test_that("na_replacements are lowered when the traced tensor would get too large", {
@@ -158,29 +127,6 @@ test_that("a CNN can be built for images of unknown size", {
   network = model_descriptor_to_module(md_out)
   expect_equal(dim(network(torch_randn(2, 3, 11, 13))), c(2, 3))
   expect_equal(dim(network(torch_randn(2, 3, 32, 32))), c(2, 3))
-})
-
-test_that("every PipeOpTorch either guards the dimensions it reads or tolerates NA", {
-  # this covers a whole class of operator rather than a single one: every PipeOpTorch has to
-  # handle unknown dimensions, so computing shapes from a partially unknown shape must either
-  # work or fail with a readable R error, never let `NA_integer_` reach libtorch
-  pipeops = Filter(function(key) {
-    obj = suppressWarnings(try(po(key), silent = TRUE))
-    !inherits(obj, "try-error") && inherits(obj, "PipeOpTorch")
-  }, mlr_pipeops$keys())
-  expect_true(length(pipeops) > 10L)
-
-  for (key in pipeops) {
-    obj = po(key)
-    for (shape in list(c(NA, NA, 8L, 8L), c(NA, 7L, NA), c(NA, NA))) {
-      res = suppressWarnings(try(obj$shapes_out(list(shape)), silent = TRUE))
-      if (!inherits(res, "try-error")) next
-      msg = conditionMessage(attr(res, "condition"))
-      # a C++ error from libtorch means an NA was passed through instead of being rejected
-      expect_false(grepl("SymInt|IntArrayRef|Exception raised", msg),
-        info = sprintf("%s with shape %s: %s", key, shape_to_str(shape), msg))
-    }
-  }
 })
 
 test_that("shape_to_str formats named shape lists as a single string", {

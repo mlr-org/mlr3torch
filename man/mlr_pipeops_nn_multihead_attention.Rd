@@ -14,16 +14,9 @@ self-attention and cross-attention can be expressed, see section \emph{Input and
 \section{Tensor Layout}{
 
 All inputs and outputs are \verb{(batch, sequence, feature)}, i.e. the \code{batch_first} layout of
-\code{\link[torch:nn_multihead_attention]{torch::nn_multihead_attention()}}.
-Unlike in \code{torch}, where \code{batch_first} defaults to \code{FALSE} and inputs are
-\verb{(sequence, batch, feature)}, this is fixed and cannot be changed: like every other operator,
-this one is part of a network whose shapes all have the batch size in their first dimension.
-Operators read dimensions by position -- a convolution reads dimension 2 as the channel
-dimension, and the shape inference reports dimension 1 as the batch size -- so a tensor whose
-first dimension is the sequence would be misinterpreted downstream.
-
-The attention weights (see the construction argument \code{need_weights}) are batch-first in \code{torch}
-as well, so their shape is unaffected.
+\code{\link[torch:nn_multihead_attention]{torch::nn_multihead_attention()}}, which is fixed and not a hyperparameter.
+\code{torch} defaults to \verb{(sequence, batch, feature)}, but the first dimension of every shape has to
+be the batch dimension here.
 }
 
 \section{nn_module}{

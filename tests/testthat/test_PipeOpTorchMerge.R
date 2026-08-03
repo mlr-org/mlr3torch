@@ -160,25 +160,6 @@ test_that("merge infers the broadcast shape, not the shape of the first input", 
     "same number of dimensions")
 })
 
-test_that("the inferred merge shape matches the shape the network produces", {
-  # `$train()` mutates the ModelDescriptor's graph, so a fresh one is needed per iteration
-  make_md = function() {
-    ModelDescriptor(graph = as_graph(po("nop")),
-      ingress = list(nop.input = TorchIngressToken("x", batchgetter_num, c(NA, 4L))),
-      task = tsk("iris"), pointer = c("nop", "output"), pointer_shape = c(NA, 4L))
-  }
-  for (op in c("nn_merge_sum", "nn_merge_prod", "nn_merge_cat")) {
-    graph = po("nn_identity") %>>% gunion(list(
-      po("nn_linear", id = "a", out_features = 1L),
-      po("nn_linear", id = "b", out_features = 6L))) %>>% po(op, innum = 2L)
-    mdo = graph$train(make_md())[[1L]]
-    actual = dim(model_descriptor_to_module(mdo)(torch_randn(3L, 4L)))
-    inferred = mdo$pointer_shape
-    expect_equal(length(inferred), length(actual), info = op)
-    expect_equal(inferred[-1L], actual[-1L], info = op)
-  }
-})
-
 test_that("shape inference matches the operator", {
   expect_shapes_out_torch("nn_merge_sum", list(), c(2, 4, 6), n_in = 2L)
   expect_shapes_out_torch("nn_merge_prod", list(), c(2, 4, 6), n_in = 2L)

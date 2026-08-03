@@ -89,15 +89,11 @@ test_that("the categorical tokenizer takes the number of tokens from the task", 
 })
 
 test_that("the number of tokens is never unknown", {
-  # without a task and without 'cardinalities' the module cannot be built at all, so this is a
-  # configuration error rather than a shape that is merely not known yet
   obj = po("nn_tokenizer_categ", d_token = 5L)
   expect_error(obj$shapes_out(list(c(NA, 9L))), "neither a task nor the 'cardinalities' parameter",
     fixed = TRUE)
-  # ... and the module says the same when it is built directly
   expect_error(get_private(obj)$.shape_dependent_params(list(c(NA, 9L)), obj$param_set$get_values(), NULL),
     "neither a task nor the 'cardinalities' parameter", fixed = TRUE)
-  # 'cardinalities' alone is enough
   expect_equal(po("nn_tokenizer_categ", d_token = 5L, cardinalities = c(2L, 3L))$
     shapes_out(list(c(NA, 2L)))[[1L]], c(NA, 2L, 5L))
 })

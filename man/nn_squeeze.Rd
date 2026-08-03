@@ -4,7 +4,7 @@
 \alias{nn_squeeze}
 \title{Squeeze}
 \usage{
-nn_squeeze(dim = NULL)
+nn_squeeze(dim)
 }
 \arguments{
 \item{dim}{(\code{integer()})\cr

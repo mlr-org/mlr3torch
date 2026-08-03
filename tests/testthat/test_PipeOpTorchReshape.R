@@ -6,10 +6,10 @@ test_that("PipeOpTorchReshape autotest", {
   expect_pipeop_torch(graph, "nn_reshape", task)
 
   # the unknown dimension is resolved, because the number of input elements is known
-  out = po("nn_reshape", shape = c(NA, 2, 2))$shapes_out(list(input = c(1, 4)))
+  out = po("nn_reshape", shape = c(-1, 2, 2))$shapes_out(list(input = c(1, 4)))
   expect_equal(out[[1L]], c(1L, 2L, 2L))
   # ... and stays unknown otherwise
-  out = po("nn_reshape", shape = c(NA, 2, 2))$shapes_out(list(input = c(NA, 4)))
+  out = po("nn_reshape", shape = c(-1, 2, 2))$shapes_out(list(input = c(NA, 4)))
   expect_equal(out[[1L]], c(NA, 2L, 2L))
 })
 
@@ -36,7 +36,6 @@ test_that("PipeOpTorchSqueeze autotest", {
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>% po("nn_unsqueeze", dim = 3) %>>%  obj
 
-  x = po("nn_squeeze")
 
   expect_pipeop_torch(graph, "nn_squeeze", task)
 })
@@ -71,17 +70,6 @@ test_that("nn_unsqueeze interprets negative dim like torch", {
   expect_error(po("nn_unsqueeze", dim = 9L)$shapes_out(list(c(NA, 4L, 6L))))
 })
 
-test_that("nn_squeeze without dim squeezes all non-batch dimensions", {
-  # `dim = NULL` is the documented default and must work both for the inference and the module
-  expect_equal(po("nn_squeeze")$shapes_out(list(c(NA, 1L, 4L, 1L)))[[1L]], c(NA, 4L))
-
-  net = nn_squeeze()
-  expect_equal(dim(net(torch_randn(3L, 1L, 4L, 1L))), c(3L, 4L))
-  # the batch dimension is kept even when it is 1, so that the output matches the inferred shape
-  expect_equal(dim(net(torch_randn(1L, 1L, 4L, 1L))), c(1L, 4L))
-  expect_equal(dim(nn_squeeze(dim = 2L)(torch_randn(3L, 1L, 4L))), c(3L, 4L))
-})
-
 test_that("nn_squeeze removes the same dimensions as the inferred shape for negative dims", {
   # every dimension is removed in one call, so `-1` addresses the last dimension of the input and
   # not the last one of a tensor that a previous removal already shrunk
@@ -95,7 +83,6 @@ test_that("shape inference matches the operator", {
   expect_shapes_out_torch("nn_unsqueeze", list(dim = 2), c(2, 4, 6))
   expect_shapes_out_torch("nn_unsqueeze", list(dim = -1), c(2, 4, 6))
   expect_shapes_out_torch("nn_squeeze", list(dim = 3), c(2, 4, 1, 6))
-  expect_shapes_out_torch("nn_squeeze", list(), c(2, 4, 1, 6))
   # `dim` may select several dimensions
   expect_shapes_out_torch("nn_squeeze", list(dim = c(2L, 3L)), c(4, 1, 1, 8))
   expect_shapes_out_torch("nn_squeeze", list(dim = c(-1L, -2L)), c(4, 1, 1))
@@ -121,15 +108,14 @@ test_that("nn_reshape rejects target dimensions that cannot exist", {
     "every dimension must be at least 1", fixed = TRUE)
   expect_error(po("nn_reshape", shape = c(0, 24))$shapes_out(list(c(NA, 4L, 6L))),
     "every dimension must be at least 1", fixed = TRUE)
-  # the message echoes the shape the user passed, not the internally rewritten one
   expect_error(po("nn_reshape", shape = c(-1, 7))$shapes_out(list(c(2L, 4L, 6L))), "(-1,7)", fixed = TRUE)
 
   # torch can only infer one dimension, so the graph must not be built on such a shape at all
-  # (`NA` means the same as `-1` here)
   expect_error(po("nn_reshape", shape = c(-1, -1))$shapes_out(list(c(2L, 4L, 6L))),
     "at most one dimension can be inferred", fixed = TRUE)
-  expect_error(po("nn_reshape", shape = c(NA, -1, 6))$shapes_out(list(c(NA, 4L, 6L))),
-    "at most one dimension can be inferred", fixed = TRUE)
+  # `NA` is an unknown size everywhere else, so it is no longer a synonym for -1
+  expect_error(po("nn_reshape", shape = c(NA, 6))$shapes_out(list(c(NA, 4L, 6L))),
+    "use -1 for the dimension", fixed = TRUE)
   # ... which also holds when the number of input elements is unknown
   expect_error(po("nn_reshape", shape = c(-1, -1, 6))$shapes_out(list(c(NA, 4L, 6L))),
     "at most one dimension can be inferred", fixed = TRUE)
@@ -149,23 +135,6 @@ test_that("nn_reshape resolves an unknown target dimension from the input size",
   expect_equal(reshape(c(-1, 25), c(NA, 4L, 6L)), c(NA, 25L))
 })
 
-test_that("nn_squeeze keeps unknown dimensions instead of rejecting them", {
-  # An unknown dimension is assumed to not be 1: rejecting the shape would rule
-  # out networks that work at runtime. The module must squeeze exactly the dimensions that
-  # `$shapes_out()` squeezed, otherwise the inferred shape and the tensor disagree.
-  obj = po("nn_squeeze")
-  expect_equal(obj$shapes_out(list(c(NA, NA, 1L, 5L)))[[1L]], c(NA, NA, 5L))
-  expect_equal(obj$shapes_out(list(c(NA, NA, 5L)))[[1L]], c(NA, NA, 5L))
-  # the batch dimension is never squeezed, also when it is known to be 1
-  expect_equal(obj$shapes_out(list(c(1L, 3L, 5L)))[[1L]], c(1L, 3L, 5L))
-
-  # the module agrees with the inferred shape, also when the unknown dimension is 1 at runtime
-  shapes_in = list(c(NA, NA, 1L, 5L))
-  module = get_private(obj)$.make_module(shapes_in, obj$param_set$get_values(), NULL)
-  expect_equal(dim(module(torch_randn(2, 3, 1, 5))), c(2, 3, 5))
-  expect_equal(dim(module(torch_randn(2, 1, 1, 5))), c(2, 1, 5))
-})
-
 test_that("shape inference agrees with the module for random shapes and parameters", {
   expect_shape_inference_sampled("nn_flatten",
     list(rank = 4L, params = function() list(start_dim = 2L, end_dim = sample(2:3, 1L))))
@@ -177,4 +146,47 @@ test_that("shape inference agrees with the module for random shapes and paramete
   expect_shape_inference_sampled("nn_reshape",
     list(rank = 3L, params = function() list(shape = c(-1L, 24L)),
       fixed_shape = c(3L, 4L, 6L), even = FALSE))
+})
+
+test_that("nn_squeeze requires 'dim' and can squeeze the batch dimension", {
+  expect_error(po("nn_squeeze")$shapes_out(list(c(NA, 1L, 4L))), "dim")
+  expect_equal(po("nn_squeeze", dim = 1L)$shapes_out(list(c(1L, 3L, 5L)))[[1L]], c(3L, 5L))
+  expect_equal(dim(nn_squeeze(dim = 1L)(torch_randn(1L, 3L, 5L))), c(3L, 5L))
+  # a batch dimension that is not known to be 1 is kept, as for any other dimension
+  expect_equal(po("nn_squeeze", dim = 1L)$shapes_out(list(c(NA, 3L, 5L)))[[1L]], c(NA, 3L, 5L))
+})
+
+test_that("nn_reshape accepts a function of the input shape", {
+  # the function is called on the input shape, so a reshape can be expressed for dimensions that
+  # are not known when the network is built
+  obj = po("nn_reshape", shape = function(shape) c(shape[1:2], 10))
+  expect_equal(obj$shapes_out(list(c(NA, NA, 2L, 5L)))[[1L]], c(NA, NA, 10L))
+  expect_equal(obj$shapes_out(list(c(4L, 3L, 2L, 5L)))[[1L]], c(4L, 3L, 10L))
+
+  # the module resolves it against the tensor it is given, for any batch size
+  module = nn_reshape(shape = function(shape) c(shape[1:2], 10))
+  expect_equal(dim(module(torch_randn(4, 3, 2, 5))), c(4, 3, 10))
+  expect_equal(dim(module(torch_randn(7, 3, 2, 5))), c(7, 3, 10))
+
+  # -1 still works inside the returned shape
+  obj = po("nn_reshape", shape = function(shape) c(shape[1], -1))
+  expect_equal(obj$shapes_out(list(c(NA, 4L, 6L)))[[1L]], c(NA, 24L))
+  expect_equal(dim(nn_reshape(shape = function(shape) c(shape[1], -1))(torch_randn(3, 4, 6))), c(3, 24))
+
+  # the inferred shape and the module agree, also when the input is partially unknown
+  expect_shapes_out_torch("nn_reshape", list(shape = function(shape) c(shape[1:2], 10)), c(4, 3, 2, 5))
+})
+
+test_that("nn_reshape checks what the function returns", {
+  expect_error(po("nn_reshape", shape = function(shape) "a")$shapes_out(list(c(2L, 4L, 6L))),
+    "must return at least one dimension", fixed = TRUE)
+  expect_error(po("nn_reshape", shape = function(shape) integer(0))$shapes_out(list(c(2L, 4L, 6L))),
+    "must return at least one dimension", fixed = TRUE)
+  # a returned shape that does not fit the input is rejected as if it had been given directly
+  expect_error(po("nn_reshape", shape = function(shape) c(shape[1], 7))$shapes_out(list(c(2L, 4L, 6L))),
+    "not compatible with the input shape", fixed = TRUE)
+  expect_error(po("nn_reshape", shape = function(shape) c(-1, -1))$shapes_out(list(c(2L, 4L, 6L))),
+    "at most one dimension can be inferred", fixed = TRUE)
+  # the parameter itself only accepts a function of one argument
+  expect_error(po("nn_reshape", shape = function(a, b) a), "shape")
 })

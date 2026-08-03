@@ -1,12 +1,6 @@
 #' @rawNamespace exportPattern("^PipeOpPreprocTorch")
 NULL
 
-# The shape rules below describe what the wrapped `torchvision` functions actually do, which is
-# not always what one would expect: `transform_crop()` clamps the crop to the image while
-# `transform_center_crop()` pads it, and `transform_resize()` preserves the aspect ratio when
-# `size` is a single number. They are therefore verified against the output of the wrapped
-# functions in `tests/testthat/test_preprocess.R`.
-#
 # The spatial dimensions are the last two and the channel dimension is the third from last, which
 # holds both for the functions that are applied `rowwise` -- they see `(channels, height, width)`
 # -- and for those that see the whole batch.
@@ -136,7 +130,10 @@ grayscale_shapes = function(shapes_in, param_vals, task) {
   list(shape)
 }
 
-# `transform_rgb_to_grayscale()` drops the channel dimension instead of setting it to 1
+# FIXME(torchvision): `transform_rgb_to_grayscale()` drops the channel dimension instead of
+# setting it to 1, i.e. it changes the rank: (3, 16, 20) becomes (16, 20) where PyTorch returns
+# (1, 16, 20). The inference below follows the actual behaviour, so fixing torchvision means
+# changing this function as well, see man-roxygen/torchvision_bugs.md.
 rgb_to_grayscale_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   assert_image_shape(shape, self$id)
@@ -149,15 +146,24 @@ crop_shapes = function(shapes_in, param_vals, task) {
   # only the trailing two dimensions are touched, so a channel-less image is fine
   assert_image_shape(shape, self$id, ndim = 3L)
   hw = utils::tail(shape, 2L)
-  list(replace_tail(shape, c(
+  extent = c(
     crop_extent(hw[1L], param_vals[["top"]], param_vals[["height"]]),
     crop_extent(hw[2L], param_vals[["left"]], param_vals[["width"]])
-  )))
+  )
+  # FIXME(torchvision): `transform_crop()` clamps the crop to the image, while `F.crop()` in
+  # PyTorch pads it with zeros to the requested size. A crop that leaves the image therefore gives
+  # a smaller (or even empty) output here. Reject it until torchvision is fixed, see
+  # man-roxygen/torchvision_bugs.md.
+  requested = as.integer(c(param_vals[["height"]], param_vals[["width"]]))
+  if (any(!is.na(extent) & extent < requested)) {
+    stopf("PipeOp '%s' cannot crop the input shape %s to (%i, %i) at (%i, %i): the crop leaves the image, and 'transform_crop()' clamps instead of padding. Use a crop that fits into the image.", # nolint
+      self$id, shape_to_str(shape), requested[1L], requested[2L],
+      as.integer(param_vals[["top"]]), as.integer(param_vals[["left"]]))
+  }
+  list(replace_tail(shape, extent))
 }
 
-# `transform_center_crop()` pads when the image is smaller than `size`, and torchvision swaps
-# height and width while doing so, which makes the padded case unpredictable. The output extent is
-# therefore only known where no padding is needed.
+# `transform_center_crop()` pads when the image is smaller than `size`.
 center_crop_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   # only the trailing two dimensions are touched, so a channel-less image is fine
@@ -165,9 +171,16 @@ center_crop_shapes = function(shapes_in, param_vals, task) {
   size = as.integer(rep(param_vals[["size"]], length.out = 2L))
   assert_positive_extent(size, shape, self$id)
   hw = utils::tail(shape, 2L)
-  # torchvision swaps height and width in the padded branch, which corrupts both extents, so
-  # neither is known as soon as one of them needs padding
+  # FIXME(torchvision): with a non-square `size`, the padded branch of `transform_center_crop()`
+  # swaps height and width and returns garbage extents -- (16, 20) padded to (24, 30) comes back as
+  # (22, 0). The square case pads correctly, so only the non-square one is rejected here. Remove
+  # this once torchvision is fixed, see man-roxygen/torchvision_bugs.md.
+  if (size[1L] != size[2L] && (anyNA(hw) || any(hw < size))) {
+    stopf("PipeOp '%s' cannot pad the input shape %s to the size (%i, %i): 'transform_center_crop()' pads a non-square size incorrectly. Use a square 'size' or an input that is large enough.", # nolint
+      self$id, shape_to_str(shape), size[1L], size[2L])
+  }
   if (any(is.na(hw) | hw < size)) {
+    # the square case pads correctly, but whether it pads at all is unknown when the extent is
     size = c(NA_integer_, NA_integer_)
   }
   list(replace_tail(shape, size))
@@ -206,13 +219,13 @@ reshape_shapes = function(shapes_in, param_vals, task) {
   list(reshape_output_shape(shapes_in[[1L]], param_vals[["shape"]], self$id))
 }
 
-# operators that convert between colour spaces need three channels; an unknown channel count is
-# accepted, because the network may still be valid at runtime
-unchanged_shapes_rgb = function(shapes_in, param_vals, task) {
+# The hue is adjusted in HSV space, which keeps only the first three channels.
+# FIXME(torchvision): PyTorch rejects an image with more than three channels here, while
+# torchvision silently drops the extra ones, see man-roxygen/torchvision_bugs.md.
+hue_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   assert_image_shape(shape, self$id)
   assert_rgb_channels(shape, self$id)
-  # the hue is adjusted in HSV space, which keeps only the first three channels
   list(truncate_rgb_channels(shape))
 }
 
@@ -302,7 +315,7 @@ register_preproc("trafo_adjust_brightness", torchvision::transform_adjust_bright
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_hue
 register_preproc("trafo_adjust_hue", torchvision::transform_adjust_hue, packages = "torchvision",
-  rowwise = TRUE, shapes_out = unchanged_shapes_rgb,
+  rowwise = TRUE, shapes_out = hue_shapes,
   param_set = ps(
     hue_factor = p_dbl(lower = -0.5, upper = 0.5, tags = c("train", "required"))
   )

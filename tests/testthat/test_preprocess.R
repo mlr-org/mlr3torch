@@ -163,7 +163,7 @@ test_that("augment_random_horizontal_flip", {
 
 test_that("augment_crop", {
   expect_pipeop_torch_preprocess(
-    obj = po("augment_crop", top = 2, left = 3, height = 10, width = 9),
+    obj = po("augment_crop", top = 2, left = 3, height = 10, width = 7),
     shapes_in = list(c(5, 3, 11, 9)),
     deterministic = TRUE
   )
@@ -272,9 +272,6 @@ test_that("augment_random_crop", {
 })
 
 test_that("shape inference matches the operator", {
-  # These wrap torchvision, whose behaviour is not always what one would expect -- see the
-  # comments in R/preprocess.R. `trafo_resize` with a single `size` matches the shorter side and
-  # preserves the aspect ratio, so the output is not square.
   expect_shapes_out_preproc("trafo_resize", list(size = c(8, 12)), c(2, 3, 16, 20))
   expect_shapes_out_preproc("trafo_resize", list(size = 8), c(2, 3, 16, 20))
   expect_shapes_out_preproc("trafo_resize", list(size = 8), c(2, 3, 21, 16))
@@ -282,17 +279,13 @@ test_that("shape inference matches the operator", {
   expect_shapes_out_preproc("trafo_pad", list(padding = c(1, 2)), c(2, 3, 16, 20))
   expect_shapes_out_preproc("trafo_pad", list(padding = c(1, 2, 3, 4)), c(2, 3, 16, 20))
   expect_shapes_out_preproc("augment_crop", list(top = 3, left = 4, height = 10, width = 12), c(2, 3, 16, 20))
-  # the crop is clamped to the image instead of being padded
-  expect_shapes_out_preproc("augment_crop", list(top = 10, left = 10, height = 20, width = 20), c(2, 3, 16, 20))
-  # ... while the center crop pads, which torchvision does not do correctly (it swaps height and
-  # width), so the extent is only claimed where no padding is needed
+  expect_shapes_out_preproc("augment_crop", list(top = 10, left = 10, height = 7, width = 11), c(2, 3, 16, 20))
   expect_shapes_out_preproc("augment_center_crop", list(size = 8), c(2, 3, 16, 20))
   expect_equal(po("augment_center_crop", size = 32)$shapes_out(list(c(2L, 3L, 16L, 20L)),
     stage = "train")[[1L]], c(2L, 3L, NA, NA))
   expect_shapes_out_preproc("augment_resized_crop", list(top = 1, left = 1, height = 8, width = 8, size = c(4, 4)), c(2, 3, 16, 20))
   expect_shapes_out_preproc("trafo_grayscale", list(num_output_channels = 1), c(2, 3, 16, 20))
   expect_shapes_out_preproc("trafo_grayscale", list(num_output_channels = 3), c(2, 3, 16, 20))
-  # `transform_rgb_to_grayscale()` drops the channel dimension
   expect_shapes_out_preproc("trafo_rgb_to_grayscale", list(), c(2, 3, 16, 20))
   expect_shapes_out_preproc("trafo_adjust_gamma", list(gamma = 0.5), c(2, 3, 16, 20))
   expect_shapes_out_preproc("trafo_adjust_brightness", list(brightness_factor = 0.5), c(2, 3, 16, 20))
@@ -307,11 +300,18 @@ test_that("shape inference follows torchvision, including where it misbehaves", 
     if (length(pv)) obj$param_set$set_values(.values = pv)
     obj$shapes_out(list(as.integer(shape)), stage = "train")[[1L]]
   }
-  # `transform_crop()` clamps to the image and never pads
-  expect_equal(shapes_out("augment_crop", list(top = 10, left = 10, height = 20, width = 20),
+  # a crop that leaves the image is rejected, because `transform_crop()` clamps instead of
+  # padding, see the FIXME in R/preprocess.R
+  expect_error(shapes_out("augment_crop", list(top = 10, left = 10, height = 20, width = 20),
+    c(2, 3, 16, 20)), "clamps instead of padding", fixed = TRUE)
+  expect_error(shapes_out("augment_crop", list(top = 20, left = 4, height = 5, width = 5),
+    c(2, 3, 16, 20)), "clamps instead of padding", fixed = TRUE)
+  # a crop that fits is unaffected
+  expect_equal(shapes_out("augment_crop", list(top = 10, left = 10, height = 7, width = 11),
     c(2, 3, 16, 20)), c(2L, 3L, 7L, 11L))
-  expect_equal(shapes_out("augment_crop", list(top = 20, left = 4, height = 5, width = 5),
-    c(2, 3, 16, 20)), c(2L, 3L, 0L, 5L))
+  # `transform_center_crop()` is rejected when it would pad a non-square size
+  expect_error(shapes_out("augment_center_crop", list(size = c(24, 30)), c(2, 3, 16, 20)),
+    "pads a non-square size incorrectly", fixed = TRUE)
   # `transform_resized_crop()` crops and then resizes, and a scalar `size` preserves the aspect
   # ratio of the cropped image
   expect_equal(shapes_out("augment_resized_crop",

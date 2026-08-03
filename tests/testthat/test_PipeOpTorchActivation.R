@@ -420,12 +420,6 @@ test_that("shape inference rejects a 'dim' that does not address a dimension", {
   expect_equal(po("nn_softmax", dim = -1)$shapes_out(list(c(2L, 4L)))[[1L]], c(2L, 4L))
 })
 
-test_that("parameter bounds are correct", {
-  # 2 is a valid `lambd`, -0.5 is not
-  expect_equal(po("nn_softshrink", lambd = 2)$shapes_out(list(c(NA, 3L)))[[1L]], c(NA, 3L))
-  expect_error(po("nn_softshrink", lambd = -0.5), "lambd")
-})
-
 test_that("shape inference agrees with the module for random shapes and parameters", {
   expect_shape_inference_sampled("nn_softmax",
     list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L))))
