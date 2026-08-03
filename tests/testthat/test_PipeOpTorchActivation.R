@@ -425,3 +425,16 @@ test_that("parameter bounds are correct", {
   expect_equal(po("nn_softshrink", lambd = 2)$shapes_out(list(c(NA, 3L)))[[1L]], c(NA, 3L))
   expect_error(po("nn_softshrink", lambd = -0.5), "lambd")
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference_sampled("nn_softmax",
+    list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L))))
+  expect_shape_inference_sampled("nn_glu",
+    list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L))))
+  expect_shape_inference_sampled("nn_prelu",
+    list(rank = 3L, params = function() list(num_parameters = 1L)))
+  expect_shape_inference_sampled("nn_rrelu",
+    list(rank = 3L, params = function() list(lower = 0.1, upper = 0.3)))
+  expect_shape_inference_sampled("nn_threshold",
+    list(rank = 3L, params = function() list(threshold = 0.5, value = 0)))
+})

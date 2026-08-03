@@ -140,3 +140,10 @@ test_that("shape inference returns one token per queried index", {
   expect_shapes_out_torch("nn_ft_transformer_block", c(pv, list(query_idx = c(1L, 2L))), c(2, 5, 8))
   expect_shapes_out_torch("nn_ft_transformer_block", c(pv, list(query_idx = NULL)), c(2, 5, 8))
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference_sampled("nn_ft_transformer_block", list(rank = 3L, params = function() {
+    # `d_token` is read from the last dimension and must be divisible by the number of heads
+    list(attention_n_heads = 2L, ffn_d_hidden = 8L, is_first_layer = TRUE, query_idx = NULL)
+  }))
+})

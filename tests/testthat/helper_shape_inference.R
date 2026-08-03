@@ -3,7 +3,7 @@
 # The ground truth is obtained by building the module from the (possibly partially unknown) shape
 # and running a tensor through it -- on torch's "meta" device where possible, which computes
 # shapes without allocating memory, falling back to the cpu for operators torch does not implement
-# there. Note that the meta device is *not* reliable for torchvision's advanced indexing, so the
+# there. Note that the meta device is not reliable for torchvision's advanced indexing, so the
 # preprocessing operators are always run on the cpu.
 
 run_on_shape = function(fn, shape, n_in = 1L, device = c("meta", "cpu")) {
@@ -125,66 +125,8 @@ shape_inference_budget = function(default = 3L) {
   assert_int(as.integer(budget), lower = 1L)
 }
 
-# samplers for the parameters and the input rank of a PipeOp; `size()` draws a dimension size
+# draws a dimension size for the sampled shapes
 size = function(n = 1L, from = 4L, to = 12L) sample(seq(from, to), n, replace = TRUE)
-
-# The specification of one operator: `rank` is the number of input dimensions (the first one is
-# always the batch dimension), `params` draws a set of parameter values, and `n_in` is the number
-# of input channels. Everything not listed here is shape-preserving and needs no parameters.
-shape_inference_specs = function() {
-  conv = function(d) list(rank = d + 2L, params = function() {
-    list(out_channels = sample(1:4, 1L), kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L),
-      padding = sample(0:1, 1L), dilation = sample(1:2, 1L))
-  })
-  conv_transpose = function(d) list(rank = d + 2L, params = function() {
-    list(out_channels = sample(1:4, 1L), kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L),
-      padding = sample(0:1, 1L))
-  })
-  pool = function(d, dilation = FALSE) list(rank = d + 2L, params = function() {
-    pv = list(kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L), padding = 0L,
-      ceil_mode = sample(c(TRUE, FALSE), 1L))
-    if (dilation) pv$dilation = sample(1:2, 1L)
-    pv
-  })
-  adaptive = function(d) list(rank = d + 2L, params = function() list(output_size = sample(1:4, d)))
-
-  c(
-    list(
-      nn_linear = list(rank = 3L, params = function() list(out_features = sample(1:8, 1L))),
-      nn_head = list(rank = 2L, params = function() list(), task = tsk("iris")),
-      nn_layer_norm = list(rank = 4L, params = function() list(dims = sample(1:3, 1L))),
-      nn_ft_cls = list(rank = 3L, params = function() list(initialization = "uniform")),
-      nn_tokenizer_num = list(rank = 2L, params = function() list(d_token = sample(2:6, 1L))),
-      nn_batch_norm1d = list(rank = 3L, params = function() list()),
-      nn_batch_norm2d = list(rank = 4L, params = function() list()),
-      nn_batch_norm3d = list(rank = 5L, params = function() list()),
-      nn_flatten = list(rank = 4L, params = function() list(start_dim = 2L, end_dim = sample(2:3, 1L))),
-      nn_unsqueeze = list(rank = 3L, params = function() list(dim = sample(c(1:4, -1L), 1L))),
-      nn_squeeze = list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L)), even = FALSE),
-      nn_softmax = list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L))),
-      nn_dropout = list(rank = 3L, params = function() list(p = 0.5)),
-      nn_glu = list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L))),
-      nn_merge_sum = list(rank = 3L, params = function() list(), n_in = 2L),
-      nn_merge_prod = list(rank = 3L, params = function() list(), n_in = 2L),
-      nn_merge_cat = list(rank = 3L, params = function() list(dim = sample(2:3, 1L)), n_in = 2L),
-      nn_prelu = list(rank = 3L, params = function() list(num_parameters = 1L)),
-      nn_rrelu = list(rank = 3L, params = function() list(lower = 0.1, upper = 0.3)),
-      nn_threshold = list(rank = 3L, params = function() list(threshold = 0.5, value = 0)),
-      # the target must match the number of elements per observation, so the shape is not doubled
-      nn_reshape = list(rank = 3L, params = function() list(shape = c(-1L, 24L)),
-        fixed_shape = c(3L, 4L, 6L), even = FALSE),
-      nn_ft_transformer_block = list(rank = 3L, params = function() {
-        # `d_token` is read from the last dimension and must be divisible by the number of heads
-        list(attention_n_heads = 2L, ffn_d_hidden = 8L, is_first_layer = TRUE, query_idx = NULL)
-      })
-    ),
-    set_names(lapply(1:3, conv), sprintf("nn_conv%id", 1:3)),
-    set_names(lapply(1:3, conv_transpose), sprintf("nn_conv_transpose%id", 1:3)),
-    set_names(lapply(1:3, pool), sprintf("nn_avg_pool%id", 1:3)),
-    set_names(lapply(1:3, function(d) pool(d, dilation = TRUE)), sprintf("nn_max_pool%id", 1:3)),
-    set_names(lapply(1:3, adaptive), sprintf("nn_adaptive_avg_pool%id", 1:3))
-  )
-}
 
 # the preprocessing operators all work on (batch, channels, height, width)
 preproc_inference_specs = function() {
@@ -212,8 +154,16 @@ preproc_inference_specs = function() {
   )
 }
 
-# Draws `budget` (parameter, shape) combinations for one PipeOpTorch and checks each of them.
-# `seed` makes a failure reproducible: it is derived from the operator id and the draw.
+# Draws `budget` (parameter, shape) combinations for one PipeOpTorch and checks each of them with
+# `expect_shapes_out_torch()`, i.e. every draw additionally sweeps all unknown-dimension patterns.
+# This is called from the test file of the operator, which is where its `spec` lives.
+# The seed makes a failure reproducible: it is derived from the operator id and the draw.
+# @param id (`character(1)`) The key of the operator.
+# @param spec (named `list()`) `params` draws the parameter values, `rank` is the number of input
+#   dimensions (default 3), `n_in` the number of input channels (default 1), `task` the task to
+#   pass on, `fixed_shape` a shape to use instead of a drawn one, and `even = FALSE` turns off the
+#   doubling of the drawn dimensions.
+# @param budget (`integer(1)`) How many combinations to draw.
 expect_shape_inference_sampled = function(id, spec, budget = shape_inference_budget()) {
   rank = spec$rank %??% 3L
   n_in = spec$n_in %??% 1L

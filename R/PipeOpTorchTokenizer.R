@@ -246,7 +246,7 @@ PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg",
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       assert_ndim(shapes_in[[1L]], 2L, self$id)
-      # The number of output tokens is the number of *categories* the module is built for, which
+      # The number of output tokens is the number of categories the module is built for, which
       # comes from `cardinalities` (or the task), not from the input: the embedding is indexed
       # with the category offsets, so a size-1 input dimension broadcasts against them.
       cardinalities = param_vals[["cardinalities"]]

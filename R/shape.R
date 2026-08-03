@@ -81,7 +81,7 @@ assert_known_dims = function(shape, dims, what, id = NULL) {
 
 # Dimension-wise result of concatenating `shapes`, where the concatenated dimension is left as `NA`
 # for the caller to fill in.
-# Unlike broadcasting, `torch_cat()` requires all other dimensions to be *equal*, so a known size
+# Unlike broadcasting, `torch_cat()` requires all other dimensions to be equal, so a known size
 # of 1 does not combine with a different known size. Rejecting that here fails when the network is
 # built instead of when it is run.
 # @param shapes (`list()` of `integer()`) The input shapes, all with the same number of dimensions.
@@ -126,8 +126,8 @@ broadcast_shapes = function(shapes, id) {
   }))
 }
 
-# Shape of `torch_reshape(x, shape)`. Like keras, the inferred dimension is resolved here whenever
-# the number of input elements is known, and stays unknown otherwise.
+# Shape of `torch_reshape(x, shape)`. The inferred dimension is resolved here whenever the number
+# of input elements is known, and stays unknown otherwise.
 # @param shape_in (`integer()`) The input shape.
 # @param shape (`integer()`) The target shape, where `-1` (or `NA`) marks the dimension that torch
 #   infers from the number of elements.
@@ -190,7 +190,7 @@ resolve_dim = function(dim, shape, insert = FALSE) {
 }
 
 # Rejects a `dim` parameter that does not address a dimension of `shape`.
-# Without this check, assigning to an out-of-range index silently *extends* a shape with `NA`s
+# Without this check, assigning to an out-of-range index silently extends a shape with `NA`s
 # instead of erroring, and a graph is then built on a shape that no tensor can have.
 # @param dim (`integer(1)`) What the user specified, which may count down from the last dimension.
 #   Only used for the error message, so that it reports the value the user knows.
@@ -313,17 +313,17 @@ assert_grayscale_or_rgb = function(shape) {
 # The values that `infer_shapes()` fills in for the unknown dimensions before tracing a shape
 # through a function. They span a wide range on purpose, because both ends are needed:
 #
-# * Large values (keras traces with 83 and 89, see `compute_output_spec()` in its torch backend)
-#   are needed because operators that require a minimum extent fail on small ones -- a convolution
-#   with a large kernel, for example -- which would reject a shape that is valid at runtime.
-# * A small value is needed because several operators *clamp* to the input size instead:
+# * Large values are needed because operators that require a minimum extent fail on small ones -- a
+#   convolution with a large kernel, for example -- which would reject a shape that is valid at
+#   runtime.
+# * A small value is needed because several operators clamp to the input size instead:
 #   `x[, 1:32]` and `transform_crop(height = 16)` return the input extent when it is smaller than
 #   the requested one. Their output is therefore genuinely unknown, and tracing with large values
 #   only would report it as known -- the traced value would then disagree with the tensor that the
 #   network sees at runtime.
 #
 # None of the values may be 1: a dimension of size 1 broadcasts against everything and is squeezed
-# away by operators such as `torch_squeeze()`, which changes the *number* of output dimensions.
+# away by operators such as `torch_squeeze()`, which changes the number of output dimensions.
 # A trace that fails is dropped by `infer_shapes()`, so the small value costs nothing for operators
 # that cannot handle it.
 # @param shape (`integer()`) The shape whose `NA`s are replaced; only the number of unknown

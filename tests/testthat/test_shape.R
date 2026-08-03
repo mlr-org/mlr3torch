@@ -87,8 +87,8 @@ test_that("infer_shapes fills unknown dimensions with values that are not degene
   # Filling an unknown dimension with 1 makes it broadcast and lets operators such as
   # `squeeze()` remove it, so the traced number of dimensions varies and a valid shape is
   # rejected. Filling with a small value breaks operators that need a minimum extent, and
-  # silently reports a *wrong* shape when the operator clamps to the input size instead.
-  # keras traces with 83 and 89 for the same reason.
+  # silently reports a wrong shape when the operator clamps to the input size instead.
+  # This is why the largest candidate uses 83 and 89.
   check = function(fn, shape, exp) {
     obs = infer_shapes(list(x = shape), list(), "y", fn, rowwise = FALSE, id = "test")[[1L]]
     expect_equal(obs, exp)

@@ -783,7 +783,7 @@ PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
       shape = shapes_in[[1L]]
       dim = param_vals$dim %??% -1L
       true_dim = resolve_dim(dim, shape)
-      # without this, `shape[true_dim] = d_new` would silently *extend* the shape with `NA`s and
+      # without this, `shape[true_dim] = d_new` would silently extend the shape with `NA`s and
       # a graph would be built on a shape that no tensor can have
       assert_dim_in_range(dim, true_dim, shape, self$id)
       assert_not_batch_dim(true_dim, shape, self$id)
@@ -857,7 +857,7 @@ PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
-      # for a rank-1 input the last dimension *is* the batch dimension
+      # for a rank-1 input the last dimension is the batch dimension
       assert_not_batch_dim(length(shape), shape, self$id)
       list(halve_dim(shape, length(shape), self$id))
     }
@@ -929,7 +929,7 @@ PipeOpTorchGeGLU = R6Class("PipeOpTorchGeGLU",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
-      # for a rank-1 input the last dimension *is* the batch dimension
+      # for a rank-1 input the last dimension is the batch dimension
       assert_not_batch_dim(length(shape), shape, self$id)
       list(halve_dim(shape, length(shape), self$id))
     }

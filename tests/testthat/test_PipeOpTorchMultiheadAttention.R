@@ -10,7 +10,7 @@ test_that("PipeOpTorchMultiheadAttention works for self-attention", {
 test_that("PipeOpTorchMultiheadAttention paramtest", {
   po_attention = po("nn_multihead_attention", num_heads = 2)
   # embed_dim, kdim and vdim are inferred from the input shapes, need_weights is a construction arg
-  # `batch_first` is fixed to TRUE, see the *Tensor Layout* section of the PipeOp
+  # `batch_first` is fixed to TRUE, see the Tensor Layout section of the PipeOp
   res = expect_paramset(po_attention, nn_attention,
     exclude = c("embed_dim", "kdim", "vdim", "need_weights", "batch_first"))
   expect_paramtest(res)

@@ -313,7 +313,7 @@ test_that("shape inference follows torchvision, including where it misbehaves", 
   expect_equal(shapes_out("augment_crop", list(top = 20, left = 4, height = 5, width = 5),
     c(2, 3, 16, 20)), c(2L, 3L, 0L, 5L))
   # `transform_resized_crop()` crops and then resizes, and a scalar `size` preserves the aspect
-  # ratio of the *cropped* image
+  # ratio of the cropped image
   expect_equal(shapes_out("augment_resized_crop",
     list(top = 1, left = 1, height = 8, width = 16, size = 4), c(2, 3, 16, 20)), c(2L, 3L, 4L, 8L))
   # the flips read no dimension, so an unknown or unusual channel count is fine
@@ -323,4 +323,12 @@ test_that("shape inference follows torchvision, including where it misbehaves", 
   # `transform_color_jitter()` truncates to three channels once `hue` is active
   expect_equal(shapes_out("augment_color_jitter", list(hue = 0.2), c(2, 4, 8, 10)), c(2L, 3L, 8L, 10L))
   expect_equal(shapes_out("augment_color_jitter", list(), c(2, 4, 8, 10)), c(2L, 4L, 8L, 10L))
+})
+
+test_that("resize_extent requires 'size' to have 1 or 2 values", {
+  # the operators check this in their parameter set as well, so the helper is called directly
+  expect_error(resize_extent(c(16L, 20L), c(8L, 12L, 99L), "po"), "1 or 2 values, but it has 3")
+  expect_error(resize_extent(c(16L, 20L), integer(0), "po"), "1 or 2 values, but it has 0")
+  expect_equal(resize_extent(c(16L, 20L), c(8L, 12L), "po"), c(8L, 12L))
+  expect_equal(resize_extent(c(16L, 20L), 8L, "po"), c(8L, 10L))
 })

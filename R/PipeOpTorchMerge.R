@@ -52,7 +52,7 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
       # note that this slightly deviates from the actual broadcasting rules implemented by torch, i.e. we don't fill
       # up missing dimension with 1s because the first dimension is usually the batch dimension.
       assert_same_ndim(shapes_in, self$id)
-      # the output is the *broadcast* of the inputs, not the first input: broadcasting a (NA, 1)
+      # the output is the broadcast of the inputs, not the first input: broadcasting a (NA, 1)
       # against a (NA, 6) yields a (NA, 6) tensor at runtime
       list(broadcast_shapes(shapes_in, self$id))
     }

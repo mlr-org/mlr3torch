@@ -48,3 +48,9 @@ test_that("shape inference needs the feature dimension and the task", {
   # without a task the number of output features is unknown, as documented
   expect_equal(po("nn_head")$shapes_out(list(c(NA, 16L)))[[1L]], c(NA_integer_, NA_integer_))
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  # the number of output features comes from the task
+  expect_shape_inference_sampled("nn_head",
+    list(rank = 2L, params = function() list(), task = tsk("iris")))
+})

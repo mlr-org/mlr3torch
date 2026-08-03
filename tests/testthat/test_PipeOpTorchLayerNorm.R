@@ -32,3 +32,8 @@ test_that("'dims' may go up to the number of input dimensions", {
   # `dims` may not exceed the number of dimensions
   expect_error(po("nn_layer_norm", dims = 5)$shapes_out(shape_in), "dims")
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference_sampled("nn_layer_norm",
+    list(rank = 4L, params = function() list(dims = sample(1:3, 1L))))
+})

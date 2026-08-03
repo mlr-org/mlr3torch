@@ -101,3 +101,9 @@ test_that("the number of tokens is never unknown", {
   expect_equal(po("nn_tokenizer_categ", d_token = 5L, cardinalities = c(2L, 3L))$
     shapes_out(list(c(NA, 2L)))[[1L]], c(NA, 2L, 5L))
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  # the categorical tokenizer needs an integer tensor and a task, so it is checked above instead
+  expect_shape_inference_sampled("nn_tokenizer_num",
+    list(rank = 2L, params = function() list(d_token = sample(2:6, 1L))))
+})

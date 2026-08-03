@@ -116,7 +116,7 @@ test_that("shape inference rejects a 'dim' that does not address a dimension", {
 })
 
 test_that("nn_reshape rejects target dimensions that cannot exist", {
-  # such a dimension must not be reported as *known* and propagated into the rest of the graph
+  # such a dimension must not be reported as known and propagated into the rest of the graph
   expect_error(po("nn_reshape", shape = c(-5, -7))$shapes_out(list(c(NA, 4L, 6L))),
     "every dimension must be at least 1", fixed = TRUE)
   expect_error(po("nn_reshape", shape = c(0, 24))$shapes_out(list(c(NA, 4L, 6L))),
@@ -136,7 +136,7 @@ test_that("nn_reshape rejects target dimensions that cannot exist", {
 })
 
 test_that("nn_reshape resolves an unknown target dimension from the input size", {
-  # keras resolves the -1 whenever the number of input elements is known
+  # the -1 is resolved whenever the number of input elements is known
   reshape = function(shape, shape_in) po("nn_reshape", shape = shape)$shapes_out(list(shape_in))[[1L]]
   expect_equal(reshape(c(-1, 24), c(32L, 4L, 6L)), c(32L, 24L))
   expect_equal(reshape(c(2, -1), c(32L, 4L, 6L)), c(2L, 384L))
@@ -150,7 +150,7 @@ test_that("nn_reshape resolves an unknown target dimension from the input size",
 })
 
 test_that("nn_squeeze keeps unknown dimensions instead of rejecting them", {
-  # An unknown dimension is assumed to not be 1, as in keras: rejecting the shape would rule
+  # An unknown dimension is assumed to not be 1: rejecting the shape would rule
   # out networks that work at runtime. The module must squeeze exactly the dimensions that
   # `$shapes_out()` squeezed, otherwise the inferred shape and the tensor disagree.
   obj = po("nn_squeeze")
@@ -164,4 +164,17 @@ test_that("nn_squeeze keeps unknown dimensions instead of rejecting them", {
   module = get_private(obj)$.make_module(shapes_in, obj$param_set$get_values(), NULL)
   expect_equal(dim(module(torch_randn(2, 3, 1, 5))), c(2, 3, 5))
   expect_equal(dim(module(torch_randn(2, 1, 1, 5))), c(2, 1, 5))
+})
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference_sampled("nn_flatten",
+    list(rank = 4L, params = function() list(start_dim = 2L, end_dim = sample(2:3, 1L))))
+  expect_shape_inference_sampled("nn_unsqueeze",
+    list(rank = 3L, params = function() list(dim = sample(c(1:4, -1L), 1L))))
+  expect_shape_inference_sampled("nn_squeeze",
+    list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L)), even = FALSE))
+  # the target must match the number of elements per observation, so the shape is not doubled
+  expect_shape_inference_sampled("nn_reshape",
+    list(rank = 3L, params = function() list(shape = c(-1L, 24L)),
+      fixed_shape = c(3L, 4L, 6L), even = FALSE))
 })

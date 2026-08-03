@@ -904,7 +904,7 @@ nn_tabm = nn_module("nn_tabm",
     }
   },
   forward = function(x_num = NULL, x_cat = NULL) {
-    # When a task has only one input tensor, we call the network *by position*
+    # When a task has only one input tensor, we call the network by position
     # (see `learner_torch_train()`), so a purely categorical task arrives in `x_num`.
     if (self$n_num_features == 0L && is.null(x_cat)) {
       x_cat = x_num
@@ -1157,7 +1157,7 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
   ),
   private = list(
     # The network returns one prediction per ensemble member, so the configured loss is
-    # applied to the `k` predictions separately, see the *Loss and Prediction* section.
+    # applied to the `k` predictions separately, see the Loss and Prediction section.
     .loss_fn = function(task, param_vals) {
       nn_tabm_loss(super$.loss_fn(task, param_vals))
     },

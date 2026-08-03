@@ -50,13 +50,24 @@ crop_extent = function(extent, start, size) {
 }
 
 # Extent of `transform_resize()`. A `size` of length 2 is used as is, a single number matches the
-# *shorter* side and scales the other one accordingly (truncating).
+# shorter side and scales the other one accordingly (truncating).
 # @param hw (`integer(2)`) The height and width of the input, either of which may be `NA`.
 # @param size (`integer()`) The requested size, of length 1 or 2.
-resize_extent = function(hw, size) {
-  if (length(size) >= 2L) {
-    return(as.integer(size[1:2]))
+# @param id (`character(1)`) The PipeOp's id, for the error message.
+resize_extent = function(hw, size, id) {
+  # the operators that use this check `size` in their parameter set as well, this is for the ones
+  # that may be added later
+  if (length(size) %nin% c(1L, 2L)) {
+    stopf("PipeOp '%s' requires 'size' to have 1 or 2 values, but it has %i.", id, length(size))
   }
+  if (length(size) == 2L) {
+    return(as.integer(size))
+  }
+  # Both extents are unknown, not just the unknown one: a single `size` is matched to the shorter
+  # side, so without knowing both we do not even know which of the two becomes `size`. For
+  # `hw = (NA, 20)` the output is `(size, ?)` if the height is at most 20 and `(?, size)` otherwise,
+  # i.e. neither position is determined and reporting one of them as known would be wrong half the
+  # time. An extent of 0 additionally makes the scaling below divide by zero.
   if (anyNA(hw) || any(hw == 0L)) {
     return(c(NA_integer_, NA_integer_))
   }
@@ -68,7 +79,7 @@ resize_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   # `trafo_resize` is applied to the whole batch, so it needs the batch dimension and an image
   assert_image_shape(shape, self$id, ndim = 3L)
-  list(replace_tail(shape, resize_extent(utils::tail(shape, 2L), param_vals[["size"]])))
+  list(replace_tail(shape, resize_extent(utils::tail(shape, 2L), param_vals[["size"]], self$id)))
 }
 
 # `padding` is either applied to all sides, or is (left/right, top/bottom), or
@@ -90,26 +101,28 @@ pad_shapes = function(shapes_in, param_vals, task) {
   list(replace_tail(shape, extent))
 }
 
-# Rejects an image with too few channels: `transform_rgb_to_grayscale()` and everything built on
-# it index the first three channels. An unknown channel count is accepted, because the network may
-# still be valid at runtime.
+# Rejects an image that is not RGB: `transform_rgb_to_grayscale()` and everything built on it index
+# the first three channels.
+# The channel count must be known: unlike the spatial extent, which varies from image to image,
+# it is a property of the data, so requiring it costs nothing and reports the problem here instead
+# of somewhere inside torchvision.
 # @param shape (`integer()`) The input shape, whose channel dimension is the third from last.
 # @param id (`character(1)`) The PipeOp's id, for the error message.
 assert_rgb_channels = function(shape, id) {
+  assert_known_dims(shape, length(shape) - 2L, "the channel dimension", id)
   channels = shape[length(shape) - 2L]
-  if (!is.na(channels) && channels < 3L) {
+  if (channels < 3L) {
     stopf("PipeOp '%s' requires an RGB image, i.e. at least 3 channels, but the input shape %s has %i.", # nolint
       id, shape_to_str(shape), channels)
   }
   invisible(shape)
 }
 
-# An image with more than three channels is truncated to three; an unknown channel count stays
-# unknown, because it may be smaller than three at runtime.
+# An image with more than three channels is truncated to three. Every caller runs
+# `assert_rgb_channels()` first, so the channel count is known and at least 3 here.
 # @param shape (`integer()`) The input shape, whose channel dimension is the third from last.
 truncate_rgb_channels = function(shape) {
-  channels = shape[length(shape) - 2L]
-  shape[length(shape) - 2L] = if (!is.na(channels) && channels >= 3L) 3L else NA_integer_
+  shape[length(shape) - 2L] = 3L
   shape
 }
 
@@ -123,7 +136,7 @@ grayscale_shapes = function(shapes_in, param_vals, task) {
   list(shape)
 }
 
-# `transform_rgb_to_grayscale()` *drops* the channel dimension instead of setting it to 1
+# `transform_rgb_to_grayscale()` drops the channel dimension instead of setting it to 1
 rgb_to_grayscale_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   assert_image_shape(shape, self$id)
@@ -152,7 +165,7 @@ center_crop_shapes = function(shapes_in, param_vals, task) {
   size = as.integer(rep(param_vals[["size"]], length.out = 2L))
   assert_positive_extent(size, shape, self$id)
   hw = utils::tail(shape, 2L)
-  # torchvision swaps height and width in the padded branch, which corrupts *both* extents, so
+  # torchvision swaps height and width in the padded branch, which corrupts both extents, so
   # neither is known as soon as one of them needs padding
   if (any(is.na(hw) | hw < size)) {
     size = c(NA_integer_, NA_integer_)
@@ -161,7 +174,7 @@ center_crop_shapes = function(shapes_in, param_vals, task) {
 }
 
 # `transform_resized_crop()` crops and then resizes, so both rules have to be composed: with a
-# single `size` the aspect ratio of the *cropped* image decides the output
+# single `size` the aspect ratio of the cropped image decides the output
 resized_crop_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   # only the trailing two dimensions are touched, so a channel-less image is fine
@@ -173,7 +186,7 @@ resized_crop_shapes = function(shapes_in, param_vals, task) {
   )
   # resizing an empty crop is impossible
   assert_positive_extent(cropped, shape, self$id)
-  list(replace_tail(shape, resize_extent(cropped, param_vals[["size"]])))
+  list(replace_tail(shape, resize_extent(cropped, param_vals[["size"]], self$id)))
 }
 
 # `transform_color_jitter()` delegates to `transform_adjust_hue()` when `hue` is set, which keeps

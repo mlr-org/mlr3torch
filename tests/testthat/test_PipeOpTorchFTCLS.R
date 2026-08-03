@@ -34,3 +34,8 @@ test_that("shape inference requires the token dimension", {
   expect_error(po("nn_ft_cls")$shapes_out(list(input = c(NA, 7, NA))),
     "requires the token dimension (dimension 3) of the input shape to be known", fixed = TRUE)
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference_sampled("nn_ft_cls",
+    list(rank = 3L, params = function() list(initialization = "uniform")))
+})

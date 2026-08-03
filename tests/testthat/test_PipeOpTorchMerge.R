@@ -199,3 +199,12 @@ test_that("nn_merge_cat requires the other dimensions to be equal", {
   # the error names the shapes the PipeOp was given
   expect_error(cat_shapes_out(c(NA, 4L, 5L), c(NA, 4L, 6L)), "[(NA,4,5);(NA,4,6)]", fixed = TRUE)
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference_sampled("nn_merge_sum",
+    list(rank = 3L, params = function() list(), n_in = 2L))
+  expect_shape_inference_sampled("nn_merge_prod",
+    list(rank = 3L, params = function() list(), n_in = 2L))
+  expect_shape_inference_sampled("nn_merge_cat",
+    list(rank = 3L, params = function() list(dim = sample(2:3, 1L)), n_in = 2L))
+})

@@ -103,3 +103,10 @@ test_that("an unknown input extent still gives a known output", {
     expect_equal(obj$shapes_out(list(input = shape_in))[[1L]], c(NA, 3L, rep(4L, d)))
   }
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  for (d in 1:3) {
+    spec = list(rank = d + 2L, params = function() list(output_size = sample(1:4, d)))
+    expect_shape_inference_sampled(sprintf("nn_adaptive_avg_pool%id", d), spec)
+  }
+})

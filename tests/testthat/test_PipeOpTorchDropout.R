@@ -14,3 +14,7 @@ test_that("PipeOpTorchDropout paramtest", {
 test_that("shape inference matches the operator", {
   expect_shapes_out_torch("nn_dropout", list(p = 0.5), c(2, 4, 6))
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference_sampled("nn_dropout", list(rank = 3L, params = function() list(p = 0.5)))
+})

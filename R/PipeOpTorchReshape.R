@@ -76,7 +76,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
       true_dim = param_vals$dim
 
       if (is.null(true_dim)) {
-        # Like keras, an unknown dimension is assumed to not be 1 and is therefore kept:
+        # An unknown dimension is assumed to not be 1 and is therefore kept:
         # rejecting the shape would rule out networks that are perfectly valid at runtime.
         # `.shape_dependent_params()` passes the squeezed dimensions on to the module, so that
         # the module squeezes exactly those dimensions that are squeezed here.
@@ -117,7 +117,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
   )
 )
 
-# The dimensions that `nn_squeeze` removes when no `dim` is given: those that are *known* to be 1,
+# The dimensions that `nn_squeeze` removes when no `dim` is given: those that are known to be 1,
 # except the batch dimension (which is never squeezed, because its size is a property of the batch
 # and not of the network).
 # With `keep = TRUE` the complementary logical vector is returned, i.e. the dimensions that remain.

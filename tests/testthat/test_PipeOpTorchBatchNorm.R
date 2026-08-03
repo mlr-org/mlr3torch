@@ -64,3 +64,10 @@ test_that("shape inference requires the feature dimension", {
   expect_error(po("nn_batch_norm2d")$shapes_out(list(c(NA, NA, 17, 19))),
     "requires the feature dimension (dimension 2) of the input shape to be known", fixed = TRUE)
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  for (d in 1:3) {
+    expect_shape_inference_sampled(sprintf("nn_batch_norm%id", d),
+      list(rank = d + 2L, params = function() list()))
+  }
+})

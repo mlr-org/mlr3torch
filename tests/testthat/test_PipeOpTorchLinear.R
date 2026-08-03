@@ -53,3 +53,8 @@ test_that("shape inference requires the last dimension", {
   expect_error(po("nn_linear", out_features = 3)$shapes_out(list(c(NA, 7, NA))),
     "requires the last dimension (the number of input features)", fixed = TRUE)
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference_sampled("nn_linear",
+    list(rank = 3L, params = function() list(out_features = sample(1:8, 1L))))
+})

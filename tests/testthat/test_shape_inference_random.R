@@ -1,32 +1,36 @@
-# Randomized verification of the shape inference: for every operator a number of (parameter,
-# shape) combinations is drawn, the shape inference is run, the module is built from the -- possibly
-# partially unknown -- shape and run on a tensor, and the two are compared. See
-# `helper_shape_inference.R`; the number of draws per operator is controlled by
-# `MLR3TORCH_SHAPE_BUDGET` and is deliberately small by default so that CI stays fast.
+# Class-wide check that no operator is left without a shape-inference test. The operators that
+# need parameters or a specific input rank are checked in their own test file, see
+# `expect_shape_inference_sampled()`; everything else is shape-preserving and swept here, so that a
+# newly added operator is covered without anyone having to remember it.
 
-test_that("shape inference of every PipeOpTorch agrees with its module", {
-  specs = shape_inference_specs()
+test_that("every PipeOpTorch that needs no parameters agrees with its module", {
   budget = shape_inference_budget()
-
-  # every PipeOpTorch that is not listed is shape-preserving and needs no parameters
-  # the categorical tokenizer needs an integer tensor and a task, so it is checked separately
-  skip = c("nn_tokenizer_categ", "nn_block", "nn_fn")
+  # Operators that need parameters, a specific input rank, more than one input or a task are
+  # checked in their own test file, which is where their sampler lives. Everything else takes any
+  # rank-3 input and is swept below. An operator with a required parameter cannot be built from
+  # its defaults at all and is filtered out anyway, the ones listed here are those that could be
+  # built but would not be checked correctly.
+  own_test = c("nn_tokenizer_categ", "nn_tokenizer_num", "nn_block", "nn_fn", "nn_head",
+    "nn_flatten", "nn_unsqueeze", "nn_squeeze", "nn_reshape", "nn_merge_sum", "nn_merge_prod",
+    "nn_merge_cat", "nn_ft_cls", "nn_ft_transformer_block", "nn_dropout",
+    sprintf("nn_batch_norm%id", 1:3))
   shape_preserving = Filter(function(key) {
     obj = suppressWarnings(try(po(key), silent = TRUE))
-    !inherits(obj, "try-error") && inherits(obj, "PipeOpTorch") && key %nin% c(names(specs), skip) &&
+    !inherits(obj, "try-error") && inherits(obj, "PipeOpTorch") && key %nin% own_test &&
       !length(obj$param_set$ids(tags = "required"))
   }, mlr_pipeops$keys())
-  specs = c(specs, set_names(lapply(shape_preserving, function(key) {
-    list(rank = 3L, params = function() list())
-  }), shape_preserving))
 
-  expect_true(length(specs) >= 50L)
-  for (id in names(specs)) {
-    expect_shape_inference_sampled(id, specs[[id]], budget = budget)
+  # guards the enrolment itself: if this filter ever stops matching, the sweep would silently
+  # cover nothing
+  expect_true(length(shape_preserving) >= 20L)
+
+  for (id in shape_preserving) {
+    expect_shape_inference_sampled(id, list(rank = 3L, params = function() list()),
+      budget = budget)
   }
 })
 
-test_that("shape inference of every preprocessing PipeOp agrees with its function", {
+test_that("every preprocessing PipeOp agrees with its function", {
   specs = preproc_inference_specs()
   budget = shape_inference_budget()
   for (id in names(specs)) {

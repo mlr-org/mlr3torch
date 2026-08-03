@@ -97,3 +97,13 @@ test_that("shape inference matches the operator", {
   expect_shapes_out_torch("nn_conv_transpose2d", list(out_channels = 5, kernel_size = 3, stride = 2), c(2, 3, 8, 9))
   expect_shapes_out_torch("nn_conv_transpose2d", list(out_channels = 5, kernel_size = 3), c(2, 3, 17, 19))
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  for (d in 1:3) {
+    spec = list(rank = d + 2L, params = function() {
+      list(out_channels = sample(1:4, 1L), kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L),
+        padding = sample(0:1, 1L))
+    })
+    expect_shape_inference_sampled(sprintf("nn_conv_transpose%id", d), spec)
+  }
+})

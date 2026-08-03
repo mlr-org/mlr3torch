@@ -99,3 +99,14 @@ test_that("shape inference requires the batch dimension and a non-empty output",
   expect_error(po("nn_max_pool1d", kernel_size = 0)$shapes_out(list(c(2L, 3L, 8L))),
     "the output would have the size", fixed = TRUE)
 })
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  for (d in 1:3) {
+    # unlike average pooling, max pooling has a dilation
+    spec = list(rank = d + 2L, params = function() {
+      list(kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L), padding = 0L,
+        ceil_mode = sample(c(TRUE, FALSE), 1L), dilation = sample(1:2, 1L))
+    })
+    expect_shape_inference_sampled(sprintf("nn_max_pool%id", d), spec)
+  }
+})
