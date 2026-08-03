@@ -33,11 +33,6 @@ unchanged_shapes_rgb = function(shapes_in, param_vals, task) {
   shapes_in
 }
 
-unchanged_shapes_image = function(shapes_in, param_vals, task) {
-  assert_grayscale_or_rgb(shapes_in[[1L]])
-  shapes_in
-}
-
 unchanged_shapes = function(shapes_in, param_vals, task) {
   shapes_in
 }

@@ -51,7 +51,7 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
     .shapes_out = function(shapes_in, param_vals, task) {
       # note that this slightly deviates from the actual broadcasting rules implemented by torch, i.e. we don't fill
       # up missing dimension with 1s because the first dimension is usually the batch dimension.
-      assert_true(length(unique(map_int(shapes_in, length))) == 1,
+      assert_true(length(unique(lengths(shapes_in))) == 1,
         .var.name = "All input shapes have the same number of dimensions")
       uniques = apply(as.data.frame(shapes_in), 1, function(row) {
         if (all(is.na(row))) {
@@ -174,7 +174,7 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      assert_true(length(unique(map_int(shapes_in, length))) == 1, .var.name = "All input shapes have the same number of dimensions")
+      assert_true(length(unique(lengths(shapes_in))) == 1, .var.name = "All input shapes have the same number of dimensions")
 
       # dim can be negative (counting back from the last element which would be -1)
       true_dim = param_vals$dim %??% -1

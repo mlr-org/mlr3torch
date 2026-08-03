@@ -21,7 +21,9 @@
 
 # to silence RCMD check
 utils::globalVariables(c("self", "private", "super", ".."))
+# jarl-ignore unreachable_code: never evaluated on purpose, it only makes the static checker see the reference
 if (FALSE) knitr::knit2pandoc
+# jarl-ignore unreachable_code: never evaluated on purpose, it only makes the static checker see the reference
 if (FALSE) withr::with_seed
 
 mlr3torch_task_generators = new.env()
