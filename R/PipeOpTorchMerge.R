@@ -167,9 +167,8 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
     .shapes_out = function(shapes_in, param_vals, task) {
       assert_same_ndim(shapes_in, self$id)
 
-      # dim can be negative (counting back from the last element which would be -1)
       dim = param_vals[["dim"]] %??% -1L
-      true_dim = if (dim < 0) 1 + length(shapes_in[[1L]]) + dim else dim
+      true_dim = resolve_dim(dim, shapes_in[[1L]])
       assert_dim_in_range(dim, true_dim, shapes_in[[1L]], self$id)
 
       # `torch_cat()` does not broadcast: every dimension except the concatenated one must be

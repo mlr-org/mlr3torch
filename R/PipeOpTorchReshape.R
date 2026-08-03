@@ -84,12 +84,10 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
       }
       # `dim` may select more than one dimension, which `nn_squeeze()` supports
       dim = true_dim
-      negative = true_dim < 0 # start counting downwards from the last dimension
-      true_dim[negative] = 1 + length(shape) + true_dim[negative]
+      true_dim = resolve_dim(true_dim, shape)
       # the range is checked before deduplication, so the reported value is the user's
       for (i in seq_along(dim)) {
-        assert_dim_in_range(dim[[i]], if (negative[[i]]) 1 + length(shape) + dim[[i]] else dim[[i]],
-          shape, self$id)
+        assert_dim_in_range(dim[[i]], true_dim[[i]], shape, self$id)
       }
       true_dim = unique(true_dim)
 
@@ -106,12 +104,11 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
         param_vals$dim = squeeze_dims(shapes_in[[1L]])
         return(param_vals)
       }
-      # The module squeezes from the back, which only agrees with `.shapes_out()` if the indices
-      # are resolved first: a negative index would otherwise be resolved against the already
-      # shrunk tensor and remove a different dimension.
+      # the dimensions that are known to be 1 are selected below, which indexes `shape` and
+      # therefore needs positive indices: in R, `shape[-1]` drops the first element instead of
+      # addressing the last one
       shape = shapes_in[[1L]]
-      negative = dim < 0
-      dim[negative] = 1 + length(shape) + dim[negative]
+      dim = resolve_dim(dim, shape)
       # only dimensions that are known to be 1 are squeezed, so that an unknown dimension which
       # happens to be 1 at runtime does not disagree with the inferred shape
       param_vals$dim = unique(dim[!is.na(shape[dim]) & shape[dim] == 1L])
@@ -166,7 +163,7 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
       shape = shapes_in[[1]]
       dim = param_vals[["dim"]]
       # -1 appends a new last dimension, -2 inserts before the last one, etc.
-      true_dim = if (dim < 0) 2 + length(shape) + dim else dim
+      true_dim = resolve_dim(dim, shape, insert = TRUE)
       # a new dimension may also be appended, hence the shape padded by one
       if (true_dim < 1L || true_dim > length(shape) + 1L) {
         stopf("PipeOp '%s' cannot use 'dim' %i for the input shape %s: a new dimension can be inserted at positions 1 to %i.", # nolint
@@ -219,8 +216,8 @@ PipeOpTorchFlatten = R6Class("PipeOpTorchFlatten",
       start = param_vals[["start_dim"]] %??% 2L
       end = param_vals[["end_dim"]] %??% -1L
 
-      start_dim = if (start < 0) 1 + length(shape) + start else start
-      end_dim = if (end < 0) 1 + length(shape) + end else end
+      start_dim = resolve_dim(start, shape)
+      end_dim = resolve_dim(end, shape)
       assert_dim_in_range(start, start_dim, shape, self$id)
       assert_dim_in_range(end, end_dim, shape, self$id)
       if (end_dim < start_dim) {
@@ -269,11 +266,9 @@ nn_squeeze = nn_module(
     } else {
       self$dim
     }
-    # squeezing from the back keeps the remaining dimension indices valid
-    for (d in sort(dims, decreasing = TRUE)) {
-      input = input$squeeze(d)
-    }
-    input
+    # all dimensions are removed in one call, so the indices are resolved against `input` and not
+    # against a tensor that previous removals already shrunk
+    input$squeeze(dims)
   }
 )
 

@@ -10,3 +10,7 @@ test_that("PipeOpTorchDropout paramtest", {
   res = expect_paramset(po("nn_dropout"), nn_dropout)
   expect_paramtest(res)
 })
+
+test_that("shape inference matches the operator", {
+  expect_shapes_out_torch("nn_dropout", list(p = 0.5), c(2, 4, 6))
+})

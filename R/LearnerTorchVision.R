@@ -252,7 +252,7 @@ maxvit_generator = function(...) {
 #
 # * id        : suffix of the learner id, e.g. "resnet18" for "classif.resnet18".
 # * generator : name of the function that builds the network. Names starting with "model_" refer to
-#               generators of torchvision, all others to generators of mlr3torch.
+#               generators of torchvision, all others to generators we provide ourselves.
 # * label     : label of the learner.
 # * arch      : the original architecture that the network implements.
 # * bib       : keys into `bibentries` of the paper(s) that introduced the architecture, separated

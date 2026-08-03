@@ -41,9 +41,23 @@ nn_attention = nn_module(
 #' building block of a [`Graph`][mlr3pipelines::Graph] of tensor operations, where both
 #' self-attention and cross-attention can be expressed, see section *Input and Output Channels*.
 #'
+#' @section Tensor Layout:
+#' All inputs and outputs are `(batch, sequence, feature)`, i.e. the `batch_first` layout of
+#' [`torch::nn_multihead_attention()`].
+#' Unlike in `torch`, where `batch_first` defaults to `FALSE` and inputs are
+#' `(sequence, batch, feature)`, this is fixed and cannot be changed: like every other operator,
+#' this one is part of a network whose shapes all have the batch size in their first dimension.
+#' Operators read dimensions by position -- a convolution reads dimension 2 as the channel
+#' dimension, and the shape inference reports dimension 1 as the batch size -- so a tensor whose
+#' first dimension is the sequence would be misinterpreted downstream.
+#'
+#' The attention weights (see the construction argument `need_weights`) are batch-first in `torch`
+#' as well, so their shape is unaffected.
+#'
 #' @section nn_module:
 #' Calls [`torch::nn_multihead_attention()`] when trained, where the parameters `embed_dim`, `kdim`
-#' and `vdim` are inferred as the last dimension of the query, key and value tensors respectively.
+#' and `vdim` are inferred as the last dimension of the query, key and value tensors respectively,
+#' and `batch_first` is always `TRUE`, see section *Tensor Layout*.
 #' @section Parameters:
 #' * `num_heads` :: `integer(1)`\cr
 #'   Number of parallel attention heads. The embedding dimension must be divisible by `num_heads`.
@@ -59,16 +73,13 @@ nn_attention = nn_module(
 #' * `add_zero_attn` :: `logical(1)`\cr
 #'   Whether to add a new batch of zeros to the key and value sequences at dimension 1.
 #'   Default is `FALSE`.
-#' * `batch_first` :: `logical(1)`\cr
-#'   Whether the input and output tensors are provided as `(batch, sequence, feature)` (`TRUE`) or
-#'   as `(sequence, batch, feature)` (`FALSE`).
-#'   Default is `FALSE`, as in `torch`.
 #' * `avg_weights` :: `logical(1)`\cr
 #'   Whether the returned attention weights are averaged over the attention heads.
 #'   Default is `TRUE`. Only has an effect when the construction argument `need_weights` is `TRUE`.
 #'
 #' Note that `embed_dim`, `kdim` and `vdim` are *not* parameters, as they are inferred from the
-#' shapes of the input tensors.
+#' shapes of the input tensors, and that `batch_first` is *not* a parameter either, as it is fixed
+#' to `TRUE`, see section *Tensor Layout*.
 #'
 #' @section Input and Output Channels:
 #' The number of input channels is determined by the construction argument `mode`:
@@ -130,7 +141,6 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
         bias = p_lgl(default = TRUE, tags = "train"),
         add_bias_kv = p_lgl(default = FALSE, tags = "train"),
         add_zero_attn = p_lgl(default = FALSE, tags = "train"),
-        batch_first = p_lgl(default = FALSE, tags = "train"),
         avg_weights = p_lgl(default = TRUE, tags = "train")
       )
       super$initialize(
@@ -187,13 +197,11 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
         return(list(query_shape))
       }
 
-      batch_first = param_vals$batch_first %??% FALSE
+      # all inputs and outputs are `(batch, sequence, feature)`, see `.shape_dependent_params()`
       key_shape = private$.key_shape(shapes_in)
-      # the attention weights are always batch-first, irrespective of `batch_first`
-      n_batch = if (batch_first) query_shape[1L] else query_shape[2L]
-      tgt_len = if (batch_first) query_shape[2L] else query_shape[1L]
-      src_len = if (batch_first) key_shape[2L] else key_shape[1L]
-      src_len = src_len + (param_vals$add_bias_kv %??% FALSE) + (param_vals$add_zero_attn %??% FALSE)
+      n_batch = query_shape[1L]
+      tgt_len = query_shape[2L]
+      src_len = key_shape[2L] + (param_vals$add_bias_kv %??% FALSE) + (param_vals$add_zero_attn %??% FALSE)
 
       # torch ignores `avg_weights` unless kdim and vdim both equal embed_dim
       avg_weights = (param_vals$avg_weights %??% TRUE) || !private$.qkv_same_embed_dim(shapes_in)
@@ -205,6 +213,11 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
       list(query_shape, weights_shape)
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
+      # `torch` defaults to `(sequence, batch, feature)`, but we require the first dimension of
+      # every shape to be the batch dimension: operators read dimensions by position, so a tensor
+      # whose first dimension is the sequence would be misinterpreted by everything downstream.
+      # `batch_first` is therefore fixed here instead of being a hyperparameter.
+      param_vals$batch_first = TRUE
       param_vals$embed_dim = tail(shapes_in[[1L]], 1L)
       if (private$.mode != "self") {
         # for mode == "cross", the second channel provides both the keys and the values

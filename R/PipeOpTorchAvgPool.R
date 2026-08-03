@@ -35,7 +35,8 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
       list(private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      # the first dimension is the batch dimension, so pooling over `d` dimensions needs `d + 2`
+      # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`,
+      # so the input has `d + 2` dimensions
       assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
       list(pool_output_shape(
         shape_in = shapes_in[[1]],
@@ -57,16 +58,18 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
 # right-hand padding, which is the correction below.
 pool_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, dilation = 1,
   ceil_mode = FALSE, id = NULL) {
-  shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
+  # the batch and channel dimensions are part of the contract: the PipeOps assert them via
+  # assert_ndim()
+  shape_in = assert_integerish(shape_in, len = conv_dim + 2L, coerce = TRUE)
 
   if (length(padding) == 1) padding = rep(padding, conv_dim)
   if (length(stride) == 1) stride = rep(stride, conv_dim)
   if (length(kernel_size) == 1) kernel_size = rep(kernel_size, conv_dim)
   if (length(dilation) == 1) dilation = rep(dilation, conv_dim)
 
-  shape_head = utils::head(shape_in, -conv_dim)
+  # the batch and channel dimensions are passed through
+  shape_head = utils::head(shape_in, 2L)
   shape_tail = utils::tail(shape_in, conv_dim)
-  if (length(shape_head) <= 1) warningf("Input tensor does not have batch dimension.")
 
   out = (shape_tail + 2 * padding - dilation * (kernel_size - 1) - 1) / stride + 1
   out = if (ceil_mode) base::ceiling(out) else base::floor(out)

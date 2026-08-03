@@ -11,3 +11,6 @@ test_that("PipeOpTorchIdentity paramtest", {
   res = expect_paramset(po_identity, nn_identity)
   expect_paramtest(res)
 })
+test_that("shape inference matches the operator", {
+  expect_shapes_out_torch("nn_identity", list(), c(2, 4, 6))
+})

@@ -22,7 +22,8 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
       list(private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      # the first dimension is the batch dimension, so pooling over `d` dimensions needs `d + 2`
+      # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`,
+      # so the input has `d + 2` dimensions
       assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
       list(adaptive_avg_output_shape(
         shape_in = shapes_in[[1]],
@@ -36,15 +37,14 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
 )
 
 adaptive_avg_output_shape = function(shape_in, conv_dim, output_size, id = NULL) {
-  shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
+  # the batch and channel dimensions are part of the contract: the PipeOp asserts them via
+  # assert_ndim() and passes them through unchanged
+  shape_in = assert_integerish(shape_in, len = conv_dim + 2L, coerce = TRUE)
 
   if (length(output_size) == 1) output_size = rep(output_size, conv_dim)
 
-  shape_head = utils::head(shape_in, -conv_dim)
-  if (length(shape_head) <= 1) warningf("Input tensor does not have batch dimension.")
-
   assert_positive_extent(output_size, shape_in, id)
-  c(shape_head, output_size)
+  c(utils::head(shape_in, 2L), output_size)
 }
 
 #' @title 1D Adaptive Average Pooling

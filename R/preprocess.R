@@ -5,18 +5,33 @@ NULL
 # not always what one would expect: `transform_crop()` clamps the crop to the image while
 # `transform_center_crop()` pads it, and `transform_resize()` preserves the aspect ratio when
 # `size` is a single number. They are therefore verified against the output of the wrapped
-# functions in `tests/testthat/test_shape_inference.R`.
+# functions in `tests/testthat/test_preprocess.R`.
 #
 # The spatial dimensions are the last two and the channel dimension is the third from last, which
 # holds both for the functions that are applied `rowwise` -- they see `(channels, height, width)`
 # -- and for those that see the whole batch.
+#
+# The `*_shapes()` functions below are the `.shapes_out()` implementations of the operators, so
+# they all take the same arguments and are evaluated in the PipeOp, which is why they can use
+# `self$id`:
+# @param shapes_in (`list()` of `integer()`) The input shapes, `NA` where a dimension is unknown.
+# @param param_vals (named `list()`) The parameter values of the operator.
+# @param task ([`Task`][mlr3::Task] | `NULL`) The task, which none of them needs.
 
-# replaces the last `length(values)` dimensions of `shape`
+# Replaces the last `length(values)` dimensions of a shape, which is what the operators that only
+# touch the spatial dimensions do.
+# @param shape (`integer()`) The input shape.
+# @param values (`integer()`) The new sizes of the trailing dimensions.
 replace_tail = function(shape, values) {
   c(shape[seq_len(length(shape) - length(values))], as.integer(values))
 }
 
-# these operators are applied per row, so the shape needs a batch dimension in front of the image
+# Rejects a shape that is not an image: these operators are applied per row, so the shape needs a
+# batch dimension in front of the image.
+# @param shape (`integer()`) The input shape.
+# @param id (`character(1)`) The PipeOp's id, for the error message.
+# @param ndim (`integer(1)`) The minimum number of dimensions. `3` for the operators that only
+#   touch the trailing two dimensions, which therefore also accept a channel-less image.
 assert_image_shape = function(shape, id, ndim = 4L) {
   if (length(shape) >= ndim) {
     return(invisible(shape))
@@ -27,12 +42,17 @@ assert_image_shape = function(shape, id, ndim = 4L) {
 
 # Extent of `transform_crop()` along one axis. The crop is `img[.., start:(start + size - 1)]`, so
 # it is clamped to the image and may be empty; it is never padded.
+# @param extent (`integer(1)`) The size of the input along that axis.
+# @param start (`integer(1)`) Where the crop starts, i.e. `top` or `left`.
+# @param size (`integer(1)`) The requested crop size, i.e. `height` or `width`.
 crop_extent = function(extent, start, size) {
   pmax(0L, pmin(as.integer(size), extent - as.integer(start) + 1L))
 }
 
 # Extent of `transform_resize()`. A `size` of length 2 is used as is, a single number matches the
 # *shorter* side and scales the other one accordingly (truncating).
+# @param hw (`integer(2)`) The height and width of the input, either of which may be `NA`.
+# @param size (`integer()`) The requested size, of length 1 or 2.
 resize_extent = function(hw, size) {
   if (length(size) >= 2L) {
     return(as.integer(size[1:2]))
@@ -70,7 +90,11 @@ pad_shapes = function(shapes_in, param_vals, task) {
   list(replace_tail(shape, extent))
 }
 
-# `transform_rgb_to_grayscale()` and everything built on it index the first three channels
+# Rejects an image with too few channels: `transform_rgb_to_grayscale()` and everything built on
+# it index the first three channels. An unknown channel count is accepted, because the network may
+# still be valid at runtime.
+# @param shape (`integer()`) The input shape, whose channel dimension is the third from last.
+# @param id (`character(1)`) The PipeOp's id, for the error message.
 assert_rgb_channels = function(shape, id) {
   channels = shape[length(shape) - 2L]
   if (!is.na(channels) && channels < 3L) {
@@ -80,7 +104,9 @@ assert_rgb_channels = function(shape, id) {
   invisible(shape)
 }
 
-# an image with more than three channels is truncated to three
+# An image with more than three channels is truncated to three; an unknown channel count stays
+# unknown, because it may be smaller than three at runtime.
+# @param shape (`integer()`) The input shape, whose channel dimension is the third from last.
 truncate_rgb_channels = function(shape) {
   channels = shape[length(shape) - 2L]
   shape[length(shape) - 2L] = if (!is.na(channels) && channels >= 3L) 3L else NA_integer_

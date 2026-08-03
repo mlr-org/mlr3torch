@@ -44,3 +44,12 @@ test_that("NA in second dimension", {
   net = model_descriptor_to_module(md)
   expect_equal(net(torch_randn(1, 2, 10))$shape, c(1, 2, 10))
 })
+
+test_that("shape inference matches the operator", {
+  expect_shapes_out_torch("nn_linear", list(out_features = 3), c(2, 7, 16))
+})
+
+test_that("shape inference requires the last dimension", {
+  expect_error(po("nn_linear", out_features = 3)$shapes_out(list(c(NA, 7, NA))),
+    "requires the last dimension (the number of input features)", fixed = TRUE)
+})

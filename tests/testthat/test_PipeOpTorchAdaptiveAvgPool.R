@@ -58,15 +58,15 @@ test_that("PipeOpTorchAdaptiveAvgPool3D paramtest", {
   expect_paramtest(res)
 })
 
-sampler_adaptive_avg_pool = function(dim, batch = TRUE) {
+sampler_adaptive_avg_pool = function(dim) {
   list(
-    shape_in = sample(20:25, size = dim + 1 + as.integer(batch), replace = TRUE),
+    shape_in = sample(20:25, size = dim + 2L, replace = TRUE),
     conv_dim = dim,
     output_size = sample(c(1, dim), size = 1)
   )
 }
 
-test_that("adaptive_avg_output_shape works when there is a batch dimension", {
+test_that("adaptive_avg_output_shape works", {
   for (dim in 1:3) {
     testcase = sampler_adaptive_avg_pool(dim)
     mg = switch(dim,
@@ -81,17 +81,25 @@ test_that("adaptive_avg_output_shape works when there is a batch dimension", {
   }
 })
 
-test_that("adaptive_avg_output_shape works when there is no batch dimension", {
-  for (dim in 1:3) {
-    testcase = sampler_adaptive_avg_pool(dim, batch = FALSE)
-    mg = switch(dim,
-      nn_adaptive_avg_pool1d,
-      nn_adaptive_avg_pool2d,
-      nn_adaptive_avg_pool3d
-    )
-    m = do.call(mg, testcase[names(testcase) %in% formalArgs(mg)])
-    outshape = with_no_grad(m(do.call(torch::torch_randn, args = list(unname(testcase$shape_in)))))$shape
-    expect_warning(shape <<- do.call(adaptive_avg_output_shape, args = testcase), regexp = "batch dimension")
-    expect_true(all(outshape == shape))
+test_that("adaptive_avg_output_shape requires a batch dimension", {
+  # the PipeOp rejects such a shape via assert_ndim() before the shape function is reached
+  expect_error(
+    adaptive_avg_output_shape(shape_in = c(3, 20, 20), conv_dim = 2, output_size = 5),
+    "length 4"
+  )
+})
+
+test_that("shape inference matches the operator", {
+  expect_shapes_out_torch("nn_adaptive_avg_pool2d", list(output_size = c(2, 3)), c(2, 3, 16, 20))
+  expect_shapes_out_torch("nn_adaptive_avg_pool1d", list(output_size = 4), c(2, 3, 17))
+})
+
+test_that("an unknown input extent still gives a known output", {
+  # the output size is fixed by `output_size`, so rejecting an unknown input extent would throw
+  # away information
+  for (d in 1:2) {
+    obj = po(sprintf("nn_adaptive_avg_pool%id", d), output_size = rep(4L, d))
+    shape_in = as.integer(c(NA, 3L, rep(NA_integer_, d)))
+    expect_equal(obj$shapes_out(list(input = shape_in))[[1L]], c(NA, 3L, rep(4L, d)))
   }
 })

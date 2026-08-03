@@ -58,7 +58,6 @@ inherit = PipeOpTorch,
     #' @template params_pipelines
     initialize = function(id = "nn_ft_cls", param_vals = list()) {
       param_set = ps(
-        # `init`, not `default`: the module has no default, so the value must reach it
         initialization = p_fct(tags = c("train"), levels = c("uniform", "normal"), init = "uniform")
       )
 

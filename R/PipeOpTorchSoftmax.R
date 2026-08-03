@@ -38,7 +38,7 @@ PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
       dim = param_vals[["dim"]]
       # the number of dimensions is known even when the sizes are not, so a `dim` that does not
       # address one is always wrong and need not wait for the forward pass
-      assert_dim_in_range(dim, if (dim < 0) 1 + length(shape) + dim else dim, shape, self$id)
+      assert_dim_in_range(dim, resolve_dim(dim, shape), shape, self$id)
       shapes_in
     }
   )

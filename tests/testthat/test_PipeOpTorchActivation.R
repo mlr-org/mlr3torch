@@ -397,3 +397,31 @@ test_that("PipeOpTorchHardTanh paramtest", {
   res = expect_paramset(po("nn_hardtanh"), nn_hardtanh)
   expect_paramtest(res)
 })
+
+test_that("shape inference matches the operator", {
+  # elementwise activations preserve the shape
+  expect_shapes_out_torch("nn_elu", list(), c(2, 4, 6))
+  expect_shapes_out_torch("nn_hardshrink", list(), c(2, 4, 6))
+  expect_shapes_out_torch("nn_hardsigmoid", list(), c(2, 4, 6))
+  expect_shapes_out_torch("nn_softmax", list(dim = 2), c(2, 4, 6))
+  # gated linear units halve one dimension
+  expect_shapes_out_torch("nn_glu", list(dim = 2), c(2, 4, 6))
+  expect_shapes_out_torch("nn_geglu", list(), c(2, 4, 6))
+  expect_shapes_out_torch("nn_reglu", list(), c(2, 4, 6))
+})
+
+test_that("shape inference rejects a 'dim' that does not address a dimension", {
+  expect_error(po("nn_glu", dim = 4L)$shapes_out(list(c(NA, 6L, 8L))),
+    "cannot use 'dim' 4 for the input shape (NA,6,8), which has 3 dimension(s)", fixed = TRUE)
+  expect_error(po("nn_softmax", dim = 9L)$shapes_out(list(c(2L, 4L))), "cannot use 'dim' 9", fixed = TRUE)
+  # negative values are legal in torch and must be accepted
+  expect_equal(po("nn_glu", dim = -2L)$shapes_out(list(c(NA, 6L, 8L)))[[1L]], c(NA, 3L, 8L))
+  expect_equal(po("nn_glu", dim = -1)$shapes_out(list(c(NA, 6L, 8L)))[[1L]], c(NA, 6L, 4L))
+  expect_equal(po("nn_softmax", dim = -1)$shapes_out(list(c(2L, 4L)))[[1L]], c(2L, 4L))
+})
+
+test_that("parameter bounds are correct", {
+  # 2 is a valid `lambd`, -0.5 is not
+  expect_equal(po("nn_softshrink", lambd = 2)$shapes_out(list(c(NA, 3L)))[[1L]], c(NA, 3L))
+  expect_error(po("nn_softshrink", lambd = -0.5), "lambd")
+})

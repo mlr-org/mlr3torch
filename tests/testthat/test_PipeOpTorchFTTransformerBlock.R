@@ -129,3 +129,14 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
 
   expect_equal(out$shape, c(4, 1))
 })
+test_that("shape inference returns one token per queried index", {
+  # `query_idx` may select several tokens, and each of them appears in the output
+  pv = list(attention_n_heads = 2, attention_dropout = 0, ffn_d_hidden_multiplier = 2,
+    ffn_dropout = 0, residual_dropout = 0, attention_initialization = "kaiming",
+    ffn_activation = nn_reglu, attention_normalization = nn_layer_norm,
+    ffn_normalization = nn_layer_norm, attention_bias = TRUE, ffn_bias_first = TRUE,
+    ffn_bias_second = TRUE, prenormalization = TRUE, is_first_layer = TRUE)
+  expect_shapes_out_torch("nn_ft_transformer_block", c(pv, list(query_idx = 1L)), c(2, 5, 8))
+  expect_shapes_out_torch("nn_ft_transformer_block", c(pv, list(query_idx = c(1L, 2L))), c(2, 5, 8))
+  expect_shapes_out_torch("nn_ft_transformer_block", c(pv, list(query_idx = NULL)), c(2, 5, 8))
+})

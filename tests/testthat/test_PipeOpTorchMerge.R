@@ -178,3 +178,24 @@ test_that("the inferred merge shape matches the shape the network produces", {
     expect_equal(inferred[-1L], actual[-1L], info = op)
   }
 })
+
+test_that("shape inference matches the operator", {
+  expect_shapes_out_torch("nn_merge_sum", list(), c(2, 4, 6), n_in = 2L)
+  expect_shapes_out_torch("nn_merge_prod", list(), c(2, 4, 6), n_in = 2L)
+  expect_shapes_out_torch("nn_merge_cat", list(dim = 2), c(2, 4, 6), n_in = 2L)
+})
+
+test_that("nn_merge_cat requires the other dimensions to be equal", {
+  cat_shapes_out = function(...) po("nn_merge_cat", dim = 2)$shapes_out(list(...))[[1L]]
+  expect_equal(cat_shapes_out(c(NA, 4L, 6L), c(NA, 5L, 6L)), c(NA, 9L, 6L))
+  # an unknown dimension is determined by the known one, because the two must be equal
+  expect_equal(cat_shapes_out(c(NA, 4L, NA), c(NA, 4L, 6L)), c(NA, 8L, 6L))
+  # ... and an unknown size along the concatenated dimension makes the sum unknown
+  expect_equal(cat_shapes_out(c(NA, NA, 6L), c(NA, 4L, 6L)), c(NA, NA, 6L))
+
+  # `torch_cat()` does not broadcast, so a size of 1 does not combine with a different size
+  expect_error(cat_shapes_out(c(NA, 4L, 1L), c(NA, 4L, 6L)),
+    "dimension 3 has the sizes 1 and 6", fixed = TRUE)
+  # the error names the shapes the PipeOp was given
+  expect_error(cat_shapes_out(c(NA, 4L, 5L), c(NA, 4L, 6L)), "[(NA,4,5);(NA,4,6)]", fixed = TRUE)
+})

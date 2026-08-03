@@ -270,3 +270,57 @@ test_that("augment_random_crop", {
     deterministic = FALSE
   )
 })
+
+test_that("shape inference matches the operator", {
+  # These wrap torchvision, whose behaviour is not always what one would expect -- see the
+  # comments in R/preprocess.R. `trafo_resize` with a single `size` matches the shorter side and
+  # preserves the aspect ratio, so the output is not square.
+  expect_shapes_out_preproc("trafo_resize", list(size = c(8, 12)), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("trafo_resize", list(size = 8), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("trafo_resize", list(size = 8), c(2, 3, 21, 16))
+  expect_shapes_out_preproc("trafo_pad", list(padding = 2), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("trafo_pad", list(padding = c(1, 2)), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("trafo_pad", list(padding = c(1, 2, 3, 4)), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("augment_crop", list(top = 3, left = 4, height = 10, width = 12), c(2, 3, 16, 20))
+  # the crop is clamped to the image instead of being padded
+  expect_shapes_out_preproc("augment_crop", list(top = 10, left = 10, height = 20, width = 20), c(2, 3, 16, 20))
+  # ... while the center crop pads, which torchvision does not do correctly (it swaps height and
+  # width), so the extent is only claimed where no padding is needed
+  expect_shapes_out_preproc("augment_center_crop", list(size = 8), c(2, 3, 16, 20))
+  expect_equal(po("augment_center_crop", size = 32)$shapes_out(list(c(2L, 3L, 16L, 20L)),
+    stage = "train")[[1L]], c(2L, 3L, NA, NA))
+  expect_shapes_out_preproc("augment_resized_crop", list(top = 1, left = 1, height = 8, width = 8, size = c(4, 4)), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("trafo_grayscale", list(num_output_channels = 1), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("trafo_grayscale", list(num_output_channels = 3), c(2, 3, 16, 20))
+  # `transform_rgb_to_grayscale()` drops the channel dimension
+  expect_shapes_out_preproc("trafo_rgb_to_grayscale", list(), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("trafo_adjust_gamma", list(gamma = 0.5), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("trafo_adjust_brightness", list(brightness_factor = 0.5), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("augment_color_jitter", list(), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("trafo_reshape", list(shape = c(-1, 3, 320)), c(2, 3, 16, 20))
+  expect_shapes_out_preproc("trafo_nop", list(), c(2, 3, 16, 20))
+})
+
+test_that("shape inference follows torchvision, including where it misbehaves", {
+  shapes_out = function(id, pv, shape) {
+    obj = po(id)
+    if (length(pv)) obj$param_set$set_values(.values = pv)
+    obj$shapes_out(list(as.integer(shape)), stage = "train")[[1L]]
+  }
+  # `transform_crop()` clamps to the image and never pads
+  expect_equal(shapes_out("augment_crop", list(top = 10, left = 10, height = 20, width = 20),
+    c(2, 3, 16, 20)), c(2L, 3L, 7L, 11L))
+  expect_equal(shapes_out("augment_crop", list(top = 20, left = 4, height = 5, width = 5),
+    c(2, 3, 16, 20)), c(2L, 3L, 0L, 5L))
+  # `transform_resized_crop()` crops and then resizes, and a scalar `size` preserves the aspect
+  # ratio of the *cropped* image
+  expect_equal(shapes_out("augment_resized_crop",
+    list(top = 1, left = 1, height = 8, width = 16, size = 4), c(2, 3, 16, 20)), c(2L, 3L, 4L, 8L))
+  # the flips read no dimension, so an unknown or unusual channel count is fine
+  expect_equal(shapes_out("augment_hflip", list(), c(2, 4, 16, 20)), c(2L, 4L, 16L, 20L))
+  expect_equal(shapes_out("augment_random_horizontal_flip", list(), c(2, 1, 16, 20)), c(2L, 1L, 16L, 20L))
+  expect_equal(shapes_out("augment_vflip", list(), c(2, NA, 16, 20)), c(2L, NA, 16L, 20L))
+  # `transform_color_jitter()` truncates to three channels once `hue` is active
+  expect_equal(shapes_out("augment_color_jitter", list(hue = 0.2), c(2, 4, 8, 10)), c(2L, 3L, 8L, 10L))
+  expect_equal(shapes_out("augment_color_jitter", list(), c(2, 4, 8, 10)), c(2L, 4L, 8L, 10L))
+})

@@ -160,7 +160,7 @@ shape_inference_specs = function() {
       nn_batch_norm3d = list(rank = 5L, params = function() list()),
       nn_flatten = list(rank = 4L, params = function() list(start_dim = 2L, end_dim = sample(2:3, 1L))),
       nn_unsqueeze = list(rank = 3L, params = function() list(dim = sample(c(1:4, -1L), 1L))),
-      nn_squeeze = list(rank = 3L, params = function() list(dim = sample(2:3, 1L)), even = FALSE),
+      nn_squeeze = list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L)), even = FALSE),
       nn_softmax = list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L))),
       nn_dropout = list(rank = 3L, params = function() list(p = 0.5)),
       nn_glu = list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L))),

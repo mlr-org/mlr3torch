@@ -69,7 +69,6 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     .shapes_out = function(shapes_in, param_vals, task) {
       if (!is.null(private$.shapes_out_fn)) {
         new_shapes = private$.shapes_out_fn(shapes_in = shapes_in, param_vals = param_vals, task = task)
-        # the shapes are coerced and may be unnamed, as everywhere else in the package
         new_shapes = assert_shapes(assert_list(new_shapes), coerce = TRUE)
         if (!is.null(names(new_shapes))) {
           assert_subset(names(new_shapes), self$output$name, empty.ok = FALSE)

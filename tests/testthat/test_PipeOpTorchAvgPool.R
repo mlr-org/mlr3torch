@@ -40,9 +40,9 @@ test_that("PipeOpTorchAvgPool3D paramtest", {
   expect_paramtest(res)
 })
 
-sampler_avg_pool = function(dim, batch = TRUE) {
+sampler_avg_pool = function(dim) {
   list(
-    shape_in = sample(20:25, size = dim + 1 + as.integer(batch), replace = TRUE),
+    shape_in = sample(20:25, size = dim + 2L, replace = TRUE),
     conv_dim = dim,
     padding = sample(1:2, size = dim, replace = TRUE),
     stride = sample(1:3, size = dim, replace = TRUE),
@@ -51,7 +51,7 @@ sampler_avg_pool = function(dim, batch = TRUE) {
   )
 }
 
-test_that("avg_output_shape works when there is a batch dimension", {
+test_that("avg_output_shape works", {
   for (dim in 1:3) {
     testcase = sampler_avg_pool(dim)
     mg = switch(dim,
@@ -65,17 +65,18 @@ test_that("avg_output_shape works when there is a batch dimension", {
   }
 })
 
-test_that("avg_output_shape works when there is no batch dimension", {
-  for (dim in 1:3) {
-    testcase = sampler_avg_pool(dim, batch = FALSE)
-    mg = switch(dim,
-      nn_avg_pool1d,
-      nn_avg_pool2d,
-      nn_avg_pool3d
-    )
-    m = do.call(mg, testcase[names(testcase) %in% formalArgs(mg)])
-    outshape = with_no_grad(m(do.call(torch::torch_randn, args = list(unname(testcase$shape_in)))))$shape
-    expect_warning(shape <<- do.call(avg_output_shape, args = testcase), regexp = "batch dimension")
-    expect_true(all(outshape == shape))
-  }
+test_that("avg_output_shape requires a batch dimension", {
+  # the PipeOp rejects such a shape via assert_ndim() before the shape function is reached
+  expect_error(
+    avg_output_shape(shape_in = c(3, 20, 20), conv_dim = 2, padding = 1, stride = 1,
+      kernel_size = 3),
+    "length 4"
+  )
+})
+
+test_that("shape inference matches the operator", {
+  expect_shapes_out_torch("nn_avg_pool1d", list(kernel_size = 2), c(2, 3, 17))
+  expect_shapes_out_torch("nn_avg_pool2d", list(kernel_size = 2), c(2, 3, 16, 16))
+  expect_shapes_out_torch("nn_avg_pool2d", list(kernel_size = 2, stride = 2, padding = 1, ceil_mode = TRUE), c(2, 2, 5, 5))
+  expect_shapes_out_torch("nn_avg_pool2d", list(kernel_size = 3, stride = 2, padding = 1), c(2, 3, 16, 20))
 })

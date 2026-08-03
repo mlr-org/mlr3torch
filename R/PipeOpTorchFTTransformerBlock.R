@@ -193,11 +193,7 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      # the rank is checked first: otherwise dimension 3 is not the token dimension and a shape
-      # that is too short reports an unknown token dimension instead of the real problem
       assert_ndim(shapes_in$input, 3L, self$id)
-      # `d_token` is read from dimension 3 below, so it must be known: otherwise NA_integer_ is
-      # passed to libtorch, which fails with an unreadable C++ error
       assert_known_dims(shapes_in$input, 3L, "the token dimension (dimension 3)", self$id)
       if (is.null(param_vals$query_idx)) {
         return(shapes_in[1])

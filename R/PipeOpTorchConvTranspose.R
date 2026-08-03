@@ -168,15 +168,8 @@ register_po("nn_conv_transpose3d", PipeOpTorchConvTranspose3D)
 
 conv_transpose_output_shape = function(shape_in, dim, padding, dilation, stride, kernel_size, output_padding,
   out_channels, id = NULL) {
-  assert_integerish(shape_in, min.len = dim + 1L)
-
-  if (length(shape_in) ==  dim + 1L) {
-    warningf("The input tensor has no batch dimension.")
-    batch_dimension = integer(0)
-  } else {
-    # every leading dimension is kept, as in `conv_output_shape()`
-    batch_dimension = utils::head(shape_in, -(dim + 1L))
-  }
+  # the batch dimension is part of the contract, as in `conv_output_shape()`
+  assert_integerish(shape_in, len = dim + 2L)
 
   if (length(padding) == 1) padding = rep(padding, dim)
   if (length(dilation) == 1) dilation = rep(dilation, dim)
@@ -187,5 +180,5 @@ conv_transpose_output_shape = function(shape_in, dim, padding, dilation, stride,
   shape_tail = utils::tail(shape_in, dim)
   spatial = (shape_tail - 1) * stride - 2 * padding + dilation * (kernel_size - 1) + output_padding + 1
   assert_positive_extent(spatial, shape_in, id)
-  c(batch_dimension, out_channels, spatial)
+  c(shape_in[1L], out_channels, spatial)
 }

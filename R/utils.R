@@ -36,9 +36,7 @@ inferps = function(fn, ignore = character(0), tags = "train") {
 }
 
 
-# `null_ok` must be `FALSE` for parameters the operator cannot do without, such as `kernel_size`:
-# a `NULL` there satisfies the `required` tag but leaves the shape functions with no extent to
-# work with, which silently drops the spatial dimensions from the inferred shape.
+# `null_ok` must be `FALSE` for parameters the operator cannot do without
 make_check_vector = function(d, null_ok = TRUE) {
   crate(function(x) {
     if ((null_ok && is.null(x)) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) { # nolint

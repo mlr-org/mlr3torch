@@ -36,3 +36,15 @@ test_that("correct output dim", {
   expect_equal(po_test$shapes_out(list(c(NA, 11)), task = task), list(output = c(NA, 1)))
   expect_equal( graph$train(task)[[1L]]$graph$pipeops$nn_head$module$weight$shape[1], 1)
 })
+
+test_that("shape inference matches the operator", {
+  expect_shapes_out_torch("nn_head", list(), c(2, 16), task = tsk("iris"))
+})
+
+test_that("shape inference needs the feature dimension and the task", {
+  # the input shape is (batch, n_features) and the feature dimension is read to build the module
+  expect_error(po("nn_head")$shapes_out(list(c(NA, NA)), task = tsk("iris")),
+    "requires the feature dimension (dimension 2)", fixed = TRUE)
+  # without a task the number of output features is unknown, as documented
+  expect_equal(po("nn_head")$shapes_out(list(c(NA, 16L)))[[1L]], c(NA_integer_, NA_integer_))
+})

@@ -286,3 +286,16 @@ test_that("predict shapes are added during training", {
 
   expect_error(graph$train(task), "has a different shape")
 })
+
+test_that("no package PipeOp falls back to the traced shape inference", {
+  # `infer_shapes()` traces the operator with concrete values, which cannot be exact: it is only
+  # for operators that the user supplies (`nn_fn` without `shapes_out`, `pipeop_preproc_torch()`
+  # with `shapes_out = "infer"`). Every operator we ship computes its shapes itself.
+  traced = Filter(function(key) {
+    obj = suppressWarnings(try(po(key), silent = TRUE))
+    if (inherits(obj, "try-error") || !inherits(obj, "PipeOpTaskPreprocTorch")) return(FALSE)
+    body = paste(deparse(get_private(obj)$.shapes_out), collapse = " ")
+    grepl("infer_shapes", body, fixed = TRUE)
+  }, mlr_pipeops$keys())
+  expect_equal(traced, character(0))
+})

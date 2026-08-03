@@ -235,7 +235,7 @@ test_that("nn_tabm gives informative errors", {
 
 test_that("categorical features incl. logicals are handled correctly", {
   # TabM used to carry its own cardinality helper and batchgetter because the generic
-  # `batchgetter_categ()` encoded logicals as 0/1. Both now come from mlr3torch itself.
+  # `batchgetter_categ()` encoded logicals as 0/1. Both now come from our generic code.
   dat = data.frame(y = factor(c("a", "b", "a", "b")), l = c(TRUE, FALSE, TRUE, TRUE),
     f = factor(c("x", "y", "x", "z")), n = c(1, 2, 3, 4))
   task_l = as_task_classif(dat, target = "y", id = "logi")

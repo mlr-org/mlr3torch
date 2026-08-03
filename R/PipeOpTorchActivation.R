@@ -782,7 +782,7 @@ PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
       dim = param_vals$dim %??% -1L
-      true_dim = if (dim < 0) 1 + length(shape) + dim else dim
+      true_dim = resolve_dim(dim, shape)
       # without this, `shape[true_dim] = d_new` would silently *extend* the shape with `NA`s and
       # a graph would be built on a shape that no tensor can have
       assert_dim_in_range(dim, true_dim, shape, self$id)

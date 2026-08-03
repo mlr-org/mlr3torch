@@ -2,7 +2,7 @@ test_that("PipeOpTorchMultiheadAttention works for self-attention", {
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>%
     po("nn_unsqueeze", dim = 2) %>>%
-    po("nn_multihead_attention", num_heads = 2, batch_first = TRUE)
+    po("nn_multihead_attention", num_heads = 2)
 
   expect_pipeop_torch(graph, "nn_multihead_attention", task, "nn_attention")
 })
@@ -10,8 +10,9 @@ test_that("PipeOpTorchMultiheadAttention works for self-attention", {
 test_that("PipeOpTorchMultiheadAttention paramtest", {
   po_attention = po("nn_multihead_attention", num_heads = 2)
   # embed_dim, kdim and vdim are inferred from the input shapes, need_weights is a construction arg
+  # `batch_first` is fixed to TRUE, see the *Tensor Layout* section of the PipeOp
   res = expect_paramset(po_attention, nn_attention,
-    exclude = c("embed_dim", "kdim", "vdim", "need_weights"))
+    exclude = c("embed_dim", "kdim", "vdim", "need_weights", "batch_first"))
   expect_paramtest(res)
 })
 
@@ -60,19 +61,15 @@ test_that("PipeOpTorchMultiheadAttention mode and need_weights influence the pha
 })
 
 test_that("PipeOpTorchMultiheadAttention shapes_out for the output channel", {
-  # batch-first: (batch, sequence, feature)
-  po1 = po("nn_multihead_attention", num_heads = 2, batch_first = TRUE)
+  # the layout is always (batch, sequence, feature) and the output has the shape of the query
+  po1 = po("nn_multihead_attention", num_heads = 2)
   expect_equal(po1$shapes_out(list(c(NA, 5, 4))), list(output = c(NA, 5, 4)))
 
-  # sequence-first: (sequence, batch, feature) -- the output still has the query shape
-  po1b = po("nn_multihead_attention", num_heads = 2, batch_first = FALSE)
-  expect_equal(po1b$shapes_out(list(c(5, NA, 4))), list(output = c(5, NA, 4)))
-
   # the output has the shape of the query, not of the key/value input
-  po2 = po("nn_multihead_attention", mode = "cross", num_heads = 2, batch_first = TRUE)
+  po2 = po("nn_multihead_attention", mode = "cross", num_heads = 2)
   expect_equal(po2$shapes_out(list(c(NA, 5, 4), c(NA, 7, 6))), list(output = c(NA, 5, 4)))
 
-  po3 = po("nn_multihead_attention", mode = "general", num_heads = 2, batch_first = TRUE)
+  po3 = po("nn_multihead_attention", mode = "general", num_heads = 2)
   expect_equal(
     po3$shapes_out(list(c(NA, 5, 4), c(NA, 7, 6), c(NA, 7, 8))),
     list(output = c(NA, 5, 4))
@@ -95,7 +92,7 @@ test_that("PipeOpTorchMultiheadAttention shapes_out for the output channel", {
 test_that("PipeOpTorchMultiheadAttention shapes_out propagates unknown sequence lengths", {
   # the batch dimension is not the only one that can be unknown, so an unknown sequence length
   # must propagate into both the output and the weights
-  po_bf = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE)
+  po_bf = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
   expect_equal(
     po_bf$shapes_out(list(c(3, NA, 4))),
     list(output = c(3, NA, 4), weights = c(3, NA, NA))
@@ -106,49 +103,33 @@ test_that("PipeOpTorchMultiheadAttention shapes_out propagates unknown sequence 
     list(output = c(NA, NA, 4), weights = rep(NA_real_, 3))
   )
 
-  # sequence-first: the unknown sequence is dimension 1, the known batch dimension 2, and the
-  # weights are batch-first, so the known batch size reappears in front
-  po_sf = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = FALSE)
-  expect_equal(
-    po_sf$shapes_out(list(c(NA, 3, 4))),
-    list(output = c(NA, 3, 4), weights = c(3, NA, NA))
-  )
-
   # an unknown key sequence stays unknown even when add_bias_kv/add_zero_attn extend it
-  po_bias = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
+  po_bias = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
     add_bias_kv = TRUE, add_zero_attn = TRUE)
   expect_equal(po_bias$shapes_out(list(c(3, NA, 4)))$weights, c(3, NA, NA))
 
   # cross-attention: query and key sequences are tracked separately
-  po_cross = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2,
-    batch_first = TRUE)
+  po_cross = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2)
   expect_equal(po_cross$shapes_out(list(c(3, 5, 4), c(3, NA, 4)))$weights, c(3, 5, NA))
   expect_equal(po_cross$shapes_out(list(c(3, NA, 4), c(3, 7, 4)))$weights, c(3, NA, 7))
 
   # the head dimension is known even when both sequence lengths are not
-  po_noavg = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
+  po_noavg = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
     avg_weights = FALSE)
   expect_equal(po_noavg$shapes_out(list(c(3, NA, 4)))$weights, c(3, 2, NA, NA))
 })
 
 test_that("PipeOpTorchMultiheadAttention shapes_out for the weights channel", {
-  # The attention weights are ALWAYS batch-first, irrespective of the `batch_first` parameter.
-  # Averaged over the heads (the default), they are (batch, query_sequence, key_sequence).
-  po_bf = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE)
+  # Averaged over the heads (the default), the weights are
+  # (batch, query_sequence, key_sequence).
+  po_bf = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
   expect_equal(
     po_bf$shapes_out(list(c(NA, 5, 4))),
     list(output = c(NA, 5, 4), weights = c(NA, 5, 5))
   )
 
-  po_sf = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = FALSE)
-  expect_equal(
-    po_sf$shapes_out(list(c(5, NA, 4))),
-    # output keeps the sequence-first layout, weights are batch-first
-    list(output = c(5, NA, 4), weights = c(NA, 5, 5))
-  )
-
   # not averaged: (batch, num_heads, query_sequence, key_sequence)
-  po_noavg = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
+  po_noavg = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
     avg_weights = FALSE)
   expect_equal(
     po_noavg$shapes_out(list(c(NA, 5, 4))),
@@ -156,22 +137,22 @@ test_that("PipeOpTorchMultiheadAttention shapes_out for the weights channel", {
   )
 
   # cross-attention: the key sequence length comes from the key input
-  po_cross = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2, batch_first = TRUE)
+  po_cross = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2)
   expect_equal(
     po_cross$shapes_out(list(c(NA, 5, 4), c(NA, 7, 4))),
     list(output = c(NA, 5, 4), weights = c(NA, 5, 7))
   )
 
   # add_bias_kv and add_zero_attn each add one to the key sequence length
-  po_bias = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
+  po_bias = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
     add_bias_kv = TRUE)
   expect_equal(po_bias$shapes_out(list(c(NA, 5, 4)))$weights, c(NA, 5, 6))
 
-  po_zero = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
+  po_zero = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
     add_zero_attn = TRUE)
   expect_equal(po_zero$shapes_out(list(c(NA, 5, 4)))$weights, c(NA, 5, 6))
 
-  po_both = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
+  po_both = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
     add_bias_kv = TRUE, add_zero_attn = TRUE)
   expect_equal(po_both$shapes_out(list(c(NA, 5, 4)))$weights, c(NA, 5, 7))
 })
@@ -180,7 +161,7 @@ test_that("PipeOpTorchMultiheadAttention self-attention forward works", {
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>%
     po("nn_unsqueeze", dim = 2) %>>%
-    po("nn_multihead_attention", num_heads = 2, batch_first = TRUE)
+    po("nn_multihead_attention", num_heads = 2)
 
   md = graph$train(task)[[1L]]
   expect_equal(md$pointer_shape, c(NA, 1, 4))
@@ -191,7 +172,7 @@ test_that("PipeOpTorchMultiheadAttention self-attention forward works", {
 })
 
 test_that("PipeOpTorchMultiheadAttention with need_weights = TRUE returns output and weights", {
-  po_attention = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE)
+  po_attention = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
   shapes_in = list(input = c(NA, 5, 4))
   module = po_attention$.__enclos_env__$private$.make_module(
     shapes_in, po_attention$param_set$get_values(), NULL
@@ -211,7 +192,7 @@ test_that("PipeOpTorchMultiheadAttention with need_weights = TRUE works inside a
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>%
     po("nn_unsqueeze", dim = 2) %>>%
-    po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE)
+    po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
 
   mds = graph$train(task)
   expect_equal(length(mds), 2L)
@@ -222,7 +203,7 @@ test_that("PipeOpTorchMultiheadAttention with need_weights = TRUE works inside a
 })
 
 test_that("PipeOpTorchMultiheadAttention with need_weights = TRUE and avg_weights = FALSE", {
-  po_attention = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
+  po_attention = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
     avg_weights = FALSE)
   shapes_in = list(input = c(NA, 5, 4))
   module = po_attention$.__enclos_env__$private$.make_module(
@@ -246,7 +227,7 @@ test_that("PipeOpTorchMultiheadAttention cross-attention with two inputs works",
     po("nn_unsqueeze", id = "unsqueeze_context", dim = 2)
 
   graph = gunion(list(graph_query, graph_context)) %>>%
-    po("nn_multihead_attention", mode = "cross", num_heads = 2, batch_first = TRUE)
+    po("nn_multihead_attention", mode = "cross", num_heads = 2)
 
   md = graph$train(list(task_query, task_context), single_input = FALSE)[[1L]]
   # output shape is the query shape
@@ -258,7 +239,7 @@ test_that("PipeOpTorchMultiheadAttention cross-attention with two inputs works",
   expect_equal(out$shape, c(3, 1, 2))
 
   # kdim / vdim are inferred, so query and key/value may have different embedding sizes
-  po_attention = po("nn_multihead_attention", mode = "cross", num_heads = 2, batch_first = TRUE)
+  po_attention = po("nn_multihead_attention", mode = "cross", num_heads = 2)
   module = po_attention$.__enclos_env__$private$.make_module(
     list(query = c(NA, 5, 4), key_value = c(NA, 7, 6)),
     po_attention$param_set$get_values(),
@@ -269,7 +250,7 @@ test_that("PipeOpTorchMultiheadAttention cross-attention with two inputs works",
 })
 
 test_that("PipeOpTorchMultiheadAttention cross-attention with three inputs works", {
-  po_attention = po("nn_multihead_attention", mode = "general", num_heads = 2, batch_first = TRUE)
+  po_attention = po("nn_multihead_attention", mode = "general", num_heads = 2)
   module = po_attention$.__enclos_env__$private$.make_module(
     list(query = c(NA, 5, 4), key = c(NA, 7, 6), value = c(NA, 7, 8)),
     po_attention$param_set$get_values(),
@@ -280,7 +261,7 @@ test_that("PipeOpTorchMultiheadAttention cross-attention with three inputs works
 })
 
 test_that("nn_attention with one input is equivalent to torch self-attention", {
-  module = nn_attention(embed_dim = 4, num_heads = 2, batch_first = TRUE)
+  module = nn_attention(embed_dim = 4, num_heads = 2)
   module$eval()
   x = torch_randn(3, 5, 4)
   expected = with_no_grad(
@@ -288,4 +269,24 @@ test_that("nn_attention with one input is equivalent to torch self-attention", {
   )
   observed = with_no_grad(module(x))
   expect_true(torch_allclose(expected, observed))
+})
+
+test_that("the tensor layout is fixed to batch-first", {
+  # `torch` defaults to (sequence, batch, feature), which contradicts the assumption that the
+  # first dimension of every shape is the batch dimension
+  obj = po("nn_multihead_attention", num_heads = 2)
+  expect_true("batch_first" %nin% obj$param_set$ids())
+  expect_error(po("nn_multihead_attention", num_heads = 2, batch_first = FALSE), "batch_first")
+  pv = get_private(obj)$.shape_dependent_params(list(c(NA, 5L, 4L)), obj$param_set$get_values(), NULL)
+  expect_true(pv$batch_first)
+
+  # the module agrees: with an asymmetric input the two layouts give different weight shapes, so
+  # this pins the layout rather than just the parameter. Sequence-first would give (5, 2, 2).
+  obj = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
+  shapes_in = list(input = c(NA, 5L, 4L))
+  expect_equal(obj$shapes_out(shapes_in)$weights, c(NA, 5L, 5L))
+  module = get_private(obj)$.make_module(shapes_in, obj$param_set$get_values(), NULL)
+  out = with_no_grad(module(torch_randn(2, 5, 4)))
+  expect_equal(out$output$shape, c(2, 5, 4))
+  expect_equal(out$weights$shape, c(2, 5, 5))
 })
