@@ -36,36 +36,11 @@
   trigger the fallback learner anymore.
 * Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
   `torch::nn_multihead_attention()`.
-* Many `PipeOp`s now accept input shapes in which dimensions other than the batch
-  dimension are unknown (`NA`). This affects operators that never inspect the unknown
-  dimension when building their module: the activation functions, `nn_dropout`,
-  `nn_identity`, `nn_softmax`, the `nn_merge_*` operators, all pooling operators and the
-  reshaping operators. Previously only the batch dimension was allowed to be unknown.
-  Notably, `nn_adaptive_avg_pool*` can now resolve an unknown input extent to a fully
-  known output shape.
-* `PipeOp`s that read only *some* dimensions of the input shape now require only those
-  dimensions to be known: `nn_conv*` and `nn_conv_transpose*` need the channel dimension,
-  `nn_batch_norm*` the feature dimension, `nn_layer_norm` the last `dims` dimensions,
-  `nn_ft_cls` the token dimension and `nn_squeeze` the squeezed dimension. Convolutional
-  networks can therefore now be built for images whose height and width are unknown.
-  `nn_fn` and `nn_block` accept unknown dimensions whenever the wrapped function or the
-  wrapped `PipeOp`s do. When a required dimension is unknown, the resulting error message
-  now names that dimension instead of failing inside `libtorch`.
-* All preprocessing `PipeOp`s now compute their output shapes exactly instead of inferring
-  them by tracing the wrapped function. `infer_shapes()` is now only used for operators that the
-  user supplies (`nn_fn` without `shapes_out`, `pipeop_preproc_torch()` with
-  `shapes_out = "infer"`). The shape rules are verified against the shape that the wrapped
-  function actually returns, computed on torch's `"meta"` device.
-* `infer_shapes()` now traces the unknown dimensions with a spread of values instead of `1`,
-  `2` and `3`, and drops a trace that fails. Filling in `1` made operators such as
-  `torch_squeeze()` change the number of output dimensions and rejected valid shapes, and small
-  values reported a wrong output shape for operators that clamp to the input size. A trace that
-  needs a larger extent (a convolution with a large kernel) no longer fails.
-* `nn_reshape` resolves an unknown dimension of `shape` when the number of input elements is
-  known, e.g. an input shape of `(32, 4, 6)` with `shape = c(-1, 24)` now gives `(32, 24)`.
-* `nn_squeeze` without a `dim` no longer requires all dimensions to be known. Unknown
-  dimensions are assumed to not be 1 and are kept, and the module squeezes exactly those
-  dimensions that `$shapes_out()` squeezed.
+* Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension, so
+  networks can be built for inputs whose extent is not known in advance, e.g. images of varying
+  height and width. Operators that read specific dimensions require only those to be known.
+* Error messages about shapes now name the `PipeOp`, the shape it was given and the dimension it
+  needs, instead of failing inside `libtorch`.
 
 ## Breaking changes
 
@@ -86,45 +61,11 @@
   `jit_trace` is now available for all of them except the vision transformers, whose attention
   blocks cannot be traced, and Inception v3, whose auxiliary classifier makes the network return
   more than one prediction.
-* `nn_layer_norm` could not be used with `dims > 1`, because the parameter was checked
-  against the number of input channels instead of the number of input dimensions.
-* `trafo_resize` reported a square output for a `size` of length 1, although
-  `torchvision::transform_resize()` matches the *shorter* side and preserves the aspect ratio.
-* `nn_max_pool1d`, `nn_max_pool2d` and `nn_max_pool3d` ignored the `dilation` parameter when
-  computing their output shape, and all pooling operators ignored that torch drops a pooling
-  window which would start inside the right-hand padding when `ceil_mode` is `TRUE`. Both reported
-  wrong output shapes for fully known input shapes.
-* `nn_ft_transformer_block` reported a single output token when `query_idx` was set, although
-  it returns one token per queried index.
-* `nn_squeeze` rejected a `dim` of length greater than 1, although the module supports it.
-* `nn_merge_cat` broadcast the dimensions it does not concatenate, e.g. it accepted the input
-  shapes `(NA, 4, 1)` and `(NA, 4, 6)`. `torch_cat()` requires those dimensions to be equal, so
-  such shapes are now rejected when the network is built instead of failing at runtime.
-* `nn_glu` *extended* the input shape with unknown dimensions when `dim` was outside the range
-  of the input, so a network could be built on an impossible shape. The `dim` is now checked
-  against the number of input dimensions, and negative values are supported.
-* The convolution operators matched their `padding` parameter partially, so setting
-  `padding_mode` without `padding` used the padding mode as the padding.
-* `nn_squeeze` with a negative `dim` squeezed different dimensions than the module it built.
-* `nn_reshape` silently changed the batch size when `shape` began with a fixed value. The
-  batch dimension is now only allowed to change when it is given as `-1`.
-* `nn_tokenizer_categ` took the number of tokens from the input shape instead of the
-  cardinalities, passed `cardinalities` twice to its module and did not reject tasks without
-  categorical features or with a mismatching number of features.
-* `nn_ft_transformer_block` contained an unreachable postnormalization branch and did not
-  check `query_idx` against the number of tokens.
-* The `initialization` parameter of `nn_ft_cls` never reached the module, because it was
-  declared as a default instead of an initial value.
-* `nn_block` failed for a known batch size and for `n_blocks = 0`.
-* `nn_head` failed with an uninformative error when it was used without a task.
-* The preprocessing operators are computed at the *predict* stage from the predict input
-  shape instead of the train input shape. Pipelines whose shapes differ between the two stages
-  previously trained successfully and then failed at predict time.
-* `trafo_adjust_hue` truncated its input to three channels, and the flipping operators
-  required RGB input although they work for any number of channels.
-* `nn_softshrink` swapped the bounds of its `lambd` parameter, and `nn_rrelu` used wrong
-  defaults for `lower` and `upper`. Required vector-valued parameters such as `kernel_size` no
-  longer accept `NULL`.
+* Fixed various bugs in the shape inference, which reported output shapes that disagreed with the
+  tensor the operator actually returns, e.g. the pooling operators ignored `dilation` and
+  `ceil_mode`, `trafo_resize` reported a square output for a `size` of length 1 and `nn_reshape`
+  silently changed the batch size.
+* Various other fixes in the shape inference engine.
 
 # mlr3torch 0.3.3
 
