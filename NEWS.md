@@ -15,41 +15,32 @@
 * A network can now return more than one prediction during training: it may return a `list()` of
   tensors, where the first element is the primary prediction that is scored by `measures_train` and
   returned when predicting, and the remaining elements are the predictions of auxiliary classifiers
-  that only contribute to the loss.
+  that only contribute to the loss. In `ContextTorch`, the list of predictions
+  available as `y_hats`, while `y_hat` now refers to the first prediction.
   This is documented in the "Network Head and Target Encoding" section of `LearnerTorch`.
-* `ContextTorch` gained the field `y_hats`, which holds the complete output of the network for the
-  current batch, i.e. what the loss is applied to. `y_hat` now always holds the *primary*
-  prediction, so callbacks that read it keep working for networks with auxiliary classifiers.
-  For a network that returns a single tensor the two are identical.
-* Feat: Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`), a port of the
-  official TabM reference implementation. Numerical features can optionally be embedded via the
-  `num_embeddings` parameter, which supports the linear-ReLU, periodic and piecewise-linear
-  embeddings of the `rtdl_num_embeddings` package.
+* Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`), a port of the
+  official TabM reference implementation.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
   (including the validation data during training) when it is set.
-* The `batch_sampler` parameter can now be used without setting `batch_size` for training,
-  as the batch sampler already determines the batches (#420).
-  A `batch_size` (or `batch_size_predict`) is still required for prediction, where the (batch)
-  sampler is not used.
-* The dataloader parameters are now validated with typed conditions: misconfigurations are signaled
-  as `Mlr3ErrorConfig` (see `mlr3misc::error_config()`), so they can be caught by class and do not
-  trigger the fallback learner anymore.
-* Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
-  `torch::nn_multihead_attention()`.
+* Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`).
+* Most `LearnerTorchVision` are now `jittable`.
 
 ## Bug fixes
 
+* The `batch_sampler` parameter can now be used without setting `batch_size` for training,
+  as the batch sampler already determines the batches (#420).
+* The dataloader parameters are now validated with typed conditions: misconfigurations are signaled
+  as `Mlr3ErrorConfig` (see `mlr3misc::error_config()`), so they do not
+  trigger the fallback learner anymore.
+* `nn()` now accepts a `_<n>` suffix on the key to disambiguate repeated layers within a `Graph`,
+  i.e. `nn("linear_1")` is short for `nn("linear", id = "linear_1")`.
+  Previously the suffix was appended a second time, resulting in the id `"linear_1_1"`.
 * The `sampler` and `batch_sampler` parameters are no longer used during prediction, where they
   could silently misalign the predictions with the rows of the task.
   They are now tagged with `"train"` only.
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.
 * `lazy_tensor` columns are now again printed correctly inside `data.table`s
-* `LearnerTorchVision` did not pass its `jittable` argument on to its parent class, so none
-  of the `torchvision` learners had a `jit_trace` parameter and none of them could be traced.
-  `jit_trace` is now available for all of them except the vision transformers, whose attention
-  blocks cannot be traced, and Inception v3, whose auxiliary classifier makes the network return
-  more than one prediction.
 
 # mlr3torch 0.3.3
 
