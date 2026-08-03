@@ -1,0 +1,24 @@
+# jarl (https://jarl.etiennebacher.com) linter workflow
+# Mirrors r-xla/actions/.github/workflows/r-linter.yaml, inlined so that this
+# repository does not depend on a reusable workflow of another organization.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+name: r-linter
+
+jobs:
+  r-linter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: etiennebacher/setup-jarl@v0.1.1
+        with:
+          args: check --output-format github
