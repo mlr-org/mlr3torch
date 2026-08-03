@@ -10,7 +10,7 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
       module_generator = switch(d, nn_avg_pool1d, nn_avg_pool2d, nn_avg_pool3d)
       check_vector = make_check_vector(d)
       param_set = ps(
-        kernel_size = p_uty(custom_check = check_vector, tags = c("required", "train")),
+        kernel_size = p_uty(custom_check = make_check_vector(d, null_ok = FALSE), tags = c("required", "train")),
         stride = p_uty(default = NULL, custom_check = check_vector, tags = "train"),
         padding = p_uty(default = 0L, custom_check = check_vector, tags = "train"),
         ceil_mode = p_lgl(default = FALSE, tags = "train"),
@@ -26,8 +26,7 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
         id = id,
         param_vals = param_vals,
         param_set = param_set,
-        module_generator = module_generator,
-        only_batch_unknown = FALSE
+        module_generator = module_generator
       )
     }
   ),
@@ -36,31 +35,55 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
       list(private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      list(avg_output_shape(
+      # the first dimension is the batch dimension, so pooling over `d` dimensions needs `d + 2`
+      assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
+      list(pool_output_shape(
         shape_in = shapes_in[[1]],
         conv_dim = private$.d,
-        padding = param_vals$padding %??% 0,
-        stride = param_vals$stride %??% param_vals$kernel_size,
-        kernel_size = param_vals$kernel_size,
-        ceil_mode = param_vals$ceil_mode %??% FALSE
+        padding = param_vals[["padding"]] %??% 0,
+        stride = param_vals[["stride"]] %??% param_vals[["kernel_size"]],
+        kernel_size = param_vals[["kernel_size"]],
+        ceil_mode = param_vals[["ceil_mode"]] %??% FALSE,
+        id = self$id
       ))
     },
     .d = NULL
   )
 )
 
-avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ceil_mode = FALSE) {
+# Output shape of a pooling operator, following what torch implements:
+#   floor/ceil((input + 2 * padding - dilation * (kernel_size - 1) - 1) / stride + 1)
+# With `ceil_mode`, torch additionally drops a pooling window that would start entirely within the
+# right-hand padding, which is the correction below. Both were missing before and produced output
+# shapes that disagreed with the tensor the operator actually returns.
+pool_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, dilation = 1,
+  ceil_mode = FALSE, id = NULL) {
   shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
 
   if (length(padding) == 1) padding = rep(padding, conv_dim)
   if (length(stride) == 1) stride = rep(stride, conv_dim)
   if (length(kernel_size) == 1) kernel_size = rep(kernel_size, conv_dim)
+  if (length(dilation) == 1) dilation = rep(dilation, conv_dim)
 
   shape_head = utils::head(shape_in, -conv_dim)
   shape_tail = utils::tail(shape_in, conv_dim)
   if (length(shape_head) <= 1) warningf("Input tensor does not have batch dimension.")
-  shape_tail = (if (ceil_mode) base::ceiling else base::floor)((shape_tail + 2 * padding - kernel_size) / stride + 1)
-  c(shape_head, shape_tail)
+
+  out = (shape_tail + 2 * padding - dilation * (kernel_size - 1) - 1) / stride + 1
+  out = if (ceil_mode) base::ceiling(out) else base::floor(out)
+  if (ceil_mode) {
+    # unknown dimensions stay unknown, they must not be compared
+    overshoots = !is.na(out) & ((out - 1) * stride >= shape_tail + padding)
+    out[overshoots] = out[overshoots] - 1
+  }
+  assert_positive_extent(out, shape_in, id)
+  c(shape_head, out)
+}
+
+# `nn_avg_pool*d()` has no `dilation` parameter
+avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ceil_mode = FALSE) {
+  pool_output_shape(shape_in, conv_dim, padding = padding, stride = stride,
+    kernel_size = kernel_size, dilation = 1, ceil_mode = ceil_mode)
 }
 
 #' @title 1D Average Pooling

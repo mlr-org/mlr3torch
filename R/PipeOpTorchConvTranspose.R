@@ -12,7 +12,7 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
       check_vector = make_check_vector(d)
       param_set = ps(
         out_channels = p_int(lower = 1L, tags = c("required", "train")),
-        kernel_size = p_uty(custom_check = check_vector, tags = c("required", "train")),
+        kernel_size = p_uty(custom_check = make_check_vector(d, null_ok = FALSE), tags = c("required", "train")),
         stride = p_uty(default = 1L, custom_check = check_vector, tags = "train"),
         padding = p_uty(default = 0L, custom_check = check_vector, tags = "train"),
         output_padding = p_uty(default = 0L, custom_check = check_vector, tags = "train"),
@@ -30,10 +30,7 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
         id = id,
         module_generator = module_generator,
         param_vals = param_vals,
-        param_set = param_set,
-        # only the number of input channels is needed to build the module, the spatial
-        # dimensions may be unknown
-        only_batch_unknown = FALSE
+        param_set = param_set
       )
     }
   ),
@@ -42,16 +39,20 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
       list(private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      # conv_transpose_output_shape() also validates the number of dimensions, so we let it run first
+      # see PipeOpTorchConv: the batch dimension is required, otherwise dimension 2 is not the
+      # channel dimension
+      assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
+      # `param_vals[["padding"]]` rather than `$padding`, which partial-matches `padding_mode`
       shape_out = conv_transpose_output_shape(
         shape_in = shapes_in[[1]],
         dim = private$.d,
-        padding = param_vals$padding %??% 0,
-        dilation = param_vals$dilation %??% 1,
-        stride = param_vals$stride %??% 1,
-        kernel_size = param_vals$kernel_size,
-        output_padding = param_vals$output_padding %??% 0,
-        out_channels = param_vals$out_channels
+        padding = param_vals[["padding"]] %??% 0,
+        dilation = param_vals[["dilation"]] %??% 1,
+        stride = param_vals[["stride"]] %??% 1,
+        kernel_size = param_vals[["kernel_size"]],
+        output_padding = param_vals[["output_padding"]] %??% 0,
+        out_channels = param_vals[["out_channels"]],
+        id = self$id
       )
       assert_known_dims(shapes_in[[1L]], 2L, "the channel dimension (dimension 2)", self$id)
       list(shape_out)
@@ -166,14 +167,15 @@ register_po("nn_conv_transpose2d", PipeOpTorchConvTranspose2D)
 register_po("nn_conv_transpose3d", PipeOpTorchConvTranspose3D)
 
 conv_transpose_output_shape = function(shape_in, dim, padding, dilation, stride, kernel_size, output_padding,
-  out_channels) {
+  out_channels, id = NULL) {
   assert_integerish(shape_in, min.len = dim + 1L)
 
   if (length(shape_in) ==  dim + 1L) {
-    warningf("The input tensor has no batch dimension")
+    warningf("The input tensor has no batch dimension.")
     batch_dimension = integer(0)
   } else {
-    batch_dimension = shape_in[1L]
+    # every leading dimension is kept, as in `conv_output_shape()`
+    batch_dimension = utils::head(shape_in, -(dim + 1L))
   }
 
   if (length(padding) == 1) padding = rep(padding, dim)
@@ -183,7 +185,7 @@ conv_transpose_output_shape = function(shape_in, dim, padding, dilation, stride,
   if (length(output_padding) == 1) output_padding = rep(output_padding, dim)
 
   shape_tail = utils::tail(shape_in, dim)
-  c(batch_dimension, out_channels,
-    (shape_tail - 1) * stride - 2 * padding + dilation * (kernel_size - 1) + output_padding + 1
-  )
+  spatial = (shape_tail - 1) * stride - 2 * padding + dilation * (kernel_size - 1) + output_padding + 1
+  assert_positive_extent(spatial, shape_in, id)
+  c(batch_dimension, out_channels, spatial)
 }

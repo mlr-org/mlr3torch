@@ -50,9 +50,10 @@ The \code{shapes_in} can be assumed to be in the same order as the input names o
 The output shapes must be in the same order as the output names of the \code{PipeOp}.
 In case the output shapes depends on the task (as is the case for \code{\link{PipeOpTorchHead}}), the function should return
 valid output shapes (possibly containing \code{NA}s) if the \code{task} argument is provided or not.
-It is important to properly handle the presence of \code{NA}s in the input shapes.
-By default (if construction argument \code{only_batch_unknown} is \code{TRUE}), only the batch dimension can be \code{NA}.
-If you set this to \code{FALSE}, you need to take other unknown dimensions into account.
+It is important to properly handle the presence of \code{NA}s in the input shapes:
+any dimension can be unknown, not just the batch dimension.
+If the \code{\link[mlr3pipelines:PipeOp]{PipeOp}} cannot work with a specific dimension being unknown,
+it must throw an informative error, see e.g. the helper \code{assert_known_dims()}.
 The method can also throw an error if the input shapes violate some assumptions.
 \item \code{.shape_dependent_params(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> named \code{list()}\cr
@@ -297,8 +298,7 @@ Do not change this after construction.}
   inname = "input",
   outname = "output",
   packages = "torch",
-  tags = NULL,
-  only_batch_unknown = TRUE
+  tags = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -332,10 +332,6 @@ names out the output channels. The default is \code{"output"}.}
 The R packages this object depends on.}
       \item{\code{tags}}{(\code{character()})\cr
 The tags of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}. The tags \code{"torch"} is always added.}
-      \item{\code{only_batch_unknown}}{(\code{logical(1)})\cr
-Whether only the batch dimension can be missing in the input shapes or whether other
-dimensions can also be unknown.
-Default is \code{TRUE}.}
     }
     \if{html}{\out{</div>}}
   }

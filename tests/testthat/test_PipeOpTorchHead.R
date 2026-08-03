@@ -17,7 +17,7 @@ test_that("PipeOpTorchHead paramtest", {
 test_that("correct error message", {
   task = nano_imagenet()
   graph = po("torch_ingress_ltnsr") %>>% po("nn_head")
-  expect_error(graph$train(task), "expects 2D input")
+  expect_error(graph$train(task), "requires an input with 2 dimensions")
 })
 
 test_that("correct output dim", {

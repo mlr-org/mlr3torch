@@ -25,20 +25,13 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_reshape,
-        only_batch_unknown = FALSE
+        module_generator = nn_reshape
       )
     }
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      shape = param_vals$shape
-      shape[shape == -1] = NA
-      inlen = prod(shapes_in[[1]])
-      outlen = prod(shape)
-      # the following is going to trigger rarely, since the 1st dimension is typically NA
-      if (!is.na(inlen) && !is.na(outlen) && inlen != outlen) stop("'shape' not compatible with input shape")
-      list(shape)
+      list(reshape_output_shape(shapes_in[[1L]], param_vals$shape, self$id))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$shape[is.na(param_vals$shape)] = -1
@@ -73,9 +66,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_squeeze,
-        # only the squeezed dimension must be known, see `.shapes_out()`
-        only_batch_unknown = FALSE
+        module_generator = nn_squeeze
       )
     }
   ),
@@ -85,28 +76,59 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
       true_dim = param_vals$dim
 
       if (is.null(true_dim)) {
-        # We cannot tell whether an unknown dimension is 1, i.e. whether it is squeezed away,
-        # so not even the number of output dimensions would be known.
-        assert_known_dims(shape, seq_along(shape)[-1L],
-          "all non-batch dimensions (because 'dim' is not specified)", self$id)
-        # if dim is left unspecified we squeeze everything.
-        shape = shape[shape != 1]
-        if (length(shape) < 2) {
-          stopf("Output tensor would have less than (<) 2 dimensions.")
-        }
-        return(list(shape))
-      } else if (true_dim < 0) { # start counting downwards from the last dimension
-        true_dim = 1 + length(shape) + true_dim
+        # Like keras, an unknown dimension is assumed to not be 1 and is therefore kept:
+        # rejecting the shape would rule out networks that are perfectly valid at runtime.
+        # `.shape_dependent_params()` passes the squeezed dimensions on to the module, so that
+        # the module squeezes exactly those dimensions that are squeezed here.
+        return(list(shape[squeeze_dims(shape, keep = TRUE)]))
       }
-      assert_int(true_dim, lower = 1, upper = length(shape))
+      # `dim` may select more than one dimension, which `nn_squeeze()` supports
+      dim = true_dim
+      negative = true_dim < 0 # start counting downwards from the last dimension
+      true_dim[negative] = 1 + length(shape) + true_dim[negative]
+      # the range is checked before deduplication, so the reported value is the user's
+      for (i in seq_along(dim)) {
+        assert_dim_in_range(dim[[i]], if (negative[[i]]) 1 + length(shape) + dim[[i]] else dim[[i]],
+          shape, self$id)
+      }
+      true_dim = unique(true_dim)
 
-      assert_known_dims(shape, true_dim, sprintf("the squeezed dimension (dimension %i)", true_dim), self$id)
-      if (shape[[true_dim]] == 1) shape = shape[-true_dim]
+      # an unknown dimension is assumed not to be 1 and is kept, as for `dim = NULL`;
+      # `.shape_dependent_params()` pins the module to the dimensions squeezed here
+      squeezed = true_dim[!is.na(shape[true_dim]) & shape[true_dim] == 1L]
+      if (length(squeezed)) shape = shape[-squeezed]
 
       list(shape)
+    },
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
+      dim = param_vals[["dim"]]
+      if (is.null(dim)) {
+        param_vals$dim = squeeze_dims(shapes_in[[1L]])
+        return(param_vals)
+      }
+      # The module squeezes from the back, which only agrees with `.shapes_out()` if the indices
+      # are resolved first: a negative index would otherwise be resolved against the already
+      # shrunk tensor and remove a different dimension.
+      shape = shapes_in[[1L]]
+      negative = dim < 0
+      dim[negative] = 1 + length(shape) + dim[negative]
+      # only dimensions that are known to be 1 are squeezed, so that an unknown dimension which
+      # happens to be 1 at runtime does not disagree with the inferred shape
+      param_vals$dim = unique(dim[!is.na(shape[dim]) & shape[dim] == 1L])
+      param_vals
     }
   )
 )
+
+# The dimensions that `nn_squeeze` removes when no `dim` is given: those that are *known* to be 1,
+# except the batch dimension (which is never squeezed, because its size is a property of the batch
+# and not of the network).
+# With `keep = TRUE` the complementary logical vector is returned, i.e. the dimensions that remain.
+squeeze_dims = function(shape, keep = FALSE) {
+  squeezed = !is.na(shape) & shape == 1
+  squeezed[1L] = FALSE
+  if (keep) !squeezed else which(squeezed)
+}
 
 #' @title Unqueeze a Tensor
 #' @inherit nn_unsqueeze description
@@ -135,21 +157,22 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_unsqueeze,
-        only_batch_unknown = FALSE
+        module_generator = nn_unsqueeze
       )
     }
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1]]
-      true_dim = param_vals$dim
-      if (true_dim < 0) {
-        # -1 appends a new last dimension, -2 inserts before the last one, etc.
-        true_dim = 2 + length(shape) + true_dim
+      dim = param_vals[["dim"]]
+      # -1 appends a new last dimension, -2 inserts before the last one, etc.
+      true_dim = if (dim < 0) 2 + length(shape) + dim else dim
+      # a new dimension may also be appended, hence the shape padded by one
+      if (true_dim < 1L || true_dim > length(shape) + 1L) {
+        stopf("PipeOp '%s' cannot use 'dim' %i for the input shape %s: a new dimension can be inserted at positions 1 to %i.", # nolint
+          self$id, dim, shape_to_str(shape), length(shape) + 1L)
       }
-      assert_int(true_dim, lower = 1, upper = length(shape) + 1)
-      list(append(shape, 1, after = true_dim - 1))
+      list(as.integer(append(shape, 1L, after = true_dim - 1)))
     }
   )
 )
@@ -178,30 +201,34 @@ PipeOpTorchFlatten = R6Class("PipeOpTorchFlatten",
     #' @template params_pipelines
     initialize = function(id = "nn_flatten", param_vals = list()) {
       param_set = ps(
-        start_dim = p_int(default = 2L, lower = 1L, tags = "train"),
-        end_dim = p_int(default = -1L, lower = 1L, tags = "train", special_vals = list(-1L))
+        # negative values count down from the last dimension, `.shapes_out()` checks the range
+        start_dim = p_int(default = 2L, tags = "train"),
+        end_dim = p_int(default = -1L, tags = "train")
       )
       super$initialize(
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_flatten,
-        only_batch_unknown = FALSE
+        module_generator = nn_flatten
       )
     }
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1]]
-      start_dim = param_vals$start_dim %??% 2
-      end_dim = param_vals$end_dim %??% -1
+      start = param_vals[["start_dim"]] %??% 2L
+      end = param_vals[["end_dim"]] %??% -1L
 
-      if (start_dim < 0) start_dim = 1 + length(shape) + start_dim
-      if (end_dim < 0) end_dim = 1 + length(shape) + end_dim
-      assert_int(start_dim, lower = 1, upper = length(shape))
-      assert_int(end_dim, lower = start_dim, upper = length(shape))
+      start_dim = if (start < 0) 1 + length(shape) + start else start
+      end_dim = if (end < 0) 1 + length(shape) + end else end
+      assert_dim_in_range(start, start_dim, shape, self$id)
+      assert_dim_in_range(end, end_dim, shape, self$id)
+      if (end_dim < start_dim) {
+        stopf("PipeOp '%s' requires 'end_dim' (dimension %i) to be at least 'start_dim' (dimension %i).", # nolint
+          self$id, end_dim, start_dim)
+      }
 
-      list(c(shape[seq_len(start_dim - 1)], prod(shape[start_dim:end_dim]), shape[seq_len(length(shape) - end_dim) + end_dim])) # nolint
+      list(as.integer(c(shape[seq_len(start_dim - 1)], prod(shape[start_dim:end_dim]), shape[seq_len(length(shape) - end_dim) + end_dim]))) # nolint
     }
   )
 )
@@ -232,16 +259,18 @@ nn_reshape = nn_module(
 nn_squeeze = nn_module(
   "nn_squeeze",
   initialize = function(dim = NULL) {
-    self$dim = if (is.null(dim)) NULL else assert_int(dim)
+    self$dim = if (is.null(dim)) NULL else assert_integerish(dim, coerce = TRUE)
   },
   forward = function(input) {
-    if (!is.null(self$dim)) {
-      return(input$squeeze(self$dim))
+    dims = if (is.null(self$dim)) {
+      # All dimensions of size 1 are squeezed, except the batch dimension: `PipeOpTorchSqueeze`
+      # cannot know the batch size, so squeezing it would not match the inferred output shape.
+      which(input$shape[-1L] == 1L) + 1L
+    } else {
+      self$dim
     }
-    # All dimensions of size 1 are squeezed, except the batch dimension: `PipeOpTorchSqueeze`
-    # cannot know the batch size, so squeezing it would not match the inferred output shape.
-    dims = which(input$shape[-1L] == 1L) + 1L
-    for (d in rev(dims)) {
+    # squeezing from the back keeps the remaining dimension indices valid
+    for (d in sort(dims, decreasing = TRUE)) {
       input = input$squeeze(d)
     }
     input

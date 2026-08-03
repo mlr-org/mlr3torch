@@ -23,10 +23,7 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = module_generator,
-        # only the number of features is needed to build the module, the remaining
-        # dimensions may be unknown
-        only_batch_unknown = FALSE
+        module_generator = module_generator
       )
     }
   ),
@@ -39,7 +36,12 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
     .shapes_out = function(shapes_in, param_vals, task) {
       # the number of dimensions is checked first, so that a shape that is too short is not
       # reported as having an unknown feature dimension
-      shape = assert_numeric(shapes_in[[1]], min.len = private$.min_dim, max.len = private$.max_dim)
+      shape = shapes_in[[1L]]
+      if (length(shape) < private$.min_dim || length(shape) > private$.max_dim) {
+        stopf("PipeOp '%s' requires an input with %s dimensions (the first one being the batch dimension), but got the shape %s, which has %i.", # nolint
+          self$id, if (private$.min_dim == private$.max_dim) as.character(private$.min_dim) else
+            sprintf("%i or %i", private$.min_dim, private$.max_dim), shape_to_str(shape), length(shape))
+      }
       assert_known_dims(shape, 2L, "the feature dimension (dimension 2)", self$id)
       list(shape)
     },

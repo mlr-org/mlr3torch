@@ -61,10 +61,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = NULL,
-        # the module does not depend on the shape at all and `infer_shapes()` handles
-        # unknown dimensions by filling in different values and comparing the results
-        only_batch_unknown = FALSE
+        module_generator = NULL
       )
     }
   ),
@@ -72,8 +69,11 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     .shapes_out = function(shapes_in, param_vals, task) {
       if (!is.null(private$.shapes_out_fn)) {
         new_shapes = private$.shapes_out_fn(shapes_in = shapes_in, param_vals = param_vals, task = task)
-        assert_list(new_shapes, types = "integer", any.missing = TRUE)
-        assert_subset(names(new_shapes), self$output$name, empty.ok = FALSE)
+        # the shapes are coerced and may be unnamed, as everywhere else in the package
+        new_shapes = assert_shapes(assert_list(new_shapes), coerce = TRUE)
+        if (!is.null(names(new_shapes))) {
+          assert_subset(names(new_shapes), self$output$name, empty.ok = FALSE)
+        }
         return(new_shapes)
       }
 

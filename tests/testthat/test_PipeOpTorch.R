@@ -142,11 +142,9 @@ test_that("Multiple NAs are allowed in the shape", {
   expect_equal(md$pointer_shape, c(NA, NA, 4))
 })
 
-test_that("only_batch_unknown", {
+test_that("unknown dimensions other than the batch dimension are allowed", {
   obj = nn("linear", out_features = 10)
   expect_equal(obj$shapes_out(list(c(NA, NA, 1))), list(output = c(NA, NA, 10)))
-  obj$.__enclos_env__$private$.only_batch_unknown = TRUE
-  expect_error(obj$shapes_out(list(c(NA, NA, 1))), regexp = "Invalid shape: (NA,NA,1)", fixed = TRUE)
 })
 
 test_that("NA in second dimension", {

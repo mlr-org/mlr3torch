@@ -39,8 +39,7 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
         param_set = param_set,
         param_vals = param_vals,
         inname = inname,
-        tags = "abstract",
-        only_batch_unknown = FALSE
+        tags = "abstract"
       )
     }
   ),
@@ -169,19 +168,14 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
       assert_same_ndim(shapes_in, self$id)
 
       # dim can be negative (counting back from the last element which would be -1)
-      true_dim = param_vals$dim %??% -1
-      if (true_dim < 0) {
-        true_dim = 1 + length(shapes_in[[1]]) + true_dim
-      }
-      assert_int(true_dim, lower = 1, upper = length(shapes_in[[1]]))
+      dim = param_vals[["dim"]] %??% -1L
+      true_dim = if (dim < 0) 1 + length(shapes_in[[1L]]) + dim else dim
+      assert_dim_in_range(dim, true_dim, shapes_in[[1L]], self$id)
 
-      # The sizes along the concatenated dimension are summed rather than broadcast, so that
-      # dimension is set to 1 (which broadcasts with everything) before broadcasting the rest.
-      shapes_bc = map(shapes_in, function(shape) {
-        shape[true_dim] = 1L
-        shape
-      })
-      returnshape = broadcast_shapes(shapes_bc, self$id)
+      # `torch_cat()` does not broadcast: every dimension except the concatenated one must be
+      # equal, which is checked here rather than at runtime
+      returnshape = cat_shapes(shapes_in, true_dim, self$id)
+      # the sizes along the concatenated dimension are summed, and are unknown as soon as one is
       returnshape[true_dim] = sum(map_dbl(shapes_in, function(shape) shape[true_dim]))
       list(as.integer(returnshape))
     }

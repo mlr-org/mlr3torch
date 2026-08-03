@@ -21,15 +21,25 @@ PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
     #' @template params_pipelines
     initialize = function(id = "nn_softmax", param_vals = list()) {
       param_set = ps(
-        dim = p_int(1L, Inf, tags = c("train", "required"))
+        # negative values count down from the last dimension, `.shapes_out()` checks the range
+        dim = p_int(tags = c("train", "required"))
       )
       super$initialize(
         id = id,
         module_generator = nn_softmax,
         param_set = param_set,
-        param_vals = param_vals,
-        only_batch_unknown = FALSE
+        param_vals = param_vals
       )
+    }
+  ),
+  private = list(
+    .shapes_out = function(shapes_in, param_vals, task) {
+      shape = shapes_in[[1L]]
+      dim = param_vals[["dim"]]
+      # the number of dimensions is known even when the sizes are not, so a `dim` that does not
+      # address one is always wrong and need not wait for the forward pass
+      assert_dim_in_range(dim, if (dim < 0) 1 + length(shape) + dim else dim, shape, self$id)
+      shapes_in
     }
   )
 )

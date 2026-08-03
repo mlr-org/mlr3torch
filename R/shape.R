@@ -13,12 +13,9 @@
 #'   If left `NULL` (default), the first dimension can be `NA` or not.
 #' @param len (`integer(1)`)\cr
 #'   The length of the shape.
-#' @param only_batch_unknown (`logical(1)`)\cr
-#'   Whether only the batch dimension can be `NA` in the input shapes or whether other
-#'   dimensions can also be unknown.
 #' @noRd
-assert_shape = function(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = NULL, len = NULL, only_batch_unknown = FALSE) { # nolint
-  result = check_shape(shape, null_ok = null_ok, unknown_batch = unknown_batch, len = len, only_batch_unknown = only_batch_unknown) # nolint
+assert_shape = function(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = NULL, len = NULL) {
+  result = check_shape(shape, null_ok = null_ok, unknown_batch = unknown_batch, len = len)
 
   if (!isTRUE(result)) stopf(result)
 
@@ -29,17 +26,13 @@ assert_shape = function(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = N
 }
 
 
-test_shape = function(shape, null_ok = FALSE, unknown_batch = NULL, len = NULL, only_batch_unknown = FALSE) {
+test_shape = function(shape, null_ok = FALSE, unknown_batch = NULL, len = NULL) {
   if (is.null(shape) && null_ok) {
     return(TRUE)
   }
   ok = test_integerish(shape, min.len = 1L, any.missing = TRUE, len = len)
 
   if (!ok) {
-    return(FALSE)
-  }
-
-  if (only_batch_unknown && anyNA(shape[-1L])) {
     return(FALSE)
   }
 
@@ -50,14 +43,14 @@ test_shape = function(shape, null_ok = FALSE, unknown_batch = NULL, len = NULL, 
   return(is.na(shape[1L]) == unknown_batch)
 }
 
-check_shape = function(x, null_ok = FALSE, unknown_batch = NULL, len = NULL, only_batch_unknown = FALSE) {
-  if (test_shape(x, null_ok = null_ok, unknown_batch = unknown_batch, len = len, only_batch_unknown = only_batch_unknown)) { # nolint
+check_shape = function(x, null_ok = FALSE, unknown_batch = NULL, len = NULL) {
+  if (test_shape(x, null_ok = null_ok, unknown_batch = unknown_batch, len = len)) {
     return(TRUE)
   }
   sprintf("Invalid shape: %s.", shape_to_str(x))
 }
 
-assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, unknown_batch = NULL, only_batch_unknown = FALSE) { # nolint
+assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, unknown_batch = NULL) {
   ok = test_list(shapes, min.len = 1L)
   if (named) {
     assert_names(setdiff(names(shapes), "..."), type = "unique")
@@ -65,21 +58,44 @@ assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, 
   if (!ok) {
     stopf("Invalid shape")
   }
-  map(shapes, assert_shape, coerce = coerce, null_ok = null_ok, unknown_batch = unknown_batch, only_batch_unknown = only_batch_unknown) # nolint
+  map(shapes, assert_shape, coerce = coerce, null_ok = null_ok, unknown_batch = unknown_batch)
 }
 
-# Some PipeOps set `only_batch_unknown = FALSE` although they do read *some* dimension of the
-# input shape when constructing their module: a convolution needs the number of input channels,
-# but not the spatial extent. They use this to reject an unknown value in the dimensions they
-# actually need, instead of letting `NA_integer_` reach libtorch, which fails with an
-# unreadable C++ error.
+# Any dimension of a shape can be unknown (`NA`), so shape inference must cope with `NA`s.
+# Many PipeOps still read *some* dimension of the input shape when constructing their module:
+# a convolution needs the number of input channels, but not the spatial extent.
+# They use this to reject an unknown value in the dimensions they actually need, instead of
+# letting `NA_integer_` reach libtorch, which fails with an unreadable C++ error.
 # `dims` are the indices of the required dimensions and `what` describes them for the message.
-assert_known_dims = function(shape, dims, what, id) {
+assert_known_dims = function(shape, dims, what, id = NULL) {
   if (!anyNA(shape[dims])) {
     return(invisible(shape))
   }
+  if (is.null(id)) {
+    stopf("Expected %s of the input shape to be known, but got shape %s.", what, shape_to_str(shape))
+  }
   stopf("PipeOp '%s' requires %s of the input shape to be known, but got shape %s.",
     id, what, shape_to_str(shape))
+}
+
+# Dimension-wise result of concatenating `shapes` along dimension `dim`, which is left as `NA`
+# for the caller to fill in.
+# Unlike broadcasting, `torch_cat()` requires all other dimensions to be *equal*, so a known size
+# of 1 does not combine with a different known size. Rejecting that here fails when the network is
+# built instead of when it is run.
+cat_shapes = function(shapes, dim, id) {
+  mat = do.call(rbind, shapes)
+  as.integer(map_int(seq_len(ncol(mat)), function(i) {
+    if (i == dim) {
+      return(NA_integer_)
+    }
+    known = unique(mat[, i][!is.na(mat[, i])])
+    if (length(known) > 1L) {
+      stopf("PipeOp '%s' cannot concatenate its input shapes %s: dimension %i has the sizes %s. All dimensions except the concatenated dimension %i must be equal.", # nolint
+        id, shape_to_str(shapes), i, paste0(known, collapse = " and "), dim)
+    }
+    if (length(known)) as.integer(known) else NA_integer_
+  }))
 }
 
 # Broadcasting rules of torch, generalized to shapes that may contain NA (unknown).
@@ -104,6 +120,106 @@ broadcast_shapes = function(shapes, id) {
   }))
 }
 
+# Shape of `torch_reshape(x, shape)`, where `-1` (or `NA`) marks a dimension that torch infers
+# from the number of elements. Like keras, that dimension is resolved here whenever the number of
+# input elements is known, and stays unknown otherwise.
+reshape_output_shape = function(shape_in, shape, id) {
+  target = shape # the user's `shape`, for the error messages
+  if (!length(shape)) {
+    stopf("PipeOp '%s' requires 'shape' to have at least one dimension.", id)
+  }
+  shape[shape == -1] = NA
+  if (any(!is.na(shape) & shape < 1)) {
+    stopf("PipeOp '%s': 'shape' %s is invalid: every dimension must be at least 1, only -1 marks the dimension that is inferred from the number of elements.", # nolint
+      id, shape_to_str(target))
+  }
+  # the number of input elements is unknown as soon as one dimension is (typically the batch)
+  inlen = prod(shape_in)
+  unknown = which(is.na(shape))
+  if (is.na(inlen) || length(unknown) > 1L) {
+    # torch itself rejects more than one unknown dimension, so we leave that to the module
+    return(as.integer(shape))
+  }
+  # note that `shape[-integer(0)]` is empty, so the two cases have to be distinguished
+  knownlen = if (length(unknown)) prod(shape[-unknown]) else prod(shape)
+  if (knownlen == 0 || (length(unknown) && inlen %% knownlen != 0) ||
+      (!length(unknown) && inlen != knownlen)) {
+    stopf("PipeOp '%s': 'shape' %s is not compatible with the input shape %s.",
+      id, shape_to_str(target), shape_to_str(shape_in))
+  }
+  if (length(unknown)) {
+    shape[unknown] = inlen / knownlen
+  }
+  # The first dimension is the batch dimension. A reshape that moves elements across it changes
+  # the batch size, which fails much later with a mismatch against the target.
+  rest_in = prod(shape_in[-1L])
+  rest_out = prod(shape[-1L])
+  keeps_batch = is.na(target[[1L]]) || target[[1L]] == -1
+  if (keeps_batch && !is.na(rest_in) && !is.na(rest_out) && rest_in != rest_out) {
+    stopf("PipeOp '%s': 'shape' %s changes the batch dimension of the input shape %s: it maps %s elements per observation to %s.", # nolint
+      id, shape_to_str(target), shape_to_str(shape_in), rest_in, rest_out)
+  }
+  as.integer(shape)
+}
+
+# Rejects a `dim` parameter that does not address a dimension of `shape`. `dim` is what the user
+# specified (which may count down from the last dimension) and `true_dim` the resolved index.
+# Without this check, assigning to an out-of-range index silently *extends* a shape with `NA`s
+# instead of erroring, and a graph is then built on a shape that no tensor can have.
+assert_dim_in_range = function(dim, true_dim, shape, id) {
+  if (true_dim >= 1L && true_dim <= length(shape)) {
+    return(invisible(true_dim))
+  }
+  stopf("PipeOp '%s' cannot use 'dim' %i for the input shape %s, which has %i dimension(s).",
+    id, dim, shape_to_str(shape), length(shape))
+}
+
+# Rejects an operation on the first dimension, which is the batch dimension.
+# Changing it builds a network that only fails when the output no longer matches the target.
+assert_not_batch_dim = function(dim, shape, id) {
+  if (dim != 1L) {
+    return(invisible(dim))
+  }
+  stopf("PipeOp '%s' would change dimension 1 of the input shape %s, which is the batch dimension.",
+    id, shape_to_str(shape))
+}
+
+# Halves one dimension of a shape, as the gated linear units do.
+# An unknown dimension stays unknown, a known odd one is rejected.
+halve_dim = function(shape, dim, id) {
+  halved = shape[dim] / 2
+  if (!test_integerish(halved)) {
+    stopf("PipeOp '%s' requires dimension %i of the input shape %s to be divisible by 2, but it is %i.", # nolint
+      id, dim, shape_to_str(shape), shape[dim])
+  }
+  shape[dim] = halved
+  as.integer(shape)
+}
+
+# The first dimension of a shape is always the batch dimension, so an operator over `d` dimensions
+# needs a fixed number of them. Operators that read a specific dimension (a convolution reads the
+# channel dimension) rely on this, because otherwise the dimension they read is a different one.
+assert_ndim = function(shape, ndim, id) {
+  if (length(shape) == ndim) {
+    return(invisible(shape))
+  }
+  stopf("PipeOp '%s' requires an input with %i dimensions (the first one being the batch dimension), but got the shape %s, which has %i.", # nolint
+    id, ndim, shape_to_str(shape), length(shape))
+}
+
+# A kernel that does not fit into the input, or a stride of 0, gives an output extent that is not
+# positive (or not even finite). torch rejects such a configuration, so the shape must not be
+# passed on to the rest of the graph, where it would produce follow-up errors far from the cause.
+assert_positive_extent = function(extent, shape_in, id) {
+  invalid = !is.na(extent) & (!is.finite(extent) | extent < 1)
+  if (!any(invalid)) {
+    return(invisible(extent))
+  }
+  stopf("%s cannot be applied to the input shape %s: the output would have the size %s. Check 'kernel_size', 'stride', 'padding' and 'dilation'.", # nolint
+    if (is.null(id)) "The operator" else sprintf("PipeOp '%s'", id), shape_to_str(shape_in),
+    paste0(extent, collapse = ", "))
+}
+
 assert_same_ndim = function(shapes, id) {
   ndim = map_int(shapes, length)
   if (length(unique(ndim)) == 1L) {
@@ -117,6 +233,9 @@ check_rgb_shape = function(shape) {
   msg = check_shape(shape, len = 4L, null_ok = FALSE)
   if (!isTRUE(msg)) {
     return(msg)
+  }
+  if (is.na(shape[2L])) {
+    return("Second dimension (the number of channels) must be known.")
   }
   if (shape[2L] != 3L) {
     return("Second dimension must be 3 for RGB images.")
@@ -133,23 +252,72 @@ assert_rgb_shape = function(shape) {
 }
 
 # grayscale or rgb image
+# only the channel dimension must be known, the spatial extent may be unknown
 assert_grayscale_or_rgb = function(shape) {
-  assert_shape(shape, len = 4L, null_ok = FALSE, only_batch_unknown = TRUE)
+  assert_shape(shape, len = 4L, null_ok = FALSE)
+  assert_known_dims(shape, 2L, "the channel dimension (dimension 2)")
   assert_true(shape[2L] == 3L || shape[2L] == 1L,
     .var.name = "Second dimension is 3 for RGB images or 1 for grayscale images")
+}
+
+# The values that `infer_shapes()` fills in for the unknown dimensions before tracing a shape
+# through a function. They span a wide range on purpose, because both ends are needed:
+#
+# * Large values (keras traces with 83 and 89, see `compute_output_spec()` in its torch backend)
+#   are needed because operators that require a minimum extent fail on small ones -- a convolution
+#   with a large kernel, for example -- which would reject a shape that is valid at runtime.
+# * A small value is needed because several operators *clamp* to the input size instead:
+#   `x[, 1:32]` and `transform_crop(height = 16)` return the input extent when it is smaller than
+#   the requested one. Their output is therefore genuinely unknown, and tracing with large values
+#   only would report it as known -- the traced value would then disagree with the tensor that the
+#   network sees at runtime.
+#
+# None of the values may be 1: a dimension of size 1 broadcasts against everything and is squeezed
+# away by operators such as `torch_squeeze()`, which changes the *number* of output dimensions.
+# A trace that fails is dropped by `infer_shapes()`, so the small value costs nothing for operators
+# that cannot handle it.
+# The values are lowered when the traced tensor would become too large, which happens when many
+# dimensions are unknown.
+na_replacements = function(shape, max_elements = 1e7) {
+  n_unknown = sum(is.na(shape))
+  candidates = list(c(2L, 83L, 89L), c(2L, 23L, 29L), c(2L, 7L, 11L), c(2L, 3L, 5L))
+  if (!n_unknown) {
+    return(candidates[[1L]])
+  }
+  n_known = prod(as.numeric(shape[!is.na(shape)]))
+  for (candidate in candidates) {
+    if (n_known * max(candidate)^n_unknown <= max_elements) {
+      return(candidate)
+    }
+  }
+  last(candidates)
 }
 
 #' @title Infer Shapes
 #' @description
 #' Infer the shapes of the output of a function based on the shapes of the input.
-#' This is done as follows:
-#' 1. All `NA`s are replaced with values `1`, `2`, `3`.
+#'
+#' This is a heuristic and is only used for operators that the *user* supplies, i.e. [`nn_fn`][mlr3torch::mlr_pipeops_nn_fn]
+#' without a `shapes_out` argument and [`pipeop_preproc_torch()`] with `shapes_out = "infer"`.
+#' Every operator that `mlr3torch` itself provides computes its output shapes exactly.
+#' Tracing cannot be exact: an operator whose output size is a step function of the input size can
+#' return the same value for the traced inputs although it varies for others, in which case a
+#' dimension is reported as known although it is not.
+#' Specify the output shapes explicitly if this matters.
+#'
+#' The inference is done as follows:
+#' 1. All `NA`s are replaced with three different values, which span a wide range: none of them is
+#'    `1` (which broadcasts and is squeezed away), one of them is small (to detect operators that
+#'    clamp to the input size, such as slicing or cropping) and the others are large (because
+#'    operators such as a convolution with a large kernel need a minimum extent).
 #' 2. Three tensors are generated for the three shapes of step 1.
 #' 3. The function is called on these three tensors and the shapes are calculated.
+#'    A call that fails is dropped, so that an operator is not rejected because of the smallest
+#'    value; at least two of the three calls must succeed.
 #' 4. If:
 #'    * the number of dimensions varies, an error is thrown.
 #'    * the number of dimensions is the same, values are set to `NA` if the dimension is varying
-#'      between the three tensors and otherwise set to the unique value.
+#'      between the tensors and otherwise set to the unique value.
 #'
 #' @param shapes_in (`list()`)\cr
 #'   A list of shapes of the input tensors.
@@ -176,6 +344,7 @@ infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
 
   infer_shapes_once = function(shapes) {
     f = function(shapes, na_repl) {
+      shape_orig = shapes
       if (rowwise) {
         shapes = shapes[-1L]
       }
@@ -187,14 +356,26 @@ infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
 
       tensor_out = tryCatch(invoke(fn, tensor_in, .args = filtered_params),
         error = function(e) {
-          stopf("Input shape '%s' is invalid for PipeOp with id '%s': %s", shape_to_str(shapes), id,
-            conditionMessage(e))
+          stopf("Input shape '%s' is invalid for PipeOp with id '%s' (unknown dimensions were replaced with %i): %s", # nolint
+            shape_to_str(shape_orig), id, na_repl, conditionMessage(e))
         }
       )
       dim(tensor_out)
     }
 
-    shapes_out = lapply(1:3, f, shapes = shapes)
+    # A trace that fails is dropped: the smallest of the filled-in values exists to detect
+    # operators that clamp to the input size, and operators that need a larger extent must not be
+    # rejected because of it. Two traces are the minimum needed to tell a dimension that varies
+    # with the input from one that does not.
+    traced = lapply(na_replacements(if (rowwise) shapes[-1L] else shapes), function(na_repl) {
+      tryCatch(list(shape = f(shapes, na_repl)), error = function(e) list(condition = e))
+    })
+    shapes_out = map(Filter(function(x) !is.null(x$shape), traced), "shape")
+    if (length(shapes_out) < 2L) {
+      # the traces with the larger values are the informative ones, so report the last failure
+      condition = last(Filter(function(x) !is.null(x$condition), traced))$condition
+      stopf("%s\nThe output shapes could not be inferred by tracing the operator, specify them explicitly instead (see the `shapes_out` argument).", conditionMessage(condition)) # nolint
+    }
 
     if (length(unique(lengths(shapes_out))) > 1L) {
       stopf("Failed to infer shapes for PipeOp with id '%s', as the number of dimensions varies with different values filled in for the unknown dimensions.", id) # nolint

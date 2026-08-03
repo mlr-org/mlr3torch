@@ -73,10 +73,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
         inname = private$.block$input$name,
         outname = private$.block$output$name,
         packages = private$.block$packages,
-        module_generator = NULL,
-        # this PipeOp has no shape logic of its own, the wrapped PipeOps enforce their own
-        # constraints when the block's shapes are computed
-        only_batch_unknown = FALSE
+        module_generator = NULL
       )
     }
   ),
@@ -107,9 +104,21 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
       Reduce(`%>>%`, graphs)
     },
     .shapes_out = function(shapes_in, param_vals, task)  {
-      if (is.null(task)) {
-        stopf("PipeOpTorchBlock '%s', requires a task to compute output shapes", self$id)
+      if (param_vals$n_blocks == 0L) {
+        # `.train()` treats an empty block as the identity, so the shapes are unchanged and the
+        # task is not needed
+        return(shapes_in)
       }
+      if (is.null(task)) {
+        stopf("PipeOp '%s' requires a task to compute output shapes.", self$id)
+      }
+      # `ModelDescriptor()` requires the batch dimension to be unknown, so it is dropped here and
+      # restored afterwards -- otherwise a known batch size would be rejected outright
+      batch = map(shapes_in, function(shape) shape[[1L]])
+      shapes_in = map(shapes_in, function(shape) {
+        shape[1L] = NA_integer_
+        shape
+      })
       block = private$.block$clone(deep = TRUE)
       walk(block$pipeops, function(po) {
         # thereby we avoid initializing the nn modules (it is a little hacky)
@@ -139,7 +148,12 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
 
       mdouts = graph$train(mds, single_input = FALSE)
 
-      map(mdouts, "pointer_shape")
+      # all inputs share the batch dimension, and there may be a different number of outputs
+      batch_size = batch[[1L]]
+      map(map(mdouts, "pointer_shape"), function(shape) {
+        if (!is.na(batch_size) && is.na(shape[[1L]])) shape[1L] = batch_size
+        shape
+      })
     },
     .train = function(inputs) {
       param_vals = self$param_set$get_values()

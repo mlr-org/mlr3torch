@@ -2,8 +2,7 @@ test_that("assert_shape and friends", {
   expect_error(assert_shape("1"))
   expect_error(assert_shape(NULL, null_ok = FALSE))
   expect_error(assert_shape(c(NA, 1), unknown_batch = FALSE))
-  expect_error(assert_shape(c(NA, NA), only_batch_unknown = TRUE, unknown_batch = NULL))
-  expect_integer(assert_shape(c(NA, NA), only_batch_unknown = FALSE, unknown_batch = NULL))
+  expect_integer(assert_shape(c(NA, NA), unknown_batch = NULL))
   expect_integer(assert_shape(c(NA, 1), unknown_batch = TRUE))
   expect_integer(assert_shape(c(NA, 1), unknown_batch = NULL))
 
@@ -42,7 +41,10 @@ test_that("infer_shapes works", {
   check(c(NA, 3), identity, c(NA, 3))
   check(c(NA, 3), function(x) x[, -1], NA_integer_)
   check(c(NA, 3), function(x) x[, 1:2], c(NA, 2))
-  check(c(NA, NA, 3), function(x) x[, 1:2], c(NA, NA, 3))
+  # slicing clamps to the input extent, so this is only correct for an input dimension >= 2:
+  # the smallest value that unknown dimensions are replaced with is 2, because 1 would be
+  # squeezed away and broadcast (see the test on `na_replacements()` below)
+  check(c(NA, NA, 3), function(x) x[, 1:2], c(NA, 2, 3))
   check(c(NA, NA, 3), function(x) x[, 1], c(NA, 3))
   check(c(NA, NA, 3), function(x) x[, 1], c(NA, 3))
   check(c(NA, NA, 3), function(x) x[, 1], c(NA, 3))
@@ -81,15 +83,65 @@ test_that("infer_shapes works", {
 
 })
 
+test_that("infer_shapes fills unknown dimensions with values that are not degenerate", {
+  # Filling an unknown dimension with 1 makes it broadcast and lets operators such as
+  # `squeeze()` remove it, so the traced number of dimensions varies and a valid shape is
+  # rejected. Filling with a small value breaks operators that need a minimum extent, and
+  # silently reports a *wrong* shape when the operator clamps to the input size instead.
+  # keras traces with 83 and 89 for the same reason.
+  check = function(fn, shape, exp) {
+    obs = infer_shapes(list(x = shape), list(), "y", fn, rowwise = FALSE, id = "test")[[1L]]
+    expect_equal(obs, exp)
+  }
+  # filling with 1 would squeeze the dimension away and change the number of dimensions
+  check(function(x) x$squeeze(), c(NA, NA, 6L), c(NA, NA, 6L))
+  # filling with a small value only would fail here, because the kernel does not fit
+  check(function(x) nnf_conv1d(x, torch_randn(4, 6, 5)), c(NA, 6L, NA), c(NA, 4L, NA))
+  # ... and filling with large values only would report the clamped dimension as known 32,
+  # although slicing returns the input extent when it is smaller than 32
+  check(function(x) x[, 1:32, ], c(NA, NA, 6L), c(NA, NA, 6L))
+  # a dimension that genuinely varies with the input is still reported as unknown
+  check(function(x) x$transpose(2, 3), c(NA, NA, 6L), c(NA, 6L, NA))
+})
+
+test_that("shape inference distinguishes operators that clamp from operators that pad", {
+  # `transform_crop()` returns the input extent when the image is smaller than the crop, so the
+  # output extent is genuinely unknown, while `transform_center_crop()` pads and always returns
+  # the requested size. Tracing with a spread of values is what tells the two apart.
+  shapes_out = function(id, pv, shape) {
+    obj = po(id)
+    obj$param_set$set_values(.values = pv)
+    obj$shapes_out(list(shape), stage = "train")[[1L]]
+  }
+  expect_equal(shapes_out("augment_crop", list(top = 1, left = 1, height = 16, width = 16),
+    c(NA, 3L, NA, NA)), c(NA, 3L, NA, NA))
+  # `transform_center_crop()` pads, but torchvision swaps height and width while doing so, so the
+  # padded case is not predictable and the extent stays unknown
+  expect_equal(shapes_out("augment_center_crop", list(size = 32), c(NA, 3L, NA, NA)),
+    c(NA, 3L, NA, NA))
+  expect_equal(shapes_out("augment_center_crop", list(size = 8), c(NA, 3L, 16L, 20L)),
+    c(NA, 3L, 8L, 8L))
+  expect_equal(shapes_out("trafo_resize", list(size = c(8, 8)), c(NA, 3L, NA, NA)),
+    c(NA, 3L, 8L, 8L))
+})
+
+test_that("na_replacements are lowered when the traced tensor would get too large", {
+  # 83^2 * 3 elements is fine, but filling four unknown dimensions with 83 would allocate
+  # ~47 million elements per traced tensor
+  expect_equal(na_replacements(c(NA, 3L, NA)), c(2L, 83L, 89L))
+  expect_true(max(na_replacements(rep(NA_integer_, 4L))) < 83L)
+  # no replacement may be 1, whatever the shape looks like
+  expect_true(all(na_replacements(rep(NA_integer_, 10L)) > 1L))
+  # a shape without unknown dimensions is not traced with different values at all
+  expect_equal(na_replacements(c(2L, 3L)), c(2L, 83L, 89L))
+})
+
 test_that("shape-agnostic PipeOps accept unknown non-batch dimensions", {
   # These operators never inspect the unknown dimension when building their module, so
-  # requiring every non-batch dimension to be known (the PipeOpTorch default) rejects
-  # shapes they can handle perfectly well. See `only_batch_unknown`.
+  # they must work with any dimension being unknown.
   expect_relaxed = function(id, param_vals, shape, na_idx, n_in = 1L) {
     obj = po(id)
     if (length(param_vals)) obj$param_set$set_values(.values = param_vals)
-    testthat::expect_false(get_private(obj)$.only_batch_unknown,
-      label = sprintf("%s only_batch_unknown", id))
 
     shape_na = shape
     shape_na[na_idx] = NA
@@ -152,12 +204,21 @@ test_that("adaptive pooling resolves an unknown input dimension to a known outpu
 })
 
 test_that("PipeOps that need a specific dimension still reject unknown shapes", {
-  # Their input shape is (batch, n_features), so the only dimension that could be unknown is
-  # the one they read. Relaxing them would gain nothing.
-  for (id in c("nn_head", "nn_tokenizer_num", "nn_tokenizer_categ")) {
-    expect_true(get_private(po(id))$.only_batch_unknown, label = sprintf("%s stays strict", id))
+  # Their input shape is (batch, n_features) and they read the feature dimension to build
+  # their module, so it must be known.
+  param_vals = list(nn_head = list(), nn_tokenizer_num = list(d_token = 10))
+  for (id in names(param_vals)) {
+    obj = po(id)
+    if (length(param_vals[[id]])) obj$param_set$set_values(.values = param_vals[[id]])
+    expect_error(obj$shapes_out(list(c(NA, NA)), task = tsk("iris")),
+      "requires the feature dimension (dimension 2)", fixed = TRUE,
+      label = sprintf("%s rejects unknown feature dimension", id))
   }
-  expect_error(po("nn_head")$shapes_out(list(c(NA, NA))), "Invalid shape")
+
+  # `nn_tokenizer_categ` does not read the input dimension: the number of tokens is the number of
+  # categorical features, which comes from the task (or from `cardinalities`)
+  expect_equal(po("nn_tokenizer_categ", d_token = 10)$shapes_out(list(c(NA, NA)),
+    task = tsk("breast_cancer"))[[1L]], c(NA, 9L, 10L))
 })
 
 test_that("PipeOps that read only some dimensions accept unknown shapes elsewhere", {
@@ -166,8 +227,6 @@ test_that("PipeOps that read only some dimensions accept unknown shapes elsewher
   expect_relaxed = function(id, param_vals, shape, na_idx, task = NULL) {
     obj = po(id)
     if (length(param_vals)) obj$param_set$set_values(.values = param_vals)
-    testthat::expect_false(get_private(obj)$.only_batch_unknown,
-      label = sprintf("%s only_batch_unknown", id))
 
     shape_na = as.integer(shape)
     shape_na[na_idx] = NA_integer_
@@ -210,7 +269,6 @@ test_that("PipeOps that read only some dimensions accept unknown shapes elsewher
   # nn_fn does not depend on the shape at all: `infer_shapes()` fills in different values for
   # the unknown dimensions and marks those that vary as unknown again
   obj = po("nn_fn", fn = function(x) x * 2)
-  expect_false(get_private(obj)$.only_batch_unknown)
   expect_equal(obj$shapes_out(list(c(NA, NA, 16L)))[[1L]], c(NA, NA, 16L))
 })
 
@@ -227,11 +285,56 @@ test_that("relaxed PipeOps give a readable error when the needed dimension is un
     "requires the token dimension (dimension 3) of the input shape to be known", fixed = TRUE)
   expect_error(po("nn_linear", out_features = 3)$shapes_out(list(c(NA, 7, NA))),
     "requires the last dimension (the number of input features)", fixed = TRUE)
-  # without `dim`, squeeze cannot even know the number of output dimensions
-  expect_error(po("nn_squeeze")$shapes_out(list(c(NA, NA, 1, 5))),
-    "requires all non-batch dimensions (because 'dim' is not specified)", fixed = TRUE)
-  expect_error(po("nn_squeeze", dim = 3)$shapes_out(list(c(NA, 5, NA))),
-    "requires the squeezed dimension (dimension 3) of the input shape to be known", fixed = TRUE)
+  # an unknown dimension is assumed to not be 1 and is kept, as for `dim = NULL`
+  expect_equal(po("nn_squeeze", dim = 3)$shapes_out(list(c(NA, 5L, NA)))[[1L]], c(NA, 5L, NA))
+})
+
+test_that("nn_reshape resolves an unknown target dimension from the input size", {
+  # keras resolves the -1 whenever the number of input elements is known
+  reshape = function(shape, shape_in) po("nn_reshape", shape = shape)$shapes_out(list(shape_in))[[1L]]
+  expect_equal(reshape(c(-1, 24), c(32L, 4L, 6L)), c(32L, 24L))
+  expect_equal(reshape(c(2, -1), c(32L, 4L, 6L)), c(2L, 384L))
+  # ... and keeps it unknown when it is not
+  expect_equal(reshape(c(-1, 24), c(NA, 4L, 6L)), c(NA, 24L))
+  expect_equal(reshape(c(-1, 6), c(NA, NA, 6L)), c(NA, 6L))
+  # a target shape that does not divide the input is rejected
+  expect_error(reshape(c(-1, 25), c(32L, 4L, 6L)), "not compatible with the input shape")
+  expect_error(reshape(c(32, 25), c(32L, 4L, 6L)), "not compatible with the input shape")
+  # an unknown input dimension means the mismatch can only be caught at runtime
+  expect_equal(reshape(c(-1, 25), c(NA, 4L, 6L)), c(NA, 25L))
+})
+
+test_that("nn_squeeze keeps unknown dimensions instead of rejecting them", {
+  # An unknown dimension is assumed to not be 1, as in keras: rejecting the shape would rule
+  # out networks that work at runtime. The module must squeeze exactly the dimensions that
+  # `$shapes_out()` squeezed, otherwise the inferred shape and the tensor disagree.
+  obj = po("nn_squeeze")
+  expect_equal(obj$shapes_out(list(c(NA, NA, 1L, 5L)))[[1L]], c(NA, NA, 5L))
+  expect_equal(obj$shapes_out(list(c(NA, NA, 5L)))[[1L]], c(NA, NA, 5L))
+  # the batch dimension is never squeezed, also when it is known to be 1
+  expect_equal(obj$shapes_out(list(c(1L, 3L, 5L)))[[1L]], c(1L, 3L, 5L))
+
+  # the module agrees with the inferred shape, also when the unknown dimension is 1 at runtime
+  shapes_in = list(c(NA, NA, 1L, 5L))
+  module = get_private(obj)$.make_module(shapes_in, obj$param_set$get_values(), NULL)
+  expect_equal(dim(module(torch_randn(2, 3, 1, 5))), c(2, 3, 5))
+  expect_equal(dim(module(torch_randn(2, 1, 1, 5))), c(2, 1, 5))
+})
+
+test_that("nn_merge_cat requires the other dimensions to be equal", {
+  cat_shapes_out = function(...) po("nn_merge_cat", dim = 2)$shapes_out(list(...))[[1L]]
+  expect_equal(cat_shapes_out(c(NA, 4L, 6L), c(NA, 5L, 6L)), c(NA, 9L, 6L))
+  # an unknown dimension is determined by the known one, because the two must be equal
+  expect_equal(cat_shapes_out(c(NA, 4L, NA), c(NA, 4L, 6L)), c(NA, 8L, 6L))
+  # ... and an unknown size along the concatenated dimension makes the sum unknown
+  expect_equal(cat_shapes_out(c(NA, NA, 6L), c(NA, 4L, 6L)), c(NA, NA, 6L))
+
+  # `torch_cat()` does not broadcast, so a size of 1 does not combine with a different size:
+  # this used to be accepted and then failed at runtime
+  expect_error(cat_shapes_out(c(NA, 4L, 1L), c(NA, 4L, 6L)),
+    "dimension 3 has the sizes 1 and 6", fixed = TRUE)
+  # the error names the shapes the PipeOp was given
+  expect_error(cat_shapes_out(c(NA, 4L, 5L), c(NA, 4L, 6L)), "[(NA,4,5);(NA,4,6)]", fixed = TRUE)
 })
 
 test_that("nn_block defers to the shape constraints of the PipeOps it wraps", {
@@ -283,19 +386,18 @@ test_that("a CNN can be built for images of unknown size", {
   expect_equal(dim(network(torch_randn(2, 3, 32, 32))), c(2, 3))
 })
 
-test_that("every relaxed PipeOp either guards the dimensions it reads or tolerates NA", {
-  # `nn_ft_transformer_block` was relaxed without a guard, so `NA_integer_` reached libtorch and
-  # produced an unreadable C++ error. This checks the whole class of bug rather than that one op:
-  # for every PipeOpTorch that allows unknown non-batch dimensions, building the module from a
+test_that("every PipeOpTorch either guards the dimensions it reads or tolerates NA", {
+  # `nn_ft_transformer_block` did not guard the dimension it reads, so `NA_integer_` reached
+  # libtorch and produced an unreadable C++ error. This checks the whole class of bug rather than
+  # that one op: every PipeOpTorch has to handle unknown dimensions, so computing shapes from a
   # partially unknown shape must either work or fail with a readable R error.
-  relaxed = Filter(function(key) {
+  pipeops = Filter(function(key) {
     obj = suppressWarnings(try(po(key), silent = TRUE))
-    if (inherits(obj, "try-error") || !inherits(obj, "PipeOpTorch")) return(FALSE)
-    isFALSE(get_private(obj)$.only_batch_unknown)
+    !inherits(obj, "try-error") && inherits(obj, "PipeOpTorch")
   }, mlr_pipeops$keys())
-  expect_true(length(relaxed) > 10L)
+  expect_true(length(pipeops) > 10L)
 
-  for (key in relaxed) {
+  for (key in pipeops) {
     obj = po(key)
     for (shape in list(c(NA, NA, 8L, 8L), c(NA, 7L, NA), c(NA, NA))) {
       res = suppressWarnings(try(obj$shapes_out(list(shape)), silent = TRUE))

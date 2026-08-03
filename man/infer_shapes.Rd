@@ -31,16 +31,30 @@ A list of shapes of the output tensors.
 }
 \description{
 Infer the shapes of the output of a function based on the shapes of the input.
-This is done as follows:
+
+This is a heuristic and is only used for operators that the \emph{user} supplies, i.e. \code{\link[=mlr_pipeops_nn_fn]{nn_fn}}
+without a \code{shapes_out} argument and \code{\link[=pipeop_preproc_torch]{pipeop_preproc_torch()}} with \code{shapes_out = "infer"}.
+Every operator that \code{mlr3torch} itself provides computes its output shapes exactly.
+Tracing cannot be exact: an operator whose output size is a step function of the input size can
+return the same value for the traced inputs although it varies for others, in which case a
+dimension is reported as known although it is not.
+Specify the output shapes explicitly if this matters.
+
+The inference is done as follows:
 \enumerate{
-\item All \code{NA}s are replaced with values \code{1}, \code{2}, \code{3}.
+\item All \code{NA}s are replaced with three different values, which span a wide range: none of them is
+\code{1} (which broadcasts and is squeezed away), one of them is small (to detect operators that
+clamp to the input size, such as slicing or cropping) and the others are large (because
+operators such as a convolution with a large kernel need a minimum extent).
 \item Three tensors are generated for the three shapes of step 1.
 \item The function is called on these three tensors and the shapes are calculated.
+A call that fails is dropped, so that an operator is not rejected because of the smallest
+value; at least two of the three calls must succeed.
 \item If:
 \itemize{
 \item the number of dimensions varies, an error is thrown.
 \item the number of dimensions is the same, values are set to \code{NA} if the dimension is varying
-between the three tensors and otherwise set to the unique value.
+between the tensors and otherwise set to the unique value.
 }
 }
 }

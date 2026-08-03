@@ -60,6 +60,8 @@ PipeOpTorchTokenizerNum = R6Class("PipeOpTorchTokenizerNum",
         stopf("PipeOp '%s' expects an input with 2 dimensions (batch, n_features), but got shape %s.",
           self$id, shape_to_str(shapes_in[[1L]]))
       }
+      # the number of features is needed to build the module
+      assert_known_dims(shapes_in[[1L]], 2L, "the feature dimension (dimension 2)", self$id)
       list(c(shapes_in[[1]], param_vals$d_token))
     }
   )
@@ -210,7 +212,7 @@ PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg",
         d_token = p_int(lower = 1, tags = c("train", "required")),
         bias = p_lgl(init = TRUE, tags = "train"),
         initialization = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = "train"),
-        cardinalities = p_int(lower = 1, tags = "train")
+        cardinalities = p_uty(tags = "train", custom_check = crate(function(x) check_integerish(x, lower = 1, min.len = 1L, any.missing = FALSE, null.ok = TRUE))) # nolint
       )
       super$initialize(
         id = id,
@@ -231,14 +233,37 @@ PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg",
         }
         return(param_vals)
       }
+      # the user may have supplied them, in which case they must not be passed twice
+      if (!is.null(param_vals$cardinalities)) {
+        return(param_vals)
+      }
       c(param_vals, list(cardinalities = unname(categ_cardinalities(task))))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      if (length(shapes_in[[1]]) != 2) {
-        stopf("PipeOp '%s' expects an input with 2 dimensions (batch, n_features), but got shape %s.",
-          self$id, shape_to_str(shapes_in[[1L]]))
+      assert_ndim(shapes_in[[1L]], 2L, self$id)
+      # The number of output tokens is the number of *categories* the module is built for, which
+      # comes from `cardinalities` (or the task), not from the input: the embedding is indexed
+      # with the category offsets, so a size-1 input dimension broadcasts against them.
+      cardinalities = param_vals[["cardinalities"]]
+      n_tokens = if (!is.null(cardinalities)) {
+        length(cardinalities)
+      } else if (!is.null(task)) {
+        length(categ_cardinalities(task))
+      } else {
+        NA_integer_
       }
-      list(c(shapes_in[[1]], param_vals$d_token))
+      if (!is.na(n_tokens) && n_tokens == 0L) {
+        stopf("PipeOp '%s' needs categorical features, but task '%s' has none. Either use a task with factor features or set the 'cardinalities' parameter.", # nolint
+          self$id, task$id)
+      }
+      # the module indexes the embedding with one offset per category, so a known input width
+      # that is neither 1 nor the number of categories cannot work
+      n_features = shapes_in[[1L]][[2L]]
+      if (!is.na(n_features) && !is.na(n_tokens) && n_features != 1L && n_features != n_tokens) {
+        stopf("PipeOp '%s' was given %i cardinalities, which does not match the %i features of the input shape %s.", # nolint
+          self$id, n_tokens, n_features, shape_to_str(shapes_in[[1L]]))
+      }
+      list(c(shapes_in[[1L]][[1L]], as.integer(n_tokens), param_vals[["d_token"]]))
     }
   )
 )

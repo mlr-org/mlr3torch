@@ -36,14 +36,17 @@ inferps = function(fn, ignore = character(0), tags = "train") {
 }
 
 
-make_check_vector = function(d) {
+# `null_ok` must be `FALSE` for parameters the operator cannot do without, such as `kernel_size`:
+# a `NULL` there satisfies the `required` tag but leaves the shape functions with no extent to
+# work with, which silently drops the spatial dimensions from the inferred shape.
+make_check_vector = function(d, null_ok = TRUE) {
   crate(function(x) {
-    if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
+    if ((null_ok && is.null(x)) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) { # nolint
       return(TRUE)
     }
     tmp = if (d == 1) "." else sprintf(" or %s.", d)
     sprintf("Must be an integerish vector of length 1%s", tmp)
-    }, d, .parent = topenv())
+    }, d, null_ok, .parent = topenv())
 }
 
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)
@@ -147,10 +150,12 @@ uniqueify = function(new, existing) {
 }
 
 shape_to_str = function(x) {
-  assert(test_list(x) || test_integerish(x) || is.null(x))
-  if (test_integerish(x)) { # single shape
+  # this is used to build error messages, so it must not error itself: a shape that is not
+  # integerish (`Inf`, out of the integer range) is exactly what the caller wants to report
+  if (is.numeric(x) || is.logical(x)) { # single shape
     return(sprintf("(%s)", paste0(x, collapse = ",")))
   }
+  assert(test_list(x) || is.null(x))
   if (is.null(x)) {
     return("(<unknown>)")
   }

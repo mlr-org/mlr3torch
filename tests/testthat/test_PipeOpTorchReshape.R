@@ -5,8 +5,12 @@ test_that("PipeOpTorchReshape autotest", {
 
   expect_pipeop_torch(graph, "nn_reshape", task)
 
+  # the unknown dimension is resolved, because the number of input elements is known
   out = po("nn_reshape", shape = c(NA, 2, 2))$shapes_out(list(input = c(1, 4)))
-  expect_true(!is.character(all.equal(out[[1L]], c(NA, 2, 2))))
+  expect_equal(out[[1L]], c(1L, 2L, 2L))
+  # ... and stays unknown otherwise
+  out = po("nn_reshape", shape = c(NA, 2, 2))$shapes_out(list(input = c(NA, 4)))
+  expect_equal(out[[1L]], c(NA, 2L, 2L))
 })
 
 test_that("PipeOpTorchReshape paramtest", {

@@ -343,11 +343,13 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         shape_out = self$shapes_out(list(shape_before), stage = stage, task = task)[[1L]]
 
         shape_out_predict = if (stage == "train") {
-          shape_in_predict = if (is.null(dd(lt)$pointer_shape_predict)) shape_before
-          # during `$train()` we also keep track of the shapes that would arise during predict
-          # This avoids that we first train a learner and then only notice during predict that the shapes
-          # during the predict phase are wrong
-          shape_out_predict = self$shapes_out(list(shape_before), stage = "predict", task = task)[[1L]]
+          # During `$train()` we also keep track of the shapes that would arise during predict.
+          # This avoids that we first train a learner and then only notice during predict that the
+          # shapes during the predict phase are wrong.
+          # The predict shapes must be derived from the *predict* input shape: an upstream
+          # augmentation that only runs during training makes the two differ.
+          shape_in_predict = dd(lt)$pointer_shape_predict %??% shape_before
+          self$shapes_out(list(shape_in_predict), stage = "predict", task = task)[[1L]]
         }
         x = transform_lazy_tensor(lt, po_fn, shape_out, shape_out_predict)
 

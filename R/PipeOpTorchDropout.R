@@ -30,8 +30,7 @@ PipeOpTorchDropout = R6Class("PipeOpTorchDropout",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_dropout,
-        only_batch_unknown = FALSE
+        module_generator = nn_dropout
       )
     }
   )

@@ -124,7 +124,7 @@ nn_ft_transformer_block = nn_module(
     x_residual = self[[paste0(stage, "_residual_dropout")]](x_residual)
     x = x + x_residual
     if (!self$prenormalization) {
-      x = layer[[paste0(stage, "_normalization")]](x)
+      x = self[[paste0(stage, "_normalization")]](x)
     }
     return(x)
   },
@@ -187,13 +187,15 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         id = id,
         module_generator = nn_ft_transformer_block,
         param_vals = param_vals,
-        param_set = param_set,
-        only_batch_unknown = FALSE
+        param_set = param_set
       )
     }
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
+      # the rank is checked first: otherwise dimension 3 is not the token dimension and a shape
+      # that is too short reports an unknown token dimension instead of the real problem
+      assert_ndim(shapes_in[[1L]], 3L, self$id)
       # `d_token` is read from dimension 3 below, so it must be known: otherwise NA_integer_ is
       # passed to libtorch, which fails with an unreadable C++ error
       assert_known_dims(shapes_in[[1L]], 3L, "the token dimension (dimension 3)", self$id)
@@ -203,8 +205,20 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
 
       # `shapes_in` is only named when called from `$train()`, so index positionally
       shapes_out = shapes_in[[1L]]
-      # to save computation, apply the last transformer block to only the CLS token
-      shapes_out[[2L]] = 1
+      # to save computation, the last transformer block is applied to only the queried tokens
+      # (usually just the CLS token, but `query_idx` may select several)
+      query_idx = param_vals[["query_idx"]]
+      n_tokens = shapes_out[[2L]]
+      if (!length(query_idx)) {
+        stopf("PipeOp '%s' requires 'query_idx' to select at least one token.", self$id)
+      }
+      # negative indices count from the last token, as elsewhere in torch
+      if (any(query_idx == 0L) || (!is.na(n_tokens) && any(abs(query_idx) > n_tokens))) {
+        stopf("PipeOp '%s' cannot use 'query_idx' %s for the input shape %s, which has %s tokens.",
+          self$id, paste0(query_idx, collapse = ", "), shape_to_str(shapes_in[[1L]]),
+          if (is.na(n_tokens)) "an unknown number of" else as.character(n_tokens))
+      }
+      shapes_out[[2L]] = length(query_idx)
       return(list(shapes_out))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {

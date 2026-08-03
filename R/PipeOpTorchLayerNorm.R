@@ -31,17 +31,22 @@ PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
         eps                = p_dbl(default = 1e-5, lower = 0, tags = "train")
       )
       super$initialize(id = id, param_vals = param_vals, param_set = param_set,
-        module_generator = nn_layer_norm,
-        # only the last `dims` dimensions make up `normalized_shape`, the leading ones
-        # (e.g. a sequence length) may be unknown
-        only_batch_unknown = FALSE
+        module_generator = nn_layer_norm
       )
     }
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
-      dims = assert_int(param_vals$dims, lower = 1L, upper = length(shape))
+      dims = param_vals[["dims"]]
+      if (dims >= length(shape)) {
+        stopf("PipeOp '%s' normalizes over the last 'dims' = %i dimension(s), which would include the batch dimension of the input shape %s.", # nolint
+          self$id, dims, shape_to_str(shape))
+      }
+      if (dims < 1L) {
+        stopf("PipeOp '%s' normalizes over the last 'dims' = %i dimension(s), but the input shape %s has only %i.", # nolint
+          self$id, dims, shape_to_str(shape), length(shape))
+      }
       assert_known_dims(shape, seq(to = length(shape), length.out = dims),
         sprintf("the last %i dimension(s), which make up 'normalized_shape',", dims), self$id)
       shapes_in

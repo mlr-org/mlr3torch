@@ -49,9 +49,10 @@
 #'   The output shapes must be in the same order as the output names of the `PipeOp`.
 #'   In case the output shapes depends on the task (as is the case for [`PipeOpTorchHead`]), the function should return
 #'   valid output shapes (possibly containing `NA`s) if the `task` argument is provided or not.
-#'   It is important to properly handle the presence of `NA`s in the input shapes.
-#'   By default (if construction argument `only_batch_unknown` is `TRUE`), only the batch dimension can be `NA`.
-#'   If you set this to `FALSE`, you need to take other unknown dimensions into account.
+#'   It is important to properly handle the presence of `NA`s in the input shapes:
+#'   any dimension can be unknown, not just the batch dimension.
+#'   If the [`PipeOp`][mlr3pipelines::PipeOp] cannot work with a specific dimension being unknown,
+#'   it must throw an informative error, see e.g. the helper `assert_known_dims()`.
 #'   The method can also throw an error if the input shapes violate some assumptions.
 #' * `.shape_dependent_params(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`) -> named `list()`\cr
@@ -256,19 +257,14 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'   In case there is more than one output channel, the `nn_module` that is constructed by this
     #'   [`PipeOp`][mlr3pipelines::PipeOp] during training must return a named `list()`, where the names of the list are the
     #'   names out the output channels. The default is `"output"`.
-    #' @param only_batch_unknown (`logical(1)`)\cr
-    #'   Whether only the batch dimension can be missing in the input shapes or whether other
-    #'   dimensions can also be unknown.
-    #'   Default is `TRUE`.
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
-      inname = "input", outname = "output", packages = "torch", tags = NULL, only_batch_unknown = TRUE) {
+      inname = "input", outname = "output", packages = "torch", tags = NULL) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
       assert_character(inname, .var.name = "input channel names")
       assert_character(outname, .var.name = "output channel names", min.len = 1L)
       assert_character(tags, null.ok = TRUE)
       assert_character(packages, any.missing = FALSE)
 
-      private$.only_batch_unknown = assert_flag(only_batch_unknown)
       packages = union(packages, c("mlr3torch", "torch"))
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
@@ -296,17 +292,16 @@ PipeOpTorch = R6Class("PipeOpTorch",
     shapes_out = function(shapes_in, task = NULL) {
       assert_r6(task, "Task", null.ok = TRUE)
       if (is.numeric(shapes_in)) shapes_in = list(shapes_in)
-      # batch dimension can be known or unknown
-      assert_shapes(shapes_in, unknown_batch = NULL, only_batch_unknown = private$.only_batch_unknown)
-      if ("..." %nin% self$input$name) {
-        assert_true(length(shapes_in) == nrow(self$input),
-          .var.name = "number of input shapes equal to number of input channels")
+      # any dimension can be known or unknown, `.shapes_out()` has to handle the `NA`s
+      assert_shapes(shapes_in, unknown_batch = NULL)
+      if ("..." %nin% self$input$name && length(shapes_in) != nrow(self$input)) {
+        stopf("PipeOp '%s' has %i input channel(s) (%s), but %i input shape(s) were given.",
+          self$id, nrow(self$input), paste0(self$input$name, collapse = ", "), length(shapes_in))
       }
       set_names(private$.shapes_out(shapes_in, self$param_set$get_values(), task = task), self$output$name)
     }
   ),
   private = list(
-    .only_batch_unknown = TRUE,
     .shapes_out = function(shapes_in, param_vals, task) shapes_in,
     .shape_dependent_params = function(shapes_in, param_vals, task) param_vals,
     .make_module = function(shapes_in, param_vals, task) {

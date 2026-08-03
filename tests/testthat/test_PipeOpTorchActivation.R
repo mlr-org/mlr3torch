@@ -98,7 +98,7 @@ test_that("nn_reglu", {
 
   graph = po("torch_ingress_num") %>>% nn("linear", out_features = 11) %>>% nn("reglu")
   task = tsk("iris")
-  expect_error(graph$train(task), "must be divisible by 2")
+  expect_error(graph$train(task), "divisible by 2")
 })
 
 test_that("PipeOpTorchReGLU autotest", {
@@ -123,7 +123,7 @@ test_that("nn_geglu", {
 
   graph = po("torch_ingress_num") %>>% nn("linear", out_features = 11) %>>% nn("geglu")
   task = tsk("iris")
-  expect_error(graph$train(task), "must be divisible by 2")
+  expect_error(graph$train(task), "divisible by 2")
 })
 
 

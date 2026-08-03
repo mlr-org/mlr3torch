@@ -58,26 +58,22 @@ inherit = PipeOpTorch,
     #' @template params_pipelines
     initialize = function(id = "nn_ft_cls", param_vals = list()) {
       param_set = ps(
-        initialization = p_fct(tags = c("train"), levels = c("uniform", "normal"), default = "uniform")
+        # `init`, not `default`: the module has no default, so the value must reach it
+        initialization = p_fct(tags = c("train"), levels = c("uniform", "normal"), init = "uniform")
       )
 
       super$initialize(
         id = id,
         module_generator = nn_ft_cls,
         param_vals = param_vals,
-        param_set = param_set,
-        # only the token dimension is needed to build the module, the number of tokens
-        # may be unknown
-        only_batch_unknown = FALSE
+        param_set = param_set
       )
     }
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       # `shapes_in` is only named when called from `$train()`, so index positionally
-      if (length(shapes_in[[1L]]) != 3) {
-        stop("Input tensor must have 3 dimensions.")
-      }
+      assert_ndim(shapes_in[[1L]], 3L, self$id)
       assert_known_dims(shapes_in[[1L]], 3L, "the token dimension (dimension 3)", self$id)
       # if the number of tokens is unknown, adding the CLS token keeps it unknown
       shapes_in[[1]][2] = shapes_in[[1]][2] + 1

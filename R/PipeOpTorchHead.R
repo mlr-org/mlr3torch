@@ -40,10 +40,11 @@ PipeOpTorchHead = R6Class("PipeOpTorchHead",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      if (length(shapes_in[[1]]) != 2L) {
-        stopf("PipeOpTorchHead expects 2D input, but got %s.", shape_to_str(shapes_in))
-      }
-      d = output_dim_for(task)
+      assert_ndim(shapes_in[[1L]], 2L, self$id)
+      # the number of input features is needed to build the module
+      assert_known_dims(shapes_in[[1L]], 2L, "the feature dimension (dimension 2)", self$id)
+      # without a task the number of output features is unknown, as documented
+      d = if (is.null(task)) NA_integer_ else output_dim_for(task)
       list(c(shapes_in[[1]][[1]], d))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {

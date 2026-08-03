@@ -124,6 +124,8 @@ PipeOpTorchTabResNetBlock = R6Class("PipeOpTorchTabResNetBlock",
       c(param_vals, list(d_block = shapes_in[[1L]][2L]))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
+      # the block dimension is needed to build the module
+      assert_known_dims(shapes_in[[1L]], 2L, "the feature dimension (dimension 2)", self$id)
       shapes_in
     }
   )
