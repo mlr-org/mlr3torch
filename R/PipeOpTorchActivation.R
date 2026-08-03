@@ -134,7 +134,6 @@ PipeOpTorchHardTanh = R6Class("PipeOpTorchHardTanh",
         max_val = p_dbl(default = 1, tags = "train"),
         inplace = p_lgl(default = FALSE, tags = "train")
       )
-
       super$initialize(
         id = id,
         param_set = param_set,
@@ -142,18 +141,6 @@ PipeOpTorchHardTanh = R6Class("PipeOpTorchHardTanh",
         module_generator = nn_hardtanh,
         tags = "activation"
       )
-    }
-  ),
-  private = list(
-    .shape_dependent_params = function(shapes_in, param_vals, task) {
-      min_val = param_vals[["min_val"]] %??% -1
-      max_val = param_vals[["max_val"]] %??% 1
-      # unlike its python counterpart, `torch::nn_hardtanh()` does not check this, and the
-      # activation silently becomes constant, so there is no runtime error to fall back on
-      if (min_val > max_val) {
-        stopf("PipeOp '%s' requires 'min_val' (%s) to be at most 'max_val' (%s).", self$id, min_val, max_val)
-      }
-      param_vals
     }
   )
 )
@@ -269,20 +256,6 @@ PipeOpTorchPReLU = R6Class("PipeOpTorchPReLU",
         tags = "activation"
       )
     }
-  ),
-  private = list(
-    .shape_dependent_params = function(shapes_in, param_vals, task) {
-      num_parameters = param_vals[["num_parameters"]] %??% 1L
-      shape = shapes_in[[1L]]
-      # torch requires `num_parameters` to be 1 or the number of input channels and only checks
-      # that during the forward pass, where it fails with a libtorch stack trace
-      channels = if (length(shape) >= 2L) shape[2L] else 1L
-      if (num_parameters != 1L && !is.na(channels) && num_parameters != channels) {
-        stopf("PipeOp '%s' requires 'num_parameters' to be 1 or the number of input channels (%i for the input shape %s), but it is %i.", # nolint
-          self$id, channels, shape_to_str(shape), num_parameters)
-      }
-      param_vals
-    }
   )
 )
 
@@ -397,18 +370,6 @@ PipeOpTorchRReLU = R6Class("PipeOpTorchRReLU",
         module_generator = nn_rrelu,
         tags = "activation"
       )
-    }
-  ),
-  private = list(
-    .shape_dependent_params = function(shapes_in, param_vals, task) {
-      # `%??%` binds tighter than `/`, so the defaults need the parentheses
-      lower = param_vals[["lower"]] %??% (1 / 8)
-      upper = param_vals[["upper"]] %??% (1 / 3)
-      # torch checks this only in the forward pass, where it fails with a libtorch stack trace
-      if (lower > upper) {
-        stopf("PipeOp '%s' requires 'lower' (%s) to be at most 'upper' (%s).", self$id, lower, upper)
-      }
-      param_vals
     }
   )
 )

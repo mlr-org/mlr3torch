@@ -46,7 +46,7 @@ the private method \code{.shape_dependent_params()}.
 (\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
 This private method gets a list of \code{integer} vectors (\code{shapes_in}), the parameter values (\code{param_vals}),
 as well as an (optional) \code{\link[mlr3:Task]{Task}}.
-The \code{shapes_in} can be assumed to be in the same order as the input names of the \code{PipeOp}.
+The \code{shapes_in} are named after the input channels of the \code{PipeOp} and are in the same order.
 The output shapes must be in the same order as the output names of the \code{PipeOp}.
 In case the output shapes depends on the task (as is the case for \code{\link{PipeOpTorchHead}}), the function should return
 valid output shapes (possibly containing \code{NA}s) if the \code{task} argument is provided or not.

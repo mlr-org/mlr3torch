@@ -1,7 +1,6 @@
 test_that("pooling shapes match the operator, including dilation and ceil_mode", {
-  # `nn_max_pool*d` ignored `dilation` entirely and both pooling operators ignored that torch
-  # drops a pooling window which would start inside the right-hand padding when `ceil_mode` is
-  # set, so they reported wrong shapes for *fully known* inputs
+  # `dilation` enters the output extent, and with `ceil_mode` torch drops a pooling window that
+  # would start inside the right-hand padding
   expect_shapes_out_torch("nn_max_pool2d", list(kernel_size = 2, stride = 1, dilation = 2), c(2, 2, 8, 8))
   expect_shapes_out_torch("nn_max_pool2d", list(kernel_size = 3, stride = 2, dilation = 3, padding = 1), c(2, 2, 16, 20))
   expect_shapes_out_torch("nn_max_pool2d", list(kernel_size = 2, stride = 3, ceil_mode = TRUE), c(2, 2, 6, 6))
@@ -43,7 +42,7 @@ test_that("nn_squeeze accepts several dimensions", {
 })
 
 test_that("nn_ft_transformer_block returns one token per queried index", {
-  # the number of output tokens was hard-coded to 1, although `query_idx` may select several
+  # `query_idx` may select several tokens, and each of them appears in the output
   pv = list(attention_n_heads = 2, attention_dropout = 0, ffn_d_hidden_multiplier = 2,
     ffn_dropout = 0, residual_dropout = 0, attention_initialization = "kaiming",
     ffn_activation = nn_reglu, attention_normalization = nn_layer_norm,
@@ -56,8 +55,8 @@ test_that("nn_ft_transformer_block returns one token per queried index", {
 
 test_that("shape inference of the preprocessing operators matches the operator", {
   # These wrap torchvision, whose behaviour is not always what one would expect -- see the
-  # comments in R/preprocess.R. `trafo_resize` with a single `size` used to claim a square output
-  # although the aspect ratio is preserved.
+  # comments in R/preprocess.R. `trafo_resize` with a single `size` matches the shorter side and
+  # preserves the aspect ratio, so the output is not square.
   expect_shapes_out_preproc("trafo_resize", list(size = c(8, 12)), c(2, 3, 16, 20))
   expect_shapes_out_preproc("trafo_resize", list(size = 8), c(2, 3, 16, 20))
   expect_shapes_out_preproc("trafo_resize", list(size = 8), c(2, 3, 21, 16))
@@ -98,8 +97,8 @@ test_that("no package PipeOp falls back to the traced shape inference", {
 })
 
 test_that("operators reject a 'dim' that does not address a dimension", {
-  # `nn_glu` silently *extended* the shape with `NA`s instead, so a graph was built on a shape
-  # that no tensor can have
+  # assigning to an out-of-range index would extend the shape with `NA`s and build a graph on a
+  # shape that no tensor can have
   expect_error(po("nn_glu", dim = 4L)$shapes_out(list(c(NA, 6L, 8L))),
     "cannot use 'dim' 4 for the input shape (NA,6,8), which has 3 dimension(s)", fixed = TRUE)
   expect_error(po("nn_softmax", dim = 9L)$shapes_out(list(c(2L, 4L))), "cannot use 'dim' 9", fixed = TRUE)
@@ -122,7 +121,7 @@ test_that("nn_squeeze resolves a vector 'dim' before the module sees it", {
 })
 
 test_that("nn_reshape rejects target dimensions that cannot exist", {
-  # these were reported as *known* dimensions and propagated into the rest of the graph
+  # such a dimension must not be reported as *known* and propagated into the rest of the graph
   expect_error(po("nn_reshape", shape = c(-5, -7))$shapes_out(list(c(NA, 4L, 6L))),
     "every dimension must be at least 1", fixed = TRUE)
   expect_error(po("nn_reshape", shape = c(0, 24))$shapes_out(list(c(NA, 4L, 6L))),
@@ -132,20 +131,20 @@ test_that("nn_reshape rejects target dimensions that cannot exist", {
 })
 
 test_that("convolutions and pooling require the batch dimension and a non-empty output", {
-  # dimension 2 is only the channel dimension when the batch dimension is present; without this
-  # the module was built with a spatial extent as `in_channels`
+  # dimension 2 is only the channel dimension when the batch dimension is present, otherwise the
+  # module is built with a spatial extent as `in_channels`
   expect_error(po("nn_conv2d", out_channels = 4, kernel_size = 3)$shapes_out(list(c(3L, 17L, 19L))),
     "requires an input with 4 dimensions", fixed = TRUE)
   expect_error(po("nn_max_pool2d", kernel_size = 2)$shapes_out(list(c(NA, 28L, 28L))),
     "requires an input with 4 dimensions", fixed = TRUE)
-  # a kernel that does not fit produced negative sizes, a stride of 0 produced `Inf`
+  # a kernel that does not fit gives negative sizes, a stride of 0 gives `Inf`
   expect_error(po("nn_conv2d", out_channels = 4, kernel_size = 9)$shapes_out(list(c(2L, 3L, 4L, 4L))),
     "the output would have the size", fixed = TRUE)
   expect_error(po("nn_max_pool2d", kernel_size = 20, stride = 1)$shapes_out(list(c(NA, 3L, 8L, 8L))),
     "the output would have the size", fixed = TRUE)
   expect_error(po("nn_max_pool1d", kernel_size = 0)$shapes_out(list(c(2L, 3L, 8L))),
     "the output would have the size", fixed = TRUE)
-  # `param_vals$padding` partial-matched `padding_mode`, which broke every convolution
+  # `padding` must not partial-match `padding_mode`
   expect_equal(po("nn_conv2d", out_channels = 4, kernel_size = 3, padding_mode = "zeros")$
     shapes_out(list(c(2L, 3L, 8L, 8L)))[[1L]], c(2L, 4L, 6L, 6L))
   # torch supports a per-dimension dilation for max pooling
@@ -153,17 +152,8 @@ test_that("convolutions and pooling require the batch dimension and a non-empty 
     shapes_out(list(c(2L, 3L, 8L, 8L)))[[1L]], c(2L, 3L, 2L, 2L))
 })
 
-test_that("operators check their parameters against the shape instead of failing in libtorch", {
-  # torch checks this only in the forward pass, where it fails with a libtorch stack trace
-  prelu = po("nn_prelu", num_parameters = 5)
-  expect_error(get_private(prelu)$.make_module(list(c(NA, 3L)), prelu$param_set$get_values(), NULL),
-    "'num_parameters' to be 1 or the number of input channels (3", fixed = TRUE)
-  expect_error(get_private(prelu)$.make_module(list(c(NA, 5L)), prelu$param_set$get_values(), NULL),
-    regexp = NA)
-  o = po("nn_rrelu", lower = 0.5, upper = 0.1)
-  expect_error(get_private(o)$.make_module(list(c(2L, 3L)), o$param_set$get_values(), NULL),
-    "requires 'lower' (0.5) to be at most 'upper' (0.1)", fixed = TRUE)
-  # the bounds were the wrong way round: 2 is a valid `lambd`, -0.5 is not
+test_that("parameter bounds are correct", {
+  # 2 is a valid `lambd`, -0.5 is not
   expect_equal(po("nn_softshrink", lambd = 2)$shapes_out(list(c(NA, 3L)))[[1L]], c(NA, 3L))
   expect_error(po("nn_softshrink", lambd = -0.5), "lambd")
 })

@@ -163,7 +163,7 @@ test_that("shape-agnostic PipeOps accept unknown non-batch dimensions", {
       label = sprintf("%s known output dims", id))
   }
 
-  # elementwise activations (these six were inconsistent with their 17 siblings)
+  # elementwise activations
   expect_relaxed("nn_elu", list(), c(NA, 4, 6), 3)
   expect_relaxed("nn_hardshrink", list(), c(NA, 4, 6), 3)
   expect_relaxed("nn_hardsigmoid", list(), c(NA, 4, 6), 3)
@@ -329,8 +329,7 @@ test_that("nn_merge_cat requires the other dimensions to be equal", {
   # ... and an unknown size along the concatenated dimension makes the sum unknown
   expect_equal(cat_shapes_out(c(NA, NA, 6L), c(NA, 4L, 6L)), c(NA, NA, 6L))
 
-  # `torch_cat()` does not broadcast, so a size of 1 does not combine with a different size:
-  # this used to be accepted and then failed at runtime
+  # `torch_cat()` does not broadcast, so a size of 1 does not combine with a different size
   expect_error(cat_shapes_out(c(NA, 4L, 1L), c(NA, 4L, 6L)),
     "dimension 3 has the sizes 1 and 6", fixed = TRUE)
   # the error names the shapes the PipeOp was given
@@ -351,7 +350,7 @@ test_that("nn_block defers to the shape constraints of the PipeOps it wraps", {
 })
 
 test_that("nn_layer_norm accepts 'dims' up to the number of input dimensions", {
-  # the bound used to be the number of input *channels* (always 1), so `dims > 1` failed
+  # the bound is the number of dimensions of the input shape, not the number of input channels
   obj = po("nn_layer_norm", dims = 3)
   shape_in = list(c(NA, 4L, 7L, 16L))
   expect_equal(obj$shapes_out(shape_in)[[1L]], c(NA, 4L, 7L, 16L))
@@ -387,10 +386,9 @@ test_that("a CNN can be built for images of unknown size", {
 })
 
 test_that("every PipeOpTorch either guards the dimensions it reads or tolerates NA", {
-  # `nn_ft_transformer_block` did not guard the dimension it reads, so `NA_integer_` reached
-  # libtorch and produced an unreadable C++ error. This checks the whole class of bug rather than
-  # that one op: every PipeOpTorch has to handle unknown dimensions, so computing shapes from a
-  # partially unknown shape must either work or fail with a readable R error.
+  # this covers a whole class of operator rather than a single one: every PipeOpTorch has to
+  # handle unknown dimensions, so computing shapes from a partially unknown shape must either
+  # work or fail with a readable R error, never let `NA_integer_` reach libtorch
   pipeops = Filter(function(key) {
     obj = suppressWarnings(try(po(key), silent = TRUE))
     !inherits(obj, "try-error") && inherits(obj, "PipeOpTorch")
@@ -411,8 +409,8 @@ test_that("every PipeOpTorch either guards the dimensions it reads or tolerates 
 })
 
 test_that("shape_to_str formats named shape lists as a single string", {
-  # names(x) is a vector, so pasting it against the collapsed shapes recycled and returned a
-  # character vector, which made every multi-input error message print once per input
+  # names(x) is a vector, so pasting it against the collapsed shapes would recycle into a
+  # character vector and print the error message once per input
   repr = shape_to_str(list(input1 = c(NA, 3L), input2 = c(NA, 5L)))
   expect_string(repr)
   expect_true(grepl("input1", repr, fixed = TRUE))
@@ -422,8 +420,7 @@ test_that("shape_to_str formats named shape lists as a single string", {
 })
 
 test_that("infer_shapes reports the error of the function it called", {
-  # the error handler referred to `sin` instead of the shapes, so it errored itself and swallowed
-  # the real failure
+  # the error handler must not error itself and swallow the real failure
   res = try(po("nn_fn", fn = function(x) stop("boom"))$shapes_out(list(c(NA, 4L))), silent = TRUE)
   expect_true(inherits(res, "try-error"))
   msg = conditionMessage(attr(res, "condition"))

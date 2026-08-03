@@ -45,7 +45,7 @@
 #    The `shapes_in` list indicates the shape of input tensors that will be fed to the module's `$forward()` function.
 #    The list has one item per input tensor, typically only one.
 #    The function should return a list of shapes of tensors that are created by the module.
-#'   The `shapes_in` can be assumed to be in the same order as the input names of the `PipeOp`.
+#'   The `shapes_in` are named after the input channels of the `PipeOp` and are in the same order.
 #'   The output shapes must be in the same order as the output names of the `PipeOp`.
 #'   In case the output shapes depends on the task (as is the case for [`PipeOpTorchHead`]), the function should return
 #'   valid output shapes (possibly containing `NA`s) if the `task` argument is provided or not.
@@ -297,6 +297,11 @@ PipeOpTorch = R6Class("PipeOpTorch",
       if ("..." %nin% self$input$name && length(shapes_in) != nrow(self$input)) {
         stopf("PipeOp '%s' has %i input channel(s) (%s), but %i input shape(s) were given.",
           self$id, nrow(self$input), paste0(self$input$name, collapse = ", "), length(shapes_in))
+      }
+      # mlr3pipelines names the inputs of `$train()` after the input channels, so `.shapes_out()`
+      # sees the same names here; a vararg channel has no name of its own to assign
+      if ("..." %nin% self$input$name) {
+        names(shapes_in) = self$input$name
       }
       set_names(private$.shapes_out(shapes_in, self$param_set$get_values(), task = task), self$output$name)
     }

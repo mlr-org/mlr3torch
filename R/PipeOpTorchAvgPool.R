@@ -54,8 +54,7 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
 # Output shape of a pooling operator, following what torch implements:
 #   floor/ceil((input + 2 * padding - dilation * (kernel_size - 1) - 1) / stride + 1)
 # With `ceil_mode`, torch additionally drops a pooling window that would start entirely within the
-# right-hand padding, which is the correction below. Both were missing before and produced output
-# shapes that disagreed with the tensor the operator actually returns.
+# right-hand padding, which is the correction below.
 pool_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, dilation = 1,
   ceil_mode = FALSE, id = NULL) {
   shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)

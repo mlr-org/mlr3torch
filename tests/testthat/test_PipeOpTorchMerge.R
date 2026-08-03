@@ -140,8 +140,8 @@ test_that("Broadcasting is correctly implemented for concatenation", {
 })
 
 test_that("merge infers the broadcast shape, not the shape of the first input", {
-  # returning `shapes_in[1]` made a (NA,1) + (NA,6) merge infer (NA,1) while the network really
-  # produces (b,6), so the next layer was built with the wrong number of input features
+  # the output is the broadcast of the inputs, so a (NA,1) + (NA,6) merge produces (NA,6), which
+  # is what the next layer is built for
   expect_equal(po("nn_merge_sum", innum = 2)$shapes_out(list(c(NA, 1L), c(NA, 6L)))[[1L]],
     c(NA, 6L))
   expect_equal(po("nn_merge_prod", innum = 2)$shapes_out(list(c(NA, 6L), c(NA, 1L)))[[1L]],

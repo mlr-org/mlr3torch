@@ -29,6 +29,8 @@ run_on_shape = function(fn, shape, n_in = 1L, device = c("meta", "cpu")) {
 # shapes of the graph and afterwards sees real data.
 true_shape_torch = function(obj, shape_in, shape, n_in = 1L, task = NULL) {
   shapes_in = rep(list(as.integer(shape_in)), n_in)
+  # `$train()` names the shapes after the input channels, so `.make_module()` may rely on it
+  if ("..." %nin% obj$input$name) names(shapes_in) = obj$input$name
   module = get_private(obj)$.make_module(shapes_in, obj$param_set$get_values(), task)
   run_on_shape(module, shape, n_in)
 }

@@ -72,8 +72,7 @@ test_that("nn_unsqueeze interprets negative dim like torch", {
 })
 
 test_that("nn_squeeze without dim squeezes all non-batch dimensions", {
-  # `nn_squeeze()` had no default for `dim`, so the documented `dim = NULL` behaviour could be
-  # inferred but never trained
+  # `dim = NULL` is the documented default and must work both for the inference and the module
   expect_equal(po("nn_squeeze")$shapes_out(list(c(NA, 1L, 4L, 1L)))[[1L]], c(NA, 4L))
 
   net = nn_squeeze()

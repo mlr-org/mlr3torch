@@ -195,16 +195,15 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
     .shapes_out = function(shapes_in, param_vals, task) {
       # the rank is checked first: otherwise dimension 3 is not the token dimension and a shape
       # that is too short reports an unknown token dimension instead of the real problem
-      assert_ndim(shapes_in[[1L]], 3L, self$id)
+      assert_ndim(shapes_in$input, 3L, self$id)
       # `d_token` is read from dimension 3 below, so it must be known: otherwise NA_integer_ is
       # passed to libtorch, which fails with an unreadable C++ error
-      assert_known_dims(shapes_in[[1L]], 3L, "the token dimension (dimension 3)", self$id)
+      assert_known_dims(shapes_in$input, 3L, "the token dimension (dimension 3)", self$id)
       if (is.null(param_vals$query_idx)) {
         return(shapes_in[1])
       }
 
-      # `shapes_in` is only named when called from `$train()`, so index positionally
-      shapes_out = shapes_in[[1L]]
+      shapes_out = shapes_in$input
       # to save computation, the last transformer block is applied to only the queried tokens
       # (usually just the CLS token, but `query_idx` may select several)
       query_idx = param_vals[["query_idx"]]
@@ -215,14 +214,14 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
       # negative indices count from the last token, as elsewhere in torch
       if (any(query_idx == 0L) || (!is.na(n_tokens) && any(abs(query_idx) > n_tokens))) {
         stopf("PipeOp '%s' cannot use 'query_idx' %s for the input shape %s, which has %s tokens.",
-          self$id, paste0(query_idx, collapse = ", "), shape_to_str(shapes_in[[1L]]),
+          self$id, paste0(query_idx, collapse = ", "), shape_to_str(shapes_in$input),
           if (is.na(n_tokens)) "an unknown number of" else as.character(n_tokens))
       }
       shapes_out[[2L]] = length(query_idx)
       return(list(shapes_out))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      param_vals$d_token = shapes_in[[1L]][3L]
+      param_vals$d_token = shapes_in$input[3]
       return(param_vals)
     }
   )

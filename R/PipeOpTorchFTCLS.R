@@ -72,15 +72,14 @@ inherit = PipeOpTorch,
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      # `shapes_in` is only named when called from `$train()`, so index positionally
-      assert_ndim(shapes_in[[1L]], 3L, self$id)
-      assert_known_dims(shapes_in[[1L]], 3L, "the token dimension (dimension 3)", self$id)
+      assert_ndim(shapes_in$input, 3L, self$id)
+      assert_known_dims(shapes_in$input, 3L, "the token dimension (dimension 3)", self$id)
       # if the number of tokens is unknown, adding the CLS token keeps it unknown
       shapes_in[[1]][2] = shapes_in[[1]][2] + 1
       return(shapes_in)
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      param_vals$d_token = shapes_in[[1L]][3L]
+      param_vals$d_token = shapes_in$input[3]
       return(param_vals)
     }
   )
