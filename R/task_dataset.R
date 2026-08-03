@@ -167,18 +167,6 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
   })
 }
 
-dataset_ltnsr = function(task, param_vals, argname = "input") {
-  po_ingress = po("torch_ingress_ltnsr", shape = param_vals$shape)
-  md = po_ingress$train(list(task))[[1L]]
-  ingress = md$ingress
-  names(ingress) = argname
-  task_dataset(
-    task = task,
-    feature_ingress_tokens = ingress,
-    target_batchgetter = get_target_batchgetter(task)
-  )
-}
-
 dataset_num = function(task, param_vals, argname = "input") {
   po_ingress = po("torch_ingress_num")
   md = po_ingress$train(list(task))[[1L]]

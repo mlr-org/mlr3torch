@@ -1,3 +1,4 @@
+# jarl-ignore unused_function: called from man-roxygen/learner.R, which jarl does not scan
 rd_info_learner_torch = function(name, task_types = "classif, regr") {
   task_types = gsub(" ", "", task_types)
   task_types = strsplit(task_types, split = ",")[[1L]]
@@ -16,7 +17,7 @@ rd_info_learner_torch = function(name, task_types = "classif, regr") {
   }
   x = c("",
     sprintf("* Supported task types: %s", paste0("'", task_types, "'", collapse = ", ")),
-    sprintf("* Predict Types:"),
+    "* Predict Types:",
     predict_types,
     sprintf("* Feature Types: %s", rd_format_string(learner$feature_types)),
     sprintf("* Required Packages: %s", rd_format_packages(learner$packages))

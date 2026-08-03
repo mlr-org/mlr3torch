@@ -1,7 +1,3 @@
-single_param_group = function(params) {
-  return(params)
-}
-
 #' @title Convert to TorchOptimizer
 #'
 #' @description
