@@ -78,14 +78,26 @@ Is initialized to 0.
 \strong{Dataloader}:
 \itemize{
 \item \code{batch_size} :: \code{integer(1)}\cr
-The batch size (required).
+The batch size used by the training and prediction dataloader.
+It is required for training (unless a \code{batch_sampler} is provided, which already determines the
+batches) and it is required for prediction (unless \code{batch_size_predict} is set).
+\item \code{batch_size_predict} :: \code{integer(1)}\cr
+The batch size used by the prediction dataloader (this includes the validation data during
+training). When set, it overrides \code{batch_size} for prediction.
+The batch size does not change the predictions, but smaller batches take longer and require less
+memory.
 \item \code{shuffle} :: \code{logical(1)}\cr
 Whether to shuffle the instances in the dataset. This is initialized to \code{TRUE},
 which differs from the default (\code{FALSE}).
+It is ignored when a \code{sampler} or \code{batch_sampler} is provided.
 \item \code{sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
-Object that defines how the dataloader draw samples.
+Object that defines how the dataloader draws samples, i.e. the order in which the observations are
+drawn. This must be the sampler \emph{generator} (as returned by \code{\link[torch:sampler]{torch::sampler()}}), not an instance,
+as it is instantiated with the training dataset internally.
 \item \code{batch_sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
-Object that defines how the dataloader draws batches.
+Object that defines how the dataloader draws batches. As for \code{sampler}, this must be the generator.
+When it is provided, the parameters \code{batch_size}, \code{shuffle} and \code{drop_last} are ignored during
+training, because the batch sampler already determines the batches.
 \item \code{num_workers} :: \code{integer(1)}\cr
 The number of workers for data loading (batches are loaded in parallel).
 The default is \code{0}, which means that data will be loaded in the main process.
@@ -95,6 +107,7 @@ How to merge a list of samples to form a batch.
 Whether the dataloader copies tensors into CUDA pinned memory before returning them.
 \item \code{drop_last} :: \code{logical(1)}\cr
 Whether to drop the last training batch in each epoch during training. Default is \code{FALSE}.
+It is ignored when a \code{batch_sampler} is provided.
 \item \code{timeout} :: \code{numeric(1)}\cr
 The timeout value for collecting a batch from workers.
 Negative values mean no timeout and the default is \code{-1}.
@@ -175,6 +188,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_merge_cat}},
 \code{\link{mlr_pipeops_nn_merge_prod}},
 \code{\link{mlr_pipeops_nn_merge_sum}},
+\code{\link{mlr_pipeops_nn_multihead_attention}},
 \code{\link{mlr_pipeops_nn_prelu}},
 \code{\link{mlr_pipeops_nn_reglu}},
 \code{\link{mlr_pipeops_nn_relu}},

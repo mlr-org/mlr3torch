@@ -48,6 +48,25 @@ Torch learners are expected to have the following output:
 \item regression: \verb{(batch_size, 1)} representing the response prediction.
 }
 
+A network may return more than one prediction during training, which is what networks with
+auxiliary classifiers such as \code{\link[=mlr_learners.torchvision]{Inception v3}} do.
+In this case the network returns a \code{list()} of tensors, each with the shape given above, and
+the following convention applies:
+\itemize{
+\item The \strong{first} element is the primary prediction. It is the one that is scored by
+\code{measures_train} and the one that the network is expected to return when it is in evaluation
+mode, i.e. when predicting and when calculating the validation scores.
+\item The remaining elements are the predictions of the auxiliary classifiers. They only exist to
+contribute to the loss during training and are never scored.
+}
+
+During training, \code{\link{ContextTorch}} makes both available: \code{ctx$y_hats} is the complete output of
+the network, i.e. what the loss is applied to, and \code{ctx$y_hat} is always the primary
+prediction. For a network that returns a single tensor the two are identical.
+
+Because the configured loss is applied to a single tensor, a learner whose network returns a
+list has to wrap it by overloading \code{.loss_fn()}, see the list of methods below.
+
 Furthermore, the target encoding is expected to be as follows:
 \itemize{
 \item regression: The \code{numeric} target variable of a \code{\link[mlr3:TaskRegr]{TaskRegr}} is encoded as a
@@ -158,14 +177,26 @@ Is initialized to 0.
 \strong{Dataloader}:
 \itemize{
 \item \code{batch_size} :: \code{integer(1)}\cr
-The batch size (required).
+The batch size used by the training and prediction dataloader.
+It is required for training (unless a \code{batch_sampler} is provided, which already determines the
+batches) and it is required for prediction (unless \code{batch_size_predict} is set).
+\item \code{batch_size_predict} :: \code{integer(1)}\cr
+The batch size used by the prediction dataloader (this includes the validation data during
+training). When set, it overrides \code{batch_size} for prediction.
+The batch size does not change the predictions, but smaller batches take longer and require less
+memory.
 \item \code{shuffle} :: \code{logical(1)}\cr
 Whether to shuffle the instances in the dataset. This is initialized to \code{TRUE},
 which differs from the default (\code{FALSE}).
+It is ignored when a \code{sampler} or \code{batch_sampler} is provided.
 \item \code{sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
-Object that defines how the dataloader draw samples.
+Object that defines how the dataloader draws samples, i.e. the order in which the observations are
+drawn. This must be the sampler \emph{generator} (as returned by \code{\link[torch:sampler]{torch::sampler()}}), not an instance,
+as it is instantiated with the training dataset internally.
 \item \code{batch_sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
-Object that defines how the dataloader draws batches.
+Object that defines how the dataloader draws batches. As for \code{sampler}, this must be the generator.
+When it is provided, the parameters \code{batch_size}, \code{shuffle} and \code{drop_last} are ignored during
+training, because the batch sampler already determines the batches.
 \item \code{num_workers} :: \code{integer(1)}\cr
 The number of workers for data loading (batches are loaded in parallel).
 The default is \code{0}, which means that data will be loaded in the main process.
@@ -175,6 +206,7 @@ How to merge a list of samples to form a batch.
 Whether the dataloader copies tensors into CUDA pinned memory before returning them.
 \item \code{drop_last} :: \code{logical(1)}\cr
 Whether to drop the last training batch in each epoch during training. Default is \code{FALSE}.
+It is ignored when a \code{batch_sampler} is provided.
 \item \code{timeout} :: \code{numeric(1)}\cr
 The timeout value for collecting a batch from workers.
 Negative values mean no timeout and the default is \code{-1}.
@@ -205,7 +237,16 @@ When inheriting from this class, one should overload the following methods:
 Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
 Note that a specific output shape is expected from the returned network, see section \emph{Network Head and Target Encoding}.
+That section also describes how a network can return more than one prediction during training.
 You can use \code{\link[=output_dim_for]{output_dim_for()}} to obtain the correct output dimension for a given task.
+\item \code{.loss_fn(task, param_vals)}\cr
+(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:nn_module]{nn_module}}\cr
+Construct the loss that is applied to the output of the network.
+The default implementation generates the loss that was configured by the user, i.e.
+\code{self$loss$generate(task)}.
+Overload this if the network returns more than one prediction and the configured loss has to
+be wrapped, see the \code{aux_logits} parameter of
+\code{\link[=mlr_learners.torchvision]{classif.inception_v3}}.
 \item \code{.ingress_tokens(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> named \code{list()} with \code{\link{TorchIngressToken}}s\cr
 Create the \code{\link{TorchIngressToken}}s that are passed to the \code{\link{task_dataset}} constructor.
@@ -238,6 +279,8 @@ This must respect the dataloader parameters from the \code{\link[paradox:ParamSe
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
 Create a dataloader from the task.
 Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions will be incorrectly ordered).
+Use \code{get_batch_size(param_vals, "train")} to obtain the batch size for the respective phase,
+which takes the \code{batch_size_predict} parameter into account.
 }
 
 To change the predict types, it is possible to overwrite the method below:
@@ -268,6 +311,7 @@ Other Learner:
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
 \code{\link{mlr_learners.tab_resnet}},
+\code{\link{mlr_learners.tabm}},
 \code{\link{mlr_learners.torch_featureless}},
 \code{\link{mlr_learners_torch_image}},
 \code{\link{mlr_learners_torch_model}}

@@ -459,7 +459,9 @@ expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0)
   # FIXME: test for test rows when available
 }
 
-expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE) {
+# k: for learners whose network makes one prediction per ensemble member (e.g. TabM),
+#    the expected network output shape is (batch, k, d_out) instead of (batch, d_out).
+expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE, k = NULL) {
   checkmate::expect_class(learner, "LearnerTorch")
 
   # overwrites .additional_phash_input where necessary
@@ -507,13 +509,15 @@ expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE
     invoke(learner$model$network, .args = batch$x)
   }
 
-  if (task$task_type == "classif" && "twoclass" %in% task$properties) {
-    testthat::expect_equal(pred$shape, c(1, 1))
+  d_out = if (task$task_type == "classif" && "twoclass" %in% task$properties) {
+    1L
   } else if (task$task_type == "classif") {
-    testthat::expect_equal(pred$shape, c(1, length(task$class_names)))
+    length(task$class_names)
   } else if (task$task_type == "regr") {
-    testthat::expect_equal(pred$shape, c(1, 1))
+    1L
   } else {
     stopf("Task type %s not yet implemented", task$task_type)
   }
+  expected_shape = if (is.null(k)) c(1, d_out) else c(1, k, d_out)
+  testthat::expect_equal(pred$shape, expected_shape)
 }

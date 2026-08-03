@@ -112,9 +112,16 @@ ContextTorch = R6Class("ContextTorch",
     #' @field last_loss (`numeric(1)`)\cr
     #' The loss from the last trainings batch.
     last_loss = NULL,
-    #' @field y_hat (`torch_tensor`)\cr
-    #' The model's prediction for the current batch.
+    #' @field y_hat ([`torch_tensor`][torch::torch_tensor])\cr
+    #' The model's primary prediction for the current batch.
+    #' If the network has auxiliary classifiers, this is the first of the predictions it
+    #' returns, i.e. the one that is scored and returned when predicting.
     y_hat = NULL,
+    #' @field y_hats ([`torch_tensor`][torch::torch_tensor] or `list()`)\cr
+    #' The complete output of the network for the current batch, i.e. what the loss is applied
+    #' to. This is a `list()` of predictions if the network has auxiliary classifiers and
+    #' identical to `y_hat` otherwise.
+    y_hats = NULL,
     #' @field epoch (`integer(1)`)\cr
     #'   The current epoch.
     epoch = NULL,

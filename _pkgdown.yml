@@ -161,6 +161,7 @@ reference:
     contents:
       - TorchDescriptor
       - auto_device
+      - get_batch_size
       - task_dataset
       - Select
       - output_dim_for

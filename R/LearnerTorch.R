@@ -35,6 +35,23 @@
 #' * multiclass classification: `(batch_size, n_classes)`, representing the logits for all classes.
 #' * regression: `(batch_size, 1)` representing the response prediction.
 #'
+#' A network may return more than one prediction during training, which is what networks with
+#' auxiliary classifiers such as [`Inception v3`][mlr_learners.torchvision] do.
+#' In this case the network returns a `list()` of tensors, each with the shape given above, and
+#' the following convention applies:
+#' * The **first** element is the primary prediction. It is the one that is scored by
+#'   `measures_train` and the one that the network is expected to return when it is in evaluation
+#'   mode, i.e. when predicting and when calculating the validation scores.
+#' * The remaining elements are the predictions of the auxiliary classifiers. They only exist to
+#'   contribute to the loss during training and are never scored.
+#'
+#' During training, [`ContextTorch`] makes both available: `ctx$y_hats` is the complete output of
+#' the network, i.e. what the loss is applied to, and `ctx$y_hat` is always the primary
+#' prediction. For a network that returns a single tensor the two are identical.
+#'
+#' Because the configured loss is applied to a single tensor, a learner whose network returns a
+#' list has to wrap it by overloading `.loss_fn()`, see the list of methods below.
+#'
 #' Furthermore, the target encoding is expected to be as follows:
 #' * regression: The `numeric` target variable of a [`TaskRegr`][mlr3::TaskRegr] is encoded as a
 #'   [`torch_float`][torch::torch_float] with shape `c(batch_size, 1)`.
@@ -110,7 +127,16 @@
 #'   Construct a [`torch::nn_module`] object for the given task and parameter values, i.e. the neural network that
 #'   is trained by the learner.
 #'   Note that a specific output shape is expected from the returned network, see section *Network Head and Target Encoding*.
+#'   That section also describes how a network can return more than one prediction during training.
 #'   You can use [`output_dim_for()`] to obtain the correct output dimension for a given task.
+#' * `.loss_fn(task, param_vals)`\cr
+#'   ([`Task`][mlr3::Task], `list()`) -> [`nn_module`][torch::nn_module]\cr
+#'   Construct the loss that is applied to the output of the network.
+#'   The default implementation generates the loss that was configured by the user, i.e.
+#'   `self$loss$generate(task)`.
+#'   Overload this if the network returns more than one prediction and the configured loss has to
+#'   be wrapped, see the `aux_logits` parameter of
+#'   [`classif.inception_v3`][mlr_learners.torchvision].
 #' * `.ingress_tokens(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> named `list()` with [`TorchIngressToken`]s\cr
 #'   Create the [`TorchIngressToken`]s that are passed to the [`task_dataset`] constructor.
@@ -140,6 +166,8 @@
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
 #'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions will be incorrectly ordered).
+#'   Use `get_batch_size(param_vals, "train")` to obtain the batch size for the respective phase,
+#'   which takes the `batch_size_predict` parameter into account.
 #'
 #' To change the predict types, it is possible to overwrite the method below:
 #'
@@ -527,6 +555,12 @@ LearnerTorch = R6Class("LearnerTorch",
       )
     },
     .network = function(task, param_vals) stop(".network must be implemented."),
+    # Constructs the loss that is applied to the output of the network. Learners whose network
+    # returns more than one prediction can overwrite this to wrap the loss that was configured
+    # by the user, see e.g. the auxiliary classifier of `classif.inception_v3`.
+    .loss_fn = function(task, param_vals) {
+      self$loss$generate(task)
+    },
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
    .dataloader = function(dataset, param_vals) {
@@ -545,8 +579,28 @@ LearnerTorch = R6Class("LearnerTorch",
         "worker_packages"
       )
       args = param_vals[names(param_vals) %in% dl_args]
-      for(param_name in c("sampler", "batch_sampler")){
-        param_val <- args[[param_name]]
+      args$batch_size = get_batch_size(param_vals, "train")
+
+      if (!is.null(args$sampler) && !is.null(args$batch_sampler)) {
+        error_config("Providing both a 'sampler' and a 'batch_sampler' is not supported, set only one of them.")
+      }
+      if (is.null(args$batch_sampler)) {
+        if (is.null(args$batch_size)) {
+          error_config("Parameter 'batch_size' must be set for training, unless a 'batch_sampler' is provided.")
+        }
+      } else {
+        # the batch sampler already determines the batches, so these are ignored by torch::dataloader()
+        args$batch_size = NULL
+        args$shuffle = NULL
+        args$drop_last = NULL
+      }
+      if (!is.null(args$sampler)) {
+        # the sampler determines the order in which the observations are drawn
+        args$shuffle = NULL
+      }
+
+      for (param_name in c("sampler", "batch_sampler")) {
+        param_val = args[[param_name]]
         if (!is.null(param_val)) {
           # instantiate these params which should be classes.
           args[[param_name]] = param_val(dataset)
@@ -555,7 +609,17 @@ LearnerTorch = R6Class("LearnerTorch",
       invoke(dataloader, dataset = dataset, .args = args)
     },
     .dataloader_predict = function(dataset, param_vals) {
-      param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
+      batch_size = get_batch_size(param_vals, "predict")
+      if (is.null(batch_size)) {
+        error_config("Parameter 'batch_size' or 'batch_size_predict' must be set for prediction (this includes the validation data during training).")
+      }
+      param_vals_test = insert_named(param_vals,
+        list(batch_size = batch_size, shuffle = FALSE, drop_last = FALSE))
+      param_vals_test$batch_size_predict = NULL
+      # samplers are only used during training, as they can change the order of the observations,
+      # which would misalign the predictions with the rows of the task
+      param_vals_test$sampler = NULL
+      param_vals_test$batch_sampler = NULL
       private$.dataloader(dataset, param_vals_test)
     },
     .ingress_tokens = function(task, param_vals)  {

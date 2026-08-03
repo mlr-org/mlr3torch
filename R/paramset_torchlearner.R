@@ -36,6 +36,39 @@ check_measures_regr = make_check_measures("regr")
 check_measures_classif = make_check_measures("classif")
 check_measures = make_check_measures()
 
+# samplers are passed as generators (and not as instances), because they are instantiated with the
+# dataset that is created internally
+check_sampler = make_check_class("torch_sampler")
+
+#' @title Extract the Batch Size for a Given Phase
+#' @description
+#' A [`LearnerTorch`] uses the `batch_size` parameter for both training and prediction, unless
+#' `batch_size_predict` is set, which then takes precedence during prediction.
+#' This helper resolves the batch size for one phase and is useful when overwriting the private
+#' `.dataloader()` method of a [`LearnerTorch`].
+#' @param param_vals (named `list()`)\cr
+#'   The parameter values, containing `batch_size` and/or `batch_size_predict`.
+#' @param phase (`character(1)`)\cr
+#'   Either `"train"` or `"predict"`.
+#' @return (`integer(1)` or `NULL`)\cr
+#'   The batch size for the given phase or `NULL` if none is set.
+#' @export
+#' @examples
+#' get_batch_size(list(batch_size = 16), "train")
+#' get_batch_size(list(batch_size = 16, batch_size_predict = 32), "predict")
+#' get_batch_size(list(batch_size_predict = 32), "train")
+get_batch_size = function(param_vals, phase) {
+  assert_list(param_vals, names = "unique")
+  assert_choice(phase, c("train", "predict"))
+  # `[[` and not `$`, as the latter partially matches 'batch_size' to 'batch_size_predict'
+  batch_size = if (phase == "train") {
+    param_vals[["batch_size"]]
+  } else {
+    param_vals[["batch_size_predict"]] %??% param_vals[["batch_size"]]
+  }
+  assert_int(batch_size, lower = 1L, null.ok = TRUE)
+}
+
 epochs_aggr = function(x) as.integer(ceiling(mean(unlist(x))))
 
 epochs_tune_fn = function(domain, param_vals) {
@@ -71,10 +104,11 @@ paramset_torchlearner = function(task_type, jittable = FALSE) {
     patience              = p_int(lower = 0L, tags = c("train", "required"), init = 0L),
     min_delta             = p_dbl(lower = 0, tags = c("train", "required"), init = 0),
     # dataloader parameters
-    batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L),
+    batch_size            = p_int(tags = c("train", "predict"), lower = 1L),
+    batch_size_predict    = p_int(tags = c("train", "predict"), lower = 1L),
     shuffle               = p_lgl(tags = "train", default = FALSE, init = TRUE),
-    sampler               = p_uty(tags = c("train", "predict")),
-    batch_sampler         = p_uty(tags = c("train", "predict")),
+    sampler               = p_uty(tags = "train", custom_check = check_sampler),
+    batch_sampler         = p_uty(tags = "train", custom_check = check_sampler),
     num_workers           = p_int(lower = 0, default = 0, tags = c("train", "predict")),
     collate_fn            = p_uty(tags = c("train", "predict"), default = NULL),
     pin_memory            = p_lgl(default = FALSE, tags = c("train", "predict")),
