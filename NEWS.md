@@ -15,7 +15,7 @@
 * A network can now return more than one prediction during training: it may return a `list()` of
   tensors, where the first element is the primary prediction that is scored by `measures_train` and
   returned when predicting, and the remaining elements are the predictions of auxiliary classifiers
-  that only contribute to the loss. In `ContextTorch`, the list of predicitonsis
+  that only contribute to the loss. In `ContextTorch`, the list of predictions
   available as `y_hats`, while `y_hat` now refers to the first prediction.
   This is documented in the "Network Head and Target Encoding" section of `LearnerTorch`.
 * Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`), a port of the
