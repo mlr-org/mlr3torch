@@ -166,9 +166,16 @@ test_that("nn_reshape accepts a function of the input shape", {
   # -1 still works inside the returned shape
   obj = po("nn_reshape", shape = function(shape) c(shape[1], -1))
   expect_equal(obj$shapes_out(list(c(3L, 4L, 6L)))[[1L]], c(3L, 24L))
-  # the function is applied to the input shape as it is, so a `-1` that would have to be worked out
-  # from the number of elements stays unknown while any of them is
-  expect_equal(obj$shapes_out(list(c(NA, 4L, 6L)))[[1L]], c(NA_integer_, NA_integer_))
+  # the batch dimension being unknown does not hide the number of elements per observation, so the
+  # inferred dimension is still resolved: 4 * 6 elements per row all go into it
+  expect_equal(obj$shapes_out(list(c(NA, 4L, 6L)))[[1L]], c(NA_integer_, 24L))
+  # ... but a second unknown dimension does hide it
+  expect_equal(obj$shapes_out(list(c(NA, NA, 6L)))[[1L]], c(NA_integer_, NA_integer_))
+  # the resolved dimension is what the next operator needs, so such a graph can be built
+  graph = po("torch_ingress_num") %>>%
+    po("nn_reshape", shape = function(shape) c(shape[1], -1)) %>>%
+    po("nn_linear", out_features = 2L)
+  expect_equal(graph$train(tsk("iris"))[[1L]]$pointer_shape, c(NA_integer_, 2L))
   expect_equal(dim(nn_reshape(shape = function(shape) c(shape[1], -1))(torch_randn(3, 4, 6))), c(3, 24))
 
   # the inferred shape and the module agree, also when the input is partially unknown

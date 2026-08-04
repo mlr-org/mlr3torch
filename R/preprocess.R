@@ -92,11 +92,16 @@ pad_shapes = function(shapes_in, param_vals, task) {
   list(replace_tail(shape, extent))
 }
 
+# Rejects an image that cannot be RGB. The callers do not read the channel count to compute their
+# output shape -- they set it, drop it or leave it alone -- so an unknown one is accepted: it may
+# well turn out to be 3, and rejecting it would refuse a network that runs.
 # @param shape (`integer()`) The input shape, whose channel dimension is the third from last.
 # @param id (`character(1)`) The PipeOp's id, for the error message.
 assert_rgb_channels = function(shape, id) {
-  assert_known_dims(shape, length(shape) - 2L, "the channel dimension", id)
   channels = shape[length(shape) - 2L]
+  if (is.na(channels)) {
+    return(invisible(shape))
+  }
   if (channels < 3L) {
     stopf("PipeOp '%s' requires an RGB image, i.e. at least 3 channels, but the input shape %s has %i.", # nolint
       id, shape_to_str(shape), channels)

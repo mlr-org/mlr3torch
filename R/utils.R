@@ -47,8 +47,6 @@ make_check_vector = function(d, null_ok = TRUE) {
     }, d, null_ok, .parent = topenv())
 }
 
-check_integerish_or_null = function(x) check_integerish(x, null.ok = TRUE)
-
 assert_inherits_classname = function(class_generator, classname) {
   assert_class(class_generator, "R6ClassGenerator")
   while (!is.null(class_generator)) {
