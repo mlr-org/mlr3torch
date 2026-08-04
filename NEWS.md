@@ -30,6 +30,11 @@
 * Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
 * `ModelDescriptor()` now accepts a known batch dimension in `pointer_shape`, so an operator can
   check what it would otherwise have to assume, e.g. that a reshape keeps the batch dimension.
+* New `LearnerTorch` parameter `path` to continue training from a checkpoint, also in a new R
+  session, which is what one needs when a job is interrupted by a cluster time limit (#423). It is
+  either the path of a folder written by `t_clbk("checkpoint")` or `TRUE`, which takes the path from
+  the checkpoint callback of the learner. `epochs` is the total number of epochs, i.e. it includes
+  the epochs the checkpoint was already trained for.
 * `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
   of the training run, named by their ids.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
@@ -55,6 +60,8 @@
 
 ## Bug fixes
 
+* `t_clbk("history")` no longer errors when a run adds no new scores to a history that was loaded
+  via `$load_state_dict()`, which happens when a resumed checkpoint is already at `epochs`.
 * `t_clbk("checkpoint")` no longer writes an epoch that was interrupted -- because training failed
   or was stopped early -- under that epoch's own number, so `network<n>.pt` is now always the
   network at the *end* of epoch `n` rather than sometimes a half-trained one.

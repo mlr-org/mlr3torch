@@ -26,6 +26,9 @@ was interrupted, so their states no longer describe the checkpoint.
 
 A folder that already contains checkpoints is accepted, so that a run which continues an earlier
 one can keep checkpointing into it.
+
+Training can be continued from such a checkpoint -- also in a new R session -- via the \code{path}
+parameter of \code{\link{LearnerTorch}}, see the example below.
 }
 \details{
 Saving the learner itself in the callback with a trained model is impossible,
@@ -43,6 +46,11 @@ learner$param_set$set_values(cb.checkpoint.path = pth)
 learner$train(task)
 
 list.files(pth)
+
+# continue training for 3 more epochs, starting from the last checkpoint
+learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1, path = pth)
+learner_resumed$train(task)
+learner_resumed$model$epochs
 \dontshow{\}) # examplesIf}
 }
 \seealso{
