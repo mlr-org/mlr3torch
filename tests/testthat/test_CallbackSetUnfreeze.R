@@ -75,3 +75,32 @@ test_that("input checks work", {
   expect_error(t_clbk("unfreeze", starting_weights = select_name("a"), unfreeze = data.table(
     weights = list(select_all()), epoch = 1L)), NA)
 })
+
+test_that("the set of trainable weights can be saved and restored", {
+  task = tsk("iris")
+  make = function(epochs, callbacks) {
+    lrn("classif.mlp", epochs = epochs, batch_size = 150, neurons = c(1, 1, 1),
+      callbacks = callbacks,
+      cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight"))),
+      cb.unfreeze.unfreeze = data.table(epoch = 2, weights = list(select_name("0.weight")))
+    )
+  }
+
+  first = make(2L, t_clbk("unfreeze"))
+  first$train(task)
+  state = first$model$callbacks$unfreeze
+  expect_true("0.weight" %in% state$trainable)
+  expect_true("3.weight" %nin% state$trainable)
+
+  # epoch 2 is not reached again, so '0.weight' would be frozen again without the restored state.
+  # The state is restored regardless of whether it is loaded before or after $on_begin() of the
+  # unfreeze callback froze the network according to `starting_weights`.
+  restore = torch_callback("restore",
+    on_begin = function() self$ctx$callbacks$unfreeze$load_state_dict(state))
+  walk(list(list(restore, t_clbk("unfreeze")), list(t_clbk("unfreeze"), restore)), function(cbs) {
+    second = make(1L, cbs)
+    second$train(task)
+    expect_true("0.weight" %in% second$model$callbacks$unfreeze$trainable)
+    expect_true("3.weight" %nin% second$model$callbacks$unfreeze$trainable)
+  })
+})

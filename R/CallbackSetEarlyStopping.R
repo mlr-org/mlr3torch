@@ -39,7 +39,18 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       }
     },
     state_dict = function() {
-      list(best_epochs = self$epoch_at_best_score)
+      list(
+        # `best_epochs` is what the learner reports as its internally tuned `epochs`
+        best_epochs = self$epoch_at_best_score,
+        best_score = self$best_score,
+        stagnation = self$stagnation
+      )
+    },
+    load_state_dict = function(state_dict) {
+      self$epoch_at_best_score = state_dict$best_epochs
+      self$best_score = state_dict$best_score
+      self$stagnation = state_dict$stagnation
+      invisible(NULL)
     }
   )
 )
