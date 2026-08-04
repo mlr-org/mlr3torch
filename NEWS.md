@@ -55,6 +55,9 @@
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.
 * `lazy_tensor` columns are now again printed correctly inside `data.table`s
+* The callback overview on the package website now links to the correct help pages.
+* `t_clbk("lr_one_cycle")` and `t_clbk("lr_reduce_on_plateau")` now point to their own
+  help pages instead of the generic `mlr_callback_set.lr_scheduler` page.
 * `nn("reshape")` with a `function(shape)` target now resolves a `-1` whenever the number of elements
   per observation is known, i.e. when the batch dimension is the only unknown one.
 * Fixed various other shape inference bugs.
