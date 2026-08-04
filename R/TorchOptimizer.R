@@ -16,6 +16,19 @@
 #'
 #' @return [`TorchOptimizer`]
 #' @export
+#' @examplesIf torch::torch_is_installed()
+#' # convert a `torch::torch_optimizer_generator`
+#' as_torch_optimizer(optim_adamw)
+#' # the id defaults to the name of the generator, but can be overwritten
+#' as_torch_optimizer(optim_adamw, id = "my_adamw", label = "My AdamW")
+#'
+#' # convert a key of mlr3torch_optimizers, this is the same as t_opt("adamw")
+#' as_torch_optimizer("adamw")
+#'
+#' # TorchOptimizers are returned as-is, unless clone is TRUE
+#' opt = t_opt("adamw")
+#' identical(as_torch_optimizer(opt), opt)
+#' identical(as_torch_optimizer(opt, clone = TRUE), opt)
 as_torch_optimizer = function(x, clone = FALSE, ...) {
   assert_flag(clone)
   UseMethod("as_torch_optimizer")

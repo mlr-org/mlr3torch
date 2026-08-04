@@ -205,7 +205,7 @@ mlr3torch_callbacks$add("lr_one_cycle", function() {
     ),
     id = "lr_one_cycle",
     label = "1cycle LR Scheduler",
-    man = "mlr3torch::mlr_callback_set.lr_scheduler"
+    man = "mlr3torch::mlr_callback_set.lr_scheduler_one_cycle"
   )
 })
 
@@ -226,7 +226,7 @@ mlr3torch_callbacks$add("lr_reduce_on_plateau", function() {
     ),
     id = "lr_reduce_on_plateau",
     label = "Reduce on Plateau LR Scheduler",
-    man = "mlr3torch::mlr_callback_set.lr_scheduler"
+    man = "mlr3torch::mlr_callback_set.lr_scheduler_reduce_on_plateau"
   )
 })
 
