@@ -16,14 +16,6 @@
 #
 # Intentional deviations from upstream:
 #
-#  * Categorical features are encoded with **1-based** integer codes, because that is what
-#    mlr3torch's `batchgetter_categ()` produces and what R torch's `nnf_one_hot()` expects.
-#    Upstream uses 0-based codes.
-#  * The one-hot encoding is cast to float, as `paper/bin/model.py` does. Upstream's
-#    `_OneHotEncoding` returns a `long` tensor, which is implicitly promoted as soon as
-#    numerical features are concatenated, so the cast changes nothing for the supported
-#    architectures. It makes the purely categorical case robust rather than relying on that
-#    promotion.
 #  * `share_training_batches = FALSE` is NOT supported: `forward()` only accepts
 #    two-dimensional `x_num` / `x_cat`, so all k submodels always see the same batch.
 #  * `activation` additionally accepts an `nn_module_generator` or a function returning an
@@ -1157,7 +1149,7 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
   ),
   private = list(
     # The network returns one prediction per ensemble member, so the configured loss is
-    # applied to the `k` predictions separately, see the *Loss and Prediction* section.
+    # applied to the `k` predictions separately, see the Loss and Prediction section.
     .loss_fn = function(task, param_vals) {
       nn_tabm_loss(super$.loss_fn(task, param_vals))
     },

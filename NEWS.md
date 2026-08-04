@@ -24,6 +24,18 @@
   (including the validation data during training) when it is set.
 * Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`).
 * Most `LearnerTorchVision` are now `jittable`.
+* Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
+* Improved error messages during `PipeOpTorch`'s shape inference.
+* The `shape` parameter of `nn("reshape")` can now be a `function(shape)` of the input shape.
+* Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
+* `ModelDescriptor()` now accepts a known batch dimension in `pointer_shape`, so an operator can
+  check what it would otherwise have to assume, e.g. that a reshape keeps the batch dimension.
+
+## Breaking changes
+
+* The construction argument `only_batch_unknown` of `PipeOpTorch` was removed.
+  Any dimension of an input shape can now be unknown, so `private$.shapes_out()` must always
+  handle `NA`s and assert those dimensions it actually needs to be known.
 
 ## Bug fixes
 
@@ -44,6 +56,9 @@
 * The callback overview on the package website now links to the correct help pages.
 * `t_clbk("lr_one_cycle")` and `t_clbk("lr_reduce_on_plateau")` now point to their own
   help pages instead of the generic `mlr_callback_set.lr_scheduler` page.
+* `nn("reshape")` with a `function(shape)` target now resolves a `-1` whenever the number of elements
+  per observation is known, i.e. when the batch dimension is the only unknown one.
+* Fixed various other shape inference bugs.
 
 # mlr3torch 0.3.3
 

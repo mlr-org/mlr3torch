@@ -7,8 +7,9 @@
 nn_reshape(shape)
 }
 \arguments{
-\item{shape}{(\code{integer()})\cr
-The desired output shape.}
+\item{shape}{(\code{integer()} | \verb{function()})\cr
+The desired output shape, or a \verb{function(shape)} that is called on the shape of the input
+tensor and returns it.}
 }
 \description{
 Reshape a tensor to the given shape.

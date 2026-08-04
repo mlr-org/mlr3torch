@@ -32,7 +32,7 @@ test_that("NA in second dimension", {
 
   graph = po("torch_ingress_ltnsr") %>>% po("nn_linear", out_features = 10)
 
-  expect_error(graph$train(task), "Please provide an input with a known last dimension")
+  expect_error(graph$train(task), "requires the last dimension (the number of input features)", fixed = TRUE)
 
   task = as_task_regr(data.table(
     x = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, NA, 10))),
@@ -43,4 +43,18 @@ test_that("NA in second dimension", {
   expect_equal(md$pointer_shape, c(NA, NA, 10))
   net = model_descriptor_to_module(md)
   expect_equal(net(torch_randn(1, 2, 10))$shape, c(1, 2, 10))
+})
+
+test_that("shape inference matches the operator", {
+  expect_shape_inference("nn_linear", list(out_features = 3), c(2, 7, 16))
+})
+
+test_that("shape inference requires the last dimension", {
+  expect_error(po("nn_linear", out_features = 3)$shapes_out(list(c(NA, 7, NA))),
+    "requires the last dimension (the number of input features)", fixed = TRUE)
+})
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference("nn_linear", params = function() list(out_features = sample(1:8, 1L)),
+    generators = gen_shape(3L))
 })

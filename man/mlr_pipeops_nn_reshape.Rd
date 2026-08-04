@@ -16,8 +16,16 @@ This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} 
 \section{Parameters}{
 
 \itemize{
-\item \code{shape} :: \code{integer(1)}\cr
-The desired output shape. Unknown dimension (one at most) can either be specified as \code{-1}.
+\item \code{shape} :: \code{integer()} | \verb{function()}\cr
+The desired output shape. One dimension at most can be \code{-1}, which torch infers from the
+number of elements. The first dimension is the batch dimension.
+
+It can also be a \verb{function(shape)} that is called on the input shape and returns the output
+shape, e.g. \verb{\\(shape) c(shape[1:2], 10)}. This expresses a reshape for inputs whose sizes are
+not known in advance, because the function is called again on the shape of the actual tensor
+when the network runs. Note that it is called with a shape that can contain \code{NA}s during shape
+inference.
+This is e.g. useful when there are multiple unknown dimensions such as \verb{(batch, sequence, ...)}.
 }
 }
 

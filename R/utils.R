@@ -36,17 +36,16 @@ inferps = function(fn, ignore = character(0), tags = "train") {
 }
 
 
-make_check_vector = function(d) {
+# `null_ok` must be `FALSE` for parameters the operator cannot do without
+make_check_vector = function(d, null_ok = TRUE) {
   crate(function(x) {
-    if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
+    if ((null_ok && is.null(x)) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) { # nolint
       return(TRUE)
     }
     tmp = if (d == 1) "." else sprintf(" or %s.", d)
     sprintf("Must be an integerish vector of length 1%s", tmp)
-    }, d, .parent = topenv())
+    }, d, null_ok, .parent = topenv())
 }
-
-check_integerish_or_null = function(x) check_integerish(x, null.ok = TRUE)
 
 assert_inherits_classname = function(class_generator, classname) {
   assert_class(class_generator, "R6ClassGenerator")
@@ -125,11 +124,13 @@ uniqueify = function(new, existing) {
   make.unique(c(existing, new), sep = "_")[length(existing) + seq_along(new)]
 }
 
+#' @rdname shape_helpers
+#' @export
 shape_to_str = function(x) {
-  assert(test_list(x) || test_integerish(x) || is.null(x))
-  if (test_integerish(x)) { # single shape
+  if (is.numeric(x) || is.logical(x)) { # single shape
     return(sprintf("(%s)", paste0(x, collapse = ",")))
   }
+  assert(test_list(x) || is.null(x))
   if (is.null(x)) {
     return("(<unknown>)")
   }
@@ -141,7 +142,7 @@ shape_to_str = function(x) {
     paste0("(", paste(y, collapse = ",", recycle0 = TRUE), ")")
   })
   if (test_named(x)) {
-    repr = paste0("[", names(x), ": ",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
+    repr = paste0("[", paste(paste0(names(x), ": ", shapedescs), collapse = "; ", recycle0 = TRUE), "]")
     return(repr)
   }
   paste0("[",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
@@ -257,10 +258,18 @@ order_named_args = function(f, l) {
 #' \pkg{mlr3torch}.
 #' For classification, this is the number of classes (unless it is a binary classification task,
 #' where it is 1). For regression, it is 1.
+#'
+#' This is an S3 generic and the single place where \pkg{mlr3torch} decides how many output neurons
+#' a task needs: it is what [`PipeOpTorchHead`] and the [`LearnerTorch`]s that build their own head
+#' ask. Adding a method for a new task type is therefore the way to support it, see the
+#' "Supporting Other Task Types" section of [`PipeOpTorchHead`].
+#'
 #' @param x (any)\cr
 #'   The task.
 #' @param ... (any)\cr
 #'   Additional arguments. Not used yet.
+#' @return (`integer(1)`) The number of output neurons.
+#' @seealso [`PipeOpTorchHead`]
 #' @export
 output_dim_for = function(x, ...) {
   UseMethod("output_dim_for")

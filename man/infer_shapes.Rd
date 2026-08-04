@@ -31,16 +31,35 @@ A list of shapes of the output tensors.
 }
 \description{
 Infer the shapes of the output of a function based on the shapes of the input.
-This is done as follows:
+This works by running the function on the input and observing the results.
+For fully known input shapes this is always correct.
+For partially unknown shapes, the \code{NA}s are replaced with various concrete values
+and the output shape is computed from them.
+Note that this is a heuristic that might fail, so usually one wants to provide the shape
+(inference) explicitly.
+}
+\details{
+The inference is done as follows:
 \enumerate{
-\item All \code{NA}s are replaced with values \code{1}, \code{2}, \code{3}.
+\item All \code{NA}s are replaced with three different values, which span a wide range: none of them is
+\code{1} (which broadcasts and is squeezed away), one of them is small (to detect operators that
+clamp to the input size, such as slicing or cropping) and the others are large (because
+operators such as a convolution with a large kernel need a minimum extent).
 \item Three tensors are generated for the three shapes of step 1.
 \item The function is called on these three tensors and the shapes are calculated.
+A call that fails is dropped, so that an operator is not rejected because of the smallest
+value; at least two of the three calls must succeed.
 \item If:
 \itemize{
 \item the number of dimensions varies, an error is thrown.
 \item the number of dimensions is the same, values are set to \code{NA} if the dimension is varying
-between the three tensors and otherwise set to the unique value.
+between the tensors and otherwise set to the unique value.
 }
 }
 }
+\seealso{
+Other Shape Inference:
+\code{\link[=reshape_output_shape]{reshape_output_shape()}},
+\code{\link[=shape_to_str]{shape_to_str()}}
+}
+\concept{Shape Inference}

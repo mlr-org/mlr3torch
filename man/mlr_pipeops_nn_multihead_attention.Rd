@@ -11,10 +11,19 @@ This is a thin wrapper around \code{\link[torch:nn_multihead_attention]{torch::n
 building block of a \code{\link[mlr3pipelines:Graph]{Graph}} of tensor operations, where both
 self-attention and cross-attention can be expressed, see section \emph{Input and Output Channels}.
 }
+\section{Tensor Layout}{
+
+All inputs and outputs are \verb{(batch, sequence, feature)}, i.e. the \code{batch_first} layout of
+\code{\link[torch:nn_multihead_attention]{torch::nn_multihead_attention()}}, which is fixed and not a hyperparameter.
+\code{torch} defaults to \verb{(sequence, batch, feature)}, but the first dimension of every shape has to
+be the batch dimension here.
+}
+
 \section{nn_module}{
 
 Calls \code{\link[torch:nn_multihead_attention]{torch::nn_multihead_attention()}} when trained, where the parameters \code{embed_dim}, \code{kdim}
-and \code{vdim} are inferred as the last dimension of the query, key and value tensors respectively.
+and \code{vdim} are inferred as the last dimension of the query, key and value tensors respectively,
+and \code{batch_first} is always \code{TRUE}, see section \emph{Tensor Layout}.
 }
 
 \section{Parameters}{
@@ -34,17 +43,14 @@ Default is \code{FALSE}.
 \item \code{add_zero_attn} :: \code{logical(1)}\cr
 Whether to add a new batch of zeros to the key and value sequences at dimension 1.
 Default is \code{FALSE}.
-\item \code{batch_first} :: \code{logical(1)}\cr
-Whether the input and output tensors are provided as \verb{(batch, sequence, feature)} (\code{TRUE}) or
-as \verb{(sequence, batch, feature)} (\code{FALSE}).
-Default is \code{FALSE}, as in \code{torch}.
 \item \code{avg_weights} :: \code{logical(1)}\cr
 Whether the returned attention weights are averaged over the attention heads.
 Default is \code{TRUE}. Only has an effect when the construction argument \code{need_weights} is \code{TRUE}.
 }
 
 Note that \code{embed_dim}, \code{kdim} and \code{vdim} are \emph{not} parameters, as they are inferred from the
-shapes of the input tensors.
+shapes of the input tensors, and that \code{batch_first} is \emph{not} a parameter either, as it is fixed
+to \code{TRUE}, see section \emph{Tensor Layout}.
 }
 
 \section{Input and Output Channels}{

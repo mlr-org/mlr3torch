@@ -118,3 +118,38 @@ test_that("state", {
   block$train(md)
   expect_true(block$is_trained)
 })
+
+test_that("shape inference defers to the PipeOps the block wraps", {
+  task = tsk("iris")
+  block = po("nn_relu") %>>% po("nn_dropout")
+  obj = po("nn_block", block, n_blocks = 2)
+  # the wrapped PipeOps accept unknown dimensions, so the block must not reject them
+  expect_equal(obj$shapes_out(list(c(NA, NA, 16L)), task = task)[[1L]], c(NA, NA, 16L))
+
+  # ... but a wrapped PipeOp that needs a dimension still rejects it
+  obj = po("nn_block", po("nn_batch_norm1d"), n_blocks = 1)
+  expect_error(obj$shapes_out(list(c(NA, NA, 16L)), task = task),
+    "requires the feature dimension", fixed = TRUE)
+})
+
+test_that("shape inference handles a known batch size and an empty block", {
+  block = as_graph(po("nn_linear", out_features = 10L)) %>>% po("nn_relu")
+  expect_equal(po("nn_block", block, n_blocks = 2L)$shapes_out(list(c(2L, 4L)),
+    task = tsk("iris"))[[1L]], c(2L, 10L))
+  expect_equal(po("nn_block", block, n_blocks = 0L)$shapes_out(list(c(NA, 4L)),
+    task = tsk("iris"))[[1L]], c(NA, 4L))
+})
+
+test_that("shape inference requires all inputs to agree on the batch size", {
+  task = tsk("iris")
+  obj = po("nn_block", as_graph(po("nn_merge_sum", innum = 2L)), n_blocks = 1L)
+
+  # the block is applied to all inputs jointly, so a known batch size must be the same everywhere
+  expect_error(obj$shapes_out(list(c(8L, 3L), c(4L, 3L)), task = task),
+    "requires all its inputs to have the same batch size", fixed = TRUE)
+
+  expect_equal(obj$shapes_out(list(c(8L, 3L), c(8L, 3L)), task = task)[[1L]], c(8L, 3L))
+  # an unknown batch size is compatible with a known one, which is the one that is restored
+  expect_equal(obj$shapes_out(list(c(NA, 3L), c(8L, 3L)), task = task)[[1L]], c(8L, 3L))
+  expect_equal(obj$shapes_out(list(c(NA, 3L), c(NA, 3L)), task = task)[[1L]], c(NA, 3L))
+})
