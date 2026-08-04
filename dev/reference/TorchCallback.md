@@ -154,12 +154,11 @@ The objects of this class are cloneable with this method.
 torch_callback = TorchCallback$new(CallbackSetCheckpoint)
 # The parameters are inferred
 torch_callback$param_set
-#> <ParamSet(3)>
-#>           id    class lower upper nlevels        default  value
-#>       <char>   <char> <num> <num>   <num>         <list> <list>
-#> 1:      path ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
-#> 2:      freq ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
-#> 3: freq_type ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
+#> <ParamSet(2)>
+#>        id    class lower upper nlevels        default  value
+#>    <char>   <char> <num> <num>   <num>         <list> <list>
+#> 1:   path ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
+#> 2:   freq ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
 
 # Retrieve a torch callback from the dictionary
 torch_callback = t_clbk("checkpoint",
@@ -168,7 +167,7 @@ torch_callback = t_clbk("checkpoint",
 torch_callback
 #> <TorchCallback:checkpoint> Checkpoint
 #> * Generator: CallbackSetCheckpoint
-#> * Parameters: path=/tmp/RtmpaunBDn/file1d497a164196, freq=1
+#> * Parameters: path=/tmp/RtmpjCTimg/file1ed3786c3119, freq=1
 #> * Packages: mlr3torch,torch
 torch_callback$label
 #> [1] "Checkpoint"
@@ -182,64 +181,63 @@ torch_callback$id
 callback = torch_callback$generate()
 callback
 #> <CallbackSetCheckpoint>
-#> * Stages: on_batch_end, on_epoch_end, on_exit
+#> * Stages: on_epoch_end, on_exit
 # is the same as
 CallbackSetCheckpoint$new(
   path = tempfile(), freq = 1
 )
 #> <CallbackSetCheckpoint>
-#> * Stages: on_batch_end, on_epoch_end, on_exit
+#> * Stages: on_epoch_end, on_exit
 
 # Use in a learner
 learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
 # the parameters of the callback are added to the learner's parameter set
 learner$param_set
-#> <ParamSetCollection(41)>
-#>                          id    class lower upper nlevels        default
-#>                      <char>   <char> <num> <num>   <num>         <list>
-#>  1:                  epochs ParamInt 0e+00   Inf     Inf <NoDefault[0]>
-#>  2:                  device ParamFct    NA    NA      12 <NoDefault[0]>
-#>  3:             num_threads ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#>  4:     num_interop_threads ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#>  5:                    seed ParamInt  -Inf   Inf     Inf <NoDefault[0]>
-#>  6:               eval_freq ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#>  7:          measures_train ParamUty    NA    NA     Inf <NoDefault[0]>
-#>  8:          measures_valid ParamUty    NA    NA     Inf <NoDefault[0]>
-#>  9:                patience ParamInt 0e+00   Inf     Inf <NoDefault[0]>
-#> 10:               min_delta ParamDbl 0e+00   Inf     Inf <NoDefault[0]>
-#> 11:              batch_size ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#> 12:      batch_size_predict ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#> 13:                 shuffle ParamLgl    NA    NA       2          FALSE
-#> 14:                 sampler ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 15:           batch_sampler ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 16:             num_workers ParamInt 0e+00   Inf     Inf              0
-#> 17:              collate_fn ParamUty    NA    NA     Inf         [NULL]
-#> 18:              pin_memory ParamLgl    NA    NA       2          FALSE
-#> 19:               drop_last ParamLgl    NA    NA       2          FALSE
-#> 20:                 timeout ParamDbl  -Inf   Inf     Inf             -1
-#> 21:          worker_init_fn ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 22:          worker_globals ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 23:         worker_packages ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 24:          tensor_dataset ParamFct    NA    NA       1 <NoDefault[0]>
-#> 25:               jit_trace ParamLgl    NA    NA       2 <NoDefault[0]>
-#> 26:                 neurons ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 27:                       p ParamDbl 0e+00 1e+00     Inf <NoDefault[0]>
-#> 28:                n_layers ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#> 29:              activation ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 30:         activation_args ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 31:                   shape ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 32:                  opt.lr ParamDbl 0e+00   Inf     Inf          0.001
-#> 33:               opt.betas ParamUty    NA    NA     Inf    0.900,0.999
-#> 34:                 opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08
-#> 35:        opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0
-#> 36:             opt.amsgrad ParamLgl    NA    NA       2          FALSE
-#> 37:        opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 38:          loss.reduction ParamFct    NA    NA       2           mean
-#> 39:      cb.checkpoint.path ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 40:      cb.checkpoint.freq ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#> 41: cb.checkpoint.freq_type ParamFct    NA    NA       2          epoch
-#>                          id    class lower upper nlevels        default
-#>                      <char>   <char> <num> <num>   <num>         <list>
+#> <ParamSetCollection(40)>
+#>                      id    class lower upper nlevels        default
+#>                  <char>   <char> <num> <num>   <num>         <list>
+#>  1:              epochs ParamInt 0e+00   Inf     Inf <NoDefault[0]>
+#>  2:              device ParamFct    NA    NA      12 <NoDefault[0]>
+#>  3:         num_threads ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#>  4: num_interop_threads ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#>  5:                seed ParamInt  -Inf   Inf     Inf <NoDefault[0]>
+#>  6:           eval_freq ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#>  7:      measures_train ParamUty    NA    NA     Inf <NoDefault[0]>
+#>  8:      measures_valid ParamUty    NA    NA     Inf <NoDefault[0]>
+#>  9:            patience ParamInt 0e+00   Inf     Inf <NoDefault[0]>
+#> 10:           min_delta ParamDbl 0e+00   Inf     Inf <NoDefault[0]>
+#> 11:          batch_size ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#> 12:  batch_size_predict ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#> 13:             shuffle ParamLgl    NA    NA       2          FALSE
+#> 14:             sampler ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 15:       batch_sampler ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 16:         num_workers ParamInt 0e+00   Inf     Inf              0
+#> 17:          collate_fn ParamUty    NA    NA     Inf         [NULL]
+#> 18:          pin_memory ParamLgl    NA    NA       2          FALSE
+#> 19:           drop_last ParamLgl    NA    NA       2          FALSE
+#> 20:             timeout ParamDbl  -Inf   Inf     Inf             -1
+#> 21:      worker_init_fn ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 22:      worker_globals ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 23:     worker_packages ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 24:      tensor_dataset ParamFct    NA    NA       1 <NoDefault[0]>
+#> 25:           jit_trace ParamLgl    NA    NA       2 <NoDefault[0]>
+#> 26:             neurons ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 27:                   p ParamDbl 0e+00 1e+00     Inf <NoDefault[0]>
+#> 28:            n_layers ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#> 29:          activation ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 30:     activation_args ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 31:               shape ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 32:              opt.lr ParamDbl 0e+00   Inf     Inf          0.001
+#> 33:           opt.betas ParamUty    NA    NA     Inf    0.900,0.999
+#> 34:             opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08
+#> 35:    opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0
+#> 36:         opt.amsgrad ParamLgl    NA    NA       2          FALSE
+#> 37:    opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 38:      loss.reduction ParamFct    NA    NA       2           mean
+#> 39:  cb.checkpoint.path ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 40:  cb.checkpoint.freq ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#>                      id    class lower upper nlevels        default
+#>                  <char>   <char> <num> <num>   <num>         <list>
 #>            value
 #>           <list>
 #>  1:       [NULL]
@@ -282,7 +280,6 @@ learner$param_set
 #> 38:       [NULL]
 #> 39:       [NULL]
 #> 40:       [NULL]
-#> 41:       [NULL]
 #>            value
 #>           <list>
 ```

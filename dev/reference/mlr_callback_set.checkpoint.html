@@ -6,8 +6,24 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Checkpoint Callback — mlr_callback_set.checkpoint"><meta name="description" content="Saves the optimizer and network states during training.
-The final network and optimizer are always stored."><meta property="og:description" content="Saves the optimizer and network states during training.
-The final network and optimizer are always stored."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
+The final network and optimizer are always stored.
+Checkpoints are written at the end of an epoch. For one written after epoch &amp;lt;n&amp;gt;, two files
+are created in path:
+network&amp;lt;n&amp;gt;.pt :: The $state_dict() of the network.
+optimizer&amp;lt;n&amp;gt;.pt :: The $state_dict() of the optimizer.
+
+
+An epoch that was interrupted – because training failed or was stopped – is not written under
+its own number, so network&amp;lt;n&amp;gt;.pt is always the network at the end of epoch n."><meta property="og:description" content="Saves the optimizer and network states during training.
+The final network and optimizer are always stored.
+Checkpoints are written at the end of an epoch. For one written after epoch &amp;lt;n&amp;gt;, two files
+are created in path:
+network&amp;lt;n&amp;gt;.pt :: The $state_dict() of the network.
+optimizer&amp;lt;n&amp;gt;.pt :: The $state_dict() of the optimizer.
+
+
+An epoch that was interrupted – because training failed or was stopped – is not written under
+its own number, so network&amp;lt;n&amp;gt;.pt is always the network at the end of epoch n."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -75,6 +91,11 @@ The final network and optimizer are always stored."><meta property="og:image" co
     <div class="ref-description section level2">
     <p>Saves the optimizer and network states during training.
 The final network and optimizer are always stored.</p>
+<p>Checkpoints are written at the end of an epoch. For one written after epoch <code>&lt;n&gt;</code>, two files
+are created in <code>path</code>:</p><ul><li><p><code>network&lt;n&gt;.pt</code> :: The <code>$state_dict()</code> of the network.</p></li>
+<li><p><code>optimizer&lt;n&gt;.pt</code> :: The <code>$state_dict()</code> of the optimizer.</p></li>
+</ul><p>An epoch that was interrupted – because training failed or was stopped – is not written under
+its own number, so <code>network&lt;n&gt;.pt</code> is always the network at the <em>end</em> of epoch <code>n</code>.</p>
     </div>
 
 
@@ -110,7 +131,6 @@ as the model slot is set <em>after</em> the last callback step is executed.</p>
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 <p></p><ul><li><p><a href="#method-CallbackSetCheckpoint-initialize"><code>CallbackSetCheckpoint$new()</code></a></p></li>
 <li><p><a href="#method-CallbackSetCheckpoint-on_epoch_end"><code>CallbackSetCheckpoint$on_epoch_end()</code></a></p></li>
-<li><p><a href="#method-CallbackSetCheckpoint-on_batch_end"><code>CallbackSetCheckpoint$on_batch_end()</code></a></p></li>
 <li><p><a href="#method-CallbackSetCheckpoint-on_exit"><code>CallbackSetCheckpoint$on_exit()</code></a></p></li>
 <li><p><a href="#method-CallbackSetCheckpoint-clone"><code>CallbackSetCheckpoint$clone()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href="CallbackSet.html#method-load_state_dict"><code>CallbackSet$load_state_dict()</code></a></span></li>
@@ -120,7 +140,7 @@ as the model slot is set <em>after</em> the last callback step is executed.</p>
 <h3 id="callbacksetcheckpoint-new-"><code>CallbackSetCheckpoint$new()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_callback_set.checkpoint.html">CallbackSetCheckpoint</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">path</span>, <span class="va">freq</span>, freq_type <span class="op">=</span> <span class="st">"epoch"</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_callback_set.checkpoint.html">CallbackSetCheckpoint</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">path</span>, <span class="va">freq</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>path</code></dt>
@@ -129,12 +149,7 @@ The path to a folder where the models are saved.</p></dd>
 
       <dt><code>freq</code></dt>
 <dd><p>(<code>integer(1)</code>)<br>
-The frequency how often the model is saved.
-Frequency is either per step or epoch, which can be configured through the <code>freq_type</code> parameter.</p></dd>
-
-      <dt><code>freq_type</code></dt>
-<dd><p>(<code>character(1)</code>)<br>
-Can be be either <code>"epoch"</code> (default) or <code>"step"</code>.</p></dd>
+How often the model is saved, in epochs.</p></dd>
 
 
 </dl><p></p></div>
@@ -145,27 +160,17 @@ Can be be either <code>"epoch"</code> (default) or <code>"step"</code>.</p></dd>
 <p></p><hr><a id="method-CallbackSetCheckpoint-on_epoch_end"></a><div class="section">
 <h3 id="callbacksetcheckpoint-on-epoch-end-"><code>CallbackSetCheckpoint$on_epoch_end()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-on-epoch-end-"></a></h3>
 <p>Saves the network and optimizer state dict.
-Does nothing if <code>freq_type</code> or <code>freq</code> are not met.</p><div class="section">
+Does nothing if <code>freq</code> is not met.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetCheckpoint</span><span class="op">$</span><span class="fu">on_epoch_end</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 </div>
 
-<p></p><hr><a id="method-CallbackSetCheckpoint-on_batch_end"></a><div class="section">
-<h3 id="callbacksetcheckpoint-on-batch-end-"><code>CallbackSetCheckpoint$on_batch_end()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-on-batch-end-"></a></h3>
-<p>Saves the selected objects defined in <code>save</code>.
-Does nothing if freq_type or freq are not met.</p><div class="section">
-<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetCheckpoint</span><span class="op">$</span><span class="fu">on_batch_end</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-</div>
-
 <p></p><hr><a id="method-CallbackSetCheckpoint-on_exit"></a><div class="section">
 <h3 id="callbacksetcheckpoint-on-exit-"><code>CallbackSetCheckpoint$on_exit()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-on-exit-"></a></h3>
-<p>Saves the learner.</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<p>Saves the final network and optimizer, unless the last complete epoch was already saved.</p><div class="section">
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetCheckpoint</span><span class="op">$</span><span class="fu">on_exit</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -174,7 +179,7 @@ Does nothing if freq_type or freq are not met.</p><div class="section">
 <p></p><hr><a id="method-CallbackSetCheckpoint-clone"></a><div class="section">
 <h3 id="callbacksetcheckpoint-clone-"><code>CallbackSetCheckpoint$clone()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetCheckpoint</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>

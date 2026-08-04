@@ -3,6 +3,17 @@
 Saves the optimizer and network states during training. The final
 network and optimizer are always stored.
 
+Checkpoints are written at the end of an epoch. For one written after
+epoch `<n>`, two files are created in `path`:
+
+- `network<n>.pt` :: The `$state_dict()` of the network.
+
+- `optimizer<n>.pt` :: The `$state_dict()` of the optimizer.
+
+An epoch that was interrupted – because training failed or was stopped –
+is not written under its own number, so `network<n>.pt` is always the
+network at the *end* of epoch `n`.
+
 ## Details
 
 Saving the learner itself in the callback with a trained model is
@@ -38,8 +49,6 @@ Other Callback:
 
 - [`CallbackSetCheckpoint$on_epoch_end()`](#method-CallbackSetCheckpoint-on_epoch_end)
 
-- [`CallbackSetCheckpoint$on_batch_end()`](#method-CallbackSetCheckpoint-on_batch_end)
-
 - [`CallbackSetCheckpoint$on_exit()`](#method-CallbackSetCheckpoint-on_exit)
 
 - [`CallbackSetCheckpoint$clone()`](#method-CallbackSetCheckpoint-clone)
@@ -59,7 +68,7 @@ Creates a new instance of this
 
 #### Usage
 
-    CallbackSetCheckpoint$new(path, freq, freq_type = "epoch")
+    CallbackSetCheckpoint$new(path, freq)
 
 #### Arguments
 
@@ -71,21 +80,14 @@ Creates a new instance of this
 - `freq`:
 
   (`integer(1)`)  
-  The frequency how often the model is saved. Frequency is either per
-  step or epoch, which can be configured through the `freq_type`
-  parameter.
-
-- `freq_type`:
-
-  (`character(1)`)  
-  Can be be either `"epoch"` (default) or `"step"`.
+  How often the model is saved, in epochs.
 
 ------------------------------------------------------------------------
 
 ### `CallbackSetCheckpoint$on_epoch_end()`
 
-Saves the network and optimizer state dict. Does nothing if `freq_type`
-or `freq` are not met.
+Saves the network and optimizer state dict. Does nothing if `freq` is
+not met.
 
 #### Usage
 
@@ -93,20 +95,10 @@ or `freq` are not met.
 
 ------------------------------------------------------------------------
 
-### `CallbackSetCheckpoint$on_batch_end()`
-
-Saves the selected objects defined in `save`. Does nothing if freq_type
-or freq are not met.
-
-#### Usage
-
-    CallbackSetCheckpoint$on_batch_end()
-
-------------------------------------------------------------------------
-
 ### `CallbackSetCheckpoint$on_exit()`
 
-Saves the learner.
+Saves the final network and optimizer, unless the last complete epoch
+was already saved.
 
 #### Usage
 

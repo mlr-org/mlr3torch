@@ -47,6 +47,12 @@
 
 ### Breaking changes
 
+- The `freq_type` parameter of `t_clbk("checkpoint")` was removed;
+  checkpoints are now always written per epoch. `freq_type = "step"`
+  named its files after the within-epoch step, which restarts at every
+  epoch, so each epoch silently overwrote the checkpoints of the
+  previous one. Code that set `freq_type` – including to its default
+  `"epoch"` – has to drop the argument.
 - The construction argument `only_batch_unknown` of `PipeOpTorch` was
   removed. Any dimension of an input shape can now be unknown, so
   `private$.shapes_out()` must always handle `NA`s and assert those
@@ -54,6 +60,15 @@
 
 ### Bug fixes
 
+- `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
+  – because training failed or was stopped early – under that epoch’s
+  own number, so `network<n>.pt` is now always the network at the *end*
+  of epoch `n` rather than sometimes a half-trained one.
+- `t_clbk("checkpoint")` now accepts an existing empty directory as its
+  `path`. Previously any existing directory was rejected, which made a
+  pre-created output folder unusable and meant that a run failing before
+  its first checkpoint left behind a folder that blocked every later
+  run.
 - The `batch_sampler` parameter can now be used without setting
   `batch_size` for training, as the batch sampler already determines the
   batches ([\#420](https://github.com/mlr-org/mlr3torch/issues/420)).

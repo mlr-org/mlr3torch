@@ -90,11 +90,16 @@
 </ul></div>
 <div class="section level3">
 <h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
-<ul><li>The construction argument <code>only_batch_unknown</code> of <code>PipeOpTorch</code> was removed. Any dimension of an input shape can now be unknown, so <code>private$.shapes_out()</code> must always handle <code>NA</code>s and assert those dimensions it actually needs to be known.</li>
+<ul><li>The <code>freq_type</code> parameter of <code>t_clbk("checkpoint")</code> was removed; checkpoints are now always written per epoch. <code>freq_type = "step"</code> named its files after the within-epoch step, which restarts at every epoch, so each epoch silently overwrote the checkpoints of the previous one. Code that set <code>freq_type</code> – including to its default <code>"epoch"</code> – has to drop the argument.</li>
+<li>The construction argument <code>only_batch_unknown</code> of <code>PipeOpTorch</code> was removed. Any dimension of an input shape can now be unknown, so <code>private$.shapes_out()</code> must always handle <code>NA</code>s and assert those dimensions it actually needs to be known.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>The <code>batch_sampler</code> parameter can now be used without setting <code>batch_size</code> for training, as the batch sampler already determines the batches (<a href="https://github.com/mlr-org/mlr3torch/issues/420" class="external-link">#420</a>).</li>
+<ul><li>
+<code>t_clbk("checkpoint")</code> no longer writes an epoch that was interrupted – because training failed or was stopped early – under that epoch’s own number, so <code>network&lt;n&gt;.pt</code> is now always the network at the <em>end</em> of epoch <code>n</code> rather than sometimes a half-trained one.</li>
+<li>
+<code>t_clbk("checkpoint")</code> now accepts an existing empty directory as its <code>path</code>. Previously any existing directory was rejected, which made a pre-created output folder unusable and meant that a run failing before its first checkpoint left behind a folder that blocked every later run.</li>
+<li>The <code>batch_sampler</code> parameter can now be used without setting <code>batch_size</code> for training, as the batch sampler already determines the batches (<a href="https://github.com/mlr-org/mlr3torch/issues/420" class="external-link">#420</a>).</li>
 <li>The dataloader parameters are now validated with typed conditions: misconfigurations are signaled as <code>Mlr3ErrorConfig</code> (see <code><a href="https://mlr3misc.mlr-org.com/reference/mlr_conditions.html" class="external-link">mlr3misc::error_config()</a></code>), so they do not trigger the fallback learner anymore.</li>
 <li>
 <code><a href="../reference/nn.html">nn()</a></code> now accepts a <code>_&lt;n&gt;</code> suffix on the key to disambiguate repeated layers within a <code>Graph</code>, i.e. <code>nn("linear_1")</code> is short for <code>nn("linear", id = "linear_1")</code>. Previously the suffix was appended a second time, resulting in the id <code>"linear_1_1"</code>.</li>
