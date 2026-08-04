@@ -15,7 +15,7 @@ test_that("manual", {
   learner$train(task)
 
   expect_set_equal(
-    c(paste0("network", 1:3, ".pt"), paste0("optimizer", 1:3, ".pt")),
+    c(paste0("network", 1:3, ".pt"), paste0("optimizer", 1:3, ".pt"), paste0("state", 1:3, ".rds")),
     list.files(pth0)
   )
 
@@ -26,7 +26,7 @@ test_that("manual", {
   learner$train(task)
 
   expect_set_equal(
-    c("network2.pt", "optimizer2.pt", "network3.pt", "optimizer3.pt"),
+    c("network2.pt", "optimizer2.pt", "state2.rds", "network3.pt", "optimizer3.pt", "state3.rds"),
     list.files(pth2)
   )
   pred = learner$predict(tsk("iris"))
@@ -54,7 +54,7 @@ test_that("an existing empty directory can be checkpointed into", {
     callbacks = t_clbk("checkpoint", freq = 1, path = path))
   expect_no_error(learner$train(task))
   expect_set_equal(list.files(path),
-    c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt")))
+    c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt"), paste0("state", 1:2, ".rds")))
 })
 
 test_that("an epoch that was interrupted is not saved under its own number", {
@@ -68,7 +68,7 @@ test_that("an epoch that was interrupted is not saved under its own number", {
   expect_error(learner$train(task), "crash")
 
   # 'network<n>.pt' is the network at the end of epoch n, and epoch 3 never reached its end
-  expect_set_equal(list.files(path), c("network2.pt", "optimizer2.pt"))
+  expect_set_equal(list.files(path), c("network2.pt", "optimizer2.pt", "state2.rds"))
 
   # the final epoch is still stored when training completes normally, also when `freq` skips it
   path2 = tempfile()
@@ -76,5 +76,92 @@ test_that("an epoch that was interrupted is not saved under its own number", {
     callbacks = t_clbk("checkpoint", freq = 2, path = path2))
   done$train(task)
   expect_set_equal(list.files(path2),
-    c("network2.pt", "optimizer2.pt", "network3.pt", "optimizer3.pt"))
+    c("network2.pt", "optimizer2.pt", "state2.rds", "network3.pt", "optimizer3.pt", "state3.rds"))
+})
+
+test_that("the state file holds the epoch and the states of the other callbacks", {
+  task = tsk("iris")
+  path = tempfile()
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
+    measures_train = msrs("classif.acc"),
+    callbacks = list(t_clbk("checkpoint", freq = 1, path = path), t_clbk("history")))
+  learner$train(task)
+
+  state = readRDS(file.path(path, "state2.rds"))
+  expect_equal(state$epoch, 2L)
+  expect_names(names(state$callbacks), must.include = "history")
+  # saveRDS() rather than torch_save(), which would strip the data.table class off the history
+  expect_data_table(state$callbacks$history)
+  expect_equal(state$callbacks$history, learner$model$callbacks$history)
+
+  # the checkpoint callback itself is stateless and therefore not part of the file
+  expect_true("checkpoint" %nin% names(state$callbacks))
+})
+
+test_that("no state is written for a checkpoint that the other callbacks are already past", {
+  task = tsk("iris")
+  path = tempfile()
+  # crashes in the middle of epoch 3, which `freq` would not have saved anyway
+  crash = torch_callback("crash",
+    on_batch_end = function() if (self$ctx$epoch == 3L && self$ctx$step == 2L) stop("crash"))
+  learner = lrn("classif.mlp", epochs = 6L, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 5, path = path), t_clbk("history"), crash))
+  expect_error(learner$train(task), "crash")
+
+  # epoch 2 is the last complete one, but the history has already recorded nothing for epoch 3
+  # while the other callbacks are inside it, so their states do not describe this checkpoint
+  expect_set_equal(list.files(path), c("network2.pt", "optimizer2.pt"))
+})
+
+test_that("a folder that already contains checkpoints can be checkpointed into", {
+  task = tsk("iris")
+  path = tempfile()
+  first = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  first$train(task)
+
+  second = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  expect_no_error(second$train(task))
+  expect_set_equal(list.files(path),
+    c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt"), paste0("state", 1:2, ".rds")))
+})
+
+test_that("latest_checkpoint() finds the most recent complete checkpoint", {
+  path = tempfile()
+  expect_null(latest_checkpoint(path))
+  dir.create(path)
+  expect_null(latest_checkpoint(path))
+  expect_equal(checkpoint_suffixes(path), integer(0))
+
+  file.create(file.path(path, c("network2.pt", "optimizer2.pt", "state2.rds",
+    "network10.pt", "optimizer10.pt", "state10.rds")))
+  # 10 rather than 2, i.e. the suffixes are compared as numbers and not as strings
+  expect_equal(checkpoint_suffixes(path), c(10L, 2L))
+  expect_equal(latest_checkpoint(path)$epoch, 10L)
+  expect_equal(basename(latest_checkpoint(path)$network), "network10.pt")
+
+  # a run that was interrupted between the network and the optimizer leaves an unusable checkpoint
+  file.create(file.path(path, "network11.pt"))
+  expect_equal(latest_checkpoint(path)$epoch, 10L)
+
+  # a checkpoint without a state file is still usable
+  file.remove(file.path(path, "state10.rds"))
+  expect_null(latest_checkpoint(path)$state)
+  expect_equal(latest_checkpoint(path)$epoch, 10L)
+})
+
+test_that("the saved callback states belong to the epoch of the checkpoint", {
+  task = tsk("iris")
+  path = tempfile()
+  # the checkpoint callback is passed first, i.e. before the scheduler has stepped for the epoch
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 1, path = path), t_clbk("lr_step")))
+  learner$param_set$set_values(opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
+  learner$train(task)
+
+  # the schedule of the last checkpoint is the one the model ends up with, not one step behind it
+  state = readRDS(file.path(path, "state2.rds"))
+  expect_equal(state$callbacks$lr_step$last_epoch, 2)
+  expect_equal(state$callbacks$lr_step, learner$model$callbacks$lr_step)
 })

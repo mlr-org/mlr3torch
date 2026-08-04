@@ -33,6 +33,10 @@
 * `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
   of the training run, named by their ids.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
+* `t_clbk("checkpoint")` additionally writes a `state<n>.rds` next to `network<n>.pt` and
+  `optimizer<n>.pt`, holding the epoch and the states of the other callbacks of the run, so that a
+  later run can continue e.g. the training history or the learning rate schedule. It also accepts a
+  folder that already contains checkpoints, which a continued run keeps writing into.
 * The learning rate scheduling and unfreezing callbacks implement `$state_dict()` and
   `$load_state_dict()`, and the early stopping callback additionally stores its best score and
   stagnation counter. The state of a training run can therefore be carried over into another one.

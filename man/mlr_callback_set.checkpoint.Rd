@@ -8,15 +8,24 @@
 Saves the optimizer and network states during training.
 The final network and optimizer are always stored.
 
-Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, two files
+Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, three files
 are created in \code{path}:
 \itemize{
 \item \verb{network<n>.pt} :: The \verb{$state_dict()} of the network.
 \item \verb{optimizer<n>.pt} :: The \verb{$state_dict()} of the optimizer.
+\item \verb{state<n>.rds} :: The epoch, as well as the \verb{$state_dict()}s of the other callbacks of the
+training run, so that a later run can continue e.g. the training history or the learning rate
+schedule.
 }
 
 An epoch that was interrupted -- because training failed or was stopped -- is not written under
 its own number, so \verb{network<n>.pt} is always the network at the \emph{end} of epoch \code{n}.
+The network and optimizer of the last \emph{complete} epoch are still written when training is
+interrupted, but without a \verb{state<n>.rds}: the other callbacks have moved on into the epoch that
+was interrupted, so their states no longer describe the checkpoint.
+
+A folder that already contains checkpoints is accepted, so that a run which continues an earlier
+one can keep checkpointing into it.
 }
 \details{
 Saving the learner itself in the callback with a trained model is impossible,

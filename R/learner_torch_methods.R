@@ -115,6 +115,13 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 
 
 train_loop = function(ctx, cbs) {
+  # A checkpoint has to describe one consistent training state, so the callback that writes it must
+  # see the other callbacks as they are at the *end* of an epoch. It is therefore moved last, no
+  # matter where it was passed: otherwise it would e.g. save a learning rate schedule that has not
+  # stepped for the epoch whose optimizer it saves.
+  is_checkpoint = map_lgl(cbs, function(cb) inherits(cb, "CallbackSetCheckpoint"))
+  cbs = c(cbs[!is_checkpoint], cbs[is_checkpoint])
+
   # callbacks such as CallbackSetCheckpoint need access to the other callbacks to save their states
   ctx$callbacks = cbs
 
