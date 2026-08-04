@@ -191,33 +191,19 @@ Every *other* block hyperparameter was swept and does reach the module (`ffn_d_h
 Not fixed here because implementing it means deciding what "kaiming"/"xavier" mean for the packed
 `in_proj_weight` — a modelling decision that should match the FT-Transformer reference implementation.
 
-### 1.9b [D] FT-Transformer `attention_bias = FALSE` always fails (upstream torch bug)
-```r
-lrn("classif.ft_transformer", epochs = 1, batch_size = 50, n_blocks = 1, d_token = 8,
-    ffn_d_hidden_multiplier = 1, attention_bias = FALSE)$train(tsk("iris"))
-#> Error: object 'k' not found
-```
-Root cause is upstream: `torch::nn_multihead_attention` is broken for `bias = FALSE` when `query` is
-not the same tensor as `key`. mlr3torch's last FT block *always* sets `query_idx = -1` (CLS-only
-query), so the condition is always met.
+### 1.9b Two exposed hyperparameter levels that always failed — **fixed upstream in `torch`**
+`attention_bias = FALSE` on the FT-Transformer, and `anneal_strategy = "linear"` on
+`t_clbk("lr_one_cycle")`, both failed unconditionally. Both root causes were in `torch` itself and are
+fixed on the branch `fix/mha-bias-and-lr-one-cycle` of the `torch` checkout at `/Users/sebi/mlr/torch`:
 
-```r
-x = torch_randn(4, 3, 8); q = x[, -1, drop = FALSE]
-m = nn_multihead_attention(embed_dim = 8, num_heads = 2, bias = FALSE, batch_first = TRUE)
-m(query = q, key = x, value = x, need_weights = FALSE)   #> Error: object 'k' not found
-```
-`FALSE` is therefore an unreachable level of a `p_lgl` that a tuner samples ~50% of the time.
-Decide whether to guard it, drop the level, or document it until torch is fixed.
+- `nnf_multi_head_attention_forward()` left `k` and `v` unassigned when `bias = FALSE` and
+  `query` differed from `key` — mlr3torch always hits this, since the last FT block sets
+  `query_idx = -1`. Failed with `object 'k' not found`.
+- `lr_one_cycle()` assigned its annealing function to `self.anneal_func` instead of
+  `self$anneal_func`, so the linear strategy never set it. Failed with `attempt to apply non-function`.
 
-### 1.9c [D] `t_clbk("lr_one_cycle")` offers `anneal_strategy = "linear"`, which always errors
-```r
-l = lrn("classif.mlp", epochs = 1, batch_size = 50, neurons = 5, callbacks = t_clbk("lr_one_cycle"))
-l$param_set$set_values(cb.lr_one_cycle.max_lr = 0.1, cb.lr_one_cycle.anneal_strategy = "linear")
-l$train(tsk("iris"))
-#> Error: attempt to apply non-function
-```
-Fails inside torch's `lr_one_cycle()` constructor itself, so again upstream — but it is an exposed
-level of a `p_fct`. `"cos"` works. Same decision as 1.9b.
+**Nothing to do in mlr3torch** beyond depending on a `torch` version containing the fixes once they
+are released. Until then both remain reachable levels that a tuner samples.
 
 ### 1.9d [D] FT-Transformer `n_blocks = 0` is permitted by the ParamSet but crashes
 `p_int(lower = 0L)` explicitly allows it, so `n_blocks = to_tune(0, 4)` looks legal, but
