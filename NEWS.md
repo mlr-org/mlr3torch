@@ -2,6 +2,39 @@
 
 ## Features
 
+* `LearnerTorch` and `PipeOpTorchModel` now accept any task type that is registered in
+  `mlr_reflections$task_types`, not only `"classif"` and `"regr"`.
+  The task-type-specific behaviour is available through the two new S3 generics
+  `get_target_batchgetter()` (how the target of a batch is turned into a tensor) and
+  `encode_prediction()` (how the network's output is turned back into a prediction), which
+  dispatch on the task and can be implemented for custom task types.
+  The new article "Custom Learning Problems" shows how to use them.
+* New task type `"torch"` for learning problems that are neither classification nor regression,
+  without having to add a task type to `mlr3` first.
+  A `TaskTorch` (constructed with `as_task_torch()`) may have any number of target columns, or none
+  at all, so it is supervised or unsupervised depending only on whether target columns were given;
+  nothing beyond that is assumed about the structure of the problem.
+  It infers the target tensor of a batch, the number of output units of the network and the
+  prediction encoding from the types of its target columns; each of the three can be overwritten
+  per task.
+  A target that is a function of the input rather than of a column (an autoencoder, a denoising or
+  masked objective) is expressed by a `target_batchgetter` that declares an `x` argument, which
+  receives the feature tensors of the batch.
+  It comes with `PredictionTorch` and with `msr_torch()`, which turns a plain R function into a
+  measure, so that a custom learning problem needs neither a `Prediction` class nor `PredictionData`
+  methods.
+  Because all such tasks share a single task type, `mlr3` cannot tell two different learning
+  problems apart, which is the trade-off against adding a real task type as described in the
+  vignette.
+  Learners and models for the new type are available as `lrn("torch.module")` and
+  `po("torch_model")`.
+* The training loop no longer requires the dataset to produce a target: a batch without a `y`
+  element is passed to the loss as `loss(y_hat, NULL)`, which is what a task without target columns
+  needs.
+* `LearnerTorchModule` (`lrn("classif.module")`, `lrn("regr.module")`, `lrn("torch.module")`) gained
+  a `target_batchgetter` construction argument.
+  It overwrites the target encoding of the task, which previously required implementing the private
+  `$.dataset()` method of a `LearnerTorch` subclass.
 * Added learners for the remaining image classification networks of `torchvision`:
   ConvNeXt (`classif.convnext_*`), EfficientNet (`classif.efficientnet_b0` to
   `classif.efficientnet_b7`), EfficientNetV2 (`classif.efficientnet_v2_{s,m,l}`),

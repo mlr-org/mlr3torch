@@ -114,7 +114,8 @@ Other Learner:
   callbacks = list(),
   packages = character(0),
   feature_types = NULL,
-  predict_types = NULL
+  predict_types = NULL,
+  target_batchgetter = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -155,6 +156,14 @@ The feature types. Defaults to all available feature types.}
       \item{\code{predict_types}}{(\code{character()})\cr
 The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
+      \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
+Converts the target columns of a batch into the target tensor \code{y} that the loss is applied to.
+Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
+and optionally an argument \code{x}, the named list of feature tensors of the batch.
+If \code{NULL} (default), the target encoding of the task is used, i.e.
+\code{\link[=get_target_batchgetter]{get_target_batchgetter()}}\code{(task)}.
+Set it when the network and loss expect a different encoding than the task's default, e.g. to
+train on one-hot encoded class labels.}
     }
     \if{html}{\out{</div>}}
   }

@@ -89,11 +89,16 @@
 #'   See [`mlr_reflections$learner_predict_types`][mlr3::mlr_reflections] for available values.
 #'   For regression, the default is `"response"`.
 #'   For classification, this defaults to `"response"` and `"prob"`.
+#'   For other task types, it defaults to all predict types that are registered for the task type.
 #'   To deviate from the defaults, it is necessary to overwrite the private `$.encode_prediction()`
 #'   method, see section *Inheriting*.
 #' @param loss (`NULL` or [`TorchLoss`])\cr
 #'   The loss to use for training.
 #'   Defaults to MSE for regression and cross entropy for classification.
+#'   For other task types there is no default and the loss has to be given, because which loss is
+#'   appropriate depends on the learning problem.
+#'   For the task type `"torch"` (see [`TaskTorch`]) any loss is accepted, since `mlr3torch` cannot
+#'   know what the task represents.
 #' @param optimizer (`NULL` or [`TorchOptimizer`])\cr
 #'   The optimizer to use for training.
 #'   Defaults to adam.
@@ -118,7 +123,9 @@
 #' @section Inheriting:
 #' There are no seperate classes for classification and regression to inherit from.
 #' Instead, the `task_type` must be specified  as a construction argument.
-#' Currently, only classification and regression are supported.
+#' Any task type that is registered in
+#' [`mlr_reflections$task_types`][mlr3::mlr_reflections] can be used, see the
+#' *Adding a Custom Task Type* vignette for how to add support for a new one.
 #'
 #' When inheriting from this class, one should overload the following methods:
 #'
@@ -199,11 +206,12 @@ LearnerTorch = R6Class("LearnerTorch",
     initialize = function(id, task_type, param_set, properties = character(), man, label, feature_types,
       optimizer = NULL, loss = NULL, packages = character(), predict_types = NULL, callbacks = list(),
       jittable = FALSE) {
-      assert_choice(task_type, c("regr", "classif"))
+      assert_choice(task_type, mlr_reflections$task_types$type)
 
       predict_types = predict_types %??% switch(task_type,
         regr = "response",
-        classif = c("response", "prob")
+        classif = c("response", "prob"),
+        names(mlr_reflections$learner_predict_types[[task_type]])
       )
 
       assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
@@ -244,7 +252,11 @@ LearnerTorch = R6Class("LearnerTorch",
       # loss needs access to the task_type
       self$task_type = task_type
       if (is.null(loss)) {
-        private$.loss = t_loss(switch(task_type, classif = "cross_entropy", regr = "mse"))
+        default_loss = switch(task_type, classif = "cross_entropy", regr = "mse", NULL)
+        if (is.null(default_loss)) {
+          stopf("There is no default loss for task type '%s', pass the `loss` explicitly.", task_type) # nolint
+        }
+        private$.loss = t_loss(default_loss)
       } else if (!inherits(loss, "LossNone")) {
         self$loss = loss
       }
@@ -353,7 +365,11 @@ LearnerTorch = R6Class("LearnerTorch",
       if (!missing(rhs)) {
         private$.param_set = NULL
         loss = as_torch_loss(rhs, clone = TRUE)
-        assert_choice(self$task_type, loss$task_types)
+        # "torch" is the general-purpose task type (see `TaskTorch`), whose learning problem is only
+        # known to the user, so which losses are applicable to it cannot be checked here
+        if (self$task_type != "torch") {
+          assert_choice(self$task_type, loss$task_types)
+        }
         private$.loss = loss
         self$packages = unique(c(self$packages, private$.loss$packages))
       }
@@ -548,10 +564,10 @@ LearnerTorch = R6Class("LearnerTorch",
       })
     },
     .encode_prediction = function(predict_tensor, task) {
-      encode_prediction_default(
+      encode_prediction(
+        task = task,
         predict_tensor = predict_tensor,
-        predict_type = self$predict_type,
-        task = task
+        predict_type = self$predict_type
       )
     },
     .network = function(task, param_vals) stop(".network must be implemented."),

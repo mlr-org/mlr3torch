@@ -1,0 +1,1015 @@
+---
+title: "Adding a Custom Task Type"
+author: "Sebastian Fischer"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Adding a Custom Task Type}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!--
+PARKED, NOT BUILT.
+
+This is the "do it properly" counterpart to vignettes/articles/custom_task_type.Rmd, which covers
+only the quick route via `TaskTorch`. It walks through adding a real task type to mlr3, using
+multi-label classification and a variational autoencoder as examples.
+
+It rendered cleanly before it was displaced. It has NOT been re-rendered since being parked here,
+so re-render it before promoting it back to vignettes/articles/. See TODOs.md.
+-->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+lgr::get_logger("mlr3")$set_threshold("warn")
+set.seed(314)
+```
+
+`mlr3torch` supports classification (`"classif"`) and regression (`"regr"`) out of the box.
+Not every learning problem fits into one of these two, though.
+Multi-label classification attaches several binary labels to each observation, survival analysis predicts a time and a censoring status, and an autoencoder has no target column at all.
+In `mlr3`, each of these is a separate *task type*, and this vignette shows how to add one and how to make `mlr3torch` learners work with it.
+
+We will do this twice.
+The first example is multi-label classification, which is supervised and therefore follows the same pattern as the built-in task types.
+The second example is a variational autoencoder, which is unsupervised and shows what changes when a task has no target.
+
+The work always splits into two halves.
+The first half registers the task type with `mlr3` and is not specific to deep learning at all -- you would write exactly the same code to support the task type in `mlr3learners`.
+The second half consists of a small number of S3 methods that tell `mlr3torch` how to move between the world of `mlr3` objects and the world of tensors.
+
+If you only want to run a custom problem through `mlr3torch` and do not intend to hand the task type to anyone else, you do not have to write any of this: see the *Custom Learning Problems* article and `?TaskTorch` for the quick route.
+
+```{r, message = FALSE}
+library(mlr3torch)
+library(mlr3misc)
+library(data.table)
+library(checkmate)
+library(R6)
+```
+
+## The Ingredients of a Task Type {#sec-ingredients}
+
+Before we start writing code, it is worth listing what a task type actually consists of.
+On the `mlr3` side you need:
+
+* Entries in `mlr_reflections`, the central registry that says which task types exist and which classes implement them.
+* A `Task` class that holds the data and knows which columns are the target.
+* A `Prediction` class and the `PredictionData` S3 methods that `mlr3` uses to combine, filter and validate what a learner returns.
+* At least one `Measure`, so that predictions can be scored.
+
+On the `mlr3torch` side you need to answer three questions, each of which is an S3 generic that dispatches on the task:
+
+* `output_dim_for()`: how many units does the output layer of the network need?
+* `get_target_batchgetter()`: how is the target of a batch turned into a tensor?
+* `encode_prediction()`: how is the output of the network turned back into a prediction?
+
+Finally, a `TorchLoss` has to declare that it is applicable to the new task type, because `mlr3torch` only knows a sensible default loss for classification and regression.
+
+## Multi-Label Classification {#sec-multilabel}
+
+In multi-label classification each observation carries several binary labels at once, and the labels are not mutually exclusive.
+A weather observation can be sunny and warm and windy, or sunny and warm but not windy.
+We represent such a task as a table with one `logical` column per label.
+
+### Registering the Task Type {#sec-multilabel-reflections}
+
+`mlr_reflections` is a central registry that `mlr3` consults whenever it needs to know something about a task type.
+Adding a row to `mlr_reflections$task_types` announces the new type and names the classes that implement it:
+
+```{r}
+mlr_reflections$task_types = setkeyv(rbind(mlr_reflections$task_types, rowwise_table(
+  ~type, ~package, ~task, ~learner, ~prediction, ~prediction_data, ~measure,
+  "multilabel", "mlr3torch", "TaskMultilabel", "LearnerMultilabel", "PredictionMultilabel", "PredictionDataMultilabel", "MeasureMultilabel"
+), fill = TRUE), "type")
+
+mlr_reflections$task_types["multilabel", ]
+```
+
+The classes are looked up by name, so the strings have to match the classes we define below.
+The `task` and `prediction` entries must name classes that really exist, because other packages rely on them.
+`mlr3pipelines`, for example, uses them as the input and output channel types of a `PipeOpLearner`.
+The `learner` and `measure` entries name the *base* class of the type and are only consulted when `mlr3` checks whether two related task types are compatible.
+We follow the naming convention here, but our learner will inherit from `LearnerTorch` (which inherits from `Learner` directly) rather than from an intermediate `LearnerMultilabel` class.
+
+Several further registries are indexed by task type.
+Column roles, task properties, learner properties and measure properties behave exactly as they do for regression, so we simply copy those entries:
+
+```{r}
+mlr_reflections$task_col_roles$multilabel = mlr_reflections$task_col_roles$regr
+mlr_reflections$task_properties$multilabel = mlr_reflections$task_properties$regr
+mlr_reflections$learner_properties$multilabel = mlr_reflections$learner_properties$regr
+mlr_reflections$measure_properties$multilabel = mlr_reflections$measure_properties$regr
+```
+
+The predict types, on the other hand, are our own design decision.
+A multi-label learner can predict the labels themselves (`"response"`) or one probability per label (`"prob"`).
+The list maps each predict type to everything it implies, so a learner with `predict_type = "prob"` also produces a `"response"`:
+
+```{r}
+mlr_reflections$learner_predict_types$multilabel = list(
+  response = "response",
+  prob = c("response", "prob")
+)
+```
+
+Finally, `mlr3` needs a default measure for the task type, which is used whenever `$score()` or `$aggregate()` is called without arguments.
+We register the id here and define the measure itself in the section on a custom measure.
+
+```{r}
+mlr_reflections$default_measures$multilabel = "multilabel.hamming"
+```
+
+Note that the code above mutates the state of `mlr3`.
+In a package, do this inside an `.onLoad()` hook rather than at the top level of an R file, because top-level code runs when the package is *built*, not when it is loaded.
+
+### The Task {#sec-multilabel-task}
+
+The `Task` class is the easy part.
+`mlr3::Task` already supports more than one target column, so all we have to do is pass our `task_type` to the parent class and check that the target columns are the sort of columns we expect:
+
+```{r}
+TaskMultilabel = R6Class("TaskMultilabel",
+  inherit = TaskSupervised,
+  public = list(
+    initialize = function(id, backend, target, label = NA_character_) {
+      assert_character(target, min.len = 1L, any.missing = FALSE)
+      super$initialize(id = id, task_type = "multilabel", backend = backend,
+        target = target, label = label)
+      types = self$col_info[list(target), "type", on = "id"][[1L]]
+      if (!all(types == "logical")) {
+        stopf("All targets of a multilabel task must be logical.")
+      }
+    }
+  )
+)
+```
+
+`Task$truth()` returns `self$data(rows, cols = self$target_names)`, which for us is a `data.table` with one logical column per label.
+That is exactly what we want, so we do not need to override it.
+
+Next we need some data to work with.
+The three labels below depend on the five features in different ways, and `warm` depends on an *interaction* of two features, which a linear model could not pick up:
+
+```{r}
+n = 500
+dat = data.table(x1 = rnorm(n), x2 = rnorm(n), x3 = rnorm(n), x4 = rnorm(n), x5 = rnorm(n))
+dat[, `:=`(
+  sunny = x1 + x2 > 0,
+  warm = x2 * x3 > 0,
+  windy = x4 - x5 > 0
+)]
+
+tsk_weather = TaskMultilabel$new("weather", dat, target = c("sunny", "warm", "windy"))
+tsk_weather
+```
+
+The printed output shows the three targets and the five features, just as it would for any other task type.
+
+### The Prediction {#sec-multilabel-prediction}
+
+A `Prediction` in `mlr3` is a thin wrapper around a *prediction data* object.
+The latter is a plain `list()` with a class attribute, holding the `row_ids`, the `truth`, and one element per predict type.
+The class name of that list is the one we registered in the `prediction_data` column above.
+
+```{r}
+PredictionMultilabel = R6Class("PredictionMultilabel",
+  inherit = Prediction,
+  public = list(
+    initialize = function(task = NULL, row_ids = task$row_ids, truth = task$truth(),
+      response = NULL, prob = NULL, check = TRUE) {
+      pdata = discard(list(row_ids = row_ids, truth = truth, response = response, prob = prob), is.null)
+      class(pdata) = c("PredictionDataMultilabel", "PredictionData")
+      if (check) pdata = check_prediction_data(pdata)
+
+      self$task_type = "multilabel"
+      self$man = "mlr3torch::PredictionMultilabel"
+      self$data = pdata
+      self$predict_types = intersect(c("response", "prob"), names(pdata))
+    }
+  ),
+  active = list(
+    # a data.table() with one logical column per label
+    response = function(rhs) {
+      if (!missing(rhs)) stopf("Field is read-only")
+      self$data$response
+    },
+    # a matrix() with one numeric column per label
+    prob = function(rhs) {
+      if (!missing(rhs)) stopf("Field is read-only")
+      self$data$prob
+    }
+  )
+)
+```
+
+The `Prediction` base class already provides `$row_ids`, `$truth` and `$missing`, so we only add active bindings for our own predict types.
+
+### Prediction Data {#sec-multilabel-pdata}
+
+Prediction data is what learners actually return and what `mlr3` passes around internally, because it is cheaper to combine and to subset than a full `Prediction` object.
+`mlr3` interacts with it through a small set of S3 generics, and each of them needs a method for our `PredictionDataMultilabel` class.
+
+`check_prediction_data()` validates and normalizes what a learner returned.
+This is the right place to bring the pieces into a canonical form.
+Below we make sure that the label order matches the truth, and we derive the `response` from the probabilities if a learner only supplies the latter:
+
+```{r}
+check_prediction_data.PredictionDataMultilabel = function(pdata, ...) {
+  n = length(assert_row_ids(pdata$row_ids))
+  labels = names(pdata$truth)
+  pdata$truth = assert_data_table(pdata$truth, nrows = n, types = "logical")
+
+  if (!is.null(pdata$response)) {
+    pdata$response = assert_data_table(as.data.table(pdata$response), nrows = n, types = "logical")
+    assert_names(names(pdata$response), permutation.of = labels)
+    setcolorder(pdata$response, labels)
+  }
+  if (!is.null(pdata$prob)) {
+    assert_matrix(pdata$prob, nrows = n, ncols = length(labels), mode = "numeric")
+    assert_names(colnames(pdata$prob), permutation.of = labels)
+    pdata$prob = pdata$prob[, labels, drop = FALSE]
+    if (is.null(pdata$response)) {
+      pdata$response = as.data.table(pdata$prob > 0.5)
+    }
+  }
+  pdata
+}
+```
+
+`is_missing_prediction_data()` reports for which rows the learner failed to predict, which `mlr3` uses to warn about incomplete predictions:
+
+```{r}
+is_missing_prediction_data.PredictionDataMultilabel = function(pdata, ...) {
+  miss = logical(length(pdata$row_ids))
+  if (!is.null(pdata$response)) {
+    miss = Reduce(`|`, lapply(pdata$response, is.na))
+  }
+  pdata$row_ids[miss]
+}
+```
+
+`as_prediction()` turns prediction data back into the `Prediction` object:
+
+```{r}
+as_prediction.PredictionDataMultilabel = function(x, check = TRUE, ...) {
+  invoke(PredictionMultilabel$new, check = check, .args = x)
+}
+```
+
+`c()` combines the predictions of the individual resampling iterations into a single one and `filter_prediction_data()` subsets them.
+Without these two, `resample()` and `benchmark()` do not work:
+
+```{r}
+c.PredictionDataMultilabel = function(..., keep_duplicates = TRUE) {
+  dots = list(...)
+  assert_list(dots, "PredictionDataMultilabel")
+  if (length(dots) == 1L) return(dots[[1L]])
+
+  row_ids = do.call(c, map(dots, "row_ids"))
+  truth = rbindlist(map(dots, "truth"))
+  response = if (!is.null(dots[[1L]]$response)) rbindlist(map(dots, "response"))
+  prob = if (!is.null(dots[[1L]]$prob)) do.call(rbind, map(dots, "prob"))
+
+  if (!keep_duplicates) {
+    keep = !duplicated(row_ids, fromLast = TRUE)
+    row_ids = row_ids[keep]
+    truth = truth[keep]
+    if (!is.null(response)) response = response[keep]
+    if (!is.null(prob)) prob = prob[keep, , drop = FALSE]
+  }
+
+  pdata = discard(list(row_ids = row_ids, truth = truth, response = response, prob = prob), is.null)
+  class(pdata) = c("PredictionDataMultilabel", "PredictionData")
+  pdata
+}
+
+filter_prediction_data.PredictionDataMultilabel = function(pdata, row_ids, ...) {
+  keep = pdata$row_ids %in% row_ids
+  pdata$row_ids = pdata$row_ids[keep]
+  pdata$truth = pdata$truth[keep]
+  if (!is.null(pdata$response)) pdata$response = pdata$response[keep]
+  if (!is.null(pdata$prob)) pdata$prob = pdata$prob[keep, , drop = FALSE]
+  pdata
+}
+```
+
+Lastly, `Prediction$print()` displays `as.data.table(prediction)`, so we flatten the two tables into prefixed columns.
+Note the `copy()` calls: `setnames()` renames by reference, and without them printing a prediction would rename the columns that the prediction itself holds.
+
+```{r}
+as.data.table.PredictionMultilabel = function(x, ...) {
+  tab = data.table(row_ids = x$data$row_ids)
+  tab = cbind(tab, setnames(copy(x$data$truth), paste0("truth.", names(x$data$truth))))
+  if (!is.null(x$data$response)) {
+    tab = cbind(tab, setnames(copy(x$data$response), paste0("response.", names(x$data$response))))
+  }
+  tab
+}
+```
+
+That is the whole `mlr3` side.
+We can now build a prediction by hand, without any learner being involved.
+The one below always guesses `TRUE`:
+
+```{r}
+prediction = PredictionMultilabel$new(
+  task = tsk_weather,
+  response = as.data.table(matrix(TRUE, nrow = tsk_weather$nrow, ncol = 3,
+    dimnames = list(NULL, tsk_weather$target_names)))
+)
+prediction
+```
+
+### A Custom Measure {#sec-multilabel-measure}
+
+A `Measure` scores a `Prediction`.
+Its `task_type` ties it to our new task type, `predict_type` declares what it needs from the learner, and the private `$.score()` method does the actual work.
+The classic multi-label metric is the *Hamming loss*, the fraction of individual label decisions that are wrong:
+
+```{r}
+MeasureMultilabelHamming = R6Class("MeasureMultilabelHamming",
+  inherit = Measure,
+  public = list(
+    initialize = function() {
+      super$initialize(
+        id = "multilabel.hamming",
+        task_type = "multilabel",
+        predict_type = "response",
+        range = c(0, 1),
+        minimize = TRUE,
+        label = "Hamming Loss"
+      )
+    }
+  ),
+  private = list(
+    .score = function(prediction, ...) {
+      mean(as.matrix(prediction$truth) != as.matrix(prediction$response))
+    }
+  )
+)
+
+mlr_measures$add("multilabel.hamming", MeasureMultilabelHamming)
+```
+
+Adding the measure to the `mlr_measures` dictionary makes it available through `msr()`, and we can score the constant prediction from above:
+
+```{r}
+prediction$score(msr("multilabel.hamming"))
+```
+
+Roughly half of all label decisions are wrong, which is what we expect from a learner that ignores the features.
+
+A measure that consumes probabilities works the same way; it only sets `predict_type = "prob"` and reads `prediction$prob` instead.
+The mean binary log-loss over all labels is one example:
+
+```{r}
+MeasureMultilabelLogloss = R6Class("MeasureMultilabelLogloss",
+  inherit = Measure,
+  public = list(
+    initialize = function() {
+      super$initialize(
+        id = "multilabel.logloss",
+        task_type = "multilabel",
+        predict_type = "prob",
+        range = c(0, Inf),
+        minimize = TRUE,
+        label = "Mean Binary Log-Loss"
+      )
+    }
+  ),
+  private = list(
+    .score = function(prediction, ...) {
+      eps = 1e-7
+      truth = as.matrix(prediction$truth)
+      prob = pmin(pmax(prediction$prob, eps), 1 - eps)
+      -mean(truth * log(prob) + (1 - truth) * log(1 - prob))
+    }
+  )
+)
+
+mlr_measures$add("multilabel.logloss", MeasureMultilabelLogloss)
+```
+
+### Teaching mlr3torch about the Task Type {#sec-multilabel-torch}
+
+We now switch to the second half, which is where `mlr3torch` comes in.
+`output_dim_for()` states how many units the output layer of the network needs.
+For multi-label classification we predict one logit per label:
+
+```{r}
+output_dim_for.TaskMultilabel = function(x, ...) {
+  length(x$target_names)
+}
+```
+
+Helpers such as `po("nn_head")` call this generic, so a network that is built with the `nn()` graph language automatically gets the right output size.
+
+`get_target_batchgetter()` returns a function that converts the target columns of a batch -- a `data.table` -- into the tensor `y` that the loss is applied to.
+For us that is a `(batch_size, n_labels)` float tensor of zeros and ones, which is what `nn_bce_with_logits_loss()` expects:
+
+```{r}
+get_target_batchgetter.TaskMultilabel = function(task, ...) {
+  function(data) {
+    torch_tensor(as.matrix(data), dtype = torch_float())
+  }
+}
+```
+
+`encode_prediction()` is the inverse of the target encoding.
+It maps the raw output of the network to a `list()` that `mlr3::as_prediction_data()` understands, i.e. a list whose elements are named after our predict types.
+Our network emits logits, so we apply a sigmoid per label and threshold at `0.5`:
+
+```{r}
+encode_prediction.TaskMultilabel = function(task, predict_tensor, predict_type, ...) {
+  prob = as.matrix(with_no_grad(torch_sigmoid(predict_tensor))$cpu())
+  colnames(prob) = task$target_names
+  response = as.data.table(prob > 0.5)
+
+  if (predict_type == "prob") {
+    list(response = response, prob = prob)
+  } else {
+    list(response = response)
+  }
+}
+```
+
+An individual learner can always deviate from this by overwriting its private `$.encode_prediction()` method.
+Implementing the generic is what makes the *generic* learners, such as `LearnerTorchModel`, work for the new task type.
+
+The last ingredient is a loss function.
+A `TorchLoss` declares which task types it is applicable to, so we wrap `torch::nn_bce_with_logits_loss()` and register it in the `mlr3torch_losses` dictionary:
+
+```{r}
+mlr3torch_losses$add("multilabel_bce", TorchLoss$new(
+  torch_loss = nn_bce_with_logits_loss,
+  task_types = "multilabel",
+  id = "multilabel_bce",
+  label = "Binary Cross Entropy with Logits"
+))
+
+t_loss("multilabel_bce")
+```
+
+`mlr3torch` only knows a default loss for classification and regression.
+Learners for a custom task type therefore have to supply one, either as a default in their constructor, as we do below, or by leaving the choice to the user.
+
+### A Learner {#sec-multilabel-learner}
+
+At this point writing the learner is no different from writing one for classification or regression, which is described in the documentation of `LearnerTorch`.
+We pass `task_type = "multilabel"` and implement the private `$.network()` and `$.ingress_tokens()` methods:
+
+```{r}
+LearnerMultilabelMLP = R6Class("LearnerMultilabelMLP",
+  inherit = LearnerTorch,
+  public = list(
+    initialize = function(optimizer = NULL, loss = t_loss("multilabel_bce"), callbacks = list()) {
+      param_set = ps(
+        neurons = p_uty(tags = "train", custom_check = crate(function(x) checkmate::check_integerish(x, any.missing = FALSE)))
+      )
+      param_set$set_values(neurons = 20L)
+
+      super$initialize(
+        id = "multilabel.mlp",
+        task_type = "multilabel",
+        label = "Multilabel Multi Layer Perceptron",
+        param_set = param_set,
+        optimizer = optimizer,
+        loss = loss,
+        callbacks = callbacks,
+        feature_types = c("numeric", "integer"),
+        man = "mlr3torch::mlr_learners_multilabel.mlp"
+      )
+    }
+  ),
+  private = list(
+    .network = function(task, param_vals) {
+      layers = list()
+      prev = length(task$feature_names)
+      for (n in param_vals$neurons) {
+        layers = c(layers, list(nn_linear(prev, n), nn_relu()))
+        prev = n
+      }
+      invoke(nn_sequential, .args = c(layers, list(nn_linear(prev, output_dim_for(task)))))
+    },
+    .ingress_tokens = function(task, param_vals) {
+      list(input = ingress_num(shape = c(NA, length(task$feature_names))))
+    }
+  )
+)
+```
+
+Because we registered `"prob"` as a predict type and `encode_prediction.TaskMultilabel()` produces it, the learner supports both predict types without any further work:
+
+```{r}
+lrn_multilabel = LearnerMultilabelMLP$new()
+lrn_multilabel$predict_types
+```
+
+### Training and Predicting {#sec-multilabel-train}
+
+The learner now behaves like any other `mlr3` learner.
+We configure it, split the task into a training and a test set with `partition()`, and train on the training set:
+
+```{r}
+lrn_multilabel$param_set$set_values(
+  epochs = 50, batch_size = 32, neurons = c(20, 20), opt.lr = 0.01
+)
+lrn_multilabel$predict_type = "prob"
+
+splits = partition(tsk_weather)
+lrn_multilabel$train(tsk_weather, row_ids = splits$train)
+prediction = lrn_multilabel$predict(tsk_weather, row_ids = splits$test)
+prediction
+```
+
+The `truth.*` columns are the ground truth extracted from the task and the `response.*` columns are what the network predicted.
+Both come from the `as.data.table()` method that we wrote in the section on prediction data.
+Scoring works with either of our two measures:
+
+```{r}
+prediction$score(msrs(c("multilabel.hamming", "multilabel.logloss")))
+```
+
+Resampling works as well, which is what the `c()` and `filter_prediction_data()` methods were needed for:
+
+```{r}
+rr = resample(tsk_weather, lrn_multilabel, rsmp("cv", folds = 3))
+rr$aggregate(msr("multilabel.hamming"))
+```
+
+Our custom measure can also be used for validation and early stopping, exactly like a built-in one.
+Below we hold out 30% of the training data, score it after every epoch, and stop once the Hamming loss has not improved for five epochs:
+
+```{r}
+lrn_early_stopping = LearnerMultilabelMLP$new()
+lrn_early_stopping$param_set$set_values(
+  epochs = 100, batch_size = 32, neurons = c(20, 20), opt.lr = 0.01,
+  patience = 5, measures_valid = msr("multilabel.hamming")
+)
+lrn_early_stopping$validate = 0.3
+
+lrn_early_stopping$train(tsk_weather)
+lrn_early_stopping$internal_valid_scores
+lrn_early_stopping$internal_tuned_values
+```
+
+Training stopped well before the configured 100 epochs, and `$internal_tuned_values` reports the epoch that `mlr3tuning` would use for internal tuning.
+
+### Using the Graph Language {#sec-multilabel-graph}
+
+Everything said in the [Defining an Architecture](pipeop_torch.html) vignette applies to the new task type as well.
+The only difference is that we construct the terminal `PipeOpTorchModel` for our task type ourselves, instead of using the `po("torch_model_classif")` and `po("torch_model_regr")` shorthands:
+
+```{r}
+architecture = po("torch_ingress_num") %>>%
+  nn("linear_1", out_features = 20) %>>%
+  nn("relu_1") %>>%
+  nn("linear_2", out_features = 20) %>>%
+  nn("relu_2") %>>%
+  nn("head") %>>%
+  po("torch_loss", t_loss("multilabel_bce")) %>>%
+  po("torch_optimizer", "adam", lr = 0.01) %>>%
+  PipeOpTorchModel$new("multilabel", param_vals = list(batch_size = 32, epochs = 50))
+
+glrn_multilabel = as_learner(architecture)
+glrn_multilabel$train(tsk_weather, row_ids = splits$train)
+glrn_multilabel$predict(tsk_weather, row_ids = splits$test)$score(msr("multilabel.hamming"))
+```
+
+Note that `nn("head")` sized its output layer through our `output_dim_for()` method, and that the resulting `LearnerTorchModel` encoded its predictions through our `encode_prediction()` method.
+Neither of them knows anything about multi-label classification.
+
+If you want a `po("torch_model_multilabel")` shorthand, add a thin subclass to the `mlr_pipeops` dictionary, in the same way that `mlr3torch` does it for classification and regression:
+
+```{r}
+PipeOpTorchModelMultilabel = R6Class("PipeOpTorchModelMultilabel",
+  inherit = PipeOpTorchModel,
+  public = list(
+    initialize = function(id = "torch_model_multilabel", param_vals = list()) {
+      super$initialize(task_type = "multilabel", id = id, param_vals = param_vals)
+    }
+  )
+)
+
+mlr_pipeops$add("torch_model_multilabel", PipeOpTorchModelMultilabel)
+po("torch_model_multilabel", epochs = 50, batch_size = 32)
+```
+
+The input and output channels of the new `PipeOp` are typed with the `TaskMultilabel` and `PredictionMultilabel` classes that we registered when registering the task type.
+
+## An Unsupervised Task Type {#sec-vae}
+
+Multi-label classification is supervised, so most of the work above was mechanical.
+The second example is more interesting, because it drops the assumption that a task has a target at all.
+
+A variational autoencoder (VAE) compresses each observation into a low-dimensional latent code and reconstructs the input from it.
+There is nothing to predict from the outside: the input *is* the target.
+This changes three things compared to multi-label classification, and we will look at each of them in turn:
+
+* The task inherits from `TaskUnsupervised`, so its predictions have no `truth` and the measure has to read the ground truth from the task instead.
+* The network returns three tensors during training -- the reconstruction, the latent mean and the latent log-variance -- because the loss needs all three.
+* The dataset has to produce a target that is not stored in any target column, which is where the private `$.dataset()` method comes in.
+
+### Registering the Task Type {#sec-vae-reflections}
+
+The registration follows exactly the same pattern as before, except that the column roles and task properties are copied from `"unsupervised"` rather than from `"regr"`:
+
+```{r}
+mlr_reflections$task_types = setkeyv(rbind(mlr_reflections$task_types, rowwise_table(
+  ~type, ~package, ~task, ~learner, ~prediction, ~prediction_data, ~measure,
+  "vae", "mlr3torch", "TaskVAE", "LearnerVAE", "PredictionVAE", "PredictionDataVAE", "MeasureVAE"
+), fill = TRUE), "type")
+
+mlr_reflections$task_col_roles$vae = mlr_reflections$task_col_roles$unsupervised
+mlr_reflections$task_properties$vae = mlr_reflections$task_properties$unsupervised
+mlr_reflections$learner_properties$vae = mlr_reflections$learner_properties$regr
+mlr_reflections$measure_properties$vae = mlr_reflections$measure_properties$regr
+mlr_reflections$learner_predict_types$vae = list(response = "response")
+mlr_reflections$default_measures$vae = "vae.reconstruction"
+```
+
+There is only one predict type, `"response"`, which will hold the reconstruction of the input.
+
+Note that `mlr3` already registers a task type `"unsupervised"`, but its `prediction`, `prediction_data` and `measure` entries are all `NA` and it has no predict types.
+It exists so that `PipeOp`s can pass target-less data around, not so that learners can train on it -- building a learner for it fails with *"Assertion on 'predict_types' failed: Must be a subset of {}"*.
+A task type that is going to be predicted on therefore has to be registered separately, as we do here.
+
+### The Task and the Prediction {#sec-vae-task}
+
+`TaskUnsupervised` is the base class for tasks without a target, so the task class is a one-liner:
+
+```{r}
+TaskVAE = R6Class("TaskVAE",
+  inherit = TaskUnsupervised,
+  public = list(
+    initialize = function(id, backend, label = NA_character_) {
+      super$initialize(id = id, task_type = "vae", backend = backend, label = label)
+    }
+  )
+)
+```
+
+As data we use the four numeric features of the iris dataset, standardized so that a reconstruction error is easy to interpret:
+
+```{r}
+iris_scaled = as.data.table(scale(iris[, 1:4]))
+tsk_iris_unsup = TaskVAE$new("iris_unsup", iris_scaled)
+tsk_iris_unsup
+```
+
+The printed output confirms that the task has four features and no target.
+
+The prediction class is the same shape as `PredictionMultilabel`, but simpler.
+There is no `truth` -- `mlr3` only extracts a truth from tasks that inherit from `TaskSupervised` -- and the single predict type is a numeric matrix with one column per feature:
+
+```{r}
+PredictionVAE = R6Class("PredictionVAE",
+  inherit = Prediction,
+  public = list(
+    initialize = function(task = NULL, row_ids = task$row_ids, response = NULL, check = TRUE) {
+      pdata = discard(list(row_ids = row_ids, response = response), is.null)
+      class(pdata) = c("PredictionDataVAE", "PredictionData")
+      if (check) pdata = check_prediction_data(pdata)
+
+      self$task_type = "vae"
+      self$man = "mlr3torch::PredictionVAE"
+      self$data = pdata
+      self$predict_types = "response"
+    }
+  ),
+  active = list(
+    # a matrix() with one numeric column per feature
+    response = function(rhs) {
+      if (!missing(rhs)) stopf("Field is read-only")
+      self$data$response
+    }
+  )
+)
+```
+
+The prediction data methods are the same five as for multi-label classification, only shorter, because there is a single matrix to look after:
+
+```{r}
+check_prediction_data.PredictionDataVAE = function(pdata, ...) {
+  n = length(assert_row_ids(pdata$row_ids))
+  assert_matrix(pdata$response, nrows = n, mode = "numeric", null.ok = TRUE)
+  pdata
+}
+
+is_missing_prediction_data.PredictionDataVAE = function(pdata, ...) {
+  pdata$row_ids[apply(pdata$response, 1L, anyNA)]
+}
+
+as_prediction.PredictionDataVAE = function(x, check = TRUE, ...) {
+  invoke(PredictionVAE$new, check = check, .args = x)
+}
+
+c.PredictionDataVAE = function(..., keep_duplicates = TRUE) {
+  dots = list(...)
+  assert_list(dots, "PredictionDataVAE")
+  if (length(dots) == 1L) return(dots[[1L]])
+
+  row_ids = do.call(c, map(dots, "row_ids"))
+  response = do.call(rbind, map(dots, "response"))
+  if (!keep_duplicates) {
+    keep = !duplicated(row_ids, fromLast = TRUE)
+    row_ids = row_ids[keep]
+    response = response[keep, , drop = FALSE]
+  }
+
+  pdata = list(row_ids = row_ids, response = response)
+  class(pdata) = c("PredictionDataVAE", "PredictionData")
+  pdata
+}
+
+filter_prediction_data.PredictionDataVAE = function(pdata, row_ids, ...) {
+  keep = pdata$row_ids %in% row_ids
+  pdata$row_ids = pdata$row_ids[keep]
+  pdata$response = pdata$response[keep, , drop = FALSE]
+  pdata
+}
+
+as.data.table.PredictionVAE = function(x, ...) {
+  tab = data.table(row_ids = x$data$row_ids)
+  cbind(tab, setnames(as.data.table(x$data$response), paste0("response.", colnames(x$data$response))))
+}
+```
+
+### A Measure that Reads the Task {#sec-vae-measure}
+
+Because the prediction carries no `truth`, our measure cannot compare `prediction$truth` to `prediction$response` the way the Hamming loss did.
+The ground truth is the input itself, so the measure has to go back to the task.
+Declaring the property `"requires_task"` makes `mlr3` pass the task to `$.score()`:
+
+```{r}
+MeasureVAEReconstruction = R6Class("MeasureVAEReconstruction",
+  inherit = Measure,
+  public = list(
+    initialize = function() {
+      super$initialize(
+        id = "vae.reconstruction",
+        task_type = "vae",
+        predict_type = "response",
+        properties = "requires_task",
+        range = c(0, Inf),
+        minimize = TRUE,
+        label = "Mean Squared Reconstruction Error"
+      )
+    }
+  ),
+  private = list(
+    .score = function(prediction, task, ...) {
+      truth = as.matrix(task$data(rows = prediction$row_ids, cols = task$feature_names))
+      mean((truth - prediction$response)^2)
+    }
+  )
+)
+
+mlr_measures$add("vae.reconstruction", MeasureVAEReconstruction)
+```
+
+Note that the measure subsets the task by `prediction$row_ids` rather than assuming that the prediction covers the whole task.
+This matters during resampling, where each iteration predicts on a different subset.
+
+### The Network {#sec-vae-network}
+
+The `mlr3torch` side needs the same three generics as before.
+`output_dim_for()` is the number of features, because the network reconstructs its input:
+
+```{r}
+output_dim_for.TaskVAE = function(x, ...) {
+  length(x$feature_names)
+}
+```
+
+`encode_prediction()` turns the network output into a matrix with one column per feature:
+
+```{r}
+encode_prediction.TaskVAE = function(task, predict_tensor, predict_type, ...) {
+  reconstruction = as.matrix(predict_tensor$cpu())
+  colnames(reconstruction) = task$feature_names
+  list(response = reconstruction)
+}
+```
+
+We do *not* implement `get_target_batchgetter()` here.
+That generic is only used by the default dataset construction, which reads the target from the task's target columns, and a `TaskVAE` has none.
+We will construct the dataset ourselves in the section on the dataset and the learner instead.
+
+Now for the network itself.
+The encoder maps the input to the mean and the log-variance of a Gaussian in latent space, and the decoder maps a latent code back to the input space.
+During training we sample a latent code with the reparameterization trick and return all three tensors, because the loss needs the mean and the log-variance for the KL term:
+
+```{r}
+nn_vae = nn_module("nn_vae",
+  initialize = function(d_in, d_hidden, d_latent) {
+    self$encoder = nn_sequential(nn_linear(d_in, d_hidden), nn_relu())
+    self$mean = nn_linear(d_hidden, d_latent)
+    self$log_var = nn_linear(d_hidden, d_latent)
+    self$decoder = nn_sequential(
+      nn_linear(d_latent, d_hidden), nn_relu(), nn_linear(d_hidden, d_in)
+    )
+  },
+  forward = function(input) {
+    h = self$encoder(input)
+    mean = self$mean(h)
+    log_var = self$log_var(h)
+
+    if (!self$training) {
+      # when predicting, reconstruct deterministically from the latent mean
+      return(self$decoder(mean))
+    }
+
+    # reparameterization trick: sample z ~ N(mean, exp(log_var))
+    z = mean + torch_exp(0.5 * log_var) * torch_randn_like(mean)
+    list(self$decoder(z), mean, log_var)
+  }
+)
+```
+
+The two branches of `forward()` implement a contract that `LearnerTorch` documents in its *Network Head and Target Encoding* section.
+A network may return a `list()` of tensors during training, of which the first element is the primary prediction, i.e. the one that `measures_train` scores.
+When the network is in evaluation mode it has to return that primary prediction as a single tensor, because `mlr3torch` concatenates the per-batch outputs along the batch dimension.
+For a VAE this distinction is natural rather than a workaround: sampling belongs to training, and a deterministic reconstruction from the latent mean is what we want at prediction time.
+
+### The Loss {#sec-vae-loss}
+
+The loss receives the complete network output, so it can pick the three tensors apart itself.
+The negative ELBO is the sum of a reconstruction term and a KL term that pulls the latent distribution towards a standard normal, and `beta` weights the two against each other:
+
+```{r}
+nn_elbo_loss = nn_module("nn_elbo_loss",
+  initialize = function(beta = 1) {
+    self$beta = assert_number(beta, lower = 0)
+  },
+  forward = function(input, target) {
+    reconstruction = nnf_mse_loss(input[[1L]], target, reduction = "sum")
+    kl = -0.5 * torch_sum(1 + input[[3L]] - input[[2L]]^2 - torch_exp(input[[3L]]))
+    (reconstruction + self$beta * kl) / target$shape[1L]
+  }
+)
+
+mlr3torch_losses$add("elbo", TorchLoss$new(
+  torch_loss = nn_elbo_loss,
+  task_types = "vae",
+  id = "elbo",
+  label = "Negative ELBO"
+))
+
+t_loss("elbo")
+```
+
+Because `beta` is an argument of `nn_elbo_loss()`, `TorchLoss` picks it up automatically and exposes it to the user as the hyperparameter `loss.beta`.
+
+Note that no wrapping of the loss is necessary here.
+`LearnerTorch` offers a private `$.loss_fn()` method for networks whose output has to be reshaped before the configured loss can be applied, but our loss consumes the list of three tensors directly.
+
+### The Dataset and the Learner {#sec-vae-learner}
+
+A `LearnerTorch` builds its dataset either from `$.ingress_tokens()`, which is what the multi-label learner did, or from `$.dataset()`, which gives full control.
+We need the latter, because the target of a batch is the batch's own input and no target column exists.
+
+Rather than building the dataset from scratch, we reuse `task_dataset()` and add the missing `y` element.
+This keeps the row-id bookkeeping and the `lazy_tensor` handling of `task_dataset()` intact:
+
+```{r}
+vae_dataset = dataset("vae_dataset",
+  initialize = function(dataset) {
+    self$dataset = dataset
+  },
+  .getbatch = function(index) {
+    batch = self$dataset$.getbatch(index)
+    # a VAE reconstructs its own input, so the target of a batch is its input
+    batch$y = batch$x$input
+    batch
+  },
+  .length = function() length(self$dataset)
+)
+```
+
+The learner then plugs the network, the dataset and the default loss together:
+
+```{r}
+LearnerVAE = R6Class("LearnerVAE",
+  inherit = LearnerTorch,
+  public = list(
+    initialize = function(optimizer = NULL, loss = t_loss("elbo"), callbacks = list()) {
+      param_set = ps(
+        d_hidden = p_int(lower = 1L, tags = c("train", "required")),
+        d_latent = p_int(lower = 1L, tags = c("train", "required"))
+      )
+      param_set$set_values(d_hidden = 16L, d_latent = 2L)
+
+      super$initialize(
+        id = "vae",
+        task_type = "vae",
+        label = "Variational Autoencoder",
+        param_set = param_set,
+        optimizer = optimizer,
+        loss = loss,
+        callbacks = callbacks,
+        feature_types = c("numeric", "integer"),
+        man = "mlr3torch::mlr_learners_vae"
+      )
+    }
+  ),
+  private = list(
+    .network = function(task, param_vals) {
+      nn_vae(length(task$feature_names), param_vals$d_hidden, param_vals$d_latent)
+    },
+    .dataset = function(task, param_vals) {
+      ingress = list(input = ingress_num(shape = c(NA, length(task$feature_names))))
+      vae_dataset(task_dataset(task, feature_ingress_tokens = ingress))
+    }
+  )
+)
+```
+
+### Training and Predicting {#sec-vae-train}
+
+From here on nothing is special anymore.
+We train on two thirds of the data and reconstruct the held-out third:
+
+```{r}
+lrn_vae = LearnerVAE$new()
+lrn_vae$param_set$set_values(epochs = 100, batch_size = 32, opt.lr = 0.01)
+
+splits_iris = partition(tsk_iris_unsup)
+lrn_vae$train(tsk_iris_unsup, row_ids = splits_iris$train)
+prediction_vae = lrn_vae$predict(tsk_iris_unsup, row_ids = splits_iris$test)
+prediction_vae
+```
+
+The prediction has no `truth.*` columns, because the task is unsupervised.
+Scoring therefore needs the task, which we pass to `$score()`:
+
+```{r}
+prediction_vae$score(msr("vae.reconstruction"), task = tsk_iris_unsup)
+```
+
+The features were standardized to unit variance, so a mean squared reconstruction error well below `1` means that a two-dimensional latent space captures most of the structure of the four original features.
+
+`resample()` passes the task on by itself, so no extra argument is needed there:
+
+```{r}
+rr_vae = resample(tsk_iris_unsup, lrn_vae, rsmp("cv", folds = 3))
+rr_vae$aggregate(msr("vae.reconstruction"))
+```
+
+Validation and early stopping work as well, and are configured exactly as for multi-label classification:
+
+```{r}
+lrn_vae_es = LearnerVAE$new()
+lrn_vae_es$param_set$set_values(
+  epochs = 200, batch_size = 32, opt.lr = 0.01,
+  patience = 10, measures_valid = msr("vae.reconstruction")
+)
+lrn_vae_es$validate = 0.3
+
+lrn_vae_es$train(tsk_iris_unsup)
+lrn_vae_es$internal_valid_scores
+lrn_vae_es$internal_tuned_values
+```
+
+Finally, the trained network is available through `$network`, so the latent codes -- arguably the more interesting output of a VAE -- are only an encoder call away:
+
+```{r}
+network = lrn_vae$network
+network$eval()
+
+x = torch_tensor(
+  as.matrix(tsk_iris_unsup$data(rows = splits_iris$test)),
+  dtype = torch_float()
+)
+latent = with_no_grad(network$mean(network$encoder(x)))
+head(as.matrix(latent))
+```
+
+If you want these codes to be a proper prediction rather than a manual encoder call, add `"latent"` to `mlr_reflections$learner_predict_types$vae`, give `PredictionVAE` a `$latent` binding, and return both matrices from `encode_prediction()`.
+The one thing to keep in mind is that the network still has to return a *single* tensor when predicting, so the reconstruction and the latent code have to be concatenated in `forward()` and split apart again in `encode_prediction()`.
+
+## Summary {#sec-summary}
+
+Adding a task type to `mlr3torch` means writing two groups of things.
+
+On the `mlr3` side:
+
+* A row in `mlr_reflections$task_types`, plus the entries in `task_col_roles`, `task_properties`, `learner_properties`, `learner_predict_types`, `measure_properties` and `default_measures`.
+* A `Task` class, inheriting from `TaskSupervised` or from `TaskUnsupervised`.
+* A `Prediction` class and the S3 methods `check_prediction_data()`, `is_missing_prediction_data()`, `as_prediction()`, `c()`, `filter_prediction_data()` and `as.data.table()`.
+* At least one `Measure`. If the task is unsupervised, give it the property `"requires_task"` so that it can read the ground truth from the task.
+
+On the `mlr3torch` side:
+
+* `output_dim_for()`, which says how wide the output layer of the network is.
+* `get_target_batchgetter()`, which says how the target is turned into a tensor. A learner that builds its dataset through the private `$.dataset()` method does not need it.
+* `encode_prediction()`, which says how the network output is turned back into a prediction.
+* A `TorchLoss` that lists the new task type in its `task_types`.
+
+Once these exist, `LearnerTorch` and everything built on it -- `resample()`, `benchmark()`, validation, early stopping, internal tuning and the `nn()` graph language -- works for the new task type without further changes.

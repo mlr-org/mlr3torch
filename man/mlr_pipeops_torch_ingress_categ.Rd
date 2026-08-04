@@ -112,7 +112,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_model}},
 \code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}}
+\code{\link{mlr_pipeops_torch_model_regr}},
+\code{\link{mlr_pipeops_torch_model_torch}}
 
 Other Graph Network:
 \code{\link[=ModelDescriptor]{ModelDescriptor()}},

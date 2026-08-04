@@ -21,6 +21,14 @@
 #'   The names must correspond to the arguments of the network's forward method.
 #'   For numeric, categorical, and lazy tensor features, you can use [`ingress_num()`],
 #'   [`ingress_categ()`], and [`ingress_ltnsr()`] to create them.
+#' @param target_batchgetter (`function()` or `NULL`)\cr
+#'   Converts the target columns of a batch into the target tensor `y` that the loss is applied to.
+#'   Takes an argument `data`, a [`data.table`][data.table::data.table] with only the target columns,
+#'   and optionally an argument `x`, the named list of feature tensors of the batch.
+#'   If `NULL` (default), the target encoding of the task is used, i.e.
+#'   [`get_target_batchgetter()`]`(task)`.
+#'   Set it when the network and loss expect a different encoding than the task's default, e.g. to
+#'   train on one-hot encoded class labels.
 #' @template param_packages
 #' @param feature_types (`NULL` or `character()`)\cr
 #'   The feature types. Defaults to all available feature types.
@@ -62,7 +70,8 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(module_generator = NULL, param_set = NULL, ingress_tokens = NULL,
       task_type, properties = NULL, optimizer = NULL, loss = NULL, callbacks = list(),
-      packages = character(0), feature_types = NULL, predict_types = NULL) {
+      packages = character(0), feature_types = NULL, predict_types = NULL,
+      target_batchgetter = NULL) {
       if (is.null(task_type)) {
         stopf("task_type must be provided")
       }
@@ -74,6 +83,7 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
       }
 
       private$.ingress_tokens_ = assert_list(ingress_tokens, types = "TorchIngressToken", names = "unique", min.len = 1L)
+      private$.target_batchgetter = assert_function(target_batchgetter, args = "data", null.ok = TRUE)
 
       if (is.null(feature_types)) {
         feature_types = unname(mlr_reflections$task_feature_types)
@@ -111,6 +121,7 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
   private = list(
     .ingress_tokens_ = NULL,
     .module_generator = NULL,
+    .target_batchgetter = NULL,
 
     .network = function(task, param_vals) {
       module_params = param_vals[names(param_vals) %in% formalArgs(private$.module_generator)]
@@ -121,8 +132,17 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
       private$.ingress_tokens_
     },
 
+    .dataset = function(task, param_vals) {
+      task_dataset(
+        task = task,
+        feature_ingress_tokens = private$.ingress_tokens(task, param_vals),
+        target_batchgetter = private$.target_batchgetter %??% get_target_batchgetter(task)
+      )
+    },
+
     .additional_phash_input = function() {
-      list(self$properties, self$feature_types, hash_input(private$.module_generator), self$packages, lapply(private$.ingress_tokens_, hash_input))
+      list(self$properties, self$feature_types, hash_input(private$.module_generator), self$packages,
+        lapply(private$.ingress_tokens_, hash_input), hash_input(private$.target_batchgetter))
     }
   )
 )
@@ -134,6 +154,10 @@ nn_placeholder = nn_module("nn_placeholder",
   }
 )
 
-#' @include PipeOpTorchIngress.R task_dataset.R
+#' @include PipeOpTorchIngress.R task_dataset.R TorchLoss.R
 register_learner("classif.module", LearnerTorchModule, module_generator = nn_placeholder, ingress_tokens = list(x = ingress_num()))
 register_learner("regr.module", LearnerTorchModule, module_generator = nn_placeholder, ingress_tokens = list(x = ingress_num()))
+# There is no default loss for the task type "torch" (the learning problem is not known in advance),
+# so unlike for the other two, the prototype that the dictionary builds needs one.
+register_learner("torch.module", LearnerTorchModule, module_generator = nn_placeholder,
+  ingress_tokens = list(x = ingress_num()), loss = TorchLoss$new(torch::nn_mse_loss, id = "mse"))

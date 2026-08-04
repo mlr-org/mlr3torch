@@ -114,13 +114,13 @@ test_that("learner_torch_predict works", {
   check(tsk("mtcars"), 1)
 })
 
-test_that("encode_prediction_default works", {
+test_that("encode_prediction works", {
   check_classif = function(task, ncol) {
     pt = torch_rand(task$nrow, output_dim_for(task))
     pt = pt / torch_sum(pt, 2L)$reshape(c(task$nrow, 1))
 
-    p1 = encode_prediction_default(pt, "response", task)
-    p2 = encode_prediction_default(pt, "prob", task)
+    p1 = encode_prediction(task, pt, "response")
+    p2 = encode_prediction(task, pt, "prob")
 
     pd1 = as_prediction_data(p1, task)
     pd2 = as_prediction_data(p2, task)
@@ -133,7 +133,7 @@ test_that("encode_prediction_default works", {
 
   check_regr = function(task, ncol) {
     pt = torch_rand(task$nrow, 1)
-    p = encode_prediction_default(pt, "response", task)
+    p = encode_prediction(task, pt, "response")
     expect_equal(as.numeric(p$response), as.numeric(pt))
   }
   check_regr(tsk("mtcars"), 1)

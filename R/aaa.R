@@ -9,7 +9,8 @@ register_learner = function(.name, .constructor, ...) {
     mlr3torch_learners[[.name]] = list(fn = .constructor, prototype_args = list(...))
     return(NULL)
   }
-  task_type = if (startsWith(.name, "classif")) "classif" else "regr"
+  # learners are registered as "<task_type>.<key>", e.g. "classif.mlp" or "torch.module"
+  task_type = assert_choice(sub("\\..*$", "", .name), c("classif", "regr", "torch"))
   # What I am doing here:
   # The problem is that we wan't to set the task_type when creating the learner from the dictionary
   # The initial idea was to add functions function(...) LearnerClass$new(..., task_type = "<task-type>")

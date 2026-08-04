@@ -154,7 +154,10 @@ train_loop = function(ctx, cbs) {
         stop("dataloader_next() returned NULL, which means there are no more samples/batches. Typically this occurs when length of sampler/batch_sampler is greater than the number of samples/batches. Please modify .length() method to return the correct number (samples for sampler, batches for batch_sampler), which should be equal to the number of times that .iter() can be called before returning coro::exhausted()")
       }
       ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
-      ctx$batch$y = ctx$batch$y$to(device = ctx$device)
+      # a task without a target produces batches without a `y`, see `TaskTorch`
+      if (!is.null(ctx$batch$y)) {
+        ctx$batch$y = ctx$batch$y$to(device = ctx$device)
+      }
       ctx$optimizer$zero_grad()
 
       call("on_batch_begin")
@@ -292,13 +295,49 @@ torch_network_predict = function(network, loader, device) {
   torch_cat(predictions, dim = 1L)
 }
 
-encode_prediction_default = function(predict_tensor, predict_type, task) {
+#' @title Encode the Network Output as a Prediction
+#'
+#' @description
+#' Converts the raw output of a network into a `list()` that can be passed to
+#' [`mlr3::as_prediction_data()`], which is what the private `.encode_prediction()` method of a
+#' [`LearnerTorch`] has to return.
+#'
+#' This is the default implementation that is used by [`LearnerTorch`] and
+#' [`LearnerTorchModel`][mlr_learners_torch_model], i.e. by all learners that don't overwrite
+#' `.encode_prediction()`.
+#' When adding support for a custom task type, implement a method for the corresponding
+#' [`Task`][mlr3::Task] class, which makes the generic torch learners work for that task type.
+#'
+#' For the network output that is expected for the built-in task types, see section
+#' *Network Head and Target Encoding* of [`LearnerTorch`].
+#'
+#' @param task ([`Task`][mlr3::Task])\cr
+#'   The task to predict on.
+#' @param predict_tensor ([`torch_tensor`][torch::torch_tensor])\cr
+#'   The raw output of the network.
+#' @param predict_type (`character(1)`)\cr
+#'   The predict type of the learner, e.g. `"response"` or `"prob"`.
+#' @param ... (any)\cr
+#'   Additional arguments. Not used yet.
+#' @return named `list()`
+#' @export
+encode_prediction = function(task, predict_tensor, predict_type, ...) {
+  UseMethod("encode_prediction")
+}
+
+#' @export
+encode_prediction.default = function(task, predict_tensor, predict_type, ...) { # nolint
+  stopf("No prediction encoding available for task type '%s', implement an `encode_prediction()` method for class '%s' or overwrite the learner's private `.encode_prediction()` method.", task$task_type, class(task)[[1L]]) # nolint
+}
+
+#' @export
+encode_prediction.TaskClassif = function(task, predict_tensor, predict_type, ...) { # nolint
   # here we assume that the levels of the factors are never reordered!
   # This is important as otherwise all hell breaks loose
   # Currently this check is done in mlr3torch but should at some point be handled in mlr3 / mlr3pipelines
 
   response = prob = NULL
-  if (task$task_type == "classif" && "multiclass" %in% task$properties) {
+  if ("multiclass" %in% task$properties) {
     if (predict_type == "prob") {
       predict_tensor = with_no_grad(nnf_softmax(predict_tensor, dim = 2L))
     }
@@ -315,7 +354,7 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
     class(response) = "factor"
     levels(response) = task$class_names
     return(list(response = response, prob = prob))
-  } else if (task$task_type == "classif") {
+  } else {
     # binary:
     # (first factor level is positive class)
     response = as.integer(with_no_grad(predict_tensor < 0)$to(device = "cpu") + 1)
@@ -332,15 +371,15 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
     }
 
     return(list(response = response, prob = prob))
-  } else if (task$task_type == "regr") {
-    if (predict_type == "response") {
-      return(list(response = as.numeric(predict_tensor)))
-    } else {
-      stopf("Invalid predict_type for task_type 'regr'.")
-    }
-  } else {
-    stopf("Invalid task_type.")
   }
+}
+
+#' @export
+encode_prediction.TaskRegr = function(task, predict_tensor, predict_type, ...) { # nolint
+  if (predict_type != "response") {
+    stopf("Invalid predict_type for task_type 'regr'.")
+  }
+  list(response = as.numeric(predict_tensor))
 }
 
 

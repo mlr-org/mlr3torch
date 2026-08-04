@@ -15,4 +15,5 @@
 #' <%= if (pipeop$rowwise) "The preprocessing is applied to each element of a batch individually." else "The preprocessing is applied to the whole batch."%>
 #'
 #' @section Parameters:
-#' `r mlr3misc::rd_info(po("<%= id%>")$param_set)`
+#' <%# `rd_info()` truncates long level lists with `[...]`, which markdown would read as a link %>
+#' `r gsub("[...]", "\\[...\\]", mlr3misc::rd_info(po("<%= id%>")$param_set), fixed = TRUE)`

@@ -30,7 +30,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     #' @param task_type (`character(1)`)\cr
     #'   The task type of the model.
     initialize = function(task_type, id = "torch_model", param_vals = list()) {
-      private$.task_type = assert_choice(task_type, c("classif", "regr"))
+      private$.task_type = assert_choice(task_type, mlr_reflections$task_types$type)
 
       # loss, optimizer and callbacks are set to special values, that cause
       # them to become fields instead of construction arguments, otherwise we
@@ -187,6 +187,39 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
   )
 )
 
+#' @title Torch Model for a Generic Torch Task
+#' @name mlr_pipeops_torch_model_torch
+#'
+#' @description
+#' Builds a [`LearnerTorchModel`][mlr_learners_torch_model] for a [`TaskTorch`] from a
+#' [`ModelDescriptor`] and trains it.
+#' This is the terminal [`PipeOp`][mlr3pipelines::PipeOp] of a torch graph for the general-purpose
+#' task type of `mlr3torch`, i.e. the counterpart of `po("torch_model_classif")` and
+#' `po("torch_model_regr")`.
+#'
+#' @inheritSection mlr_pipeops_torch_model Input and Output Channels
+#' @inheritSection mlr_pipeops_torch_model State
+#' @section Parameters: See [`LearnerTorch`]
+#' @inheritSection mlr_pipeops_torch_model Internals
+#' @family PipeOps
+#' @export
+PipeOpTorchModelTorch = R6Class("PipeOpTorchModelTorch",
+  inherit = PipeOpTorchModel,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "torch_model", param_vals = list()) {
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        task_type = "torch"
+      )
+    }
+  )
+)
+
 #' @include aaa.R
 register_po("torch_model_regr", PipeOpTorchModelRegr)
 register_po("torch_model_classif", PipeOpTorchModelClassif)
+register_po("torch_model", PipeOpTorchModelTorch)

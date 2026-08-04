@@ -117,7 +117,8 @@ The task types this loss supports.}
 The loss module or function that generates the loss module.
 Can have arguments \code{task} that will be provided when the loss is instantiated.}
       \item{\code{task_types}}{(\code{character()})\cr
-The task types supported by this loss.}
+The task types supported by this loss.
+If \code{NULL} (default), the loss is applicable to \code{"classif"}, \code{"regr"} and \code{"torch"}.}
       \item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr
 The parameter set. If \code{NULL} (default) it is inferred from \code{torch_loss}.}
       \item{\code{id}}{(\code{character(1)})\cr
