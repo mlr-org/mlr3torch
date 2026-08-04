@@ -87,7 +87,7 @@ architecture = po("torch_ingress_ltnsr")
 ```
 
 We now define a relatively simple convolutional neural network.
-Note that in the code below `po("nn_relu_1")` is equivalent to `po("nn_relu", id = "nn_linear_1")`.
+Note that in the code below `po("nn_relu_1")` is equivalent to `po("nn_relu", id = "nn_relu_1")`.
 This is needed, because `mlr3pipelines::Graph`s require that each `PipeOp` has a unique ID.
 
 What we can further notice is that we don't have to specify the input dimension for the convolutional layers, which are inferred from the task during `$train()`ing.

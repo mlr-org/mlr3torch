@@ -75,7 +75,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       private$.learner$ingress_tokens = md$ingress
 
       if (is.null(md$loss)) {
-        stopf("No loss configured in ModelDescriptor. Use (\"torch_loss\").")
+        stopf("No loss configured in ModelDescriptor. Use po(\"torch_loss\").")
       }
       self$learner$loss = md$loss
       if (is.null(md$optimizer)) {

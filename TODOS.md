@@ -72,10 +72,29 @@ l$train(tsk("mtcars"))
 # internal_valid_scores        = 41.4 (epoch 6)
 ```
 
-Confirmed end-to-end: `tnr("internal")` + `msr("internal_valid_score")` puts the last-epoch score in
-the archive. **Not obviously a bug** — mlr3's `Learner` docs say `.extract_internal_valid_scores()`
-returns the "(final)" scores and `mlr3learners`' xgboost behaves identically, so this may be an
-intended mlr3-wide convention. Worth deciding explicitly, since the two are reported side by side.
+Two independent audit rounds found this. The second round established that **it deviates from the
+ecosystem convention and changes tuning results**, so it is a genuine bug rather than a convention:
+
+- `mlr3learners`' xgboost indexes its evaluation log at `attributes(model)$early_stop$best_iteration`,
+  i.e. exactly the iteration reported in `internal_tuned_values`. Verified directly by printing
+  `mlr3learners:::.__LearnerClassifXgboost__.extract_internal_valid_scores`. (An earlier audit pass
+  claimed xgboost behaves like mlr3torch — that claim was wrong.)
+- `tnr("internal")` + `msr("internal_valid_score")` ranks external configurations by this number, so
+  it ranks them by the score of models that are then discarded. A **reproducible rank flip** was
+  demonstrated on sonar (seed 4, `patience = 2`): reported scores pick `lr = 0.005`, but at each
+  configuration's own tuned epoch `lr = 0.02` is better (0.2097 vs 0.2258).
+- With `classif.ft_transformer` the gap reached an order of magnitude: best epoch 3 scored 0.0222
+  while the reported `internal_valid_score` was 0.3333 from epoch 5.
+- It does not even require early stopping to fire — with `patience = 100` and 4 epochs, the tuned
+  value is epoch 2 (score 0.289) while the reported score is epoch 4's (0.378).
+
+The defensible reading is that `patience`'s docs say "the final model is stored in the learner, not
+the best model", so the score does describe the stored network — but then the two extractors describe
+two different models while mlr3tuning pairs them as if they described one.
+
+**Decision needed** on which way to resolve it: (a) restore the best-epoch weights, (b) record the
+best-epoch score, or (c) at minimum document loudly that `internal_valid_score` must not be used as
+the tuning measure when `patience > 0`.
 
 ### 1.4 `CallbackSetHistory$load_state_dict()` is never called
 `R/CallbackSetHistory.R:55-62`. Nothing in `R/` calls it, so the resume path is dead code — and
@@ -87,6 +106,104 @@ ordering bug is baked in should it ever be wired up. Either finish it or delete 
 `R/LearnerTorchVision.R:168` (`nn_linear(1280, d_out)`) and `:188` (`nn_linear(4096, d_out)`), where
 every sibling method reads `$in_features`. Correct only for the standard width variants.
 *(Static reasoning only — verifying needs a model download.)*
+
+### 1.6 [D] `seed` does not seed weight initialization for graph-built learners
+A graph-built learner is **not reproducible**, even with an explicit `seed`, while the equivalent
+predefined learner is. `resample()` on such a learner gives different results run to run.
+
+```r
+mk = function() as_learner(
+  po("torch_ingress_num") %>>% po("nn_head") %>>%
+  po("torch_loss", t_loss("cross_entropy")) %>>% po("torch_optimizer", t_opt("adam")) %>>%
+  po("torch_model_classif", batch_size = 50, epochs = 1, seed = 1L, predict_type = "prob"))
+
+{ l = mk(); l$train(tsk("iris")); l$predict(tsk("iris"))$prob[1, ] }  # 0.979 0.004 0.017
+{ l = mk(); l$train(tsk("iris")); l$predict(tsk("iris"))$prob[1, ] }  # 0.066 0.010 0.925  <- differs
+```
+
+**Mechanism:** `PipeOpTorch$.train()` calls `.make_module()`, so the `nn_module`s are instantiated
+while the *Graph* trains. `LearnerTorchModel$.network()` then returns the already-built network. All
+weight initialization therefore happens **before** the `with_torch_settings(seed = ...)` block in
+`LearnerTorch$.train()` (`R/LearnerTorch.R:521`). Predefined learners build their network inside
+`.network()`, which runs within that block, so they are unaffected.
+
+User-visible consequence: `?mlr_learners_torch` documents `seed` as "the torch seed that is used
+during training and prediction", which is not true for this construction path. The only workaround
+today is `torch::torch_manual_seed()` immediately before building the graph, which is undiscoverable
+and does not survive `resample()`/`benchmark()`.
+
+**Decision needed** because the fix is structural: either seed before the graph's `$train()`, or defer
+module construction into the learner, or thread the seed through `ModelDescriptor`.
+
+### 1.7 [D] `lrn("classif.ft_transformer")` cannot be trained with its documented defaults
+```r
+lrn("classif.ft_transformer", epochs = 1, batch_size = 150, device = "cpu")$train(tsk("iris"))
+#> Error: Assertion on 'xs' failed: d_token: Must be of type 'single integerish value', not 'NULL'.
+```
+After supplying `d_token` and `n_blocks` you hit a second wall: exactly one of `ffn_d_hidden` /
+`ffn_d_hidden_multiplier` must be set, and neither has an `init`.
+
+`R/LearnerFTTransformer.R:55-56` declares `default = 3` for `n_blocks` and `default = 192` for
+`d_token`, and `as.data.table(learner$param_set)` shows those defaults — but paradox `default`s are
+documentation-only and nothing `init`s them. So three parameters are de-facto mandatory while the docs
+present two of them as defaulted and never mention `ffn_d_hidden_multiplier` at all (it is inherited
+from `PipeOpTorchFTTransformerBlock`). The man-page example sets all three, which hides the problem.
+
+The errors also name "PipeOp block_1", an object the user never constructed, and don't name the learner.
+
+`classif.tabm` does **not** have this problem. **Decision needed:** `init` these to the paper values,
+or mark them required and error with a message naming the learner and the missing parameters.
+
+### 1.8 [D] `d_token` must be divisible by `attention_n_heads`, but nothing declares or checks it
+The most natural FT-Transformer search space is a landmine:
+
+```r
+l = lrn("classif.ft_transformer", epochs = 3, batch_size = 32, n_blocks = 1,
+  ffn_d_hidden_multiplier = 2, device = "cpu")
+l$param_set$set_values(d_token = to_tune(p_int(4, 16)), attention_n_heads = to_tune(1, 4))
+tune(tnr("random_search"), tsk("iris"), l, rsmp("holdout"), msr("classif.ce"), term_evals = 3)
+#> Error in value_error("embed_dim must be divisible by num_heads")
+#> This happened in PipeOp block_1's $train()
+```
+
+`learner$param_set$deps` is empty and nothing validates the pair, so a raw torch `value_error` aborts
+the entire `tune()`/`benchmark()` run. `encapsulate("evaluate", fallback = ...)` rescues it, but a new
+user won't know to reach for that. The constraint appears nowhere in `?mlr_learners.ft_transformer`.
+
+paradox cannot express "divisible by", so this needs a `custom_check` or a `.trafo`-level assertion
+naming both parameters — hence a judgement call on where to put it — plus a line in the docs.
+
+### 1.9 `attention_initialization` is a validated hyperparameter that does nothing
+`R/PipeOpTorchFTTransformerBlock.R:170` declares
+`attention_initialization = p_fct(levels = c("kaiming", "xavier"), init = "kaiming")`, documented as
+"Initialization method for attention weights" and exposed on `lrn("classif.ft_transformer")`.
+`nn_ft_transformer_block$initialize()` accepts it as a formal (`:56`) and **never references it in the
+body** — `nn_multihead_attention()` is built with torch's own default init.
+
+Confirmed: `grep -rn attention_initialization R/` finds only the declaration and the formal; the two
+settings produce bit-identical `in_proj_weight` values under a fixed seed.
+
+Every *other* block hyperparameter was swept and does reach the module (`ffn_d_hidden`,
+`ffn_d_hidden_multiplier`, `ffn_dropout`, `residual_dropout`, `attention_dropout`, `attention_bias`,
+`ffn_bias_first`, `ffn_bias_second`, `ffn_activation`, `prenormalization`, `is_first_layer`,
+`query_idx`).
+
+Not fixed here because implementing it means deciding what "kaiming"/"xavier" mean for the packed
+`in_proj_weight` — a modelling decision that should match the FT-Transformer reference implementation.
+
+### 1.10 No check that the final layer size matches the task
+Forgetting `po("nn_head")`, or giving the last layer the wrong `out_features`, is not caught even
+though the number of classes is known at `$train()` time.
+
+- Too few outputs fails mid-training with a raw ATen error:
+  `Target 3 is out of bounds. Exception raised from nll_loss_out_frame`.
+- Too many outputs **trains successfully** and fails at predict with
+  `Error in dimnames(x) <- dn : length of 'dimnames' [2] not equal to array extent`, or with
+  `Assertion on 'response' failed: Contains missing values (element 1)` for `predict_type = "response"`.
+
+None of the three messages would lead a user to "your network's output dimension doesn't match the
+task". A check in `PipeOpTorchModel$.train()` comparing `pointer_shape` against the task's output
+dimension would catch all three cases up front.
 
 ---
 
@@ -200,6 +317,19 @@ Proposed: a new `vignettes/articles/tuning.Rmd` — set validation three ways �
 `internal_valid_scores` → configure `patience`/`min_delta` and show `$model$epochs` shrinking →
 `epochs = to_tune(upper = 100, internal = TRUE)` combined with an external search space in an
 `AutoTuner`, and why that is cheaper than tuning `epochs` externally.
+
+### 4.3b Multi-modal graphs need a `po("select")` per ingress, shown nowhere
+`gunion(list(po("torch_ingress_num"), po("torch_ingress_categ"), po("torch_ingress_ltnsr")))` on a
+task with all three feature types does not work — each ingress rejects a task containing any other
+feature type. The error is actionable (`Consider using po("select")`) and the
+`po("select", selector = selector_type(...))` version trains fine, but no vignette shows the
+multi-modal pattern, and it is the natural thing to reach for after reading about the three ingress
+flavours. This is the same README-advertised feature noted in 4.15.
+
+Related gap: `$shapes_out()` exists only on individual `PipeOp`s, not on a `Graph`
+(`g$shapes_out(...)` gives `attempt to apply non-function`). The docs correctly scope it to a single
+`PipeOp`, so this is a missing convenience rather than a contradiction — but it is the obvious thing
+to want when debugging a long chain.
 
 ### 4.4 `augment_` vs `trafo_` convention is explained once, in the wrong place
 The convention carries real behaviour: `?mlr_pipeops_preproc_torch` states that `stages` "is set to
@@ -358,6 +488,19 @@ Plus the 23 preprocessing pages with no `\description{}` (see 4.4).
 ---
 
 ## 5. UX / polish
+
+### 5.0 [D] Out-of-the-box `lrn("classif.mlp")` loses to `featureless`
+```r
+benchmark(benchmark_grid(tsk("iris"),
+  list(lrn("classif.mlp", epochs = 20, batch_size = 32, neurons = 10, device = "cpu"),
+       lrn("classif.featureless")), rsmp("cv", folds = 2)))$aggregate(msr("classif.ce"))
+#> classif.mlp 0.793 | classif.featureless 0.780
+```
+Cause: `p` (dropout) is initialised to `0.5`. With `p = 0` the same learner scores 0.04 against
+featureless' 0.673. The default is documented, but 50% dropout is an unusual out-of-the-box value and
+it makes the first thing a new user runs look broken. Similarly `regr.mlp` on unscaled `mtcars` loses
+badly to `regr.featureless` (MSE 168 vs 35) — expected without `po("scale")`, but unlike the
+FT-Transformer docs the MLP docs never mention scaling. Changing an initialised default is your call.
 
 ### 5.1 No hint to marshal on `external pointer is not valid`
 `saveRDS()` of an unmarshaled trained learner succeeds; predicting after `readRDS()` then fails with

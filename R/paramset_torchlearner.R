@@ -72,12 +72,10 @@ get_batch_size = function(param_vals, phase) {
 epochs_aggr = function(x) as.integer(ceiling(mean(unlist(x))))
 
 epochs_tune_fn = function(domain, param_vals) {
-  checkmate::assert(
-    checkmate::check_true(param_vals$patience > 0L),
-    checkmate::check_true(domain$lower <= 1),
-    combine = "and",
-    .var.name = "When using early stopping, patience is set to a value > 0 and no lower bound for epochs is set."
-  )
+  if (param_vals$patience <= 0L || domain$lower > 1) {
+    stopf("Internal tuning of 'epochs' requires early stopping to be configured: set 'patience' to a value greater than 0 and do not set a lower bound greater than 1 for 'epochs'. Got patience = %s and lower bound %s.", # nolint
+      param_vals$patience, domain$lower)
+  }
   domain$upper
 }
 
