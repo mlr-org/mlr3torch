@@ -30,6 +30,9 @@
 * Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
 * `ModelDescriptor()` now accepts a known batch dimension in `pointer_shape`, so an operator can
   check what it would otherwise have to assume, e.g. that a reshape keeps the batch dimension.
+* `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
+  of the training run, named by their ids.
+* `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 
 ## Breaking changes
 
