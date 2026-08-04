@@ -248,8 +248,8 @@ check_bins = function(bins) {
 #' @name compute_bins
 #'
 #' @description
-#' Computes the quantile-based bin edges (Section 3.2.1 of the paper) that
-#' [`nn_piecewise_linear_embeddings()`] expects.
+#' Computes the quantile-based bin edges (Section 3.2.1 of the paper) that define the
+#' piecewise-linear encoding of the numerical features.
 #' The bins must be computed on the **training data**.
 #'
 #' The tree-based binning of Section 3.2.2 of the paper is not implemented, because it
@@ -379,13 +379,14 @@ nn_piecewise_linear_encoding_impl = nn_module("nn_piecewise_linear_encoding_impl
 #'
 #' @description
 #' The piecewise-linear embeddings of the paper: each numerical feature is first encoded
-#' by the piecewise-linear encoding defined by its bin edges (see [`compute_bins()`]) and
-#' then embedded with a per-feature linear layer.
+#' by the piecewise-linear encoding defined by its bin edges and then embedded with a
+#' per-feature linear layer.
 #' For an input of shape `(batch, n_features)` the output shape is
 #' `(batch, n_features, d_embedding)`.
 #'
 #' @param bins (`list()` of [`torch_tensor`][torch::torch_tensor])\cr
-#'   The bin edges, as computed by [`compute_bins()`] on the training data.
+#'   One sorted vector of bin edges per numerical feature, derived from the quantiles of
+#'   the training data (Section 3.2.1 of the paper).
 #' @param d_embedding (`integer(1)`)\cr
 #'   The embedding size.
 #' @param activation (`logical(1)`)\cr
@@ -742,12 +743,11 @@ tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, a
 #'
 #' @description
 #' TabM -- a tabular deep learning model that makes **M**ultiple predictions.
-#' One `nn_tabm` efficiently represents an ensemble of `k` MLPs that are trained in
-#' parallel and that share most of their weights.
+#' One `nn_tabm` represents an ensemble of `k` MLPs that are trained in parallel and that
+#' share most of their weights.
 #'
 #' Numerical features enter the network unchanged, or, if `num_embeddings` is given, are
-#' first embedded feature-wise (see [`nn_linear_relu_embeddings()`],
-#' [`nn_periodic_embeddings()`] and [`nn_piecewise_linear_embeddings()`]).
+#' first embedded feature-wise.
 #' Categorical features are one-hot encoded (their integer codes must be 1-based, which
 #' is what [`batchgetter_categ()`] produces).
 #' The concatenated flat representation is then processed by `k` (mostly shared) MLP
@@ -762,11 +762,12 @@ tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, a
 #' interpreted as a prediction.
 #' [`LearnerTorchTabM`] (`lrn("classif.tabm")` / `lrn("regr.tabm")`) takes care of both.
 #' `nn_tabm` can also be plugged into [`LearnerTorchModule`] (`lrn("classif.module")`) for
-#' training, in which case the loss has to be wrapped with `nn_tabm_loss()`. Predicting with
-#' such a learner does *not* work out of the box, because the default prediction encoder
-#' expects a `(batch, d_out)` output and would interpret the `k` dimension as additional
-#' observations. Aggregating over the ensemble members requires a custom prediction encoder;
-#' use [`LearnerTorchTabM`] if you just want predictions.
+#' training, in which case the loss has to be wrapped so that it is applied to each of the
+#' `k` predictions separately. Predicting with such a learner does *not* work out of the box,
+#' because the default prediction encoder expects a `(batch, d_out)` output and would
+#' interpret the `k` dimension as additional observations. Aggregating over the ensemble
+#' members requires a custom prediction encoder; use [`LearnerTorchTabM`] if you just want
+#' predictions.
 #'
 #' @param task ([`Task`][mlr3::Task] or `NULL`)\cr
 #'   If provided, `n_num_features`, `cat_cardinalities` and `d_out` are inferred from
@@ -780,11 +781,10 @@ tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, a
 #'   The output dimension. If `NULL`, the output of the `k` backbones is returned.
 #' @param num_embeddings ([`nn_module`][torch::nn_module] or `NULL`)\cr
 #'   Embeddings for the numerical features, applied before the backbone and shared
-#'   between the `k` submodels. Must provide a `get_output_shape()` method returning
-#'   `c(n_num_features, d_embedding)`; [`nn_linear_relu_embeddings()`],
-#'   [`nn_periodic_embeddings()`] and [`nn_piecewise_linear_embeddings()`] (with
-#'   do. If `NULL` (default), the numerical features enter the backbone
-#'   unchanged.
+#'   between the `k` submodels. The module maps a `(batch, n_num_features)` input to a
+#'   `(batch, n_num_features, d_embedding)` output, which is then flattened, and must
+#'   provide a `get_output_shape()` method returning `c(n_num_features, d_embedding)`.
+#'   If `NULL` (default), the numerical features enter the backbone unchanged.
 #' @param arch_type (`character(1)`)\cr
 #'   One of `"tabm"` (default) or `"tabm-mini"`.
 #' @param k (`integer(1)`)\cr
@@ -804,7 +804,7 @@ tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, a
 #' @param start_scaling_init (`character(1)` or `NULL`)\cr
 #'   The initialization of the very first (non-shared) scaling, either `"random-signs"`
 #'   or `"normal"`.
-#'   If `NULL` otherwise, `"normal"` is used when `num_embeddings` is given and
+#'   If `NULL` (default), `"normal"` is used when `num_embeddings` is given and
 #'   `"random-signs"` otherwise (this is upstream's `TabM.make()` heuristic).
 #'
 #' @references
@@ -932,13 +932,13 @@ nn_tabm = nn_module("nn_tabm",
 #' @title Ensemble Loss Adapter for TabM
 #'
 #' @description
-#' Adapts a loss function to the `(batch, k, d_out)` output of [`nn_tabm()`]:
+#' Adapts a loss function to the `(batch, k, d_out)` ensemble output of the TabM network:
 #' the ensemble dimension is folded into the batch dimension and every target is repeated
 #' `k` times, so that all `k` submodels are trained on the full batch.
 #' This is what the reference implementation of TabM does.
 #'
 #' [`LearnerTorchTabM`] applies this adapter automatically to whatever loss it is
-#' configured with; it only needs to be used explicitly when combining [`nn_tabm()`] with
+#' configured with; it only needs to be used explicitly when the network is trained via
 #' [`LearnerTorchModule`].
 #'
 #' @param loss ([`nn_module`][torch::nn_module])\cr
@@ -1022,15 +1022,15 @@ tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NU
 #' @template learner_example
 #'
 #' @description
-#' TabM is an MLP-based tabular deep learning model that efficiently represents an
-#' ensemble of `k` MLPs: the `k` submodels are trained in parallel on the same batches
-#' and share most of their weights, which acts as a strong regularizer.
+#' TabM is an MLP-based tabular deep learning model that represents an ensemble of `k`
+#' MLPs: the `k` submodels are trained in parallel on the same batches and share most of
+#' their weights.
 #' The network produces `k` predictions per observation; the learner averages the
 #' predicted *probabilities* (classification) or the predicted values (regression)
 #' over the `k` submodels, and its loss function trains all `k` submodels jointly.
 #'
 #' Numerical features are used as-is, or -- if the `num_embeddings` parameter is set --
-#' embedded feature-wise first, which usually improves the performance considerably.
+#' embedded feature-wise first.
 #' Categorical features are one-hot encoded.
 #'
 #' @section Parameters:
@@ -1063,7 +1063,7 @@ tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NU
 #' Parameters of the embeddings for the numerical features:
 #' * `num_embeddings` :: `character(1)`\cr
 #'   The type of the numerical feature embeddings, one of `"none"` (default),
-#'   `"linear_relu"`, `"periodic"` or `"piecewise_linear"`. The last two usually perform best.
+#'   `"linear_relu"`, `"periodic"` or `"piecewise_linear"`.
 #' * `d_embedding` :: `integer(1)`\cr
 #'   The embedding size. If unset, `32` is used for `"linear_relu"`, `24` for
 #'   `"periodic"` and `16` for `"piecewise_linear"`.

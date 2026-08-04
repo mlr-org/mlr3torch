@@ -10,9 +10,7 @@ multi-head self-attention block and a position-wise feed-forward network, each w
 residual connection and layer normalization.
 
 This is a thin wrapper around \code{\link[torch:nn_transformer_encoder_layer]{torch::nn_transformer_encoder_layer()}} that makes it usable as a
-building block of a \code{\link[mlr3pipelines:Graph]{Graph}} of tensor operations, where the attention
-masks can be supplied as additional inputs, see section \emph{Input and Output Channels}.
-To build a stack of encoder layers, chain multiple of these \code{PipeOp}s, giving each its own \code{id}.
+building block of a \code{\link[mlr3pipelines:Graph]{Graph}} of tensor operations.
 }
 \section{Tensor Layout}{
 

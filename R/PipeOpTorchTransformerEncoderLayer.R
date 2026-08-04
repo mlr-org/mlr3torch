@@ -44,9 +44,7 @@ nn_encoder_layer = nn_module(
 #' residual connection and layer normalization.
 #'
 #' This is a thin wrapper around [`torch::nn_transformer_encoder_layer()`] that makes it usable as a
-#' building block of a [`Graph`][mlr3pipelines::Graph] of tensor operations, where the attention
-#' masks can be supplied as additional inputs, see section *Input and Output Channels*.
-#' To build a stack of encoder layers, chain multiple of these `PipeOp`s, giving each its own `id`.
+#' building block of a [`Graph`][mlr3pipelines::Graph] of tensor operations.
 #'
 #' @section Tensor Layout:
 #' Input and output are `(batch, sequence, feature)`, i.e. the `batch_first` layout of
