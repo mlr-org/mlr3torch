@@ -145,6 +145,16 @@ Other Callback:
   (`logical(1)`)  
   If this field is set to `TRUE` at the end of an epoch, training stops.
 
+- `callbacks`:
+
+  (named [`list()`](https://rdrr.io/r/base/list.html) of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)s)  
+  The callbacks that are active during training, named by their ids.
+  This allows a callback to access the state of the other callbacks,
+  which is for example what
+  [`CallbackSetCheckpoint`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.checkpoint.md)
+  does to save them.
+
 - `device`:
 
   ([`torch::torch_device`](https://torch.mlverse.org/docs/reference/torch_device.html))  

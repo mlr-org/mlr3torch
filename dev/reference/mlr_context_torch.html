@@ -212,6 +212,13 @@ The current batch.</p></dd>
 If this field is set to <code>TRUE</code> at the end of an epoch, training stops.</p></dd>
 
 
+    <dt><code>callbacks</code></dt>
+<dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="mlr_callback_set.html">CallbackSet</a></code>s)<br>
+The callbacks that are active during training, named by their ids.
+This allows a callback to access the state of the other callbacks, which is for example
+what <code><a href="mlr_callback_set.checkpoint.html">CallbackSetCheckpoint</a></code> does to save them.</p></dd>
+
+
     <dt><code>device</code></dt>
 <dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/torch_device.html" class="external-link">torch::torch_device</a></code>)<br>
 The device.</p></dd>

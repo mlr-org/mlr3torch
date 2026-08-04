@@ -87,6 +87,10 @@
 <li>Exported various helpers useful for implementing shape inference for custom <code>PipeOpTorch</code> classes.</li>
 <li>
 <code><a href="../reference/ModelDescriptor.html">ModelDescriptor()</a></code> now accepts a known batch dimension in <code>pointer_shape</code>, so an operator can check what it would otherwise have to assume, e.g. that a reshape keeps the batch dimension.</li>
+<li>
+<code>ContextTorch</code> has a new field <code>$callbacks</code>, which gives a callback access to the other callbacks of the training run, named by their ids.</li>
+<li>
+<code>ContextTorch$epoch</code> is now <code>0</code> during the <code>on_begin</code> stage instead of <code>NULL</code>.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
