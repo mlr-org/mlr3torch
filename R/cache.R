@@ -124,13 +124,3 @@ cached = function(constructor, type, name, requires_disk = FALSE) {
   }
   list(data = data, path = path)
 }
-
-clear_mlr3torch_cache = function() {
-  if (isFALSE(get_cache_dir())) {
-    catn("No cache directory set.")
-    return(FALSE)
-  }
-  unlink(get_cache_dir(), recursive = TRUE)
-  CACHE$initialized = setdiff(CACHE$initialized, normalizePath(get_cache_dir(), mustWork = FALSE))
-  return(TRUE)
-}

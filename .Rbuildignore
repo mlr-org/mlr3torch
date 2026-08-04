@@ -24,6 +24,7 @@
 ^\.git$
 ^\.editorconfig$
 ^\.lintr$
+^jarl\.toml$
 ^info$
 ^README_files$
 ^TODO\.md$

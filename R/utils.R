@@ -47,8 +47,6 @@ make_check_vector = function(d, null_ok = TRUE) {
     }, d, null_ok, .parent = topenv())
 }
 
-check_function_or_null = function(x) check_function(x, null.ok = TRUE)
-
 check_integerish_or_null = function(x) check_integerish(x, null.ok = TRUE)
 
 assert_inherits_classname = function(class_generator, classname) {
@@ -68,6 +66,7 @@ get_init = function(x) {
   cls$public_methods$initialize
 }
 
+# jarl-ignore unused_function: called from man-roxygen/learner_example.R, which jarl does not scan
 default_task_id = function(learner) {
   task_id = get0("task_id", envir = parent.frame(), inherits = FALSE)
   if (!is.null(task_id)) {
@@ -122,26 +121,6 @@ test_equal_col_info = function(x, y) {
     all(pmap_lgl(list(x = x$levels, y = y$levels), function(x, y) isTRUE(all.equal(x, y))))
 }
 
-
-# a function that has argument names 'names' and returns its arguments as a named list.
-# used to simulate argument matching for `...`-functions.
-# example:
-# f = argument_matcher(c("a", "b", "c"))
-# f(1, 2, 3) --> list(a = 1, b = 2, c = 3)
-# f(1, 2, a = 3) --> list(a = 3, b = 1, c = 2)
-# usecase:
-# ff = function(...) {
-#   l = argument_matcher(c("a", "b", "c"))(...)
-#   l$a + l$b
-# }
-# # behaves like
-# ff(a, b, c) a + b
-# (Except in the aqward case of missing args)
-argument_matcher = function(args) {
-  fn = as.function(c(named_list(args, substitute()), quote(as.list(environment()))))
-  environment(fn) = topenv()
-  fn
-}
 
 uniqueify = function(new, existing) {
   make.unique(c(existing, new), sep = "_")[length(existing) + seq_along(new)]
@@ -227,21 +206,6 @@ check_nn_module_generator = function(x) {
   check_class(x, "nn_module_generator")
 }
 
-check_callbacks = function(x) {
-  if (test_class(x, "TorchCallback")) {
-    x = list(x)
-  } else {
-    if (!test_list(x, "TorchCallback")) {
-      return("Invalid parameter 'callbacks'")
-    }
-  }
-  callback_ids = ids(x)
-  if (!test_names(callback_ids, type = "unique")) {
-    return("Callbacks must have unique IDS that are valid names.")
-  }
-  TRUE
-}
-
 LossNone = function() {
   structure(list(), class = "LossNone")
 }
@@ -316,13 +280,6 @@ output_dim_for.TaskRegr = function(x, ...) {
   1L
 }
 
-all_or_none_ = function(...) {
-  args = list(...)
-  all_none = all(sapply(args, is.null))
-  all_not_none = all(!sapply(args, is.null))
-  return(all_none || all_not_none)
-}
-
 single_lazy_tensor = function(task) {
   identical(task$feature_types[, "type"][[1L]], "lazy_tensor")
 }
@@ -333,10 +290,6 @@ n_num_features = function(task) {
 
 n_categ_features = function(task) {
   sum(task$feature_types$type %in% c("factor", "ordered", "logical"))
-}
-
-n_ltnsr_features = function(task) {
-  sum(task$feature_types$type == "lazy_tensor")
 }
 
 # Cardinalities of the categorical features of a task, in the column order that
