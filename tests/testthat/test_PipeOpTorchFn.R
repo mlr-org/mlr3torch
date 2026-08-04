@@ -97,3 +97,10 @@ test_that("PipeOpTorchFn works with a user-provided shapes_out fn", {
   expect_true(torch_equal(blue_channel, trained))
 })
 
+
+test_that("shape inference falls back to tracing the function", {
+  # `infer_shapes()` fills in different values for the unknown dimensions and marks those that
+  # vary as unknown again
+  obj = po("nn_fn", fn = function(x) x * 2)
+  expect_equal(obj$shapes_out(list(c(NA, NA, 16L)))[[1L]], c(NA, NA, 16L))
+})

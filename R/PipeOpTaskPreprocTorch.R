@@ -24,7 +24,9 @@
 #'   input `shapes_in` can be assumed to have exactly one shape vector for which it must calculate the output shapes
 #'   and return it as a `list()` of length 1.
 #'   It can also be assumed that the shape is not `NULL` (i.e. unknown).
-#'   Also, the first dimension can be `NA`, i.e. is unknown (as for the batch dimension).
+#'   Any dimension of that shape can be `NA`, i.e. unknown, not only the first (batch) one, so it
+#'   must handle `NA`s and assert those dimensions it actually needs to be known, see
+#'   [`assert_known_dims()`] and the "Shape Inference" section of [`PipeOpTorch`].
 #'
 #' @template param_id
 #' @template param_param_vals
@@ -208,9 +210,10 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     #'  Names are ignored and only order matters.
     #'  It uses the parameter values that are currently set.
     #' @param shapes_in (`list()` of (`integer()` or `NULL`))\cr
-    #'   The input input shapes of the lazy tensors.
+    #'   The input shapes of the lazy tensors.
     #'   `NULL` indicates that the shape is unknown.
-    #'   First dimension must be `NA` (if it is not `NULL`).
+    #'   If it is not `NULL`, the first (batch) dimension must be `NA`; any of the other dimensions
+    #'   may be `NA` as well.
     #' @param stage (`character(1)`)\cr
     #'   The stage: either `"train"` or `"predict"`.
     #' @param task ([`Task`][mlr3::Task] or `NULL`)\cr
@@ -343,11 +346,13 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         shape_out = self$shapes_out(list(shape_before), stage = stage, task = task)[[1L]]
 
         shape_out_predict = if (stage == "train") {
-          shape_in_predict = if (is.null(dd(lt)$pointer_shape_predict)) shape_before
-          # during `$train()` we also keep track of the shapes that would arise during predict
-          # This avoids that we first train a learner and then only notice during predict that the shapes
-          # during the predict phase are wrong
-          shape_out_predict = self$shapes_out(list(shape_before), stage = "predict", task = task)[[1L]]
+          # During `$train()` we also keep track of the shapes that would arise during predict.
+          # This avoids that we first train a learner and then only notice during predict that the
+          # shapes during the predict phase are wrong.
+          # The predict shapes must be derived from the predict input shape: an upstream
+          # augmentation that only runs during training makes the two differ.
+          shape_in_predict = dd(lt)$pointer_shape_predict %??% shape_before
+          self$shapes_out(list(shape_in_predict), stage = "predict", task = task)[[1L]]
         }
         x = transform_lazy_tensor(lt, po_fn, shape_out, shape_out_predict)
 

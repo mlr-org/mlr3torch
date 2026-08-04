@@ -1,6 +1,236 @@
 #' @rawNamespace exportPattern("^PipeOpPreprocTorch")
 NULL
 
+# Replaces the last `length(values)` dimensions of a shape, which is what the operators that only
+# touch the spatial dimensions do.
+# @param shape (`integer()`) The input shape.
+# @param values (`integer()`) The new sizes of the trailing dimensions.
+replace_tail = function(shape, values) {
+  c(shape[seq_len(length(shape) - length(values))], as.integer(values))
+}
+
+# Rejects a shape that is not an image: these operators are applied per row, so the shape needs a
+# batch dimension in front of the image.
+# @param shape (`integer()`) The input shape.
+# @param id (`character(1)`) The PipeOp's id, for the error message.
+# @param ndim (`integer(1)`) The minimum number of dimensions, either 4 or 3. `3` for the operators
+#   that only touch the trailing two dimensions, which therefore also accept a channel-less image.
+assert_image_shape = function(shape, id, ndim = 4L) {
+  # an operator that only touches the trailing two dimensions accepts a channel-less image, so the
+  # layout it requires is not the one a channel-wise operator requires. These are the only two
+  # layouts an image has, so any other `ndim` has no message to go with it.
+  layout = switch(as.character(ndim),
+    "4" = "batch, channels, height, width",
+    "3" = "batch, height, width",
+    stopf("assert_image_shape() only describes 3 or 4 dimensions, but got ndim = %i.", ndim)
+  )
+  if (length(shape) >= ndim) {
+    return(invisible(shape))
+  }
+  stopf("PipeOp '%s' requires an input with at least %i dimensions (%s), but got the shape %s, which has %i.", # nolint
+    id, ndim, layout, shape_to_str(shape), length(shape))
+}
+
+# Extent of `transform_crop()` along one axis. The crop is `img[.., start:(start + size - 1)]`, so
+# it is clamped to the image and may be empty; it is never padded.
+# @param extent (`integer(1)`) The size of the input along that axis.
+# @param start (`integer(1)`) Where the crop starts, i.e. `top` or `left`.
+# @param size (`integer(1)`) The requested crop size, i.e. `height` or `width`.
+crop_extent = function(extent, start, size) {
+  pmax(0L, pmin(as.integer(size), extent - as.integer(start) + 1L))
+}
+
+# Extent of `transform_resize()`. A `size` of length 2 is used as is, a single number matches the
+# shorter side and scales the other one accordingly (truncating).
+# @param hw (`integer(2)`) The height and width of the input, either of which may be `NA`.
+# @param size (`integer()`) The requested size, of length 1 or 2.
+# @param id (`character(1)`) The PipeOp's id, for the error message.
+resize_extent = function(hw, size, id) {
+  # the operators that use this check `size` in their parameter set as well, this is for the ones
+  # that may be added later
+  if (length(size) %nin% c(1L, 2L)) {
+    stopf("PipeOp '%s' requires 'size' to have 1 or 2 values, but it has %i.", id, length(size))
+  }
+  if (length(size) == 2L) {
+    return(as.integer(size))
+  }
+  # Both extents are unknown, not just the unknown one: a single `size` is matched to the shorter
+  # side, so without knowing both we do not even know which of the two becomes `size`. For
+  # `hw = (NA, 20)` the output is `(size, ?)` if the height is at most 20 and `(?, size)` otherwise,
+  # i.e. neither position is determined and reporting one of them as known would be wrong half the
+  # time. An extent of 0 additionally makes the scaling below divide by zero.
+  if (anyNA(hw) || any(hw == 0L)) {
+    return(c(NA_integer_, NA_integer_))
+  }
+  scaled = as.integer(size * max(hw) / min(hw))
+  if (hw[1L] <= hw[2L]) c(as.integer(size), scaled) else c(scaled, as.integer(size))
+}
+
+resize_shapes = function(shapes_in, param_vals, task) {
+  shape = shapes_in[[1L]]
+  # `trafo_resize` is applied to the whole batch, so it needs the batch dimension and an image
+  assert_image_shape(shape, self$id, ndim = 3L)
+  list(replace_tail(shape, resize_extent(utils::tail(shape, 2L), param_vals[["size"]], self$id)))
+}
+
+# `padding` is either applied to all sides, or is (left/right, top/bottom), or
+# (left, right, top, bottom) -- note that torchvision's R port differs from PyTorch here
+pad_shapes = function(shapes_in, param_vals, task) {
+  shape = shapes_in[[1L]]
+  # only the trailing two dimensions are touched, so a channel-less image is fine
+  assert_image_shape(shape, self$id, ndim = 3L)
+  padding = as.integer(param_vals[["padding"]])
+  added = switch(as.character(length(padding)),
+    "1" = c(2L * padding, 2L * padding),
+    "2" = c(2L * padding[2L], 2L * padding[1L]),
+    "4" = c(padding[3L] + padding[4L], padding[1L] + padding[2L]),
+    stopf("PipeOp '%s' requires 'padding' to have 1, 2 or 4 values, but it has %i.", self$id, length(padding))
+  )
+  extent = utils::tail(shape, 2L) + added
+  # negative padding crops and can make the image empty
+  assert_positive_extent(extent, shape, self$id)
+  list(replace_tail(shape, extent))
+}
+
+# Rejects an image that cannot be RGB. The callers do not read the channel count to compute their
+# output shape -- they set it, drop it or leave it alone -- so an unknown one is accepted: it may
+# well turn out to be 3, and rejecting it would refuse a network that runs.
+# @param shape (`integer()`) The input shape, whose channel dimension is the third from last.
+# @param id (`character(1)`) The PipeOp's id, for the error message.
+assert_rgb_channels = function(shape, id) {
+  channels = shape[length(shape) - 2L]
+  if (is.na(channels)) {
+    return(invisible(shape))
+  }
+  if (channels < 3L) {
+    stopf("PipeOp '%s' requires an RGB image, i.e. at least 3 channels, but the input shape %s has %i.", # nolint
+      id, shape_to_str(shape), channels)
+  }
+  invisible(shape)
+}
+
+truncate_rgb_channels = function(shape) {
+  shape[length(shape) - 2L] = 3L
+  shape
+}
+
+grayscale_shapes = function(shapes_in, param_vals, task) {
+  shape = shapes_in[[1L]]
+  assert_ndim(shape, 4L, self$id)
+  assert_rgb_channels(shape, self$id)
+  shape[2L] = as.integer(param_vals[["num_output_channels"]])
+  list(shape)
+}
+
+# FIXME(torchvision): `transform_rgb_to_grayscale()` drops the channel dimension instead of
+# setting it to 1, i.e. it changes the rank: (3, 16, 20) becomes (16, 20) where PyTorch returns
+# (1, 16, 20). The inference below follows the actual behaviour, so fixing torchvision means
+# changing this function as well
+rgb_to_grayscale_shapes = function(shapes_in, param_vals, task) {
+  shape = shapes_in[[1L]]
+  assert_image_shape(shape, self$id)
+  assert_rgb_channels(shape, self$id)
+  list(shape[-(length(shape) - 2L)])
+}
+
+crop_shapes = function(shapes_in, param_vals, task) {
+  shape = shapes_in[[1L]]
+  # only the trailing two dimensions are touched, so a channel-less image is fine
+  assert_image_shape(shape, self$id, ndim = 3L)
+  hw = utils::tail(shape, 2L)
+  extent = c(
+    crop_extent(hw[1L], param_vals[["top"]], param_vals[["height"]]),
+    crop_extent(hw[2L], param_vals[["left"]], param_vals[["width"]])
+  )
+  # FIXME(torchvision): `transform_crop()` clamps the crop to the image, while `F.crop()` in
+  # PyTorch pads it with zeros to the requested size. A crop that leaves the image therefore gives
+  # a smaller (or even empty) output here. Reject it until torchvision is fixed
+  requested = as.integer(c(param_vals[["height"]], param_vals[["width"]]))
+  if (any(!is.na(extent) & extent < requested)) {
+    stopf("PipeOp '%s' cannot crop the input shape %s to (%i, %i) at (%i, %i): the crop leaves the image, and 'transform_crop()' clamps instead of padding. Use a crop that fits into the image.", # nolint
+      self$id, shape_to_str(shape), requested[1L], requested[2L],
+      as.integer(param_vals[["top"]]), as.integer(param_vals[["left"]]))
+  }
+  list(replace_tail(shape, extent))
+}
+
+# `transform_center_crop()` pads when the image is smaller than `size`.
+center_crop_shapes = function(shapes_in, param_vals, task) {
+  shape = shapes_in[[1L]]
+  # only the trailing two dimensions are touched, so a channel-less image is fine
+  assert_image_shape(shape, self$id, ndim = 3L)
+  size = as.integer(rep(param_vals[["size"]], length.out = 2L))
+  assert_positive_extent(size, shape, self$id)
+  hw = utils::tail(shape, 2L)
+  # FIXME(torchvision): with a non-square `size`, the padded branch of `transform_center_crop()`
+  # swaps height and width and returns garbage extents -- (16, 20) padded to (24, 30) comes back as
+  # (22, 0). The square case pads correctly, so only the non-square one is rejected here. Remove
+  # this once torchvision is fixed
+  if (size[1L] != size[2L] && (anyNA(hw) || any(hw < size))) {
+    stopf("PipeOp '%s' cannot pad the input shape %s to the size (%i, %i): 'transform_center_crop()' pads a non-square size incorrectly. Use a square 'size' or an input that is large enough.", # nolint
+      self$id, shape_to_str(shape), size[1L], size[2L])
+  }
+  if (any(is.na(hw) | hw < size)) {
+    # the square case pads correctly, but whether it pads at all is unknown when the extent is
+    size = c(NA_integer_, NA_integer_)
+  }
+  list(replace_tail(shape, size))
+}
+
+# `transform_resized_crop()` crops and then resizes, so both rules have to be composed: with a
+# single `size` the aspect ratio of the cropped image decides the output
+resized_crop_shapes = function(shapes_in, param_vals, task) {
+  shape = shapes_in[[1L]]
+  # only the trailing two dimensions are touched, so a channel-less image is fine
+  assert_image_shape(shape, self$id, ndim = 3L)
+  hw = utils::tail(shape, 2L)
+  cropped = c(
+    crop_extent(hw[1L], param_vals[["top"]], param_vals[["height"]]),
+    crop_extent(hw[2L], param_vals[["left"]], param_vals[["width"]])
+  )
+  # resizing an empty crop is impossible
+  assert_positive_extent(cropped, shape, self$id)
+  list(replace_tail(shape, resize_extent(cropped, param_vals[["size"]], self$id)))
+}
+
+# `transform_color_jitter()` delegates to `transform_adjust_hue()` when `hue` is set, which keeps
+# only the first three channels
+color_jitter_shapes = function(shapes_in, param_vals, task) {
+  shape = shapes_in[[1L]]
+  assert_image_shape(shape, self$id)
+  hue = param_vals[["hue"]]
+  if (is.null(hue) || all(hue == 0)) {
+    return(shapes_in)
+  }
+  assert_rgb_channels(shape, self$id)
+  list(truncate_rgb_channels(shape))
+}
+
+reshape_shapes = function(shapes_in, param_vals, task) {
+  list(reshape_output_shape(shapes_in[[1L]], param_vals[["shape"]], self$id))
+}
+
+# The hue is adjusted in HSV space, which keeps only the first three channels.
+# FIXME(torchvision): PyTorch rejects an image with more than three channels here, while
+# torchvision silently drops the extra ones.
+hue_shapes = function(shapes_in, param_vals, task) {
+  shape = shapes_in[[1L]]
+  assert_image_shape(shape, self$id)
+  assert_rgb_channels(shape, self$id)
+  list(truncate_rgb_channels(shape))
+}
+
+unchanged_shapes_image = function(shapes_in, param_vals, task) {
+  shape = shapes_in[[1L]]
+  assert_image_shape(shape, self$id)
+  assert_rgb_channels(shape, self$id)
+  shapes_in
+}
+
+unchanged_shapes = function(shapes_in, param_vals, task) {
+  shapes_in
+}
+
 #' @title Resizing Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_resize
@@ -8,7 +238,7 @@ register_preproc("trafo_resize", torchvision::transform_resize,
   packages = "torchvision",
   param_set = ps(
     size = p_uty(tags = c("train", "required"), custom_check = crate(function(x) {
-      check_integerish(x, min.len = 1L, max.len = 2L)
+      check_integerish(x, min.len = 1L, max.len = 2L, any.missing = FALSE)
     })),
     interpolation = p_fct(levels = c("Undefined", "Bartlett", "Blackman", "Bohman", "Box", "Catrom", "Cosine", "Cubic",
       "Gaussian", "Hamming", "Hann", "Hanning", "Hermite", "Jinc", "Kaiser", "Lagrange", "Lanczos", "Lanczos2",
@@ -18,24 +248,9 @@ register_preproc("trafo_resize", torchvision::transform_resize,
       tags = "train", default = 2L
     )
   ),
-  shapes_out = function(shapes_in, param_vals, task) {
-    assert_true(length(shapes_in[[1L]]) >= 2L,
-      .var.name = "Input tensor must have at least 2 dimensions")
-    size = rep(param_vals$size, length.out = 2L)
-    list(c(shapes_in[[1L]][seq_len(length(shapes_in[[1L]]) - 2)], size))
-  },
+  shapes_out = resize_shapes,
   rowwise = FALSE
 )
-
-
-unchanged_shapes_rgb = function(shapes_in, param_vals, task) {
-  assert_rgb_shape(shapes_in[[1L]])
-  shapes_in
-}
-
-unchanged_shapes = function(shapes_in, param_vals, task) {
-  shapes_in
-}
 
 #' @title No Transformation
 #' @usage NULL
@@ -61,7 +276,7 @@ register_preproc("trafo_nop", identity, rowwise = FALSE, shapes_out = unchanged_
 #' @description
 #' Reshapes the tensor according to the parameter `shape`, by calling `torch_reshape()`.
 #' This preprocessing function is applied batch-wise.
-register_preproc("trafo_reshape", torch_reshape, rowwise = FALSE, shapes_out = "infer",
+register_preproc("trafo_reshape", torch_reshape, rowwise = FALSE, shapes_out = reshape_shapes,
   param_set = ps(
     shape = p_uty(tags = c("train", "required"), custom_check = check_integerish)
   )
@@ -70,7 +285,7 @@ register_preproc("trafo_reshape", torch_reshape, rowwise = FALSE, shapes_out = "
 #' @title Adjust Gamma Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_gamma
-register_preproc("trafo_adjust_gamma", torchvision::transform_adjust_gamma, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+register_preproc("trafo_adjust_gamma", torchvision::transform_adjust_gamma, packages = "torchvision", shapes_out = unchanged_shapes, rowwise = TRUE,
   param_set = ps(
     gamma = p_dbl(lower = 0, tags = c("train", "required")),
     gain = p_dbl(default = 1, tags = "train")
@@ -81,7 +296,7 @@ register_preproc("trafo_adjust_gamma", torchvision::transform_adjust_gamma, pack
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_brightness
 register_preproc("trafo_adjust_brightness", torchvision::transform_adjust_brightness, packages = "torchvision",
-  shapes_out = "infer", rowwise = TRUE,
+  shapes_out = unchanged_shapes, rowwise = TRUE,
   param_set = ps(
     brightness_factor = p_dbl(lower = 0, tags = c("train", "required"))
   )
@@ -91,7 +306,7 @@ register_preproc("trafo_adjust_brightness", torchvision::transform_adjust_bright
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_hue
 register_preproc("trafo_adjust_hue", torchvision::transform_adjust_hue, packages = "torchvision",
-  rowwise = TRUE, shapes_out = unchanged_shapes_rgb,
+  rowwise = TRUE, shapes_out = hue_shapes,
   param_set = ps(
     hue_factor = p_dbl(lower = -0.5, upper = 0.5, tags = c("train", "required"))
   )
@@ -101,7 +316,8 @@ register_preproc("trafo_adjust_hue", torchvision::transform_adjust_hue, packages
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_saturation
 register_preproc("trafo_adjust_saturation", torchvision::transform_adjust_saturation, packages = "torchvision",
-  shapes_out = "infer", rowwise = TRUE,
+  # the saturation is adjusted via a grayscale image, which needs three channels
+  shapes_out = unchanged_shapes_image, rowwise = TRUE,
   param_set = ps(
     saturation_factor = p_dbl(tags = c("train", "required"))
   )
@@ -110,7 +326,7 @@ register_preproc("trafo_adjust_saturation", torchvision::transform_adjust_satura
 #' @title Grayscale Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_grayscale
-register_preproc("trafo_grayscale", torchvision::transform_grayscale, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+register_preproc("trafo_grayscale", torchvision::transform_grayscale, packages = "torchvision", shapes_out = grayscale_shapes, rowwise = TRUE,
   param_set = ps(
     num_output_channels = p_int(lower = 1L, upper = 3L, tags = c("train", "required"))
   )
@@ -119,7 +335,7 @@ register_preproc("trafo_grayscale", torchvision::transform_grayscale, packages =
 #' @title RGB to Grayscale Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_rgb_to_grayscale
-register_preproc("trafo_rgb_to_grayscale", torchvision::transform_rgb_to_grayscale, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+register_preproc("trafo_rgb_to_grayscale", torchvision::transform_rgb_to_grayscale, packages = "torchvision", shapes_out = rgb_to_grayscale_shapes, rowwise = TRUE,
   param_set = ps()
 )
 
@@ -143,9 +359,9 @@ register_preproc("trafo_normalize", torchvision::transform_normalize, packages =
 #' @title Padding Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_pad
-register_preproc("trafo_pad", torchvision::transform_pad, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+register_preproc("trafo_pad", torchvision::transform_pad, packages = "torchvision", shapes_out = pad_shapes, rowwise = TRUE,
   param_set = ps(
-    padding = p_uty(tags = c("train", "required")),
+    padding = p_uty(tags = c("train", "required"), custom_check = crate(function(x) check_integerish(x, min.len = 1L, max.len = 4L, any.missing = FALSE))),
     fill = p_uty(default = 0, tags = "train"),
     padding_mode = p_fct(default = "constant", levels = c("constant", "edge", "reflect", "symmetric"), tags = "train")
   )
@@ -156,13 +372,13 @@ register_preproc("trafo_pad", torchvision::transform_pad, packages = "torchvisio
 #' @title Resized Crop Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_resized_crop
-register_preproc("augment_resized_crop", torchvision::transform_resized_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+register_preproc("augment_resized_crop", torchvision::transform_resized_crop, packages = "torchvision", shapes_out = resized_crop_shapes, rowwise = TRUE,
   param_set = ps(
-    top = p_int(tags = c("train", "required")),
-    left = p_int(tags = c("train", "required")),
-    height = p_int(tags = c("train", "required")),
-    width = p_int(tags = c("train", "required")),
-    size = p_uty(tags = c("train", "required")),
+    top = p_int(lower = 1L, tags = c("train", "required")),
+    left = p_int(lower = 1L, tags = c("train", "required")),
+    height = p_int(lower = 0L, tags = c("train", "required")),
+    width = p_int(lower = 0L, tags = c("train", "required")),
+    size = p_uty(tags = c("train", "required"), custom_check = crate(function(x) check_integerish(x, min.len = 1L, max.len = 2L, any.missing = FALSE))),
     interpolation = p_int(default = 2L, lower = 0L, upper = 3L, tags = "train")
   )
 )
@@ -170,7 +386,7 @@ register_preproc("augment_resized_crop", torchvision::transform_resized_crop, pa
 #' @title Color Jitter Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_color_jitter
-register_preproc("augment_color_jitter", torchvision::transform_color_jitter, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+register_preproc("augment_color_jitter", torchvision::transform_color_jitter, packages = "torchvision", shapes_out = color_jitter_shapes, rowwise = TRUE,
   param_set = ps(
     brightness = p_dbl(default = 0, lower = 0, tags = "train"),
     contrast = p_dbl(default = 0, lower = 0, tags = "train"),
@@ -196,7 +412,7 @@ register_preproc("augment_random_resized_crop", torchvision::transform_random_re
 #' @templateVar id augment_random_order
 register_preproc("augment_random_order", torchvision::transform_random_order, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
   param_set = ps(
-    transforms = p_uty(tags = c("train", "required"), custom_check = check_list)
+    transforms = p_uty(tags = c("train", "required"), custom_check = crate(function(x) check_list(x, min.len = 1L)))
   )
 )
 
@@ -204,10 +420,8 @@ register_preproc("augment_random_order", torchvision::transform_random_order, pa
 #' @template preprocess_torchvision
 #' @templateVar id augment_hflip
 register_preproc("augment_hflip", torchvision::transform_hflip, packages = "torchvision", rowwise = TRUE,
-  shapes_out = function(shapes_in, param_vals, task) {
-    assert_grayscale_or_rgb(shapes_in[[1L]])
-    shapes_in
-  },
+  # a flip reads no dimension of the input, so nothing has to be known about it
+  shapes_out = unchanged_shapes,
   param_set = ps()
 )
 
@@ -218,21 +432,19 @@ register_preproc("augment_random_horizontal_flip", torchvision::transform_random
   param_set = ps(
     p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
   ),
-  shapes_out = function(shapes_in, param_vals, task) {
-    assert_rgb_shape(shapes_in[[1L]])
-    shapes_in
-  }
+  # a flip reads no dimension of the input, so nothing has to be known about it
+  shapes_out = unchanged_shapes
 )
 
 #' @title Crop Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_crop
-register_preproc("augment_crop", torchvision::transform_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+register_preproc("augment_crop", torchvision::transform_crop, packages = "torchvision", shapes_out = crop_shapes, rowwise = TRUE,
   param_set = ps(
-    top = p_int(tags = c("train", "required")),
-    left = p_int(tags = c("train", "required")),
-    height = p_int(tags = c("train", "required")),
-    width = p_int(tags = c("train", "required"))
+    top = p_int(lower = 1L, tags = c("train", "required")),
+    left = p_int(lower = 1L, tags = c("train", "required")),
+    height = p_int(lower = 0L, tags = c("train", "required")),
+    width = p_int(lower = 0L, tags = c("train", "required"))
   )
 )
 
@@ -240,7 +452,8 @@ register_preproc("augment_crop", torchvision::transform_crop, packages = "torchv
 #' @template preprocess_torchvision
 #' @templateVar id augment_random_vertical_flip
 register_preproc("augment_random_vertical_flip", torchvision::transform_random_vertical_flip, packages = "torchvision",
-  rowwise = TRUE, shapes_out = unchanged_shapes_rgb,
+  # a flip reads no dimension of the input, so nothing has to be known about it
+  rowwise = TRUE, shapes_out = unchanged_shapes,
   param_set = ps(
     p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
   )
@@ -265,10 +478,8 @@ register_preproc("augment_random_affine", torchvision::transform_random_affine, 
 #' @templateVar id augment_vflip
 register_preproc("augment_vflip", torchvision::transform_vflip, packages = "torchvision", rowwise = TRUE,
   param_set = ps(),
-  shapes_out = function(shapes_in, param_vals, task) {
-    assert_grayscale_or_rgb(shapes_in[[1L]])
-    shapes_in
-  }
+  # a flip reads no dimension of the input, so nothing has to be known about it
+  shapes_out = unchanged_shapes
 )
 
 #' @title Rotate Augmentation
@@ -287,9 +498,9 @@ register_preproc("augment_rotate", torchvision::transform_rotate, packages = "to
 #' @title Center Crop Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_center_crop
-register_preproc("augment_center_crop", torchvision::transform_center_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+register_preproc("augment_center_crop", torchvision::transform_center_crop, packages = "torchvision", shapes_out = center_crop_shapes, rowwise = TRUE,
   param_set = ps(
-    size = p_uty(tags = c("train", "required"))
+    size = p_uty(tags = c("train", "required"), custom_check = crate(function(x) check_integerish(x, lower = 1L, min.len = 1L, max.len = 2L, any.missing = FALSE))) # nolint
   )
 )
 
@@ -311,7 +522,7 @@ register_preproc("augment_random_crop", torchvision::transform_random_crop, pack
 #' @templateVar id augment_random_choice
 register_preproc("augment_random_choice", torchvision::transform_random_choice, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
   param_set = ps(
-    transforms = p_uty(custom_check = check_list, tags = c("train", "required"))
+    transforms = p_uty(tags = c("train", "required"), custom_check = crate(function(x) check_list(x, min.len = 1L)))
   )
 )
 
@@ -353,7 +564,7 @@ register_preproc("augment_random_choice", torchvision::transform_random_choice, 
 ##' @templateVar id augment_random_apply
 #register_preproc("augment_random_apply", torchvision::transform_random_apply, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
 #  param_set = ps(
-#    transforms = p_uty(tags = c("train", "required"), custom_check = check_list),
+#    transforms = p_uty(tags = c("train", "required"), custom_check = crate(function(x) check_list(x, min.len = 1L))),
 #    p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
 #  )
 #)

@@ -12,10 +12,13 @@
 #' For an explanation see [`PipeOpTorch`].
 #'
 #' @section Internals:
-#' Per default, the `private$.shapes_out()` method outputs the broadcasted tensors. There are two things to be aware:
-#' 1. `NA`s are assumed to batch (this should almost always be the batch size in the first dimension).
+#' Per default, the `private$.shapes_out()` method outputs the shape that the inputs broadcast to.
+#' There are two things to be aware of:
+#' 1. Broadcasting is generalized to unknown (`NA`) sizes: per dimension a known size that is not 1
+#'    wins, and the result is only unknown when every input is either unknown or 1, because an
+#'    unknown size may turn out to be greater than 1 and would then determine the size.
 #' 2. Tensors are expected to have the same number of dimensions, i.e. missing dimensions are not filled with 1s.
-#'    The reason is again that the first dimension should be the batch dimension.
+#'    The reason is that the first dimension should be the batch dimension.
 #' This private method can be overwritten by [`PipeOpTorch`]s inheriting from this class.
 #'
 #' @family PipeOps
@@ -51,19 +54,10 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
     .shapes_out = function(shapes_in, param_vals, task) {
       # note that this slightly deviates from the actual broadcasting rules implemented by torch, i.e. we don't fill
       # up missing dimension with 1s because the first dimension is usually the batch dimension.
-      assert_true(length(unique(lengths(shapes_in))) == 1,
-        .var.name = "All input shapes have the same number of dimensions")
-      uniques = apply(as.data.frame(shapes_in), 1, function(row) {
-        if (all(is.na(row))) {
-          return(1)
-        }
-        max_dim = max(row, na.rm = TRUE)
-        row[row == 1] = max_dim
-        row = unique(row)
-        sum(!is.na(row))
-      })
-      assert_true(all(uniques <= 1), .var.name = "There is at most one non-NA dimension")
-      shapes_in[1]
+      assert_same_ndim(shapes_in, self$id)
+      # the output is the broadcast of the inputs, not the first input: broadcasting a (NA, 1)
+      # against a (NA, 6) yields a (NA, 6) tensor at runtime
+      list(broadcast_shapes(shapes_in, self$id))
     }
   )
 )
@@ -174,37 +168,18 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      assert_true(length(unique(lengths(shapes_in))) == 1, .var.name = "All input shapes have the same number of dimensions")
+      assert_same_ndim(shapes_in, self$id)
 
-      # dim can be negative (counting back from the last element which would be -1)
-      true_dim = param_vals$dim %??% -1
-      if (true_dim < 0) {
-        true_dim = 1 + length(shapes_in[[1]]) + true_dim
-      }
-      assert_int(true_dim, lower = 1, upper = length(shapes_in[[1]]))
+      dim = param_vals[["dim"]] %??% -1L
+      true_dim = resolve_dim(dim, shapes_in[[1L]])
+      assert_dim_in_range(dim, true_dim, shapes_in[[1L]], self$id)
 
-      shapes_matrix = as.matrix(as.data.frame(shapes_in))
-
-      uniques = apply(shapes_matrix, 1, function(row) {
-        if (all(is.na(row))) { # this is usually the batch dimension.
-          return(1)
-        }
-        max_dim = max(row, na.rm = TRUE)
-        row[row == 1] = max_dim
-        row = unique(row)
-        sum(!is.na(row))
-      })
-
-      # Dimensions don't have to match along the dimension along which we concatenate.
-      assert_true(all(uniques[-true_dim] <= 1), .var.name = "After broadcasting, dimension match along the non-concatenated dimension") # nolint
-
-      returnshape = apply(shapes_matrix, 1, function(row) {
-        row = unique(row)
-        row = row[!is.na(row)]
-        if (length(row)) max(row) else NA
-      })
-      returnshape[true_dim] = sum(shapes_matrix[true_dim, ])
-      list(returnshape)
+      # `torch_cat()` does not broadcast: every dimension except the concatenated one must be
+      # equal, which is checked here rather than at runtime
+      returnshape = cat_shapes(shapes_in, true_dim, self$id)
+      # the sizes along the concatenated dimension are summed, and are unknown as soon as one is
+      returnshape[true_dim] = sum(map_int(shapes_in, function(shape) shape[true_dim]))
+      list(as.integer(returnshape))
     }
   )
 )

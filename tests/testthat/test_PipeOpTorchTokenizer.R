@@ -68,3 +68,34 @@ test_that("nn_tokenizer_categ works with logical features", {
   out2 = md2$graph$train(batchgetter_categ(task2$data(rows = 1:3, cols = "lg")))[[1L]]
   expect_equal(out2$shape, c(3, 1, 4))
 })
+
+test_that("shape inference needs the feature dimension", {
+  expect_error(po("nn_tokenizer_num", d_token = 10)$shapes_out(list(c(NA, NA)), task = tsk("iris")),
+    "requires the feature dimension (dimension 2)", fixed = TRUE)
+})
+
+test_that("the categorical tokenizer takes the number of tokens from the task", {
+  expect_equal(po("nn_tokenizer_categ", d_token = 10)$shapes_out(list(c(NA, NA)),
+    task = tsk("breast_cancer"))[[1L]], c(NA, 9L, 10L))
+  expect_equal(po("nn_tokenizer_categ", d_token = 5L)$shapes_out(list(c(3L, 1L)),
+    task = tsk("breast_cancer"))[[1L]], c(3L, 9L, 5L))
+
+  obj = po("nn_tokenizer_categ", d_token = 5L)
+  module = get_private(obj)$.make_module(list(c(3L, 1L)), obj$param_set$get_values(), tsk("breast_cancer"))
+  expect_equal(dim(with_no_grad(module(torch_ones(3L, 1L, dtype = torch_long())))), c(3, 9, 5))
+})
+
+test_that("the number of tokens is never unknown", {
+  obj = po("nn_tokenizer_categ", d_token = 5L)
+  expect_error(obj$shapes_out(list(c(NA, 9L))), "neither a task nor the 'cardinalities' parameter",
+    fixed = TRUE)
+  expect_error(get_private(obj)$.shape_dependent_params(list(c(NA, 9L)), obj$param_set$get_values(), NULL),
+    "neither a task nor the 'cardinalities' parameter", fixed = TRUE)
+  expect_equal(po("nn_tokenizer_categ", d_token = 5L, cardinalities = c(2L, 3L))$
+    shapes_out(list(c(NA, 2L)))[[1L]], c(NA, 2L, 5L))
+})
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference("nn_tokenizer_num", params = function() list(d_token = sample(2:6, 1L)),
+    shapes = c(2, 8), generators = gen_shape(2L))
+})

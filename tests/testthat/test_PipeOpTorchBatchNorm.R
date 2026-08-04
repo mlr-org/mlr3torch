@@ -30,7 +30,7 @@ test_that("PipeOpTorchBatchNorm3D autotest", {
   po_test = po("nn_batch_norm3d")
   task = nano_imagenet()
   graph = po("torch_ingress_ltnsr") %>>%
-    po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
+    po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>%
     po_test
 
   expect_pipeop_torch(graph, "nn_batch_norm3d", task)
@@ -52,4 +52,21 @@ test_that("jit_trace works (#354)", {
   task = tsk("iris")
   lrn$train(task)
   expect_prediction(lrn$predict(task))
+})
+
+test_that("shape inference matches the operator", {
+  expect_shape_inference("nn_batch_norm1d", list(), c(2, 3, 17))
+  expect_shape_inference("nn_batch_norm2d", list(), c(2, 3, 8, 8))
+  expect_shape_inference("nn_batch_norm3d", list(), c(2, 3, 5, 5, 5))
+})
+
+test_that("shape inference requires the feature dimension", {
+  expect_error(po("nn_batch_norm2d")$shapes_out(list(c(NA, NA, 17, 19))),
+    "requires the feature dimension (dimension 2) of the input shape to be known", fixed = TRUE)
+})
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  for (d in 1:3) {
+    expect_shape_inference(sprintf("nn_batch_norm%id", d), generators = gen_shape(d + 2L))
+  }
 })

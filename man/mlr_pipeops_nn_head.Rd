@@ -13,8 +13,8 @@ When this \code{\link[mlr3pipelines:PipeOp]{PipeOp}} is trained however, the mod
 }
 \section{nn_module}{
 
-Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the input and output features inferred from the input shape / task.
-For
+Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the input features inferred from the input shape and the output
+features from the task, via \code{\link[=output_dim_for]{output_dim_for()}}. For
 \itemize{
 \item binary classification, the output dimension is 1.
 \item multiclass classification, the output dimension is the number of classes.
@@ -28,6 +28,14 @@ For
 \item \code{bias} :: \code{logical(1)}\cr
 Whether to use a bias. Default is \code{TRUE}.
 }
+}
+
+\section{Supporting Other Task Types}{
+
+The output dimension is not hard-coded here: \code{PipeOpTorchHead} asks the generic
+\code{\link[=output_dim_for]{output_dim_for()}} how many output neurons the task needs, and \pkg{mlr3torch} implements methods
+for \code{\link[mlr3:TaskClassif]{TaskClassif}} and \code{\link[mlr3:TaskRegr]{TaskRegr}}.
+You can add support to your custom task type by implementing a method for your class.
 }
 
 \section{Input and Output Channels}{
