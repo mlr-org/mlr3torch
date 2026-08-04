@@ -165,7 +165,20 @@ reference:
       - task_dataset
       - Select
       - output_dim_for
+  - title: Shape Inference
+    contents:
       - infer_shapes
+      - shape_helpers
+      - reshape_output_shape
+      - assert_shape
+      - assert_shapes
+      - assert_known_dims
+      - assert_ndim
+      - assert_same_ndim
+      - assert_same_batch_size
+      - assert_dim_in_range
+      - assert_not_batch_dim
+      - assert_positive_extent
 
 
 

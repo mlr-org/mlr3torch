@@ -27,7 +27,7 @@ test_that("PipeOpTorchFTCLS works for tensors of specified dimensions", {
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_ft_cls", list(initialization = "uniform"), c(2, 7, 16))
+  expect_shape_inference("nn_ft_cls", list(initialization = "uniform"), c(2, 7, 16))
 })
 
 test_that("shape inference requires the token dimension", {
@@ -36,6 +36,5 @@ test_that("shape inference requires the token dimension", {
 })
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
-  expect_shape_inference_sampled("nn_ft_cls",
-    list(rank = 3L, params = function() list(initialization = "uniform")))
+  expect_shape_inference("nn_ft_cls", list(initialization = "uniform"), generators = gen_shape(3L))
 })

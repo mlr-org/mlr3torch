@@ -46,15 +46,27 @@ the private method \code{.shape_dependent_params()}.
 (\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
 This private method gets a list of \code{integer} vectors (\code{shapes_in}), the parameter values (\code{param_vals}),
 as well as an (optional) \code{\link[mlr3:Task]{Task}}.
+The \code{shapes_in} list indicates the shape of input tensors that will be fed to the module's \verb{$forward()} function.
+The list has one item per input tensor, typically only one.
+The function should return a list of shapes of tensors that are created by the module.
 The \code{shapes_in} are named after the input channels of the \code{PipeOp} and are in the same order.
 The output shapes must be in the same order as the output names of the \code{PipeOp}.
 In case the output shapes depends on the task (as is the case for \code{\link{PipeOpTorchHead}}), the function should return
 valid output shapes (possibly containing \code{NA}s) if the \code{task} argument is provided or not.
-It is important to properly handle the presence of \code{NA}s in the input shapes:
-any dimension can be unknown, not just the batch dimension.
-If the \code{\link[mlr3pipelines:PipeOp]{PipeOp}} cannot work with a specific dimension being unknown,
-it must throw an informative error, see e.g. the helper \code{assert_known_dims()}.
-The method can also throw an error if the input shapes violate some assumptions.
+Any dimension of \code{shapes_in} can be \code{NA}, i.e. unknown, so this method must not assume that a
+dimension it reads is known.
+It has to assert the dimensions it actually needs and propagate the \code{NA}s it can live with.
+
+The inference should generally be \strong{permissive}. For example, applying a convolutional layer
+to an input of shape \code{c(NA, 3, NA, NA)} should assume that the last two dimensions are big
+enough for the given kernel size.
+This can sometimes lead to runtime errors but this is preferable over rejecting valid
+architectures.
+
+There are various assertion helpers for common input checks, such as \code{\link[=assert_known_dims]{assert_known_dims()}} and the
+"See also" links on its page.
+There are also \code{\link{shape_helpers}}, which provide the shape
+arithmetic (broadcasting, resolving negative dimension indices).
 \item \code{.shape_dependent_params(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> named \code{list()}\cr
 This private method has the same inputs as \code{.shapes_out}.
@@ -68,6 +80,27 @@ and add it to the user-supplied parameter values (\code{param_vals}).
 
 During \emph{training}, all inputs and outputs are of class \code{\link{ModelDescriptor}}.
 During \emph{prediction}, all input and output channels are of class \code{\link[mlr3:Task]{Task}}.
+}
+
+\section{Shape Inference}{
+
+A network is assembled without any data flowing through it, so \pkg{mlr3torch} tracks the shape
+of the tensors instead: it starts from the shape the ingress announces and hands each \code{PipeOp}
+the shapes of its inputs, which is how auxiliary parameters such as \code{in_features} of
+\code{\link[torch:nn_linear]{nn_linear}} are filled in automatically.
+
+A shape is an \code{integer()} whose first entry is the batch dimension, e.g. \code{c(NA, 3, 32, 32)} for a
+batch of RGB images of 32 by 32 pixels. A dimension whose size is not known in advance is \code{NA},
+and any dimension can be \code{NA}, not only the batch dimension: the sequence length of a
+transformer or the height and width of an image may equally well vary.
+
+The public \verb{$shapes_out()} method answers the same question for a single \code{PipeOp}, without
+building a network around it, which is the quickest way to see what an operator makes of a given
+input shape. It is also what reports the problem when an operator needs a dimension that is
+unknown, naming the \code{PipeOp} and the shape it was given.
+
+Implementing a \code{PipeOp} that computes its own output shapes is described under \code{.shapes_out()} in
+the "Inheriting" section above.
 }
 
 \section{State}{
@@ -236,6 +269,18 @@ mds_out[[2L]]$pointer_shape
 predict_input = list(input1 = task1, input2 = task2)
 tasks_out = do.call(po_torch$predict, args = list(input = predict_input))
 identical(tasks_out[[1L]], tasks_out[[2L]])
+
+## Shape inference
+
+# `$shapes_out()` reports what an operator makes of an input shape, without building a network
+conv = po("nn_conv2d", out_channels = 4, kernel_size = 3)
+conv$shapes_out(list(c(NA, 3, 32, 32)))
+
+# any dimension may be unknown, so images of varying size work just as well
+conv$shapes_out(list(c(NA, 3, NA, NA)))
+
+# a dimension the operator does need is reported, naming the PipeOp and the shape it was given
+try(conv$shapes_out(list(c(NA, NA, 32, 32))))
 \dontshow{\}) # examplesIf}
 }
 \seealso{

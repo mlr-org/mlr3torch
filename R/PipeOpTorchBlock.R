@@ -105,16 +105,16 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     },
     .shapes_out = function(shapes_in, param_vals, task)  {
       if (param_vals$n_blocks == 0L) {
-        # `.train()` treats an empty block as the identity, so the shapes are unchanged and the
-        # task is not needed
         return(shapes_in)
       }
       if (is.null(task)) {
         stopf("PipeOp '%s' requires a task to compute output shapes.", self$id)
       }
+      # the block is applied to all inputs jointly, so they have to agree on the batch size for it
+      # to be restored below
+      batch_size = assert_same_batch_size(shapes_in, self$id)
       # `ModelDescriptor()` requires the batch dimension to be unknown, so it is dropped here and
       # restored afterwards -- otherwise a known batch size would be rejected outright
-      batch = map(shapes_in, function(shape) shape[[1L]])
       shapes_in = map(shapes_in, function(shape) {
         shape[1L] = NA_integer_
         shape
@@ -149,7 +149,6 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
       mdouts = graph$train(mds, single_input = FALSE)
 
       # all inputs share the batch dimension, and there may be a different number of outputs
-      batch_size = batch[[1L]]
       map(map(mdouts, "pointer_shape"), function(shape) {
         if (!is.na(batch_size) && is.na(shape[[1L]])) shape[1L] = batch_size
         shape

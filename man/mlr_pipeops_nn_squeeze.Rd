@@ -16,7 +16,7 @@ Calls \code{\link[=nn_squeeze]{nn_squeeze()}} when trained.
 
 \itemize{
 \item \code{dim} :: \code{integer()}\cr
-The dimensions to squeeze, which may include the batch dimension.
+The dimensions to squeeze.
 Negative values are interpreted downwards from the last dimension.
 A dimension whose size is not known to be 1 is kept, because it may be larger at runtime.
 }

@@ -295,7 +295,7 @@ torch_network_predict = function(network, loader, device) {
 encode_prediction_default = function(predict_tensor, predict_type, task) {
   # here we assume that the levels of the factors are never reordered!
   # This is important as otherwise all hell breaks loose
-  # Currently we do this check ourselves, but it should at some point be handled in mlr3 / mlr3pipelines
+  # Currently this check is done in mlr3torch but should at some point be handled in mlr3 / mlr3pipelines
 
   response = prob = NULL
   if (task$task_type == "classif" && "multiclass" %in% task$properties) {

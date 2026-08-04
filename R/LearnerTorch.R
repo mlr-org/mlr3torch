@@ -533,7 +533,7 @@ LearnerTorch = R6Class("LearnerTorch",
       # permuted factor levels cause issues, because we are converting fct -> int
       # FIXME: https://github.com/mlr-org/mlr3/issues/946
       # This addresses the issues with the factor levels and is only a temporary fix
-      # We should not have to do this here, it belongs into mlr3
+      # Should be handled outside of mlr3torch
       # Ideally we could rely on state$train_task, but there is this complication
       # https://github.com/mlr-org/mlr3/issues/947
       param_vals$device = auto_device(param_vals$device)

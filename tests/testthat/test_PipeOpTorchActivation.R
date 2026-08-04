@@ -398,16 +398,22 @@ test_that("PipeOpTorchHardTanh paramtest", {
   expect_paramtest(res)
 })
 
+elementwise_activations = c("nn_celu", "nn_elu", "nn_gelu", "nn_hardshrink", "nn_hardsigmoid",
+  "nn_hardtanh", "nn_leaky_relu", "nn_log_sigmoid", "nn_relu", "nn_relu6", "nn_selu", "nn_sigmoid",
+  "nn_softplus", "nn_softshrink", "nn_softsign", "nn_tanh", "nn_tanhshrink")
+
+test_that("shape inference matches the operator for the elementwise activations", {
+  for (id in elementwise_activations) {
+    expect_shape_inference(id, shapes = c(2, 4, 6), generators = gen_shape(3L))
+  }
+})
+
 test_that("shape inference matches the operator", {
-  # elementwise activations preserve the shape
-  expect_shapes_out_torch("nn_elu", list(), c(2, 4, 6))
-  expect_shapes_out_torch("nn_hardshrink", list(), c(2, 4, 6))
-  expect_shapes_out_torch("nn_hardsigmoid", list(), c(2, 4, 6))
-  expect_shapes_out_torch("nn_softmax", list(dim = 2), c(2, 4, 6))
+  expect_shape_inference("nn_softmax", list(dim = 2), c(2, 4, 6))
   # gated linear units halve one dimension
-  expect_shapes_out_torch("nn_glu", list(dim = 2), c(2, 4, 6))
-  expect_shapes_out_torch("nn_geglu", list(), c(2, 4, 6))
-  expect_shapes_out_torch("nn_reglu", list(), c(2, 4, 6))
+  expect_shape_inference("nn_glu", list(dim = 2), c(2, 4, 6))
+  expect_shape_inference("nn_geglu", shapes = c(2, 4, 6), generators = gen_shape(3L))
+  expect_shape_inference("nn_reglu", shapes = c(2, 4, 6), generators = gen_shape(3L))
 })
 
 test_that("shape inference rejects a 'dim' that does not address a dimension", {
@@ -421,14 +427,15 @@ test_that("shape inference rejects a 'dim' that does not address a dimension", {
 })
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
-  expect_shape_inference_sampled("nn_softmax",
-    list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L))))
-  expect_shape_inference_sampled("nn_glu",
-    list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L))))
-  expect_shape_inference_sampled("nn_prelu",
-    list(rank = 3L, params = function() list(num_parameters = 1L)))
-  expect_shape_inference_sampled("nn_rrelu",
-    list(rank = 3L, params = function() list(lower = 0.1, upper = 0.3)))
-  expect_shape_inference_sampled("nn_threshold",
-    list(rank = 3L, params = function() list(threshold = 0.5, value = 0)))
+  expect_shape_inference("nn_softmax", params = function() list(dim = sample(c(2:3, -1L), 1L)),
+    generators = gen_shape(3L))
+  expect_shape_inference("nn_glu", params = function() list(dim = sample(c(2:3, -1L), 1L)),
+    generators = gen_shape(3L))
+  # these have no fixed parameters, so the concrete shapes are checked here as well
+  expect_shape_inference("nn_prelu", params = function() list(num_parameters = 1L),
+    shapes = c(2, 4, 6), generators = gen_shape(3L))
+  expect_shape_inference("nn_rrelu", params = function() list(lower = 0.1, upper = 0.3),
+    shapes = c(2, 4, 6), generators = gen_shape(3L))
+  expect_shape_inference("nn_threshold", params = function() list(threshold = 0.5, value = 0),
+    shapes = c(2, 4, 6), generators = gen_shape(3L))
 })

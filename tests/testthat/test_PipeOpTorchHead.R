@@ -38,7 +38,7 @@ test_that("correct output dim", {
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_head", list(), c(2, 16), task = tsk("iris"))
+  expect_shape_inference("nn_head", list(), c(2, 16), task = tsk("iris"))
 })
 
 test_that("shape inference needs the feature dimension and the task", {
@@ -51,6 +51,5 @@ test_that("shape inference needs the feature dimension and the task", {
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
   # the number of output features comes from the task
-  expect_shape_inference_sampled("nn_head",
-    list(rank = 2L, params = function() list(), task = tsk("iris")))
+  expect_shape_inference("nn_head", generators = gen_shape(2L), task = tsk("iris"))
 })

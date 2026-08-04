@@ -125,7 +125,7 @@ test_that("shapes_out", {
   obj1$param_set$set_values(d_out1 = 2, d_out2 = 3)
 
   expect_equal(obj1$shapes_out(list(c(NA, 99), c(NA, 3))), list(output1 = c(NA, 2), output2 = c(NA, 3)))
-  expect_error(obj1$shapes_out(list(c(NA, 99))), regexp = "number of input")
+  expect_error(obj1$shapes_out(list(c(NA, 99))), regexp = "but 1 input shape\\(s\\) were given")
 })
 
 test_that("Multiple NAs are allowed in the shape", {

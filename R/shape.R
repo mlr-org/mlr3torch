@@ -1,19 +1,28 @@
-#' @title Check for Shape
+#' @title Assert a Shape
 #'
-#' @description Checks whether an integer vector is a valid shape.
-#' Unknown shapes are represted as `NULL`.
+#' @description
+#' Checks that `shape` is a valid shape, i.e. an `integer()` with at least one dimension, `NA` where
+#' a dimension is unknown. See the "Shape Inference" section of [`PipeOpTorch`] for the conventions.
 #'
 #' @param shape (`integer()`)\cr
+#'   A shape, with `NA` for the dimensions whose size is unknown.
 #' @param null_ok (`logical(1)`)\cr
-#'   Whether `NULL` is a valid shape.
+#'   Whether `NULL`, i.e. a wholly unknown shape, is valid.
 #' @param coerce (`logical(1)`)\cr
 #'   Whether to coerce the input to an `integer()` if possible.
-#' @param unknown_batch (`logical(1)`)\cr
-#'   Whether the batch **must** be unknonw, i.e. `NA`.
+#' @param unknown_batch (`logical(1)` | `NULL`)\cr
+#'   Whether the batch dimension **must** be unknown, i.e. `NA`.
 #'   If left `NULL` (default), the first dimension can be `NA` or not.
 #' @param len (`integer(1)`)\cr
-#'   The length of the shape.
-#' @noRd
+#'   The required number of dimensions.
+#'
+#' @return The shape, coerced to an `integer()` if `coerce` is `TRUE`.
+#'
+#' @family Shape Assertions
+#' @examples
+#' assert_shape(c(NA, 3, 32, 32))
+#' try(assert_shape("not a shape"))
+#' @export
 assert_shape = function(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = NULL, len = NULL) {
   result = check_shape(shape, null_ok = null_ok, unknown_batch = unknown_batch, len = len)
 
@@ -47,9 +56,37 @@ check_shape = function(x, null_ok = FALSE, unknown_batch = NULL, len = NULL) {
   if (test_shape(x, null_ok = null_ok, unknown_batch = unknown_batch, len = len)) {
     return(TRUE)
   }
+  # `shape_to_str()` only formats shapes and `list()`s of them, so anything else -- a string, say --
+  # would fail its own assertion and hide the message we actually want to give here
+  if (!is.numeric(x) && !is.logical(x) && !is.list(x) && !is.null(x)) {
+    return(sprintf("Invalid shape: must be an integer vector, but is %s.", class(x)[1L]))
+  }
   sprintf("Invalid shape: %s.", shape_to_str(x))
 }
 
+#' @title Assert a List of Shapes
+#'
+#' @description
+#' Checks that `shapes` is a non-empty `list()` of valid shapes, see [`assert_shape()`].
+#'
+#' @param shapes (`list()` of `integer()`)\cr
+#'   A `list()` of shapes.
+#' @param coerce (`logical(1)`)\cr
+#'   Whether to coerce the shapes to `integer()` if possible.
+#' @param named (`logical(1)`)\cr
+#'   Whether the shapes must be uniquely named.
+#' @param null_ok (`logical(1)`)\cr
+#'   Whether `NULL`, i.e. a wholly unknown shape, is valid.
+#' @param unknown_batch (`logical(1)` | `NULL`)\cr
+#'   Whether the batch dimension **must** be unknown, i.e. `NA`.
+#'   If left `NULL` (default), the first dimension can be `NA` or not.
+#'
+#' @return The shapes, coerced to `integer()` if `coerce` is `TRUE`.
+#'
+#' @family Shape Assertions
+#' @examples
+#' assert_shapes(list(c(NA, 3), c(NA, 5)))
+#' @export
 assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, unknown_batch = NULL) {
   ok = test_list(shapes, min.len = 1L)
   if (named) {
@@ -61,12 +98,29 @@ assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, 
   map(shapes, assert_shape, coerce = coerce, null_ok = null_ok, unknown_batch = unknown_batch)
 }
 
-# Rejects an unknown (`NA`) size in the dimensions that a PipeOp reads when constructing its
-# module: a convolution needs the number of input channels, but not the spatial extent.
-# @param shape (`integer()`) The input shape, `NA` where a dimension is unknown.
-# @param dims (`integer()`) Indices of the dimensions that must be known.
-# @param what (`character(1)`) Describes those dimensions in the error message.
-# @param id (`character(1)` | `NULL`) The PipeOp's id, `NULL` when called outside a PipeOp.
+#' @title Assert that Dimensions are Known
+#'
+#' @description
+#' Ensure that a specific dimension is known, i.e. not `NA`.
+#'
+#' @param shape (`integer()`)\cr
+#'   The input shape.
+#' @param dims (`integer()`)\cr
+#'   Indices of the dimensions that must be known.
+#' @param what (`character(1)`)\cr
+#'   Describes those dimensions in the error message, e.g. `"the channel dimension (dimension 2)"`.
+#' @param id (`character(1)` | `NULL`)\cr
+#'   The id of the [`PipeOp`][mlr3pipelines::PipeOp] the assertion is made for, which the error
+#'   message names. `NULL` when the assertion is not made for a `PipeOp`.
+#'
+#' @return The shape, invisibly.
+#'
+#' @family Shape Assertions
+#' @examples
+#' # a convolution needs the number of input channels, but not the spatial extent
+#' assert_known_dims(c(NA, 3, NA, NA), 2, "the number of channels", id = "nn_conv2d")
+#' try(assert_known_dims(c(NA, NA, 10, 10), 2, "the number of channels", id = "nn_conv2d"))
+#' @export
 assert_known_dims = function(shape, dims, what, id = NULL) {
   if (!anyNA(shape[dims])) {
     return(invisible(shape))
@@ -77,6 +131,52 @@ assert_known_dims = function(shape, dims, what, id = NULL) {
   stopf("PipeOp '%s' requires %s of the input shape to be known, but got shape %s.",
     id, what, shape_to_str(shape))
 }
+
+#' @title Helpers for Shape Inference
+#'
+#' @name shape_helpers
+#'
+#' @description
+#' Helpers for writing the `private$.shapes_out()` method of a [`PipeOpTorch`]. They all propagate
+#' unknown (`NA`) dimensions, see the "Shape Inference" section of [`PipeOpTorch`] for the shape conventions.
+#'
+#' @details
+#' * `broadcast_shapes()` applies the broadcasting rules of `torch`, generalized to shapes that may
+#'   contain `NA`. Per dimension a known size that is not 1 wins; if all known sizes are 1 and some
+#'   input is unknown, the result is unknown, because the unknown one may be greater than 1 and
+#'   would then determine the size. The shapes must already have the same number of dimensions:
+#'   shorter ones are not left-padded with 1s, because the first dimension is the batch dimension.
+#' * `resolve_dim()` resolves dimension indices that count from the end, as in `torch`, to positive
+#'   ones. Indices that are out of range stay out of range, so that
+#'   [`assert_dim_in_range()`] reports them.
+#' * `shape_to_str()` formats a shape, or a `list()` of them, for an error message.
+#'
+#' @param shapes (`list()` of `integer()`)\cr
+#'   The input shapes, all with the same number of dimensions.
+#' @param shape (`integer()`)\cr
+#'   The input shape.
+#' @param dim (`integer()`)\cr
+#'   The dimension(s) the operator addresses. Negative ones count back from the last dimension:
+#'   `-1` is the last dimension, `-2` the one before it, and so on.
+#' @param insert (`logical(1)`)\cr
+#'   Whether a dimension is inserted rather than addressed, as by
+#'   [`nn_unsqueeze()`][mlr_pipeops_nn_unsqueeze]: there is then one more position than the shape
+#'   has dimensions, `-1` appending a new last one.
+#' @param id (`character(1)`)\cr
+#'   The id of the [`PipeOp`][mlr3pipelines::PipeOp], which the error message names.
+#' @param x (`integer()` | `list()` of `integer()` | `NULL`)\cr
+#'   The shape(s) to format. `NULL` stands for an unknown shape.
+#'
+#' @return
+#' `broadcast_shapes()` returns an `integer()` shape, `resolve_dim()` an `integer()` of the same
+#' length as `dim`, and `shape_to_str()` a `character(1)`.
+#'
+#' @family Shape Inference
+#' @examples
+#' broadcast_shapes(list(c(NA, 1), c(NA, 6)), id = "nn_merge_sum")
+#' resolve_dim(-1, c(NA, 3, 8))
+#' shape_to_str(c(NA, 3, 8))
+NULL
 
 # Dimension-wise result of concatenating `shapes`, where the concatenated dimension is left as `NA`
 # for the caller to fill in.
@@ -101,13 +201,8 @@ cat_shapes = function(shapes, dim, id) {
   }))
 }
 
-# Broadcasting rules of torch, generalized to shapes that may contain `NA` (unknown).
-# Per dimension a known size != 1 wins; if all known sizes are 1 and some input is unknown, the
-# result is unknown, because the unknown one may be > 1 and would then determine the size.
-# @param shapes (`list()` of `integer()`) The input shapes. They must already have the same number
-#   of dimensions: we do not left-pad shorter shapes with 1s, because the first dimension
-#   is the batch dimension.
-# @param id (`character(1)`) The PipeOp's id, for the error message.
+#' @rdname shape_helpers
+#' @export
 broadcast_shapes = function(shapes, id) {
   mat = do.call(rbind, shapes)
   as.integer(map_int(seq_len(ncol(mat)), function(i) {
@@ -139,75 +234,97 @@ resolve_shape_param = function(shape, shape_in, id) {
       stopf("PipeOp '%s': 'shape' returned '%s' for the input shape %s, but must return at least one dimension, each of which is a number or `NA`.", # nolint
         id, paste0(format(target), collapse = ","), shape_to_str(shape_in))
     }
-    return(as.numeric(target))
+    return(as.integer(target))
   }
   if (!length(shape)) {
     stopf("PipeOp '%s' requires 'shape' to have at least one dimension.", id)
   }
-  # `NA` is what an unknown size is called everywhere else, so it must not double as a request to
-  # infer a dimension
   if (anyNA(shape)) {
     stopf("PipeOp '%s': 'shape' %s is invalid: use -1 for the dimension that is inferred from the number of elements.", # nolint
       id, shape_to_str(shape))
   }
-  as.numeric(shape)
+  as.integer(shape)
 }
 
-# Shape of `torch_reshape(x, shape)`. The inferred dimension is resolved here whenever the number
-# of input elements is known, and stays unknown otherwise.
-# @param shape_in (`integer()`) The input shape.
-# @param shape (`integer()` | `function()`) The target shape, where `-1` marks the dimension
-#   that torch infers from the number of elements. A function is called on the input shape and
-#   must return such a vector, see `resolve_shape_param()`.
-# @param id (`character(1)`) The PipeOp's id, for the error messages.
+#' @title Output Shape of a Reshape
+#'
+#' @description
+#' The shape of [`torch_reshape(x, shape)`][torch::torch_reshape], which is what
+#' [`nn_reshape()`][mlr_pipeops_nn_reshape] infers. The dimension that `torch` infers from the
+#' number of elements is resolved here whenever that number is known, and stays unknown otherwise.
+#'
+#' @param shape_in (`integer()`)\cr
+#'   The input shape, with `NA` for the dimensions whose size is unknown.
+#' @param shape (`integer()` | `function()`)\cr
+#'   The target shape, where `-1` marks the dimension that `torch` infers from the number of
+#'   elements. A `function(shape)` of the input shape is called on it and must return such a vector,
+#'   which lets a reshape be expressed for inputs whose sizes are not known in advance, e.g.
+#'   `\(shape) c(shape[1:2], 10)`.
+#' @param id (`character(1)`)\cr
+#'   The id of the [`PipeOp`][mlr3pipelines::PipeOp], which the error messages name.
+#'
+#' @return (`integer()`) The output shape.
+#'
+#' @family Shape Inference
+#' @examples
+#' reshape_output_shape(c(NA, 3, 4), c(-1, 12), id = "nn_reshape")
+#' reshape_output_shape(c(NA, 3, 4), \(shape) c(shape[1], 12), id = "nn_reshape")
+#' @export
 reshape_output_shape = function(shape_in, shape, id) {
-  # A function may turn an unknown input size into a known output size, e.g. `\(shape) c(shape[1],
-  # -1)` keeps the batch dimension and flattens the rest, which is known even when the batch is
-  # not. Calling it on the unknown shape alone cannot tell the two apart, so it is called on the
-  # shape with the unknown dimensions filled in: a dimension that is the same for every filling is
-  # known, one that varies with it is not.
-  if (is.function(shape) && anyNA(shape_in)) {
-    # A filling the function cannot handle -- an odd size where it halves a dimension, say -- only
-    # means that this filling tells us nothing, so it is skipped rather than reported: when the
-    # network runs, the function is called on the shape of a real tensor.
-    traced = discard(map(na_replacements(shape_in), function(value) {
-      probe = shape_in
-      probe[is.na(probe)] = value
-      tryCatch(reshape_output_shape(probe, shape, id), error = function(e) NULL)
-    }), is.null)
-    if (length(traced) >= 2L) {
-      out = traced[[1L]]
-      varies = map_lgl(seq_along(out), function(i) !all(map_dbl(traced, i) == out[[i]]))
-      out[varies] = NA_integer_
-      return(as.integer(out))
-    }
-    # too few fillings worked to tell the stable dimensions from the varying ones, so we go with
-    # what the function makes of the unknown shape itself, unchecked
-    target = resolve_shape_param(shape, shape_in, id)
-    target[!is.na(target) & target == -1] = NA
-    return(as.integer(target))
-  }
+  # resolve target if shape is a function
   target = resolve_shape_param(shape, shape_in, id)
-  shape = target
-  shape[!is.na(shape) & shape == -1] = NA
-  if (any(!is.na(shape) & shape < 1)) {
+  assert_reshape_target(target, id)
+
+  # The number of input elements is unknown as soon as one dimension is (typically the batch), and
+  # so is the number of output elements when the target itself contains an unknown size. The
+  # inferred dimension then stays unknown, and with an unknown element count on either side there
+  # is nothing left that could be checked.
+  if (is.na(prod(shape_in)) || anyNA(target)) {
+    # replaces -1 with NA
+    return(as.integer(reshape_target_as_shape(target)))
+  }
+
+  # Here we have a concrete shape
+  out = reshape_fill_inferred_known(shape_in, target, id)
+  assert_reshape_keeps_batch(shape_in, out, target, id)
+  as.integer(out)
+}
+
+reshape_target_as_shape = function(target) {
+  target[!is.na(target) & target == -1] = NA_integer_
+  as.integer(target)
+}
+
+# Rejects a target that no tensor can have, whatever the input shape turns out to be.
+# @param target (`numeric()`) The target shape, see `resolve_shape_param()`.
+# @param id (`character(1)`) The PipeOp's id, for the error messages.
+assert_reshape_target = function(target, id) {
+  # `-1` marks the inferred dimension, every other entry is a size in its own right
+  if (any(!is.na(target) & target != -1 & target < 1)) {
     stopf("PipeOp '%s': 'shape' %s is invalid: every dimension must be at least 1, only -1 marks the dimension that is inferred from the number of elements.", # nolint
       id, shape_to_str(target))
   }
-  inferred = which(!is.na(target) & target == -1)
   # torch can only infer one dimension, so more than one is invalid whatever the input shape is
-  if (length(inferred) > 1L) {
+  if (sum(!is.na(target) & target == -1) > 1L) {
     stopf("PipeOp '%s': 'shape' %s is invalid: at most one dimension can be inferred from the number of elements.", # nolint
       id, shape_to_str(target))
   }
-  # the number of input elements is unknown as soon as one dimension is (typically the batch), and
-  # so is the number of output elements when the target itself contains an unknown size
+  as.integer(target)
+}
+
+# Resolves the inferred dimension from the number of elements and rejects a target whose element
+# count cannot match. Both arguments must be fully known -- an `NA` anywhere makes the element
+# counts below `NA` and the comparisons undecidable -- which the caller ensures by returning early.
+# @param shape_in (`integer()`) The input shape, without unknown dimensions.
+# @param target (`numeric()`) The target shape, without unknown dimensions, see
+#   `resolve_shape_param()`. `-1` marks the dimension that is resolved here.
+# @param id (`character(1)`) The PipeOp's id, for the error message.
+reshape_fill_inferred_known = function(shape_in, target, id) {
+  out = reshape_target_as_shape(target)
+  inferred = which(!is.na(target) & target == -1)
   inlen = prod(shape_in)
-  if (is.na(inlen) || anyNA(target)) {
-    return(as.integer(shape))
-  }
-  # note that `shape[-integer(0)]` is empty, so the two cases have to be distinguished
-  knownlen = if (length(inferred)) prod(shape[-inferred]) else prod(shape)
+  # note that `out[-integer(0)]` is empty, so the two cases have to be distinguished
+  knownlen = if (length(inferred)) prod(out[-inferred]) else prod(out)
   # with an inferred dimension the known ones must divide the input, without one the target must
   # have exactly as many elements as the input
   if (knownlen == 0 || (length(inferred) && inlen %% knownlen != 0) ||
@@ -216,42 +333,64 @@ reshape_output_shape = function(shape_in, shape, id) {
       id, shape_to_str(target), shape_to_str(shape_in))
   }
   if (length(inferred)) {
-    shape[inferred] = inlen / knownlen
+    out[inferred] = inlen / knownlen
   }
-  # The first dimension is the batch dimension. A reshape that moves elements across it changes
-  # the batch size, which fails much later with a mismatch against the target.
+  as.integer(out)
+}
+
+# The first dimension is the batch dimension. A reshape that moves elements across it changes the
+# batch size, which will cause weird errors (e.g. when computing the loss later).
+# @param shape_in (`integer()`) The input shape.
+# @param out (`numeric()`) The output shape, with the inferred dimension already filled in.
+# @param target (`numeric()`) The target shape, for the error message and to tell whether the batch
+#   dimension was meant to be kept at all.
+# @param id (`character(1)`) The PipeOp's id, for the error message.
+assert_reshape_keeps_batch = function(shape_in, out, target, id) {
   rest_in = prod(shape_in[-1L])
-  rest_out = prod(shape[-1L])
-  # a target that keeps the batch dimension either infers it or repeats the input's
+  rest_out = prod(out[-1L])
+  # a target that keeps the batch dimension either infers it or repeats the input's; `-1` in the
+  # first position is only a batch dimension if nothing else was inferred from it
   keeps_batch = is.na(target[[1L]]) || target[[1L]] == -1 || isTRUE(target[[1L]] == shape_in[[1L]])
-  # `-1` in the first position is only a batch dimension if nothing else was inferred from it
   if (keeps_batch && !is.na(rest_in) && !is.na(rest_out) && rest_in != rest_out) {
     stopf("PipeOp '%s': 'shape' %s changes the batch dimension of the input shape %s: it maps %s elements per observation to %s.", # nolint
       id, shape_to_str(target), shape_to_str(shape_in), rest_in, rest_out)
   }
-  as.integer(shape)
+  invisible(out)
 }
 
-# Resolves dimension indices that count from the end, as in torch, to positive ones.
-# Indices that are out of range stay out of range, so that the assertions below report them.
-# @param dim (`integer()`) The dimensions, negative ones counting back from the last: `-1` is the
-#   last dimension, `-2` the one before it, and so on.
-# @param shape (`integer()`) The shape that `dim` addresses.
-# @param insert (`logical(1)`) Whether a dimension is inserted rather than addressed, as by
-#   `nn_unsqueeze()`: there is then one more position than the shape has dimensions, `-1` appending
-#   a new last one.
+#' @rdname shape_helpers
+#' @export
 resolve_dim = function(dim, shape, insert = FALSE) {
   negative = dim < 0
   dim[negative] = length(shape) + as.integer(insert) + 1L + dim[negative]
   dim
 }
 
-# Rejects a `dim` parameter that does not address a dimension of `shape`.
-# @param dim (`integer(1)`) What the user specified, which may count down from the last dimension.
-#   Only used for the error message, so that it reports the value the user knows.
-# @param true_dim (`integer(1)`) The resolved index, see `resolve_dim()`.
-# @param shape (`integer()`) The shape that `true_dim` addresses.
-# @param id (`character(1)`) The PipeOp's id, for the error message.
+#' @title Assert that a Dimension Exists
+#'
+#' @description
+#' Rejects a `dim` parameter that does not address a dimension of `shape`. Resolve negative indices
+#' with [`resolve_dim()`] first and pass both, so that the error message can report the value the
+#' user actually specified.
+#'
+#' @param dim (`integer(1)`)\cr
+#'   The dimension as the user specified it: it may count back from the last dimension. Only used
+#'   for the error message.
+#' @param true_dim (`integer(1)`)\cr
+#'   The same dimension resolved to a positive index, see [`resolve_dim()`].
+#' @param shape (`integer()`)\cr
+#'   The shape that `true_dim` addresses.
+#' @param id (`character(1)`)\cr
+#'   The id of the [`PipeOp`][mlr3pipelines::PipeOp], which the error message names.
+#'
+#' @return The resolved dimension, invisibly.
+#'
+#' @family Shape Assertions
+#' @examples
+#' shape = c(NA, 3, 8, 8)
+#' assert_dim_in_range(-1L, resolve_dim(-1L, shape), shape, id = "nn_squeeze")
+#' try(assert_dim_in_range(-5L, resolve_dim(-5L, shape), shape, id = "nn_squeeze"))
+#' @export
 assert_dim_in_range = function(dim, true_dim, shape, id) {
   if (true_dim >= 1L && true_dim <= length(shape)) {
     return(invisible(true_dim))
@@ -260,10 +399,27 @@ assert_dim_in_range = function(dim, true_dim, shape, id) {
     id, dim, shape_to_str(shape), length(shape))
 }
 
-# Rejects an operation on the first dimension, which is the batch dimension.
-# @param dim (`integer(1)`) The resolved dimension that the operator changes.
-# @param shape (`integer()`) The input shape, for the error message.
-# @param id (`character(1)`) The PipeOp's id, for the error message.
+#' @title Assert that a Dimension is not the Batch Dimension
+#'
+#' @description
+#' Rejects an operation on the first dimension, which is the batch dimension. An operator that
+#' changes it would silently change the number of observations, which fails much later with a
+#' mismatch against the target.
+#'
+#' @param dim (`integer(1)`)\cr
+#'   The resolved dimension that the operator changes, see [`resolve_dim()`].
+#' @param shape (`integer()`)\cr
+#'   The input shape, used for the error message.
+#' @param id (`character(1)`)\cr
+#'   The id of the [`PipeOp`][mlr3pipelines::PipeOp], which the error message names.
+#'
+#' @return The dimension, invisibly.
+#'
+#' @family Shape Assertions
+#' @examples
+#' assert_not_batch_dim(2L, c(NA, 3, 8), id = "nn_squeeze")
+#' try(assert_not_batch_dim(1L, c(NA, 3, 8), id = "nn_squeeze"))
+#' @export
 assert_not_batch_dim = function(dim, shape, id) {
   if (dim != 1L) {
     return(invisible(dim))
@@ -272,11 +428,6 @@ assert_not_batch_dim = function(dim, shape, id) {
     id, shape_to_str(shape))
 }
 
-# Halves one dimension of a shape, as the gated linear units do.
-# An unknown dimension stays unknown, a known odd one is rejected.
-# @param shape (`integer()`) The input shape.
-# @param dim (`integer(1)`) The resolved dimension that is halved.
-# @param id (`character(1)`) The PipeOp's id, for the error message.
 halve_dim = function(shape, dim, id) {
   halved = shape[dim] / 2
   if (!test_integerish(halved)) {
@@ -287,23 +438,82 @@ halve_dim = function(shape, dim, id) {
   as.integer(shape)
 }
 
-# Rejects a shape with the wrong number of dimensions.
-# @param shape (`integer()`) The input shape.
-# @param ndim (`integer(1)`) The required number of dimensions, the batch dimension included.
-# @param id (`character(1)`) The PipeOp's id, for the error message.
-assert_ndim = function(shape, ndim, id) {
-  if (length(shape) == ndim) {
+#' @title Assert the Number of Dimensions of a Shape
+#'
+#' @description
+#' Rejects a shape with the wrong number of dimensions. Give either `ndim`, the number(s) of
+#' dimensions the operator accepts, or the bounds `min` and `max` (either on its own), which is what
+#' an operator that accepts a range of them uses, as batch normalization does.
+#'
+#' @param shape (`integer()`)\cr
+#'   The input shape, with `NA` for the dimensions whose size is unknown.
+#' @param ndim (`integer()`)\cr
+#'   The number(s) of dimensions the operator accepts, the batch dimension included.
+#'   Alternatively give `min` and/or `max`.
+#' @param id (`character(1)`)\cr
+#'   The id of the [`PipeOp`][mlr3pipelines::PipeOp], which the error message names.
+#' @param min (`integer(1)`)\cr
+#'   The smallest number of dimensions the operator accepts, `NULL` for no lower bound.
+#' @param max (`integer(1)`)\cr
+#'   The largest number of dimensions the operator accepts, `NULL` for no upper bound.
+#'
+#' @return The shape, invisibly.
+#'
+#' @family Shape Assertions
+#' @examples
+#' assert_ndim(c(NA, 3, 32, 32), 4L, id = "nn_conv2d")
+#' try(assert_ndim(c(NA, 3), 4L, id = "nn_conv2d"))
+#' # batch normalization accepts a range
+#' try(assert_ndim(c(NA, 3, 4, 5), id = "nn_batch_norm1d", min = 2L, max = 3L))
+#' @export
+assert_ndim = function(shape, ndim = NULL, id, min = NULL, max = NULL) {
+  n = length(shape)
+  ok = (is.null(ndim) || n %in% ndim) && (is.null(min) || n >= min) && (is.null(max) || n <= max)
+  if (ok) {
     return(invisible(shape))
   }
-  stopf("PipeOp '%s' requires an input with %i dimensions (the first one being the batch dimension), but got the shape %s, which has %i.", # nolint
-    id, ndim, shape_to_str(shape), length(shape))
+  # `ndim` and a bound are not combined by any caller, so the message describes whichever was given
+  expected = if (!is.null(ndim)) {
+    paste0(ndim, collapse = " or ")
+  } else if (is.null(max)) {
+    sprintf("at least %i", min)
+  } else if (is.null(min)) {
+    sprintf("at most %i", max)
+  } else if (min == max) {
+    as.character(min)
+  } else if (max - min == 1L) {
+    sprintf("%i or %i", min, max)
+  } else {
+    sprintf("%i to %i", min, max)
+  }
+  stopf("PipeOp '%s' requires an input with %s dimensions (the first one being the batch dimension), but got the shape %s, which has %i.", # nolint
+    id, expected, shape_to_str(shape), n)
 }
 
-# Rejects a computed output size that no tensor can have, i.e. one that is not a positive number.
-# @param extent (`numeric()`) The sizes the operator computed for the dimensions it changes, e.g.
-#   the spatial dimensions of a convolution. `NA` (unknown) ones are accepted.
-# @param shape_in (`integer()`) The input shape, for the error message.
-# @param id (`character(1)` | `NULL`) The PipeOp's id, `NULL` when called outside a PipeOp.
+#' @title Assert that a Computed Output Size is Positive
+#'
+#' @description
+#' Rejects a computed output size that no tensor can have, i.e. one that is not a positive number.
+#' Operators such as convolutions and pooling compute their spatial output sizes from `kernel_size`,
+#' `stride`, `padding` and `dilation`, a combination of which can produce a size of zero or less.
+#' Unknown (`NA`) sizes are accepted, since nothing can be said about them.
+#'
+#' @param extent (`numeric()`)\cr
+#'   The sizes an operator computed for the dimensions it changes, e.g. the spatial dimensions of a
+#'   convolution.
+#' @param shape_in (`integer()`)\cr
+#'   The input shape, used for the error message.
+#' @param id (`character(1)` | `NULL`)\cr
+#'   The id of the [`PipeOp`][mlr3pipelines::PipeOp], which the error message names.
+#'   `NULL` when the assertion is not made for a `PipeOp`.
+#'
+#' @return The extent, invisibly.
+#'
+#' @family Shape Assertions
+#' @examples
+#' assert_positive_extent(c(30, NA), c(NA, 3, 32, 32), id = "nn_conv2d")
+#' try(assert_positive_extent(c(0, 4), c(NA, 3, 32, 32), id = "nn_conv2d"))
+#' @export
 assert_positive_extent = function(extent, shape_in, id) {
   invalid = !is.na(extent) & (!is.finite(extent) | extent < 1)
   if (!any(invalid)) {
@@ -314,10 +524,25 @@ assert_positive_extent = function(extent, shape_in, id) {
     paste0(extent, collapse = ", "))
 }
 
-# Rejects inputs that do not all have the same number of dimensions, which the operators that
-# combine several inputs require: we do not left-pad shorter shapes with 1s (batch dim)
-# @param shapes (`list()` of `integer()`) The input shapes.
-# @param id (`character(1)`) The PipeOp's id, for the error message.
+#' @title Assert that Shapes have the Same Number of Dimensions
+#'
+#' @description
+#' Rejects inputs that do not all have the same number of dimensions, which the operators that
+#' combine several inputs require: shorter shapes are not left-padded with 1s, because the first
+#' dimension is the batch dimension.
+#'
+#' @param shapes (`list()` of `integer()`)\cr
+#'   The input shapes.
+#' @param id (`character(1)`)\cr
+#'   The id of the [`PipeOp`][mlr3pipelines::PipeOp], which the error message names.
+#'
+#' @return The shapes, invisibly.
+#'
+#' @family Shape Assertions
+#' @examples
+#' assert_same_ndim(list(c(NA, 3), c(NA, 5)), id = "nn_merge_cat")
+#' try(assert_same_ndim(list(c(NA, 3), c(NA, 5, 2)), id = "nn_merge_cat"))
+#' @export
 assert_same_ndim = function(shapes, id) {
   ndim = map_int(shapes, length)
   if (length(unique(ndim)) == 1L) {
@@ -325,6 +550,41 @@ assert_same_ndim = function(shapes, id) {
   }
   stopf("PipeOp '%s' requires all its inputs to have the same number of dimensions, but got the shapes %s (with %s dimensions).", # nolint
     id, shape_to_str(shapes), paste0(ndim, collapse = ", "))
+}
+
+#' @title Assert that Shapes have the Same Batch Size
+#'
+#' @description
+#' Rejects inputs whose batch sizes, i.e. first dimensions, disagree. An unknown (`NA`) batch size
+#' is compatible with any other, so only the known ones have to agree.
+#'
+#' Unlike the other assertions this returns the common batch size rather than its input, because
+#' that is what the caller needs next: an operator that drops the batch dimension while it works
+#' has to put it back afterwards.
+#'
+#' @param shapes (`list()` of `integer()`)\cr
+#'   The input shapes.
+#' @param id (`character(1)`)\cr
+#'   The id of the [`PipeOp`][mlr3pipelines::PipeOp], which the error message names.
+#'
+#' @return (`integer(1)`) The common batch size, invisibly, or `NA_integer_` if no input has a
+#'   known one.
+#'
+#' @family Shape Assertions
+#' @examples
+#' assert_same_batch_size(list(c(8, 3), c(8, 5)), id = "nn_block")
+#' # an unknown batch size is compatible with a known one, which is the one that is returned
+#' assert_same_batch_size(list(c(NA, 3), c(8, 5)), id = "nn_block")
+#' try(assert_same_batch_size(list(c(8, 3), c(4, 5)), id = "nn_block"))
+#' @export
+assert_same_batch_size = function(shapes, id) {
+  batch = map_int(shapes, function(shape) as.integer(shape[[1L]]))
+  known = unique(batch[!is.na(batch)])
+  if (length(known) > 1L) {
+    stopf("PipeOp '%s' requires all its inputs to have the same batch size, but got the shapes %s (with the batch sizes %s).", # nolint
+      id, shape_to_str(shapes), paste0(known, collapse = " and "))
+  }
+  invisible(if (length(known)) known else NA_integer_)
 }
 
 check_rgb_shape = function(shape) {
@@ -358,26 +618,21 @@ assert_grayscale_or_rgb = function(shape) {
     .var.name = "Second dimension is 3 for RGB images or 1 for grayscale images")
 }
 
-# The values that `infer_shapes()` fills in for the unknown dimensions before tracing a shape
-# through a function. They span a wide range on purpose, because both ends are needed:
+# Sizes that `infer_shapes()` substitutes for *all* `NA`s of a shape, one per trace: a dimension
+# that comes out the same for every filling is known, one that varies with it is not.
 #
-# * Large values are needed because operators that require a minimum extent fail on small ones -- a
-#   convolution with a large kernel, for example -- which would reject a shape that is valid at
-#   runtime.
-# * A small value is needed because several operators clamp to the input size instead:
-#   `x[, 1:32]` and `transform_crop(height = 16)` return the input extent when it is smaller than
-#   the requested one. Their output is therefore genuinely unknown, and tracing with large values
-#   only would report it as known -- the traced value would then disagree with the tensor that the
-#   network sees at runtime.
+# One small and two large values, because the two ends catch different operators: those with a
+# minimum extent (a convolution with a large kernel) fail on a small input, while those that clamp
+# to the input size (`x[, 1:32]`, `transform_crop(height = 16)`) look size-preserving unless traced
+# small. A filling that fails is dropped by the caller, so covering both ends is free.
+# No filling may be 1, which broadcasts and is squeezed away, changing the rank of the trace.
 #
-# None of the values may be 1: a dimension of size 1 broadcasts against everything and is squeezed
-# away by operators such as `torch_squeeze()`, which changes the number of output dimensions.
-# A trace that fails is dropped by `infer_shapes()`, so the small value costs nothing for operators
-# that cannot handle it.
 # @param shape (`integer()`) The shape whose `NA`s are replaced; only the number of unknown
-#   dimensions and the size of the known ones matter.
-# @param max_elements (`numeric(1)`) The number of elements the traced tensor may have. The
-#   returned values are lowered to stay below it, which matters when many dimensions are unknown.
+#   dimensions and the product of the known ones matter.
+# @param max_elements (`numeric(1)`) How many elements a traced tensor may have. Smaller fillings
+#   are returned when the largest ones would exceed it, i.e. for many unknown or large known
+#   dimensions.
+# @return (`integer(3)`) The fillings, smallest first.
 na_replacements = function(shape, max_elements = 1e7) {
   n_unknown = sum(is.na(shape))
   candidates = list(c(2L, 83L, 89L), c(2L, 23L, 29L), c(2L, 7L, 11L), c(2L, 3L, 5L))
@@ -398,14 +653,14 @@ na_replacements = function(shape, max_elements = 1e7) {
 #' @title Infer Shapes
 #' @description
 #' Infer the shapes of the output of a function based on the shapes of the input.
+#' This works by running the function on the input and observing the results.
+#' For fully known input shapes this is always correct.
+#' For partially unknown shapes, the `NA`s are replaced with various concrete values
+#' and the output shape is computed from them.
+#' Note that this is a heuristic that might fail, so usually one wants to provide the shape
+#' (inference) explicitly.
 #'
-#' This is a heuristic and is only used for operators that the *user* supplies, i.e. [`nn_fn`][mlr3torch::mlr_pipeops_nn_fn]
-#' without a `shapes_out` argument and [`pipeop_preproc_torch()`] with `shapes_out = "infer"`.
-#' Every operator that `mlr3torch` itself provides computes its output shapes exactly.
-#' Tracing cannot be exact: the function is only called for a few input sizes, so a dimension that
-#' happens to be the same for all of them is reported as known, even when it varies for other
-#' inputs.
-#' Specify the output shapes explicitly if this matters.
+#' @details
 #'
 #' The inference is done as follows:
 #' 1. All `NA`s are replaced with three different values, which span a wide range: none of them is
@@ -435,6 +690,7 @@ na_replacements = function(shape, max_elements = 1e7) {
 #'   The id of the PipeOp (for error messages).
 #' @return (`list()`)\cr
 #'   A list of shapes of the output tensors.
+#' @family Shape Inference
 #' @export
 infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
   assert_shapes(shapes_in)

@@ -21,7 +21,7 @@ PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
     #' @template params_pipelines
     initialize = function(id = "nn_softmax", param_vals = list()) {
       param_set = ps(
-        # negative values count down from the last dimension, `.shapes_out()` checks the range
+        # negative values count down from the last dimension
         dim = p_int(tags = c("train", "required"))
       )
       super$initialize(

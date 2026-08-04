@@ -161,8 +161,6 @@ register_po("nn_conv3d", PipeOpTorchConv3D)
 
 
 conv_output_shape = function(shape_in, conv_dim, padding, dilation, stride, kernel_size, out_channels = NULL, ceil_mode = FALSE, id = NULL) { # nolint
-  # the batch dimension is part of the contract: the PipeOp asserts it via assert_ndim(), and
-  # dimension 2 is only the channel dimension if it is there
   shape_in = assert_integerish(shape_in, len = conv_dim + 2L, coerce = TRUE)
   shape_tail = utils::tail(shape_in, conv_dim)
   spatial = (if (ceil_mode) base::ceiling else base::floor)((shape_tail + 2 * padding - dilation * (kernel_size - 1) - 1) / stride + 1) # nolint

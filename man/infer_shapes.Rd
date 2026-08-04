@@ -31,15 +31,14 @@ A list of shapes of the output tensors.
 }
 \description{
 Infer the shapes of the output of a function based on the shapes of the input.
-
-This is a heuristic and is only used for operators that the \emph{user} supplies, i.e. \code{\link[=mlr_pipeops_nn_fn]{nn_fn}}
-without a \code{shapes_out} argument and \code{\link[=pipeop_preproc_torch]{pipeop_preproc_torch()}} with \code{shapes_out = "infer"}.
-Every operator that \code{mlr3torch} itself provides computes its output shapes exactly.
-Tracing cannot be exact: the function is only called for a few input sizes, so a dimension that
-happens to be the same for all of them is reported as known, even when it varies for other
-inputs.
-Specify the output shapes explicitly if this matters.
-
+This works by running the function on the input and observing the results.
+For fully known input shapes this is always correct.
+For partially unknown shapes, the \code{NA}s are replaced with various concrete values
+and the output shape is computed from them.
+Note that this is a heuristic that might fail, so usually one wants to provide the shape
+(inference) explicitly.
+}
+\details{
 The inference is done as follows:
 \enumerate{
 \item All \code{NA}s are replaced with three different values, which span a wide range: none of them is
@@ -58,3 +57,9 @@ between the tensors and otherwise set to the unique value.
 }
 }
 }
+\seealso{
+Other Shape Inference:
+\code{\link[=reshape_output_shape]{reshape_output_shape()}},
+\code{\link[=shape_to_str]{shape_to_str()}}
+}
+\concept{Shape Inference}

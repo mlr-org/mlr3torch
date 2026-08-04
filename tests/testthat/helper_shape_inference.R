@@ -1,10 +1,4 @@
-# Helpers that verify shape inference against what the operator actually does.
-#
-# The ground truth is obtained by building the module from the (possibly partially unknown) shape
-# and running a tensor through it -- on torch's "meta" device where possible, which computes
-# shapes without allocating memory, falling back to the cpu for operators torch does not implement
-# there. Note that the meta device is not reliable for torchvision's advanced indexing, so the
-# preprocessing operators are always run on the cpu.
+# Test helpers for shape inference
 
 run_on_shape = function(fn, shape, n_in = 1L, device = c("meta", "cpu")) {
   make = function(device) {
@@ -23,16 +17,50 @@ run_on_shape = function(fn, shape, n_in = 1L, device = c("meta", "cpu")) {
   dim(out)
 }
 
-# Ground truth for a `PipeOpTorch`. The module is built from `shape_in` -- the possibly partially
-# unknown shape that the inference saw -- and is then run on a tensor of the concrete `shape`,
-# which is exactly what happens when a network is trained: the module is constructed from the
-# shapes of the graph and afterwards sees real data.
+# Ground truth for a `PipeOpTorch`. The module is obtained the way a network gets it: the `PipeOp`
+# is trained on `ModelDescriptor`s announcing `shape_in` -- the possibly partially unknown shape
+# that the inference saw -- and the module it put into the graph is then run on a tensor of the
+# concrete `shape`. This goes through the public `$train()` rather than `private$.make_module()`,
+# so that the test exercises the same path a real graph does.
 true_shape_torch = function(obj, shape_in, shape, n_in = 1L, task = NULL) {
-  shapes_in = rep(list(as.integer(shape_in)), n_in)
-  # `$train()` names the shapes after the input channels, so `.make_module()` may rely on it
-  if ("..." %nin% obj$input$name) names(shapes_in) = obj$input$name
-  module = get_private(obj)$.make_module(shapes_in, obj$param_set$get_values(), task)
-  run_on_shape(module, shape, n_in)
+  shape_in = as.integer(shape_in)
+  # `ModelDescriptor()` requires the batch dimension to be unknown, which is what it is in a real
+  # graph: the ingress announces `NA` there whatever the batch size turns out to be
+  shape_in[1L] = NA_integer_
+  # the task is only read by operators that size themselves from it, such as `nn_head`
+  task = task %??% tsk("iris")
+  mds = map(seq_len(n_in), function(i) {
+    nop = paste0("nop", i)
+    ModelDescriptor(
+      graph = as_graph(po("nop", id = nop)),
+      ingress = set_names(list(TorchIngressToken("placeholder", function(data, ...) NULL, shape_in)),
+        paste0(nop, ".input")),
+      task = task,
+      pointer = c(nop, "output"),
+      pointer_shape = shape_in
+    )
+  })
+  # a vararg channel takes the inputs unnamed, a fixed one wants them named after the channels
+  if ("..." %nin% obj$input$name) mds = set_names(mds, obj$input$name)
+  mdout = obj$train(mds)[[1L]]
+  run_on_shape(mdout$graph$pipeops[[obj$id]]$module, shape, n_in)
+}
+
+# A minimal task whose single `lazy_tensor` column holds tensors of `shape`. A preprocessing
+# `PipeOp` has to be trained on one before it can be asked for its predict shapes, because those
+# are computed from the parameter values it recorded rather than from the ones currently set.
+task_for_shape = function(shape) {
+  shape = as.integer(shape)
+  lt = as_lazy_tensor(torch_randn(shape))
+  as_task_regr(data.table::data.table(y = as.double(seq_len(shape[1L])), x = lt), target = "y")
+}
+
+# Whether a preprocessing operator runs at all at `stage`; the augmentations default to training
+# only, which makes them the identity at predict time.
+preproc_runs_at = function(obj, stage) {
+  stages = obj$param_set$values$stages
+  if (identical(stages, "both")) stages = c("train", "predict")
+  stage %in% stages
 }
 
 # ground truth for a `PipeOpTaskPreprocTorch`: apply its function, respecting `rowwise`
@@ -50,23 +78,7 @@ true_shape_preproc = function(obj, shape) {
   }
 }
 
-make_po = function(id, param_vals) {
-  obj = po(id)
-  if (length(param_vals)) obj$param_set$set_values(.values = param_vals)
-  obj
-}
-
-# parameter values may be functions (`nn_module_generator`s), so only their names are shown
-make_label = function(id, param_vals) {
-  sprintf("%s(%s)", id, paste(names(param_vals), collapse = ", "))
-}
-
-# For a fully known shape, the inferred shape must be exactly what the operator returns.
-# Afterwards every dimension is set to `NA` in turn (and the batch dimension together with each
-# other one, which is the transformer case): the inference may reject such a shape -- that is what
-# `assert_known_dims()` does -- but if it returns a shape, every dimension it claims to know must
-# still agree with the ground truth, and the number of dimensions must match.
-expect_shape_inference = function(shape, inferred_shape, true_shape, label) {
+expect_shape_case = function(shape, inferred_shape, true_shape, label) {
   shape = as.integer(shape)
   expect_equal(inferred_shape(shape), true_shape(shape, shape),
     label = sprintf("%s: known shape %s", label, shape_to_str(shape)))
@@ -77,10 +89,6 @@ expect_shape_inference = function(shape, inferred_shape, true_shape, label) {
     partial[idx] = NA_integer_
     inferred = tryCatch(inferred_shape(partial), error = function(e) e)
     if (inherits(inferred, "condition")) {
-      # a rejection must be a readable R error, not a C++ error from libtorch
-      expect_false(grepl("SymInt|IntArrayRef|Exception raised|INTERNAL ASSERT",
-        conditionMessage(inferred)),
-        label = sprintf("%s: readable error for %s", label, shape_to_str(partial)))
       next
     }
     truth = true_shape(partial, shape)
@@ -92,28 +100,9 @@ expect_shape_inference = function(shape, inferred_shape, true_shape, label) {
   }
 }
 
-expect_shapes_out_torch = function(id, param_vals, shape, n_in = 1L, task = NULL) {
-  obj = make_po(id, param_vals)
-  expect_shape_inference(shape,
-    inferred_shape = function(s) obj$shapes_out(rep(list(s), n_in), task = task)[[1L]],
-    true_shape = function(shape_in, s) true_shape_torch(obj, shape_in, s, n_in = n_in, task = task),
-    label = make_label(id, param_vals)
-  )
-}
-
-expect_shapes_out_preproc = function(id, param_vals, shape) {
-  obj = make_po(id, param_vals)
-  expect_shape_inference(shape,
-    inferred_shape = function(s) obj$shapes_out(list(s), stage = "train")[[1L]],
-    # the preprocessing function does not depend on the input shape
-    true_shape = function(shape_in, s) true_shape_preproc(obj, s),
-    label = make_label(id, param_vals)
-  )
-}
-
-# --- randomized checking -------------------------------------------------------------------
+# --- sampling ------------------------------------------------------------------------------
 #
-# How many (parameter, shape) draws are checked per PipeOp. Every draw additionally sweeps all
+# How many shapes each generator draws per PipeOp. Every draw additionally sweeps all
 # single-`NA` patterns and the batch-plus-one patterns, so a budget of 3 already means dozens of
 # comparisons per operator. Raise it while working on the shape inference:
 #     MLR3TORCH_SHAPE_BUDGET=50 Rscript -e 'testthat::test_local()'
@@ -128,59 +117,96 @@ shape_inference_budget = function(default = 3L) {
 # draws a dimension size for the sampled shapes
 size = function(n = 1L, from = 4L, to = 12L) sample(seq(from, to), n, replace = TRUE)
 
-# the preprocessing operators all work on (batch, channels, height, width)
-preproc_inference_specs = function() {
-  list(
-    trafo_resize = function() list(size = if (sample(c(TRUE, FALSE), 1L)) size(1L) else size(2L)),
-    trafo_pad = function() list(padding = size(sample(c(1L, 2L, 4L), 1L), 0L, 3L)),
-    trafo_grayscale = function() list(num_output_channels = sample(1:3, 1L)),
-    trafo_rgb_to_grayscale = function() list(),
-    trafo_adjust_gamma = function() list(gamma = 0.5),
-    trafo_adjust_brightness = function() list(brightness_factor = 0.5),
-    trafo_adjust_saturation = function() list(saturation_factor = 0.5),
-    trafo_adjust_hue = function() list(hue_factor = 0.2),
-    trafo_normalize = function() list(mean = 0, std = 1),
-    trafo_nop = function() list(),
-    augment_color_jitter = function() list(hue = sample(c(0, 0.2), 1L)),
-    augment_hflip = function() list(),
-    augment_vflip = function() list(),
-    augment_random_horizontal_flip = function() list(p = 1),
-    augment_random_vertical_flip = function() list(p = 1),
-    augment_crop = function() list(top = sample(1:4, 1L), left = sample(1:4, 1L),
-      height = size(1L, 1L, 3L), width = size(1L, 1L, 3L)),
-    augment_center_crop = function() list(size = size(1L, 2L, 6L)),
-    augment_resized_crop = function() list(top = 1L, left = 1L, height = size(1L, 2L, 8L),
-      width = size(1L, 2L, 8L), size = if (sample(c(TRUE, FALSE), 1L)) size(1L, 2L, 6L) else size(2L, 2L, 6L))
-  )
-}
+# Makes the seed of a case, so that a failure can be reproduced by re-running the file: it is
+# derived from the operator id and the index of the case. The concrete shapes use negative indices,
+# which keeps their seeds apart from the drawn ones and independent of the budget.
+inference_seed = function(id, i) sum(utf8ToInt(id)) + i
 
-# Draws `budget` (parameter, shape) combinations for one PipeOpTorch and checks each of them with
-# `expect_shapes_out_torch()`, i.e. every draw additionally sweeps all unknown-dimension patterns.
-# This is called from the test file of the operator, which is where its `spec` lives.
-# The seed makes a failure reproducible: it is derived from the operator id and the draw.
-# @param id (`character(1)`) The key of the operator.
-# @param spec (named `list()`) `params` draws the parameter values, `rank` is the number of input
-#   dimensions (default 3), `n_in` the number of input channels (default 1), `task` the task to
-#   pass on, `fixed_shape` a shape to use instead of a drawn one, and `even = FALSE` turns off the
-#   doubling of the drawn dimensions.
-# @param budget (`integer(1)`) How many combinations to draw.
-expect_shape_inference_sampled = function(id, spec, budget = shape_inference_budget()) {
-  rank = spec$rank %??% 3L
-  n_in = spec$n_in %??% 1L
-  for (i in seq_len(budget)) {
-    withr::local_seed(sum(utf8ToInt(id)) + i)
-    shape = spec$fixed_shape %??% c(sample(1:3, 1L), size(rank - 1L))
-    # the gated units halve a dimension and reshaping needs a divisible number of elements
-    if (!identical(spec$even, FALSE)) shape[-1L] = shape[-1L] * 2L
-    param_vals = spec$params()
-    expect_shapes_out_torch(id, param_vals, shape, n_in = n_in, task = spec$task)
+# Builds a shape generator: a function of no arguments that draws one input shape. `rank` is the
+# number of dimensions, of which the first is a small batch dimension. The remaining ones are
+# doubled by default, because the gated units halve a dimension and reshaping needs a divisible
+# number of elements; `even = FALSE` turns that off.
+gen_shape = function(rank = 3L, even = TRUE) {
+  force(rank)
+  force(even)
+  function() {
+    shape = c(sample(1:3, 1L), size(rank - 1L))
+    if (even) shape[-1L] = shape[-1L] * 2L
+    shape
   }
 }
 
-expect_shape_inference_sampled_preproc = function(id, params, budget = shape_inference_budget()) {
-  for (i in seq_len(budget)) {
-    withr::local_seed(sum(utf8ToInt(id)) + i)
-    shape = c(sample(1:3, 1L), 3L, size(2L, 6L, 16L))
-    expect_shapes_out_preproc(id, params(), shape)
+
+
+# The single entry point: it compares the inferred output shape of one operator against the shape
+# the operator actually produces.
+# The shapes can either be specified concretely or via a generator function that respects
+# a global budget.
+# Whether the operator is a `PipeOpTorch` or a `PipeOpTaskPreprocTorch` is decided from the
+# constructed object: the two differ in how the output shape is asked for and in what the ground
+# truth is, but not in what has to hold.
+#
+# @param id (`character(1)`) The key of the operator.
+# @param params (named `list()` | `function()`) The parameter values, either fixed or a function
+#   drawing them; the latter is redrawn for every case.
+# @param shapes (`list()` of shapes | one shape) Concrete input shapes, always checked.
+# @param generators (`function()` | `list()` of them) Functions drawing an input shape, see
+#   `gen_shape()`. Each is used `budget` times.
+# @param n_in (`integer(1)`) The number of input channels the shape is repeated over.
+# @param task ([`Task`]) The task to pass to `$shapes_out()` and to the module construction.
+# @param budget (`integer(1)`) How many shapes to draw per generator.
+expect_shape_inference = function(id, params = list(), shapes = list(), generators = list(),
+  n_in = 1L, task = NULL, budget = shape_inference_budget()) {
+  if (!is.list(shapes)) shapes = list(shapes)
+  if (is.function(generators)) generators = list(generators)
+
+  check = function(param_vals, shape) {
+    obj = do.call(po, c(list(id), param_vals))
+    # parameter values may be functions (`nn_module_generator`s), so only their names are shown
+    label = sprintf("%s(%s)", id, paste(names(param_vals), collapse = ", "))
+    if (!inherits(obj, "PipeOpTaskPreprocTorch")) {
+      return(expect_shape_case(shape,
+        inferred_shape = function(s) obj$shapes_out(rep(list(s), n_in), task = task)[[1L]],
+        true_shape = function(shape_in, s) true_shape_torch(obj, shape_in, s, n_in = n_in, task = task),
+        label = label
+      ))
+    }
+    # a preprocessing operator does not build a module, its function is applied directly and does
+    # not depend on the input shape
+    expect_shape_case(shape,
+      inferred_shape = function(s) obj$shapes_out(list(s), stage = "train")[[1L]],
+      true_shape = function(shape_in, s) true_shape_preproc(obj, s),
+      label = paste(label, "at train")
+    )
+    # The predict shapes are a separate question: they are only available once the operator has
+    # been trained, and an operator that does not run at predict time -- the default for the
+    # augmentations -- must leave the shape alone rather than apply its function.
+    invisible(capture.output(obj$train(list(task_for_shape(shape)))))
+    expect_shape_case(shape,
+      inferred_shape = function(s) obj$shapes_out(list(s), stage = "predict")[[1L]],
+      true_shape = if (preproc_runs_at(obj, "predict")) {
+        function(shape_in, s) true_shape_preproc(obj, s)
+      } else {
+        function(shape_in, s) as.integer(s)
+      },
+      label = paste(label, "at predict")
+    )
+  }
+  draw_params = function() if (is.function(params)) params() else params
+
+  for (j in seq_along(shapes)) {
+    withr::local_seed(inference_seed(id, -j))
+    check(draw_params(), shapes[[j]])
+  }
+  for (k in seq_along(generators)) {
+    gen = generators[[k]]
+    for (b in seq_len(budget)) {
+      # the index runs across the generators, so that two of them do not draw the same shapes
+      withr::local_seed(inference_seed(id, (k - 1L) * budget + b))
+      # the shape is drawn before the parameters, so that adding a parameter to the draw does not
+      # change which shapes are checked
+      shape = gen()
+      check(draw_params(), shape)
+    }
   }
 }

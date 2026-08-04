@@ -16,14 +16,6 @@
 #
 # Intentional deviations from upstream:
 #
-#  * Categorical features are encoded with **1-based** integer codes, because that is what
-#    our `batchgetter_categ()` produces and what R torch's `nnf_one_hot()` expects.
-#    Upstream uses 0-based codes.
-#  * The one-hot encoding is cast to float, as `paper/bin/model.py` does. Upstream's
-#    `_OneHotEncoding` returns a `long` tensor, which is implicitly promoted as soon as
-#    numerical features are concatenated, so the cast changes nothing for the supported
-#    architectures. It makes the purely categorical case robust rather than relying on that
-#    promotion.
 #  * `share_training_batches = FALSE` is NOT supported: `forward()` only accepts
 #    two-dimensional `x_num` / `x_cat`, so all k submodels always see the same batch.
 #  * `activation` additionally accepts an `nn_module_generator` or a function returning an
@@ -904,7 +896,7 @@ nn_tabm = nn_module("nn_tabm",
     }
   },
   forward = function(x_num = NULL, x_cat = NULL) {
-    # When a task has only one input tensor, we call the network by position
+    # When a task has only one input tensor, mlr3torch calls the network *by position*
     # (see `learner_torch_train()`), so a purely categorical task arrives in `x_num`.
     if (self$n_num_features == 0L && is.null(x_cat)) {
       x_cat = x_num

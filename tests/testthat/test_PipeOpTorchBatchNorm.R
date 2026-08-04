@@ -55,9 +55,9 @@ test_that("jit_trace works (#354)", {
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_batch_norm1d", list(), c(2, 3, 17))
-  expect_shapes_out_torch("nn_batch_norm2d", list(), c(2, 3, 8, 8))
-  expect_shapes_out_torch("nn_batch_norm3d", list(), c(2, 3, 5, 5, 5))
+  expect_shape_inference("nn_batch_norm1d", list(), c(2, 3, 17))
+  expect_shape_inference("nn_batch_norm2d", list(), c(2, 3, 8, 8))
+  expect_shape_inference("nn_batch_norm3d", list(), c(2, 3, 5, 5, 5))
 })
 
 test_that("shape inference requires the feature dimension", {
@@ -67,7 +67,6 @@ test_that("shape inference requires the feature dimension", {
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
   for (d in 1:3) {
-    expect_shape_inference_sampled(sprintf("nn_batch_norm%id", d),
-      list(rank = d + 2L, params = function() list()))
+    expect_shape_inference(sprintf("nn_batch_norm%id", d), generators = gen_shape(d + 2L))
   }
 })

@@ -26,11 +26,14 @@ For an explanation see \code{\link{PipeOpTorch}}.
 
 \section{Internals}{
 
-Per default, the \code{private$.shapes_out()} method outputs the broadcasted tensors. There are two things to be aware:
+Per default, the \code{private$.shapes_out()} method outputs the shape that the inputs broadcast to.
+There are two things to be aware of:
 \enumerate{
-\item \code{NA}s are assumed to batch (this should almost always be the batch size in the first dimension).
+\item Broadcasting is generalized to unknown (\code{NA}) sizes: per dimension a known size that is not 1
+wins, and the result is only unknown when every input is either unknown or 1, because an
+unknown size may turn out to be greater than 1 and would then determine the size.
 \item Tensors are expected to have the same number of dimensions, i.e. missing dimensions are not filled with 1s.
-The reason is again that the first dimension should be the batch dimension.
+The reason is that the first dimension should be the batch dimension.
 This private method can be overwritten by \code{\link{PipeOpTorch}}s inheriting from this class.
 }
 }

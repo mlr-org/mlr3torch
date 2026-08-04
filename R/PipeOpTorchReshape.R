@@ -12,8 +12,8 @@
 #'   shape, e.g. `\(shape) c(shape[1:2], 10)`. This expresses a reshape for inputs whose sizes are
 #'   not known in advance, because the function is called again on the shape of the actual tensor
 #'   when the network runs. Note that it is called with a shape that can contain `NA`s during shape
-#'   inference, and that it is stored with the learner, so it should not capture a large
-#'   environment.
+#'   inference.
+#'   This is e.g. useful when there are multiple unknown dimensions such as `(batch, sequence, ...)`.
 #' @templateVar id nn_reshape
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
@@ -45,11 +45,6 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       list(reshape_output_shape(shapes_in[[1L]], param_vals$shape, self$id))
-    },
-    .shape_dependent_params = function(shapes_in, param_vals, task) {
-      # a function is passed on unchanged: the module calls it on the shape of the tensor it gets,
-      # which is the only place where a dimension that the inference does not know is available
-      param_vals
     }
   )
 )
@@ -60,7 +55,7 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
 #' Calls [`nn_squeeze()`] when trained.
 #' @section Parameters:
 #' * `dim` :: `integer()`\cr
-#'   The dimensions to squeeze, which may include the batch dimension.
+#'   The dimensions to squeeze.
 #'   Negative values are interpreted downwards from the last dimension.
 #'   A dimension whose size is not known to be 1 is kept, because it may be larger at runtime.
 #' @templateVar id nn_squeeze
@@ -89,18 +84,15 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1]]
-      # `dim` may select more than one dimension, which `nn_squeeze()` supports
       dim = param_vals$dim
       true_dim = dim
       true_dim = resolve_dim(true_dim, shape)
-      # the range is checked before deduplication, so the reported value is the user's
       for (i in seq_along(dim)) {
         assert_dim_in_range(dim[[i]], true_dim[[i]], shape, self$id)
       }
       true_dim = unique(true_dim)
 
       # an unknown dimension is assumed not to be 1 and is kept;
-      # `.shape_dependent_params()` pins the module to the dimensions squeezed here
       squeezed = true_dim[!is.na(shape[true_dim]) & shape[true_dim] == 1L]
       if (length(squeezed)) shape = shape[-squeezed]
 
@@ -108,13 +100,9 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       dim = param_vals[["dim"]]
-      # the dimensions that are known to be 1 are selected below, which indexes `shape` and
-      # therefore needs positive indices: in R, `shape[-1]` drops the first element instead of
-      # addressing the last one
       shape = shapes_in[[1L]]
       dim = resolve_dim(dim, shape)
-      # only dimensions that are known to be 1 are squeezed, so that an unknown dimension which
-      # happens to be 1 at runtime does not disagree with the inferred shape
+      # Only squeeze those that are definitely 1
       param_vals$dim = unique(dim[!is.na(shape[dim]) & shape[dim] == 1L])
       param_vals
     }

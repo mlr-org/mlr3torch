@@ -52,8 +52,6 @@ PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
       shapes_in
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      # note that the bound is the number of dimensions of the input shape, not the number
-      # of input channels (of which there is exactly one)
       assert_int(param_vals$dims, upper = length(shapes_in[[1L]]))
       param_vals$normalized_shape = utils::tail(shapes_in[[1L]], param_vals$dims)
       param_vals$dims = NULL

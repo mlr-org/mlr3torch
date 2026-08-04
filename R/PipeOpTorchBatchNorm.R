@@ -37,11 +37,7 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
       # the number of dimensions is checked first, so that a shape that is too short is not
       # reported as having an unknown feature dimension
       shape = shapes_in[[1L]]
-      if (length(shape) < private$.min_dim || length(shape) > private$.max_dim) {
-        stopf("PipeOp '%s' requires an input with %s dimensions (the first one being the batch dimension), but got the shape %s, which has %i.", # nolint
-          self$id, if (private$.min_dim == private$.max_dim) as.character(private$.min_dim) else
-            sprintf("%i or %i", private$.min_dim, private$.max_dim), shape_to_str(shape), length(shape))
-      }
+      assert_ndim(shape, id = self$id, min = private$.min_dim, max = private$.max_dim)
       assert_known_dims(shape, 2L, "the feature dimension (dimension 2)", self$id)
       list(shape)
     },

@@ -42,18 +42,27 @@
 #'   (`list()`, `list()`, [`Task`][mlr3::Task] or `NULL`) -> named `list()`\cr
 #'   This private method gets a list of `integer` vectors (`shapes_in`), the parameter values (`param_vals`),
 #'   as well as an (optional) [`Task`][mlr3::Task].
-#    The `shapes_in` list indicates the shape of input tensors that will be fed to the module's `$forward()` function.
-#    The list has one item per input tensor, typically only one.
-#    The function should return a list of shapes of tensors that are created by the module.
+#'   The `shapes_in` list indicates the shape of input tensors that will be fed to the module's `$forward()` function.
+#'   The list has one item per input tensor, typically only one.
+#'   The function should return a list of shapes of tensors that are created by the module.
 #'   The `shapes_in` are named after the input channels of the `PipeOp` and are in the same order.
 #'   The output shapes must be in the same order as the output names of the `PipeOp`.
 #'   In case the output shapes depends on the task (as is the case for [`PipeOpTorchHead`]), the function should return
 #'   valid output shapes (possibly containing `NA`s) if the `task` argument is provided or not.
-#'   It is important to properly handle the presence of `NA`s in the input shapes:
-#'   any dimension can be unknown, not just the batch dimension.
-#'   If the [`PipeOp`][mlr3pipelines::PipeOp] cannot work with a specific dimension being unknown,
-#'   it must throw an informative error, see e.g. the helper `assert_known_dims()`.
-#'   The method can also throw an error if the input shapes violate some assumptions.
+#'   Any dimension of `shapes_in` can be `NA`, i.e. unknown, so this method must not assume that a
+#'   dimension it reads is known.
+#'   It has to assert the dimensions it actually needs and propagate the `NA`s it can live with.
+#'
+#'   The inference should generally be **permissive**. For example, applying a convolutional layer
+#'   to an input of shape `c(NA, 3, NA, NA)` should assume that the last two dimensions are big
+#'   enough for the given kernel size.
+#'   This can sometimes lead to runtime errors but this is preferable over rejecting valid
+#'   architectures.
+#'  
+#'   There are various assertion helpers for common input checks, such as [`assert_known_dims()`] and the
+#'   "See also" links on its page.
+#'    There are also [`shape_helpers`], which provide the shape
+#'   arithmetic (broadcasting, resolving negative dimension indices).
 #' * `.shape_dependent_params(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`) -> named `list()`\cr
 #'   This private method has the same inputs as `.shapes_out`.
@@ -64,6 +73,25 @@
 #' @section Input and Output Channels:
 #' During *training*, all inputs and outputs are of class [`ModelDescriptor`].
 #' During *prediction*, all input and output channels are of class [`Task`][mlr3::Task].
+#'
+#' @section Shape Inference:
+#' A network is assembled without any data flowing through it, so \pkg{mlr3torch} tracks the shape
+#' of the tensors instead: it starts from the shape the ingress announces and hands each `PipeOp`
+#' the shapes of its inputs, which is how auxiliary parameters such as `in_features` of
+#' [`nn_linear`][torch::nn_linear] are filled in automatically.
+#'
+#' A shape is an `integer()` whose first entry is the batch dimension, e.g. `c(NA, 3, 32, 32)` for a
+#' batch of RGB images of 32 by 32 pixels. A dimension whose size is not known in advance is `NA`,
+#' and any dimension can be `NA`, not only the batch dimension: the sequence length of a
+#' transformer or the height and width of an image may equally well vary.
+#'
+#' The public `$shapes_out()` method answers the same question for a single `PipeOp`, without
+#' building a network around it, which is the quickest way to see what an operator makes of a given
+#' input shape. It is also what reports the problem when an operator needs a dimension that is
+#' unknown, naming the `PipeOp` and the shape it was given.
+#'
+#' Implementing a `PipeOp` that computes its own output shapes is described under `.shapes_out()` in
+#' the "Inheriting" section above.
 #'
 #' @template pipeop_torch_state_default
 #'
@@ -227,6 +255,18 @@
 #' predict_input = list(input1 = task1, input2 = task2)
 #' tasks_out = do.call(po_torch$predict, args = list(input = predict_input))
 #' identical(tasks_out[[1L]], tasks_out[[2L]])
+#'
+#' ## Shape inference
+#'
+#' # `$shapes_out()` reports what an operator makes of an input shape, without building a network
+#' conv = po("nn_conv2d", out_channels = 4, kernel_size = 3)
+#' conv$shapes_out(list(c(NA, 3, 32, 32)))
+#'
+#' # any dimension may be unknown, so images of varying size work just as well
+#' conv$shapes_out(list(c(NA, 3, NA, NA)))
+#'
+#' # a dimension the operator does need is reported, naming the PipeOp and the shape it was given
+#' try(conv$shapes_out(list(c(NA, NA, 32, 32))))
 PipeOpTorch = R6Class("PipeOpTorch",
   inherit = PipeOp,
   cloneable = TRUE,
@@ -292,8 +332,10 @@ PipeOpTorch = R6Class("PipeOpTorch",
     shapes_out = function(shapes_in, task = NULL) {
       assert_r6(task, "Task", null.ok = TRUE)
       if (is.numeric(shapes_in)) shapes_in = list(shapes_in)
-      # any dimension can be known or unknown, `.shapes_out()` has to handle the `NA`s
-      assert_shapes(shapes_in, unknown_batch = NULL)
+      # any dimension can be known or unknown, `.shapes_out()` has to handle the `NA`s.
+      # the coerced value is assigned back, so that `.shapes_out()` always sees `integer()` shapes
+      # and does not have to tolerate the `c(NA, 3)` a caller writes, which is a double
+      shapes_in = assert_shapes(shapes_in, unknown_batch = NULL)
       if ("..." %nin% self$input$name && length(shapes_in) != nrow(self$input)) {
         stopf("PipeOp '%s' has %i input channel(s) (%s), but %i input shape(s) were given.",
           self$id, nrow(self$input), paste0(self$input$name, collapse = ", "), length(shapes_in))

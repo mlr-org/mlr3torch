@@ -272,26 +272,95 @@ test_that("augment_random_crop", {
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_preproc("trafo_resize", list(size = c(8, 12)), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_resize", list(size = 8), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_resize", list(size = 8), c(2, 3, 21, 16))
-  expect_shapes_out_preproc("trafo_pad", list(padding = 2), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_pad", list(padding = c(1, 2)), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_pad", list(padding = c(1, 2, 3, 4)), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("augment_crop", list(top = 3, left = 4, height = 10, width = 12), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("augment_crop", list(top = 10, left = 10, height = 7, width = 11), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("augment_center_crop", list(size = 8), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_resize", list(size = c(8, 12)), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_resize", list(size = 8), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_resize", list(size = 8), c(2, 3, 21, 16))
+  expect_shape_inference("trafo_pad", list(padding = 2), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_pad", list(padding = c(1, 2)), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_pad", list(padding = c(1, 2, 3, 4)), c(2, 3, 16, 20))
+  expect_shape_inference("augment_crop", list(top = 3, left = 4, height = 10, width = 12), c(2, 3, 16, 20))
+  expect_shape_inference("augment_crop", list(top = 10, left = 10, height = 7, width = 11), c(2, 3, 16, 20))
+  expect_shape_inference("augment_center_crop", list(size = 8), c(2, 3, 16, 20))
   expect_equal(po("augment_center_crop", size = 32)$shapes_out(list(c(2L, 3L, 16L, 20L)),
     stage = "train")[[1L]], c(2L, 3L, NA, NA))
-  expect_shapes_out_preproc("augment_resized_crop", list(top = 1, left = 1, height = 8, width = 8, size = c(4, 4)), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_grayscale", list(num_output_channels = 1), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_grayscale", list(num_output_channels = 3), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_rgb_to_grayscale", list(), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_adjust_gamma", list(gamma = 0.5), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_adjust_brightness", list(brightness_factor = 0.5), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("augment_color_jitter", list(), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_reshape", list(shape = c(-1, 3, 320)), c(2, 3, 16, 20))
-  expect_shapes_out_preproc("trafo_nop", list(), c(2, 3, 16, 20))
+  expect_shape_inference("augment_resized_crop", list(top = 1, left = 1, height = 8, width = 8, size = c(4, 4)), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_grayscale", list(num_output_channels = 1), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_grayscale", list(num_output_channels = 3), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_rgb_to_grayscale", list(), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_adjust_gamma", list(gamma = 0.5), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_adjust_brightness", list(brightness_factor = 0.5), c(2, 3, 16, 20))
+  expect_shape_inference("augment_color_jitter", list(), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_adjust_saturation", list(saturation_factor = 0.5), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_adjust_hue", list(hue_factor = 0.2), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_normalize", list(mean = 0, std = 1), c(2, 3, 16, 20))
+  expect_shape_inference("augment_hflip", list(), c(2, 3, 16, 20))
+  expect_shape_inference("augment_vflip", list(), c(2, 3, 16, 20))
+  expect_shape_inference("augment_random_horizontal_flip", list(p = 1), c(2, 3, 16, 20))
+  expect_shape_inference("augment_random_vertical_flip", list(p = 1), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_reshape", list(shape = c(-1, 3, 320)), c(2, 3, 16, 20))
+  expect_shape_inference("trafo_nop", list(), c(2, 3, 16, 20))
+})
+
+# the preprocessing operators all work on (batch, channels, height, width) images
+gen_image_shape = function() {
+  function() c(sample(1:3, 1L), 3L, size(2L, 6L, 16L))
+}
+
+# The parameter draws of the preprocessing operators, one entry per operator. The test below
+# enrols all of them, so an operator without an entry here is checked only for declaring an
+# unknown output shape.
+preproc_inference_specs = function() {
+  list(
+    trafo_resize = function() list(size = if (sample(c(TRUE, FALSE), 1L)) size(1L) else size(2L)),
+    trafo_pad = function() list(padding = size(sample(c(1L, 2L, 4L), 1L), 0L, 3L)),
+    trafo_grayscale = function() list(num_output_channels = sample(1:3, 1L)),
+    trafo_rgb_to_grayscale = function() list(),
+    trafo_adjust_gamma = function() list(gamma = 0.5),
+    trafo_adjust_brightness = function() list(brightness_factor = 0.5),
+    trafo_adjust_saturation = function() list(saturation_factor = 0.5),
+    trafo_adjust_hue = function() list(hue_factor = 0.2),
+    trafo_normalize = function() list(mean = 0, std = 1),
+    trafo_nop = function() list(),
+    augment_color_jitter = function() list(hue = sample(c(0, 0.2), 1L)),
+    augment_hflip = function() list(),
+    augment_vflip = function() list(),
+    augment_random_horizontal_flip = function() list(p = 1),
+    augment_random_vertical_flip = function() list(p = 1),
+    augment_crop = function() list(top = sample(1:4, 1L), left = sample(1:4, 1L),
+      height = size(1L, 1L, 3L), width = size(1L, 1L, 3L)),
+    augment_center_crop = function() list(size = size(1L, 2L, 6L)),
+    augment_resized_crop = function() list(top = 1L, left = 1L, height = size(1L, 2L, 8L),
+      width = size(1L, 2L, 8L), size = if (sample(c(TRUE, FALSE), 1L)) size(1L, 2L, 6L) else size(2L, 2L, 6L))
+  )
+}
+
+test_that("every preprocessing PipeOp agrees with its function for random shapes and parameters", {
+  specs = preproc_inference_specs()
+  for (id in names(specs)) {
+    expect_shape_inference(id, params = specs[[id]], generators = gen_image_shape())
+  }
+})
+
+test_that("the remaining preprocessing PipeOps declare an unknown output shape", {
+  # declaring `NULL`, i.e. "unknown", is always safe: it never claims a size the tensor does not
+  # have. This checks that the operators without a sampler in `preproc_inference_specs()` really do
+  # abstain rather than being left unverified by an oversight.
+  specs = preproc_inference_specs()
+  unknown = Filter(function(key) {
+    obj = suppressWarnings(try(po(key), silent = TRUE))
+    !inherits(obj, "try-error") && inherits(obj, "PipeOpTaskPreprocTorch") && key %nin% names(specs)
+  }, mlr_pipeops$keys())
+  # if this filter ever stops matching, the loop below would silently check nothing
+  expect_true(length(unknown) >= 5L)
+
+  for (id in unknown) {
+    obj = po(id)
+    # operators with unset required parameters cannot be asked for their shapes
+    shape = tryCatch(obj$shapes_out(list(c(NA, 3L, 8L, 8L)), stage = "train")[[1L]],
+      error = function(e) "skip")
+    if (identical(shape, "skip")) next
+    expect_true(is.null(shape), label = sprintf("%s declares an unknown output shape", id))
+  }
 })
 
 test_that("shape inference follows torchvision, including where it misbehaves", {

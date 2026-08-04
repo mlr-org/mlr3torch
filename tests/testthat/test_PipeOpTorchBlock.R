@@ -139,3 +139,17 @@ test_that("shape inference handles a known batch size and an empty block", {
   expect_equal(po("nn_block", block, n_blocks = 0L)$shapes_out(list(c(NA, 4L)),
     task = tsk("iris"))[[1L]], c(NA, 4L))
 })
+
+test_that("shape inference requires all inputs to agree on the batch size", {
+  task = tsk("iris")
+  obj = po("nn_block", as_graph(po("nn_merge_sum", innum = 2L)), n_blocks = 1L)
+
+  # the block is applied to all inputs jointly, so a known batch size must be the same everywhere
+  expect_error(obj$shapes_out(list(c(8L, 3L), c(4L, 3L)), task = task),
+    "requires all its inputs to have the same batch size", fixed = TRUE)
+
+  expect_equal(obj$shapes_out(list(c(8L, 3L), c(8L, 3L)), task = task)[[1L]], c(8L, 3L))
+  # an unknown batch size is compatible with a known one, which is the one that is restored
+  expect_equal(obj$shapes_out(list(c(NA, 3L), c(8L, 3L)), task = task)[[1L]], c(8L, 3L))
+  expect_equal(obj$shapes_out(list(c(NA, 3L), c(NA, 3L)), task = task)[[1L]], c(NA, 3L))
+})

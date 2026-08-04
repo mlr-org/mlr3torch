@@ -58,7 +58,7 @@ inherit = PipeOpTorch,
     #' @template params_pipelines
     initialize = function(id = "nn_ft_cls", param_vals = list()) {
       param_set = ps(
-        initialization = p_fct(tags = c("train"), levels = c("uniform", "normal"), init = "uniform")
+        initialization = p_fct(tags = "train", levels = c("uniform", "normal"), init = "uniform")
       )
 
       super$initialize(

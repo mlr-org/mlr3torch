@@ -22,8 +22,7 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
       list(private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`,
-      # so the input has `d + 2` dimensions
+      # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`.
       assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
       list(adaptive_avg_output_shape(
         shape_in = shapes_in[[1]],
@@ -37,8 +36,6 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
 )
 
 adaptive_avg_output_shape = function(shape_in, conv_dim, output_size, id = NULL) {
-  # the batch and channel dimensions are part of the contract: the PipeOp asserts them via
-  # assert_ndim() and passes them through unchanged
   shape_in = assert_integerish(shape_in, len = conv_dim + 2L, coerce = TRUE)
 
   if (length(output_size) == 1) output_size = rep(output_size, conv_dim)

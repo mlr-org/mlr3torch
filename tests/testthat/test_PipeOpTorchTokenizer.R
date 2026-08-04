@@ -75,14 +75,11 @@ test_that("shape inference needs the feature dimension", {
 })
 
 test_that("the categorical tokenizer takes the number of tokens from the task", {
-  # it does not read the input dimension: the number of tokens is the number of categorical
-  # features, which comes from the task (or from `cardinalities`)
   expect_equal(po("nn_tokenizer_categ", d_token = 10)$shapes_out(list(c(NA, NA)),
     task = tsk("breast_cancer"))[[1L]], c(NA, 9L, 10L))
   expect_equal(po("nn_tokenizer_categ", d_token = 5L)$shapes_out(list(c(3L, 1L)),
     task = tsk("breast_cancer"))[[1L]], c(3L, 9L, 5L))
 
-  # the module agrees (it needs an integer tensor, so it is checked directly)
   obj = po("nn_tokenizer_categ", d_token = 5L)
   module = get_private(obj)$.make_module(list(c(3L, 1L)), obj$param_set$get_values(), tsk("breast_cancer"))
   expect_equal(dim(with_no_grad(module(torch_ones(3L, 1L, dtype = torch_long())))), c(3, 9, 5))
@@ -99,7 +96,6 @@ test_that("the number of tokens is never unknown", {
 })
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
-  # the categorical tokenizer needs an integer tensor and a task, so it is checked above instead
-  expect_shape_inference_sampled("nn_tokenizer_num",
-    list(rank = 2L, params = function() list(d_token = sample(2:6, 1L))))
+  expect_shape_inference("nn_tokenizer_num", params = function() list(d_token = sample(2:6, 1L)),
+    shapes = c(2, 8), generators = gen_shape(2L))
 })

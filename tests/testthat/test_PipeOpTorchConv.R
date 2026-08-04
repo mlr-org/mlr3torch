@@ -80,10 +80,10 @@ test_that("conv_output_shape requires a batch dimension", {
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_conv1d", list(out_channels = 5, kernel_size = 3), c(2, 3, 17))
-  expect_shapes_out_torch("nn_conv2d", list(out_channels = 5, kernel_size = 3, stride = 2, padding = 1), c(2, 3, 17, 19))
-  expect_shapes_out_torch("nn_conv2d", list(out_channels = 4, kernel_size = 3, dilation = 2), c(2, 3, 16, 16))
-  expect_shapes_out_torch("nn_conv3d", list(out_channels = 5, kernel_size = 3), c(2, 3, 9, 9, 9))
+  expect_shape_inference("nn_conv1d", list(out_channels = 5, kernel_size = 3), c(2, 3, 17))
+  expect_shape_inference("nn_conv2d", list(out_channels = 5, kernel_size = 3, stride = 2, padding = 1), c(2, 3, 17, 19))
+  expect_shape_inference("nn_conv2d", list(out_channels = 4, kernel_size = 3, dilation = 2), c(2, 3, 16, 16))
+  expect_shape_inference("nn_conv3d", list(out_channels = 5, kernel_size = 3), c(2, 3, 9, 9, 9))
   expect_equal(po("nn_conv2d", out_channels = 4, kernel_size = 3, padding_mode = "zeros")$
     shapes_out(list(c(2L, 3L, 8L, 8L)))[[1L]], c(2L, 4L, 6L, 6L))
 })
@@ -99,10 +99,11 @@ test_that("shape inference requires the batch dimension, the channels and a non-
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
   for (d in 1:3) {
-    spec = list(rank = d + 2L, params = function() {
-      list(out_channels = sample(1:4, 1L), kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L),
-        padding = sample(0:1, 1L), dilation = sample(1:2, 1L))
-    })
-    expect_shape_inference_sampled(sprintf("nn_conv%id", d), spec)
+    expect_shape_inference(sprintf("nn_conv%id", d),
+      params = function() {
+        list(out_channels = sample(1:4, 1L), kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L),
+          padding = sample(0:1, 1L), dilation = sample(1:2, 1L))
+      },
+      generators = gen_shape(d + 2L))
   }
 })

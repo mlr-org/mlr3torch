@@ -126,6 +126,8 @@ uniqueify = function(new, existing) {
   make.unique(c(existing, new), sep = "_")[length(existing) + seq_along(new)]
 }
 
+#' @rdname shape_helpers
+#' @export
 shape_to_str = function(x) {
   if (is.numeric(x) || is.logical(x)) { # single shape
     return(sprintf("(%s)", paste0(x, collapse = ",")))
@@ -258,10 +260,18 @@ order_named_args = function(f, l) {
 #' \pkg{mlr3torch}.
 #' For classification, this is the number of classes (unless it is a binary classification task,
 #' where it is 1). For regression, it is 1.
+#'
+#' This is an S3 generic and the single place where \pkg{mlr3torch} decides how many output neurons
+#' a task needs: it is what [`PipeOpTorchHead`] and the [`LearnerTorch`]s that build their own head
+#' ask. Adding a method for a new task type is therefore the way to support it, see the
+#' "Supporting Other Task Types" section of [`PipeOpTorchHead`].
+#'
 #' @param x (any)\cr
 #'   The task.
 #' @param ... (any)\cr
 #'   Additional arguments. Not used yet.
+#' @return (`integer(1)`) The number of output neurons.
+#' @seealso [`PipeOpTorchHead`]
 #' @export
 output_dim_for = function(x, ...) {
   UseMethod("output_dim_for")

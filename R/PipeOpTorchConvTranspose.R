@@ -39,10 +39,8 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
       list(private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      # see PipeOpTorchConv: the batch dimension is required, otherwise dimension 2 is not the
-      # channel dimension
+      # (batch, channel, spatial dims..)
       assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
-      # `param_vals[["padding"]]` rather than `$padding`, which partial-matches `padding_mode`
       shape_out = conv_transpose_output_shape(
         shape_in = shapes_in[[1]],
         dim = private$.d,

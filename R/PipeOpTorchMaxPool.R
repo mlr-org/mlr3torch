@@ -35,8 +35,7 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
       list(d = private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`,
-      # so the input has `d + 2` dimensions
+      # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`.
       assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
       res = list(pool_output_shape(
         shape_in = shapes_in[[1]],
@@ -44,7 +43,6 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
         padding = param_vals[["padding"]] %??% 0,
         stride = param_vals[["stride"]] %??% param_vals[["kernel_size"]],
         kernel_size = param_vals[["kernel_size"]],
-        # unlike average pooling, max pooling has a dilation
         dilation = param_vals$dilation %??% 1,
         ceil_mode = param_vals[["ceil_mode"]] %??% FALSE,
         id = self$id

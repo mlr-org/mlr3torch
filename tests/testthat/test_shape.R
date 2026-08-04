@@ -165,3 +165,53 @@ test_that("resolve_dim resolves negative indices", {
   expect_equal(resolve_dim(-1L, shape, insert = TRUE), 5L)
   expect_equal(resolve_dim(-5L, shape, insert = TRUE), 1L)
 })
+
+test_that("assert_same_batch_size accepts agreeing and unknown batch sizes", {
+  # an unknown batch size is compatible with any other, and with another unknown one
+  expect_equal(assert_same_batch_size(list(c(NA, 3L), c(NA, 5L)), "po"), NA_integer_)
+  expect_equal(assert_same_batch_size(list(c(NA, 3L), c(8L, 5L)), "po"), 8L)
+  expect_equal(assert_same_batch_size(list(c(8L, 3L), c(8L, 5L)), "po"), 8L)
+  # only the known ones have to agree
+  expect_error(assert_same_batch_size(list(c(8L, 3L), c(4L, 5L)), "po"),
+    "requires all its inputs to have the same batch size")
+})
+
+test_that("assert_ndim accepts several numbers of dimensions", {
+  expect_silent(assert_ndim(c(NA, 3L), 2L, "po"))
+  expect_silent(assert_ndim(c(NA, 3L), c(2L, 3L), "po"))
+  expect_silent(assert_ndim(c(NA, 3L, 4L), c(2L, 3L), "po"))
+  # the message lists all accepted values
+  expect_error(assert_ndim(c(NA, 3L, 4L, 5L), c(2L, 3L), "po"),
+    "requires an input with 2 or 3 dimensions", fixed = TRUE)
+  expect_error(assert_ndim(c(NA, 3L, 4L), 2L, "po"),
+    "requires an input with 2 dimensions", fixed = TRUE)
+})
+
+test_that("assert_ndim accepts min and max bounds", {
+  expect_silent(assert_ndim(c(NA, 3L), id = "po", min = 2L, max = 3L))
+  expect_silent(assert_ndim(c(NA, 3L, 4L), id = "po", min = 2L, max = 3L))
+  # an adjacent range reads as "or", a wider one as a range
+  expect_error(assert_ndim(c(NA, 3L, 4L, 5L), id = "po", min = 2L, max = 3L),
+    "requires an input with 2 or 3 dimensions", fixed = TRUE)
+  expect_error(assert_ndim(c(NA, 3L, 4L, 5L, 6L), id = "po", min = 2L, max = 4L),
+    "requires an input with 2 to 4 dimensions", fixed = TRUE)
+  expect_error(assert_ndim(c(NA, 3L, 4L), id = "po", min = 4L, max = 4L),
+    "requires an input with 4 dimensions", fixed = TRUE)
+
+  # each bound also works on its own
+  expect_silent(assert_ndim(c(NA, 3L, 4L, 5L), id = "po", min = 3L))
+  expect_error(assert_ndim(c(NA, 3L), id = "po", min = 3L),
+    "requires an input with at least 3 dimensions", fixed = TRUE)
+  expect_silent(assert_ndim(c(NA, 3L), id = "po", max = 3L))
+  expect_error(assert_ndim(c(NA, 3L, 4L, 5L), id = "po", max = 3L),
+    "requires an input with at most 3 dimensions", fixed = TRUE)
+})
+
+test_that("assert_shape reports its own message for non-shapes", {
+  # a value that `shape_to_str()` cannot format must not leak its internal assertion
+  expect_error(assert_shape("not a shape"), "Invalid shape: must be an integer vector, but is character", fixed = TRUE)
+  expect_error(assert_shape(sum), "Invalid shape: must be an integer vector, but is function", fixed = TRUE)
+  # the ones it can format still show the shape
+  expect_error(assert_shape(list(1, 2)), "Invalid shape: [(1);(2)]", fixed = TRUE)
+  expect_error(assert_shape(integer(0)), "Invalid shape: ()", fixed = TRUE)
+})

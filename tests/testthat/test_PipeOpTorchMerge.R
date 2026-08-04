@@ -161,9 +161,9 @@ test_that("merge infers the broadcast shape, not the shape of the first input", 
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_merge_sum", list(), c(2, 4, 6), n_in = 2L)
-  expect_shapes_out_torch("nn_merge_prod", list(), c(2, 4, 6), n_in = 2L)
-  expect_shapes_out_torch("nn_merge_cat", list(dim = 2), c(2, 4, 6), n_in = 2L)
+  expect_shape_inference("nn_merge_sum", list(), c(2, 4, 6), n_in = 2L)
+  expect_shape_inference("nn_merge_prod", list(), c(2, 4, 6), n_in = 2L)
+  expect_shape_inference("nn_merge_cat", list(dim = 2), c(2, 4, 6), n_in = 2L)
 })
 
 test_that("nn_merge_cat requires the other dimensions to be equal", {
@@ -182,10 +182,8 @@ test_that("nn_merge_cat requires the other dimensions to be equal", {
 })
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
-  expect_shape_inference_sampled("nn_merge_sum",
-    list(rank = 3L, params = function() list(), n_in = 2L))
-  expect_shape_inference_sampled("nn_merge_prod",
-    list(rank = 3L, params = function() list(), n_in = 2L))
-  expect_shape_inference_sampled("nn_merge_cat",
-    list(rank = 3L, params = function() list(dim = sample(2:3, 1L)), n_in = 2L))
+  expect_shape_inference("nn_merge_sum", generators = gen_shape(3L), n_in = 2L)
+  expect_shape_inference("nn_merge_prod", generators = gen_shape(3L), n_in = 2L)
+  expect_shape_inference("nn_merge_cat", params = function() list(dim = sample(2:3, 1L)),
+    generators = gen_shape(3L), n_in = 2L)
 })

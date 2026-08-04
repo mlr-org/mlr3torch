@@ -24,14 +24,10 @@
   (including the validation data during training) when it is set.
 * Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`).
 * Most `LearnerTorchVision` are now `jittable`.
-* Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension, so
-  networks can be built for inputs whose extent is not known in advance, e.g. images of varying
-  height and width.
-* The `shape` parameter of `po("nn_reshape")` can now be a `function(shape)` of the input shape,
-  e.g. `\(shape) c(shape[1:2], 10)`. It is called again on the shape of the actual tensor when the
-  network runs, so a reshape can be expressed for inputs whose sizes are not known in advance.
-* Error messages about shapes now name the `PipeOp`, the shape it was given and the dimension it
-  needs.
+* Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
+* Improved error messages during `PipeOpTorch`'s shape inference.
+* The `shape` parameter of `nn("reshape")` can now be a `function(shape)` of the input shape.
+* Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
 
 ## Breaking changes
 
@@ -55,11 +51,7 @@
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.
 * `lazy_tensor` columns are now again printed correctly inside `data.table`s
-* Fixed various bugs in the shape inference, which reported output shapes that disagreed with the
-  tensor the operator actually returns, e.g. the pooling operators ignored `dilation` and
-  `ceil_mode`, `trafo_resize` reported a square output for a `size` of length 1 and `nn_reshape`
-  silently changed the batch size.
-* Various other fixes in the shape inference engine.
+* Fixed various shape inference bugs.
 
 # mlr3torch 0.3.3
 

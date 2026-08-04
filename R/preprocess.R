@@ -1,17 +1,6 @@
 #' @rawNamespace exportPattern("^PipeOpPreprocTorch")
 NULL
 
-# The spatial dimensions are the last two and the channel dimension is the third from last, which
-# holds both for the functions that are applied `rowwise` -- they see `(channels, height, width)`
-# -- and for those that see the whole batch.
-#
-# The `*_shapes()` functions below are the `.shapes_out()` implementations of the operators, so
-# they all take the same arguments and are evaluated in the PipeOp, which is why they can use
-# `self$id`:
-# @param shapes_in (`list()` of `integer()`) The input shapes, `NA` where a dimension is unknown.
-# @param param_vals (named `list()`) The parameter values of the operator.
-# @param task ([`Task`][mlr3::Task] | `NULL`) The task, which none of them needs.
-
 # Replaces the last `length(values)` dimensions of a shape, which is what the operators that only
 # touch the spatial dimensions do.
 # @param shape (`integer()`) The input shape.
@@ -24,14 +13,22 @@ replace_tail = function(shape, values) {
 # batch dimension in front of the image.
 # @param shape (`integer()`) The input shape.
 # @param id (`character(1)`) The PipeOp's id, for the error message.
-# @param ndim (`integer(1)`) The minimum number of dimensions. `3` for the operators that only
-#   touch the trailing two dimensions, which therefore also accept a channel-less image.
+# @param ndim (`integer(1)`) The minimum number of dimensions, either 4 or 3. `3` for the operators
+#   that only touch the trailing two dimensions, which therefore also accept a channel-less image.
 assert_image_shape = function(shape, id, ndim = 4L) {
+  # an operator that only touches the trailing two dimensions accepts a channel-less image, so the
+  # layout it requires is not the one a channel-wise operator requires. These are the only two
+  # layouts an image has, so any other `ndim` has no message to go with it.
+  layout = switch(as.character(ndim),
+    "4" = "batch, channels, height, width",
+    "3" = "batch, height, width",
+    stopf("assert_image_shape() only describes 3 or 4 dimensions, but got ndim = %i.", ndim)
+  )
   if (length(shape) >= ndim) {
     return(invisible(shape))
   }
-  stopf("PipeOp '%s' requires an input with at least %i dimensions (batch, channels, height, width), but got the shape %s, which has %i.", # nolint
-    id, ndim, shape_to_str(shape), length(shape))
+  stopf("PipeOp '%s' requires an input with at least %i dimensions (%s), but got the shape %s, which has %i.", # nolint
+    id, ndim, layout, shape_to_str(shape), length(shape))
 }
 
 # Extent of `transform_crop()` along one axis. The crop is `img[.., start:(start + size - 1)]`, so
@@ -95,11 +92,6 @@ pad_shapes = function(shapes_in, param_vals, task) {
   list(replace_tail(shape, extent))
 }
 
-# Rejects an image that is not RGB: `transform_rgb_to_grayscale()` and everything built on it index
-# the first three channels.
-# The channel count must be known: unlike the spatial extent, which varies from image to image,
-# it is a property of the data, so requiring it costs nothing and reports the problem here instead
-# of somewhere inside torchvision.
 # @param shape (`integer()`) The input shape, whose channel dimension is the third from last.
 # @param id (`character(1)`) The PipeOp's id, for the error message.
 assert_rgb_channels = function(shape, id) {
@@ -112,9 +104,6 @@ assert_rgb_channels = function(shape, id) {
   invisible(shape)
 }
 
-# An image with more than three channels is truncated to three. Every caller runs
-# `assert_rgb_channels()` first, so the channel count is known and at least 3 here.
-# @param shape (`integer()`) The input shape, whose channel dimension is the third from last.
 truncate_rgb_channels = function(shape) {
   shape[length(shape) - 2L] = 3L
   shape
@@ -122,8 +111,6 @@ truncate_rgb_channels = function(shape) {
 
 grayscale_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
-  # `transform_grayscale()` repeats with a fixed length-4 specification, which only matches the
-  # channel dimension when it is applied to a single (channels, height, width) image
   assert_ndim(shape, 4L, self$id)
   assert_rgb_channels(shape, self$id)
   shape[2L] = as.integer(param_vals[["num_output_channels"]])
@@ -133,7 +120,7 @@ grayscale_shapes = function(shapes_in, param_vals, task) {
 # FIXME(torchvision): `transform_rgb_to_grayscale()` drops the channel dimension instead of
 # setting it to 1, i.e. it changes the rank: (3, 16, 20) becomes (16, 20) where PyTorch returns
 # (1, 16, 20). The inference below follows the actual behaviour, so fixing torchvision means
-# changing this function as well, see man-roxygen/torchvision_bugs.md.
+# changing this function as well
 rgb_to_grayscale_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   assert_image_shape(shape, self$id)
@@ -152,8 +139,7 @@ crop_shapes = function(shapes_in, param_vals, task) {
   )
   # FIXME(torchvision): `transform_crop()` clamps the crop to the image, while `F.crop()` in
   # PyTorch pads it with zeros to the requested size. A crop that leaves the image therefore gives
-  # a smaller (or even empty) output here. Reject it until torchvision is fixed, see
-  # man-roxygen/torchvision_bugs.md.
+  # a smaller (or even empty) output here. Reject it until torchvision is fixed
   requested = as.integer(c(param_vals[["height"]], param_vals[["width"]]))
   if (any(!is.na(extent) & extent < requested)) {
     stopf("PipeOp '%s' cannot crop the input shape %s to (%i, %i) at (%i, %i): the crop leaves the image, and 'transform_crop()' clamps instead of padding. Use a crop that fits into the image.", # nolint
@@ -174,7 +160,7 @@ center_crop_shapes = function(shapes_in, param_vals, task) {
   # FIXME(torchvision): with a non-square `size`, the padded branch of `transform_center_crop()`
   # swaps height and width and returns garbage extents -- (16, 20) padded to (24, 30) comes back as
   # (22, 0). The square case pads correctly, so only the non-square one is rejected here. Remove
-  # this once torchvision is fixed, see man-roxygen/torchvision_bugs.md.
+  # this once torchvision is fixed
   if (size[1L] != size[2L] && (anyNA(hw) || any(hw < size))) {
     stopf("PipeOp '%s' cannot pad the input shape %s to the size (%i, %i): 'transform_center_crop()' pads a non-square size incorrectly. Use a square 'size' or an input that is large enough.", # nolint
       self$id, shape_to_str(shape), size[1L], size[2L])
@@ -221,7 +207,7 @@ reshape_shapes = function(shapes_in, param_vals, task) {
 
 # The hue is adjusted in HSV space, which keeps only the first three channels.
 # FIXME(torchvision): PyTorch rejects an image with more than three channels here, while
-# torchvision silently drops the extra ones, see man-roxygen/torchvision_bugs.md.
+# torchvision silently drops the extra ones.
 hue_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   assert_image_shape(shape, self$id)

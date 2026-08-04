@@ -3,8 +3,8 @@
 #' Output head for classification and regresssion.
 #'
 #' @section nn_module:
-#' Calls [`torch::nn_linear()`] with the input and output features inferred from the input shape / task.
-#' For
+#' Calls [`torch::nn_linear()`] with the input features inferred from the input shape and the output
+#' features from the task, via [`output_dim_for()`]. For
 #' * binary classification, the output dimension is 1.
 #' * multiclass classification, the output dimension is the number of classes.
 #' * regression, the output dimension is 1.
@@ -12,6 +12,13 @@
 #' @section Parameters:
 #' * `bias` :: `logical(1)`\cr
 #'   Whether to use a bias. Default is `TRUE`.
+#'
+#' @section Supporting Other Task Types:
+#' The output dimension is not hard-coded here: `PipeOpTorchHead` asks the generic
+#' [`output_dim_for()`] how many output neurons the task needs, and \pkg{mlr3torch} implements methods
+#' for [`TaskClassif`][mlr3::TaskClassif] and [`TaskRegr`][mlr3::TaskRegr].
+#' You can add support to your custom task type by implementing a method for your class.
+#' 
 #' @details
 #' When the method `$shapes_out()` does not have access to the task, it returns `c(NA, NA)`.
 #' When this [`PipeOp`][mlr3pipelines::PipeOp] is trained however, the model descriptor has the correct output shape.

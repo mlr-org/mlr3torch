@@ -77,13 +77,13 @@ test_that("max_output_shape requires a batch dimension", {
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_max_pool1d", list(kernel_size = 2), c(2, 3, 16))
-  expect_shapes_out_torch("nn_max_pool1d", list(kernel_size = 2, stride = 2, padding = 1, ceil_mode = TRUE), c(2, 2, 5))
-  expect_shapes_out_torch("nn_max_pool2d", list(kernel_size = 2), c(2, 3, 16, 16))
-  expect_shapes_out_torch("nn_max_pool2d", list(kernel_size = 2, stride = 1, dilation = 2), c(2, 2, 8, 8))
-  expect_shapes_out_torch("nn_max_pool2d", list(kernel_size = 3, stride = 2, dilation = 3, padding = 1), c(2, 2, 16, 20))
-  expect_shapes_out_torch("nn_max_pool2d", list(kernel_size = 2, stride = 3, ceil_mode = TRUE), c(2, 2, 6, 6))
-  # torch supports a per-dimension dilation for max pooling
+  expect_shape_inference("nn_max_pool1d", list(kernel_size = 2), c(2, 3, 16))
+  expect_shape_inference("nn_max_pool1d", list(kernel_size = 2, stride = 2, padding = 1, ceil_mode = TRUE), c(2, 2, 5))
+  expect_shape_inference("nn_max_pool2d", list(kernel_size = 2), c(2, 3, 16, 16))
+  expect_shape_inference("nn_max_pool2d", list(kernel_size = 2, stride = 1, dilation = 2), c(2, 2, 8, 8))
+  expect_shape_inference("nn_max_pool2d", list(kernel_size = 3, stride = 2, dilation = 3, padding = 1), c(2, 2, 16, 20))
+  expect_shape_inference("nn_max_pool2d", list(kernel_size = 2, stride = 3, ceil_mode = TRUE), c(2, 2, 6, 6))
+  expect_shape_inference("nn_max_pool3d", list(kernel_size = 2), c(2, 3, 8, 8, 8))
   expect_equal(po("nn_max_pool2d", kernel_size = 3, dilation = c(1, 2))$
     shapes_out(list(c(2L, 3L, 8L, 8L)))[[1L]], c(2L, 3L, 2L, 2L))
 })
@@ -99,11 +99,11 @@ test_that("shape inference requires the batch dimension and a non-empty output",
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
   for (d in 1:3) {
-    # unlike average pooling, max pooling has a dilation
-    spec = list(rank = d + 2L, params = function() {
-      list(kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L), padding = 0L,
-        ceil_mode = sample(c(TRUE, FALSE), 1L), dilation = sample(1:2, 1L))
-    })
-    expect_shape_inference_sampled(sprintf("nn_max_pool%id", d), spec)
+    expect_shape_inference(sprintf("nn_max_pool%id", d),
+      params = function() {
+        list(kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L), padding = 0L,
+          ceil_mode = sample(c(TRUE, FALSE), 1L), dilation = sample(1:2, 1L))
+      },
+      generators = gen_shape(d + 2L))
   }
 })

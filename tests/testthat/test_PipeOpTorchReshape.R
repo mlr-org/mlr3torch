@@ -78,45 +78,39 @@ test_that("nn_squeeze removes the same dimensions as the inferred shape for nega
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_flatten", list(start_dim = 2, end_dim = 3), c(2, 4, 6, 8))
-  expect_shapes_out_torch("nn_reshape", list(shape = c(-1, 24)), c(2, 4, 6))
-  expect_shapes_out_torch("nn_unsqueeze", list(dim = 2), c(2, 4, 6))
-  expect_shapes_out_torch("nn_unsqueeze", list(dim = -1), c(2, 4, 6))
-  expect_shapes_out_torch("nn_squeeze", list(dim = 3), c(2, 4, 1, 6))
+  expect_shape_inference("nn_flatten", list(start_dim = 2, end_dim = 3), c(2, 4, 6, 8))
+  expect_shape_inference("nn_reshape", list(shape = c(-1, 24)), c(2, 4, 6))
+  expect_shape_inference("nn_unsqueeze", list(dim = 2), c(2, 4, 6))
+  expect_shape_inference("nn_unsqueeze", list(dim = -1), c(2, 4, 6))
+  expect_shape_inference("nn_squeeze", list(dim = 3), c(2, 4, 1, 6))
   # `dim` may select several dimensions
-  expect_shapes_out_torch("nn_squeeze", list(dim = c(2L, 3L)), c(4, 1, 1, 8))
-  expect_shapes_out_torch("nn_squeeze", list(dim = c(-1L, -2L)), c(4, 1, 1))
-  expect_shapes_out_torch("nn_squeeze", list(dim = c(-3L, 4L)), c(4, 1, 8, 1))
+  expect_shape_inference("nn_squeeze", list(dim = c(2L, 3L)), c(4, 1, 1, 8))
+  expect_shape_inference("nn_squeeze", list(dim = c(-1L, -2L)), c(4, 1, 1))
+  expect_shape_inference("nn_squeeze", list(dim = c(-3L, 4L)), c(4, 1, 8, 1))
   # a duplicated dimension is harmless
   expect_equal(po("nn_squeeze", dim = c(2L, 2L))$shapes_out(list(c(4L, 1L, 1L, 8L)))[[1L]], c(4L, 1L, 8L))
 })
 
 test_that("shape inference rejects a 'dim' that does not address a dimension", {
-  # assigning to an out-of-range index would extend the shape with `NA`s and build a graph on a
-  # shape that no tensor can have
   expect_error(po("nn_unsqueeze", dim = 9L)$shapes_out(list(c(2L, 4L))), "cannot use 'dim' 9", fixed = TRUE)
   expect_error(po("nn_squeeze", dim = -4L)$shapes_out(list(c(2L, 1L, 6L))), "cannot use 'dim' -4", fixed = TRUE)
-  # negative values are legal in torch and must be accepted
   expect_equal(po("nn_flatten", end_dim = -2L)$shapes_out(list(c(2L, 4L, 6L, 8L)))[[1L]], c(2L, 24L, 8L))
-  # an unknown dimension is assumed to not be 1 and is kept, as for `dim = NULL`
   expect_equal(po("nn_squeeze", dim = 3)$shapes_out(list(c(NA, 5L, NA)))[[1L]], c(NA, 5L, NA))
 })
 
 test_that("nn_reshape rejects target dimensions that cannot exist", {
-  # such a dimension must not be reported as known and propagated into the rest of the graph
   expect_error(po("nn_reshape", shape = c(-5, -7))$shapes_out(list(c(NA, 4L, 6L))),
     "every dimension must be at least 1", fixed = TRUE)
   expect_error(po("nn_reshape", shape = c(0, 24))$shapes_out(list(c(NA, 4L, 6L))),
     "every dimension must be at least 1", fixed = TRUE)
   expect_error(po("nn_reshape", shape = c(-1, 7))$shapes_out(list(c(2L, 4L, 6L))), "(-1,7)", fixed = TRUE)
 
-  # torch can only infer one dimension, so the graph must not be built on such a shape at all
   expect_error(po("nn_reshape", shape = c(-1, -1))$shapes_out(list(c(2L, 4L, 6L))),
     "at most one dimension can be inferred", fixed = TRUE)
+
   # `NA` is an unknown size everywhere else, so it is no longer a synonym for -1
   expect_error(po("nn_reshape", shape = c(NA, 6))$shapes_out(list(c(NA, 4L, 6L))),
     "use -1 for the dimension", fixed = TRUE)
-  # ... which also holds when the number of input elements is unknown
   expect_error(po("nn_reshape", shape = c(-1, -1, 6))$shapes_out(list(c(NA, 4L, 6L))),
     "at most one dimension can be inferred", fixed = TRUE)
 })
@@ -136,16 +130,17 @@ test_that("nn_reshape resolves an unknown target dimension from the input size",
 })
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
-  expect_shape_inference_sampled("nn_flatten",
-    list(rank = 4L, params = function() list(start_dim = 2L, end_dim = sample(2:3, 1L))))
-  expect_shape_inference_sampled("nn_unsqueeze",
-    list(rank = 3L, params = function() list(dim = sample(c(1:4, -1L), 1L))))
-  expect_shape_inference_sampled("nn_squeeze",
-    list(rank = 3L, params = function() list(dim = sample(c(2:3, -1L), 1L)), even = FALSE))
-  # the target must match the number of elements per observation, so the shape is not doubled
-  expect_shape_inference_sampled("nn_reshape",
-    list(rank = 3L, params = function() list(shape = c(-1L, 24L)),
-      fixed_shape = c(3L, 4L, 6L), even = FALSE))
+  expect_shape_inference("nn_flatten",
+    params = function() list(start_dim = 2L, end_dim = sample(2:3, 1L)),
+    generators = gen_shape(4L))
+  expect_shape_inference("nn_unsqueeze", params = function() list(dim = sample(c(1:4, -1L), 1L)),
+    generators = gen_shape(3L))
+  expect_shape_inference("nn_squeeze", params = function() list(dim = sample(c(2:3, -1L), 1L)),
+    generators = gen_shape(3L, even = FALSE))
+  # the target must match the number of elements per observation, so a drawn shape would not fit
+  # and the inputs that reshape to 24 features are listed instead
+  expect_shape_inference("nn_reshape", list(shape = c(-1L, 24L)),
+    shapes = list(c(3L, 4L, 6L), c(2L, 8L, 3L), c(5L, 2L, 3L, 4L), c(7L, 24L)))
 })
 
 test_that("nn_squeeze requires 'dim' and can squeeze the batch dimension", {
@@ -170,11 +165,14 @@ test_that("nn_reshape accepts a function of the input shape", {
 
   # -1 still works inside the returned shape
   obj = po("nn_reshape", shape = function(shape) c(shape[1], -1))
-  expect_equal(obj$shapes_out(list(c(NA, 4L, 6L)))[[1L]], c(NA, 24L))
+  expect_equal(obj$shapes_out(list(c(3L, 4L, 6L)))[[1L]], c(3L, 24L))
+  # the function is applied to the input shape as it is, so a `-1` that would have to be worked out
+  # from the number of elements stays unknown while any of them is
+  expect_equal(obj$shapes_out(list(c(NA, 4L, 6L)))[[1L]], c(NA_integer_, NA_integer_))
   expect_equal(dim(nn_reshape(shape = function(shape) c(shape[1], -1))(torch_randn(3, 4, 6))), c(3, 24))
 
   # the inferred shape and the module agree, also when the input is partially unknown
-  expect_shapes_out_torch("nn_reshape", list(shape = function(shape) c(shape[1:2], 10)), c(4, 3, 2, 5))
+  expect_shape_inference("nn_reshape", list(shape = function(shape) c(shape[1:2], 10)), c(4, 3, 2, 5))
 })
 
 test_that("nn_reshape checks what the function returns", {

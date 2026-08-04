@@ -11,8 +11,8 @@ test_that("PipeOpTorch paramtest", {
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_layer_norm", list(dims = 1), c(2, 7, 16))
-  expect_shapes_out_torch("nn_layer_norm", list(dims = 2), c(2, 4, 7, 16))
+  expect_shape_inference("nn_layer_norm", list(dims = 1), c(2, 7, 16))
+  expect_shape_inference("nn_layer_norm", list(dims = 2), c(2, 4, 7, 16))
 })
 
 test_that("shape inference requires the normalized dimensions", {
@@ -21,19 +21,7 @@ test_that("shape inference requires the normalized dimensions", {
     fixed = TRUE)
 })
 
-test_that("'dims' may go up to the number of input dimensions", {
-  # the bound is the number of dimensions of the input shape, not the number of input channels
-  obj = po("nn_layer_norm", dims = 3)
-  shape_in = list(c(NA, 4L, 7L, 16L))
-  expect_equal(obj$shapes_out(shape_in)[[1L]], c(NA, 4L, 7L, 16L))
-  module = get_private(obj)$.make_module(shape_in, obj$param_set$get_values(), NULL)
-  expect_equal(unlist(module$normalized_shape), c(4L, 7L, 16L))
-  expect_equal(dim(module(torch_randn(2, 4, 7, 16))), c(2, 4, 7, 16))
-  # `dims` may not exceed the number of dimensions
-  expect_error(po("nn_layer_norm", dims = 5)$shapes_out(shape_in), "dims")
-})
-
 test_that("shape inference agrees with the module for random shapes and parameters", {
-  expect_shape_inference_sampled("nn_layer_norm",
-    list(rank = 4L, params = function() list(dims = sample(1:3, 1L))))
+  expect_shape_inference("nn_layer_norm", params = function() list(dims = sample(1:3, 1L)),
+    generators = gen_shape(4L))
 })

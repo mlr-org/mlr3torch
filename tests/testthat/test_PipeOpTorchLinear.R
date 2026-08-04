@@ -46,7 +46,7 @@ test_that("NA in second dimension", {
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_linear", list(out_features = 3), c(2, 7, 16))
+  expect_shape_inference("nn_linear", list(out_features = 3), c(2, 7, 16))
 })
 
 test_that("shape inference requires the last dimension", {
@@ -55,6 +55,6 @@ test_that("shape inference requires the last dimension", {
 })
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
-  expect_shape_inference_sampled("nn_linear",
-    list(rank = 3L, params = function() list(out_features = sample(1:8, 1L))))
+  expect_shape_inference("nn_linear", params = function() list(out_features = sample(1:8, 1L)),
+    generators = gen_shape(3L))
 })

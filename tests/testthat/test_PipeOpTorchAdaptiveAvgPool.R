@@ -82,7 +82,6 @@ test_that("adaptive_avg_output_shape works", {
 })
 
 test_that("adaptive_avg_output_shape requires a batch dimension", {
-  # the PipeOp rejects such a shape via assert_ndim() before the shape function is reached
   expect_error(
     adaptive_avg_output_shape(shape_in = c(3, 20, 20), conv_dim = 2, output_size = 5),
     "length 4"
@@ -90,8 +89,9 @@ test_that("adaptive_avg_output_shape requires a batch dimension", {
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_adaptive_avg_pool2d", list(output_size = c(2, 3)), c(2, 3, 16, 20))
-  expect_shapes_out_torch("nn_adaptive_avg_pool1d", list(output_size = 4), c(2, 3, 17))
+  expect_shape_inference("nn_adaptive_avg_pool2d", list(output_size = c(2, 3)), c(2, 3, 16, 20))
+  expect_shape_inference("nn_adaptive_avg_pool1d", list(output_size = 4), c(2, 3, 17))
+  expect_shape_inference("nn_adaptive_avg_pool3d", list(output_size = c(2, 3, 4)), c(2, 3, 5, 7, 9))
 })
 
 test_that("an unknown input extent still gives a known output", {
@@ -106,7 +106,8 @@ test_that("an unknown input extent still gives a known output", {
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
   for (d in 1:3) {
-    spec = list(rank = d + 2L, params = function() list(output_size = sample(1:4, d)))
-    expect_shape_inference_sampled(sprintf("nn_adaptive_avg_pool%id", d), spec)
+    expect_shape_inference(sprintf("nn_adaptive_avg_pool%id", d),
+      params = function() list(output_size = sample(1:4, d)),
+      generators = gen_shape(d + 2L))
   }
 })

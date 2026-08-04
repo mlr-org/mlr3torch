@@ -35,8 +35,7 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
       list(private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`,
-      # so the input has `d + 2` dimensions
+      # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`.
       assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
       list(pool_output_shape(
         shape_in = shapes_in[[1]],
@@ -52,14 +51,9 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
   )
 )
 
-# Output shape of a pooling operator, following what torch implements:
-#   floor/ceil((input + 2 * padding - dilation * (kernel_size - 1) - 1) / stride + 1)
-# With `ceil_mode`, torch additionally drops a pooling window that would start entirely within the
-# right-hand padding, which is the correction below.
+# Basically a port of torch
 pool_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, dilation = 1,
   ceil_mode = FALSE, id = NULL) {
-  # the batch and channel dimensions are part of the contract: the PipeOps assert them via
-  # assert_ndim()
   shape_in = assert_integerish(shape_in, len = conv_dim + 2L, coerce = TRUE)
 
   if (length(padding) == 1) padding = rep(padding, conv_dim)
@@ -82,7 +76,6 @@ pool_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, d
   c(shape_head, out)
 }
 
-# `nn_avg_pool*d()` has no `dilation` parameter
 avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ceil_mode = FALSE) {
   pool_output_shape(shape_in, conv_dim, padding = padding, stride = stride,
     kernel_size = kernel_size, dilation = 1, ceil_mode = ceil_mode)

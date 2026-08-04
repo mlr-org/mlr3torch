@@ -24,8 +24,8 @@ It can also be a \verb{function(shape)} that is called on the input shape and re
 shape, e.g. \verb{\\(shape) c(shape[1:2], 10)}. This expresses a reshape for inputs whose sizes are
 not known in advance, because the function is called again on the shape of the actual tensor
 when the network runs. Note that it is called with a shape that can contain \code{NA}s during shape
-inference, and that it is stored with the learner, so it should not capture a large
-environment.
+inference.
+This is e.g. useful when there are multiple unknown dimensions such as \verb{(batch, sequence, ...)}.
 }
 }
 

@@ -66,7 +66,6 @@ test_that("avg_output_shape works", {
 })
 
 test_that("avg_output_shape requires a batch dimension", {
-  # the PipeOp rejects such a shape via assert_ndim() before the shape function is reached
   expect_error(
     avg_output_shape(shape_in = c(3, 20, 20), conv_dim = 2, padding = 1, stride = 1,
       kernel_size = 3),
@@ -75,18 +74,20 @@ test_that("avg_output_shape requires a batch dimension", {
 })
 
 test_that("shape inference matches the operator", {
-  expect_shapes_out_torch("nn_avg_pool1d", list(kernel_size = 2), c(2, 3, 17))
-  expect_shapes_out_torch("nn_avg_pool2d", list(kernel_size = 2), c(2, 3, 16, 16))
-  expect_shapes_out_torch("nn_avg_pool2d", list(kernel_size = 2, stride = 2, padding = 1, ceil_mode = TRUE), c(2, 2, 5, 5))
-  expect_shapes_out_torch("nn_avg_pool2d", list(kernel_size = 3, stride = 2, padding = 1), c(2, 3, 16, 20))
+  expect_shape_inference("nn_avg_pool1d", list(kernel_size = 2), c(2, 3, 17))
+  expect_shape_inference("nn_avg_pool2d", list(kernel_size = 2), c(2, 3, 16, 16))
+  expect_shape_inference("nn_avg_pool2d", list(kernel_size = 2, stride = 2, padding = 1, ceil_mode = TRUE), c(2, 2, 5, 5))
+  expect_shape_inference("nn_avg_pool2d", list(kernel_size = 3, stride = 2, padding = 1), c(2, 3, 16, 20))
+  expect_shape_inference("nn_avg_pool3d", list(kernel_size = 2), c(2, 3, 8, 8, 8))
 })
 
 test_that("shape inference agrees with the module for random shapes and parameters", {
   for (d in 1:3) {
-    spec = list(rank = d + 2L, params = function() {
-      list(kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L), padding = 0L,
-        ceil_mode = sample(c(TRUE, FALSE), 1L))
-    })
-    expect_shape_inference_sampled(sprintf("nn_avg_pool%id", d), spec)
+    expect_shape_inference(sprintf("nn_avg_pool%id", d),
+      params = function() {
+        list(kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L), padding = 0L,
+          ceil_mode = sample(c(TRUE, FALSE), 1L))
+      },
+      generators = gen_shape(d + 2L))
   }
 })
