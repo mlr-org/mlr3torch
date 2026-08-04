@@ -139,6 +139,7 @@ Collate:
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
     'PipeOpTorchTokenizer.R'
+    'PipeOpTorchTransformerEncoderLayer.R'
     'Select.R'
     'TaskClassif_cifar.R'
     'TaskClassif_lazy_iris.R'
