@@ -49,6 +49,8 @@ Other Callback:
   \itemize{
     \item \href{#method-CallbackSetUnfreeze-initialize}{\code{CallbackSetUnfreeze$new()}}
     \item \href{#method-CallbackSetUnfreeze-on_begin}{\code{CallbackSetUnfreeze$on_begin()}}
+    \item \href{#method-CallbackSetUnfreeze-state_dict}{\code{CallbackSetUnfreeze$state_dict()}}
+    \item \href{#method-CallbackSetUnfreeze-load_state_dict}{\code{CallbackSetUnfreeze$load_state_dict()}}
     \item \href{#method-CallbackSetUnfreeze-on_epoch_begin}{\code{CallbackSetUnfreeze$on_epoch_begin()}}
     \item \href{#method-CallbackSetUnfreeze-on_batch_begin}{\code{CallbackSetUnfreeze$on_batch_begin()}}
     \item \href{#method-CallbackSetUnfreeze-clone}{\code{CallbackSetUnfreeze$clone()}}
@@ -56,9 +58,7 @@ Other Callback:
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>CallbackSet$load_state_dict()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>CallbackSet$state_dict()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -92,6 +92,39 @@ The selector indicates which parameters to unfreeze, while the \code{epoch} or \
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetUnfreeze$on_begin()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetUnfreeze-state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-state_dict}{}}}
+\subsection{\code{CallbackSetUnfreeze$state_dict()}}{
+  Returns the names of the weights that are currently trainable, so that a later run does not
+freeze weights again that were already unfrozen.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetUnfreeze$state_dict()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetUnfreeze-load_state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-load_state_dict}{}}}
+\subsection{\code{CallbackSetUnfreeze$load_state_dict()}}{
+  Marks the weights of the state dict as trainable.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetUnfreeze$load_state_dict(state_dict)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{state_dict}}{(named \code{list()})\cr
+The state dict as retrieved via \verb{$state_dict()}.}
+    }
     \if{html}{\out{</div>}}
   }
 }
