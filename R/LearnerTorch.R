@@ -67,6 +67,8 @@
 #'
 #' * `device`: Use a GPU if possible.
 #' * `num_threads`: Set this to the number of CPU cores available if training on CPU.
+#'   When resampling, benchmarking or tuning in parallel, each worker uses `num_threads` threads, so
+#'   divide the available cores among the workers instead to avoid oversubscribing the machine.
 #' * `tensor_dataset`: Set this to `TRUE` (or `"device"` if on a GPU) if the dataset fits into memory.
 #' * `batch_size`: Especially for very small models, choose a larger batch size.
 #'
@@ -650,6 +652,12 @@ LearnerTorch = R6Class("LearnerTorch",
           model = value$model
           value["model"] = list(NULL)
           value = super$deep_clone(name, value)
+          if (is_marshaled_model(model)) {
+            # a marshaled model contains no external pointers, so the regular deep clone above is
+            # already sufficient and the torch objects it would clone do not exist in this state
+            value$model = model
+            return(value)
+          }
           model$network = model$network$clone(deep = TRUE)
           model$loss_fn = clone_recurse(model$loss_fn)
           model$callbacks = map(model$callbacks, function(x) {

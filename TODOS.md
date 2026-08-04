@@ -12,6 +12,65 @@ empirical usage sweep (135 configuration checks), doc coverage.
 
 ## 1. Bugs — code
 
+### 1.0 [D] **`rr$learners[[i]]` is silently the wrong learner** — highest-impact finding
+`R/LearnerTorch.R:739`:
+```r
+hash_input.nn_module = function(x) {
+  data.table::address(x)
+}
+```
+
+A memory address is not stable across copies, so two `identical()` learners hash differently. This
+breaks the contract mlr3 relies on, and the consequence is **silently wrong results from a documented
+public API**.
+
+```r
+task = tsk("iris"); set.seed(1)
+rr = resample(task, lrn("classif.mlp", epochs = 2, batch_size = 32, neurons = 10,
+                        device = "cpu", predict_type = "prob"),
+              rsmp("cv", folds = 3), store_models = TRUE)
+# max abs difference between learner i's predictions and fold j's stored predictions
+#         [,1]   [,2]   [,3]
+# [1,]  0.3840 0.3987 0.0000
+# [2,]  0.7614 0.0000 0.3911
+# [3,]  0.0000 0.7896 0.4000
+```
+The zeros should lie on the diagonal; instead the list is reversed. `lrn("classif.rpart")` under the
+identical harness gives a clean zero diagonal, so this is specific to mlr3torch.
+
+**Mechanism.** `classif.mlp`'s `activation` parameter holds an `nn_relu` generator. Each resampling
+iteration copies it, so the copies are `identical()` but sit at different addresses:
+```
+addresses: 0x555560b1f528  0x5555611a70f0  0x5555614f8040
+identical(learners[[1]]$param_set$values$activation, learners[[2]]$...):  TRUE
+```
+Three different `learner_hash` values then feed `ResultData$learners()`, which does
+`merge(tab, learner_components, by = "learner_hash", sort = TRUE)` — so `$learners` comes back
+ordered by an address-derived hash rather than by iteration.
+
+**It is nondeterministic**, since it depends on allocation order: some parameter settings happen to
+produce the right order. That is exactly the profile of a bug that passes CI most days.
+
+**Scope:** `rr$learners` and `bmr$learners` are affected. `rr$score()` and `as.data.table(rr)` were
+correct in every run checked — they do not go through the sorted merge. So the damage is confined to
+anyone inspecting a fold's model, e.g. `rr$learners[[1]]$model`.
+
+**Why this needs your decision rather than a quick patch:** the obvious replacement — letting
+`mlr3misc:::hash_input.function` handle it, i.e. `list(formals(x), as.character(body(x)))` — is what
+this method was written to override, and it is wrong here: every generator produced by
+`torch::nn_module()` shares the same wrapper body and formals, so `nn_relu` and `nn_sigmoid` would
+hash **equal**. Trading a copy-instability bug for a collision bug is not an improvement.
+
+A workable direction is to key on the generator's class, which is stable across copies and distinct
+per module type (`class(nn_relu)[1]` is `"nn_relu"`, `class(nn_sigmoid)[1]` is `"nn_sigmoid"`), with
+a fallback for anonymous modules built by `nn_module(classname = NULL)`, whose class is just
+`c("nn_module", "nn_module_generator")` — those would need to fall back to hashing the
+`initialize`/`forward` methods to stay distinguishable. Deciding how far to go is a judgement call
+about what identity should mean for an `nn_module` hyperparameter, which is why it is left here.
+
+Worth adding a regression test that `resample(..., store_models = TRUE)$learners[[i]]` reproduces
+iteration `i`'s predictions, for a learner whose parameters hold an `nn_module`.
+
 ### 1.1 [D] Checkpoint callback rejects any pre-existing directory
 `R/CallbackSetCheckpoint.R:43` — `assert_path_for_output(path)` without `overwrite = TRUE`.
 
@@ -239,6 +298,53 @@ l$train(tsk("iris")); l$model$callbacks$history
 It only ever records `measures_train`/`measures_valid`; the training loss — the one quantity that
 always exists — is never logged. A warning when `history` is enabled with no measures, or logging the
 loss by default, would save a confused debugging session.
+
+### 1.9h [D] `num_interop_threads` is unusable, and permanently alters global torch state
+The parameter is *initialised* to `1`, and torch only allows the interop thread count to be set once
+per session — so training any learner at all burns that one chance, after which the user's explicit
+value is rejected:
+
+```r
+torch::torch_get_num_interop_threads()   #> 8
+lrn("classif.mlp", epochs = 1, batch_size = 32, neurons = 8)$train(tsk("iris"))
+torch::torch_get_num_interop_threads()   #> 1   (and never restored)
+lrn("classif.mlp", ..., num_interop_threads = 4)$train(tsk("iris"))
+#> WARN Can only set the interop threads once, keeping the previous value 1
+```
+
+It only works if the very first learner trained in the session already carries the desired value.
+Two further problems:
+- Unlike `num_threads`, which `R/with_torch_settings.R` restores via `on.exit`, the interop setting is
+  never restored — so mlr3torch permanently drops interop parallelism to 1 for **all unrelated torch
+  code** in the session.
+- The docs say only that it "can only be set once during a session"; they do not say the package's own
+  default has already consumed that chance.
+
+Also a plain doc error at `man-roxygen/paramset_torchlearner.R:17` (rendered into
+`man/mlr_learners_torch.Rd` and `man/mlr_pipeops_torch_model.Rd`): `num_interop_threads` is described
+as "The number of threads for intraop **and** interop pararallelization" — it is interop only, and
+"pararallelization" is misspelled. *(The typo is fixed on this branch; the semantics and the
+initialise-to-1 decision are left to you.)*
+
+### 1.9i [D] `mirai` backend silently produces irreproducible results
+```r
+daemons(2, .compute = "mlr3_parallelization")
+set.seed(42); b = resample(tsk("sonar"), mk(), rsmp("cv", folds = 3))
+set.seed(42); c = resample(tsk("sonar"), mk(), rsmp("cv", folds = 3))
+identical(gp(b), gp(c))   #> FALSE      (TRUE under future)
+```
+Root cause is upstream: `mlr3:::future_map`'s mirai branch calls `mirai_map()` without seeding, while
+the `future` branch passes `future.seed = TRUE`. `classif.ranger` reproduces it, so it is not
+mlr3torch-specific. It is recorded here because **mlr3torch learners are stochastic by default**
+(`seed = "random"`), so torch users are maximally exposed, and nothing in the docs suggests pinning
+`seed` before going parallel. Setting the learner's `seed` explicitly makes mirai reproducible and
+equal to the sequential result. Worth reporting upstream and mentioning in the parallelization docs.
+
+### 1.9j `device = "cuda"` on a CPU-only build dumps a 60-frame C++ backtrace
+`auto_device()` resolves `"auto"` but passes an explicit `"cuda"` through unchecked, so the failure
+arrives as ~60 frames of C++ backtrace that also land verbatim in `learner$log` and `rr$errors`,
+making resampling logs unreadable. A `torch::cuda_is_available()` check at train time would reduce
+this to one actionable line.
 
 ### 1.10 No check that the final layer size matches the task
 Forgetting `po("nn_head")`, or giving the last layer the wrong `out_features`, is not caught even
