@@ -28,9 +28,13 @@ output shapes are assumed to be unknown (`NULL`).
   assumed to have exactly one shape vector for which it must calculate
   the output shapes and return it as a
   [`list()`](https://rdrr.io/r/base/list.html) of length 1. It can also
-  be assumed that the shape is not `NULL` (i.e. unknown). Also, the
-  first dimension can be `NA`, i.e. is unknown (as for the batch
-  dimension).
+  be assumed that the shape is not `NULL` (i.e. unknown). Any dimension
+  of that shape can be `NA`, i.e. unknown, not only the first (batch)
+  one, so it must handle `NA`s and assert those dimensions it actually
+  needs to be known, see
+  [`assert_known_dims()`](https://mlr3torch.mlr-org.com/dev/reference/assert_known_dims.md)
+  and the "Shape Inference" section of
+  [`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md).
 
 ## Input and Output Channels
 
@@ -221,8 +225,9 @@ values that are currently set.
 
   ([`list()`](https://rdrr.io/r/base/list.html) of
   ([`integer()`](https://rdrr.io/r/base/integer.html) or `NULL`))  
-  The input input shapes of the lazy tensors. `NULL` indicates that the
-  shape is unknown. First dimension must be `NA` (if it is not `NULL`).
+  The input shapes of the lazy tensors. `NULL` indicates that the shape
+  is unknown. If it is not `NULL`, the first (batch) dimension must be
+  `NA`; any of the other dimensions may be `NA` as well.
 
 - `stage`:
 

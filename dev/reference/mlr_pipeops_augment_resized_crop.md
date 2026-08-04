@@ -19,10 +19,10 @@ applied to each element of a batch individually.
 |  |  |  |  |  |
 |----|----|----|----|----|
 | Id | Type | Default | Levels | Range |
-| top | integer | \- |  | \\(-\infty, \infty)\\ |
-| left | integer | \- |  | \\(-\infty, \infty)\\ |
-| height | integer | \- |  | \\(-\infty, \infty)\\ |
-| width | integer | \- |  | \\(-\infty, \infty)\\ |
+| top | integer | \- |  | \\\[1, \infty)\\ |
+| left | integer | \- |  | \\\[1, \infty)\\ |
+| height | integer | \- |  | \\\[0, \infty)\\ |
+| width | integer | \- |  | \\\[0, \infty)\\ |
 | size | untyped | \- |  | \- |
 | interpolation | integer | 2 |  | \\\[0, 3\]\\ |
 | stages | character | \- | train, predict, both | \- |

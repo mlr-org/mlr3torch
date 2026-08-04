@@ -202,5 +202,5 @@ pipeop$param_set
 #> 1:        d_token ParamInt     1   Inf     Inf <NoDefault[0]>      10
 #> 2:           bias ParamLgl    NA    NA       2 <NoDefault[0]>    TRUE
 #> 3: initialization ParamFct    NA    NA       2 <NoDefault[0]> uniform
-#> 4:  cardinalities ParamInt     1   Inf     Inf <NoDefault[0]>  [NULL]
+#> 4:  cardinalities ParamUty    NA    NA     Inf <NoDefault[0]>  [NULL]
 ```

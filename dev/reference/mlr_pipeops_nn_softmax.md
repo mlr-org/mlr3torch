@@ -182,6 +182,6 @@ pipeop
 pipeop$param_set
 #> <ParamSet(1)>
 #>        id    class lower upper nlevels        default  value
-#>    <char>   <char> <int> <num>   <num>         <list> <list>
-#> 1:    dim ParamInt     1   Inf     Inf <NoDefault[0]> [NULL]
+#>    <char>   <char> <num> <num>   <num>         <list> <list>
+#> 1:    dim ParamInt  -Inf   Inf     Inf <NoDefault[0]> [NULL]
 ```

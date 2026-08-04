@@ -86,8 +86,15 @@ This internally calls <code><a href="https://torch.mlverse.org/docs/reference/to
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
 
 
-<ul><li><p><code>shape</code> :: <code>integer(1)</code><br>
-The desired output shape. Unknown dimension (one at most) can either be specified as <code>-1</code>.</p></li>
+<ul><li><p><code>shape</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> | <code>function()</code><br>
+The desired output shape. One dimension at most can be <code>-1</code>, which torch infers from the
+number of elements. The first dimension is the batch dimension.</p>
+<p>It can also be a <code>function(shape)</code> that is called on the input shape and returns the output
+shape, e.g. <code>\(shape) c(shape[1:2], 10)</code>. This expresses a reshape for inputs whose sizes are
+not known in advance, because the function is called again on the shape of the actual tensor
+when the network runs. Note that it is called with a shape that can contain <code>NA</code>s during shape
+inference.
+This is e.g. useful when there are multiple unknown dimensions such as <code>(batch, sequence, ...)</code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>

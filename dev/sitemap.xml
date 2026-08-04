@@ -34,7 +34,16 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/as_torch_callbacks.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/as_torch_loss.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/as_torch_optimizer.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/assert_dim_in_range.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/assert_known_dims.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/assert_lazy_tensor.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/assert_ndim.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/assert_not_batch_dim.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/assert_positive_extent.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/assert_same_batch_size.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/assert_same_ndim.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/assert_shape.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/assert_shapes.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/auto_device.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/batchgetter_categ.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/batchgetter_num.html</loc></url>
@@ -200,6 +209,8 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/pipeop_preproc_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/replace_head.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/reshape_output_shape.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/shape_helpers.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/t_clbk.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/t_loss.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/t_opt.html</loc></url>

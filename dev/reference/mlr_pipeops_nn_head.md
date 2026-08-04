@@ -13,7 +13,9 @@ trained however, the model descriptor has the correct output shape.
 
 Calls
 [`torch::nn_linear()`](https://torch.mlverse.org/docs/reference/nn_linear.html)
-with the input and output features inferred from the input shape / task.
+with the input features inferred from the input shape and the output
+features from the task, via
+[`output_dim_for()`](https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.md).
 For
 
 - binary classification, the output dimension is 1.
@@ -27,6 +29,17 @@ For
 
 - `bias` :: `logical(1)`  
   Whether to use a bias. Default is `TRUE`.
+
+## Supporting Other Task Types
+
+The output dimension is not hard-coded here: `PipeOpTorchHead` asks the
+generic
+[`output_dim_for()`](https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.md)
+how many output neurons the task needs, and mlr3torch implements methods
+for [`TaskClassif`](https://mlr3.mlr-org.com/reference/TaskClassif.html)
+and [`TaskRegr`](https://mlr3.mlr-org.com/reference/TaskRegr.html). You
+can add support to your custom task type by implementing a method for
+your class.
 
 ## Input and Output Channels
 

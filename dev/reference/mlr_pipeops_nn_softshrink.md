@@ -183,5 +183,5 @@ pipeop$param_set
 #> <ParamSet(1)>
 #>        id    class lower upper nlevels default  value
 #>    <char>   <char> <num> <num>   <num>  <list> <list>
-#> 1:  lambd ParamDbl  -Inf     1     Inf     0.5 [NULL]
+#> 1:  lambd ParamDbl     0   Inf     Inf     0.5 [NULL]
 ```

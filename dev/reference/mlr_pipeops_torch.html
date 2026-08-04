@@ -140,14 +140,25 @@ the private method <code>.shape_dependent_params()</code>.</p></li>
 (<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code> or <code>NULL</code>) -&gt; named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 This private method gets a list of <code>integer</code> vectors (<code>shapes_in</code>), the parameter values (<code>param_vals</code>),
 as well as an (optional) <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>.
-The <code>shapes_in</code> can be assumed to be in the same order as the input names of the <code>PipeOp</code>.
+The <code>shapes_in</code> list indicates the shape of input tensors that will be fed to the module's <code>$forward()</code> function.
+The list has one item per input tensor, typically only one.
+The function should return a list of shapes of tensors that are created by the module.
+The <code>shapes_in</code> are named after the input channels of the <code>PipeOp</code> and are in the same order.
 The output shapes must be in the same order as the output names of the <code>PipeOp</code>.
 In case the output shapes depends on the task (as is the case for <code><a href="mlr_pipeops_nn_head.html">PipeOpTorchHead</a></code>), the function should return
 valid output shapes (possibly containing <code>NA</code>s) if the <code>task</code> argument is provided or not.
-It is important to properly handle the presence of <code>NA</code>s in the input shapes.
-By default (if construction argument <code>only_batch_unknown</code> is <code>TRUE</code>), only the batch dimension can be <code>NA</code>.
-If you set this to <code>FALSE</code>, you need to take other unknown dimensions into account.
-The method can also throw an error if the input shapes violate some assumptions.</p></li>
+Any dimension of <code>shapes_in</code> can be <code>NA</code>, i.e. unknown, so this method must not assume that a
+dimension it reads is known.
+It has to assert the dimensions it actually needs and propagate the <code>NA</code>s it can live with.</p>
+<p>The inference should generally be <strong>permissive</strong>. For example, applying a convolutional layer
+to an input of shape <code>c(NA, 3, NA, NA)</code> should assume that the last two dimensions are big
+enough for the given kernel size.
+This can sometimes lead to runtime errors but this is preferable over rejecting valid
+architectures.</p>
+<p>There are various assertion helpers for common input checks, such as <code><a href="assert_known_dims.html">assert_known_dims()</a></code> and the
+"See also" links on its page.
+There are also <code><a href="shape_helpers.html">shape_helpers</a></code>, which provide the shape
+arithmetic (broadcasting, resolving negative dimension indices).</p></li>
 <li><p><code>.shape_dependent_params(shapes_in, param_vals, task)</code><br>
 (<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 This private method has the same inputs as <code>.shapes_out</code>.
@@ -161,6 +172,25 @@ and add it to the user-supplied parameter values (<code>param_vals</code>).</p><
 
 <p>During <em>training</em>, all inputs and outputs are of class <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>.
 During <em>prediction</em>, all input and output channels are of class <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="shape-inference">Shape Inference<a class="anchor" aria-label="anchor" href="#shape-inference"></a></h2>
+
+
+<p>A network is assembled without any data flowing through it, so <span class="pkg">mlr3torch</span> tracks the shape
+of the tensors instead: it starts from the shape the ingress announces and hands each <code>PipeOp</code>
+the shapes of its inputs, which is how auxiliary parameters such as <code>in_features</code> of
+<code><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></code> are filled in automatically.</p>
+<p>A shape is an <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> whose first entry is the batch dimension, e.g. <code>c(NA, 3, 32, 32)</code> for a
+batch of RGB images of 32 by 32 pixels. A dimension whose size is not known in advance is <code>NA</code>,
+and any dimension can be <code>NA</code>, not only the batch dimension: the sequence length of a
+transformer or the height and width of an image may equally well vary.</p>
+<p>The public <code>$shapes_out()</code> method answers the same question for a single <code>PipeOp</code>, without
+building a network around it, which is the quickest way to see what an operator makes of a given
+input shape. It is also what reports the problem when an operator needs a dimension that is
+unknown, naming the <code>PipeOp</code> and the shape it was given.</p>
+<p>Implementing a <code>PipeOp</code> that computes its own output shapes is described under <code>.shapes_out()</code> in
+the "Inheriting" section above.</p>
     </div>
     <div class="section level2">
     <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
@@ -244,8 +274,7 @@ Do not change this after construction.</p></dd>
 <span>  inname <span class="op">=</span> <span class="st">"input"</span>,</span>
 <span>  outname <span class="op">=</span> <span class="st">"output"</span>,</span>
 <span>  packages <span class="op">=</span> <span class="st">"torch"</span>,</span>
-<span>  tags <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  only_batch_unknown <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  tags <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
@@ -291,12 +320,6 @@ The R packages this object depends on.</p></dd>
       <dt><code>tags</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The tags of the <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code>. The tags <code>"torch"</code> is always added.</p></dd>
-
-      <dt><code>only_batch_unknown</code></dt>
-<dd><p>(<code>logical(1)</code>)<br>
-Whether only the batch dimension can be missing in the input shapes or whether other
-dimensions can also be unknown.
-Default is <code>TRUE</code>.</p></dd>
 
 
 </dl><p></p></div>
@@ -575,6 +598,25 @@ the <code>PipeOp</code>.</p>
 <span class="r-in"><span><span class="va">tasks_out</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">po_torch</span><span class="op">$</span><span class="va">predict</span>, args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>input <span class="op">=</span> <span class="va">predict_input</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">tasks_out</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>, <span class="va">tasks_out</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Shape inference</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># `$shapes_out()` reports what an operator makes of an input shape, without building a network</span></span></span>
+<span class="r-in"><span><span class="va">conv</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_conv2d"</span>, out_channels <span class="op">=</span> <span class="fl">4</span>, kernel_size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">conv</span><span class="op">$</span><span class="fu">shapes_out</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">3</span>, <span class="fl">32</span>, <span class="fl">32</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA  4 30 30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># any dimension may be unknown, so images of varying size work just as well</span></span></span>
+<span class="r-in"><span><span class="va">conv</span><span class="op">$</span><span class="fu">shapes_out</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">3</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA  4 NA NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># a dimension the operator does need is reported, naming the PipeOp and the shape it was given</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="va">conv</span><span class="op">$</span><span class="fu">shapes_out</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">32</span>, <span class="fl">32</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error : PipeOp 'nn_conv2d' requires the channel dimension (dimension 2) of the input shape to be known, but got shape (NA,NA,32,32).</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

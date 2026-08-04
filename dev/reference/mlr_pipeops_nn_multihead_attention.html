@@ -85,11 +85,21 @@ self-attention and cross-attention can be expressed, see section <em>Input and O
 
 
     <div class="section level2">
+    <h2 id="tensor-layout">Tensor Layout<a class="anchor" aria-label="anchor" href="#tensor-layout"></a></h2>
+
+
+<p>All inputs and outputs are <code>(batch, sequence, feature)</code>, i.e. the <code>batch_first</code> layout of
+<code><a href="https://torch.mlverse.org/docs/reference/nn_multihead_attention.html" class="external-link">torch::nn_multihead_attention()</a></code>, which is fixed and not a hyperparameter.
+<code>torch</code> defaults to <code>(sequence, batch, feature)</code>, but the first dimension of every shape has to
+be the batch dimension here.</p>
+    </div>
+    <div class="section level2">
     <h2 id="nn-module">nn_module<a class="anchor" aria-label="anchor" href="#nn-module"></a></h2>
 
 
 <p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_multihead_attention.html" class="external-link">torch::nn_multihead_attention()</a></code> when trained, where the parameters <code>embed_dim</code>, <code>kdim</code>
-and <code>vdim</code> are inferred as the last dimension of the query, key and value tensors respectively.</p>
+and <code>vdim</code> are inferred as the last dimension of the query, key and value tensors respectively,
+and <code>batch_first</code> is always <code>TRUE</code>, see section <em>Tensor Layout</em>.</p>
     </div>
     <div class="section level2">
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
@@ -109,15 +119,12 @@ Default is <code>FALSE</code>.</p></li>
 <li><p><code>add_zero_attn</code> :: <code>logical(1)</code><br>
 Whether to add a new batch of zeros to the key and value sequences at dimension 1.
 Default is <code>FALSE</code>.</p></li>
-<li><p><code>batch_first</code> :: <code>logical(1)</code><br>
-Whether the input and output tensors are provided as <code>(batch, sequence, feature)</code> (<code>TRUE</code>) or
-as <code>(sequence, batch, feature)</code> (<code>FALSE</code>).
-Default is <code>FALSE</code>, as in <code>torch</code>.</p></li>
 <li><p><code>avg_weights</code> :: <code>logical(1)</code><br>
 Whether the returned attention weights are averaged over the attention heads.
 Default is <code>TRUE</code>. Only has an effect when the construction argument <code>need_weights</code> is <code>TRUE</code>.</p></li>
 </ul><p>Note that <code>embed_dim</code>, <code>kdim</code> and <code>vdim</code> are <em>not</em> parameters, as they are inferred from the
-shapes of the input tensors.</p>
+shapes of the input tensors, and that <code>batch_first</code> is <em>not</em> a parameter either, as it is fixed
+to <code>TRUE</code>, see section <em>Tensor Layout</em>.</p>
     </div>
     <div class="section level2">
     <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
@@ -319,7 +326,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  output ModelDescriptor    Task</span>
 <span class="r-in"><span><span class="co"># The available parameters</span></span></span>
 <span class="r-in"><span><span class="va">pipeop</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(7)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(6)&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               id    class lower upper nlevels        default  value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:     num_heads ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;      4</span>
@@ -327,8 +334,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3:          bias ParamLgl    NA    NA       2           TRUE [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4:   add_bias_kv ParamLgl    NA    NA       2          FALSE [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5: add_zero_attn ParamLgl    NA    NA       2          FALSE [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:   batch_first ParamLgl    NA    NA       2          FALSE [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:   avg_weights ParamLgl    NA    NA       2           TRUE [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:   avg_weights ParamLgl    NA    NA       2           TRUE [NULL]</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

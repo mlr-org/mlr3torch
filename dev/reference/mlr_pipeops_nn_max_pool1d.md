@@ -214,6 +214,6 @@ pipeop$param_set
 #> 1: kernel_size ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
 #> 2:     padding ParamUty    NA    NA     Inf              0 [NULL]
 #> 3:      stride ParamUty    NA    NA     Inf         [NULL] [NULL]
-#> 4:    dilation ParamInt  -Inf   Inf     Inf              1 [NULL]
+#> 4:    dilation ParamUty    NA    NA     Inf              1 [NULL]
 #> 5:   ceil_mode ParamLgl    NA    NA       2          FALSE [NULL]
 ```

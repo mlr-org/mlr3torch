@@ -160,7 +160,7 @@ pipeop = po("nn_ft_cls")
 pipeop
 #> 
 #> ── PipeOp <nn_ft_cls>: not trained ─────────────────────────────────────────────
-#> Values: list()
+#> Values: initialization=uniform
 #> 
 #> ── Input channels: 
 #>    name           train predict
@@ -174,7 +174,7 @@ pipeop
 # The available parameters
 pipeop$param_set
 #> <ParamSet(1)>
-#>                id    class lower upper nlevels default  value
-#>            <char>   <char> <num> <num>   <num>  <list> <list>
-#> 1: initialization ParamFct    NA    NA       2 uniform [NULL]
+#>                id    class lower upper nlevels        default   value
+#>            <char>   <char> <num> <num>   <num>         <list>  <list>
+#> 1: initialization ParamFct    NA    NA       2 <NoDefault[0]> uniform
 ```

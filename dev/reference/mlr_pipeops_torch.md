@@ -76,18 +76,33 @@ methods, or overload `private$.make_module()`.
   This private method gets a list of `integer` vectors (`shapes_in`),
   the parameter values (`param_vals`), as well as an (optional)
   [`Task`](https://mlr3.mlr-org.com/reference/Task.html). The
-  `shapes_in` can be assumed to be in the same order as the input names
-  of the `PipeOp`. The output shapes must be in the same order as the
-  output names of the `PipeOp`. In case the output shapes depends on the
-  task (as is the case for
+  `shapes_in` list indicates the shape of input tensors that will be fed
+  to the module's `$forward()` function. The list has one item per input
+  tensor, typically only one. The function should return a list of
+  shapes of tensors that are created by the module. The `shapes_in` are
+  named after the input channels of the `PipeOp` and are in the same
+  order. The output shapes must be in the same order as the output names
+  of the `PipeOp`. In case the output shapes depends on the task (as is
+  the case for
   [`PipeOpTorchHead`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_head.md)),
   the function should return valid output shapes (possibly containing
-  `NA`s) if the `task` argument is provided or not. It is important to
-  properly handle the presence of `NA`s in the input shapes. By default
-  (if construction argument `only_batch_unknown` is `TRUE`), only the
-  batch dimension can be `NA`. If you set this to `FALSE`, you need to
-  take other unknown dimensions into account. The method can also throw
-  an error if the input shapes violate some assumptions.
+  `NA`s) if the `task` argument is provided or not. Any dimension of
+  `shapes_in` can be `NA`, i.e. unknown, so this method must not assume
+  that a dimension it reads is known. It has to assert the dimensions it
+  actually needs and propagate the `NA`s it can live with.
+
+  The inference should generally be **permissive**. For example,
+  applying a convolutional layer to an input of shape `c(NA, 3, NA, NA)`
+  should assume that the last two dimensions are big enough for the
+  given kernel size. This can sometimes lead to runtime errors but this
+  is preferable over rejecting valid architectures.
+
+  There are various assertion helpers for common input checks, such as
+  [`assert_known_dims()`](https://mlr3torch.mlr-org.com/dev/reference/assert_known_dims.md)
+  and the "See also" links on its page. There are also
+  [`shape_helpers`](https://mlr3torch.mlr-org.com/dev/reference/shape_helpers.md),
+  which provide the shape arithmetic (broadcasting, resolving negative
+  dimension indices).
 
 - `.shape_dependent_params(shapes_in, param_vals, task)`  
   ([`list()`](https://rdrr.io/r/base/list.html),
@@ -105,6 +120,31 @@ During *training*, all inputs and outputs are of class
 [`ModelDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/ModelDescriptor.md).
 During *prediction*, all input and output channels are of class
 [`Task`](https://mlr3.mlr-org.com/reference/Task.html).
+
+## Shape Inference
+
+A network is assembled without any data flowing through it, so mlr3torch
+tracks the shape of the tensors instead: it starts from the shape the
+ingress announces and hands each `PipeOp` the shapes of its inputs,
+which is how auxiliary parameters such as `in_features` of
+[`nn_linear`](https://torch.mlverse.org/docs/reference/nn_linear.html)
+are filled in automatically.
+
+A shape is an [`integer()`](https://rdrr.io/r/base/integer.html) whose
+first entry is the batch dimension, e.g. `c(NA, 3, 32, 32)` for a batch
+of RGB images of 32 by 32 pixels. A dimension whose size is not known in
+advance is `NA`, and any dimension can be `NA`, not only the batch
+dimension: the sequence length of a transformer or the height and width
+of an image may equally well vary.
+
+The public `$shapes_out()` method answers the same question for a single
+`PipeOp`, without building a network around it, which is the quickest
+way to see what an operator makes of a given input shape. It is also
+what reports the problem when an operator needs a dimension that is
+unknown, naming the `PipeOp` and the shape it was given.
+
+Implementing a `PipeOp` that computes its own output shapes is described
+under `.shapes_out()` in the "Inheriting" section above.
 
 ## State
 
@@ -226,8 +266,7 @@ Creates a new instance of this
       inname = "input",
       outname = "output",
       packages = "torch",
-      tags = NULL,
-      only_batch_unknown = TRUE
+      tags = NULL
     )
 
 #### Arguments
@@ -295,12 +334,6 @@ Creates a new instance of this
   The tags of the
   [`PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html).
   The tags `"torch"` is always added.
-
-- `only_batch_unknown`:
-
-  (`logical(1)`)  
-  Whether only the batch dimension can be missing in the input shapes or
-  whether other dimensions can also be unknown. Default is `TRUE`.
 
 ------------------------------------------------------------------------
 
@@ -579,4 +612,23 @@ predict_input = list(input1 = task1, input2 = task2)
 tasks_out = do.call(po_torch$predict, args = list(input = predict_input))
 identical(tasks_out[[1L]], tasks_out[[2L]])
 #> [1] TRUE
+
+## Shape inference
+
+# `$shapes_out()` reports what an operator makes of an input shape, without building a network
+conv = po("nn_conv2d", out_channels = 4, kernel_size = 3)
+conv$shapes_out(list(c(NA, 3, 32, 32)))
+#> $output
+#> [1] NA  4 30 30
+#> 
+
+# any dimension may be unknown, so images of varying size work just as well
+conv$shapes_out(list(c(NA, 3, NA, NA)))
+#> $output
+#> [1] NA  4 NA NA
+#> 
+
+# a dimension the operator does need is reported, naming the PipeOp and the shape it was given
+try(conv$shapes_out(list(c(NA, NA, 32, 32))))
+#> Error : PipeOp 'nn_conv2d' requires the channel dimension (dimension 2) of the input shape to be known, but got shape (NA,NA,32,32).
 ```

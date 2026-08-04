@@ -25,16 +25,18 @@ explanation see
 
 ## Internals
 
-Per default, the `private$.shapes_out()` method outputs the broadcasted
-tensors. There are two things to be aware:
+Per default, the `private$.shapes_out()` method outputs the shape that
+the inputs broadcast to. There are two things to be aware of:
 
-1.  `NA`s are assumed to batch (this should almost always be the batch
-    size in the first dimension).
+1.  Broadcasting is generalized to unknown (`NA`) sizes: per dimension a
+    known size that is not 1 wins, and the result is only unknown when
+    every input is either unknown or 1, because an unknown size may turn
+    out to be greater than 1 and would then determine the size.
 
 2.  Tensors are expected to have the same number of dimensions, i.e.
-    missing dimensions are not filled with 1s. The reason is again that
-    the first dimension should be the batch dimension. This private
-    method can be overwritten by
+    missing dimensions are not filled with 1s. The reason is that the
+    first dimension should be the batch dimension. This private method
+    can be overwritten by
     [`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)s
     inheriting from this class.
 

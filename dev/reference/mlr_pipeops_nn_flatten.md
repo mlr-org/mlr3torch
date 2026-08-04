@@ -184,7 +184,7 @@ pipeop
 pipeop$param_set
 #> <ParamSet(2)>
 #>           id    class lower upper nlevels default  value
-#>       <char>   <char> <int> <num>   <num>  <list> <list>
-#> 1: start_dim ParamInt     1   Inf     Inf       2 [NULL]
-#> 2:   end_dim ParamInt     1   Inf     Inf      -1 [NULL]
+#>       <char>   <char> <num> <num>   <num>  <list> <list>
+#> 1: start_dim ParamInt  -Inf   Inf     Inf       2 [NULL]
+#> 2:   end_dim ParamInt  -Inf   Inf     Inf      -1 [NULL]
 ```

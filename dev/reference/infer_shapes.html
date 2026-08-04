@@ -6,28 +6,18 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Infer Shapes — infer_shapes"><meta name="description" content="Infer the shapes of the output of a function based on the shapes of the input.
-This is done as follows:
-All NAs are replaced with values 1, 2, 3.
-Three tensors are generated for the three shapes of step 1.
-The function is called on these three tensors and the shapes are calculated.
-If:
-the number of dimensions varies, an error is thrown.
-the number of dimensions is the same, values are set to NA if the dimension is varying
-between the three tensors and otherwise set to the unique value.
-
-
-"><meta property="og:description" content="Infer the shapes of the output of a function based on the shapes of the input.
-This is done as follows:
-All NAs are replaced with values 1, 2, 3.
-Three tensors are generated for the three shapes of step 1.
-The function is called on these three tensors and the shapes are calculated.
-If:
-the number of dimensions varies, an error is thrown.
-the number of dimensions is the same, values are set to NA if the dimension is varying
-between the three tensors and otherwise set to the unique value.
-
-
-"><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
+This works by running the function on the input and observing the results.
+For fully known input shapes this is always correct.
+For partially unknown shapes, the NAs are replaced with various concrete values
+and the output shape is computed from them.
+Note that this is a heuristic that might fail, so usually one wants to provide the shape
+(inference) explicitly."><meta property="og:description" content="Infer the shapes of the output of a function based on the shapes of the input.
+This works by running the function on the input and observing the results.
+For fully known input shapes this is always correct.
+For partially unknown shapes, the NAs are replaced with various concrete values
+and the output shape is computed from them.
+Note that this is a heuristic that might fail, so usually one wants to provide the shape
+(inference) explicitly."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -94,14 +84,13 @@ between the three tensors and otherwise set to the unique value.
 
     <div class="ref-description section level2">
     <p>Infer the shapes of the output of a function based on the shapes of the input.
-This is done as follows:</p><ol><li><p>All <code>NA</code>s are replaced with values <code>1</code>, <code>2</code>, <code>3</code>.</p></li>
-<li><p>Three tensors are generated for the three shapes of step 1.</p></li>
-<li><p>The function is called on these three tensors and the shapes are calculated.</p></li>
-<li><p>If:</p><ul><li><p>the number of dimensions varies, an error is thrown.</p></li>
-<li><p>the number of dimensions is the same, values are set to <code>NA</code> if the dimension is varying
-between the three tensors and otherwise set to the unique value.</p></li>
-</ul></li>
-</ol></div>
+This works by running the function on the input and observing the results.
+For fully known input shapes this is always correct.
+For partially unknown shapes, the <code>NA</code>s are replaced with various concrete values
+and the output shape is computed from them.
+Note that this is a heuristic that might fail, so usually one wants to provide the shape
+(inference) explicitly.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
@@ -146,6 +135,27 @@ The id of the PipeOp (for error messages).</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
 A list of shapes of the output tensors.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The inference is done as follows:</p><ol><li><p>All <code>NA</code>s are replaced with three different values, which span a wide range: none of them is
+<code>1</code> (which broadcasts and is squeezed away), one of them is small (to detect operators that
+clamp to the input size, such as slicing or cropping) and the others are large (because
+operators such as a convolution with a large kernel need a minimum extent).</p></li>
+<li><p>Three tensors are generated for the three shapes of step 1.</p></li>
+<li><p>The function is called on these three tensors and the shapes are calculated.
+A call that fails is dropped, so that an operator is not rejected because of the smallest
+value; at least two of the three calls must succeed.</p></li>
+<li><p>If:</p><ul><li><p>the number of dimensions varies, an error is thrown.</p></li>
+<li><p>the number of dimensions is the same, values are set to <code>NA</code> if the dimension is varying
+between the tensors and otherwise set to the unique value.</p></li>
+</ul></li>
+</ol></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other Shape Inference:
+<code><a href="reshape_output_shape.html">reshape_output_shape()</a></code>,
+<code><a href="shape_helpers.html">shape_to_str()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

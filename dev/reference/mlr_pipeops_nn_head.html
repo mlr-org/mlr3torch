@@ -84,8 +84,8 @@ When this <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html
     <h2 id="nn-module">nn_module<a class="anchor" aria-label="anchor" href="#nn-module"></a></h2>
 
 
-<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">torch::nn_linear()</a></code> with the input and output features inferred from the input shape / task.
-For</p><ul><li><p>binary classification, the output dimension is 1.</p></li>
+<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">torch::nn_linear()</a></code> with the input features inferred from the input shape and the output
+features from the task, via <code><a href="output_dim_for.html">output_dim_for()</a></code>. For</p><ul><li><p>binary classification, the output dimension is 1.</p></li>
 <li><p>multiclass classification, the output dimension is the number of classes.</p></li>
 <li><p>regression, the output dimension is 1.</p></li>
 </ul></div>
@@ -96,6 +96,15 @@ For</p><ul><li><p>binary classification, the output dimension is 1.</p></li>
 <ul><li><p><code>bias</code> :: <code>logical(1)</code><br>
 Whether to use a bias. Default is <code>TRUE</code>.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="supporting-other-task-types">Supporting Other Task Types<a class="anchor" aria-label="anchor" href="#supporting-other-task-types"></a></h2>
+
+
+<p>The output dimension is not hard-coded here: <code>PipeOpTorchHead</code> asks the generic
+<code><a href="output_dim_for.html">output_dim_for()</a></code> how many output neurons the task needs, and <span class="pkg">mlr3torch</span> implements methods
+for <code><a href="https://mlr3.mlr-org.com/reference/TaskClassif.html" class="external-link">TaskClassif</a></code> and <code><a href="https://mlr3.mlr-org.com/reference/TaskRegr.html" class="external-link">TaskRegr</a></code>.
+You can add support to your custom task type by implementing a method for your class.</p>
+    </div>
     <div class="section level2">
     <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
 

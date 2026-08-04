@@ -549,5 +549,32 @@
   : Selector Functions for Character Vectors
 - [`output_dim_for()`](https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.md)
   : Network Output Dimension
+
+## Shape Inference
+
 - [`infer_shapes()`](https://mlr3torch.mlr-org.com/dev/reference/infer_shapes.md)
   : Infer Shapes
+- [`shape_to_str()`](https://mlr3torch.mlr-org.com/dev/reference/shape_helpers.md)
+  [`broadcast_shapes()`](https://mlr3torch.mlr-org.com/dev/reference/shape_helpers.md)
+  [`resolve_dim()`](https://mlr3torch.mlr-org.com/dev/reference/shape_helpers.md)
+  : Helpers for Shape Inference
+- [`reshape_output_shape()`](https://mlr3torch.mlr-org.com/dev/reference/reshape_output_shape.md)
+  : Output Shape of a Reshape
+- [`assert_shape()`](https://mlr3torch.mlr-org.com/dev/reference/assert_shape.md)
+  : Assert a Shape
+- [`assert_shapes()`](https://mlr3torch.mlr-org.com/dev/reference/assert_shapes.md)
+  : Assert a List of Shapes
+- [`assert_known_dims()`](https://mlr3torch.mlr-org.com/dev/reference/assert_known_dims.md)
+  : Assert that Dimensions are Known
+- [`assert_ndim()`](https://mlr3torch.mlr-org.com/dev/reference/assert_ndim.md)
+  : Assert the Number of Dimensions of a Shape
+- [`assert_same_ndim()`](https://mlr3torch.mlr-org.com/dev/reference/assert_same_ndim.md)
+  : Assert that Shapes have the Same Number of Dimensions
+- [`assert_same_batch_size()`](https://mlr3torch.mlr-org.com/dev/reference/assert_same_batch_size.md)
+  : Assert that Shapes have the Same Batch Size
+- [`assert_dim_in_range()`](https://mlr3torch.mlr-org.com/dev/reference/assert_dim_in_range.md)
+  : Assert that a Dimension Exists
+- [`assert_not_batch_dim()`](https://mlr3torch.mlr-org.com/dev/reference/assert_not_batch_dim.md)
+  : Assert that a Dimension is not the Batch Dimension
+- [`assert_positive_extent()`](https://mlr3torch.mlr-org.com/dev/reference/assert_positive_extent.md)
+  : Assert that a Computed Output Size is Positive

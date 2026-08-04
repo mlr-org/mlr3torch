@@ -101,7 +101,9 @@ If you don't overwrite it, the output shapes are assumed to be unknown (<code>NU
 input <code>shapes_in</code> can be assumed to have exactly one shape vector for which it must calculate the output shapes
 and return it as a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of length 1.
 It can also be assumed that the shape is not <code>NULL</code> (i.e. unknown).
-Also, the first dimension can be <code>NA</code>, i.e. is unknown (as for the batch dimension).</p></li>
+Any dimension of that shape can be <code>NA</code>, i.e. unknown, not only the first (batch) one, so it
+must handle <code>NA</code>s and assert those dimensions it actually needs to be known, see
+<code><a href="assert_known_dims.html">assert_known_dims()</a></code> and the "Shape Inference" section of <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
@@ -253,9 +255,10 @@ It uses the parameter values that are currently set.</p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>shapes_in</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of (<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or <code>NULL</code>))<br>
-The input input shapes of the lazy tensors.
+The input shapes of the lazy tensors.
 <code>NULL</code> indicates that the shape is unknown.
-First dimension must be <code>NA</code> (if it is not <code>NULL</code>).</p></dd>
+If it is not <code>NULL</code>, the first (batch) dimension must be <code>NA</code>; any of the other dimensions
+may be <code>NA</code> as well.</p></dd>
 
       <dt><code>stage</code></dt>
 <dd><p>(<code>character(1)</code>)<br>

@@ -81,6 +81,16 @@
 <li>New parameter <code>batch_size_predict</code> for <code>LearnerTorch</code>, which overrides <code>batch_size</code> for prediction (including the validation data during training) when it is set.</li>
 <li>Added <code>PipeOpTorchMultiheadAttention</code> (<code>po("nn_multihead_attention")</code>).</li>
 <li>Most <code>LearnerTorchVision</code> are now <code>jittable</code>.</li>
+<li>Any dimension of an input shape can now be unknown (<code>NA</code>), not only the batch dimension.</li>
+<li>Improved error messages during <code>PipeOpTorch</code>’s shape inference.</li>
+<li>The <code>shape</code> parameter of <code>nn("reshape")</code> can now be a <code>function(shape)</code> of the input shape.</li>
+<li>Exported various helpers useful for implementing shape inference for custom <code>PipeOpTorch</code> classes.</li>
+<li>
+<code><a href="../reference/ModelDescriptor.html">ModelDescriptor()</a></code> now accepts a known batch dimension in <code>pointer_shape</code>, so an operator can check what it would otherwise have to assume, e.g. that a reshape keeps the batch dimension.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
+<ul><li>The construction argument <code>only_batch_unknown</code> of <code>PipeOpTorch</code> was removed. Any dimension of an input shape can now be unknown, so <code>private$.shapes_out()</code> must always handle <code>NA</code>s and assert those dimensions it actually needs to be known.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
@@ -93,6 +103,9 @@
 <code><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical()</a></code> features are now encoded as <code>c(1, 2)</code> by the <code><a href="../reference/batchgetter_categ.html">batchgetter_categ()</a></code> and their cardinality is correctly computed.</li>
 <li>
 <code>lazy_tensor</code> columns are now again printed correctly inside <code>data.table</code>s</li>
+<li>
+<code>nn("reshape")</code> with a <code>function(shape)</code> target now resolves a <code>-1</code> whenever the number of elements per observation is known, i.e. when the batch dimension is the only unknown one.</li>
+<li>Fixed various other shape inference bugs.</li>
 </ul></div>
 </div>
     <div class="section level2">

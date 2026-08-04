@@ -12,9 +12,19 @@ with the given `shape`.
 
 ## Parameters
 
-- `shape` :: `integer(1)`  
-  The desired output shape. Unknown dimension (one at most) can either
-  be specified as `-1`.
+- `shape` :: [`integer()`](https://rdrr.io/r/base/integer.html) \|
+  `function()`  
+  The desired output shape. One dimension at most can be `-1`, which
+  torch infers from the number of elements. The first dimension is the
+  batch dimension.
+
+  It can also be a `function(shape)` that is called on the input shape
+  and returns the output shape, e.g. `\(shape) c(shape[1:2], 10)`. This
+  expresses a reshape for inputs whose sizes are not known in advance,
+  because the function is called again on the shape of the actual tensor
+  when the network runs. Note that it is called with a shape that can
+  contain `NA`s during shape inference. This is e.g. useful when there
+  are multiple unknown dimensions such as `(batch, sequence, ...)`.
 
 ## Input and Output Channels
 

@@ -12,10 +12,10 @@ when trained.
 
 ## Parameters
 
-- `dim` :: `integer(1)`  
-  The dimension to squeeze. If `NULL`, all dimensions of size 1 will be
-  squeezed. Negative values are interpreted downwards from the last
-  dimension.
+- `dim` :: [`integer()`](https://rdrr.io/r/base/integer.html)  
+  The dimensions to squeeze. Negative values are interpreted downwards
+  from the last dimension. A dimension whose size is not known to be 1
+  is kept, because it may be larger at runtime.
 
 ## Input and Output Channels
 

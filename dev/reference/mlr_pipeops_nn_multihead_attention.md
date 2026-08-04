@@ -9,13 +9,23 @@ that makes it usable as a building block of a
 tensor operations, where both self-attention and cross-attention can be
 expressed, see section *Input and Output Channels*.
 
+## Tensor Layout
+
+All inputs and outputs are `(batch, sequence, feature)`, i.e. the
+`batch_first` layout of
+[`torch::nn_multihead_attention()`](https://torch.mlverse.org/docs/reference/nn_multihead_attention.html),
+which is fixed and not a hyperparameter. `torch` defaults to
+`(sequence, batch, feature)`, but the first dimension of every shape has
+to be the batch dimension here.
+
 ## nn_module
 
 Calls
 [`torch::nn_multihead_attention()`](https://torch.mlverse.org/docs/reference/nn_multihead_attention.html)
 when trained, where the parameters `embed_dim`, `kdim` and `vdim` are
 inferred as the last dimension of the query, key and value tensors
-respectively.
+respectively, and `batch_first` is always `TRUE`, see section *Tensor
+Layout*.
 
 ## Parameters
 
@@ -38,19 +48,15 @@ respectively.
   Whether to add a new batch of zeros to the key and value sequences at
   dimension 1. Default is `FALSE`.
 
-- `batch_first` :: `logical(1)`  
-  Whether the input and output tensors are provided as
-  `(batch, sequence, feature)` (`TRUE`) or as
-  `(sequence, batch, feature)` (`FALSE`). Default is `FALSE`, as in
-  `torch`.
-
 - `avg_weights` :: `logical(1)`  
   Whether the returned attention weights are averaged over the attention
   heads. Default is `TRUE`. Only has an effect when the construction
   argument `need_weights` is `TRUE`.
 
 Note that `embed_dim`, `kdim` and `vdim` are *not* parameters, as they
-are inferred from the shapes of the input tensors.
+are inferred from the shapes of the input tensors, and that
+`batch_first` is *not* a parameter either, as it is fixed to `TRUE`, see
+section *Tensor Layout*.
 
 ## Input and Output Channels
 
@@ -274,7 +280,7 @@ pipeop
 #>  output ModelDescriptor    Task
 # The available parameters
 pipeop$param_set
-#> <ParamSet(7)>
+#> <ParamSet(6)>
 #>               id    class lower upper nlevels        default  value
 #>           <char>   <char> <num> <num>   <num>         <list> <list>
 #> 1:     num_heads ParamInt     1   Inf     Inf <NoDefault[0]>      4
@@ -282,6 +288,5 @@ pipeop$param_set
 #> 3:          bias ParamLgl    NA    NA       2           TRUE [NULL]
 #> 4:   add_bias_kv ParamLgl    NA    NA       2          FALSE [NULL]
 #> 5: add_zero_attn ParamLgl    NA    NA       2          FALSE [NULL]
-#> 6:   batch_first ParamLgl    NA    NA       2          FALSE [NULL]
-#> 7:   avg_weights ParamLgl    NA    NA       2           TRUE [NULL]
+#> 6:   avg_weights ParamLgl    NA    NA       2           TRUE [NULL]
 ```
