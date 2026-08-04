@@ -64,7 +64,7 @@
 #'   The initial value of this parameter is set to `"train"` when the `PipeOp`'s id starts with `"augment_"` and
 #'   to `"both"` otherwise.
 #'   Note that the preprocessing that is applied during `$predict()` uses the parameters that were set during
-#'  `$train()` and not those that are set when performing the prediction.
+#'   `$train()` and not those that are set when performing the prediction.
 #'
 #' @section Internals:
 #' During `$train()` / `$predict()`, a [`PipeOpModule`] with one input and one output channel is created.

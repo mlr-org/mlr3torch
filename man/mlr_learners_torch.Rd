@@ -163,6 +163,8 @@ Note that the final model is always evaluated.
 \item \code{patience} :: \code{integer(1)}\cr
 This activates early stopping using the validation scores.
 If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
+Note that this counts \emph{evaluation steps}, not epochs: when \code{eval_freq} is greater than \code{1},
+\code{patience} evaluation steps correspond to \code{patience * eval_freq} epochs.
 Note that the final model is stored in the learner, not the best model.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
@@ -227,7 +229,7 @@ Also see \code{torch::dataloder} for more information.
 \section{Inheriting}{
 
 There are no separate classes for classification and regression to inherit from.
-Instead, the \code{task_type} must be specified  as a construction argument.
+Instead, the \code{task_type} must be specified as a construction argument.
 Currently, only classification and regression are supported.
 
 When inheriting from this class, one should overload the following methods:

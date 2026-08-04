@@ -49,6 +49,8 @@
 #' * `patience` :: `integer(1)`\cr
 #'   This activates early stopping using the validation scores.
 #'   If the performance of a model does not improve for `patience` evaluation steps, training is ended.
+#'   Note that this counts *evaluation steps*, not epochs: when `eval_freq` is greater than `1`,
+#'   `patience` evaluation steps correspond to `patience * eval_freq` epochs.
 #'   Note that the final model is stored in the learner, not the best model.
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.

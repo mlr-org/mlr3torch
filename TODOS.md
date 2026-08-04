@@ -3,7 +3,7 @@
 Everything here is **still open**. Items already fixed on branch `audit-fixes` are listed in `NEWS.md`
 and are not repeated below.
 
-Source: 4-agent audit of `main` @ `736f5165` — adversarial bug hunt, doc/code correctness,
+Source: an 8-agent audit of `main` @ `736f5165` — adversarial bug hunt, doc/code correctness,
 empirical usage sweep (135 configuration checks), doc coverage.
 
 **[D]** marks items that need a decision from you, not just a patch.
@@ -56,42 +56,7 @@ Fix would be `args$ignore_index = args$ignore_index - 1L` plus
 `assert_choice(ignore_index, seq_along(task$class_names))`. **Decision needed** because it changes
 user-visible semantics: shift to match the documented 1-based encoding, or keep 0-based and document it.
 
-### 1.3 `nn_squeeze` can squeeze away the batch dimension
-`R/PipeOpTorchReshape.R:88-100`.
-
-Every sibling operator that changes a dimension guards with `assert_not_batch_dim()` (`nn_glu`
-`R/PipeOpTorchActivation.R:789`, `nn_reglu` `:861`, `nn_geglu` `:933`). `nn_squeeze` does not.
-
-```r
-po("nn_squeeze", dim = 1)$shapes_out(list(c(1, 4, 3)))
-#> $output
-#> [1] 4 3      # batch dimension gone; expected an error
-```
-
-Reachable through the documented API since `21aa514a` allowed a known batch size
-(`unknown_batch = NULL`, `R/ModelDescriptor.R:72`), and at runtime for a trailing batch of size 1.
-Fix: call `assert_not_batch_dim(true_dim, shape, self$id)` in `.shapes_out()` and filter dim 1 out of
-`.shape_dependent_params()`.
-
-### 1.4 Conv/pool shape inference returns `double`, not `integer`
-`R/PipeOpTorchAvgPool.R:68`, `R/PipeOpTorchConv.R:166`.
-
-Both compute `floor((...) / stride + 1)`, which yields doubles. `PipeOpTorch$shapes_out()` coerces its
-*inputs* with `assert_shapes(..., coerce = TRUE)` (`R/PipeOpTorch.R:338`) but never its *outputs*, and
-`.train()` assigns the result straight into `pointer_shape`. `DataDescriptor$new()` and
-`transform_lazy_tensor()` call `assert_shape()` without capturing the coerced return
-(`R/DataDescriptor.R:106`, `R/lazy_tensor.R:276`), so the doubles persist and make `identical()`/hash
-comparisons of otherwise-equal shapes disagree.
-
-```r
-typeof(po("nn_max_pool2d", kernel_size = 2)$shapes_out(list(c(NA, 3, 8, 8)))[[1]])
-#> "double"    # expected "integer"
-```
-
-Suggested fix: coerce centrally in `PipeOpTorch$shapes_out()` —
-`set_names(map(private$.shapes_out(...), as.integer), self$output$name)`.
-
-### 1.5 [D] `internal_valid_scores` reports the last epoch, `internal_tuned_values` the best one
+### 1.3 [D] `internal_valid_scores` reports the last epoch, `internal_tuned_values` the best one
 `R/learner_torch_methods.R:226` vs `R/LearnerTorch.R:470`.
 
 After early stopping these describe **different models**, so a tuner archives the wrong
@@ -112,21 +77,16 @@ the archive. **Not obviously a bug** — mlr3's `Learner` docs say `.extract_int
 returns the "(final)" scores and `mlr3learners`' xgboost behaves identically, so this may be an
 intended mlr3-wide convention. Worth deciding explicitly, since the two are reported side by side.
 
-### 1.6 `CallbackSetHistory$load_state_dict()` is never called
+### 1.4 `CallbackSetHistory$load_state_dict()` is never called
 `R/CallbackSetHistory.R:55-62`. Nothing in `R/` calls it, so the resume path is dead code — and
 `state_dict()` returns `rbind(state, self$prev_state)`, i.e. new epochs *before* older ones, so the
 ordering bug is baked in should it ever be wired up. Either finish it or delete it.
 *(Static reasoning only.)*
 
-### 1.7 `replace_head.mobilenet_v2` / `.VGG` hardcode the head input size
+### 1.5 `replace_head.mobilenet_v2` / `.VGG` hardcode the head input size
 `R/LearnerTorchVision.R:168` (`nn_linear(1280, d_out)`) and `:188` (`nn_linear(4096, d_out)`), where
 every sibling method reads `$in_features`. Correct only for the standard width variants.
 *(Static reasoning only — verifying needs a model download.)*
-
-### 1.8 `patience` counts evaluation rounds, not epochs, when `eval_freq > 1`
-`CallbackSetEarlyStopping$on_valid_end` only runs on evaluation epochs. Verified: `eval_freq = 3,
-patience = 2` stops at epoch 9 after evaluations at 3, 6, 9 — i.e. 6 epochs of stagnation.
-Defensible behaviour, but undocumented in the `patience` description.
 
 ---
 
@@ -183,34 +143,12 @@ Runtime today: `lrn("classif.mlp")$optimizer$id == "adam"` for mlp, ft_transform
 `vignettes/articles/get_started.Rmd:71` ("the Adam optimizer") should **not** be changed. Only the
 NEWS entry is wrong. Being a historical entry, probably annotate rather than rewrite.
 
-### 3.3 `nn_avg_pool1d` documents `divisor_override`, which it doesn't have
-`R/PipeOpTorchAvgPool.R:99-100`. The parameter is only added when `d >= 2L` (`:20-22`); the doc line
-itself even says "Only available for dimension greater than 1." Needs a conditional template, not a
-one-line edit.
+### 3.3 [D] Two unused bibentries
+`arik2021tabnet` and `ioffe2015batch` in `R/bibentries.R` are referenced by no `format_bib()` call.
+Dead weight, but deleting a reference is a judgement call — they may be intended for learners not yet
+written up.
 
-### 3.4 `nn_prelu` parameter description is incoherent
-`R/PipeOpTorchActivation.R:230`: "Number of a to learn. … there is only two values are legitimate".
-Needs a rewrite, e.g. "Number of `a` parameters to learn. Although it takes an integer, only two
-values are legitimate: …". Same block, `:229`, ends the bullet with `:` instead of `\cr`.
-
-### 3.5 `nn_max_pool*` `kernel_size` type is wrong and malformed
-`R/PipeOpTorchMaxPool.R:70`: `` :: (`integer(1))` `` — paren and backtick swapped, *and* `integer(1)`
-misdescribes a `p_uty` that accepts vectors.
-
-### 3.6 Whitespace / formatting nits
-- `R/PipeOpTorch.R:61` (trailing whitespace, 2-space indent), `:64` (4-space) — continuations
-  elsewhere use 3.
-- `R/PipeOpTaskPreprocTorch.R:65` — 2-space indent instead of 3.
-- `R/PipeOpTorchConvTranspose.R:81` — `` ::`integer()` `` missing space after `::`.
-- `R/PipeOpTorchAvgPool.R:89` — stray outer parens: `` :: (`integer()`) ``.
-- `NEWS.md:53-54` — continuation line at column 0 splits the bullet into two markdown blocks.
-- `NEWS.md:55` — missing final period.
-
-### 3.7 bibentries
-- `R/bibentries.R:12-13` — stray trailing comma in the `bibentry()` call.
-- `arik2021tabnet` (`:41`) and `ioffe2015batch` (`:53`) are referenced by no `format_bib()` call — dead weight.
-
-### 3.8 "allows to X" (non-native phrasing) — 12 instances
+### 3.4 "allows to X" (non-native phrasing) — 12 instances
 `R/cache.R:4`, `R/PipeOpModule.R:7`, `R/PipeOpTorchBlock.R:14`, `R/DataDescriptor.R:6`,
 `R/LearnerTorch.R:25`, `man-roxygen/paramset_torchlearner.R:101`, `README.Rmd:54`, `README.Rmd:114`,
 `NEWS.md:108`, `NEWS.md:109`, `NEWS.md:171`, `DESCRIPTION:35`.
@@ -453,7 +391,26 @@ slots 0..3) even at `p = 0`.
 
 ---
 
-## Appendix — verified clean, don't re-audit
+## Appendix A — investigated and rejected
+
+Recorded so they are not re-reported as findings.
+
+- **`nn_squeeze` squeezing the batch dimension is intended, not a bug.** An audit agent flagged that
+  `po("nn_squeeze", dim = 1)$shapes_out(list(c(1, 4, 3)))` returns `c(4, 3)` while every sibling
+  operator that changes a dimension guards with `assert_not_batch_dim()`. Adding that guard breaks
+  `tests/testthat/test_PipeOpTorchReshape.R:146`, which asserts the current behaviour *and* verifies
+  on line 149 that the module itself does the same thing at runtime
+  (`dim(nn_squeeze(dim = 1L)(torch_randn(1, 3, 5)))` is `c(3, 5)`). The shape inference therefore
+  correctly mirrors torch, and a batch dimension that is not known to be `1` is kept anyway (line 151).
+  The `assert_not_batch_dim()` example in `R/shape.R:450` happens to use `id = "nn_squeeze"`, which is
+  misleading — it is illustrative only.
+
+- **The default optimizer is Adam, and the code docs saying so are correct.** See 3.2 — only the NEWS
+  entry is wrong.
+
+---
+
+## Appendix B — verified clean, don't re-audit
 
 **Docs**: all 124 runnable examples pass (extracted via `tools::Rd2ex` with `\dontrun`/`\donttest`
 uncommented, each run in a fresh session); all 6387 cross-references resolve; `tools::checkDocFiles()`

@@ -18,7 +18,7 @@ Calls \code{\link[torch:nn_max_pool1d]{torch::nn_max_pool1d()}} during training.
 \itemize{
 \item \code{kernel_size} :: \code{integer()}\cr
 The size of the window. Can be single number or a vector.
-\item \code{stride} :: (\verb{integer(1))}\cr
+\item \code{stride} :: \code{integer()}\cr
 The stride of the window. Can be a single number or a vector. Default: \code{kernel_size}
 \item \code{padding} :: \code{integer()}\cr
 Implicit zero paddings on both sides of the input. Can be a single number or a tuple (padW,). Default: 0

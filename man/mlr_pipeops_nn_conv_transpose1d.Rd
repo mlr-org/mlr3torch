@@ -25,7 +25,7 @@ Size of the convolving kernel.
 Stride of the convolution. Default: 1.
 \item \code{padding} :: \code{integer()}\cr
 \code{dilation * (kernel_size - 1) - padding} zero-padding will be added to both sides of the input. Default: 0.
-\item \code{output_padding} ::\code{integer()}\cr
+\item \code{output_padding} :: \code{integer()}\cr
 Additional size added to one side of the output shape. Default: 0.
 \item \code{groups} :: \code{integer()}\cr
 Number of blocked connections from input channels to output channels. Default: 1

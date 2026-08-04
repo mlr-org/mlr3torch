@@ -86,7 +86,7 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #' @section nn_module:
 #' Calls [`nn_avg_pool1d()`][torch::nn_avg_pool1d] during training.
 #' @section Parameters:
-#' * `kernel_size` :: (`integer()`)\cr
+#' * `kernel_size` :: `integer()`\cr
 #'   The size of the window. Can be a single number or a vector.
 #' * `stride` :: `integer()`\cr
 #'   The stride of the window. Can be a single number or a vector. Default: `kernel_size`.
@@ -98,7 +98,8 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #'   When `TRUE`, will include the zero-padding in the averaging calculation. Default: `TRUE`.
 #' * `divisor_override` :: `numeric(1)`\cr
 #'   If specified, it will be used as divisor, otherwise size of the pooling region will be used. Default: NULL.
-#'   Only available for dimension greater than 1.
+#'   Only available for `nn_avg_pool2d` and `nn_avg_pool3d`, i.e. this parameter does not exist for
+#'   `nn_avg_pool1d`.
 #'
 #'
 #' @templateVar id nn_avg_pool1d

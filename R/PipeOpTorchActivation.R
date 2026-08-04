@@ -226,11 +226,11 @@ register_po("nn_log_sigmoid", PipeOpTorchLogSigmoid)
 #' @inherit torch::nnf_prelu description
 #' @section nn_module: Calls [`torch::nn_prelu()`] when trained.
 #' @section Parameters:
-#' * `num_parameters` :: `integer(1)`:
-#'   Number of a to learn. Although it takes an int as input, there is only two values are legitimate: 1, or the
-#'   number of channels at input. Default: 1.
-#' * `init` :: `numeric(1)`\cr T
-#'   The initial value of a. Default: 0.25.
+#' * `num_parameters` :: `integer(1)`\cr
+#'   Number of `a` parameters to learn. Although it takes an integer as input, only two values are
+#'   legitimate: `1`, or the number of channels of the input. Default: 1.
+#' * `init` :: `numeric(1)`\cr
+#'   The initial value of `a`. Default: 0.25.
 #' @templateVar id nn_prelu
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch

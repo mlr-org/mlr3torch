@@ -58,10 +58,10 @@
 #'   enough for the given kernel size.
 #'   This can sometimes lead to runtime errors but this is preferable over rejecting valid
 #'   architectures.
-#'  
+#'
 #'   There are various assertion helpers for common input checks, such as [`assert_known_dims()`] and the
 #'   "See also" links on its page.
-#'    There are also [`shape_helpers`], which provide the shape
+#'   There are also [`shape_helpers`], which provide the shape
 #'   arithmetic (broadcasting, resolving negative dimension indices).
 #' * `.shape_dependent_params(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`, [`Task`][mlr3::Task] or `NULL`) -> named `list()`\cr
@@ -345,7 +345,10 @@ PipeOpTorch = R6Class("PipeOpTorch",
       if ("..." %nin% self$input$name) {
         names(shapes_in) = self$input$name
       }
-      set_names(private$.shapes_out(shapes_in, self$param_set$get_values(), task = task), self$output$name)
+      shapes_out = private$.shapes_out(shapes_in, self$param_set$get_values(), task = task)
+      # `.shapes_out()` implementations commonly derive extents arithmetically (e.g. `floor(x / stride + 1)`),
+      # which yields doubles. Coercing here keeps shapes comparable via `identical()` and stable under hashing.
+      set_names(map(shapes_out, function(s) if (is.numeric(s)) as.integer(s) else s), self$output$name)
     }
   ),
   private = list(

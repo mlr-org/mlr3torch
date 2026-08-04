@@ -41,6 +41,9 @@
 
 * `t_clbk("lr_reduce_on_plateau")` no longer errors in epochs where no validation is performed,
   i.e. when `eval_freq > 1` or when no validation is configured.
+* `PipeOpTorch$shapes_out()` now always returns `integer()` shapes. Operators that derive extents
+  arithmetically (such as the convolution and pooling layers) returned `double()`s, which made
+  otherwise equal shapes compare unequal under `identical()` and hashing.
 * `po("torch_model_classif")` and `po("torch_model_regr")` now correctly propagate the package
   requirements of the `Graph` to the trained `LearnerTorchModel`. This previously had no effect.
 * `lrn("classif.torch_model")$help()` (and the regression counterpart) no longer errors, as the
@@ -57,8 +60,8 @@
   could silently misalign the predictions with the rows of the task.
   They are now tagged with `"train"` only.
 * `logical()` features are now encoded as `c(1, 2)` by the
-`batchgetter_categ()` and their cardinality is correctly computed.
-* `lazy_tensor` columns are now again printed correctly inside `data.table`s
+  `batchgetter_categ()` and their cardinality is correctly computed.
+* `lazy_tensor` columns are now again printed correctly inside `data.table`s.
 * The callback overview on the package website now links to the correct help pages.
 * `t_clbk("lr_one_cycle")` and `t_clbk("lr_reduce_on_plateau")` now point to their own
   help pages instead of the generic `mlr_callback_set.lr_scheduler` page.

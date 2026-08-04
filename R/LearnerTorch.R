@@ -117,7 +117,7 @@
 #'
 #' @section Inheriting:
 #' There are no separate classes for classification and regression to inherit from.
-#' Instead, the `task_type` must be specified  as a construction argument.
+#' Instead, the `task_type` must be specified as a construction argument.
 #' Currently, only classification and regression are supported.
 #'
 #' When inheriting from this class, one should overload the following methods:

@@ -9,7 +9,7 @@ bibentries = c(# nolint start
     ),
     journal = "arXiv",
     volume = "2106.11959",
-    year = "2021",
+    year = "2021"
   ),
   devlin2018bert = bibentry("article",
     title = "Bert: Pre-training of deep bidirectional transformers for language understanding",
