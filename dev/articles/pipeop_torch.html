@@ -111,13 +111,78 @@
 
     
     
-<p>In this vignette, we will show how to build neural network
-architectures as <code>mlr3pipelines::Graphs</code>s. We will create a
-simple CNN for the tiny-imagenet task, which is a subset of well-known
-Imagenet benchmark.</p>
+<p>In this vignette, we will show two ways to define a neural network
+architecture in <code>mlr3torch</code>. We start with the direct route,
+where an existing <code>torch</code> module is turned into an
+<code><a href="https://mlr3.mlr-org.com/reference/Learner.html" class="external-link">mlr3::Learner</a></code>. Afterwards, we show how to build
+architectures as <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">mlr3pipelines::Graph</a></code>s, which allows to
+infer shapes from the task and to tune the architecture itself.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3torch.mlr-org.com/">mlr3torch</a></span><span class="op">)</span></span>
-<span><span class="va">imagenet</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"tiny_imagenet"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3torch.mlr-org.com/">mlr3torch</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="from-a-torch-module-to-a-learner">From a <code>torch</code> Module to a <code>Learner</code><a class="anchor" aria-label="anchor" href="#from-a-torch-module-to-a-learner"></a>
+</h2>
+<p>If you already have a <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">torch::nn_module</a></code>, or want to write
+one yourself, <code>lrn("classif.module")</code> (or
+<code>lrn("regr.module")</code> for regression) wraps it into an
+<code><a href="https://mlr3.mlr-org.com/reference/Learner.html" class="external-link">mlr3::Learner</a></code>. This gives you the training loop, resampling
+and tuning infrastructure of <code>mlr3torch</code> without having to
+express the architecture as a <code>Graph</code>.</p>
+<p>The module generator needs to take <code>task</code> as an argument,
+so that dimensions that depend on the data – such as the number of
+features or classes – can be inferred during <code>$train()</code>. Its
+remaining arguments become hyperparameters of the resulting
+<code>Learner</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nn_one_layer</span> <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></span><span class="op">(</span><span class="st">"nn_one_layer"</span>,</span>
+<span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">task</span>, <span class="va">size_hidden</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">self</span><span class="op">$</span><span class="va">first</span> <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="va">task</span><span class="op">$</span><span class="va">n_features</span>, <span class="va">size_hidden</span><span class="op">)</span></span>
+<span>    <span class="va">self</span><span class="op">$</span><span class="va">second</span> <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="va">size_hidden</span>, <span class="fu"><a href="../reference/output_dim_for.html">output_dim_for</a></span><span class="op">(</span><span class="va">task</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span>,</span>
+<span>  <span class="co"># the argument x corresponds to the ingress token x below</span></span>
+<span>  forward <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">self</span><span class="op">$</span><span class="fu">second</span><span class="op">(</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/nnf_relu.html" class="external-link">nnf_relu</a></span><span class="op">(</span><span class="va">self</span><span class="op">$</span><span class="fu">first</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The second ingredient are the <code>ingress_tokens</code>, which
+specify how the features of the task are converted into the tensors that
+are passed to the module’s <code>forward()</code> method. Their names
+must match the arguments of <code>forward()</code>, so here
+<code><a href="../reference/ingress_num.html">ingress_num()</a></code> collects all numeric features into a single
+tensor <code>x</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">module_learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"classif.module"</span>,</span>
+<span>  module_generator <span class="op">=</span> <span class="va">nn_one_layer</span>,</span>
+<span>  ingress_tokens <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="../reference/ingress_num.html">ingress_num</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  size_hidden <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  epochs <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  batch_size <span class="op">=</span> <span class="fl">16</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">module_learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">module_learner</span><span class="op">$</span><span class="va">network</span></span>
+<span><span class="co">#&gt; An `nn_module` containing 163 parameters.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Modules ─────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; • first: &lt;nn_linear&gt; #100 parameters</span></span>
+<span><span class="co">#&gt; • second: &lt;nn_linear&gt; #63 parameters</span></span></code></pre></div>
+<p>Note that the parameters of the module generator are by default
+inferred as untyped (<code>ParamUty</code>). To make them tunable, pass
+an explicit <code>param_set</code> to <code>lrn("classif.module")</code>
+that describes them,
+e.g. <code>paradox::ps(size_hidden = paradox::p_int(1L, tags = "train"))</code>.</p>
+</div>
+<div class="section level2">
+<h2 id="building-an-architecture-as-a-graph">Building an Architecture as a <code>Graph</code><a class="anchor" aria-label="anchor" href="#building-an-architecture-as-a-graph"></a>
+</h2>
+<p>Writing the module directly gives you full control, but the
+architecture is then a black box: its layer sizes are fixed in R code
+and cannot be tuned, and the input dimensions have to be derived from
+the task by hand. Building the network as a <code>Graph</code> instead
+addresses both points. To show this, we create a simple CNN for the
+tiny-imagenet task, which is a subset of the well-known Imagenet
+benchmark.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">imagenet</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"tiny_imagenet"</span><span class="op">)</span></span>
 <span><span class="va">imagenet</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;TaskClassif&gt;</span><span style="font-weight: bold;"> (110000x2): ImageNet Subset</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span></span>
@@ -125,6 +190,9 @@ Imagenet benchmark.</p>
 <span><span class="co">#&gt; • Properties: multiclass</span></span>
 <span><span class="co">#&gt; • Features (1):</span></span>
 <span><span class="co">#&gt;   • lt (1): image</span></span>
+<span><span class="co">#&gt; Downloading <span style="color: #0000BB;">&lt;tiny_imagenet&gt;</span> ...</span></span>
+<span><span class="co">#&gt; Processing <span style="color: #0000BB;">&lt;tiny_imagenet&gt;</span> ...</span></span>
+<span><span class="co">#&gt; Dataset <span style="color: #0000BB;">&lt;tiny_imagenet&gt;</span> downloaded and extracted successfully.</span></span>
 <span><span class="co">#&gt; • Target classes: abacus (0%), academic gown, academic robe, judge's robe (0%),</span></span>
 <span><span class="co">#&gt; acorn (0%), African elephant, Loxodonta africana (0%), albatross, mollymawk</span></span>
 <span><span class="co">#&gt; (0%), alp (0%), altar (0%), American alligator, Alligator mississipiensis (0%),</span></span>
@@ -146,7 +214,7 @@ exist:</p>
 </ul>
 <p>Because the imagenet task contains only one feature of type
 <code>lazy_tensor</code>, we go for the last option:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">architecture</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_ltnsr"</span><span class="op">)</span></span></code></pre></div>
 <p>We now define a relatively simple convolutional neural network. Note
 that in the code below <code>po("nn_relu_1")</code> is equivalent to
@@ -158,7 +226,7 @@ dimension for the convolutional layers, which are inferred from the task
 during <code>$train()</code>ing. This means that our
 <code>Learner</code> can be applied to tasks with different image sizes,
 each time building up the correct network structure.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">architecture</span> <span class="op">=</span> <span class="va">architecture</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_conv2d_1"</span>, out_channels <span class="op">=</span> <span class="fl">64</span>, kernel_size <span class="op">=</span> <span class="fl">11</span>, stride <span class="op">=</span> <span class="fl">4</span>, padding <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_relu_1"</span>, inplace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
@@ -168,7 +236,7 @@ each time building up the correct network structure.</p>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_max_pool2d_2"</span>, kernel_size <span class="op">=</span> <span class="fl">3</span>, stride <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p>We can now continue with specifying the classification part of the
 network, which is a dense network that repeats a layer twice:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dense_layer</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_dropout"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4096</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_relu_6"</span><span class="op">)</span></span></code></pre></div>
@@ -177,23 +245,23 @@ use <code>po("nn_block")</code>, which we here repeat twice. Then, we
 follow with the output head of the network, where we don’t have to
 specify the number of classes, as they can also be inferred from the
 task</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">classifier</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_block"</span>, <span class="va">dense_layer</span>, n_blocks <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_head"</span><span class="op">)</span></span></code></pre></div>
 <p>Next, we can combine the convolutional part with the dense head:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">architecture</span> <span class="op">=</span> <span class="va">architecture</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_flatten"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="va">classifier</span></span></code></pre></div>
 <p>Below, we display the network:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">architecture</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>html <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div id="htmlwidget-ac96cb3ee4656e2e9ec3" style="width:50%;height:400px;" class="visNetwork html-widget"></div>
 <script type="application/json" data-for="htmlwidget-ac96cb3ee4656e2e9ec3">{"x":{"nodes":{"id":["torch_ingress_ltnsr","nn_conv2d_1","nn_relu_1","nn_max_pool2d_1","nn_conv2d_2","nn_relu_2","nn_max_pool2d_2","nn_block","nn_flatten","<INPUT>","nn_head","<OUTPUT>"],"label":["torch_ingress_ltnsr","nn_conv2d_1","nn_relu_1","nn_max_pool2d_1","nn_conv2d_2","nn_relu_2","nn_max_pool2d_2","nn_block","nn_flatten","<INPUT>","nn_head","<OUTPUT>"],"shape":["box","box","box","box","box","box","box","box","box","database","box","ellipse"],"color":["lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","rgba(0,204,102,0.2)","lightblue","rgba(255,51,51,0.2)"],"value":[1,1,1,1,1,1,1,1,1,0.8,1,0.8],"title":["<p><br>\u001b[36m──\u001b[39m \u001b[1mPipeOp \u001b[34m<b>torch_ingress_ltnsr<\/b>\u001b[39m: not trained\u001b[22m \u001b[36m───────────────────────────────────\u001b[39m<br>Values: list()<br><br>── \u001b[1m\u001b[1mInput channels:\u001b[1m\u001b[22m <br>   name  train predict<br> <b>char> <char>  <char<\/b><br>  input   Task    Task<br><br>── \u001b[1m\u001b[1mOutput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br> output ModelDescriptor    Task<\/p>","<p><br>\u001b[36m──\u001b[39m \u001b[1mPipeOp \u001b[34m<b>nn_conv2d_1<\/b>\u001b[39m: not trained\u001b[22m \u001b[36m───────────────────────────────────────────\u001b[39m<br>Values: out_channels=64, kernel_size=11, stride=4, padding=2<br><br>── \u001b[1m\u001b[1mInput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br>  input ModelDescriptor    Task<br><br>── \u001b[1m\u001b[1mOutput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br> output ModelDescriptor    Task<\/p>","<p><br>\u001b[36m──\u001b[39m \u001b[1mPipeOp \u001b[34m<b>nn_relu_1<\/b>\u001b[39m: not trained\u001b[22m \u001b[36m─────────────────────────────────────────────\u001b[39m<br>Values: inplace=TRUE<br><br>── \u001b[1m\u001b[1mInput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br>  input ModelDescriptor    Task<br><br>── \u001b[1m\u001b[1mOutput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br> output ModelDescriptor    Task<\/p>","<p><br>\u001b[36m──\u001b[39m \u001b[1mPipeOp \u001b[34m<b>nn_max_pool2d_1<\/b>\u001b[39m: not trained\u001b[22m \u001b[36m───────────────────────────────────────\u001b[39m<br>Values: kernel_size=3, stride=2<br><br>── \u001b[1m\u001b[1mInput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br>  input ModelDescriptor    Task<br><br>── \u001b[1m\u001b[1mOutput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br> output ModelDescriptor    Task<\/p>","<p><br>\u001b[36m──\u001b[39m \u001b[1mPipeOp \u001b[34m<b>nn_conv2d_2<\/b>\u001b[39m: not trained\u001b[22m \u001b[36m───────────────────────────────────────────\u001b[39m<br>Values: out_channels=192, kernel_size=5, padding=2<br><br>── \u001b[1m\u001b[1mInput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br>  input ModelDescriptor    Task<br><br>── \u001b[1m\u001b[1mOutput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br> output ModelDescriptor    Task<\/p>","<p><br>\u001b[36m──\u001b[39m \u001b[1mPipeOp \u001b[34m<b>nn_relu_2<\/b>\u001b[39m: not trained\u001b[22m \u001b[36m─────────────────────────────────────────────\u001b[39m<br>Values: inplace=TRUE<br><br>── \u001b[1m\u001b[1mInput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br>  input ModelDescriptor    Task<br><br>── \u001b[1m\u001b[1mOutput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br> output ModelDescriptor    Task<\/p>","<p><br>\u001b[36m──\u001b[39m \u001b[1mPipeOp \u001b[34m<b>nn_max_pool2d_2<\/b>\u001b[39m: not trained\u001b[22m \u001b[36m───────────────────────────────────────\u001b[39m<br>Values: kernel_size=3, stride=2<br><br>── \u001b[1m\u001b[1mInput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br>  input ModelDescriptor    Task<br><br>── \u001b[1m\u001b[1mOutput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br> output ModelDescriptor    Task<\/p>","<p><br>\u001b[36m──\u001b[39m \u001b[1mPipeOp \u001b[34m<b>nn_block<\/b>\u001b[39m: not trained\u001b[22m \u001b[36m──────────────────────────────────────────────\u001b[39m<br>Values: n_blocks=2, nn_linear.out_features=4096<br><br>── \u001b[1m\u001b[1mInput channels:\u001b[1m\u001b[22m <br>             name           train predict<br>           <b>char>          <char>  <char<\/b><br> nn_dropout.input ModelDescriptor    Task<br><br>── \u001b[1m\u001b[1mOutput channels:\u001b[1m\u001b[22m <br>             name           train predict<br>           <b>char>          <char>  <char<\/b><br> nn_relu_6.output ModelDescriptor    Task<\/p>","<p><br>\u001b[36m──\u001b[39m \u001b[1mPipeOp \u001b[34m<b>nn_flatten<\/b>\u001b[39m: not trained\u001b[22m \u001b[36m────────────────────────────────────────────\u001b[39m<br>Values: list()<br><br>── \u001b[1m\u001b[1mInput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br>  input ModelDescriptor    Task<br><br>── \u001b[1m\u001b[1mOutput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br> output ModelDescriptor    Task<\/p>","<p>Input:<br>Name: torch_ingress_ltnsr.input<br>Train: Task<br>Predict: Task<\/p>","<p><br>\u001b[36m──\u001b[39m \u001b[1mPipeOp \u001b[34m<b>nn_head<\/b>\u001b[39m: not trained\u001b[22m \u001b[36m───────────────────────────────────────────────\u001b[39m<br>Values: list()<br><br>── \u001b[1m\u001b[1mInput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br>  input ModelDescriptor    Task<br><br>── \u001b[1m\u001b[1mOutput channels:\u001b[1m\u001b[22m <br>   name           train predict<br> <b>char>          <char>  <char<\/b><br> output ModelDescriptor    Task<\/p>","<p>Output:<br>Name: nn_head.output<br>Train: ModelDescriptor<br>Predict: Task<\/p>"],"x":[0,0,0,0,0,0,0,0,0,0,0,0],"y":[-0.8181818181818181,-0.6363636363636364,-0.4545454545454546,-0.2727272727272727,-0.09090909090909094,0.09090909090909083,0.2727272727272727,0.6363636363636365,0.4545454545454546,-1,0.8181818181818181,1]},"edges":{"from":["torch_ingress_ltnsr","nn_conv2d_1","nn_relu_1","nn_max_pool2d_1","nn_conv2d_2","nn_relu_2","nn_max_pool2d_2","nn_block","nn_flatten","<INPUT>","nn_head"],"to":["nn_conv2d_1","nn_relu_1","nn_max_pool2d_1","nn_conv2d_2","nn_relu_2","nn_max_pool2d_2","nn_flatten","nn_head","nn_block","torch_ingress_ltnsr","<OUTPUT>"],"color":["lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","physics":false},"manipulation":{"enabled":false},"edges":{"arrows":"to","smooth":{"enabled":false,"forceDirection":"vertical"}},"physics":{"stabilization":false}},"groups":null,"width":"50%","height":"400px","idselection":{"enabled":false},"byselection":{"enabled":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","igraphlayout":{"type":"full"}},"evals":[],"jsHooks":[]}</script><p>To turn this network architecture into an <code><a href="https://mlr3.mlr-org.com/reference/Learner.html" class="external-link">mlr3::Learner</a></code>
 what is left to do is to configure the loss, optimizer, callbacks, and
 training arguments, which we do now: We use the standard cross-entropy
 loss, SGD as the optimizer and checkpoint our model every 20 epochs.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">checkpoint</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">architecture</span> <span class="op">=</span> <span class="va">architecture</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, <span class="fu"><a href="../reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"cross_entropy"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
@@ -209,7 +277,7 @@ loss, SGD as the optimizer and checkpoint our model every 20 epochs.</p>
 options of the individual <code>PipeOp</code>s in its
 <code>$param_set</code>, from which we show only a subset for
 readability:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">cnn</span><span class="op">$</span><span class="va">param_set</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">32</span>, <span class="fl">34</span>, <span class="fl">42</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
 <span><span class="co">#&gt;                       id    class lower upper</span></span>
 <span><span class="co">#&gt;                   &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;</span></span>
@@ -219,16 +287,18 @@ readability:</p>
 <p>We can still change them, or if we wanted to, even tune them! Below,
 we increase the number of blocks and latent dimension of the dense part,
 as well as change the learning rate of the SGD optimizer.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cnn</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="fu">set_values</span><span class="op">(</span></span>
 <span>  nn_block.n_blocks <span class="op">=</span> <span class="fl">4L</span>,</span>
 <span>  nn_block.nn_linear.out_features <span class="op">=</span> <span class="fl">4096</span> <span class="op">*</span> <span class="fl">2</span>,</span>
 <span>  torch_optimizer.lr <span class="op">=</span> <span class="fl">0.2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Finally, we train the learner on the task:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cnn</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">imagenet</span><span class="op">)</span></span></code></pre></div>
-  </main>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

@@ -1,12 +1,89 @@
 # Defining an Architecture
 
-In this vignette, we will show how to build neural network architectures
-as `mlr3pipelines::Graphs`s. We will create a simple CNN for the
-tiny-imagenet task, which is a subset of well-known Imagenet benchmark.
+In this vignette, we will show two ways to define a neural network
+architecture in `mlr3torch`. We start with the direct route, where an
+existing `torch` module is turned into an
+[`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html).
+Afterwards, we show how to build architectures as
+[`mlr3pipelines::Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)s,
+which allows to infer shapes from the task and to tune the architecture
+itself.
 
 ``` r
 
 library(mlr3torch)
+```
+
+## From a `torch` Module to a `Learner`
+
+If you already have a
+[`torch::nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html),
+or want to write one yourself, `lrn("classif.module")` (or
+`lrn("regr.module")` for regression) wraps it into an
+[`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html). This
+gives you the training loop, resampling and tuning infrastructure of
+`mlr3torch` without having to express the architecture as a `Graph`.
+
+The module generator needs to take `task` as an argument, so that
+dimensions that depend on the data – such as the number of features or
+classes – can be inferred during `$train()`. Its remaining arguments
+become hyperparameters of the resulting `Learner`.
+
+``` r
+
+nn_one_layer = nn_module("nn_one_layer",
+  initialize = function(task, size_hidden) {
+    self$first = nn_linear(task$n_features, size_hidden)
+    self$second = nn_linear(size_hidden, output_dim_for(task))
+  },
+  # the argument x corresponds to the ingress token x below
+  forward = function(x) {
+    self$second(nnf_relu(self$first(x)))
+  }
+)
+```
+
+The second ingredient are the `ingress_tokens`, which specify how the
+features of the task are converted into the tensors that are passed to
+the module’s `forward()` method. Their names must match the arguments of
+`forward()`, so here
+[`ingress_num()`](https://mlr3torch.mlr-org.com/dev/reference/ingress_num.md)
+collects all numeric features into a single tensor `x`.
+
+``` r
+
+module_learner = lrn("classif.module",
+  module_generator = nn_one_layer,
+  ingress_tokens = list(x = ingress_num()),
+  size_hidden = 20,
+  epochs = 10,
+  batch_size = 16
+)
+module_learner$train(tsk("iris"))
+module_learner$network
+#> An `nn_module` containing 163 parameters.
+#> 
+#> ── Modules ─────────────────────────────────────────────────────────────────────
+#> • first: <nn_linear> #100 parameters
+#> • second: <nn_linear> #63 parameters
+```
+
+Note that the parameters of the module generator are by default inferred
+as untyped (`ParamUty`). To make them tunable, pass an explicit
+`param_set` to `lrn("classif.module")` that describes them,
+e.g. `paradox::ps(size_hidden = paradox::p_int(1L, tags = "train"))`.
+
+## Building an Architecture as a `Graph`
+
+Writing the module directly gives you full control, but the architecture
+is then a black box: its layer sizes are fixed in R code and cannot be
+tuned, and the input dimensions have to be derived from the task by
+hand. Building the network as a `Graph` instead addresses both points.
+To show this, we create a simple CNN for the tiny-imagenet task, which
+is a subset of the well-known Imagenet benchmark.
+
+``` r
+
 imagenet = tsk("tiny_imagenet")
 imagenet
 #> 
@@ -15,6 +92,9 @@ imagenet
 #> • Properties: multiclass
 #> • Features (1):
 #>   • lt (1): image
+#> Downloading <tiny_imagenet> ...
+#> Processing <tiny_imagenet> ...
+#> Dataset <tiny_imagenet> downloaded and extracted successfully.
 #> • Target classes: abacus (0%), academic gown, academic robe, judge's robe (0%),
 #> acorn (0%), African elephant, Loxodonta africana (0%), albatross, mollymawk
 #> (0%), alp (0%), altar (0%), American alligator, Alligator mississipiensis (0%),

@@ -103,6 +103,9 @@
 <code><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical()</a></code> features are now encoded as <code>c(1, 2)</code> by the <code><a href="../reference/batchgetter_categ.html">batchgetter_categ()</a></code> and their cardinality is correctly computed.</li>
 <li>
 <code>lazy_tensor</code> columns are now again printed correctly inside <code>data.table</code>s</li>
+<li>The callback overview on the package website now links to the correct help pages.</li>
+<li>
+<code>t_clbk("lr_one_cycle")</code> and <code>t_clbk("lr_reduce_on_plateau")</code> now point to their own help pages instead of the generic <code>mlr_callback_set.lr_scheduler</code> page.</li>
 <li>
 <code>nn("reshape")</code> with a <code>function(shape)</code> target now resolves a <code>-1</code> whenever the number of elements per observation is known, i.e. when the batch dimension is the only unknown one.</li>
 <li>Fixed various other shape inference bugs.</li>

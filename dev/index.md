@@ -228,6 +228,9 @@ deep_learner$train(mnist)
 ## Documentation
 
 - Start by reading one of the vignettes on the package website!
+- The paper [*mlr3torch: A Deep Learning Framework in R based on mlr3
+  and torch*](https://arxiv.org/abs/2604.18152) gives an overview of the
+  package.
 - There is a [course on
   `(mlr3)torch`](https://mlr-org.github.io/mlr3torch-course/).
 - You can check out our [presentation from UseR
