@@ -18,6 +18,24 @@ Items from this dictionary can be retrieved using \code{\link[=t_opt]{t_opt()}}.
 Defined by the constructor argument \code{param_set}.
 If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
 for each argument of the wrapped optimizer, where the parameters are then of type \code{\link[paradox:Domain]{ParamUty}}.
+
+In addition, every \code{TorchOptimizer} has the parameter:
+\itemize{
+\item \code{param_groups} :: \verb{function(params) -> list()}\cr
+A function that receives the named \code{list()} of network parameters and returns a \code{list()} of
+parameter groups, in the format expected by the wrapped \code{torch} optimizer.
+This makes it possible to optimize different parts of the network differently, e.g. to give the
+first layer a different learning rate than the rest:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{param_groups = function(params) list(
+  list(params = params[startsWith(names(params), "0.")], lr = 0.9),
+  list(params = params[!startsWith(names(params), "0.")], lr = 0.001)
+)
+}\if{html}{\out{</div>}}
+
+When a \code{\link{LearnerTorch}} is configured, this is reachable as \code{opt.param_groups}.
+Default is \code{NULL}, i.e. all parameters form a single group.
+}
 }
 
 \examples{

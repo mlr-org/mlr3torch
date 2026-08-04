@@ -191,6 +191,69 @@ Every *other* block hyperparameter was swept and does reach the module (`ffn_d_h
 Not fixed here because implementing it means deciding what "kaiming"/"xavier" mean for the packed
 `in_proj_weight` — a modelling decision that should match the FT-Transformer reference implementation.
 
+### 1.9b [D] FT-Transformer `attention_bias = FALSE` always fails (upstream torch bug)
+```r
+lrn("classif.ft_transformer", epochs = 1, batch_size = 50, n_blocks = 1, d_token = 8,
+    ffn_d_hidden_multiplier = 1, attention_bias = FALSE)$train(tsk("iris"))
+#> Error: object 'k' not found
+```
+Root cause is upstream: `torch::nn_multihead_attention` is broken for `bias = FALSE` when `query` is
+not the same tensor as `key`. mlr3torch's last FT block *always* sets `query_idx = -1` (CLS-only
+query), so the condition is always met.
+
+```r
+x = torch_randn(4, 3, 8); q = x[, -1, drop = FALSE]
+m = nn_multihead_attention(embed_dim = 8, num_heads = 2, bias = FALSE, batch_first = TRUE)
+m(query = q, key = x, value = x, need_weights = FALSE)   #> Error: object 'k' not found
+```
+`FALSE` is therefore an unreachable level of a `p_lgl` that a tuner samples ~50% of the time.
+Decide whether to guard it, drop the level, or document it until torch is fixed.
+
+### 1.9c [D] `t_clbk("lr_one_cycle")` offers `anneal_strategy = "linear"`, which always errors
+```r
+l = lrn("classif.mlp", epochs = 1, batch_size = 50, neurons = 5, callbacks = t_clbk("lr_one_cycle"))
+l$param_set$set_values(cb.lr_one_cycle.max_lr = 0.1, cb.lr_one_cycle.anneal_strategy = "linear")
+l$train(tsk("iris"))
+#> Error: attempt to apply non-function
+```
+Fails inside torch's `lr_one_cycle()` constructor itself, so again upstream — but it is an exposed
+level of a `p_fct`. `"cos"` works. Same decision as 1.9b.
+
+### 1.9d [D] FT-Transformer `n_blocks = 0` is permitted by the ParamSet but crashes
+`p_int(lower = 0L)` explicitly allows it, so `n_blocks = to_tune(0, 4)` looks legal, but
+`map(seq_len(0), ...)` yields an empty list which is then fed to `%>>%`:
+```
+Error: Assertion on 'class2' failed: Must have length 1.
+```
+Should either work (tokenizer → CLS → head) or be rejected with a message.
+
+### 1.9e [D] FT-Transformer exposes `query_idx` and `is_first_layer`, which are always overwritten
+Both are in the learner's `$param_set` and therefore tunable, but `.network()` sets them per block
+(`query_idx = -1` for the last block, `NULL` otherwise; `is_first_layer` by position). Setting either
+on the learner produces byte-identical trained weights. `query_idx`'s own help already says *"Should
+not be set manually"* — in which case it arguably should not be reachable from the learner.
+
+### 1.9f [D] Optimizer bounds are narrower than torch's actual domain
+`weight_decay` is `p_dbl(upper = 1)` on all five optimizers and `eps` is `p_dbl(upper = 1e-4)` on
+adam/adamw/adagrad, but torch accepts larger values:
+```r
+t_opt("adam", weight_decay = 2)   #> Error: weight_decay: Element 1 is not <= 1.
+optim_ignite_adam(nn_linear(2, 1)$parameters, lr = 0.1, weight_decay = 2)   #> works
+```
+These look like accidental upper bounds and they block legitimate tuning ranges. Widening them is
+harmless for existing code, but bounds are a maintainer's call.
+
+### 1.9g [D] `t_clbk("history")` with no measures silently produces an empty table
+```r
+l = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 5, callbacks = t_clbk("history"))
+l$train(tsk("iris")); l$model$callbacks$history
+#> Empty data.table (0 rows and 1 cols): epoch
+```
+"Saves the training and validation history during training" reads like it will record *something*.
+It only ever records `measures_train`/`measures_valid`; the training loss — the one quantity that
+always exists — is never logged. A warning when `history` is enabled with no measures, or logging the
+loss by default, would save a confused debugging session.
+
 ### 1.10 No check that the final layer size matches the task
 Forgetting `po("nn_head")`, or giving the last layer the wrong `out_features`, is not caught even
 though the number of classes is known at `$train()` time.
@@ -537,6 +600,11 @@ slots 0..3) even at `p = 0`.
 ## Appendix A — investigated and rejected
 
 Recorded so they are not re-reported as findings.
+
+- **`t_loss("cross_entropy", ignore_index = NULL)` erroring is correct.** `ignore_index` is a `p_int`,
+  so paradox rejects `NULL` with a message that names the parameter and the expected type. This is
+  unlike `class_weight`, a `p_uty` whose documented default *is* `NULL` — that case was a real bug and
+  is fixed on this branch.
 
 - **`nn_squeeze` squeezing the batch dimension is intended, not a bug.** An audit agent flagged that
   `po("nn_squeeze", dim = 1)$shapes_out(list(c(1, 4, 3)))` returns `c(4, 3)` while every sibling

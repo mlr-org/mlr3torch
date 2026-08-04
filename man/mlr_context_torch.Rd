@@ -88,7 +88,9 @@ identical to \code{y_hat} otherwise.}
 The current epoch.}
 
     \item{\code{step}}{(\code{integer(1)})\cr
-The current iteration.}
+The current iteration, i.e. the index of the batch within the current epoch.
+This is reset to \code{0} at the beginning of every epoch, so a globally unique step is
+\code{(epoch - 1) * length(loader_train) + step}.}
 
     \item{\code{prediction_encoder}}{(\verb{function()})\cr
 The learner's prediction encoder.}

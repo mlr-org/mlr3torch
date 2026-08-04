@@ -313,7 +313,9 @@ mlr3torch_losses$add("cross_entropy", function() {
       if (task$task_type != "classif") {
         stopf("Cross entropy loss is only defined for classification tasks, but task is of type '%s'", task$task_type)
       }
-      args = list(...)
+      # an explicitly passed `NULL` (as in `t_loss("cross_entropy", class_weight = NULL)`) is kept as a
+      # list element, so it would be forwarded to the `nn_module` as an unused argument
+      args = discard(list(...), is.null)
       is_binary = "twoclass" %in% task$properties
       if (is_binary) {
         if (!is.null(args$ignore_index)) {

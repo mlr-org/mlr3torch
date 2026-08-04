@@ -68,6 +68,21 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
 #' for each argument of the wrapped optimizer, where the parameters are then of type [`ParamUty`][paradox::Domain].
 #'
+#' In addition, every `TorchOptimizer` has the parameter:
+#' * `param_groups` :: `function(params) -> list()`\cr
+#'   A function that receives the named `list()` of network parameters and returns a `list()` of
+#'   parameter groups, in the format expected by the wrapped `torch` optimizer.
+#'   This makes it possible to optimize different parts of the network differently, e.g. to give the
+#'   first layer a different learning rate than the rest:
+#'   ```r
+#'   param_groups = function(params) list(
+#'     list(params = params[startsWith(names(params), "0.")], lr = 0.9),
+#'     list(params = params[!startsWith(names(params), "0.")], lr = 0.001)
+#'   )
+#'   ```
+#'   When a [`LearnerTorch`] is configured, this is reachable as `opt.param_groups`.
+#'   Default is `NULL`, i.e. all parameters form a single group.
+#'
 #' @family Torch Descriptor
 #' @export
 #' @examplesIf torch::torch_is_installed()
