@@ -24,7 +24,7 @@
 #' @param residual_dropout (`numeric(1)`)\cr
 #'   Dropout probability for residual connections.
 #' @param prenormalization (`logical(1)`)\cr
-#'   Whether to apply normalization before attention and FFN (`TRUE`) or after (`TRUE`).
+#'   Whether to apply normalization before attention and FFN (`TRUE`) or after (`FALSE`).
 #' @param is_first_layer (`logical(1)`)\cr
 #'   Whether this is the first layer in the transformer stack. Default value is `FALSE`.
 #' @param attention_normalization (`nn_module`)\cr

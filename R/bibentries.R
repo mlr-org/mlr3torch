@@ -1,6 +1,6 @@
 bibentries = c(# nolint start
   gorishniy2021revisiting = bibentry("article",
-    title = "Revisiting Deep Learning  for Tabular Data",
+    title = "Revisiting Deep Learning for Tabular Data",
     author = c(
       person("Yury", "Gorishniy"),
       person("Ivan", "Rubachev"),

@@ -15,7 +15,7 @@
 #' If you don't overwrite it, the output shapes are assumed to be unknown (`NULL`).
 #'
 #' * `.shapes_out(shapes_in, param_vals, task)`\cr
-#'   (`list()`, `list(), `Task` or `NULL`) -> `list()`\cr
+#'   (`list()`, `list()`, `Task` or `NULL`) -> `list()`\cr
 #'   This private method calculates the output shapes of the lazy tensor columns that are created from applying
 #'   the preprocessing function with the provided parameter values (`param_vals`).
 #'   The `task` is very rarely needed, but if it is it should be checked that it is not `NULL`.
@@ -38,8 +38,8 @@
 #' @param packages (`character()`)\cr
 #'   The packages the preprocessing function depends on.
 #' @param param_set ([`ParamSet`][paradox::ParamSet])\cr
-#'   In case the function `fn` takes additional parameter besides a [`torch_tensor`][torch::torch_tensor] they can be
-#'   specfied as parameters. None of the parameters can have the `"predict"` tag.
+#'   In case the function `fn` takes additional parameters besides a [`torch_tensor`][torch::torch_tensor] they can be
+#'   specified as parameters. None of the parameters can have the `"predict"` tag.
 #'   All tags should include `"train"`.
 #' @param stages_init (`character(1)`)\cr
 #'   Initial value for the `stages` parameter.

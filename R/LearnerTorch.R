@@ -116,7 +116,7 @@
 #' @template paramset_torchlearner
 #'
 #' @section Inheriting:
-#' There are no seperate classes for classification and regression to inherit from.
+#' There are no separate classes for classification and regression to inherit from.
 #' Instead, the `task_type` must be specified  as a construction argument.
 #' Currently, only classification and regression are supported.
 #'
@@ -163,8 +163,8 @@
 #' This must respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].
 #'
 #' * `.dataloader(dataset, param_vals)`\cr
-#'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataloader`]\cr
-#'   Create a dataloader from the task.
+#'   ([`dataset`][torch::dataset], `list()`) -> [`torch::dataloader`]\cr
+#'   Create a dataloader from the dataset.
 #'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions will be incorrectly ordered).
 #'   Use `get_batch_size(param_vals, "train")` to obtain the batch size for the respective phase,
 #'   which takes the `batch_size_predict` parameter into account.
@@ -179,7 +179,7 @@
 #'
 #' While it is possible to add parameters by specifying the `param_set` construction argument, it is currently
 #' not possible to remove existing parameters, i.e. those listed in section *Parameters*.
-#' None of the parameters provided in `param_set` can have an id that starts with `"loss."`, `"opt.",
+#' None of the parameters provided in `param_set` can have an id that starts with `"loss."`, `"opt."`,
 #' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 #' and the callbacks.
 #'
@@ -527,15 +527,6 @@ LearnerTorch = R6Class("LearnerTorch",
     },
     .predict = function(task) {
       param_vals = self$param_set$get_values(tags = "predict")
-      cols = c(task$feature_names, task$target_names)
-      ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
-      ci_train = self$model$task_col_info[get("id") %in% cols, c("id", "type", "levels")]
-      # permuted factor levels cause issues, because we are converting fct -> int
-      # FIXME: https://github.com/mlr-org/mlr3/issues/946
-      # This addresses the issues with the factor levels and is only a temporary fix
-      # Should be handled outside of mlr3torch
-      # Ideally we could rely on state$train_task, but there is this complication
-      # https://github.com/mlr-org/mlr3/issues/947
       param_vals$device = auto_device(param_vals$device)
       msg = private$.check_predict_task(task, param_vals)
       if (!isTRUE(msg)) {

@@ -14,7 +14,7 @@ Applies the soft shrinkage function elementwise
 \section{Parameters}{
 
 \itemize{
-\item \code{lamd} :: \code{numeric(1)}\cr
+\item \code{lambd} :: \code{numeric(1)}\cr
 The lambda (must be no less than zero) value for the Softshrink formulation. Default: 0.5
 }
 }

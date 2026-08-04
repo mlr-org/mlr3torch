@@ -53,7 +53,7 @@ Activation function for the feed-forward network. Default value is \code{nn_regl
 Dropout probability for residual connections.}
 
 \item{prenormalization}{(\code{logical(1)})\cr
-Whether to apply normalization before attention and FFN (\code{TRUE}) or after (\code{TRUE}).}
+Whether to apply normalization before attention and FFN (\code{TRUE}) or after (\code{FALSE}).}
 
 \item{is_first_layer}{(\code{logical(1)})\cr
 Whether this is the first layer in the transformer stack. Default value is \code{FALSE}.}
@@ -90,6 +90,6 @@ Devlin J, Chang M, Lee K, Toutanova K (2018).
 \dQuote{Bert: Pre-training of deep bidirectional transformers for language understanding.}
 \emph{arXiv preprint arXiv:1810.04805}.
 Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
-\dQuote{Revisiting Deep Learning  for Tabular Data.}
+\dQuote{Revisiting Deep Learning for Tabular Data.}
 \emph{arXiv}, \bold{2106.11959}.
 }

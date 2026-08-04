@@ -92,11 +92,11 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #'   The stride of the window. Can be a single number or a vector. Default: `kernel_size`.
 #' * `padding` :: `integer()`\cr
 #'   Implicit zero paddings on both sides of the input. Can be a single number or a vector. Default: 0.
-#' * `ceil_mode` :: `integer()`\cr
+#' * `ceil_mode` :: `logical(1)`\cr
 #'   When `TRUE`, will use ceil instead of floor to compute the output shape. Default: `FALSE`.
 #' * `count_include_pad` :: `logical(1)`\cr
 #'   When `TRUE`, will include the zero-padding in the averaging calculation. Default: `TRUE`.
-#' * `divisor_override` :: `logical(1)`\cr
+#' * `divisor_override` :: `numeric(1)`\cr
 #'   If specified, it will be used as divisor, otherwise size of the pooling region will be used. Default: NULL.
 #'   Only available for dimension greater than 1.
 #'

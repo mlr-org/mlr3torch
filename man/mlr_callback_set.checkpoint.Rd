@@ -81,7 +81,7 @@ The path to a folder where the models are saved.}
 The frequency how often the model is saved.
 Frequency is either per step or epoch, which can be configured through the \code{freq_type} parameter.}
       \item{\code{freq_type}}{(\code{character(1)})\cr
-Can be be either \code{"epoch"} (default) or \code{"step"}.}
+Can be either \code{"epoch"} (default) or \code{"step"}.}
     }
     \if{html}{\out{</div>}}
   }

@@ -15,7 +15,7 @@
 #'   The frequency how often the model is saved.
 #'   Frequency is either per step or epoch, which can be configured through the `freq_type` parameter.
 #' @param freq_type (`character(1)`)\cr
-#'   Can be be either `"epoch"` (default) or `"step"`.
+#'   Can be either `"epoch"` (default) or `"step"`.
 #' @family Callback
 #' @export
 #' @include CallbackSet.R

@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Creates a torch [dataset][torch::dataset] from an mlr3 [`Task`][mlr3::Task].
-#' The resulting dataset's `$.get_batch()` method returns a list with elements `x`, `y` and `index`:
+#' The resulting dataset's `$.getbatch()` method returns a list with elements `x`, `y` and `.index`:
 #' * `x` is a list with tensors, whose content is defined by the parameter `feature_ingress_tokens`.
 #' * `y` is the target variable and its content is defined by the parameter `target_batchgetter`.
 #' * `.index` is the index of the batch in the task's data.

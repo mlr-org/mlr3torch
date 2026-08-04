@@ -76,7 +76,7 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #'   Size of the convolving kernel.
 #' * `stride` :: `integer()`\cr
 #'   Stride of the convolution. Default: 1.
-#' * `padding` :: ` `integer()`\cr
+#' * `padding` :: `integer()`\cr
 #'  `dilation * (kernel_size - 1) - padding` zero-padding will be added to both sides of the input. Default: 0.
 #' * `output_padding` ::`integer()`\cr
 #'   Additional size added to one side of the output shape. Default: 0.

@@ -39,6 +39,12 @@
 
 ## Bug fixes
 
+* `t_clbk("lr_reduce_on_plateau")` no longer errors in epochs where no validation is performed,
+  i.e. when `eval_freq > 1` or when no validation is configured.
+* `po("torch_model_classif")` and `po("torch_model_regr")` now correctly propagate the package
+  requirements of the `Graph` to the trained `LearnerTorchModel`. This previously had no effect.
+* `lrn("classif.torch_model")$help()` (and the regression counterpart) no longer errors, as the
+  learner pointed to a non-existent help topic.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training,
   as the batch sampler already determines the batches (#420).
 * The dataloader parameters are now validated with typed conditions: misconfigurations are signaled

@@ -42,7 +42,7 @@ register_po("nn_elu", PipeOpTorchELU)
 #' @section nn_module: Calls [`torch::nn_hardshrink()`] when trained.
 #' @section Parameters:
 #' * `lambd` :: `numeric(1)`\cr
-#'   The lambda value for the Hardshrink formulation formulation. Default 0.5.
+#'   The lambda value for the Hardshrink formulation. Default 0.5.
 #' @templateVar id nn_hardshrink
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
@@ -569,7 +569,7 @@ register_po("nn_softplus", PipeOpTorchSoftPlus)
 #' @inherit torch::nnf_softshrink description
 #' @section nn_module: Calls [`torch::nn_softshrink()`] when trained.
 #' @section Parameters:
-#' * `lamd` :: `numeric(1)`\cr
+#' * `lambd` :: `numeric(1)`\cr
 #'   The lambda (must be no less than zero) value for the Softshrink formulation. Default: 0.5
 #' @templateVar id nn_softshrink
 #' @template pipeop_torch_channels_default

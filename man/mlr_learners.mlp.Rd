@@ -35,7 +35,7 @@ lrn("regr.mlp", ...)
 
 Parameters from \code{\link{LearnerTorch}}, as well as:
 \itemize{
-\item \code{activation} :: \verb{[nn_module]}\cr
+\item \code{activation} :: \code{\link[torch:nn_module]{nn_module}}\cr
 The activation function. Is initialized to \code{\link[torch:nn_relu]{nn_relu}}.
 \item \code{activation_args} :: named \code{list()}\cr
 A named list with initialization arguments for the activation function.
@@ -81,7 +81,7 @@ predictions$score()
 }
 \references{
 Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
-\dQuote{Revisiting Deep Learning  for Tabular Data.}
+\dQuote{Revisiting Deep Learning for Tabular Data.}
 \emph{arXiv}, \bold{2106.11959}.
 }
 \seealso{

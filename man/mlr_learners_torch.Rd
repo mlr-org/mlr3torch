@@ -226,7 +226,7 @@ Also see \code{torch::dataloder} for more information.
 
 \section{Inheriting}{
 
-There are no seperate classes for classification and regression to inherit from.
+There are no separate classes for classification and regression to inherit from.
 Instead, the \code{task_type} must be specified  as a construction argument.
 Currently, only classification and regression are supported.
 
@@ -276,8 +276,8 @@ It is also possible to overwrite the private \code{.dataloader()} method.
 This must respect the dataloader parameters from the \code{\link[paradox:ParamSet]{ParamSet}}.
 \itemize{
 \item \code{.dataloader(dataset, param_vals)}\cr
-(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
-Create a dataloader from the task.
+(\code{\link[torch:dataset]{dataset}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
+Create a dataloader from the dataset.
 Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions will be incorrectly ordered).
 Use \code{get_batch_size(param_vals, "train")} to obtain the batch size for the respective phase,
 which takes the \code{batch_size_predict} parameter into account.
@@ -294,7 +294,8 @@ This method must take \code{self$predict_type} into account.
 
 While it is possible to add parameters by specifying the \code{param_set} construction argument, it is currently
 not possible to remove existing parameters, i.e. those listed in section \emph{Parameters}.
-None of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
+None of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \code{"opt."},
+or \code{"cb."}, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.
 
 To perform additional input checks on the task, the private \code{.check_train_task(task, param_vals)} and

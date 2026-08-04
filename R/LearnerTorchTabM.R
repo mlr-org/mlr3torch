@@ -757,7 +757,7 @@ tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, a
 #' shape is `(batch, k, d_out)`, i.e. one prediction per ensemble member.
 #'
 #' @section Ensemble Output:
-#' Because the output contains the `k` predictions of the ensemble members, it can not be
+#' Because the output contains the `k` predictions of the ensemble members, it cannot be
 #' fed into a standard loss function, and it must be aggregated before it can be
 #' interpreted as a prediction.
 #' [`LearnerTorchTabM`] (`lrn("classif.tabm")` / `lrn("regr.tabm")`) takes care of both.

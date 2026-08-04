@@ -37,7 +37,7 @@ When inheriting from this class, one should overload either the \code{private$.s
 \code{private$.shape_dependent_params()} methods, or overload \code{private$.make_module()}.
 \itemize{
 \item \code{.make_module(shapes_in, param_vals, task)}\cr
-(\code{list()}, \code{list()}) -> \code{nn_module}\cr
+(\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> \code{nn_module}\cr
 This private method is called to generate the \code{nn_module} that is passed as argument \code{module} to
 \code{\link{PipeOpModule}}. It must be overwritten, when no \code{module_generator} is provided.
 If left as is, it calls the provided \code{module_generator} with the arguments obtained by
@@ -52,7 +52,7 @@ The function should return a list of shapes of tensors that are created by the m
 The \code{shapes_in} are named after the input channels of the \code{PipeOp} and are in the same order.
 The output shapes must be in the same order as the output names of the \code{PipeOp}.
 In case the output shapes depends on the task (as is the case for \code{\link{PipeOpTorchHead}}), the function should return
-valid output shapes (possibly containing \code{NA}s) if the \code{task} argument is provided or not.
+valid output shapes (possibly containing \code{NA}s) whether or not the \code{task} argument is provided.
 Any dimension of \code{shapes_in} can be \code{NA}, i.e. unknown, so this method must not assume that a
 dimension it reads is known.
 It has to assert the dimensions it actually needs and propagate the \code{NA}s it can live with.
@@ -68,7 +68,7 @@ There are various assertion helpers for common input checks, such as \code{\link
 There are also \code{\link{shape_helpers}}, which provide the shape
 arithmetic (broadcasting, resolving negative dimension indices).
 \item \code{.shape_dependent_params(shapes_in, param_vals, task)}\cr
-(\code{list()}, \code{list()}) -> named \code{list()}\cr
+(\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
 This private method has the same inputs as \code{.shapes_out}.
 If \code{.make_module()} is not overwritten, it constructs the arguments passed to \code{module_generator}.
 Usually this means that it must infer the auxiliary parameters that can be inferred from the input shapes
@@ -117,7 +117,7 @@ The channel names of this \code{\link{PipeOpModule}} are identical to the channe
 
 A \link[=model_descriptor_union]{model descriptor union} of all incoming \code{\link{ModelDescriptor}}s is then created.
 Note that this modifies the \code{\link[mlr3pipelines:Graph]{graph}} of the first \code{\link{ModelDescriptor}} \strong{in place} for efficiency.
-The \code{\link{PipeOpModule}} is added to the \code{\link[mlr3pipelines:Graph]{graph}} slot of this union and the the edges that connect the
+The \code{\link{PipeOpModule}} is added to the \code{\link[mlr3pipelines:Graph]{graph}} slot of this union and the edges that connect the
 sending \code{PipeOpModule}s to the input channel of this \code{PipeOpModule} are addeded to the graph.
 This is possible because every incoming \code{\link{ModelDescriptor}} contains the information about the
 \code{id} and the \code{channel} name of the sending \code{PipeOp} in the slot \code{pointer}.
@@ -368,7 +368,7 @@ will be passed to the wrapped \code{nn_module}.\cr
 If left as \code{NULL} (default), the argument \code{module_generator} must be given and the argument names of the
 \code{modue_generator}'s forward function are set as \code{inname}.}
       \item{\code{outname}}{(\code{character()}) \cr
-The names of the output channels channels. These will be the ouput channels of the generated \code{\link{PipeOpModule}}
+The names of the output channels. These will be the ouput channels of the generated \code{\link{PipeOpModule}}
 and therefore also the names of the list returned by its \verb{$train()}.
 In case there is more than one output channel, the \code{nn_module} that is constructed by this
 \code{\link[mlr3pipelines:PipeOp]{PipeOp}} during training must return a named \code{list()}, where the names of the list are the
@@ -396,7 +396,7 @@ The tags of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}. The tags \code{"torc
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{shapes_in}}{(\code{list()} of \code{integer()})\cr
-The input input shapes, which must be in the same order as the input channel names of the \code{PipeOp}.}
+The input shapes, which must be in the same order as the input channel names of the \code{PipeOp}.}
       \item{\code{task}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
 The task, which is very rarely used (default is \code{NULL}). An exception is \code{\link{PipeOpTorchHead}}.}
     }
