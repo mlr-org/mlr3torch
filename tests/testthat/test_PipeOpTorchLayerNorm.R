@@ -15,6 +15,18 @@ test_that("shape inference matches the operator", {
   expect_shape_inference("nn_layer_norm", list(dims = 2), c(2, 4, 7, 16))
 })
 
+test_that("'dims' may not reach the batch dimension", {
+  # normalizing over the last 3 of 3 dimensions would include the batch dimension, which is not a
+  # feature dimension; `dims` below 1 is already rejected by the parameter set
+  expect_error(po("nn_layer_norm", dims = 3)$shapes_out(list(c(NA, 7L, 16L))),
+    "would include the batch dimension", fixed = TRUE)
+  expect_error(po("nn_layer_norm", dims = 5)$shapes_out(list(c(NA, 7L, 16L))),
+    "would include the batch dimension", fixed = TRUE)
+  expect_error(po("nn_layer_norm", dims = 0), "not >= 0.5", fixed = TRUE)
+  # the largest permitted value normalizes over everything but the batch dimension
+  expect_equal(po("nn_layer_norm", dims = 2)$shapes_out(list(c(NA, 7L, 16L)))[[1L]], c(NA, 7L, 16L))
+})
+
 test_that("shape inference requires the normalized dimensions", {
   expect_error(po("nn_layer_norm", dims = 1)$shapes_out(list(c(NA, 7, NA))),
     "requires the last 1 dimension(s), which make up 'normalized_shape', of the input shape",

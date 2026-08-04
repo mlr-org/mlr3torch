@@ -281,13 +281,43 @@ reshape_output_shape = function(shape_in, shape, id) {
   # is nothing left that could be checked.
   if (is.na(prod(shape_in)) || anyNA(target)) {
     # replaces -1 with NA
-    return(as.integer(reshape_target_as_shape(target)))
+    return(as.integer(reshape_fill_inferred_per_observation(shape_in, target)))
   }
 
   # Here we have a concrete shape
   out = reshape_fill_inferred_known(shape_in, target, id)
   assert_reshape_keeps_batch(shape_in, out, target, id)
   as.integer(out)
+}
+
+# The total number of elements is unknown as soon as any dimension is, but the number of elements
+# *per observation* may still be known -- it is whenever the batch dimension is the only unknown one.
+# That is enough to resolve an inferred dimension sitting after the batch dimension, which is what a
+# `function(shape)` target that keeps the batch and flattens the rest produces, e.g.
+# `\(shape) c(shape[1], -1)`. Without this the dimension would stay unknown and the next operator,
+# which usually needs to know its number of input features, could not be built at all.
+# @param shape_in (`integer()`) The input shape.
+# @param target (`numeric()`) The target shape, see `resolve_shape_param()`.
+reshape_fill_inferred_per_observation = function(shape_in, target) {
+  out = reshape_target_as_shape(target)
+  inferred = which(!is.na(target) & target == -1)
+  # `-1` in the first position is the batch dimension itself, which no number of elements per
+  # observation can pin down; a known first entry means the target does not keep the batch anyway
+  if (length(inferred) != 1L || inferred == 1L || !is.na(target[[1L]])) {
+    return(out)
+  }
+  per_obs = prod(shape_in[-1L])
+  known = out[-c(1L, inferred)]
+  if (is.na(per_obs) || anyNA(known)) {
+    return(out)
+  }
+  # a target that does not divide the input cannot be right for any batch size, but reporting the
+  # dimension as unknown is the permissive answer and leaves the complaint to the runtime
+  rest = prod(known)
+  if (rest > 0 && per_obs %% rest == 0) {
+    out[inferred] = per_obs / rest
+  }
+  out
 }
 
 reshape_target_as_shape = function(target) {
@@ -544,7 +574,7 @@ assert_positive_extent = function(extent, shape_in, id) {
 #' try(assert_same_ndim(list(c(NA, 3), c(NA, 5, 2)), id = "nn_merge_cat"))
 #' @export
 assert_same_ndim = function(shapes, id) {
-  ndim = map_int(shapes, length)
+  ndim = lengths(shapes)
   if (length(unique(ndim)) == 1L) {
     return(invisible(shapes))
   }
@@ -587,36 +617,8 @@ assert_same_batch_size = function(shapes, id) {
   invisible(if (length(known)) known else NA_integer_)
 }
 
-check_rgb_shape = function(shape) {
-  msg = check_shape(shape, len = 4L, null_ok = FALSE)
-  if (!isTRUE(msg)) {
-    return(msg)
-  }
-  if (is.na(shape[2L])) {
-    return("Second dimension (the number of channels) must be known.")
-  }
-  if (shape[2L] != 3L) {
-    return("Second dimension must be 3 for RGB images.")
-  }
-  return(TRUE)
-}
 
-assert_rgb_shape = function(shape) {
-  msg = check_rgb_shape(shape)
-  if (!isTRUE(msg)) {
-    stopf(msg)
-  }
-  shape
-}
 
-# grayscale or rgb image
-# only the channel dimension must be known, the spatial extent may be unknown
-assert_grayscale_or_rgb = function(shape) {
-  assert_shape(shape, len = 4L, null_ok = FALSE)
-  assert_known_dims(shape, 2L, "the channel dimension (dimension 2)")
-  assert_true(shape[2L] == 3L || shape[2L] == 1L,
-    .var.name = "Second dimension is 3 for RGB images or 1 for grayscale images")
-}
 
 # Sizes that `infer_shapes()` substitutes for *all* `NA`s of a shape, one per trace: a dimension
 # that comes out the same for every filling is known, one that varies with it is not.
@@ -707,17 +709,23 @@ infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
         shapes = shapes[-1L]
       }
       shapes[is.na(shapes)] = na_repl
-      tensor_in = mlr3misc::invoke(torch_empty, .args = shapes, device = torch_device("cpu"))
-
       fn_args = names(formals(fn))
       filtered_params = param_vals[intersect(names(param_vals), fn_args)]
 
-      tensor_out = tryCatch(invoke(fn, tensor_in, .args = filtered_params),
-        error = function(e) {
+      # The "meta" device allocates nothing, so tracing costs no memory however large the shape is.
+      # Not every operator implements it, but one that does not raises rather than returning a wrong
+      # shape, so a failure there is retried on a real tensor instead of being reported: only the
+      # retry's error says anything about the shape.
+      trace_on = function(device) {
+        tensor_in = mlr3misc::invoke(torch_empty, .args = shapes, device = torch_device(device))
+        invoke(fn, tensor_in, .args = filtered_params)
+      }
+      tensor_out = tryCatch(trace_on("meta"), error = function(e) {
+        tryCatch(trace_on("cpu"), error = function(e) {
           stopf("Input shape '%s' is invalid for PipeOp with id '%s' (unknown dimensions were replaced with %i): %s", # nolint
             shape_to_str(shape_orig), id, na_repl, conditionMessage(e))
-        }
-      )
+        })
+      })
       dim(tensor_out)
     }
 

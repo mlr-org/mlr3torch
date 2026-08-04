@@ -28,6 +28,8 @@
 * Improved error messages during `PipeOpTorch`'s shape inference.
 * The `shape` parameter of `nn("reshape")` can now be a `function(shape)` of the input shape.
 * Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
+* `ModelDescriptor()` now accepts a known batch dimension in `pointer_shape`, so an operator can
+  check what it would otherwise have to assume, e.g. that a reshape keeps the batch dimension.
 
 ## Breaking changes
 
@@ -51,7 +53,9 @@
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.
 * `lazy_tensor` columns are now again printed correctly inside `data.table`s
-* Fixed various shape inference bugs.
+* `nn("reshape")` with a `function(shape)` target now resolves a `-1` whenever the number of elements
+  per observation is known, i.e. when the batch dimension is the only unknown one.
+* Fixed various other shape inference bugs.
 
 # mlr3torch 0.3.3
 

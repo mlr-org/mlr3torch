@@ -43,10 +43,6 @@ PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
         stopf("PipeOp '%s' normalizes over the last 'dims' = %i dimension(s), which would include the batch dimension of the input shape %s.", # nolint
           self$id, dims, shape_to_str(shape))
       }
-      if (dims < 1L) {
-        stopf("PipeOp '%s' normalizes over the last 'dims' = %i dimension(s), but the input shape %s has only %i.", # nolint
-          self$id, dims, shape_to_str(shape), length(shape))
-      }
       assert_known_dims(shape, seq(to = length(shape), length.out = dims),
         sprintf("the last %i dimension(s), which make up 'normalized_shape',", dims), self$id)
       shapes_in

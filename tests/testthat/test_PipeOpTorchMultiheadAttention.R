@@ -270,3 +270,30 @@ test_that("nn_attention with one input is equivalent to torch self-attention", {
   expect_true(torch_allclose(expected, observed))
 })
 
+
+test_that("shape inference matches the operator", {
+  # inputs are `(batch, sequence, feature)` and the feature dimension must be divisible by
+  # `num_heads`; the sampled shapes are even, so 2 heads always divide them
+  expect_shape_inference("nn_multihead_attention", list(num_heads = 2L),
+    shapes = list(c(2, 5, 8), c(1, 3, 4)), generators = gen_shape(3L))
+  expect_shape_inference("nn_multihead_attention", list(mode = "cross", num_heads = 2L),
+    shapes = c(2, 5, 8), generators = gen_shape(3L), n_in = 2L)
+  expect_shape_inference("nn_multihead_attention", list(mode = "general", num_heads = 2L),
+    shapes = c(2, 5, 8), generators = gen_shape(3L), n_in = 3L)
+})
+
+test_that("shape inference matches the operator for the weights channel", {
+  # with `need_weights` the operator has a second output channel whose shape is computed separately,
+  # and `avg_weights` decides whether the heads are averaged into it
+  for (avg in c(TRUE, FALSE)) {
+    expect_shape_inference("nn_multihead_attention",
+      list(need_weights = TRUE, num_heads = 2L, avg_weights = avg),
+      shapes = list(c(2, 5, 8), c(1, 1, 4)), generators = gen_shape(3L))
+    expect_shape_inference("nn_multihead_attention",
+      list(mode = "cross", need_weights = TRUE, num_heads = 2L, avg_weights = avg),
+      shapes = c(2, 5, 8), generators = gen_shape(3L), n_in = 2L)
+    expect_shape_inference("nn_multihead_attention",
+      list(mode = "general", need_weights = TRUE, num_heads = 2L, avg_weights = avg),
+      shapes = c(2, 5, 8), generators = gen_shape(3L), n_in = 3L)
+  }
+})

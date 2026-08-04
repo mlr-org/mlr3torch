@@ -14,7 +14,9 @@ run_on_shape = function(fn, shape, n_in = 1L, device = c("meta", "cpu")) {
       error = function(e) with_no_grad(mlr3misc::invoke(fn, .args = make("cpu")))
     )
   }
-  dim(out)
+  # an operator with more than one output channel returns a `list()` of tensors, so the shapes are
+  # always reported as a list to keep the single- and multi-channel cases the same downstream
+  if (inherits(out, "torch_tensor")) list(dim(out)) else map(out, dim)
 }
 
 # Ground truth for a `PipeOpTorch`. The module is obtained the way a network gets it: the `PipeOp`
@@ -24,9 +26,8 @@ run_on_shape = function(fn, shape, n_in = 1L, device = c("meta", "cpu")) {
 # so that the test exercises the same path a real graph does.
 true_shape_torch = function(obj, shape_in, shape, n_in = 1L, task = NULL) {
   shape_in = as.integer(shape_in)
-  # `ModelDescriptor()` requires the batch dimension to be unknown, which is what it is in a real
-  # graph: the ingress announces `NA` there whatever the batch size turns out to be
-  shape_in[1L] = NA_integer_
+  # the module is built from exactly the shape the inference saw, batch dimension included, so that
+  # an operator reading the batch size is held to what it claimed rather than to a blanked shape
   # the task is only read by operators that size themselves from it, such as `nn_head`
   task = task %??% tsk("iris")
   mds = map(seq_len(n_in), function(i) {
@@ -71,8 +72,10 @@ true_shape_preproc = function(obj, shape) {
   fn = obj$fn
   args = pv[intersect(names(pv), names(formals(fn)))]
   f = function(x) mlr3misc::invoke(fn, x, .args = args)
+  # a preprocessing operator has exactly one output channel, but the shape is still wrapped in a
+  # list so that both kinds of operator report their shapes the same way
   if (obj$rowwise) {
-    c(as.integer(shape[1L]), run_on_shape(f, shape[-1L], device = "cpu"))
+    list(c(as.integer(shape[1L]), run_on_shape(f, shape[-1L], device = "cpu")[[1L]]))
   } else {
     run_on_shape(f, shape, device = "cpu")
   }
@@ -80,7 +83,12 @@ true_shape_preproc = function(obj, shape) {
 
 expect_shape_case = function(shape, inferred_shape, true_shape, label) {
   shape = as.integer(shape)
-  expect_equal(inferred_shape(shape), true_shape(shape, shape),
+  # Both sides report one shape per output channel, so every channel is compared: an operator such
+  # as `nn_multihead_attention` with `need_weights = TRUE` computes its second shape separately and
+  # would otherwise go unchecked. The inferred shapes are named after the output channels and the
+  # ground truth is not, so the comparison is on the shapes alone, in channel order.
+  shapes_of = function(x) unname(map(x, as.integer))
+  expect_equal(shapes_of(inferred_shape(shape)), shapes_of(true_shape(shape, shape)),
     label = sprintf("%s: known shape %s", label, shape_to_str(shape)))
 
   na_idx = c(as.list(seq_along(shape)), lapply(seq_along(shape)[-1L], function(i) c(1L, i)))
@@ -93,10 +101,16 @@ expect_shape_case = function(shape, inferred_shape, true_shape, label) {
     }
     truth = true_shape(partial, shape)
     expect_equal(length(inferred), length(truth),
-      label = sprintf("%s: number of dimensions for %s", label, shape_to_str(partial)))
-    known = !is.na(inferred)
-    expect_equal(inferred[known], truth[known],
-      label = sprintf("%s: known dimensions for %s", label, shape_to_str(partial)))
+      label = sprintf("%s: number of output channels for %s", label, shape_to_str(partial)))
+    for (k in seq_along(truth)) {
+      what = sprintf("%s%s", shape_to_str(partial),
+        if (length(truth) > 1L) sprintf(", channel %i", k) else "")
+      expect_equal(length(inferred[[k]]), length(truth[[k]]),
+        label = sprintf("%s: number of dimensions for %s", label, what))
+      known = !is.na(inferred[[k]])
+      expect_equal(as.integer(inferred[[k]])[known], as.integer(truth[[k]])[known],
+        label = sprintf("%s: known dimensions for %s", label, what))
+    }
   }
 }
 
@@ -166,7 +180,7 @@ expect_shape_inference = function(id, params = list(), shapes = list(), generato
     label = sprintf("%s(%s)", id, paste(names(param_vals), collapse = ", "))
     if (!inherits(obj, "PipeOpTaskPreprocTorch")) {
       return(expect_shape_case(shape,
-        inferred_shape = function(s) obj$shapes_out(rep(list(s), n_in), task = task)[[1L]],
+        inferred_shape = function(s) obj$shapes_out(rep(list(s), n_in), task = task),
         true_shape = function(shape_in, s) true_shape_torch(obj, shape_in, s, n_in = n_in, task = task),
         label = label
       ))
@@ -174,7 +188,7 @@ expect_shape_inference = function(id, params = list(), shapes = list(), generato
     # a preprocessing operator does not build a module, its function is applied directly and does
     # not depend on the input shape
     expect_shape_case(shape,
-      inferred_shape = function(s) obj$shapes_out(list(s), stage = "train")[[1L]],
+      inferred_shape = function(s) obj$shapes_out(list(s), stage = "train"),
       true_shape = function(shape_in, s) true_shape_preproc(obj, s),
       label = paste(label, "at train")
     )
@@ -183,11 +197,11 @@ expect_shape_inference = function(id, params = list(), shapes = list(), generato
     # augmentations -- must leave the shape alone rather than apply its function.
     invisible(capture.output(obj$train(list(task_for_shape(shape)))))
     expect_shape_case(shape,
-      inferred_shape = function(s) obj$shapes_out(list(s), stage = "predict")[[1L]],
+      inferred_shape = function(s) obj$shapes_out(list(s), stage = "predict"),
       true_shape = if (preproc_runs_at(obj, "predict")) {
         function(shape_in, s) true_shape_preproc(obj, s)
       } else {
-        function(shape_in, s) as.integer(s)
+        function(shape_in, s) list(as.integer(s))
       },
       label = paste(label, "at predict")
     )
