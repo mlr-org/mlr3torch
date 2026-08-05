@@ -451,7 +451,9 @@ To deviate from the defaults, it is necessary to overwrite the private \verb{$.e
 method, see section \emph{Inheriting}.}
       \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks to use for training.
-Defaults to an empty\code{ list()}, i.e. no callbacks.}
+Defaults to an empty\code{ list()}, i.e. no callbacks.
+Within a stage they are called in the order in which they are provided, unless a callback
+requests otherwise via its \verb{$weight}, see section \emph{Ordering} of \code{\link{CallbackSet}}.}
       \item{\code{jittable}}{(\code{logical(1)})\cr
 Whether the model can be jit-traced. Default is \code{FALSE}.}
     }
