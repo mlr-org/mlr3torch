@@ -35,6 +35,13 @@
 * `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
   of the training run, named by their ids.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
+* `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage:
+  callbacks with a higher weight are called after those with a lower one, and callbacks with the
+  same weight keep the order in which they were passed to the learner. It can be set via the
+  `weight` argument of `callback_set()` / `torch_callback()`, or on an existing `TorchCallback`.
+  `t_clbk("checkpoint")` has weight `Inf` and therefore now runs after the other callbacks, so it
+  saves the network and the optimizer as they left them -- previously a learning rate scheduler
+  passed after it would step only after the optimizer had already been written.
 * The learning rate scheduling and unfreezing callbacks implement `$state_dict()` and
   `$load_state_dict()`, and the early stopping callback additionally stores its best score and
   stagnation counter. The state of a training run can therefore be carried over into another one.

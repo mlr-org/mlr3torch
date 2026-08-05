@@ -55,6 +55,15 @@ Other Callback:
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetCheckpoint}
 }
+\section{Public fields}{
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{weight}}{(\code{numeric(1)})\cr
+\code{Inf}, so that this callback runs after all others and hence saves the network and
+optimizer as they are at the end of the stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.}
+  }
+  \if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
   \itemize{

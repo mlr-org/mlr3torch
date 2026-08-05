@@ -52,6 +52,18 @@ These functions perform checks such as that the stages are not accidentally miss
 }
 }
 
+\section{Ordering}{
+
+Within a stage, callbacks are called in the order in which they were passed to the learner.
+A callback can override this via its \verb{$weight} field: callbacks with a higher weight are called
+after those with a lower one, and callbacks with the same weight keep the order in which they
+were passed.
+The default weight is \code{0}.
+This matters for callbacks that observe what the others did, which is why
+\code{\link{CallbackSetCheckpoint}} has weight \code{Inf}: it always runs last and therefore saves the network
+and optimizer as the other callbacks left them at the end of the stage.
+}
+
 \section{Terminate Training}{
 
 If training is to be stopped, it is possible to set the field \verb{$terminate} of \code{\link{ContextTorch}}.
@@ -81,6 +93,9 @@ Other Callback:
     \item{\code{ctx}}{(\code{\link{ContextTorch}} or \code{NULL})\cr
 The evaluation context for the callback.
 This field should always be \code{NULL} except during the \verb{$train()} call of the torch learner.}
+
+    \item{\code{weight}}{(\code{numeric(1)})\cr
+Controls when this callback is called within a stage, see section \emph{Ordering}.}
   }
   \if{html}{\out{</div>}}
 }
