@@ -254,15 +254,48 @@ target_batchgetter_regr = function(data) {
   torch_tensor(data = data[[1L]], dtype = torch_float32())$unsqueeze(2)
 }
 
-get_target_batchgetter = function(task) {
-  task_type = task$task_type
-  switch(task_type,
-    classif = if ("twoclass" %in% task$properties) {
-      target_batchgetter_classif_binary
-    } else {
-      target_batchgetter_classif_multi
-    },
-    regr = target_batchgetter_regr,
-    stopf("Invalid task type: %s", task_type)
-  )
+#' @title Target Batchgetter for a Task
+#'
+#' @description
+#' Returns the function that converts the target column(s) of a `task` into the target tensor
+#' `y` of a batch, i.e. the tensor that the loss is applied to.
+#' The returned function takes a single argument `data`, a [`data.table`][data.table::data.table]
+#' containing only the target column(s), and returns a [`torch_tensor`][torch::torch_tensor].
+#'
+#' For the target encodings of the built-in task types, see section
+#' *Network Head and Target Encoding* of [`LearnerTorch`].
+#'
+#' When adding support for a custom task type, implement a method for the corresponding
+#' [`Task`][mlr3::Task] class.
+#'
+#' @param task ([`Task`][mlr3::Task])\cr
+#'   The task.
+#' @param ... (any)\cr
+#'   Additional arguments. Not used yet.
+#' @return `function(data)`
+#' @export
+#' @examplesIf torch::torch_is_installed()
+#' batchgetter = get_target_batchgetter(tsk("iris"))
+#' batchgetter(data.table::data.table(Species = factor(c("setosa", "virginica"))))
+get_target_batchgetter = function(task, ...) {
+  UseMethod("get_target_batchgetter")
+}
+
+#' @export
+get_target_batchgetter.TaskClassif = function(task, ...) { # nolint
+  if ("twoclass" %in% task$properties) {
+    target_batchgetter_classif_binary
+  } else {
+    target_batchgetter_classif_multi
+  }
+}
+
+#' @export
+get_target_batchgetter.TaskRegr = function(task, ...) { # nolint
+  target_batchgetter_regr
+}
+
+#' @export
+get_target_batchgetter.default = function(task, ...) { # nolint
+  stopf("No target batchgetter available for task type '%s', implement a `get_target_batchgetter()` method for class '%s'.", task$task_type, class(task)[[1L]]) # nolint
 }

@@ -2,6 +2,14 @@
 
 ## Features
 
+* `LearnerTorch` and `PipeOpTorchModel` now accept any task type that is registered in
+  `mlr_reflections$task_types`, not only `"classif"` and `"regr"`.
+  The task-type-specific behaviour is available through the two new S3 generics
+  `get_target_batchgetter()` (how the target of a batch is turned into a tensor) and
+  `encode_prediction()` (how the network's output is turned back into a prediction), which
+  dispatch on the task and can be implemented for custom task types.
+  A learner for a task type other than classification or regression has to be given a `loss`
+  explicitly, since `mlr3torch` only knows a sensible default for the two built-in ones.
 * Added learners for the remaining image classification networks of `torchvision`:
   ConvNeXt (`classif.convnext_*`), EfficientNet (`classif.efficientnet_b0` to
   `classif.efficientnet_b7`), EfficientNetV2 (`classif.efficientnet_v2_{s,m,l}`),

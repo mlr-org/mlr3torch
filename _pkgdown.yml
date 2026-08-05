@@ -165,6 +165,8 @@ reference:
       - task_dataset
       - Select
       - output_dim_for
+      - get_target_batchgetter
+      - encode_prediction
   - title: Shape Inference
     contents:
       - infer_shapes
