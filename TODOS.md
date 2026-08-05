@@ -1,7 +1,23 @@
 # mlr3torch — open TODOs from the audit
 
-Most items here are **still open**; those since addressed are marked in their heading.
-and are not repeated below.
+Items that have since been addressed are marked in their heading, with the branch that does it.
+Everything else is still open.
+
+Branches (all worktrees under `.claude/worktrees/`, all off `main` unless noted):
+
+| Branch | Covers |
+|---|---|
+| `audit-fixes` (off `736f5165`) | 1.0, 1.2, 1.5, plus the fixes already listed in its `NEWS.md` |
+| `fix/ft-transformer-defaults` | 1.7, 1.8, 1.9, 1.9d, 1.9e |
+| `fix/device-check-and-docs` | 1.9f, 1.9h, 1.9j |
+| `fix/graph-learner-seeding` | 1.6 |
+| `feat/restore-best-weights` | new `restore_best_weights` parameter, see 1.3 |
+| `fix/ignore-index-off-by-one` (in the `torch` checkout) | the upstream half of 1.2 |
+| `fix/mha-bias-and-lr-one-cycle` (in the `torch` checkout) | 1.9b |
+
+`fix/device-check-and-docs` also fixes the typos *pararallelization*, *exectued* and
+*torch::dataloder*, which `audit-fixes` already fixes independently -- it branched off `main`, which
+does not have them yet. Expect that overlap when merging. Section 3.4 (*allows to X*) is untouched.
 
 Source: an 8-agent audit of `main` @ `736f5165` — adversarial bug hunt, doc/code correctness,
 empirical usage sweep (135 configuration checks), doc coverage.
@@ -133,6 +149,17 @@ two different models while mlr3tuning pairs them as if they described one.
 best-epoch score, or (c) at minimum document loudly that `internal_valid_score` must not be used as
 the tuning measure when `patience > 0`.
 
+**Status.** A fix for this was implemented and then reverted on your instruction, so the behaviour is
+unchanged: `$internal_valid_scores` still reports the last epoch while `$internal_tuned_values`
+reports the best one. Option (c), documenting that `internal_valid_score` must not be used as the
+tuning measure when `patience > 0`, was not done either.
+
+Related, and **not** a resolution of this entry: `feat/restore-best-weights` adds a
+`restore_best_weights` parameter (initialized to `FALSE`) that restores the best epoch's weights when
+training ends. That is option (a) of this entry, made opt-in. If it is ever turned on by default, or
+whenever it is set, the stored network *is* the best epoch's and reporting the last epoch's scores
+becomes plainly wrong rather than merely inconsistent -- so the two decisions are linked.
+
 ### 1.4 `CallbackSetHistory$load_state_dict()` is never called
 `R/CallbackSetHistory.R:55-62`. Nothing in `R/` calls it, so the resume path is dead code — and
 `state_dict()` returns `rbind(state, self$prev_state)`, i.e. new epochs *before* older ones, so the
@@ -146,7 +173,9 @@ Both now read `$in_features` like every sibling method. Verified: `model_mobilen
 learners, which never expose `width_mult`, but `replace_head()` is exported. VGGs 4096 is correct
 for every torchvision VGG variant; changed for consistency only.
 
-### 1.6 [D] `seed` does not seed weight initialization for graph-built learners *(documented; structural fix still open)*
+### 1.6 ~~`seed` does not seed weight initialization for graph-built learners~~ — FIXED
+
+**Fixed** on `fix/graph-learner-seeding` (`f5cdea88`): `PipeOpTorchModel` now has the learner call `network$reset_parameters()` inside its seeded region, so the initialization happens under the seed. A network passed to `LearnerTorchModel` directly is left alone, since its weights may be the point. This is safe because no pipeop accepts a prebuilt module -- every `nn_*` operator constructs its own. The `seed` documentation added on `audit-fixes` describes the *old* behaviour and should be dropped when that branch and this one are both merged.
 A graph-built learner is **not reproducible**, even with an explicit `seed`, while the equivalent
 predefined learner is. `resample()` on such a learner gives different results run to run.
 
@@ -174,7 +203,9 @@ and does not survive `resample()`/`benchmark()`.
 **Documented** in the `seed` entry of the learner parameter docs (`man-roxygen/paramset_torchlearner.R`), with the `torch_manual_seed()` workaround. **Still needs a decision** on whether to fix it, which is structural: seed before the graphs `$train()`, defer module construction into the learner, or thread the seed through `ModelDescriptor`.
 module construction into the learner, or thread the seed through `ModelDescriptor`.
 
-### 1.7 [D] `lrn("classif.ft_transformer")` cannot be trained with its documented defaults
+### 1.7 ~~`lrn("classif.ft_transformer")` cannot be trained with its documented defaults~~ — FIXED
+
+**Fixed** on `fix/ft-transformer-defaults` (`33c678e4`), following the reference implementation: `n_blocks` and `d_token` are initialized to `3` and `192` and the FFN width falls back to `d_token * 4/3`, which is rtdl's `get_default_transformer_config(n_blocks = 3)`. The FFN fallback is applied when the blocks are built rather than as a parameter `init`, because an `init` would force everyone setting `ffn_d_hidden` to clear the multiplier first (it broke six existing tests). Trade-off: the default is not visible in `$param_set$values`. The alternative is to relax the block's *exactly one of* contract so that `ffn_d_hidden` simply wins -- cleaner, but it changes `po("nn_ft_transformer_block")` for existing users.
 ```r
 lrn("classif.ft_transformer", epochs = 1, batch_size = 150, device = "cpu")$train(tsk("iris"))
 #> Error: Assertion on 'xs' failed: d_token: Must be of type 'single integerish value', not 'NULL'.
@@ -193,7 +224,9 @@ The errors also name "PipeOp block_1", an object the user never constructed, and
 `classif.tabm` does **not** have this problem. **Decision needed:** `init` these to the paper values,
 or mark them required and error with a message naming the learner and the missing parameters.
 
-### 1.8 [D] `d_token` must be divisible by `attention_n_heads`, but nothing declares or checks it
+### 1.8 ~~`d_token` must be divisible by `attention_n_heads`, but nothing declares or checks it~~ — FIXED
+
+**Fixed** on `fix/ft-transformer-defaults` (`33c678e4`): checked in `nn_ft_transformer_block` with a message naming both values, instead of surfacing torch's `embed_dim must be divisible by num_heads`. As upstream, the constraint does not apply to a single attention head (`if n_heads > 1: assert d_token % n_heads == 0`).
 The most natural FT-Transformer search space is a landmine:
 
 ```r
@@ -212,7 +245,9 @@ user won't know to reach for that. The constraint appears nowhere in `?mlr_learn
 paradox cannot express "divisible by", so this needs a `custom_check` or a `.trafo`-level assertion
 naming both parameters — hence a judgement call on where to put it — plus a line in the docs.
 
-### 1.9 `attention_initialization` is a validated hyperparameter that does nothing
+### 1.9 ~~`attention_initialization` is a validated hyperparameter that does nothing~~ — IMPLEMENTED
+
+**Implemented rather than removed** on `fix/ft-transformer-defaults` (`33c678e4`), because the reference implementation does have it. Upstream keeps query, key and value as three separate `nn.Linear`s: `"kaiming"` is PyTorch's default (`kaiming_uniform_(a = sqrt(5))`) and `"xavier"` is `xavier_uniform_(gain = 1 / sqrt(2))`. torch packs the three into one `(3 * d_token, d_token)` matrix and xavier-initializes it as a whole, whose fan-out is three times too large, so it matched *neither* level. Each projection is now initialized separately.  **This changes the initial weights for both levels**, not only for `"xavier"`, so saved FT-Transformer results will shift. Verified against theory: sd 0.2077 vs 0.2041 expected for kaiming, 0.2544 vs 0.25 for xavier.
 `R/PipeOpTorchFTTransformerBlock.R:170` declares
 `attention_initialization = p_fct(levels = c("kaiming", "xavier"), init = "kaiming")`, documented as
 "Initialization method for attention weights" and exposed on `lrn("classif.ft_transformer")`.
@@ -244,7 +279,14 @@ fixed on the branch `fix/mha-bias-and-lr-one-cycle` of the `torch` checkout at `
 **Nothing to do in mlr3torch** beyond depending on a `torch` version containing the fixes once they
 are released. Until then both remain reachable levels that a tuner samples.
 
-### 1.9d [D] FT-Transformer `n_blocks = 0` is permitted by the ParamSet but crashes
+**A third `torch` fix** came out of 1.2 and lives on its own branch,
+`fix/ignore-index-off-by-one` (`5e465f773`, worktree `.claude/worktrees/ignore-index` in the `torch`
+checkout): `ignore_index` is forwarded to libtorch without the 1-based to 0-based conversion that the
+target undergoes. Neither torch branch has been proposed upstream yet.
+
+### 1.9d ~~FT-Transformer `n_blocks = 0` is permitted by the ParamSet but crashes~~ — FIXED
+
+**Fixed** on `fix/ft-transformer-defaults` (`33c678e4`): it now works, leaving the tokenizer, the CLS token and the head, i.e. no attention at all. `Reduce()` already handles the single-block case, so the assembly just skips the block stage when there are none.
 `p_int(lower = 0L)` explicitly allows it, so `n_blocks = to_tune(0, 4)` looks legal, but
 `map(seq_len(0), ...)` yields an empty list which is then fed to `%>>%`:
 ```
@@ -252,13 +294,17 @@ Error: Assertion on 'class2' failed: Must have length 1.
 ```
 Should either work (tokenizer → CLS → head) or be rejected with a message.
 
-### 1.9e [D] FT-Transformer exposes `query_idx` and `is_first_layer`, which are always overwritten
+### 1.9e ~~FT-Transformer exposes `query_idx` and `is_first_layer`~~ — FIXED
+
+**Fixed** on `fix/ft-transformer-defaults` (`33c678e4`): the learner holds a detached subset of the block's parameter set (via `ParamSet$subset()`, which *returns* a new set rather than mutating) and copies the values onto the blocks itself. `po("nn_ft_transformer_block")` keeps both, where they are meaningful -- `query_idx` drives its `.shapes_out()`. Note the test helper in `test_LearnerFTTransformer.R` had to stop setting them.
 Both are in the learner's `$param_set` and therefore tunable, but `.network()` sets them per block
 (`query_idx = -1` for the last block, `NULL` otherwise; `is_first_layer` by position). Setting either
 on the learner produces byte-identical trained weights. `query_idx`'s own help already says *"Should
 not be set manually"* — in which case it arguably should not be reachable from the learner.
 
-### 1.9f [D] Optimizer bounds are narrower than torch's actual domain
+### 1.9f ~~Optimizer bounds are narrower than torch's actual domain~~ — FIXED
+
+**Fixed** on `fix/device-check-and-docs` (`0c9d720e`): the `upper` bounds on `weight_decay` (was 1) and `eps` (was 1e-4) are removed; negative values are still rejected. **Correction to the original report:** this was not a torch bug and no torch branch was made for it. torch only rejects negative `weight_decay` and has no upper bound anywhere; the caps were mlr3torch's own, at five places in `R/TorchOptimizer.R`.
 `weight_decay` is `p_dbl(upper = 1)` on all five optimizers and `eps` is `p_dbl(upper = 1e-4)` on
 adam/adamw/adagrad, but torch accepts larger values:
 ```r
@@ -279,7 +325,9 @@ It only ever records `measures_train`/`measures_valid`; the training loss — th
 always exists — is never logged. A warning when `history` is enabled with no measures, or logging the
 loss by default, would save a confused debugging session.
 
-### 1.9h [D] `num_interop_threads` is unusable, and permanently alters global torch state
+### 1.9h `num_interop_threads` is unusable, and permanently alters global torch state — DOCUMENTED
+
+**Documented** on `fix/device-check-and-docs` (`0c9d720e`): the parameter docs now say it is interop-only (they said "intraop and interop"), that it can be set only once per session, and that the parameter being initialized already consumes that one chance -- so a deviating value only takes effect on the first learner trained in a session. Users who need another value are pointed at `torch::torch_set_num_interop_threads()`. **Still open:** whether to stop initializing it, which is what would make the parameter actually usable. That is the behaviour change this entry asks for and it is still your call.
 The parameter is *initialised* to `1`, and torch only allows the interop thread count to be set once
 per session — so training any learner at all burns that one chance, after which the user's explicit
 value is rejected:
@@ -320,7 +368,9 @@ mlr3torch-specific. It is recorded here because **mlr3torch learners are stochas
 `seed` before going parallel. Setting the learner's `seed` explicitly makes mirai reproducible and
 equal to the sequential result. Worth reporting upstream and mentioning in the parallelization docs.
 
-### 1.9j `device = "cuda"` on a CPU-only build dumps a 60-frame C++ backtrace
+### 1.9j ~~`device = "cuda"` on a CPU-only build dumps a 60-frame C++ backtrace~~ — FIXED
+
+**Fixed** on `fix/device-check-and-docs` (`0c9d720e`): `auto_device()` checks `cuda_is_available()` and fails with a one-line message. Previously the failure happened when the first tensor was moved, deep inside libtorch, and the whole backtrace landed in `rr$errors`.
 `auto_device()` resolves `"auto"` but passes an explicit `"cuda"` through unchecked, so the failure
 arrives as ~60 frames of C++ backtrace that also land verbatim in `learner$log` and `rr$errors`,
 making resampling logs unreadable. A `torch::cuda_is_available()` check at train time would reduce
