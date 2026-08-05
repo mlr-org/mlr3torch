@@ -46,7 +46,7 @@ Setting this to \code{c(10, 20)} would have a the first hidden layer with 10 neu
 \item \code{n_layers} :: \code{integer()}\cr
 The number of layers. This parameter must only be set when \code{neurons} has length 1.
 \item \code{p} :: \code{numeric(1)}\cr
-The dropout probability. Is initialized to \code{0.5}.
+The dropout probability. Is initialized to \code{0.1}.
 \item \code{shape} :: \code{integer()} or \code{NULL}\cr
 The input shape of length 2, e.g. \code{c(NA, 5)}.
 Only needs to be present when there is a lazy tensor input with unknown shape (\code{NULL}).

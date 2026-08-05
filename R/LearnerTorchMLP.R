@@ -25,7 +25,7 @@
 #' * `n_layers` :: `integer()`\cr
 #'   The number of layers. This parameter must only be set when `neurons` has length 1.
 #' * `p` :: `numeric(1)`\cr
-#'   The dropout probability. Is initialized to `0.5`.
+#'   The dropout probability. Is initialized to `0.1`.
 #' * `shape` :: `integer()` or `NULL`\cr
 #'   The input shape of length 2, e.g. `c(NA, 5)`.
 #'   Only needs to be present when there is a lazy tensor input with unknown shape (`NULL`).
@@ -59,7 +59,7 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
         activation = nn_relu,
         activation_args = list(),
         neurons = integer(0),
-        p = 0.5
+        p = 0.1
       )
 
       super$initialize(

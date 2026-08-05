@@ -47,6 +47,10 @@
   written per epoch. `freq_type = "step"` named its files after the within-epoch step, which
   restarts at every epoch, so each epoch silently overwrote the checkpoints of the previous one.
   Code that set `freq_type` -- including to its default `"epoch"` -- has to drop the argument.
+* The dropout probability `p` of `lrn("classif.mlp")` / `lrn("regr.mlp")` is now initialized to
+  `0.1` instead of `0.5`, which is the value the other learners in this package use
+  (`lrn("classif.tabm")`, the FT-Transformer's `ffn_dropout`) and the conventional default
+  elsewhere. Set `p = 0.5` explicitly to keep the old behaviour.
 * The construction argument `only_batch_unknown` of `PipeOpTorch` was removed.
   Any dimension of an input shape can now be unknown, so `private$.shapes_out()` must always
   handle `NA`s and assert those dimensions it actually needs to be known.

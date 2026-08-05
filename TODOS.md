@@ -660,18 +660,32 @@ Plus the 23 preprocessing pages with no `\description{}` (see 4.4).
 
 ## 5. UX / polish
 
-### 5.0 [D] Out-of-the-box `lrn("classif.mlp")` loses to `featureless`
+### 5.0 [D] Out-of-the-box `lrn("classif.mlp")` can lose to `featureless`
 ```r
 benchmark(benchmark_grid(tsk("iris"),
   list(lrn("classif.mlp", epochs = 20, batch_size = 32, neurons = 10, device = "cpu"),
        lrn("classif.featureless")), rsmp("cv", folds = 2)))$aggregate(msr("classif.ce"))
 #> classif.mlp 0.793 | classif.featureless 0.780
 ```
-Cause: `p` (dropout) is initialised to `0.5`. With `p = 0` the same learner scores 0.04 against
-featureless' 0.673. The default is documented, but 50% dropout is an unusual out-of-the-box value and
-it makes the first thing a new user runs look broken. Similarly `regr.mlp` on unscaled `mtcars` loses
-badly to `regr.featureless` (MSE 168 vs 35) — expected without `po("scale")`, but unlike the
-FT-Transformer docs the MLP docs never mention scaling. Changing an initialised default is your call.
+
+**The original dropout diagnosis did not hold up.** This entry used to claim the cause was `p`
+being initialised to `0.5`, on the basis that `p = 0` scored 0.04. That was a single seed and does
+not replicate. Mean CE over 5 seeds, iris, 2-fold CV:
+
+| `p` | 0 | 0.1 | 0.3 | 0.5 |
+|---|---|---|---|---|
+| CE | 0.539 | 0.525 | 0.501 | 0.507 |
+
+featureless scores 0.667 on the same setup, i.e. **every** dropout level beats it on average, and
+the differences between them are within noise. So both the headline and the attribution were
+seed artefacts. `p` has since been changed to `0.1` anyway, for consistency with the other learners
+in the package — not as a fix for this.
+
+What remains genuinely open is that the untuned MLP is weak and high variance at these settings, and
+that the likely levers are elsewhere: learning rate, `epochs`, and feature scaling. `regr.mlp` on
+unscaled `mtcars` loses badly to `regr.featureless` (MSE 168 vs 35) — expected without `po("scale")`,
+but unlike the FT-Transformer docs the MLP docs never mention scaling. **Decision needed** on whether
+to change any further defaults or to document the scaling requirement.
 
 ### 5.1 No hint to marshal on `external pointer is not valid`
 `saveRDS()` of an unmarshaled trained learner succeeds; predicting after `readRDS()` then fails with
