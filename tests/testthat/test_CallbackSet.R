@@ -87,6 +87,43 @@ test_that("phash works", {
   expect_false(t_clbk("history", label = "a")$phash == t_clbk("history", label = "b")$phash)
 })
 
+test_that("weight influences the phash", {
+  # two callbacks that differ only in when they are called are not interchangeable
+  light = t_clbk("history")
+  heavy = t_clbk("history")
+  expect_equal(light$phash, heavy$phash)
+
+  heavy$weight = 1
+  expect_false(light$phash == heavy$phash)
+
+  # the same weight hashes the same, whether it was set at construction or afterwards
+  at_construction = TorchCallback$new(CallbackSetHistory, id = "history", weight = 1)
+  afterwards = TorchCallback$new(CallbackSetHistory, id = "history")
+  afterwards$weight = 1
+  expect_equal(at_construction$phash, afterwards$phash)
+
+  # and clearing it again is not a one-way trip
+  heavy$weight = NULL
+  expect_equal(light$phash, heavy$phash)
+})
+
+test_that("weight reaches the hash of a learner using the callback", {
+  # the order the callbacks run in changes what is trained, so two learners that differ only in it
+  # must not be treated as the same learner by tuning, benchmarking or caching
+  make = function(weight = NULL) {
+    cb = t_clbk("history")
+    cb$weight = weight
+    lrn("classif.mlp", epochs = 1L, batch_size = 50, callbacks = cb)
+  }
+
+  expect_equal(make()$hash, make()$hash)
+  expect_equal(make(1)$hash, make(1)$hash)
+
+  expect_false(make()$hash == make(1)$hash)
+  expect_false(make()$phash == make(1)$phash)
+  expect_false(make(1)$hash == make(2)$hash)
+})
+
 test_that("callbacks are called in the order they were passed", {
   order = new.env()
   spy = function(id, ...) torch_callback(id,

@@ -100,6 +100,8 @@
 #' @param callbacks (`list()` of [`TorchCallback`]s)\cr
 #'   The callbacks to use for training.
 #'   Defaults to an empty` list()`, i.e. no callbacks.
+#'   Within a stage they are called in the order in which they are provided, unless a callback
+#'   requests otherwise via its `$weight`, see section *Ordering* of [`CallbackSet`].
 #' @param jittable (`logical(1)`)\cr
 #'   Whether the model can be jit-traced. Default is `FALSE`.
 #'
