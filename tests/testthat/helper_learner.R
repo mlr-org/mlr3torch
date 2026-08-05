@@ -98,10 +98,3 @@ classif_mlp2 = function() {
   l$param_set$set_values(epochs = 1L, batch_size = 100)
   l
 }
-
-
-regr_mlp2 = function() {
-  l = LearnerTorchMLP$new("regr")
-  l$param_set$set_values(epochs = 1L, batch_size = 100)
-  l
-}

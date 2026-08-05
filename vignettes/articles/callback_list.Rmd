@@ -13,7 +13,7 @@ Below is a list of the predefined callbacks that are available in `mlr3torch`.
 library(data.table)
 library(mlr3torch)
 content = as.data.table(mlr3torch::mlr3torch_callbacks)
-content$key = sapply(content$key, function(key) sprintf("[%s](https://mlr3torch.mlr-org.com/reference/mlr_callbacks_%s.html)", key, key))
+content$key = sapply(content$key, function(key) sprintf("[%s](https://mlr3torch.mlr-org.com/reference/%s.html)", key, sub("mlr3torch::", "", t_clbk(key)$man)))
 content$packages = lapply(content$packages, function(ps) setdiff(ps, "mlr3torch"))
 content = content[, .(key, label, packages)]
 names(content) = c("Key", "Label", "Packages")

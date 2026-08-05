@@ -7,6 +7,16 @@
 \description{
 Saves the optimizer and network states during training.
 The final network and optimizer are always stored.
+
+Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, two files
+are created in \code{path}:
+\itemize{
+\item \verb{network<n>.pt} :: The \verb{$state_dict()} of the network.
+\item \verb{optimizer<n>.pt} :: The \verb{$state_dict()} of the optimizer.
+}
+
+An epoch that was interrupted -- because training failed or was stopped -- is not written under
+its own number, so \verb{network<n>.pt} is always the network at the \emph{end} of epoch \code{n}.
 }
 \details{
 Saving the learner itself in the callback with a trained model is impossible,
@@ -50,7 +60,6 @@ Other Callback:
   \itemize{
     \item \href{#method-CallbackSetCheckpoint-initialize}{\code{CallbackSetCheckpoint$new()}}
     \item \href{#method-CallbackSetCheckpoint-on_epoch_end}{\code{CallbackSetCheckpoint$on_epoch_end()}}
-    \item \href{#method-CallbackSetCheckpoint-on_batch_end}{\code{CallbackSetCheckpoint$on_batch_end()}}
     \item \href{#method-CallbackSetCheckpoint-on_exit}{\code{CallbackSetCheckpoint$on_exit()}}
     \item \href{#method-CallbackSetCheckpoint-clone}{\code{CallbackSetCheckpoint$clone()}}
   }
@@ -69,7 +78,7 @@ Other Callback:
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{CallbackSetCheckpoint$new(path, freq, freq_type = "epoch")}
+    \preformatted{CallbackSetCheckpoint$new(path, freq)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -78,10 +87,7 @@ Other Callback:
       \item{\code{path}}{(\code{character(1)})\cr
 The path to a folder where the models are saved.}
       \item{\code{freq}}{(\code{integer(1)})\cr
-The frequency how often the model is saved.
-Frequency is either per step or epoch, which can be configured through the \code{freq_type} parameter.}
-      \item{\code{freq_type}}{(\code{character(1)})\cr
-Can be be either \code{"epoch"} (default) or \code{"step"}.}
+How often the model is saved, in epochs.}
     }
     \if{html}{\out{</div>}}
   }
@@ -92,7 +98,7 @@ Can be be either \code{"epoch"} (default) or \code{"step"}.}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_epoch_end}{}}}
 \subsection{\code{CallbackSetCheckpoint$on_epoch_end()}}{
   Saves the network and optimizer state dict.
-Does nothing if \code{freq_type} or \code{freq} are not met.
+Does nothing if \code{freq} is not met.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetCheckpoint$on_epoch_end()}
@@ -101,23 +107,10 @@ Does nothing if \code{freq_type} or \code{freq} are not met.
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_batch_end"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_batch_end}{}}}
-\subsection{\code{CallbackSetCheckpoint$on_batch_end()}}{
-  Saves the selected objects defined in \code{save}.
-Does nothing if freq_type or freq are not met.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CallbackSetCheckpoint$on_batch_end()}
-    \if{html}{\out{</div>}}
-  }
-}
-
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-on_exit"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_exit}{}}}
 \subsection{\code{CallbackSetCheckpoint$on_exit()}}{
-  Saves the learner.
+  Saves the final network and optimizer, unless the last complete epoch was already saved.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetCheckpoint$on_exit()}

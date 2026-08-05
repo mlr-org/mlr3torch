@@ -15,9 +15,10 @@ Calls \code{\link[=nn_squeeze]{nn_squeeze()}} when trained.
 \section{Parameters}{
 
 \itemize{
-\item \code{dim} :: \code{integer(1)}\cr
-The dimension to squeeze. If \code{NULL}, all dimensions of size 1 will be squeezed.
+\item \code{dim} :: \code{integer()}\cr
+The dimensions to squeeze.
 Negative values are interpreted downwards from the last dimension.
+A dimension whose size is not known to be 1 is kept, because it may be larger at runtime.
 }
 }
 
@@ -102,6 +103,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_threshold}},
 \code{\link{mlr_pipeops_nn_tokenizer_categ}},
 \code{\link{mlr_pipeops_nn_tokenizer_num}},
+\code{\link{mlr_pipeops_nn_transformer_encoder_layer}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

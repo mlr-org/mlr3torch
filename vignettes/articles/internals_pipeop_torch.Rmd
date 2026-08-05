@@ -447,8 +447,8 @@ predictions = lr_sequential$predict_newdata(newdata)
 plot_predictions = function(predictions) {
   ggplot(cbind(newdata, Species = predictions$response),
       aes(x = Sepal.Length, y = Petal.Length, fill = Species)) +
-    geom_tile(alpha = .3) +
-    geom_tile(alpha = .3) +
+    geom_tile(alpha = 0.3) +
+    geom_tile(alpha = 0.3) +
     geom_point(data = iris,
       aes(x = Sepal.Length, y = Petal.Length, fill = Species),
       color = "black", pch = 21, size = 3) +

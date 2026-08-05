@@ -7,7 +7,8 @@
 nn(.key, ...)
 }
 \arguments{
-\item{.key}{(\code{character(1)})\cr}
+\item{.key}{(\code{character(1)})\cr
+The key of the layer in the dictionary, optionally followed by a \verb{_<n>} suffix.}
 
 \item{...}{(any)\cr
 Additional parameters, constructor arguments or fields.}
@@ -15,9 +16,16 @@ Additional parameters, constructor arguments or fields.}
 \description{
 Retrieve a neural network layer from the
 \code{\link[mlr3pipelines:mlr_pipeops]{mlr_pipeops}} dictionary.
+
+The id of the returned \code{\link[mlr3pipelines:PipeOp]{PipeOp}} is \code{.key}.
+Because the ids within a \code{\link[mlr3pipelines:Graph]{Graph}} must be unique, \code{.key} can be suffixed
+with \verb{_<n>} to disambiguate repeated layers, e.g. \code{nn("linear_1")} and \code{nn("linear_2")}.
 }
 \examples{
 po1 = po("nn_linear", id = "linear")
 # is the same as:
 po2 = nn("linear")
+
+# the `_<n>` suffix is part of the id, but not of the dictionary key
+nn("linear_1")$id
 }

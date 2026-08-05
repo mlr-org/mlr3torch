@@ -17,7 +17,7 @@ test_that("PipeOpTorchHead paramtest", {
 test_that("correct error message", {
   task = nano_imagenet()
   graph = po("torch_ingress_ltnsr") %>>% po("nn_head")
-  expect_error(graph$train(task), "expects 2D input")
+  expect_error(graph$train(task), "requires an input with 2 dimensions")
 })
 
 test_that("correct output dim", {
@@ -35,4 +35,21 @@ test_that("correct output dim", {
   task = tsk("mtcars")
   expect_equal(po_test$shapes_out(list(c(NA, 11)), task = task), list(output = c(NA, 1)))
   expect_equal( graph$train(task)[[1L]]$graph$pipeops$nn_head$module$weight$shape[1], 1)
+})
+
+test_that("shape inference matches the operator", {
+  expect_shape_inference("nn_head", list(), c(2, 16), task = tsk("iris"))
+})
+
+test_that("shape inference needs the feature dimension and the task", {
+  # the input shape is (batch, n_features) and the feature dimension is read to build the module
+  expect_error(po("nn_head")$shapes_out(list(c(NA, NA)), task = tsk("iris")),
+    "requires the feature dimension (dimension 2)", fixed = TRUE)
+  # without a task the number of output features is unknown, as documented
+  expect_equal(po("nn_head")$shapes_out(list(c(NA, 16L)))[[1L]], c(NA_integer_, NA_integer_))
+})
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  # the number of output features comes from the task
+  expect_shape_inference("nn_head", generators = gen_shape(2L), task = tsk("iris"))
 })

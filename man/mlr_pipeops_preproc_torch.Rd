@@ -25,7 +25,9 @@ This private method only has the responsibility to calculate the output shapes f
 input \code{shapes_in} can be assumed to have exactly one shape vector for which it must calculate the output shapes
 and return it as a \code{list()} of length 1.
 It can also be assumed that the shape is not \code{NULL} (i.e. unknown).
-Also, the first dimension can be \code{NA}, i.e. is unknown (as for the batch dimension).
+Any dimension of that shape can be \code{NA}, i.e. unknown, not only the first (batch) one, so it
+must handle \code{NA}s and assert those dimensions it actually needs to be known, see
+\code{\link[=assert_known_dims]{assert_known_dims()}} and the "Shape Inference" section of \code{\link{PipeOpTorch}}.
 }
 }
 
@@ -264,9 +266,10 @@ It uses the parameter values that are currently set.
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{shapes_in}}{(\code{list()} of (\code{integer()} or \code{NULL}))\cr
-The input input shapes of the lazy tensors.
+The input shapes of the lazy tensors.
 \code{NULL} indicates that the shape is unknown.
-First dimension must be \code{NA} (if it is not \code{NULL}).}
+If it is not \code{NULL}, the first (batch) dimension must be \code{NA}; any of the other dimensions
+may be \code{NA} as well.}
       \item{\code{stage}}{(\code{character(1)})\cr
 The stage: either \code{"train"} or \code{"predict"}.}
       \item{\code{task}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr

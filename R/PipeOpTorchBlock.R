@@ -104,9 +104,14 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
       Reduce(`%>>%`, graphs)
     },
     .shapes_out = function(shapes_in, param_vals, task)  {
-      if (is.null(task)) {
-        stopf("PipeOpTorchBlock '%s', requires a task to compute output shapes", self$id)
+      if (param_vals$n_blocks == 0L) {
+        return(shapes_in)
       }
+      if (is.null(task)) {
+        stopf("PipeOp '%s' requires a task to compute output shapes.", self$id)
+      }
+      # the block is applied to all inputs jointly, so they have to agree on the batch size
+      assert_same_batch_size(shapes_in, self$id)
       block = private$.block$clone(deep = TRUE)
       walk(block$pipeops, function(po) {
         # thereby we avoid initializing the nn modules (it is a little hacky)

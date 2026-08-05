@@ -23,41 +23,70 @@
 * A network can now return more than one prediction during training: it may return a `list()` of
   tensors, where the first element is the primary prediction that is scored by `measures_train` and
   returned when predicting, and the remaining elements are the predictions of auxiliary classifiers
-  that only contribute to the loss.
+  that only contribute to the loss. In `ContextTorch`, the list of predictions
+  available as `y_hats`, while `y_hat` now refers to the first prediction.
   This is documented in the "Network Head and Target Encoding" section of `LearnerTorch`.
-* `ContextTorch` gained the field `y_hats`, which holds the complete output of the network for the
-  current batch, i.e. what the loss is applied to. `y_hat` now always holds the *primary*
-  prediction, so callbacks that read it keep working for networks with auxiliary classifiers.
-  For a network that returns a single tensor the two are identical.
-* Feat: Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`), a port of the
-  official TabM reference implementation. Numerical features can optionally be embedded via the
-  `num_embeddings` parameter, which supports the linear-ReLU, periodic and piecewise-linear
-  embeddings of the `rtdl_num_embeddings` package.
+* Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`), a port of the
+  official TabM reference implementation.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
   (including the validation data during training) when it is set.
-* The `batch_sampler` parameter can now be used without setting `batch_size` for training,
-  as the batch sampler already determines the batches (#420).
-  A `batch_size` (or `batch_size_predict`) is still required for prediction, where the (batch)
-  sampler is not used.
-* The dataloader parameters are now validated with typed conditions: misconfigurations are signaled
-  as `Mlr3ErrorConfig` (see `mlr3misc::error_config()`), so they can be caught by class and do not
-  trigger the fallback learner anymore.
-* Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
-  `torch::nn_multihead_attention()`.
+* Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`).
+* Added `PipeOpTorchTransformerEncoderLayer` (`po("nn_transformer_encoder_layer")`), a wrapper
+  around `torch::nn_transformer_encoder_layer()`.
+* Most `LearnerTorchVision` are now `jittable`.
+* Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
+* Improved error messages during `PipeOpTorch`'s shape inference.
+* The `shape` parameter of `nn("reshape")` can now be a `function(shape)` of the input shape.
+* Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
+* `ModelDescriptor()` now accepts a known batch dimension in `pointer_shape`, so an operator can
+  check what it would otherwise have to assume, e.g. that a reshape keeps the batch dimension.
+* `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
+  of the training run, named by their ids.
+* `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
+* The learning rate scheduling and unfreezing callbacks implement `$state_dict()` and
+  `$load_state_dict()`, and the early stopping callback additionally stores its best score and
+  stagnation counter. The state of a training run can therefore be carried over into another one.
+  Since `$state_dict()` is what ends up in `learner$model$callbacks$<id>`, the schedule of
+  `t_clbk("lr_*")` and the trainable weights of `t_clbk("unfreeze")` are now part of the model.
+
+## Breaking changes
+
+* The `freq_type` parameter of `t_clbk("checkpoint")` was removed; checkpoints are now always
+  written per epoch. `freq_type = "step"` named its files after the within-epoch step, which
+  restarts at every epoch, so each epoch silently overwrote the checkpoints of the previous one.
+  Code that set `freq_type` -- including to its default `"epoch"` -- has to drop the argument.
+* The construction argument `only_batch_unknown` of `PipeOpTorch` was removed.
+  Any dimension of an input shape can now be unknown, so `private$.shapes_out()` must always
+  handle `NA`s and assert those dimensions it actually needs to be known.
 
 ## Bug fixes
 
+* `t_clbk("checkpoint")` no longer writes an epoch that was interrupted -- because training failed
+  or was stopped early -- under that epoch's own number, so `network<n>.pt` is now always the
+  network at the *end* of epoch `n` rather than sometimes a half-trained one.
+* `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`. Previously any
+  existing directory was rejected, which made a pre-created output folder unusable and meant that
+  a run failing before its first checkpoint left behind a folder that blocked every later run.
+* The `batch_sampler` parameter can now be used without setting `batch_size` for training,
+  as the batch sampler already determines the batches (#420).
+* The dataloader parameters are now validated with typed conditions: misconfigurations are signaled
+  as `Mlr3ErrorConfig` (see `mlr3misc::error_config()`), so they do not
+  trigger the fallback learner anymore.
+* `nn()` now accepts a `_<n>` suffix on the key to disambiguate repeated layers within a `Graph`,
+  i.e. `nn("linear_1")` is short for `nn("linear", id = "linear_1")`.
+  Previously the suffix was appended a second time, resulting in the id `"linear_1_1"`.
 * The `sampler` and `batch_sampler` parameters are no longer used during prediction, where they
   could silently misalign the predictions with the rows of the task.
   They are now tagged with `"train"` only.
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.
 * `lazy_tensor` columns are now again printed correctly inside `data.table`s
-* `LearnerTorchVision` did not pass its `jittable` argument on to its parent class, so none
-  of the `torchvision` learners had a `jit_trace` parameter and none of them could be traced.
-  `jit_trace` is now available for all of them except the vision transformers, whose attention
-  blocks cannot be traced, and Inception v3, whose auxiliary classifier makes the network return
-  more than one prediction.
+* The callback overview on the package website now links to the correct help pages.
+* `t_clbk("lr_one_cycle")` and `t_clbk("lr_reduce_on_plateau")` now point to their own
+  help pages instead of the generic `mlr_callback_set.lr_scheduler` page.
+* `nn("reshape")` with a `function(shape)` target now resolves a `-1` whenever the number of elements
+  per observation is known, i.e. when the batch dimension is the only unknown one.
+* Fixed various other shape inference bugs.
 
 # mlr3torch 0.3.3
 

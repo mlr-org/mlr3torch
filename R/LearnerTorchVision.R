@@ -286,13 +286,8 @@ torchvision_models = local({
     tvm("convnext_small_22k", "model_convnext_small_22k", "ConvNeXt-S (ImageNet-22k)",
       "ConvNeXt", "liu2022convnet", "models-convnext.R",
       min_size = 32L),
-    # `classif.convnext_small_22k1k` is not registered, because `model_convnext_small_22k1k()`
-    # cannot load its own pretrained weights: the model is fine-tuned on ImageNet-1k and its
-    # weights have a 1000-class head, but torchvision builds it with `num_classes = 21841`, so
-    # loading the state dict fails with "The size of tensor a (21841) must match the size of
-    # tensor b (1000)". Passing `num_classes` does not help, because torchvision loads the state
-    # dict with `strict = FALSE`, which `load_state_dict()` of torch for R does not support.
-    # Re-enable this once torchvision has fixed the default.
+    # `classif.convnext_small_22k1k` has an upstream bug that is fixed in main:
+    # https://github.com/mlverse/torchvision/commit/299b8a8e2b0d87ee69fd35b109c0bd8b19e55961
     # tvm("convnext_small_22k1k", "model_convnext_small_22k1k",
     #   "ConvNeXt-S (ImageNet-22k, fine-tuned on ImageNet-1k)",
     #   "ConvNeXt", "liu2022convnet", "models-convnext.R",

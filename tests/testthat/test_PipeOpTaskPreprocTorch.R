@@ -286,3 +286,4 @@ test_that("predict shapes are added during training", {
 
   expect_error(graph$train(task), "has a different shape")
 })
+

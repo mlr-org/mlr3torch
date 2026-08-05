@@ -36,19 +36,16 @@ inferps = function(fn, ignore = character(0), tags = "train") {
 }
 
 
-make_check_vector = function(d) {
+# `null_ok` must be `FALSE` for parameters the operator cannot do without
+make_check_vector = function(d, null_ok = TRUE) {
   crate(function(x) {
-    if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
+    if ((null_ok && is.null(x)) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) { # nolint
       return(TRUE)
     }
     tmp = if (d == 1) "." else sprintf(" or %s.", d)
     sprintf("Must be an integerish vector of length 1%s", tmp)
-    }, d, .parent = topenv())
+    }, d, null_ok, .parent = topenv())
 }
-
-check_function_or_null = function(x) check_function(x, null.ok = TRUE)
-
-check_integerish_or_null = function(x) check_integerish(x, null.ok = TRUE)
 
 assert_inherits_classname = function(class_generator, classname) {
   assert_class(class_generator, "R6ClassGenerator")
@@ -67,6 +64,7 @@ get_init = function(x) {
   cls$public_methods$initialize
 }
 
+# jarl-ignore unused_function: called from man-roxygen/learner_example.R, which jarl does not scan
 default_task_id = function(learner) {
   task_id = get0("task_id", envir = parent.frame(), inherits = FALSE)
   if (!is.null(task_id)) {
@@ -122,35 +120,17 @@ test_equal_col_info = function(x, y) {
 }
 
 
-# a function that has argument names 'names' and returns its arguments as a named list.
-# used to simulate argument matching for `...`-functions.
-# example:
-# f = argument_matcher(c("a", "b", "c"))
-# f(1, 2, 3) --> list(a = 1, b = 2, c = 3)
-# f(1, 2, a = 3) --> list(a = 3, b = 1, c = 2)
-# usecase:
-# ff = function(...) {
-#   l = argument_matcher(c("a", "b", "c"))(...)
-#   l$a + l$b
-# }
-# # behaves like
-# ff(a, b, c) a + b
-# (Except in the aqward case of missing args)
-argument_matcher = function(args) {
-  fn = as.function(c(named_list(args, substitute()), quote(as.list(environment()))))
-  environment(fn) = topenv()
-  fn
-}
-
 uniqueify = function(new, existing) {
   make.unique(c(existing, new), sep = "_")[length(existing) + seq_along(new)]
 }
 
+#' @rdname shape_helpers
+#' @export
 shape_to_str = function(x) {
-  assert(test_list(x) || test_integerish(x) || is.null(x))
-  if (test_integerish(x)) { # single shape
+  if (is.numeric(x) || is.logical(x)) { # single shape
     return(sprintf("(%s)", paste0(x, collapse = ",")))
   }
+  assert(test_list(x) || is.null(x))
   if (is.null(x)) {
     return("(<unknown>)")
   }
@@ -162,7 +142,7 @@ shape_to_str = function(x) {
     paste0("(", paste(y, collapse = ",", recycle0 = TRUE), ")")
   })
   if (test_named(x)) {
-    repr = paste0("[", names(x), ": ",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
+    repr = paste0("[", paste(paste0(names(x), ": ", shapedescs), collapse = "; ", recycle0 = TRUE), "]")
     return(repr)
   }
   paste0("[",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
@@ -226,21 +206,6 @@ check_nn_module_generator = function(x) {
   check_class(x, "nn_module_generator")
 }
 
-check_callbacks = function(x) {
-  if (test_class(x, "TorchCallback")) {
-    x = list(x)
-  } else {
-    if (!test_list(x, "TorchCallback")) {
-      return("Invalid parameter 'callbacks'")
-    }
-  }
-  callback_ids = ids(x)
-  if (!test_names(callback_ids, type = "unique")) {
-    return("Callbacks must have unique IDS that are valid names.")
-  }
-  TRUE
-}
-
 LossNone = function() {
   structure(list(), class = "LossNone")
 }
@@ -293,10 +258,18 @@ order_named_args = function(f, l) {
 #' \pkg{mlr3torch}.
 #' For classification, this is the number of classes (unless it is a binary classification task,
 #' where it is 1). For regression, it is 1.
+#'
+#' This is an S3 generic and the single place where \pkg{mlr3torch} decides how many output neurons
+#' a task needs: it is what [`PipeOpTorchHead`] and the [`LearnerTorch`]s that build their own head
+#' ask. Adding a method for a new task type is therefore the way to support it, see the
+#' "Supporting Other Task Types" section of [`PipeOpTorchHead`].
+#'
 #' @param x (any)\cr
 #'   The task.
 #' @param ... (any)\cr
 #'   Additional arguments. Not used yet.
+#' @return (`integer(1)`) The number of output neurons.
+#' @seealso [`PipeOpTorchHead`]
 #' @export
 output_dim_for = function(x, ...) {
   UseMethod("output_dim_for")
@@ -315,13 +288,6 @@ output_dim_for.TaskRegr = function(x, ...) {
   1L
 }
 
-all_or_none_ = function(...) {
-  args = list(...)
-  all_none = all(sapply(args, is.null))
-  all_not_none = all(!sapply(args, is.null))
-  return(all_none || all_not_none)
-}
-
 single_lazy_tensor = function(task) {
   identical(task$feature_types[, "type"][[1L]], "lazy_tensor")
 }
@@ -332,10 +298,6 @@ n_num_features = function(task) {
 
 n_categ_features = function(task) {
   sum(task$feature_types$type %in% c("factor", "ordered", "logical"))
-}
-
-n_ltnsr_features = function(task) {
-  sum(task$feature_types$type == "lazy_tensor")
 }
 
 # Cardinalities of the categorical features of a task, in the column order that

@@ -98,7 +98,7 @@ test_that("nn_reglu", {
 
   graph = po("torch_ingress_num") %>>% nn("linear", out_features = 11) %>>% nn("reglu")
   task = tsk("iris")
-  expect_error(graph$train(task), "must be divisible by 2")
+  expect_error(graph$train(task), "divisible by 2")
 })
 
 test_that("PipeOpTorchReGLU autotest", {
@@ -123,7 +123,7 @@ test_that("nn_geglu", {
 
   graph = po("torch_ingress_num") %>>% nn("linear", out_features = 11) %>>% nn("geglu")
   task = tsk("iris")
-  expect_error(graph$train(task), "must be divisible by 2")
+  expect_error(graph$train(task), "divisible by 2")
 })
 
 
@@ -396,4 +396,46 @@ test_that("PipeOpTorchHardTanh autotest", {
 test_that("PipeOpTorchHardTanh paramtest", {
   res = expect_paramset(po("nn_hardtanh"), nn_hardtanh)
   expect_paramtest(res)
+})
+
+elementwise_activations = c("nn_celu", "nn_elu", "nn_gelu", "nn_hardshrink", "nn_hardsigmoid",
+  "nn_hardtanh", "nn_leaky_relu", "nn_log_sigmoid", "nn_relu", "nn_relu6", "nn_selu", "nn_sigmoid",
+  "nn_softplus", "nn_softshrink", "nn_softsign", "nn_tanh", "nn_tanhshrink")
+
+test_that("shape inference matches the operator for the elementwise activations", {
+  for (id in elementwise_activations) {
+    expect_shape_inference(id, shapes = c(2, 4, 6), generators = gen_shape(3L))
+  }
+})
+
+test_that("shape inference matches the operator", {
+  expect_shape_inference("nn_softmax", list(dim = 2), c(2, 4, 6))
+  # gated linear units halve one dimension
+  expect_shape_inference("nn_glu", list(dim = 2), c(2, 4, 6))
+  expect_shape_inference("nn_geglu", shapes = c(2, 4, 6), generators = gen_shape(3L))
+  expect_shape_inference("nn_reglu", shapes = c(2, 4, 6), generators = gen_shape(3L))
+})
+
+test_that("shape inference rejects a 'dim' that does not address a dimension", {
+  expect_error(po("nn_glu", dim = 4L)$shapes_out(list(c(NA, 6L, 8L))),
+    "cannot use 'dim' 4 for the input shape (NA,6,8), which has 3 dimension(s)", fixed = TRUE)
+  expect_error(po("nn_softmax", dim = 9L)$shapes_out(list(c(2L, 4L))), "cannot use 'dim' 9", fixed = TRUE)
+  # negative values are legal in torch and must be accepted
+  expect_equal(po("nn_glu", dim = -2L)$shapes_out(list(c(NA, 6L, 8L)))[[1L]], c(NA, 3L, 8L))
+  expect_equal(po("nn_glu", dim = -1)$shapes_out(list(c(NA, 6L, 8L)))[[1L]], c(NA, 6L, 4L))
+  expect_equal(po("nn_softmax", dim = -1)$shapes_out(list(c(2L, 4L)))[[1L]], c(2L, 4L))
+})
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  expect_shape_inference("nn_softmax", params = function() list(dim = sample(c(2:3, -1L), 1L)),
+    generators = gen_shape(3L))
+  expect_shape_inference("nn_glu", params = function() list(dim = sample(c(2:3, -1L), 1L)),
+    generators = gen_shape(3L))
+  # these have no fixed parameters, so the concrete shapes are checked here as well
+  expect_shape_inference("nn_prelu", params = function() list(num_parameters = 1L),
+    shapes = c(2, 4, 6), generators = gen_shape(3L))
+  expect_shape_inference("nn_rrelu", params = function() list(lower = 0.1, upper = 0.3),
+    shapes = c(2, 4, 6), generators = gen_shape(3L))
+  expect_shape_inference("nn_threshold", params = function() list(threshold = 0.5, value = 0),
+    shapes = c(2, 4, 6), generators = gen_shape(3L))
 })

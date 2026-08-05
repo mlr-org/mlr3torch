@@ -22,9 +22,9 @@ Wraps \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}}, where the default
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>CallbackSet$load_state_dict()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>CallbackSet$state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSetLRScheduler.html#method-CallbackSetLRScheduler-load_state_dict'><code>CallbackSetLRScheduler$load_state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSetLRScheduler.html#method-CallbackSetLRScheduler-state_dict'><code>CallbackSetLRScheduler$state_dict()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}

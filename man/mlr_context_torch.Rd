@@ -99,6 +99,11 @@ The current batch.}
     \item{\code{terminate}}{(\code{logical(1)})\cr
 If this field is set to \code{TRUE} at the end of an epoch, training stops.}
 
+    \item{\code{callbacks}}{(named \code{list()} of \code{\link{CallbackSet}}s)\cr
+The callbacks that are active during training, named by their ids.
+This allows a callback to access the state of the other callbacks, which is for example
+what \code{\link{CallbackSetCheckpoint}} does to save them.}
+
     \item{\code{device}}{(\code{torch::torch_device})\cr
 The device.}
   }

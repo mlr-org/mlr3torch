@@ -31,7 +31,7 @@ test_that("PipeOpTorchMaxPool3D autotest", {
   po_test = po("nn_max_pool3d", kernel_size = c(2, 3, 4))
   task = nano_imagenet()
   graph = po("torch_ingress_ltnsr") %>>%
-    po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
+    po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>%
     po_test
 
   expect_pipeop_torch(graph, "nn_max_pool3d", task)
@@ -43,9 +43,9 @@ test_that("PipeOpTorchMaxPool3D paramtest", {
   expect_paramtest(res)
 })
 
-sampler_max_pool = function(dim, batch = TRUE) {
+sampler_max_pool = function(dim) {
   list(
-    shape_in = sample(20:25, size = dim + 1 + as.integer(batch), replace = TRUE),
+    shape_in = sample(20:25, size = dim + 2L, replace = TRUE),
     conv_dim = dim,
     padding = sample(1:2, size = dim, replace = TRUE),
     stride = sample(1:3, size = dim, replace = TRUE),
@@ -54,7 +54,7 @@ sampler_max_pool = function(dim, batch = TRUE) {
   )
 }
 
-test_that("avg_output_shape works when there is a batch dimension", {
+test_that("max_output_shape works", {
   for (dim in 1:3) {
     testcase = sampler_max_pool(dim)
     mg = switch(dim,
@@ -68,17 +68,42 @@ test_that("avg_output_shape works when there is a batch dimension", {
   }
 })
 
-test_that("avg_output_shape works when there is no batch dimension", {
-  for (dim in 1:3) {
-    testcase = sampler_max_pool(dim, batch = FALSE)
-    mg = switch(dim,
-      nn_max_pool1d,
-      nn_max_pool2d,
-      nn_max_pool3d
-    )
-    m = do.call(mg, testcase[names(testcase) %in% formalArgs(mg)])
-    outshape = with_no_grad(m(do.call(torch::torch_randn, args = list(unname(testcase$shape_in)))))$shape
-    expect_warning(shape <<- do.call(avg_output_shape, args = testcase), regexp = "batch dimension")
-    expect_true(all(outshape == shape))
+test_that("max_output_shape requires a batch dimension", {
+  expect_error(
+    max_output_shape(shape_in = c(3, 20, 20), conv_dim = 2, padding = 1, stride = 1,
+      kernel_size = 3),
+    "length 4"
+  )
+})
+
+test_that("shape inference matches the operator", {
+  expect_shape_inference("nn_max_pool1d", list(kernel_size = 2), c(2, 3, 16))
+  expect_shape_inference("nn_max_pool1d", list(kernel_size = 2, stride = 2, padding = 1, ceil_mode = TRUE), c(2, 2, 5))
+  expect_shape_inference("nn_max_pool2d", list(kernel_size = 2), c(2, 3, 16, 16))
+  expect_shape_inference("nn_max_pool2d", list(kernel_size = 2, stride = 1, dilation = 2), c(2, 2, 8, 8))
+  expect_shape_inference("nn_max_pool2d", list(kernel_size = 3, stride = 2, dilation = 3, padding = 1), c(2, 2, 16, 20))
+  expect_shape_inference("nn_max_pool2d", list(kernel_size = 2, stride = 3, ceil_mode = TRUE), c(2, 2, 6, 6))
+  expect_shape_inference("nn_max_pool3d", list(kernel_size = 2), c(2, 3, 8, 8, 8))
+  expect_equal(po("nn_max_pool2d", kernel_size = 3, dilation = c(1, 2))$
+    shapes_out(list(c(2L, 3L, 8L, 8L)))[[1L]], c(2L, 3L, 2L, 2L))
+})
+
+test_that("shape inference requires the batch dimension and a non-empty output", {
+  expect_error(po("nn_max_pool2d", kernel_size = 2)$shapes_out(list(c(NA, 28L, 28L))),
+    "requires an input with 4 dimensions", fixed = TRUE)
+  expect_error(po("nn_max_pool2d", kernel_size = 20, stride = 1)$shapes_out(list(c(NA, 3L, 8L, 8L))),
+    "which no tensor can have", fixed = TRUE)
+  expect_error(po("nn_max_pool1d", kernel_size = 0)$shapes_out(list(c(2L, 3L, 8L))),
+    "which no tensor can have", fixed = TRUE)
+})
+
+test_that("shape inference agrees with the module for random shapes and parameters", {
+  for (d in 1:3) {
+    expect_shape_inference(sprintf("nn_max_pool%id", d),
+      params = function() {
+        list(kernel_size = sample(1:3, 1L), stride = sample(1:2, 1L), padding = 0L,
+          ceil_mode = sample(c(TRUE, FALSE), 1L), dilation = sample(1:2, 1L))
+      },
+      generators = gen_shape(d + 2L))
   }
 })
