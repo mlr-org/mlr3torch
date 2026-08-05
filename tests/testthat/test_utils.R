@@ -78,3 +78,22 @@ test_that("shape_to_str works", {
   md = po("torch_ingress_ltnsr")$train(list(nano_imagenet()))[[1L]]
 })
 
+
+test_that("auto_device() rejects cuda when it is unavailable", {
+  # otherwise the failure happens deep inside libtorch when the first tensor is moved, and the
+  # condition carries a ~60 frame C++ backtrace into `rr$errors`
+  skip_if(cuda_is_available(), "CUDA is available")
+  expect_error(auto_device("cuda"), "no CUDA device is available")
+  expect_equal(auto_device("auto"), "cpu")
+  expect_equal(auto_device("cpu"), "cpu")
+  expect_null(auto_device(NULL))
+})
+
+test_that("optimizer bounds allow torch's full domain", {
+  # `weight_decay` was capped at 1 and `eps` at 1e-4, which torch does not require: it only rejects
+  # negative values. The caps blocked legitimate tuning ranges.
+  expect_no_error(t_opt("adam", weight_decay = 2))
+  expect_no_error(t_opt("adamw", weight_decay = 2))
+  expect_no_error(t_opt("adam", eps = 1e-3))
+  expect_error(t_opt("adam", weight_decay = -1))
+})
