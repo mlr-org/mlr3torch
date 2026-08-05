@@ -115,6 +115,9 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 
 
 train_loop = function(ctx, cbs) {
+  # callbacks such as CallbackSetCheckpoint need access to the other callbacks to save their states
+  ctx$callbacks = cbs
+
   call = function(step_name) {
     lapply(cbs, function(x) {
       if (exists(step_name, x, inherits = FALSE)) {
@@ -131,13 +134,14 @@ train_loop = function(ctx, cbs) {
   }, add = TRUE)
 
 
+  # if we increment epoch at the end of the loop it has the wrong value
+  # during the final two callback stages
+  ctx$epoch = 0L
+
   call("on_begin")
 
   ctx$network$train()
 
-  # if we increment epoch at the end of the loop it has the wrong value
-  # during the final two callback stages
-  ctx$epoch = 0L
   while (ctx$epoch < ctx$total_epochs) {
     ctx$epoch = ctx$epoch + 1
     call("on_epoch_begin")

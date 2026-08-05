@@ -71,11 +71,14 @@ about what identity should mean for an `nn_module` hyperparameter, which is why 
 Worth adding a regression test that `resample(..., store_models = TRUE)$learners[[i]]` reproduces
 iteration `i`'s predictions, for a learner whose parameters hold an `nn_module`.
 
-### 1.1 [D] Checkpoint callback rejects any pre-existing directory
-`R/CallbackSetCheckpoint.R:43` — `assert_path_for_output(path)` without `overwrite = TRUE`.
+### 1.1 [D] Checkpoint callback rejects a directory that already holds checkpoints
+`R/CallbackSetCheckpoint.R:51` — `if (is_empty_dir(path)) path else assert_path_for_output(path)`.
 
-Makes checkpointing **unusable with `resample()`, `benchmark()` and tuning** — it fails on the second
-iteration. Also blocks training the same learner twice and pointing at a directory you created yourself.
+Partially addressed on `main` (75a19f815): an existing *empty* directory is now accepted, which covers
+a pre-created output folder and a run that died before its first checkpoint. The resampling case is
+still open — once iteration 1 has written `network1.pt` the directory is no longer empty, so
+checkpointing remains **unusable with `resample()`, `benchmark()` and tuning**, and training the same
+learner twice into the same path still fails.
 
 ```r
 d = tempfile()
@@ -86,12 +89,13 @@ resample(tsk("iris"), lx, rsmp("cv", folds = 2))
 ```
 
 *Why this needs a decision:* `tests/testthat/test_CallbackSetCheckpoint.R:38` explicitly asserts the
-error ("error when using existing directory"), so the guard is deliberate — but the immediately
-following `if (!dir.exists(path)) dir.create(path, recursive = TRUE)` is then dead code, so the
-intent is genuinely ambiguous. Options:
-- (a) `overwrite = TRUE` and drop the test;
+error for a directory holding unrelated data, so guarding against overwriting foreign data is
+deliberate; the question is only how a *second run of the same learner* should behave. Options:
+- (a) `overwrite = TRUE` and relax the test;
 - (b) keep the guard but write into a per-iteration subdirectory so resampling works;
-- (c) keep as-is and document the limitation prominently.
+- (c) accept a directory that contains only `network*.pt` / `optimizer*.pt` (i.e. a previous run's
+  checkpoints) and overwrite those;
+- (d) keep as-is and document the limitation prominently.
 
 ### 1.2 [D] `cross_entropy`'s `ignore_index` is off by one
 `R/TorchLoss.R:308` (parameter), `:355` (docs).
@@ -374,8 +378,9 @@ linear, head, layer_norm, batch_norm, glu/reglu/geglu, softmax, dropout, ft_cls,
 sum/prod/cat, multihead_attention) and all 25 registered `trafo_*`/`augment_*` ops found **zero
 mismatches** — the feature itself is sound. The gap is in the helper; worth extending so it stays that way.
 
-### 2.2 Checkpoint tests only use fresh `tempfile()` paths
-Which is precisely why 1.1 is invisible to CI.
+### 2.2 No checkpoint test writes into a path that a previous run already checkpointed into
+Existing paths are covered (empty, and holding unrelated data), but never a second run of the same
+learner or a `resample()`, which is why 1.1 is invisible to CI.
 
 ### 2.3 LR-scheduler tests only cover `eval_freq = 1` with validation
 `tests/testthat/test_CallbackSetLRScheduler.R:112` — neither `lr_reduce_on_plateau` crash path

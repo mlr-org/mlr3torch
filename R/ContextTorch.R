@@ -139,6 +139,11 @@ ContextTorch = R6Class("ContextTorch",
     #' @field terminate (`logical(1)`)\cr
     #'   If this field is set to `TRUE` at the end of an epoch, training stops.
     terminate = NULL,
+    #' @field callbacks (named `list()` of [`CallbackSet`]s)\cr
+    #'   The callbacks that are active during training, named by their ids.
+    #'   This allows a callback to access the state of the other callbacks, which is for example
+    #'   what [`CallbackSetCheckpoint`] does to save them.
+    callbacks = NULL,
     #' @field device (`torch::torch_device`)\cr
     #'   The device.
     device = NULL

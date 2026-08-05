@@ -15,4 +15,4 @@
 #' <%= if (pipeop$rowwise) "The preprocessing is applied to each element of a batch individually." else "The preprocessing is applied to the whole batch."%>
 #'
 #' @section Parameters:
-#' `r mlr3misc::rd_info(po("<%= id%>")$param_set)`
+#' `r mlr3torch:::rd_info_param_set(po("<%= id%>")$param_set)`

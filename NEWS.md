@@ -23,6 +23,8 @@
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
   (including the validation data during training) when it is set.
 * Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`).
+* Added `PipeOpTorchTransformerEncoderLayer` (`po("nn_transformer_encoder_layer")`), a wrapper
+  around `torch::nn_transformer_encoder_layer()`.
 * Most `LearnerTorchVision` are now `jittable`.
 * Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
 * Improved error messages during `PipeOpTorch`'s shape inference.
@@ -30,15 +32,33 @@
 * Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
 * `ModelDescriptor()` now accepts a known batch dimension in `pointer_shape`, so an operator can
   check what it would otherwise have to assume, e.g. that a reshape keeps the batch dimension.
+* `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
+  of the training run, named by their ids.
+* `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
+* The learning rate scheduling and unfreezing callbacks implement `$state_dict()` and
+  `$load_state_dict()`, and the early stopping callback additionally stores its best score and
+  stagnation counter. The state of a training run can therefore be carried over into another one.
+  Since `$state_dict()` is what ends up in `learner$model$callbacks$<id>`, the schedule of
+  `t_clbk("lr_*")` and the trainable weights of `t_clbk("unfreeze")` are now part of the model.
 
 ## Breaking changes
 
+* The `freq_type` parameter of `t_clbk("checkpoint")` was removed; checkpoints are now always
+  written per epoch. `freq_type = "step"` named its files after the within-epoch step, which
+  restarts at every epoch, so each epoch silently overwrote the checkpoints of the previous one.
+  Code that set `freq_type` -- including to its default `"epoch"` -- has to drop the argument.
 * The construction argument `only_batch_unknown` of `PipeOpTorch` was removed.
   Any dimension of an input shape can now be unknown, so `private$.shapes_out()` must always
   handle `NA`s and assert those dimensions it actually needs to be known.
 
 ## Bug fixes
 
+* `t_clbk("checkpoint")` no longer writes an epoch that was interrupted -- because training failed
+  or was stopped early -- under that epoch's own number, so `network<n>.pt` is now always the
+  network at the *end* of epoch `n` rather than sometimes a half-trained one.
+* `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`. Previously any
+  existing directory was rejected, which made a pre-created output folder unusable and meant that
+  a run failing before its first checkpoint left behind a folder that blocked every later run.
 * `t_clbk("lr_reduce_on_plateau")` no longer errors in epochs where no validation is performed,
   i.e. when `eval_freq > 1` or when no validation is configured.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes. Operators that derive extents
