@@ -97,7 +97,7 @@ deliberate; the question is only how a *second run of the same learner* should b
   checkpoints) and overwrite those;
 - (d) keep as-is and document the limitation prominently.
 
-### 1.2 [D] `cross_entropy`'s `ignore_index` is off by one
+### 1.2 ~~[D] `cross_entropy`'s `ignore_index` is off by one~~ — FIXED (upstream bug)
 `R/TorchLoss.R:308` (parameter), `:355` (docs).
 
 mlr3torch label-encodes multiclass targets **1-based** (as `?LearnerTorch` "Network Head and Target
@@ -115,9 +115,21 @@ for (ii in 0:3) {
 # ignore_index=3 -> no NaN    ignores nothing
 ```
 
-Fix would be `args$ignore_index = args$ignore_index - 1L` plus
-`assert_choice(ignore_index, seq_along(task$class_names))`. **Decision needed** because it changes
-user-visible semantics: shift to match the documented 1-based encoding, or keep 0-based and document it.
+**This turned out to be a `torch` bug, not an mlr3torch decision.** `torch`'s `R/with-indices.R`
+exists to translate 1-based indexing into libtorch's 0-based one; it converts `target` but forwarded
+`ignore_index` unchanged, even though `ignore_index` is compared against the already-converted
+target. Fixed upstream on branch `fix/ignore-index-off-by-one`
+(`/Users/sebi/mlr/torch/.claude/worktrees/ignore-index`, commit `5e465f773`), covering
+`nnf_cross_entropy()`, `nnf_nll_loss()`, `nn_cross_entropy_loss()` and `nn_nll_loss()`.
+
+mlr3torch carries a temporary workaround (`torch_shifts_ignore_index()` in `R/TorchLoss.R`) that
+shifts the value only while the installed `torch` does not. It probes the installed `torch` rather
+than comparing versions, so it disables itself once the fix is released and can never double-shift.
+**Remove `torch_shifts_ignore_index()` and its call site once the fixed `torch` is the minimum
+supported version.**
+
+Still open, separately: nothing validates `ignore_index` against `seq_along(task$class_names)`, so an
+out-of-range value silently ignores nothing.
 
 ### 1.3 [D] `internal_valid_scores` reports the last epoch, `internal_tuned_values` the best one
 `R/learner_torch_methods.R:226` vs `R/LearnerTorch.R:470`.

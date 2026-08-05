@@ -59,6 +59,11 @@
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`. Previously any
   existing directory was rejected, which made a pre-created output folder unusable and meant that
   a run failing before its first checkpoint left behind a folder that blocked every later run.
+* The `ignore_index` parameter of `t_loss("cross_entropy")` is now interpreted as the 1-based class
+  index that mlr3torch encodes targets with, i.e. `ignore_index = 1` ignores `task$class_names[1]`.
+  It used to be forwarded to `torch` unchanged, which reads it 0-based, so it ignored the class
+  before the requested one and the last class could not be ignored at all. This works around a
+  `torch` bug and stops doing so automatically once the installed `torch` converts the value itself.
 * `t_clbk("lr_reduce_on_plateau")` no longer errors in epochs where no validation is performed,
   i.e. when `eval_freq > 1` or when no validation is configured.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes. Operators that derive extents

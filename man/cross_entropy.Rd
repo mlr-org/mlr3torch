@@ -22,6 +22,11 @@ For binary problems, this must be a scalar (and is passed as argument \code{pos_
 \item \code{ignore_index}:: \code{integer(1)}\cr
 Index of the class which to ignore and which does not contribute to the gradient.
 This is only available for multi-class loss.
+It is a 1-based class index, i.e. it refers to the same encoding as the targets
+(see the \emph{Network Head and Target Encoding} section of \code{\link{LearnerTorch}}), so
+\code{ignore_index = 1} ignores \code{task$class_names[1]}.
+A negative value -- such as the default \code{-100} -- is never a valid class index and
+therefore ignores nothing.
 \item \code{reduction} :: \code{character(1)}\cr
 The reduction to apply. Is either \code{"mean"} or \code{"sum"} and passed as argument \code{reduction}
 to either loss function. The default is \code{"mean"}.

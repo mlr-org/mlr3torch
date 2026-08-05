@@ -302,6 +302,37 @@ mlr3torch_losses$add("l1", function() {
   )
 })
 
+# TEMPORARY, remove once the fixed torch is on CRAN.
+#
+# `ignore_index` names a target value, and mlr3torch label-encodes targets 1-based (see the
+# "Network Head and Target Encoding" section of `?LearnerTorch`). torch converts the target to
+# libtorch's 0-based indexing but forwards `ignore_index` unchanged, so `ignore_index = k` ignores
+# class `k - 1` and the last class cannot be ignored at all. Fixed upstream in mlverse/torch
+# (`to_index_ignore_index()` in `R/with-indices.R`); until that is released we shift here.
+#
+# The probe below asks the installed torch which convention it uses instead of comparing versions,
+# so the workaround disables itself as soon as torch does the conversion and can never double-shift.
+# With a single observation of class 1 and two classes, `ignore_index = 1` leaves nothing to average
+# over -- hence `NaN` -- exactly if torch reads it as the 1-based class index.
+torch_shifts_ignore_index = local({
+  cached = NULL
+  function() {
+    if (is.null(cached)) {
+      cached <<- tryCatch(
+        is.nan(as.numeric(torch::nnf_cross_entropy(
+          torch::torch_tensor(matrix(c(1, 0), nrow = 1L)),
+          torch::torch_tensor(1L, dtype = torch::torch_long()),
+          ignore_index = 1L
+        ))),
+        # an erroring probe means the upstream semantics changed in a way this workaround does not
+        # model, in which case passing the value through untouched is the safer guess
+        error = function(e) TRUE
+      )
+    }
+    cached
+  }
+})
+
 mlr3torch_losses$add("cross_entropy", function() {
   p = ps(
     class_weight = p_uty(default = NULL, tags = "train"),
@@ -331,6 +362,9 @@ mlr3torch_losses$add("cross_entropy", function() {
         args$weight = args$class_weight
         args$class_weight = NULL
       }
+      if (!is.null(args$ignore_index) && !torch_shifts_ignore_index()) {
+        args$ignore_index = args$ignore_index - 1L
+      }
       invoke(nn_cross_entropy_loss, .args = args)
     },
     task_types = "classif",
@@ -357,6 +391,11 @@ mlr3torch_losses$add("cross_entropy", function() {
 #' - `ignore_index`:: `integer(1)`\cr
 #'    Index of the class which to ignore and which does not contribute to the gradient.
 #'    This is only available for multi-class loss.
+#'    It is a 1-based class index, i.e. it refers to the same encoding as the targets
+#'    (see the *Network Head and Target Encoding* section of [`LearnerTorch`]), so
+#'    `ignore_index = 1` ignores `task$class_names[1]`.
+#'    A negative value -- such as the default `-100` -- is never a valid class index and
+#'    therefore ignores nothing.
 #' - `reduction` :: `character(1)`\cr
 #'    The reduction to apply. Is either `"mean"` or `"sum"` and passed as argument `reduction`
 #'    to either loss function. The default is `"mean"`.
