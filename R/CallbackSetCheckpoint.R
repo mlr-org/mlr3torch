@@ -62,6 +62,10 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   lock_objects = FALSE,
   # TODO: This should also save the learner itself
   public = list(
+    #' @field weight (`numeric(1)`)\cr
+    #'   `Inf`, so that this callback runs after all others and hence saves the network and
+    #'   optimizer as they are at the end of the stage, see section *Ordering* of [`CallbackSet`].
+    weight = Inf,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(path, freq) {
@@ -141,7 +145,7 @@ checkpoint_suffixes = function(path) {
 }
 
 # The files of the most recent complete checkpoint in `path`, or NULL if there is none.
-# `state` is NULL for a checkpoint that was written without one, see $on_exit().
+# `state` is NULL for a checkpoint that has none, i.e. one written by an earlier mlr3torch version.
 latest_checkpoint = function(path) {
   suffixes = checkpoint_suffixes(path)
   if (!length(suffixes)) return(NULL)

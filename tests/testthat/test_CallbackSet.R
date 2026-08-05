@@ -86,3 +86,61 @@ test_that("phash works", {
   expect_false(t_clbk("history", id = "a")$phash == t_clbk("history", id = "b")$phash)
   expect_false(t_clbk("history", label = "a")$phash == t_clbk("history", label = "b")$phash)
 })
+
+test_that("callbacks are called in the order they were passed", {
+  order = new.env()
+  spy = function(id, ...) torch_callback(id,
+    on_epoch_end = function() order$seen = c(order$seen, class(self)[[1L]]), ...)
+
+  run = function(callbacks) {
+    order$seen = NULL
+    lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+      callbacks = callbacks)$train(tsk("iris"))
+    order$seen
+  }
+
+  expect_equal(run(list(spy("a"), spy("b"))), c("CallbackSetA", "CallbackSetB"))
+  expect_equal(run(list(spy("b"), spy("a"))), c("CallbackSetB", "CallbackSetA"))
+})
+
+test_that("weight overrides the order within a stage", {
+  order = new.env()
+  spy = function(id, weight = NULL) torch_callback(id, weight = weight,
+    on_epoch_end = function() order$seen = c(order$seen, class(self)[[1L]]))
+
+  run = function(callbacks) {
+    order$seen = NULL
+    lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+      callbacks = callbacks)$train(tsk("iris"))
+    order$seen
+  }
+
+  # a higher weight runs later, whatever the order the callbacks were passed in
+  expect_equal(run(list(spy("a", weight = 1), spy("b"))), c("CallbackSetB", "CallbackSetA"))
+  expect_equal(run(list(spy("b"), spy("a", weight = 1))), c("CallbackSetB", "CallbackSetA"))
+  expect_equal(run(list(spy("a", weight = -1), spy("b"))), c("CallbackSetA", "CallbackSetB"))
+
+  # equal weights keep the order they were passed in
+  expect_equal(run(list(spy("a", weight = 2), spy("b", weight = 2))),
+    c("CallbackSetA", "CallbackSetB"))
+})
+
+test_that("the checkpoint callback runs last", {
+  # it has weight Inf, so it saves the network as the other callbacks left it
+  cb = t_clbk("checkpoint", freq = 1, path = tempfile())$generate()
+  expect_equal(cb$weight, Inf)
+  expect_equal(CallbackSet$new()$weight, 0)
+})
+
+test_that("weight is validated", {
+  expect_error(torch_callback("bad", weight = "high", on_begin = function() NULL), "weight")
+  expect_error(torch_callback("bad", weight = NaN, on_begin = function() NULL), "weight")
+
+  # a class that declares a nonsensical weight is caught before training rather than producing an
+  # arbitrary order
+  bad = R6::R6Class("CallbackSetBad", inherit = CallbackSet,
+    public = list(weight = NaN, on_epoch_end = function() NULL))
+  learner = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+    callbacks = list(TorchCallback$new(bad, param_set = ps(), id = "bad")))
+  expect_error(learner$train(tsk("iris")), "weight")
+})

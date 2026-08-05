@@ -23,7 +23,7 @@ The preprocessing is applied to the whole batch.
 \tabular{llll}{
    Id \tab Type \tab Default \tab Levels \cr
    size \tab untyped \tab - \tab  \cr
-   interpolation \tab character \tab 2 \tab Undefined, Bartlett, Blackman, Bohman, Box, Catrom, Cosine, Cubic, Gaussian, Hamming, \link{...} \cr
+   interpolation \tab character \tab 2 \tab Undefined, Bartlett, Blackman, Bohman, Box, Catrom, Cosine, Cubic, Gaussian, Hamming, [...] \cr
    stages \tab character \tab - \tab train, predict, both \cr
    affect_columns \tab untyped \tab selector_all() \tab  \cr
 }
