@@ -18,22 +18,8 @@ training run, so that a later run can continue e.g. the training history or the 
 schedule.
 }
 
-A checkpoint is only ever written for an epoch that ran to its end, so \verb{network<n>.pt} is always
-the network at the \emph{end} of epoch \code{n}.
-If training fails in the middle of an epoch, nothing further is written -- the network and the
-optimizer have already been updated by the batches of that epoch which did run, so they are at no
-epoch boundary -- and the run keeps the checkpoints that \code{freq} had written before the error.
-
-Ending a run early is unaffected by this.
-\code{ctx$terminate} is only acted on once the epoch has finished, so early stopping and any callback
-that sets it leave the network at an epoch boundary and the last epoch is written as usual.
-
-A folder that already contains checkpoints is accepted, so that a run which continues an earlier
-one can keep checkpointing into it.
-}
-\details{
-Saving the learner itself in the callback with a trained model is impossible,
-as the model slot is set \emph{after} the last callback step is executed.
+A checkpoint counts as complete only if all three files are present, so a run that was killed
+while writing one of them falls back to the previous checkpoint rather than to a partial one.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

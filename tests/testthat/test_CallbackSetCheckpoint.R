@@ -177,14 +177,21 @@ test_that("latest_checkpoint() finds the most recent complete checkpoint", {
   expect_equal(latest_checkpoint(path)$epoch, 10L)
   expect_equal(basename(latest_checkpoint(path)$network), "network10.pt")
 
-  # a run that was interrupted between the network and the optimizer leaves an unusable checkpoint
-  file.create(file.path(path, "network11.pt"))
+  # a run that was killed while writing leaves an incomplete checkpoint, which is skipped
+  file.create(file.path(path, c("network11.pt", "optimizer11.pt")))
   expect_equal(latest_checkpoint(path)$epoch, 10L)
 
-  # a checkpoint without a state file is still usable
+  # all three files are required, so the previous complete checkpoint is used instead. Without the
+  # state file nothing says that the suffix counts epochs rather than within-epoch steps, which is
+  # how mlr3torch <= 0.3.3 could name them.
   file.remove(file.path(path, "state10.rds"))
-  expect_null(latest_checkpoint(path)$state)
-  expect_equal(latest_checkpoint(path)$epoch, 10L)
+  expect_equal(checkpoint_suffixes(path), 2L)
+  expect_equal(latest_checkpoint(path)$epoch, 2L)
+  expect_equal(basename(latest_checkpoint(path)$state), "state2.rds")
+
+  # and a folder that holds only such checkpoints has nothing to offer
+  file.remove(file.path(path, "state2.rds"))
+  expect_null(latest_checkpoint(path))
 })
 
 test_that("the saved callback states belong to the epoch of the checkpoint", {
