@@ -23,6 +23,8 @@
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
   (including the validation data during training) when it is set.
 * Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`).
+* Added `PipeOpTorchTransformerEncoderLayer` (`po("nn_transformer_encoder_layer")`), a wrapper
+  around `torch::nn_transformer_encoder_layer()`.
 * Most `LearnerTorchVision` are now `jittable`.
 * Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
 * Improved error messages during `PipeOpTorch`'s shape inference.
