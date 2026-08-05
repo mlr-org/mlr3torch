@@ -23,6 +23,8 @@
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
   (including the validation data during training) when it is set.
 * Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`).
+* Added `PipeOpTorchTransformerEncoderLayer` (`po("nn_transformer_encoder_layer")`), a wrapper
+  around `torch::nn_transformer_encoder_layer()`.
 * Most `LearnerTorchVision` are now `jittable`.
 * Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
 * Improved error messages during `PipeOpTorch`'s shape inference.
@@ -33,6 +35,13 @@
 * `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
   of the training run, named by their ids.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
+* `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage:
+  callbacks with a higher weight are called after those with a lower one, and callbacks with the
+  same weight keep the order in which they were passed to the learner. It can be set via the
+  `weight` argument of `callback_set()` / `torch_callback()`, or on an existing `TorchCallback`.
+  `t_clbk("checkpoint")` has weight `Inf` and therefore now runs after the other callbacks, so it
+  saves the network and the optimizer as they left them -- previously a learning rate scheduler
+  passed after it would step only after the optimizer had already been written.
 * `t_clbk("checkpoint")` additionally writes a `state<n>.rds` next to `network<n>.pt` and
   `optimizer<n>.pt`, holding the epoch and the states of the other callbacks of the run, so that a
   later run can continue e.g. the training history or the learning rate schedule. It also accepts a
