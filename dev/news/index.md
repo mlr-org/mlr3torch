@@ -48,6 +48,14 @@
   access to the other callbacks of the training run, named by their ids.
 - `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of
   `NULL`.
+- The learning rate scheduling and unfreezing callbacks implement
+  `$state_dict()` and `$load_state_dict()`, and the early stopping
+  callback additionally stores its best score and stagnation counter.
+  The state of a training run can therefore be carried over into another
+  one. Since `$state_dict()` is what ends up in
+  `learner$model$callbacks$<id>`, the schedule of `t_clbk("lr_*")` and
+  the trainable weights of `t_clbk("unfreeze")` are now part of the
+  model.
 
 ### Breaking changes
 

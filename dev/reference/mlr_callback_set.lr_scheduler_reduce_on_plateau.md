@@ -21,10 +21,10 @@ improving for `patience` epochs. Wraps
 
 Inherited methods
 
-- [`CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
 - [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
-- [`CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSetLRScheduler$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSetLRScheduler.html#method-load_state_dict)
 - [`CallbackSetLRScheduler$on_begin()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSetLRScheduler.html#method-on_begin)
+- [`CallbackSetLRScheduler$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSetLRScheduler.html#method-state_dict)
 
 ------------------------------------------------------------------------
 

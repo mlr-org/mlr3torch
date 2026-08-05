@@ -26,9 +26,9 @@ number of training epochs and the number of batches per epoch.
 
 Inherited methods
 
-- [`CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
 - [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
-- [`CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSetLRScheduler$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSetLRScheduler.html#method-load_state_dict)
+- [`CallbackSetLRScheduler$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSetLRScheduler.html#method-state_dict)
 
 ------------------------------------------------------------------------
 

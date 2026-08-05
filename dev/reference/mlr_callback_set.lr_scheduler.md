@@ -47,13 +47,15 @@ As of this writing, the following are available:
 
 - [`CallbackSetLRScheduler$on_begin()`](#method-CallbackSetLRScheduler-on_begin)
 
+- [`CallbackSetLRScheduler$state_dict()`](#method-CallbackSetLRScheduler-state_dict)
+
+- [`CallbackSetLRScheduler$load_state_dict()`](#method-CallbackSetLRScheduler-load_state_dict)
+
 - [`CallbackSetLRScheduler$clone()`](#method-CallbackSetLRScheduler-clone)
 
 Inherited methods
 
-- [`CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
 - [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
-- [`CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
 
 ------------------------------------------------------------------------
 
@@ -93,6 +95,35 @@ Creates the scheduler using the optimizer from the context
 #### Usage
 
     CallbackSetLRScheduler$on_begin()
+
+------------------------------------------------------------------------
+
+### `CallbackSetLRScheduler$state_dict()`
+
+Returns the state of the wrapped `torch` scheduler, so that a later run
+can continue the schedule instead of starting it over. Returns `NULL` if
+the scheduler was not created yet, i.e. before the training loop began.
+
+#### Usage
+
+    CallbackSetLRScheduler$state_dict()
+
+------------------------------------------------------------------------
+
+### `CallbackSetLRScheduler$load_state_dict()`
+
+Loads the state of the wrapped `torch` scheduler.
+
+#### Usage
+
+    CallbackSetLRScheduler$load_state_dict(state_dict)
+
+#### Arguments
+
+- `state_dict`:
+
+  (named [`list()`](https://rdrr.io/r/base/list.html))  
+  The state dict as retrieved via `$state_dict()`.
 
 ------------------------------------------------------------------------
 

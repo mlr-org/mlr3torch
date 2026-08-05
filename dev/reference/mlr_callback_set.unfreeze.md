@@ -32,6 +32,10 @@ Other Callback:
 
 - [`CallbackSetUnfreeze$on_begin()`](#method-CallbackSetUnfreeze-on_begin)
 
+- [`CallbackSetUnfreeze$state_dict()`](#method-CallbackSetUnfreeze-state_dict)
+
+- [`CallbackSetUnfreeze$load_state_dict()`](#method-CallbackSetUnfreeze-load_state_dict)
+
 - [`CallbackSetUnfreeze$on_epoch_begin()`](#method-CallbackSetUnfreeze-on_epoch_begin)
 
 - [`CallbackSetUnfreeze$on_batch_begin()`](#method-CallbackSetUnfreeze-on_batch_begin)
@@ -40,9 +44,7 @@ Other Callback:
 
 Inherited methods
 
-- [`CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
 - [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
-- [`CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
 
 ------------------------------------------------------------------------
 
@@ -79,6 +81,34 @@ Sets the starting weights
 #### Usage
 
     CallbackSetUnfreeze$on_begin()
+
+------------------------------------------------------------------------
+
+### `CallbackSetUnfreeze$state_dict()`
+
+Returns the names of the weights that are currently trainable, so that a
+later run does not freeze weights again that were already unfrozen.
+
+#### Usage
+
+    CallbackSetUnfreeze$state_dict()
+
+------------------------------------------------------------------------
+
+### `CallbackSetUnfreeze$load_state_dict()`
+
+Marks the weights of the state dict as trainable.
+
+#### Usage
+
+    CallbackSetUnfreeze$load_state_dict(state_dict)
+
+#### Arguments
+
+- `state_dict`:
+
+  (named [`list()`](https://rdrr.io/r/base/list.html))  
+  The state dict as retrieved via `$state_dict()`.
 
 ------------------------------------------------------------------------
 
