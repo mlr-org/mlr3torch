@@ -1,6 +1,6 @@
 # mlr3torch — open TODOs from the audit
 
-Everything here is **still open**. Items already fixed on branch `audit-fixes` are listed in `NEWS.md`
+Most items here are **still open**; those since addressed are marked in their heading.
 and are not repeated below.
 
 Source: an 8-agent audit of `main` @ `736f5165` — adversarial bug hunt, doc/code correctness,
@@ -12,7 +12,7 @@ empirical usage sweep (135 configuration checks), doc coverage.
 
 ## 1. Bugs — code
 
-### 1.0 [D] **`rr$learners[[i]]` is silently the wrong learner** — highest-impact finding
+### 1.0 [D] **`rr$learners[[i]]` is silently the wrong learner** — highest impact *(partly addressed: hashing replaced, ordering still broken)*
 
 `resample(..., store_models = TRUE)$learners` comes back in the wrong order for learners whose
 parameters hold an `nn_module` (e.g. `classif.mlp`s `activation = nn_relu`).
@@ -97,7 +97,7 @@ deliberate; the question is only how a *second run of the same learner* should b
   checkpoints) and overwrite those;
 - (d) keep as-is and document the limitation prominently.
 
-### 1.2 [D] `cross_entropy`'s `ignore_index` is off by one
+### 1.2 `cross_entropy` `ignore_index` off by one — DECIDED (upstream torch bug; documented, deliberately not worked around)
 `R/TorchLoss.R:308` (parameter), `:355` (docs).
 
 mlr3torch label-encodes multiclass targets **1-based** (as `?LearnerTorch` "Network Head and Target
@@ -181,7 +181,7 @@ Both now read `$in_features` like every sibling method. Verified: `model_mobilen
 learners, which never expose `width_mult`, but `replace_head()` is exported. VGGs 4096 is correct
 for every torchvision VGG variant; changed for consistency only.
 
-### 1.6 [D] `seed` does not seed weight initialization for graph-built learners
+### 1.6 [D] `seed` does not seed weight initialization for graph-built learners *(documented; structural fix still open)*
 A graph-built learner is **not reproducible**, even with an explicit `seed`, while the equivalent
 predefined learner is. `resample()` on such a learner gives different results run to run.
 
