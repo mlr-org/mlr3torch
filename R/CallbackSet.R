@@ -209,7 +209,7 @@ callback_set = function(
     on_batch_valid_end = assert_function(on_batch_valid_end, nargs = 0, null.ok = TRUE),
     on_valid_end = assert_function(on_valid_end, nargs = 0, null.ok = TRUE),
     on_exit = assert_function(on_exit, nargs = 0, null.ok = TRUE),
-    # NULL is filtered out below, so that `inherit`ing from another callback keeps its weight
+    # NULL is filtered out below, so that inheriting from another callback keeps its weight
     weight = if (!is.null(weight)) assert_number(weight)
   )
 

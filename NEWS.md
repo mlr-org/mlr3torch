@@ -40,7 +40,7 @@
   same weight keep the order in which they were passed to the learner. It can be set via the
   `weight` argument of `callback_set()` / `torch_callback()`, or on an existing `TorchCallback`.
   `t_clbk("checkpoint")` has weight `Inf` and therefore now runs after the other callbacks, so it
-  saves the network and the optimizer as they left them -- previously a learning rate scheduler
+  saves the network and the optimizer as they left them. Previously a learning rate scheduler
   passed after it would step only after the optimizer had already been written.
 * The learning rate scheduling and unfreezing callbacks implement `$state_dict()` and
   `$load_state_dict()`, and the early stopping callback additionally stores its best score and
@@ -53,15 +53,14 @@
 * The `freq_type` parameter of `t_clbk("checkpoint")` was removed; checkpoints are now always
   written per epoch. `freq_type = "step"` named its files after the within-epoch step, which
   restarts at every epoch, so each epoch silently overwrote the checkpoints of the previous one.
-  Code that set `freq_type` -- including to its default `"epoch"` -- has to drop the argument.
 * The construction argument `only_batch_unknown` of `PipeOpTorch` was removed.
   Any dimension of an input shape can now be unknown, so `private$.shapes_out()` must always
   handle `NA`s and assert those dimensions it actually needs to be known.
 
 ## Bug fixes
 
-* `t_clbk("checkpoint")` no longer writes an epoch that was interrupted -- because training failed
-  or was stopped early -- under that epoch's own number, so `network<n>.pt` is now always the
+* `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
+  under that epoch's own number, so `network<n>.pt` is now always the
   network at the *end* of epoch `n` rather than sometimes a half-trained one.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`. Previously any
   existing directory was rejected, which made a pre-created output folder unusable and meant that
