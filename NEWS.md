@@ -45,7 +45,7 @@
   same weight keep the order in which they were passed to the learner. It can be set via the
   `weight` argument of `callback_set()` / `torch_callback()`, or on an existing `TorchCallback`.
   `t_clbk("checkpoint")` has weight `Inf` and therefore now runs after the other callbacks, so it
-  saves the network and the optimizer as they left them -- previously a learning rate scheduler
+  saves the network and the optimizer as they left them. Previously a learning rate scheduler
   passed after it would step only after the optimizer had already been written.
 * `t_clbk("checkpoint")` additionally writes a `state<n>.rds` next to `network<n>.pt` and
   `optimizer<n>.pt`, holding the epoch and the states of the other callbacks of the run, so that a
@@ -62,7 +62,6 @@
 * The `freq_type` parameter of `t_clbk("checkpoint")` was removed; checkpoints are now always
   written per epoch. `freq_type = "step"` named its files after the within-epoch step, which
   restarts at every epoch, so each epoch silently overwrote the checkpoints of the previous one.
-  Code that set `freq_type` -- including to its default `"epoch"` -- has to drop the argument.
 * The construction argument `only_batch_unknown` of `PipeOpTorch` was removed.
   Any dimension of an input shape can now be unknown, so `private$.shapes_out()` must always
   handle `NA`s and assert those dimensions it actually needs to be known.
@@ -71,13 +70,11 @@
 
 * `t_clbk("history")` no longer errors when a run adds no new scores to a history that was loaded
   via `$load_state_dict()`, which happens when a resumed checkpoint is already at `epochs`.
-* `t_clbk("checkpoint")` no longer writes a checkpoint when training fails in the middle of an epoch,
-  so `network<n>.pt` is now always the network at the *end* of epoch `n` rather than sometimes a
-  half-trained one. Writing the epoch in progress under the number of the last complete epoch was not
-  enough: the network and the optimizer are saved as they are at that moment, and the batches of the
-  failed epoch that did run have already updated them. Such a run now keeps the checkpoints that
-  `freq` wrote before the error. Ending a run early is unaffected, as `ctx$terminate` is only acted
-  on once the epoch has finished.
+* `t_clbk("checkpoint")` no longer writes a checkpoint when training fails in the middle of an
+  epoch, so `network<n>.pt` is now always the network at the *end* of epoch `n` rather than
+  sometimes a half-trained one. Renaming such a checkpoint to the last complete epoch was not
+  enough, as the batches of the failed epoch that did run have already updated the network and the
+  optimizer. Such a run keeps the checkpoints that `freq` wrote before the error.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`. Previously any
   existing directory was rejected, which made a pre-created output folder unusable and meant that
   a run failing before its first checkpoint left behind a folder that blocked every later run.

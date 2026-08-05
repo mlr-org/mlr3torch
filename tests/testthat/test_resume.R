@@ -61,14 +61,23 @@ test_that("the most recent complete checkpoint is used", {
   expect_equal(resumed$model$epochs, 4L)
 })
 
-test_that("checkpoints without a state file are resumed via the file suffix", {
+test_that("checkpoints without a state file are ignored", {
   path = tempfile()
-  make_checkpoint(epochs = 2L, path = path)
-  file.remove(list.files(path, pattern = "^state", full.names = TRUE))
+  make_checkpoint(epochs = 2L, freq = 1L, path = path)
+  file.remove(file.path(path, "state2.rds"))
 
+  # epoch 2 is incomplete, so the run continues from epoch 1 instead
   resumed = resumer(4L, path)
   resumed$train(tsk("iris"))
   expect_equal(resumed$model$epochs, 4L)
+
+  # with no complete checkpoint left there is nothing to resume from, and rather than reading the
+  # suffixes of a folder written by mlr3torch <= 0.3.3 -- where they may count steps, not epochs --
+  # training starts from scratch
+  file.remove(list.files(path, pattern = "^state", full.names = TRUE))
+  scratch = resumer(2L, path)
+  scratch$train(tsk("iris"))
+  expect_equal(scratch$model$epochs, 2L)
 })
 
 test_that("the history of the previous run is continued", {

@@ -270,9 +270,7 @@ resume_training = function(ctx, resume_path) {
   ctx$network$load_state_dict(torch_load(checkpoint$network))
   ctx$optimizer$load_state_dict(torch_load(checkpoint$optimizer))
 
-  # a checkpoint can be without a state file, see $on_exit() of CallbackSetCheckpoint. Its file
-  # suffix is the epoch it was written in either way.
-  state = if (!is.null(checkpoint$state)) readRDS(checkpoint$state)
+  state = readRDS(checkpoint$state)
   load_callback_states(ctx$callbacks, state$callbacks)
 
   epochs_trained = checkpoint$epoch

@@ -119,6 +119,18 @@ then wraps this generator in a \code{\link{TorchCallback}} that can be passed to
 }
 }
 
+\section{Ordering}{
+
+Within a stage, callbacks are called in the order in which they were passed to the learner.
+A callback can override this via its \verb{$weight} field: callbacks with a higher weight are called
+after those with a lower one, and callbacks with the same weight keep the order in which they
+were passed.
+The default weight is \code{0}.
+This matters for callbacks that observe what the others did, which is why
+\code{\link{CallbackSetCheckpoint}} has weight \code{Inf}: it always runs last and therefore saves the network
+and optimizer as the other callbacks left them at the end of the stage.
+}
+
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 custom_tcb = torch_callback("custom",
