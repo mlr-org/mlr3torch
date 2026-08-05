@@ -66,8 +66,22 @@
 * `replace_head()` for `mobilenet_v2` and `VGG` now reads the head's `in_features` instead of
   assuming `1280` / `4096`. For a `mobilenet_v2` with a `width_mult` above 1 the assumption was
   wrong and produced a network that failed at forward.
-* `hash_input()` for `nn_module`s is now based on the module's class and methods rather than on
-  `data.table::address()`, which was not stable across copies.
+* `resample(..., store_models = TRUE)$learners[[i]]` (and the `benchmark()` equivalent) now really is
+  the learner of iteration `i`. The list was returned in hash order, which for learners holding an
+  `nn_module` hyperparameter -- such as `lrn("classif.mlp")` and its `activation` -- was neither the
+  iteration order nor deterministic, so inspecting `rr$learners[[i]]$model` silently gave the wrong
+  fold. `$score()` and `as.data.table(rr)` were never affected.
+  The cause was that `Learner$hash` digests `param_set$values` as a whole and `mlr3misc::hash_input()`
+  has no `list` method, so the `nn_module` was serialized together with its environment, which torch
+  mutates when the module is first instantiated. `hash_input()` now recurses into lists, and
+  `hash_input()` for `nn_module`s is based on the module's class and methods rather than on
+  `data.table::address()`, which was not stable across copies either.
+* `$internal_valid_scores` now reports the scores of the **best** epoch when early stopping is
+  active, i.e. of the epoch that `$internal_tuned_values` reports, instead of those of the last
+  epoch. The two describe one model again, which is what `tnr("internal")` with
+  `msr("internal_valid_score")` assumes when it ranks configurations; previously it ranked them by
+  the performance of models that were then discarded. The network stored in the learner is still the
+  last epoch's, as documented under `patience`.
 * Documented that `seed` does not cover the weight initialization of networks built by a `Graph`,
   since the `PipeOpTorch` operators instantiate their modules before the seed is set.
 * `t_clbk("lr_reduce_on_plateau")` no longer errors in epochs where no validation is performed,

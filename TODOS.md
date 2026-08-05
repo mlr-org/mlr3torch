@@ -12,64 +12,29 @@ empirical usage sweep (135 configuration checks), doc coverage.
 
 ## 1. Bugs — code
 
-### 1.0 [D] **`rr$learners[[i]]` is silently the wrong learner** — highest impact *(partly addressed: hashing replaced, ordering still broken)*
+### 1.0 ~~**`rr$learners[[i]]` is silently the wrong learner**~~ — FIXED
 
-`resample(..., store_models = TRUE)$learners` comes back in the wrong order for learners whose
-parameters hold an `nn_module` (e.g. `classif.mlp`s `activation = nn_relu`).
+`resample(..., store_models = TRUE)$learners` came back in hash order rather than iteration order
+for learners holding an `nn_module` hyperparameter. `$score()` and `as.data.table(rr)` were never
+affected; the damage was confined to `rr$learners` / `bmr$learners`.
 
-```r
-task = tsk("iris"); set.seed(1)
-rr = resample(task, lrn("classif.mlp", epochs = 2, batch_size = 32, neurons = 10,
-                        device = "cpu", predict_type = "prob"),
-              rsmp("cv", folds = 3), store_models = TRUE)
-# max abs difference between learner i(rows) and fold j(cols)
-#         [,1]   [,2]   [,3]
-# [1,]  0.3840 0.3987 0.0000
-# [2,]  0.7614 0.0000 0.3911
-# [3,]  0.0000 0.7896 0.4000
-```
-The zeros should lie on the diagonal. `as.data.table(rr)` is self-consistent and `$score()` is
-correct, so the damage is confined to `rr$learners` / `bmr$learners`, e.g. `rr$learners[[1]]$model`.
-It is **nondeterministic**, which is why CI does not catch it.
+**Cause** (the first two diagnoses in this entry were both wrong, hence the detail): `Learner$hash`
+is `calculate_hash(class, id, param_set$values, ...)`, and `calculate_hash()` applies `hash_input()`
+only to each top-level argument. `param_set$values` is a plain list and `mlr3misc` has no
+`hash_input.list`, so `digest()` serialized the list wholesale — including the `nn_relu` closure
+*together with its environment*, which torch mutates when the module is first instantiated. Each
+iteration therefore recorded a different `learner_hash`, and `ResultData$learners()` merges on it
+with `sort = TRUE`.
 
-**Corrected mechanism** (an earlier version of this entry blamed `hash_input.nn_module`, which was
-wrong — see below).
+**Fix**: `hash_input.list()` (`function(x, ...) map(x, hash_input)`) makes the element-wise methods
+reachable, and `hash_input.nn_module()` now keys on the module class plus the public methods of its
+R6 generator instead of `data.table::address()`. Both in `R/LearnerTorch.R`; regression tests in
+`test_LearnerTorch.R`.
 
-`Learner$hash` is `calculate_hash(class, id, param_set$values, ...)`, and
-`calculate_hash(...) = digest(lapply(list(...), hash_input))` applies `hash_input()` only to each
-**top-level argument**. `param_set$values` is a plain `list()` and there is no `hash_input.list`, so
-`digest()` serializes the list wholesale — including the `nn_relu` closure *together with its
-environment*. Training instantiates the module, which mutates state reachable from that environment,
-so the serialization changes:
-
-```r
-l = lrn("classif.mlp", epochs = 2, batch_size = 32, neurons = 10)
-l$hash                                    # a49da40fe67b3c71
-x = l$clone(deep = TRUE); x$train(tsk("iris"))
-l$hash                                    # 2693257ca80af060  <- l itself was never trained
-```
-
-Each resampling iteration therefore records a different `learner_hash` in the `ResultData` fact
-table, and `ResultData$learners()` does
-`merge(tab, learner_components, by = "learner_hash", sort = TRUE)`, which orders the result by that
-hash instead of by iteration. (With equal hashes the merge is order-preserving — verified — so
-stabilising the hash does fix the ordering.)
-
-**Why `hash_input.nn_module` was a red herring:** it is registered, but unreachable on this path,
-because `hash_input` never recurses into the `values` list. The old `data.table::address(x)` body
-was both wrong *and* dead. It has been replaced on this branch with a class + methods based
-implementation (correct and stable in isolation — see `NEWS.md`), but that alone does **not** fix
-the ordering, which was confirmed by re-running the reproducer afterwards.
-
-**Decision needed** on where to fix the reachability:
-- (a) override the `hash` active binding in `LearnerTorch` to pass `map(values, hash_input)`;
-  contained, but duplicates mlr3s hash formula and will drift if mlr3 changes it;
-- (b) get `hash_input` to recurse into lists in `mlr3misc`, which makes the already-registered
-  `hash_input.nn_module` work as intended — principled, but a change to shared infrastructure;
-- (c) ask mlr3 to merge on iteration rather than on `learner_hash` with `sort = TRUE`.
-
-Worth adding a regression test that `resample(..., store_models = TRUE)$learners[[i]]` reproduces
-iteration `i`s predictions, for a learner whose parameters hold an `nn_module`.
+**Note for review:** `hash_input.list` is an S3 method on another package's generic for a base
+type, so it takes effect for *every* package in a session that loads mlr3torch, not only for torch
+learners. It is semantically a no-op for lists of plain data — recursing and not recursing agree —
+but the natural home for it is `mlr3misc`. Worth proposing upstream and dropping here once it lands.
 
 ### 1.1 [D] Checkpoint callback rejects a directory that already holds checkpoints
 `R/CallbackSetCheckpoint.R:51` — `if (is_empty_dir(path)) path else assert_path_for_output(path)`.
@@ -128,45 +93,25 @@ sentinel that matches no target either way, and `torch` has no test for the argu
 Still open here regardless: nothing validates `ignore_index` against `seq_along(task$class_names)`,
 so an out-of-range value silently ignores nothing.
 
-### 1.3 [D] `internal_valid_scores` reports the last epoch, `internal_tuned_values` the best one
-`R/learner_torch_methods.R:226` vs `R/LearnerTorch.R:470`.
+### 1.3 ~~`internal_valid_scores` reports the last epoch, `internal_tuned_values` the best one~~ — FIXED
 
-After early stopping these describe **different models**, so a tuner archives the wrong
-configuration's performance.
+After early stopping the two extractors described **different models**, while mlr3tuning pairs them
+as if they described one, so a tuner ranked configurations by the performance of models it then
+discarded. Demonstrated repeatedly: a reproducible rank flip on sonar (seed 4, `patience = 2`,
+reported scores pick `lr = 0.005` while at each configuration's own tuned epoch `lr = 0.02` wins,
+0.2097 vs 0.2258), and an order-of-magnitude gap on `classif.ft_transformer` (best epoch 3 scored
+0.0222, reported was 0.3333 from epoch 5). It did not even need early stopping to fire.
 
-```r
-l = lrn("regr.mlp", epochs = 30, batch_size = 8, neurons = c(200, 200), p = 0,
-  patience = 3, validate = 0.3, measures_valid = msr("regr.mse"), seed = 3,
-  opt.lr = 0.5, callbacks = t_clbk("history"))
-l$train(tsk("mtcars"))
-# history MSE: 48790, 285, 22.0, 113, 30.5, 41.4
-# internal_tuned_values$epochs = 3  (MSE 22.0)
-# internal_valid_scores        = 41.4 (epoch 6)
-```
+**Resolved as option (b)**: `$internal_valid_scores` now reports the best epoch's scores, matching
+`$internal_tuned_values` and the ecosystem convention (`mlr3learners`' xgboost indexes its
+evaluation log at `best_iteration`). `CallbackSetEarlyStopping` records `best_scores` — all
+validation measures at the best epoch, not just the one it selects on — and
+`.extract_internal_valid_scores()` prefers it. Without early stopping the last epoch's scores are
+still reported, as before.
 
-Two independent audit rounds found this. The second round established that **it deviates from the
-ecosystem convention and changes tuning results**, so it is a genuine bug rather than a convention:
-
-- `mlr3learners`' xgboost indexes its evaluation log at `attributes(model)$early_stop$best_iteration`,
-  i.e. exactly the iteration reported in `internal_tuned_values`. Verified directly by printing
-  `mlr3learners:::.__LearnerClassifXgboost__.extract_internal_valid_scores`. (An earlier audit pass
-  claimed xgboost behaves like mlr3torch — that claim was wrong.)
-- `tnr("internal")` + `msr("internal_valid_score")` ranks external configurations by this number, so
-  it ranks them by the score of models that are then discarded. A **reproducible rank flip** was
-  demonstrated on sonar (seed 4, `patience = 2`): reported scores pick `lr = 0.005`, but at each
-  configuration's own tuned epoch `lr = 0.02` is better (0.2097 vs 0.2258).
-- With `classif.ft_transformer` the gap reached an order of magnitude: best epoch 3 scored 0.0222
-  while the reported `internal_valid_score` was 0.3333 from epoch 5.
-- It does not even require early stopping to fire — with `patience = 100` and 4 epochs, the tuned
-  value is epoch 2 (score 0.289) while the reported score is epoch 4's (0.378).
-
-The defensible reading is that `patience`'s docs say "the final model is stored in the learner, not
-the best model", so the score does describe the stored network — but then the two extractors describe
-two different models while mlr3tuning pairs them as if they described one.
-
-**Decision needed** on which way to resolve it: (a) restore the best-epoch weights, (b) record the
-best-epoch score, or (c) at minimum document loudly that `internal_valid_score` must not be used as
-the tuning measure when `patience > 0`.
+The stored **network** is deliberately still the last epoch's; that was already documented under
+`patience` and is now spelled out there and on the `$internal_valid_scores` field, together with
+the fact that retraining at the tuned `epochs` is what produces the model the score describes.
 
 ### 1.4 `CallbackSetHistory$load_state_dict()` is never called
 `R/CallbackSetHistory.R:55-62`. Nothing in `R/` calls it, so the resume path is dead code — and

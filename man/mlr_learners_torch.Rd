@@ -180,7 +180,13 @@ This activates early stopping using the validation scores.
 If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
 Note that this counts \emph{evaluation steps}, not epochs: when \code{eval_freq} is greater than \code{1},
 \code{patience} evaluation steps correspond to \code{patience * eval_freq} epochs.
-Note that the final model is stored in the learner, not the best model.
+Note that the final model is stored in the learner, not the best model, so the network you
+predict with is the one from the last epoch that was trained, not the one from the best epoch.
+\verb{$internal_tuned_values} and \verb{$internal_valid_scores}, on the other hand, both describe the
+\strong{best} epoch: the former reports it and the latter reports its validation scores, so that a
+tuner ranks a configuration by the model that its tuned \code{epochs} value would produce.
+Retrain with \code{epochs} set to the tuned value to obtain that model -- which is what
+\code{\link[mlr3tuning:AutoTuner]{AutoTuner}} and \code{tnr("internal")} do for you.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
@@ -356,7 +362,19 @@ The ids will be set as the names.}
 
     \item{\code{internal_valid_scores}}{Retrieves the internal validation scores as a named \code{list()}.
 Specify the \verb{$validate} field and the \code{measures_valid} parameter to configure this.
-Returns \code{NULL} if learner is not trained yet.}
+Returns \code{NULL} if learner is not trained yet.
+
+Which epoch these scores describe depends on early stopping:
+\itemize{
+\item With early stopping (\code{patience > 0}) they are the scores of the \strong{best} epoch, i.e. of
+the epoch reported by \verb{$internal_tuned_values}. The two therefore always describe the same
+model, which is what \code{\link[mlr3tuning:mlr3tuning-package]{mlr3tuning}} assumes when it pairs
+them, e.g. for \code{tnr("internal")} with \code{msr("internal_valid_score")}.
+Note that the network stored in \verb{$model} is still the one from the \emph{last} epoch, so these
+scores do \strong{not} describe the network you predict with -- see the \code{patience} parameter.
+\item Without early stopping they are the scores of the last epoch, which is also the stored
+network.
+}}
 
     \item{\code{internal_tuned_values}}{When early stopping is active, this returns a named list with the early-stopped epochs,
 otherwise an empty list is returned.

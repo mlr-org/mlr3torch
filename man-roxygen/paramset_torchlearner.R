@@ -64,7 +64,13 @@
 #'   If the performance of a model does not improve for `patience` evaluation steps, training is ended.
 #'   Note that this counts *evaluation steps*, not epochs: when `eval_freq` is greater than `1`,
 #'   `patience` evaluation steps correspond to `patience * eval_freq` epochs.
-#'   Note that the final model is stored in the learner, not the best model.
+#'   Note that the final model is stored in the learner, not the best model, so the network you
+#'   predict with is the one from the last epoch that was trained, not the one from the best epoch.
+#'   `$internal_tuned_values` and `$internal_valid_scores`, on the other hand, both describe the
+#'   **best** epoch: the former reports it and the latter reports its validation scores, so that a
+#'   tuner ranks a configuration by the model that its tuned `epochs` value would produce.
+#'   Retrain with `epochs` set to the tuned value to obtain that model -- which is what
+#'   [`AutoTuner`][mlr3tuning::AutoTuner] and `tnr("internal")` do for you.
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.
 #'   This also requires to specify the `$validate` field of the Learner, as well as `measures_valid`.
