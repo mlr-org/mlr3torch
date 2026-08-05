@@ -10,6 +10,12 @@
   dispatch on the task and can be implemented for custom task types.
   A learner for a task type other than classification or regression has to be given a `loss`
   explicitly, since `mlr3torch` only knows a sensible default for the two built-in ones.
+* New S3 generic `get_batch_constructor()`, which decides how a whole batch of a task is built,
+  i.e. both the features `x` and the target `y`.
+  The default method applies the ingress tokens and the target batchgetter separately, as before.
+  A task type whose target cannot be built independently of its features -- or for which building
+  them separately would duplicate work, as when the target *is* the input -- can implement a method
+  that constructs both at once.
 * Added learners for the remaining image classification networks of `torchvision`:
   ConvNeXt (`classif.convnext_*`), EfficientNet (`classif.efficientnet_b0` to
   `classif.efficientnet_b7`), EfficientNetV2 (`classif.efficientnet_v2_{s,m,l}`),

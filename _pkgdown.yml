@@ -166,6 +166,7 @@ reference:
       - Select
       - output_dim_for
       - get_target_batchgetter
+      - get_batch_constructor
       - encode_prediction
   - title: Shape Inference
     contents:
