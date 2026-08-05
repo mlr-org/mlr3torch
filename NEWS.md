@@ -10,6 +10,11 @@
 ## Features
 
 * Added more image learners from {torchvision}.
+* `LearnerTorch` now tracks the validation scores of the best epoch and exposes them via the new
+  `$best_valid_scores` field, so `msr("best_valid_score")` can be used for tuning.
+  This is the epoch that is also reported via `$internal_tuned_values`, whereas `$internal_valid_scores`
+  refers to the last epoch, i.e. to the network that is actually returned.
+  Tracking requires early stopping to be active (`patience > 0`).
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.
 * `LearnerTorch` now has `.loss_fn(task, param_vals)` private method that allows

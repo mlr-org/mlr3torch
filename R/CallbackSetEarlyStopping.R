@@ -8,6 +8,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       self$stagnation = 0L
       self$best_score = NULL
       self$epoch_at_best_score = NULL
+      self$best_valid_scores = NULL
     },
     on_valid_end = function() {
       if (is.null(self$ctx$last_scores_valid)) {
@@ -16,6 +17,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       if (is.null(self$best_score)) {
         self$best_score = self$ctx$last_scores_valid[[1L]]
         self$epoch_at_best_score = self$ctx$epoch
+        self$best_valid_scores = self$ctx$last_scores_valid
         return(NULL)
       }
       multiplier = if (self$ctx$measures_valid[[1L]]$minimize) -1 else 1
@@ -36,6 +38,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         self$stagnation = 0
         self$best_score = self$ctx$last_scores_valid[[1L]]
         self$epoch_at_best_score = self$ctx$epoch
+        self$best_valid_scores = self$ctx$last_scores_valid
       }
     },
     state_dict = function() {
@@ -43,12 +46,16 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         # `best_epochs` is what the learner reports as its internally tuned `epochs`
         best_epochs = self$epoch_at_best_score,
         best_score = self$best_score,
+        # all validation scores of the epoch at which `best_score` was observed;
+        # this is what the learner reports as its `$best_valid_scores`
+        best_valid_scores = self$best_valid_scores,
         stagnation = self$stagnation
       )
     },
     load_state_dict = function(state_dict) {
       self$epoch_at_best_score = state_dict$best_epochs
       self$best_score = state_dict$best_score
+      self$best_valid_scores = state_dict$best_valid_scores
       self$stagnation = state_dict$stagnation
       invisible(NULL)
     }

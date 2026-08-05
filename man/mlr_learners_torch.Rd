@@ -339,8 +339,17 @@ The torch optimizer.}
 List of torch callbacks.
 The ids will be set as the names.}
 
-    \item{\code{internal_valid_scores}}{Retrieves the internal validation scores as a named \code{list()}.
+    \item{\code{internal_valid_scores}}{Retrieves the internal validation scores of the \emph{last} epoch as a named \code{list()}.
 Specify the \verb{$validate} field and the \code{measures_valid} parameter to configure this.
+Returns \code{NULL} if learner is not trained yet.}
+
+    \item{\code{best_valid_scores}}{Retrieves the internal validation scores of the \emph{best} epoch as a named \code{list()}.
+This is the epoch that is also reported via \verb{$internal_tuned_values}, i.e. the epoch with the best
+score of the first validation measure.
+Because the trained network is the one after the last epoch, this can differ from
+\verb{$internal_valid_scores}.
+Tracking the best epoch requires early stopping to be active (\code{patience > 0}), otherwise this is an
+empty list.
 Returns \code{NULL} if learner is not trained yet.}
 
     \item{\code{internal_tuned_values}}{When early stopping is active, this returns a named list with the early-stopped epochs,
