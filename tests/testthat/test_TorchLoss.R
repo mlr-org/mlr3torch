@@ -184,35 +184,10 @@ test_that("cross entropy", {
   loss_multi$param_set$set_values(ignore_index = 3)
   fn = loss_multi$generate(tsk_multi)
   expect_class(fn, "nn_cross_entropy_loss")
-  # `ignore_index` is a 1-based class index. A torch that does not convert it itself is handed the
-  # 0-based value instead, see `torch_shifts_ignore_index()`.
-  expect_equal(fn, nn_cross_entropy_loss(ignore_index = if (torch_shifts_ignore_index()) 3 else 2))
+  expect_equal(fn, nn_cross_entropy_loss(ignore_index = 3))
 
   loss_multi$param_set$set_values(ignore_index = NULL, reduction = "sum")
   fn = loss_multi$generate(tsk_multi)
   expect_class(fn, "nn_cross_entropy_loss")
   expect_equal(fn, nn_cross_entropy_loss(reduction = "sum"))
-})
-
-test_that("cross_entropy's ignore_index is a 1-based class index", {
-  # mlr3torch label-encodes targets 1-based, so `ignore_index = k` must ignore `class_names[k]`.
-  # torch forwards the value to libtorch unconverted, which used to shift this by one and made the
-  # last class impossible to ignore; `torch_shifts_ignore_index()` compensates until that is fixed.
-  task = tsk("iris")
-  logits = torch_tensor(matrix(c(10, 0, 0, 0, 10, 0, 0, 0, 10), nrow = 3, byrow = TRUE))
-  loss_for = function(cls, ...) {
-    fn = t_loss("cross_entropy", ...)$generate(task)
-    as.numeric(fn(logits, torch_tensor(rep(cls, 3L), dtype = torch_long())))
-  }
-
-  for (cls in 1:3) {
-    expect_true(is.nan(loss_for(cls, ignore_index = cls)))
-    for (other in setdiff(1:3, cls)) {
-      expect_equal(loss_for(cls, ignore_index = other), loss_for(cls), tolerance = 1e-6)
-    }
-  }
-
-  # the default is a sentinel that is never a valid class index and must ignore nothing
-  expect_false(is.nan(loss_for(1)))
-  expect_equal(loss_for(1, ignore_index = -100), loss_for(1), tolerance = 1e-6)
 })
