@@ -76,12 +76,6 @@
   mutates when the module is first instantiated. `hash_input()` now recurses into lists, and
   `hash_input()` for `nn_module`s is based on the module's class and methods rather than on
   `data.table::address()`, which was not stable across copies either.
-* `$internal_valid_scores` now reports the scores of the **best** epoch when early stopping is
-  active, i.e. of the epoch that `$internal_tuned_values` reports, instead of those of the last
-  epoch. The two describe one model again, which is what `tnr("internal")` with
-  `msr("internal_valid_score")` assumes when it ranks configurations; previously it ranked them by
-  the performance of models that were then discarded. The network stored in the learner is still the
-  last epoch's, as documented under `patience`.
 * Documented that `seed` does not cover the weight initialization of networks built by a `Graph`,
   since the `PipeOpTorch` operators instantiate their modules before the seed is set.
 * `t_clbk("lr_reduce_on_plateau")` no longer errors in epochs where no validation is performed,

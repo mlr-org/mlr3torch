@@ -7,7 +7,6 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       self$min_delta = assert_double(min_delta, lower = 0, len = 1L, any.missing = FALSE)
       self$stagnation = 0L
       self$best_score = NULL
-      self$best_scores = NULL
       self$epoch_at_best_score = NULL
     },
     on_valid_end = function() {
@@ -16,9 +15,6 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       }
       if (is.null(self$best_score)) {
         self$best_score = self$ctx$last_scores_valid[[1L]]
-        # all validation measures at the best epoch, not just the one early stopping selects on,
-        # because this is what the learner reports as its `internal_valid_scores`
-        self$best_scores = self$ctx$last_scores_valid
         self$epoch_at_best_score = self$ctx$epoch
         return(NULL)
       }
@@ -39,7 +35,6 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       } else {
         self$stagnation = 0
         self$best_score = self$ctx$last_scores_valid[[1L]]
-        self$best_scores = self$ctx$last_scores_valid
         self$epoch_at_best_score = self$ctx$epoch
       }
     },
@@ -48,16 +43,12 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         # `best_epochs` is what the learner reports as its internally tuned `epochs`
         best_epochs = self$epoch_at_best_score,
         best_score = self$best_score,
-        # and `best_scores` is what it reports as its `internal_valid_scores`, so that both
-        # describe the same epoch
-        best_scores = self$best_scores,
         stagnation = self$stagnation
       )
     },
     load_state_dict = function(state_dict) {
       self$epoch_at_best_score = state_dict$best_epochs
       self$best_score = state_dict$best_score
-      self$best_scores = state_dict$best_scores
       self$stagnation = state_dict$stagnation
       invisible(NULL)
     }

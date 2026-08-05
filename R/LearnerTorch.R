@@ -396,16 +396,6 @@ LearnerTorch = R6Class("LearnerTorch",
     #' Retrieves the internal validation scores as a named `list()`.
     #' Specify the `$validate` field and the `measures_valid` parameter to configure this.
     #' Returns `NULL` if learner is not trained yet.
-    #'
-    #' Which epoch these scores describe depends on early stopping:
-    #' * With early stopping (`patience > 0`) they are the scores of the **best** epoch, i.e. of
-    #'   the epoch reported by `$internal_tuned_values`. The two therefore always describe the same
-    #'   model, which is what [`mlr3tuning`][mlr3tuning::mlr3tuning-package] assumes when it pairs
-    #'   them, e.g. for `tnr("internal")` with `msr("internal_valid_score")`.
-    #'   Note that the network stored in `$model` is still the one from the *last* epoch, so these
-    #'   scores do **not** describe the network you predict with -- see the `patience` parameter.
-    #' * Without early stopping they are the scores of the last epoch, which is also the stored
-    #'   network.
     internal_valid_scores = function() {
       self$state$internal_valid_scores
     },
@@ -482,15 +472,6 @@ LearnerTorch = R6Class("LearnerTorch",
       list(epochs = self$model$callbacks$early_stopping$best_epochs)
     },
     .extract_internal_valid_scores = function() {
-      # With early stopping, `.extract_internal_tuned_values()` reports the *best* epoch, while the
-      # network stored in the learner is the one from the *last* epoch. mlr3tuning pairs the tuned
-      # value and the score as if they described one model, so the score has to describe the epoch
-      # that was tuned to -- otherwise a tuner ranks configurations by the performance of models it
-      # then discards.
-      best_scores = self$model$callbacks$early_stopping$best_scores
-      if (!is.null(best_scores)) {
-        return(best_scores)
-      }
       if (is.null(self$model$internal_valid_scores)) {
         named_list()
       } else {

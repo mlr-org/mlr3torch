@@ -93,25 +93,45 @@ sentinel that matches no target either way, and `torch` has no test for the argu
 Still open here regardless: nothing validates `ignore_index` against `seq_along(task$class_names)`,
 so an out-of-range value silently ignores nothing.
 
-### 1.3 ~~`internal_valid_scores` reports the last epoch, `internal_tuned_values` the best one~~ — FIXED
+### 1.3 [D] `internal_valid_scores` reports the last epoch, `internal_tuned_values` the best one
+`R/learner_torch_methods.R:226` vs `R/LearnerTorch.R:470`.
 
-After early stopping the two extractors described **different models**, while mlr3tuning pairs them
-as if they described one, so a tuner ranked configurations by the performance of models it then
-discarded. Demonstrated repeatedly: a reproducible rank flip on sonar (seed 4, `patience = 2`,
-reported scores pick `lr = 0.005` while at each configuration's own tuned epoch `lr = 0.02` wins,
-0.2097 vs 0.2258), and an order-of-magnitude gap on `classif.ft_transformer` (best epoch 3 scored
-0.0222, reported was 0.3333 from epoch 5). It did not even need early stopping to fire.
+After early stopping these describe **different models**, so a tuner archives the wrong
+configuration's performance.
 
-**Resolved as option (b)**: `$internal_valid_scores` now reports the best epoch's scores, matching
-`$internal_tuned_values` and the ecosystem convention (`mlr3learners`' xgboost indexes its
-evaluation log at `best_iteration`). `CallbackSetEarlyStopping` records `best_scores` — all
-validation measures at the best epoch, not just the one it selects on — and
-`.extract_internal_valid_scores()` prefers it. Without early stopping the last epoch's scores are
-still reported, as before.
+```r
+l = lrn("regr.mlp", epochs = 30, batch_size = 8, neurons = c(200, 200), p = 0,
+  patience = 3, validate = 0.3, measures_valid = msr("regr.mse"), seed = 3,
+  opt.lr = 0.5, callbacks = t_clbk("history"))
+l$train(tsk("mtcars"))
+# history MSE: 48790, 285, 22.0, 113, 30.5, 41.4
+# internal_tuned_values$epochs = 3  (MSE 22.0)
+# internal_valid_scores        = 41.4 (epoch 6)
+```
 
-The stored **network** is deliberately still the last epoch's; that was already documented under
-`patience` and is now spelled out there and on the `$internal_valid_scores` field, together with
-the fact that retraining at the tuned `epochs` is what produces the model the score describes.
+Two independent audit rounds found this. The second round established that **it deviates from the
+ecosystem convention and changes tuning results**, so it is a genuine bug rather than a convention:
+
+- `mlr3learners`' xgboost indexes its evaluation log at `attributes(model)$early_stop$best_iteration`,
+  i.e. exactly the iteration reported in `internal_tuned_values`. Verified directly by printing
+  `mlr3learners:::.__LearnerClassifXgboost__.extract_internal_valid_scores`. (An earlier audit pass
+  claimed xgboost behaves like mlr3torch — that claim was wrong.)
+- `tnr("internal")` + `msr("internal_valid_score")` ranks external configurations by this number, so
+  it ranks them by the score of models that are then discarded. A **reproducible rank flip** was
+  demonstrated on sonar (seed 4, `patience = 2`): reported scores pick `lr = 0.005`, but at each
+  configuration's own tuned epoch `lr = 0.02` is better (0.2097 vs 0.2258).
+- With `classif.ft_transformer` the gap reached an order of magnitude: best epoch 3 scored 0.0222
+  while the reported `internal_valid_score` was 0.3333 from epoch 5.
+- It does not even require early stopping to fire — with `patience = 100` and 4 epochs, the tuned
+  value is epoch 2 (score 0.289) while the reported score is epoch 4's (0.378).
+
+The defensible reading is that `patience`'s docs say "the final model is stored in the learner, not
+the best model", so the score does describe the stored network — but then the two extractors describe
+two different models while mlr3tuning pairs them as if they described one.
+
+**Decision needed** on which way to resolve it: (a) restore the best-epoch weights, (b) record the
+best-epoch score, or (c) at minimum document loudly that `internal_valid_score` must not be used as
+the tuning measure when `patience > 0`.
 
 ### 1.4 `CallbackSetHistory$load_state_dict()` is never called
 `R/CallbackSetHistory.R:55-62`. Nothing in `R/` calls it, so the resume path is dead code — and

@@ -79,13 +79,7 @@ This activates early stopping using the validation scores.
 If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
 Note that this counts \emph{evaluation steps}, not epochs: when \code{eval_freq} is greater than \code{1},
 \code{patience} evaluation steps correspond to \code{patience * eval_freq} epochs.
-Note that the final model is stored in the learner, not the best model, so the network you
-predict with is the one from the last epoch that was trained, not the one from the best epoch.
-\verb{$internal_tuned_values} and \verb{$internal_valid_scores}, on the other hand, both describe the
-\strong{best} epoch: the former reports it and the latter reports its validation scores, so that a
-tuner ranks a configuration by the model that its tuned \code{epochs} value would produce.
-Retrain with \code{epochs} set to the tuned value to obtain that model -- which is what
-\code{\link[mlr3tuning:AutoTuner]{AutoTuner}} and \code{tnr("internal")} do for you.
+Note that the final model is stored in the learner, not the best model.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
