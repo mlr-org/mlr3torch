@@ -57,7 +57,7 @@ test_that("an existing empty directory can be checkpointed into", {
     c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt"), paste0("state", 1:2, ".rds")))
 })
 
-test_that("an epoch that was interrupted is not saved under its own number", {
+test_that("an epoch that failed is not saved under its own number", {
   task = tsk("iris")
   path = tempfile()
   # crashes in the middle of epoch 3, after epoch 2 was saved by frequency
@@ -67,7 +67,8 @@ test_that("an epoch that was interrupted is not saved under its own number", {
     callbacks = list(t_clbk("checkpoint", freq = 2, path = path), crash))
   expect_error(learner$train(task), "crash")
 
-  # 'network<n>.pt' is the network at the end of epoch n, and epoch 3 never reached its end
+  # 'network<n>.pt' is the network at the end of epoch n, and epoch 3 never reached its end, so
+  # only what `freq` wrote at the end of epoch 2 remains
   expect_set_equal(list.files(path), c("network2.pt", "optimizer2.pt", "state2.rds"))
 
   # the final epoch is still stored when training completes normally, also when `freq` skips it
@@ -98,19 +99,54 @@ test_that("the state file holds the epoch and the states of the other callbacks"
   expect_true("checkpoint" %nin% names(state$callbacks))
 })
 
-test_that("no state is written for a checkpoint that the other callbacks are already past", {
+test_that("a failure writes nothing beyond what `freq` had already saved", {
   task = tsk("iris")
   path = tempfile()
   # crashes in the middle of epoch 3, which `freq` would not have saved anyway
   crash = torch_callback("crash",
     on_batch_end = function() if (self$ctx$epoch == 3L && self$ctx$step == 2L) stop("crash"))
   learner = lrn("classif.mlp", epochs = 6L, batch_size = 50, neurons = 10,
-    callbacks = list(t_clbk("checkpoint", freq = 5, path = path), t_clbk("history"), crash))
+    callbacks = list(t_clbk("checkpoint", freq = 5, path = path), crash))
   expect_error(learner$train(task), "crash")
 
-  # epoch 2 is the last complete one, but the history has already recorded nothing for epoch 3
-  # while the other callbacks are inside it, so their states do not describe this checkpoint
-  expect_set_equal(list.files(path), c("network2.pt", "optimizer2.pt"))
+  # epoch 2 is the last complete one, but the batches of epoch 3 that ran have already updated the
+  # network and the optimizer, so there is nothing left to write that is the end of an epoch
+  expect_equal(list.files(path), character(0))
+})
+
+test_that("a checkpoint is never a half-trained epoch under the previous epoch's number", {
+  task = tsk("iris")
+  path = tempfile()
+  # the weights at the end of epoch 2, to compare the checkpoint against
+  weights = NULL
+  spy = torch_callback("spy", on_epoch_end = function() {
+    if (self$ctx$epoch == 2L) weights <<- as.numeric(self$ctx$network$parameters[[1L]]$flatten())
+  })
+  crash = torch_callback("crash",
+    on_batch_end = function() if (self$ctx$epoch == 3L && self$ctx$step == 2L) stop("crash"))
+
+  # freq = 2 saves epoch 2 before the crash, and nothing may overwrite it with the half-trained
+  # weights of epoch 3
+  learner = lrn("classif.mlp", epochs = 6L, batch_size = 30, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 2, path = path), spy, crash))
+  expect_error(learner$train(task), "crash")
+
+  saved = as.numeric(torch_load(file.path(path, "network2.pt"))[[1L]]$flatten())
+  expect_equal(saved, weights)
+})
+
+test_that("ending a run early still saves the epoch that finished", {
+  task = tsk("iris")
+  path = tempfile()
+  # `ctx$terminate` is only acted on after `on_epoch_end`, unlike an error inside an epoch
+  stopper = torch_callback("stopper",
+    on_epoch_end = function() if (self$ctx$epoch == 3L) self$ctx$terminate = TRUE)
+  learner = lrn("classif.mlp", epochs = 6L, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 5, path = path), stopper))
+  learner$train(task)
+
+  expect_set_equal(list.files(path), c("network3.pt", "optimizer3.pt", "state3.rds"))
+  expect_equal(readRDS(file.path(path, "state3.rds"))$epoch, 3L)
 })
 
 test_that("a folder that already contains checkpoints can be checkpointed into", {

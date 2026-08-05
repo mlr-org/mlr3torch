@@ -14,11 +14,15 @@
 #'   training run, so that a later run can continue e.g. the training history or the learning rate
 #'   schedule.
 #'
-#' An epoch that was interrupted -- because training failed or was stopped -- is not written under
-#' its own number, so `network<n>.pt` is always the network at the *end* of epoch `n`.
-#' The network and optimizer of the last *complete* epoch are still written when training is
-#' interrupted, but without a `state<n>.rds`: the other callbacks have moved on into the epoch that
-#' was interrupted, so their states no longer describe the checkpoint.
+#' A checkpoint is only ever written for an epoch that ran to its end, so `network<n>.pt` is always
+#' the network at the *end* of epoch `n`.
+#' If training fails in the middle of an epoch, nothing further is written -- the network and the
+#' optimizer have already been updated by the batches of that epoch which did run, so they are at no
+#' epoch boundary -- and the run keeps the checkpoints that `freq` had written before the error.
+#'
+#' Ending a run early is unaffected by this.
+#' `ctx$terminate` is only acted on once the epoch has finished, so early stopping and any callback
+#' that sets it leave the network at an epoch boundary and the last epoch is written as usual.
 #'
 #' A folder that already contains checkpoints is accepted, so that a run which continues an earlier
 #' one can keep checkpointing into it.
@@ -75,45 +79,37 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
     #' Saves the network and optimizer state dict.
     #' Does nothing if `freq` is not met.
     on_epoch_end = function() {
-      # tracked even when nothing is saved here, so that the 'exit' stage knows how many epochs
-      # were actually completed
-      private$.complete_epochs = self$ctx$epoch
       if (self$ctx$epoch %% self$freq != 0) {
         return(NULL)
       }
       private$.save(self$ctx$epoch)
     },
     #' @description
-    #' Saves the final network and optimizer, unless the last complete epoch was already saved.
-    on_exit = function() {
-      # this stage also runs when training was interrupted, in which case the epoch in progress is
-      # deliberately not saved: `network<n>.pt` is meant to be the network at the *end* of epoch n,
-      # and the weights of a half-trained epoch are not that.
-      if (private$.complete_epochs == 0L || private$.complete_epochs %% self$freq == 0) {
-        # nothing was completed, or the last complete epoch was already saved
+    #' Saves the final network and optimizer, unless the last epoch was already saved.
+    on_end = function() {
+      # the 'end' stage rather than 'exit': it is only reached once the training loop is through,
+      # so the network is at an epoch boundary here. 'exit' also runs when an error ended the run
+      # in the middle of an epoch, where the batches that did run have already updated the network
+      # and the optimizer -- saving those under the number of the last complete epoch would label a
+      # half-trained state as a finished one.
+      if (self$ctx$epoch == 0L || self$ctx$epoch %% self$freq == 0) {
+        # nothing was trained, or the last epoch was already saved
         return(NULL)
       }
-      # the other callbacks have already moved into the epoch that was interrupted, so their
-      # states describe neither this checkpoint nor any other one and are not written
-      private$.save(private$.complete_epochs, save_state = private$.complete_epochs == self$ctx$epoch)
+      private$.save(self$ctx$epoch)
     }
   ),
   private = list(
-    # the number of epochs that were trained to completion
-    .complete_epochs = 0L,
-    .save = function(suffix, save_state = TRUE) {
+    .save = function(suffix) {
       torch_save(self$ctx$network$state_dict(), file.path(self$path, paste0("network", suffix, ".pt")))
       torch_save(self$ctx$optimizer$state_dict(), file.path(self$path, paste0("optimizer", suffix, ".pt")))
-      if (!save_state) {
-        return(invisible(NULL))
-      }
       # what a later run needs on top of the network and the optimizer: the epoch to continue from
       # and the states of the other callbacks. These are plain R objects -- they are not
       # torch-serialized when a learner is marshaled either -- so they are saved with saveRDS(),
       # which unlike torch_save() keeps classes such as data.table intact.
       saveRDS(
         list(
-          # the epoch this checkpoint belongs to, which is not necessarily `ctx$epoch`
+          # the epoch this checkpoint belongs to, i.e. the one that just ran to its end
           epoch     = suffix,
           callbacks = discard(map(self$ctx$callbacks, function(cb) cb$state_dict()), is.null)
         ),

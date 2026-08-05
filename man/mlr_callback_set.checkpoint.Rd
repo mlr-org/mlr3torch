@@ -18,11 +18,15 @@ training run, so that a later run can continue e.g. the training history or the 
 schedule.
 }
 
-An epoch that was interrupted -- because training failed or was stopped -- is not written under
-its own number, so \verb{network<n>.pt} is always the network at the \emph{end} of epoch \code{n}.
-The network and optimizer of the last \emph{complete} epoch are still written when training is
-interrupted, but without a \verb{state<n>.rds}: the other callbacks have moved on into the epoch that
-was interrupted, so their states no longer describe the checkpoint.
+A checkpoint is only ever written for an epoch that ran to its end, so \verb{network<n>.pt} is always
+the network at the \emph{end} of epoch \code{n}.
+If training fails in the middle of an epoch, nothing further is written -- the network and the
+optimizer have already been updated by the batches of that epoch which did run, so they are at no
+epoch boundary -- and the run keeps the checkpoints that \code{freq} had written before the error.
+
+Ending a run early is unaffected by this.
+\code{ctx$terminate} is only acted on once the epoch has finished, so early stopping and any callback
+that sets it leave the network at an epoch boundary and the last epoch is written as usual.
 
 A folder that already contains checkpoints is accepted, so that a run which continues an earlier
 one can keep checkpointing into it.
@@ -77,7 +81,7 @@ Other Callback:
   \itemize{
     \item \href{#method-CallbackSetCheckpoint-initialize}{\code{CallbackSetCheckpoint$new()}}
     \item \href{#method-CallbackSetCheckpoint-on_epoch_end}{\code{CallbackSetCheckpoint$on_epoch_end()}}
-    \item \href{#method-CallbackSetCheckpoint-on_exit}{\code{CallbackSetCheckpoint$on_exit()}}
+    \item \href{#method-CallbackSetCheckpoint-on_end}{\code{CallbackSetCheckpoint$on_end()}}
     \item \href{#method-CallbackSetCheckpoint-clone}{\code{CallbackSetCheckpoint$clone()}}
   }
 }
@@ -124,13 +128,13 @@ Does nothing if \code{freq} is not met.
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_exit"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_exit}{}}}
-\subsection{\code{CallbackSetCheckpoint$on_exit()}}{
-  Saves the final network and optimizer, unless the last complete epoch was already saved.
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_end}{}}}
+\subsection{\code{CallbackSetCheckpoint$on_end()}}{
+  Saves the final network and optimizer, unless the last epoch was already saved.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{CallbackSetCheckpoint$on_exit()}
+    \preformatted{CallbackSetCheckpoint$on_end()}
     \if{html}{\out{</div>}}
   }
 }
