@@ -55,9 +55,13 @@
 
 ## Bug fixes
 
-* `t_clbk("checkpoint")` no longer writes an epoch that was interrupted -- because training failed
-  or was stopped early -- under that epoch's own number, so `network<n>.pt` is now always the
-  network at the *end* of epoch `n` rather than sometimes a half-trained one.
+* `t_clbk("checkpoint")` no longer writes a checkpoint when training fails in the middle of an epoch,
+  so `network<n>.pt` is now always the network at the *end* of epoch `n` rather than sometimes a
+  half-trained one. Writing the epoch in progress under the number of the last complete epoch was not
+  enough: the network and the optimizer are saved as they are at that moment, and the batches of the
+  failed epoch that did run have already updated them. Such a run now keeps the checkpoints that
+  `freq` wrote before the error. Ending a run early is unaffected, as `ctx$terminate` is only acted
+  on once the epoch has finished.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`. Previously any
   existing directory was rejected, which made a pre-created output folder unusable and meant that
   a run failing before its first checkpoint left behind a folder that blocked every later run.
