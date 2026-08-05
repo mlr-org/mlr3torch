@@ -41,6 +41,15 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
+
+The seed covers the training loop, but \strong{not the weight initialization of a network that was
+built by a \code{\link[mlr3pipelines:Graph]{Graph}}}, i.e. one assembled from \code{\link{PipeOpTorch}} operators
+and \code{po("torch_model_classif")} / \code{po("torch_model_regr")}. Those operators instantiate their
+modules while the graph itself trains, which happens before the seed is set, so such a learner
+is not reproducible from \code{seed} alone and repeated runs give different results.
+Call \code{\link[torch:torch_manual_seed]{torch::torch_manual_seed()}} before building the graph if you need reproducibility here.
+Learners that build their network internally -- every predefined \code{LearnerTorch}, such as
+\code{lrn("classif.mlp")} -- are unaffected.
 \item \code{tensor_dataset} :: \code{logical(1)} | \code{"device"}\cr
 Whether to load all batches at once at the beginning of training and stack them.
 This is initialized to \code{FALSE}.

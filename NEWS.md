@@ -59,6 +59,13 @@
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`. Previously any
   existing directory was rejected, which made a pre-created output folder unusable and meant that
   a run failing before its first checkpoint left behind a folder that blocked every later run.
+* `replace_head()` for `mobilenet_v2` and `VGG` now reads the head's `in_features` instead of
+  assuming `1280` / `4096`. For a `mobilenet_v2` with a `width_mult` above 1 the assumption was
+  wrong and produced a network that failed at forward.
+* `hash_input()` for `nn_module`s is now based on the module's class and methods rather than on
+  `data.table::address()`, which was not stable across copies.
+* Documented that `seed` does not cover the weight initialization of networks built by a `Graph`,
+  since the `PipeOpTorch` operators instantiate their modules before the seed is set.
 * `t_clbk("lr_reduce_on_plateau")` no longer errors in epochs where no validation is performed,
   i.e. when `eval_freq > 1` or when no validation is configured.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes. Operators that derive extents

@@ -30,6 +30,15 @@
 #'   Note that by setting the seed during the training phase this will mean that by default (i.e. when `seed` is
 #'   `"random"`), clones of the learner will use a different seed.
 #'   If set to `NULL`, no seeding will be done.
+#'
+#'   The seed covers the training loop, but **not the weight initialization of a network that was
+#'   built by a [`Graph`][mlr3pipelines::Graph]**, i.e. one assembled from [`PipeOpTorch`] operators
+#'   and `po("torch_model_classif")` / `po("torch_model_regr")`. Those operators instantiate their
+#'   modules while the graph itself trains, which happens before the seed is set, so such a learner
+#'   is not reproducible from `seed` alone and repeated runs give different results.
+#'   Call [`torch::torch_manual_seed()`] before building the graph if you need reproducibility here.
+#'   Learners that build their network internally -- every predefined `LearnerTorch`, such as
+#'   `lrn("classif.mlp")` -- are unaffected.
 #' * `tensor_dataset` :: `logical(1)` | `"device"`\cr
 #'   Whether to load all batches at once at the beginning of training and stack them.
 #'   This is initialized to `FALSE`.

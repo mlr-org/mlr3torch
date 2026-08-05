@@ -13,63 +13,63 @@ empirical usage sweep (135 configuration checks), doc coverage.
 ## 1. Bugs — code
 
 ### 1.0 [D] **`rr$learners[[i]]` is silently the wrong learner** — highest-impact finding
-`R/LearnerTorch.R:739`:
-```r
-hash_input.nn_module = function(x) {
-  data.table::address(x)
-}
-```
 
-A memory address is not stable across copies, so two `identical()` learners hash differently. This
-breaks the contract mlr3 relies on, and the consequence is **silently wrong results from a documented
-public API**.
+`resample(..., store_models = TRUE)$learners` comes back in the wrong order for learners whose
+parameters hold an `nn_module` (e.g. `classif.mlp`s `activation = nn_relu`).
 
 ```r
 task = tsk("iris"); set.seed(1)
 rr = resample(task, lrn("classif.mlp", epochs = 2, batch_size = 32, neurons = 10,
                         device = "cpu", predict_type = "prob"),
               rsmp("cv", folds = 3), store_models = TRUE)
-# max abs difference between learner i's predictions and fold j's stored predictions
+# max abs difference between learner i(rows) and fold j(cols)
 #         [,1]   [,2]   [,3]
 # [1,]  0.3840 0.3987 0.0000
 # [2,]  0.7614 0.0000 0.3911
 # [3,]  0.0000 0.7896 0.4000
 ```
-The zeros should lie on the diagonal; instead the list is reversed. `lrn("classif.rpart")` under the
-identical harness gives a clean zero diagonal, so this is specific to mlr3torch.
+The zeros should lie on the diagonal. `as.data.table(rr)` is self-consistent and `$score()` is
+correct, so the damage is confined to `rr$learners` / `bmr$learners`, e.g. `rr$learners[[1]]$model`.
+It is **nondeterministic**, which is why CI does not catch it.
 
-**Mechanism.** `classif.mlp`'s `activation` parameter holds an `nn_relu` generator. Each resampling
-iteration copies it, so the copies are `identical()` but sit at different addresses:
+**Corrected mechanism** (an earlier version of this entry blamed `hash_input.nn_module`, which was
+wrong — see below).
+
+`Learner$hash` is `calculate_hash(class, id, param_set$values, ...)`, and
+`calculate_hash(...) = digest(lapply(list(...), hash_input))` applies `hash_input()` only to each
+**top-level argument**. `param_set$values` is a plain `list()` and there is no `hash_input.list`, so
+`digest()` serializes the list wholesale — including the `nn_relu` closure *together with its
+environment*. Training instantiates the module, which mutates state reachable from that environment,
+so the serialization changes:
+
+```r
+l = lrn("classif.mlp", epochs = 2, batch_size = 32, neurons = 10)
+l$hash                                    # a49da40fe67b3c71
+x = l$clone(deep = TRUE); x$train(tsk("iris"))
+l$hash                                    # 2693257ca80af060  <- l itself was never trained
 ```
-addresses: 0x555560b1f528  0x5555611a70f0  0x5555614f8040
-identical(learners[[1]]$param_set$values$activation, learners[[2]]$...):  TRUE
-```
-Three different `learner_hash` values then feed `ResultData$learners()`, which does
-`merge(tab, learner_components, by = "learner_hash", sort = TRUE)` — so `$learners` comes back
-ordered by an address-derived hash rather than by iteration.
 
-**It is nondeterministic**, since it depends on allocation order: some parameter settings happen to
-produce the right order. That is exactly the profile of a bug that passes CI most days.
+Each resampling iteration therefore records a different `learner_hash` in the `ResultData` fact
+table, and `ResultData$learners()` does
+`merge(tab, learner_components, by = "learner_hash", sort = TRUE)`, which orders the result by that
+hash instead of by iteration. (With equal hashes the merge is order-preserving — verified — so
+stabilising the hash does fix the ordering.)
 
-**Scope:** `rr$learners` and `bmr$learners` are affected. `rr$score()` and `as.data.table(rr)` were
-correct in every run checked — they do not go through the sorted merge. So the damage is confined to
-anyone inspecting a fold's model, e.g. `rr$learners[[1]]$model`.
+**Why `hash_input.nn_module` was a red herring:** it is registered, but unreachable on this path,
+because `hash_input` never recurses into the `values` list. The old `data.table::address(x)` body
+was both wrong *and* dead. It has been replaced on this branch with a class + methods based
+implementation (correct and stable in isolation — see `NEWS.md`), but that alone does **not** fix
+the ordering, which was confirmed by re-running the reproducer afterwards.
 
-**Why this needs your decision rather than a quick patch:** the obvious replacement — letting
-`mlr3misc:::hash_input.function` handle it, i.e. `list(formals(x), as.character(body(x)))` — is what
-this method was written to override, and it is wrong here: every generator produced by
-`torch::nn_module()` shares the same wrapper body and formals, so `nn_relu` and `nn_sigmoid` would
-hash **equal**. Trading a copy-instability bug for a collision bug is not an improvement.
-
-A workable direction is to key on the generator's class, which is stable across copies and distinct
-per module type (`class(nn_relu)[1]` is `"nn_relu"`, `class(nn_sigmoid)[1]` is `"nn_sigmoid"`), with
-a fallback for anonymous modules built by `nn_module(classname = NULL)`, whose class is just
-`c("nn_module", "nn_module_generator")` — those would need to fall back to hashing the
-`initialize`/`forward` methods to stay distinguishable. Deciding how far to go is a judgement call
-about what identity should mean for an `nn_module` hyperparameter, which is why it is left here.
+**Decision needed** on where to fix the reachability:
+- (a) override the `hash` active binding in `LearnerTorch` to pass `map(values, hash_input)`;
+  contained, but duplicates mlr3s hash formula and will drift if mlr3 changes it;
+- (b) get `hash_input` to recurse into lists in `mlr3misc`, which makes the already-registered
+  `hash_input.nn_module` work as intended — principled, but a change to shared infrastructure;
+- (c) ask mlr3 to merge on iteration rather than on `learner_hash` with `sort = TRUE`.
 
 Worth adding a regression test that `resample(..., store_models = TRUE)$learners[[i]]` reproduces
-iteration `i`'s predictions, for a learner whose parameters hold an `nn_module`.
+iteration `i`s predictions, for a learner whose parameters hold an `nn_module`.
 
 ### 1.1 [D] Checkpoint callback rejects a directory that already holds checkpoints
 `R/CallbackSetCheckpoint.R:51` — `if (is_empty_dir(path)) path else assert_path_for_output(path)`.
@@ -174,10 +174,12 @@ the tuning measure when `patience > 0`.
 ordering bug is baked in should it ever be wired up. Either finish it or delete it.
 *(Static reasoning only.)*
 
-### 1.5 `replace_head.mobilenet_v2` / `.VGG` hardcode the head input size
-`R/LearnerTorchVision.R:168` (`nn_linear(1280, d_out)`) and `:188` (`nn_linear(4096, d_out)`), where
-every sibling method reads `$in_features`. Correct only for the standard width variants.
-*(Static reasoning only — verifying needs a model download.)*
+### 1.5 ~~`replace_head.mobilenet_v2` / `.VGG` hardcode the head input size~~ — FIXED
+Both now read `$in_features` like every sibling method. Verified: `model_mobilenet_v2(width_mult =
+1.4)` has 1792 there, so `replace_head()` used to build a network that failed at forward with
+`mat1 and mat2 shapes cannot be multiplied (2x1792 and 1280x3)`. Not reachable through the shipped
+learners, which never expose `width_mult`, but `replace_head()` is exported. VGGs 4096 is correct
+for every torchvision VGG variant; changed for consistency only.
 
 ### 1.6 [D] `seed` does not seed weight initialization for graph-built learners
 A graph-built learner is **not reproducible**, even with an explicit `seed`, while the equivalent
@@ -204,7 +206,7 @@ during training and prediction", which is not true for this construction path. T
 today is `torch::torch_manual_seed()` immediately before building the graph, which is undiscoverable
 and does not survive `resample()`/`benchmark()`.
 
-**Decision needed** because the fix is structural: either seed before the graph's `$train()`, or defer
+**Documented** in the `seed` entry of the learner parameter docs (`man-roxygen/paramset_torchlearner.R`), with the `torch_manual_seed()` workaround. **Still needs a decision** on whether to fix it, which is structural: seed before the graphs `$train()`, defer module construction into the learner, or thread the seed through `ModelDescriptor`.
 module construction into the learner, or thread the seed through `ModelDescriptor`.
 
 ### 1.7 [D] `lrn("classif.ft_transformer")` cannot be trained with its documented defaults
