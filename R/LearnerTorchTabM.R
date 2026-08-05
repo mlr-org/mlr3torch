@@ -537,7 +537,7 @@ tabm_activation = function(activation) {
     generator = get(nm, envir = ns)
     if (inherits(generator, "nn_module_generator")) generator else NULL
   }
-  for (nm in unique(c(activation, paste0("nn_", activation)))) {
+  for (nm in unique(c(activation, paste0("nn_", activation), paste0("nn_", tolower(activation))))) {
     generator = get_generator(nm)
     if (!is.null(generator)) {
       return(tabm_activation(generator))
