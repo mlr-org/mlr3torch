@@ -1,5 +1,14 @@
 # mlr3torch (development version)
 
+## Bug fixes
+
+* Learners built from a `Graph` -- i.e. via `po("torch_model_classif")` / `po("torch_model_regr")` --
+  are now reproducible from their `seed`. The `PipeOpTorch` operators construct their modules while
+  the `Graph` itself trains, which happens before the learner sets the torch seed, so the weight
+  initialization was drawn outside the seeded region and repeated runs of the same learner gave
+  different results. The network is now re-initialized inside that region. A network passed to
+  `LearnerTorchModel` directly is left untouched, since its weights may be the point.
+
 ## Features
 
 * Added learners for the remaining image classification networks of `torchvision`:
