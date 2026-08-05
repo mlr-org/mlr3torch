@@ -77,6 +77,12 @@ nn_ft_transformer_block = nn_module(
 
     self$prenormalization = prenormalization
 
+    # the reference implementation asserts this too, and only for more than one head
+    if (attention_n_heads > 1L && d_token %% attention_n_heads != 0L) {
+      stopf("`d_token` (%i) must be a multiple of `attention_n_heads` (%i), but %i %% %i is %i.",
+        d_token, attention_n_heads, d_token, attention_n_heads, d_token %% attention_n_heads)
+    }
+
     self$attention = nn_multihead_attention(
       embed_dim = d_token,
       num_heads = attention_n_heads,
@@ -84,6 +90,26 @@ nn_ft_transformer_block = nn_module(
       bias = attention_bias,
       batch_first = TRUE
     )
+
+    # `attention_initialization` follows the reference implementation, which keeps the query, key and
+    # value projections as three separate `nn.Linear`s: "kaiming" leaves each of them at PyTorch's
+    # `nn.Linear` default, and "xavier" applies `xavier_uniform_` with a gain of `1 / sqrt(2)`,
+    # which compensates for the three being one matrix there.
+    # torch packs the three into a single `(3 * d_token, d_token)` matrix and applies
+    # `xavier_uniform_` to it as a whole, which matches neither: the fan-out of the packed matrix is
+    # `3 * d_token`. Each projection is therefore initialized separately here.
+    # The biases are already zeroed by torch, which is what the reference does as well.
+    init_projection = switch(attention_initialization,
+      # `a = sqrt(5)` is what `nn.Linear` uses
+      kaiming = function(x) nn_init_kaiming_uniform_(x, a = sqrt(5)),
+      xavier = function(x) nn_init_xavier_uniform_(x, gain = 1 / sqrt(2))
+    )
+    with_no_grad({
+      self$attention$in_proj_weight$copy_(torch_cat(
+        map(seq_len(3L), function(i) init_projection(torch_empty(d_token, d_token))),
+        dim = 1L
+      ))
+    })
 
     if (is.null(ffn_d_hidden)) {
       assert_numeric(ffn_d_hidden_multiplier, lower = 0,
@@ -170,6 +196,10 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         attention_initialization = p_fct(levels = c("kaiming", "xavier"), init = "kaiming", tags = "train"),
         attention_normalization = p_uty(init = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
         ffn_d_hidden = p_int(lower = 1, tags = "train"),
+        # deliberately not initialized: exactly one of `ffn_d_hidden` and `ffn_d_hidden_multiplier`
+        # may be set, so an init here would force everyone setting `ffn_d_hidden` to clear it first.
+        # `LearnerTorchFTTransformer` sets it to the reference implementation's `4/3`, because there
+        # the learner has to be trainable without configuring anything.
         ffn_d_hidden_multiplier = p_dbl(lower = 0, tags = "train"),
         ffn_dropout = p_dbl(lower = 0, upper = 1, init = 0.1, tags = "train"),
         ffn_activation = p_uty(init = nn_reglu, custom_check = check_nn_module_generator, tags = "train"),
