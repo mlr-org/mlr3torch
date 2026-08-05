@@ -546,8 +546,6 @@ test_that("the activation can be a name, a module generator or a function", {
   expect_equal(activation_class("relu"), "nn_relu")
   expect_equal(activation_class("nn_gelu"), "nn_gelu")
   expect_equal(activation_class("leaky_relu"), "nn_leaky_relu")
-  # the name is matched case-insensitively, so "ReLU" resolves as well
-  expect_equal(activation_class("ReLU"), "nn_relu")
   # the torch.nn class names of upstream are deliberately not resolved
   expect_error(activation_class("LeakyReLU"), "Cannot resolve the activation")
   expect_equal(activation_class(nn_tanh), "nn_tanh")

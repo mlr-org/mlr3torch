@@ -115,7 +115,17 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 
 
 train_loop = function(ctx, cbs) {
-  # callbacks such as CallbackSetCheckpoint need access to the other callbacks to save their states
+  # callbacks are called in the order they were passed, unless they request otherwise via their
+  # weight. CallbackSetCheckpoint has weight Inf so that it saves the network and optimizer as the
+  # other callbacks left them at the end of the stage.
+  # order() breaks ties by the second argument, which keeps the order the callbacks were passed in.
+  weights = map_dbl(seq_along(cbs), function(i) {
+    assert_number(cbs[[i]]$weight, .var.name = sprintf("weight of callback '%s'", names(cbs)[[i]] %??% i))
+  })
+  cbs = cbs[order(weights, seq_along(cbs))]
+
+  # callbacks such as CallbackSetCheckpoint need access to the other callbacks to save their states,
+  # in the order they are called in
   ctx$callbacks = cbs
 
   call = function(step_name) {

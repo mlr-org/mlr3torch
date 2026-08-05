@@ -145,7 +145,8 @@ The loss to use for training.}
       \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks used during training.
 Must have unique ids.
-They are executed in the order in which they are provided}
+They are executed in the order in which they are provided, unless a callback requests
+otherwise via its \verb{$weight}, see section \emph{Ordering} of \code{\link{CallbackSet}}.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{feature_types}}{(\code{NULL} or \code{character()})\cr
