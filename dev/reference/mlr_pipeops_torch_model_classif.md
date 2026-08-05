@@ -94,6 +94,7 @@ Other PipeOps:
 [`mlr_pipeops_nn_threshold`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_threshold.md),
 [`mlr_pipeops_nn_tokenizer_categ`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_tokenizer_categ.md),
 [`mlr_pipeops_nn_tokenizer_num`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_tokenizer_num.md),
+[`mlr_pipeops_nn_transformer_encoder_layer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_transformer_encoder_layer.md),
 [`mlr_pipeops_nn_unsqueeze`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_unsqueeze.md),
 [`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress.md),
 [`mlr_pipeops_torch_ingress_categ`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress_categ.md),
@@ -234,17 +235,17 @@ po_model$state
 #> $optimizer$state$`1`
 #> $optimizer$state$`1`$exp_avg
 #> torch_tensor
-#> -0.1282 -0.0212 -0.4404 -0.3021
-#>  0.6109  0.1981  1.0070  0.5563
-#> -0.4827 -0.1769 -0.5665 -0.2542
+#> -0.1186 -0.0184 -0.4232 -0.2926
+#> -0.3836 -0.1194 -0.5329 -0.2481
+#>  0.5022  0.1378  0.9560  0.5406
 #> [ CPUFloatType{3,4} ]
 #> 
 #> $optimizer$state$`1`$exp_avg_sq
 #> torch_tensor
 #> 0.01 *
-#>  0.0730  0.0022  0.8675  0.4077
-#>   1.5120  0.1590  4.1420  1.2783
-#>   0.9517  0.1274  1.3108  0.2642
+#>  0.0634  0.0017  0.8056  0.3839
+#>   0.6064  0.0589  1.1671  0.2542
+#>   1.0406  0.0787  3.8206  1.2305
 #> [ CPUFloatType{3,4} ]
 #> 
 #> $optimizer$state$`1`$max_exp_avg_sq
@@ -260,17 +261,17 @@ po_model$state
 #> $optimizer$state$`2`
 #> $optimizer$state$`2`$exp_avg
 #> torch_tensor
-#> -0.0881
-#>  0.1734
-#> -0.0853
+#> -0.0849
+#> -0.0898
+#>  0.1747
 #> [ CPUFloatType{3} ]
 #> 
 #> $optimizer$state$`2`$exp_avg_sq
 #> torch_tensor
 #> 0.001 *
-#>  0.3443
-#>  1.2340
-#>  0.2973
+#>  0.3216
+#>  0.3313
+#>  1.2742
 #> [ CPUFloatType{3} ]
 #> 
 #> $optimizer$state$`2`$max_exp_avg_sq
@@ -356,7 +357,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.067 
+#>   0.068 
 #> 
 #> $task_hash
 #> [1] "abc694dd29a7a8ce"

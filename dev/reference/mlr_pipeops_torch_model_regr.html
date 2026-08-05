@@ -165,6 +165,7 @@ its '$train()<code> method is called on the [</code>Task<code>][mlr3::Task] stor
 <code><a href="mlr_pipeops_nn_threshold.html">mlr_pipeops_nn_threshold</a></code>,
 <code><a href="mlr_pipeops_nn_tokenizer_categ.html">mlr_pipeops_nn_tokenizer_categ</a></code>,
 <code><a href="mlr_pipeops_nn_tokenizer_num.html">mlr_pipeops_nn_tokenizer_num</a></code>,
+<code><a href="mlr_pipeops_nn_transformer_encoder_layer.html">mlr_pipeops_nn_transformer_encoder_layer</a></code>,
 <code><a href="mlr_pipeops_nn_unsqueeze.html">mlr_pipeops_nn_unsqueeze</a></code>,
 <code><a href="mlr_pipeops_torch_ingress.html">mlr_pipeops_torch_ingress</a></code>,
 <code><a href="mlr_pipeops_torch_ingress_categ.html">mlr_pipeops_torch_ingress_categ</a></code>,
@@ -296,16 +297,16 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 7   -4.6930   -25.2567   -49.3459 -1659.2739   -31.9248   -33.8960 -1233.1593</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 7   -8.9647   -83.3058  -178.5399 -7073.6016   -95.1406   -98.4922 -4415.2886</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 8 to 10 -151.6659    -4.4410   -25.0005</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 8 to 10 -479.7274    -9.6964   -93.9056</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 1.2167e+00  3.5370e+01  1.3464e+02  1.5336e+05  5.6303e+01  6.3719e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 4.4456e+00  3.8532e+02  1.8347e+03  2.9622e+06  5.0786e+02  5.3993e+02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 8.4018e+04  1.2707e+03  1.1323e+00  3.4526e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 1.1077e+06  1.2939e+04  5.3139e+00  5.0109e+02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$max_exp_avg_sq</span>
@@ -321,12 +322,12 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -8.5548</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -27.1800</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4.0427</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  41.6493</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$max_exp_avg_sq</span>
@@ -417,7 +418,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $train_time</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> elapsed </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.049 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.05 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $task_hash</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "c7c4f02878d51895"</span>

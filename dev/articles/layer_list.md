@@ -65,4 +65,5 @@ Below is a list of neural network layers that are available in
 | [nn_threshold](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_threshold.html) | Treshold Activation Function |
 | [nn_tokenizer_categ](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_categ.html) | Categorical Tokenizer |
 | [nn_tokenizer_num](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_num.html) | Numeric Tokenizer |
+| [nn_transformer_encoder_layer](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_transformer_encoder_layer.html) | Transformer Encoder Layer |
 | [nn_unsqueeze](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unsqueeze.html) | Unqueeze a Tensor |

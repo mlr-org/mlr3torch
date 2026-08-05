@@ -32,6 +32,9 @@
   training) when it is set.
 - Added `PipeOpTorchMultiheadAttention`
   (`po("nn_multihead_attention")`).
+- Added `PipeOpTorchTransformerEncoderLayer`
+  (`po("nn_transformer_encoder_layer")`), a wrapper around
+  [`torch::nn_transformer_encoder_layer()`](https://torch.mlverse.org/docs/reference/nn_transformer_encoder_layer.html).
 - Most `LearnerTorchVision` are now `jittable`.
 - Any dimension of an input shape can now be unknown (`NA`), not only
   the batch dimension.

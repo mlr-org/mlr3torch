@@ -80,6 +80,7 @@
 <li>Added the <code>TabM</code> learner (<code>lrn("classif.tabm")</code> / <code>lrn("regr.tabm")</code>), a port of the official TabM reference implementation.</li>
 <li>New parameter <code>batch_size_predict</code> for <code>LearnerTorch</code>, which overrides <code>batch_size</code> for prediction (including the validation data during training) when it is set.</li>
 <li>Added <code>PipeOpTorchMultiheadAttention</code> (<code>po("nn_multihead_attention")</code>).</li>
+<li>Added <code>PipeOpTorchTransformerEncoderLayer</code> (<code>po("nn_transformer_encoder_layer")</code>), a wrapper around <code><a href="https://torch.mlverse.org/docs/reference/nn_transformer_encoder_layer.html" class="external-link">torch::nn_transformer_encoder_layer()</a></code>.</li>
 <li>Most <code>LearnerTorchVision</code> are now <code>jittable</code>.</li>
 <li>Any dimension of an input shape can now be unknown (<code>NA</code>), not only the batch dimension.</li>
 <li>Improved error messages during <code>PipeOpTorch</code>’s shape inference.</li>

@@ -301,6 +301,9 @@
 - [`mlr_pipeops_nn_tokenizer_num`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_tokenizer_num.md)
   [`PipeOpTorchTokenizerNum`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_tokenizer_num.md)
   : Numeric Tokenizer
+- [`mlr_pipeops_nn_transformer_encoder_layer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_transformer_encoder_layer.md)
+  [`PipeOpTorchTransformerEncoderLayer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_transformer_encoder_layer.md)
+  : Transformer Encoder Layer
 - [`mlr_pipeops_nn_unsqueeze`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_unsqueeze.md)
   [`PipeOpTorchUnsqueeze`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_unsqueeze.md)
   : Unqueeze a Tensor

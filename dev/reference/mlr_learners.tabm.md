@@ -1,16 +1,16 @@
 # TabM
 
-TabM is an MLP-based tabular deep learning model that efficiently
-represents an ensemble of `k` MLPs: the `k` submodels are trained in
-parallel on the same batches and share most of their weights, which acts
-as a strong regularizer. The network produces `k` predictions per
-observation; the learner averages the predicted *probabilities*
-(classification) or the predicted values (regression) over the `k`
-submodels, and its loss function trains all `k` submodels jointly.
+TabM is an MLP-based tabular deep learning model that represents an
+ensemble of `k` MLPs: the `k` submodels are trained in parallel on the
+same batches and share most of their weights. The network produces `k`
+predictions per observation; the learner averages the predicted
+*probabilities* (classification) or the predicted values (regression)
+over the `k` submodels, and its loss function trains all `k` submodels
+jointly.
 
 Numerical features are used as-is, or – if the `num_embeddings`
-parameter is set – embedded feature-wise first, which usually improves
-the performance considerably. Categorical features are one-hot encoded.
+parameter is set – embedded feature-wise first. Categorical features are
+one-hot encoded.
 
 ## Dictionary
 
@@ -86,8 +86,7 @@ Parameters of the embeddings for the numerical features:
 
 - `num_embeddings` :: `character(1)`  
   The type of the numerical feature embeddings, one of `"none"`
-  (default), `"linear_relu"`, `"periodic"` or `"piecewise_linear"`. The
-  last two usually perform best.
+  (default), `"linear_relu"`, `"periodic"` or `"piecewise_linear"`.
 
 - `d_embedding` :: `integer(1)`  
   The embedding size. If unset, `32` is used for `"linear_relu"`, `24`
