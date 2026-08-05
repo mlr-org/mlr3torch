@@ -37,3 +37,50 @@ test_that("the internally tuned epochs still come from the state dict", {
   expect_equal(learner$internal_tuned_values$epochs,
     learner$model$callbacks$early_stopping$best_epochs)
 })
+
+make_es_learner = function(...) {
+  set.seed(42)
+  lrn("regr.mlp", batch_size = 8, neurons = c(50, 50), p = 0, validate = 0.3,
+    measures_valid = msr("regr.mse"), seed = 3, opt.lr = 0.5, ...)
+}
+state_nums = function(learner) {
+  lapply(learner$model$network$state_dict(), function(x) as.numeric(x$cpu()))
+}
+
+test_that("restore_best_weights restores the weights of the best epoch", {
+  task = tsk("mtcars")
+  last = make_es_learner(epochs = 30, patience = 3)
+  last$train(task)
+  best_epoch = last$internal_tuned_values$epochs
+  expect_true(best_epoch < last$model$epochs) # early stopping fired
+
+  restored = make_es_learner(epochs = 30, patience = 3, restore_best_weights = TRUE)
+  restored$train(task)
+
+  # the restored network is exactly what training for `best_epoch` epochs produces
+  reference = make_es_learner(epochs = best_epoch, patience = 0)
+  reference$train(task)
+  expect_equal(state_nums(restored), state_nums(reference))
+  expect_false(isTRUE(all.equal(state_nums(last), state_nums(reference))))
+
+  # and the flag does not perturb training itself
+  expect_equal(last$model$epochs, restored$model$epochs)
+  expect_equal(last$internal_tuned_values$epochs, restored$internal_tuned_values$epochs)
+})
+
+test_that("restore_best_weights defaults to FALSE", {
+  expect_false(lrn("classif.mlp")$param_set$values$restore_best_weights)
+})
+
+test_that("the checkpoint callback sees the restored weights", {
+  # early stopping has weight -Inf and the checkpoint callback Inf, so the checkpoint written on
+  # exit must be the restored network, not the last epoch's
+  path = tempfile()
+  task = tsk("mtcars")
+  learner = make_es_learner(epochs = 30, patience = 3, restore_best_weights = TRUE,
+    callbacks = t_clbk("checkpoint", path = path, freq = 100))
+  learner$train(task)
+
+  saved = torch_load(file.path(path, sprintf("network%s.pt", learner$model$epochs)))
+  expect_equal(lapply(saved, function(x) as.numeric(x$cpu())), state_nums(learner))
+})

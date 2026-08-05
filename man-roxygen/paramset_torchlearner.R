@@ -58,6 +58,14 @@
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold for early stopping.
 #'   Is initialized to 0.
+#' * `restore_best_weights` :: `logical(1)`\cr
+#'   Whether to restore the weights of the best epoch when training ends, instead of keeping those
+#'   of the last epoch that was trained. Is initialized to `FALSE`, i.e. the final model is stored.
+#'   Only has an effect when `patience` is greater than 0.
+#'   Setting this to `TRUE` costs one additional copy of the network's parameters in memory, and
+#'   makes the stored network the one that `$internal_tuned_values` reports the epoch of.
+#'   It is not needed when tuning `epochs` with [`AutoTuner`][mlr3tuning::AutoTuner] or
+#'   `tnr("internal")`, because those retrain on the tuned number of epochs anyway.
 #'
 #' **Dataloader**:
 #' * `batch_size` :: `integer(1)`\cr

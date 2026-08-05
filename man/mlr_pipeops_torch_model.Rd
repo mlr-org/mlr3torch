@@ -73,6 +73,14 @@ field of the learner.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
+\item \code{restore_best_weights} :: \code{logical(1)}\cr
+Whether to restore the weights of the best epoch when training ends, instead of keeping those
+of the last epoch that was trained. Is initialized to \code{FALSE}, i.e. the final model is stored.
+Only has an effect when \code{patience} is greater than 0.
+Setting this to \code{TRUE} costs one additional copy of the network's parameters in memory, and
+makes the stored network the one that \verb{$internal_tuned_values} reports the epoch of.
+It is not needed when tuning \code{epochs} with \code{\link[mlr3tuning:AutoTuner]{AutoTuner}} or
+\code{tnr("internal")}, because those retrain on the tuned number of epochs anyway.
 }
 
 \strong{Dataloader}:

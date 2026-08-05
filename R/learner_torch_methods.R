@@ -98,7 +98,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (param_vals$patience > 0L) {
     es = CallbackSetEarlyStopping$new(
       patience = param_vals$patience,
-      min_delta = param_vals$min_delta
+      min_delta = param_vals$min_delta,
+      restore_best_weights = param_vals$restore_best_weights
     )
     es$ctx = ctx
 
