@@ -228,7 +228,9 @@ Also see \code{torch::dataloder} for more information.
 
 There are no seperate classes for classification and regression to inherit from.
 Instead, the \code{task_type} must be specified  as a construction argument.
-Currently, only classification and regression are supported.
+Any task type that is registered in
+\code{\link[mlr3:mlr_reflections]{mlr_reflections$task_types}} can be used, see the
+\emph{Adding a Custom Task Type} vignette for how to add support for a new one.
 
 When inheriting from this class, one should overload the following methods:
 \itemize{
@@ -439,7 +441,9 @@ The optimizer to use for training.
 Defaults to adam.}
       \item{\code{loss}}{(\code{NULL} or \code{\link{TorchLoss}})\cr
 The loss to use for training.
-Defaults to MSE for regression and cross entropy for classification.}
+Defaults to MSE for regression and cross entropy for classification.
+For other task types there is no default and the loss has to be given, because which loss is
+appropriate depends on the learning problem.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{predict_types}}{(\code{character()})\cr
@@ -447,6 +451,7 @@ The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.
 For regression, the default is \code{"response"}.
 For classification, this defaults to \code{"response"} and \code{"prob"}.
+For other task types, it defaults to all predict types that are registered for the task type.
 To deviate from the defaults, it is necessary to overwrite the private \verb{$.encode_prediction()}
 method, see section \emph{Inheriting}.}
       \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr

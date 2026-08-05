@@ -30,7 +30,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     #' @param task_type (`character(1)`)\cr
     #'   The task type of the model.
     initialize = function(task_type, id = "torch_model", param_vals = list()) {
-      private$.task_type = assert_choice(task_type, c("classif", "regr"))
+      private$.task_type = assert_choice(task_type, mlr_reflections$task_types$type)
 
       # loss, optimizer and callbacks are set to special values, that cause
       # them to become fields instead of construction arguments, otherwise we
