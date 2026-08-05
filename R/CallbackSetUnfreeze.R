@@ -112,9 +112,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       params = self$ctx$network$parameters
       names(params)[map_lgl(params, function(param) param$requires_grad)]
     },
-    # this is applied both when the state is loaded and at the end of $on_begin(), because the
-    # callbacks are executed in the order in which they were passed to the learner: whichever of
-    # the two runs last must have the final say, otherwise $on_begin() freezes the weights again
+    # this is applied both when the state is loaded and at the end of $on_begin(), because the order
+    # the callbacks run in is up to the user (see `$weight` of CallbackSet): whichever of the two
+    # runs last must have the final say, otherwise $on_begin() freezes the weights again
     .restore_trainable = function() {
       if (is.null(private$.prev_state)) return(NULL)
       weights = intersect(private$.prev_state$trainable, names(self$ctx$network$parameters))

@@ -261,6 +261,7 @@ TorchCallback = R6Class("TorchCallback",
 #'   The default is `NULL`.
 #'
 #' @inheritSection mlr_callback_set Stages
+#' @inheritSection mlr_callback_set Ordering
 #'
 #' @section Internals:
 #' It first creates an `R6` class inheriting from [`CallbackSet`] (using [`callback_set()`]) and

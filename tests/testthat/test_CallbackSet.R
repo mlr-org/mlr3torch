@@ -107,6 +107,23 @@ test_that("weight influences the phash", {
   expect_equal(light$phash, heavy$phash)
 })
 
+test_that("weight reaches the hash of a learner using the callback", {
+  # the order the callbacks run in changes what is trained, so two learners that differ only in it
+  # must not be treated as the same learner by tuning, benchmarking or caching
+  make = function(weight = NULL) {
+    cb = t_clbk("history")
+    cb$weight = weight
+    lrn("classif.mlp", epochs = 1L, batch_size = 50, callbacks = cb)
+  }
+
+  expect_equal(make()$hash, make()$hash)
+  expect_equal(make(1)$hash, make(1)$hash)
+
+  expect_false(make()$hash == make(1)$hash)
+  expect_false(make()$phash == make(1)$phash)
+  expect_false(make(1)$hash == make(2)$hash)
+})
+
 test_that("callbacks are called in the order they were passed", {
   order = new.env()
   spy = function(id, ...) torch_callback(id,
