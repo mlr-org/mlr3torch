@@ -120,21 +120,20 @@ in the *Custom Learning Problems* article would cover it.
 
 ## 3. Housekeeping
 
-### 3.1 Decide the fate of the full task-type walkthrough
+### 3.1 The full task-type walkthrough is gone
 
-`attic/custom_task_type_full.Rmd` is the "do it properly" article that the `TaskTorch`-only rewrite
-displaced: multi-label built from scratch as a real task type, plus the VAE task type.
+The previous version of `vignettes/articles/custom_task_type.Rmd` walked through adding a *real*
+task type to mlr3 -- multi-label built from scratch, plus a VAE task type -- and was replaced by the
+`TaskTorch`-only article. It was never committed, and the working copy was lost.
 
-**It is a reconstruction.** The rendered original was lost when the session scratchpad was cleaned,
-so this copy has not been re-rendered. Diff it against your expectations and re-render before
-trusting it.
-
-*Suggestion:* promote it back to `vignettes/articles/custom_task_type_full.Rmd` with the title
-"Adding a Custom Task Type", add it to the `tutorials` menu in `_pkgdown.yml` under the quick
-article, and cross-link the two: the quick one already has a "What You Give Up" section that is the
-natural place to link from. The material is written and was working; dropping it loses the only
-end-to-end account of the real extension path. If you would rather not maintain two articles, delete
-the file rather than leaving it in `attic/` to rot.
+*Suggestion:* if the real extension path is worth documenting (it is the only end-to-end account of
+it), write it fresh as `vignettes/articles/custom_task_type_full.Rmd`, add it to the `tutorials`
+menu in `_pkgdown.yml` beneath the quick article, and link it from the "What You Give Up" section of
+the quick one, which is the natural place. The `mlr3torch` side is small -- methods for
+`output_dim_for()`, `get_target_batchgetter()` and `encode_prediction()`, plus a `TorchLoss` that
+lists the type; most of the length is the mlr3 side (reflections, `Task`, `Prediction`, six
+`PredictionData` methods, `Measure`), which is mechanical and can be lifted from `mlr3proba` or from
+`R/PredictionTorch.R` in this branch.
 
 ### 3.2 Remove `TODOs.md` before merging
 
