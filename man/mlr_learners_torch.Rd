@@ -129,11 +129,8 @@ divide the available cores among the workers instead of setting this to the numb
 \item \code{num_interop_threads} :: \code{integer(1)}\cr
 The number of threads for interop parallelization (if \code{device} is \code{"cpu"}).
 This value is initialized to 1.
-Note that this can only be set \strong{once} per session, and only before any other torch operation
-has run; afterwards torch warns and keeps the old value. Because the parameter is initialized,
-training any \code{LearnerTorch} already consumes that one chance, so a deviating value only takes
-effect if it is set on the first learner trained in the session. If you need a different value,
-set it via \code{\link[torch:torch_set_num_interop_threads]{torch::torch_set_num_interop_threads()}} at the start of the session instead.
+Note that this can only be set \strong{once} per session, so training a learnerd once already sets this.
+You can work around this via encapsulation, see \code{\link[mlr3:Learner]{mlr3::Learner}}.
 \item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
 The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the

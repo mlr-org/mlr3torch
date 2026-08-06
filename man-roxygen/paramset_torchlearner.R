@@ -19,11 +19,8 @@
 #' * `num_interop_threads` :: `integer(1)`\cr
 #'   The number of threads for interop parallelization (if `device` is `"cpu"`).
 #'   This value is initialized to 1.
-#'   Note that this can only be set **once** per session, and only before any other torch operation
-#'   has run; afterwards torch warns and keeps the old value. Because the parameter is initialized,
-#'   training any `LearnerTorch` already consumes that one chance, so a deviating value only takes
-#'   effect if it is set on the first learner trained in the session. If you need a different value,
-#'   set it via [`torch::torch_set_num_interop_threads()`] at the start of the session instead.
+#'   Note that this can only be set **once** per session, so training a learnerd once already sets this.
+#'   You can work around this via encapsulation, see [`mlr3::Learner`].
 #' * `seed` :: `integer(1)` or `"random"` or `NULL`\cr
 #'   The torch seed that is used during training and prediction.
 #'   This value is initialized to `"random"`, which means that a random seed will be sampled at the beginning of the
