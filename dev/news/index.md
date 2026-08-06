@@ -58,6 +58,10 @@
   `data.table`s
 - Fixed some links on the pkgdown website and the help pages.
 - Fixed various other shape inference bugs.
+- `po("torch_model_{regr, classif}")` now resets the parameters of the
+  network at the beginning of `$train()` when the network is built from
+  `PipeOpTorch` objects, which makes the results reproducible for the
+  set `seed` parameter.
 - [`nn()`](https://mlr3torch.mlr-org.com/dev/reference/nn.md) now
   properly interprets `nn("linear_1")` as
   `po("nn_linear", id = "linear_21")`.

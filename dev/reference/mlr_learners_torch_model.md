@@ -205,7 +205,7 @@ learner$predict(task, ids$test)
 #>        3    setosa versicolor
 #>        4    setosa versicolor
 #>      ---       ---        ---
-#>      145 virginica versicolor
-#>      146 virginica versicolor
-#>      150 virginica versicolor
+#>      145 virginica     setosa
+#>      146 virginica     setosa
+#>      150 virginica     setosa
 ```

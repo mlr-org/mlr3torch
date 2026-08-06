@@ -114,6 +114,8 @@
 <li>Fixed some links on the pkgdown website and the help pages.</li>
 <li>Fixed various other shape inference bugs.</li>
 <li>
+<code>po("torch_model_{regr, classif}")</code> now resets the parameters of the network at the beginning of <code>$train()</code> when the network is built from <code>PipeOpTorch</code> objects, which makes the results reproducible for the set <code>seed</code> parameter.</li>
+<li>
 <code><a href="../reference/nn.html">nn()</a></code> now properly interprets <code>nn("linear_1")</code> as <code>po("nn_linear", id = "linear_21")</code>.</li>
 </ul></div>
 </div>
