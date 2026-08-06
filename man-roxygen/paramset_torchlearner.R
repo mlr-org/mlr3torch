@@ -12,12 +12,15 @@
 #'   The value is initialized to `"auto"`, which will select `"cuda"` if possible, then try `"mps"` and otherwise
 #'   fall back to `"cpu"`.
 #' * `num_threads` :: `integer(1)`\cr
-#'   The number of threads for intraop pararallelization (if `device` is `"cpu"`).
+#'   The number of threads for intraop parallelization (if `device` is `"cpu"`).
 #'   This value is initialized to 1.
+#'   When resampling, benchmarking or tuning in parallel, each worker uses this many threads, so
+#'   divide the available cores among the workers instead of setting this to the number of cores.
 #' * `num_interop_threads` :: `integer(1)`\cr
-#'   The number of threads for intraop and interop pararallelization (if `device` is `"cpu"`).
+#'   The number of threads for interop parallelization (if `device` is `"cpu"`).
 #'   This value is initialized to 1.
-#'   Note that this can only be set once during a session and changing the value within an R session will raise a warning.
+#'   Note that this can only be set **once** per session, so training a learnerd once already sets this.
+#'   You can work around this via encapsulation, see [`mlr3::Learner`].
 #' * `seed` :: `integer(1)` or `"random"` or `NULL`\cr
 #'   The torch seed that is used during training and prediction.
 #'   This value is initialized to `"random"`, which means that a random seed will be sampled at the beginning of the
@@ -95,7 +98,7 @@
 #'   The timeout value for collecting a batch from workers.
 #'   Negative values mean no timeout and the default is `-1`.
 #' * `worker_init_fn` :: `function(id)`\cr
-#'   A function that receives the worker id (in `[1, num_workers]`) and is exectued after seeding
+#'   A function that receives the worker id (in `[1, num_workers]`) and is executed after seeding
 #'   on the worker but before data loading.
 #' * `worker_globals` :: `list()` | `character()`\cr
 #'   When loading data in parallel, this allows to export globals to the workers.
@@ -104,4 +107,4 @@
 #' * `worker_packages` :: `character()`\cr
 #'   Which packages to load on the workers.
 #'
-#' Also see `torch::dataloder` for more information.
+#' Also see `torch::dataloader` for more information.
