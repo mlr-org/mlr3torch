@@ -20,7 +20,8 @@
   the complete prediction.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
 * Added multihead attention and transformer encoder pipeops.
-* Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
+* All `PipeOp`s now properly handle multiple unknown dimensions during their
+  shape inference.
 * Improved error messages during `PipeOpTorch`'s shape inference.
 * The `shape` parameter of `nn("reshape")` can now be a `function(shape)` of the input shape.
 * Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
