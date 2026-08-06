@@ -8,9 +8,10 @@ Branches (all worktrees under `.claude/worktrees/`, all off `main` unless noted)
 | Branch | Covers |
 |---|---|
 | `audit-fixes` (off `736f5165`) | 1.0, 1.2, 1.5, plus the fixes already listed in its `NEWS.md` |
-| `fix/ft-transformer-defaults` | 1.7, 1.8, 1.9, 1.9d, 1.9e |
-| `fix/device-check-and-docs` | 1.9f, 1.9h, 1.9j |
-| `fix/graph-learner-seeding` | 1.6 |
+| `fix/ft-transformer-defaults` | 1.7, 1.8, 1.9, 1.9d, 1.9e, 3.1 |
+| `fix/device-check-and-docs` | 1.9f, 1.9h, 1.9j, 3.2 |
+| `fix/graph-learner-seeding` | 1.6 | 
+| `fix/history-requires-measures` | 1.9g |
 | `feat/restore-best-weights` | new `restore_best_weights` parameter, see 1.3 |
 | `fix/ignore-index-off-by-one` (in the `torch` checkout) | the upstream half of 1.2 |
 | `fix/mha-bias-and-lr-one-cycle` (in the `torch` checkout) | 1.9b |
@@ -314,7 +315,9 @@ optim_ignite_adam(nn_linear(2, 1)$parameters, lr = 0.1, weight_decay = 2)   #> w
 These look like accidental upper bounds and they block legitimate tuning ranges. Widening them is
 harmless for existing code, but bounds are a maintainer's call.
 
-### 1.9g [D] `t_clbk("history")` with no measures silently produces an empty table
+### 1.9g ~~`t_clbk("history")` with no measures silently produces an empty table~~ — FIXED
+
+**Fixed** on `fix/history-requires-measures` (`e678021b`): it now errors when neither `measures_train` nor `measures_valid` is set. The condition is an `Mlr3ErrorConfig`, matching how the dataloader parameters are validated, so it does not trigger the fallback learner. The description now says the callback records only those two measures, and in particular not the loss.  Fallout worth knowing: three tests in `test_LearnerTorch.R` attached the callback incidentally, just to have one present while checking cloning, state and accessors, and had to be given a measure. Real code that attaches `history` before configuring measures will hit this too.  Not done: logging the training loss by default, the other option this entry suggested.
 ```r
 l = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 5, callbacks = t_clbk("history"))
 l$train(tsk("iris")); l$model$callbacks$history
@@ -416,7 +419,9 @@ learner or a `resample()`, which is why 1.1 is invisible to CI.
 
 ## 3. Documentation — corrections still open
 
-### 3.1 [D] `nn_ft_transformer_block()` documents 7 defaults its signature doesn't have
+### 3.1 ~~`nn_ft_transformer_block()` documents 7 defaults its signature doesn't have~~ — FIXED
+
+**Fixed** on `fix/ft-transformer-defaults` (`a2fb70c2`) by rewording rather than by adding defaults to the signature, which would change the function's contract. The seven values are the `PipeOp`'s parameter inits and are now attributed to it.  Two further bugs in the same block, found while fixing it: `prenormalization` gave `TRUE` for both the before and the after case, and `attention_initialization` only named its levels, which is too thin now that it actually does something (see 1.9).
 `R/PipeOpTorchFTTransformerBlock.R`. Real formals (`:55-69`) give defaults only to `ffn_d_hidden`,
 `ffn_d_hidden_multiplier`, `query_idx`. The rendered `\usage{}` shows the rest bare, so the man page
 contradicts itself:
@@ -435,7 +440,9 @@ The quoted values are the *PipeOp ParamSet inits* (e.g. `:175` `ffn_activation =
 not the function's defaults. Decide: add the defaults to the signature, or reword to "the PipeOp
 initialises this to X". (This was the only default-claim mismatch across all 198 man pages.)
 
-### 3.2 `NEWS.md:155` claims a default-optimizer change that never happened
+### 3.2 ~~`NEWS.md` claims a default-optimizer change that never happened~~ — FIXED
+
+**Fixed** on `fix/device-check-and-docs` (`3aa03243`): the 0.2.0 entry is annotated in place rather than rewritten, since it is historical. Re-confirmed at runtime that the default is still `adam` for both `classif.mlp` and `regr.tab_resnet`. The code documentation is correct and was left alone, as this entry asked.
 > "The default optimizer is now AdamW instead of Adam." (0.2.0, Breaking Changes)
 
 `R/LearnerTorch.R:253` has been `t_opt("adam")` since commit `acdb57558` (2023-07-14), i.e. before
