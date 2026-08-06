@@ -16,19 +16,20 @@ Calls \code{\link[torch:nn_avg_pool1d]{nn_avg_pool1d()}} during training.
 \section{Parameters}{
 
 \itemize{
-\item \code{kernel_size} :: (\code{integer()})\cr
+\item \code{kernel_size} :: \code{integer()}\cr
 The size of the window. Can be a single number or a vector.
 \item \code{stride} :: \code{integer()}\cr
 The stride of the window. Can be a single number or a vector. Default: \code{kernel_size}.
 \item \code{padding} :: \code{integer()}\cr
 Implicit zero paddings on both sides of the input. Can be a single number or a vector. Default: 0.
-\item \code{ceil_mode} :: \code{integer()}\cr
+\item \code{ceil_mode} :: \code{logical(1)}\cr
 When \code{TRUE}, will use ceil instead of floor to compute the output shape. Default: \code{FALSE}.
 \item \code{count_include_pad} :: \code{logical(1)}\cr
 When \code{TRUE}, will include the zero-padding in the averaging calculation. Default: \code{TRUE}.
-\item \code{divisor_override} :: \code{logical(1)}\cr
+\item \code{divisor_override} :: \code{numeric(1)}\cr
 If specified, it will be used as divisor, otherwise size of the pooling region will be used. Default: NULL.
-Only available for dimension greater than 1.
+Only available for \code{nn_avg_pool2d} and \code{nn_avg_pool3d}, i.e. this parameter does not exist for
+\code{nn_avg_pool1d}.
 }
 }
 

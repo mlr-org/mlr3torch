@@ -41,7 +41,7 @@ More information about installing `torch` can be found
 `mlr3torch` is a deep learning framework for the
 [`mlr3`](https://mlr-org.com) ecosystem built on top of
 [`torch`](https://torch.mlverse.org/). It allows to easily build, train
-and evaluate deep learning models in a few lines of codes, without
+and evaluate deep learning models in a few lines of code, without
 needing to worry about low-level details. Off-the-shelf learners are
 readily available, but custom architectures can be defined by connecting
 `PipeOpTorch` operators in an `mlr3pipelines::Graph`.
@@ -163,9 +163,7 @@ Next, we create a neural network that takes as input a `lazy_tensor`
 (`po("torch_ingress_ltnsr")`). It first applies a linear layer and then
 repeats the above layer using the special `PipeOpTorchBlock`, followed
 by the network’s head. After that, we configure the loss, optimizer and
-the training parameters. Note that `po("nn_linear_0")` is equivalent to
-`po("nn_linear", id = "nn_linear_0")` and we need this here to avoid ID
-clashes with the linear layer from `po("nn_block")`.
+the training parameters.
 
 ``` r
 deep_network = po("torch_ingress_ltnsr") %>>%

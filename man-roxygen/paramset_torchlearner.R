@@ -19,8 +19,9 @@
 #' * `num_interop_threads` :: `integer(1)`\cr
 #'   The number of threads for interop parallelization (if `device` is `"cpu"`).
 #'   This value is initialized to 1.
-#'   Note that this can only be set **once** per session, so training a learnerd once already sets this.
-#'   You can work around this via encapsulation, see [`mlr3::Learner`].
+#'   Note that this can only be set **once** per session, so training a learner once already sets this.
+#'   Because the value is initialized, a deviating value only takes effect if it is set on the first
+#'   learner that is trained in a session. You can work around this via encapsulation, see [`mlr3::Learner`].
 #' * `seed` :: `integer(1)` or `"random"` or `NULL`\cr
 #'   The torch seed that is used during training and prediction.
 #'   This value is initialized to `"random"`, which means that a random seed will be sampled at the beginning of the
@@ -52,6 +53,8 @@
 #' * `patience` :: `integer(1)`\cr
 #'   This activates early stopping using the validation scores.
 #'   If the performance of a model does not improve for `patience` evaluation steps, training is ended.
+#'   Note that this counts *evaluation steps*, not epochs: when `eval_freq` is greater than `1`,
+#'   `patience` evaluation steps correspond to `patience * eval_freq` epochs.
 #'   Note that the final model is stored in the learner, not the best model.
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.

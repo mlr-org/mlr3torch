@@ -1,6 +1,6 @@
 bibentries = c(# nolint start
   gorishniy2021revisiting = bibentry("article",
-    title = "Revisiting Deep Learning  for Tabular Data",
+    title = "Revisiting Deep Learning for Tabular Data",
     author = c(
       person("Yury", "Gorishniy"),
       person("Ivan", "Rubachev"),
@@ -9,7 +9,7 @@ bibentries = c(# nolint start
     ),
     journal = "arXiv",
     volume = "2106.11959",
-    year = "2021",
+    year = "2021"
   ),
   devlin2018bert = bibentry("article",
     title = "Bert: Pre-training of deep bidirectional transformers for language understanding",

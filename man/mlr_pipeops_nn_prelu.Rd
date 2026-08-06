@@ -16,11 +16,11 @@ where weight is a learnable parameter.
 \section{Parameters}{
 
 \itemize{
-\item \code{num_parameters} :: \code{integer(1)}:
-Number of a to learn. Although it takes an int as input, there is only two values are legitimate: 1, or the
-number of channels at input. Default: 1.
-\item \code{init} :: \code{numeric(1)}\cr T
-The initial value of a. Default: 0.25.
+\item \code{num_parameters} :: \code{integer(1)}\cr
+Number of \code{a} parameters to learn. Although it takes an integer as input, only two values are
+legitimate: \code{1}, or the number of channels of the input. Default: 1.
+\item \code{init} :: \code{numeric(1)}\cr
+The initial value of \code{a}. Default: 0.25.
 }
 }
 

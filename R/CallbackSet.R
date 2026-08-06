@@ -8,15 +8,15 @@
 #' They can be used to gain more control over the training process of a neural network without
 #' having to write everything from scratch.
 #'
-#' When used a in torch learner, the `CallbackSet` is wrapped in a [`TorchCallback`].
-#' The latters parameter set represents the arguments of the [`CallbackSet`]'s `$initialize()` method.
+#' When used in a torch learner, the `CallbackSet` is wrapped in a [`TorchCallback`].
+#' The latter's parameter set represents the arguments of the [`CallbackSet`]'s `$initialize()` method.
 #'
 #' @section Inheriting:
 #' For each available stage (see section *Stages*) a public method `$on_<stage>()` can be defined.
 #' The evaluation context (a [`ContextTorch`]) can be accessed via `self$ctx`, which contains
 #' the current state of the training loop.
 #' This context is assigned at the beginning of the training loop and removed afterwards.
-#' Different stages of a callback can communicate with each other by assigning values to `$self`.
+#' Different stages of a callback can communicate with each other by assigning values to `self`.
 #'
 #' *State*:
 #' To be able to store information in the `$model` slot of a [`LearnerTorch`], callbacks support a state API.
@@ -34,16 +34,17 @@
 #'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
-#' * `epoch_begin` :: Run he beginning of each epoch.
+#' * `epoch_begin` :: Run at the beginning of each epoch.
 #' * `batch_begin` :: Run before the forward call.
 #' * `after_backward` :: Run after the backward call.
 #' * `batch_end` :: Run after the optimizer step.
+#' * `before_valid` :: Run before the validation loop begins.
 #' * `batch_valid_begin` :: Run before the forward call in the validation loop.
 #' * `batch_valid_end` :: Run after the forward call in the validation loop.
 #' * `valid_end` :: Run at the end of validation.
 #' * `epoch_end` :: Run at the end of each epoch.
 #' * `end` :: Run after last epoch.
-#' * `exit` :: Run at last, using `on.exit()`.
+#' * `exit` :: Run last, using `on.exit()`.
 #'
 #' @section Ordering:
 #' Within a stage, callbacks are called in the order in which they were passed to the learner.
@@ -81,7 +82,7 @@ CallbackSet = R6Class("CallbackSet",
       catn(str_indent("* Stages:", self$stages))
     },
     #' @description
-    #' Returns information that is kept in the the [`LearnerTorch`]'s state after training.
+    #' Returns information that is kept in the [`LearnerTorch`]'s state after training.
     #' This information should be loadable into the callback using `$load_state_dict()` to be able to continue training.
     #' This returns `NULL` by default.
     state_dict = function() {

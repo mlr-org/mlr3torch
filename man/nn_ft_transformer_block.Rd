@@ -90,6 +90,6 @@ Devlin J, Chang M, Lee K, Toutanova K (2018).
 \dQuote{Bert: Pre-training of deep bidirectional transformers for language understanding.}
 \emph{arXiv preprint arXiv:1810.04805}.
 Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
-\dQuote{Revisiting Deep Learning  for Tabular Data.}
+\dQuote{Revisiting Deep Learning for Tabular Data.}
 \emph{arXiv}, \bold{2106.11959}.
 }
