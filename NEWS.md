@@ -4,7 +4,6 @@
 
 * New parameter `restore_best_weights` for `LearnerTorch`: when early stopping is active, restore
   the weights of the best epoch at the end of training (default `FALSE`).
-
 * Added learners for the remaining image classification networks of `torchvision`:
   ConvNeXt (`classif.convnext_*`), EfficientNet (`classif.efficientnet_b0` to
   `classif.efficientnet_b7`), EfficientNetV2 (`classif.efficientnet_v2_{s,m,l}`),
