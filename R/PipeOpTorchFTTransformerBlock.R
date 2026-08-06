@@ -92,7 +92,7 @@ nn_ft_transformer_block = nn_module(
     )
 
     init_projection = switch(attention_initialization,
-      kaiming = function(x) nn_int_kaiming_uniform_(x, a = sqrt(5)),
+      kaiming = function(x) nn_init_kaiming_uniform_(x, a = sqrt(5)),
       xavier = function(x) nn_init_xavier_uniform_(x, gain = 1 / sqrt(2))
     )
     with_no_grad({

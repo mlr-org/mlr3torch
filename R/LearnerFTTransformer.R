@@ -175,7 +175,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
       # it defaults to), so that the learner is trainable without configuring the FFN width. This is
       # not an `init` on the parameter, because that would force everyone setting `ffn_d_hidden` to
       # clear the multiplier first.
-      if (is.null(block_values$ffn_d_hidden) && is.null(block_values$ffn_d_hidden_multiplier)) {
+      if (is.null(block_values[["ffn_d_hidden"]]) && is.null(block_values[["ffn_d_hidden_multiplier"]])) {
         block_values$ffn_d_hidden_multiplier = 4 / 3
       }
 
