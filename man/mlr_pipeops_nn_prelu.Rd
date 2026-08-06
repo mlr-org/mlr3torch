@@ -114,7 +114,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_model}},
 \code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}}
+\code{\link{mlr_pipeops_torch_model_regr}},
+\code{\link[=pipeop_torch]{pipeop_torch()}}
 }
 \concept{PipeOps}
 \section{Super classes}{

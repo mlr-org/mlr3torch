@@ -1,0 +1,238 @@
+---
+title: "Writing your own PipeOpTorch"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Writing your own PipeOpTorch}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(mlr3torch)
+```
+
+`mlr3torch` ships a `PipeOp` for most of the layers that `torch` provides, but sooner or later you
+will want a layer of your own in a `Graph`.
+This article shows how to get there, from the shortest path to the full R6 class.
+
+If you have not built a network from `PipeOp`s before, read
+[Defining an Architecture](pipeop_torch.html) first; for what a `ModelDescriptor` is and how a
+`Graph` of `PipeOp`s becomes a `nn_module`, see [Networks as Graphs](internals_pipeop_torch.html).
+
+## What a `PipeOpTorch` has to know
+
+A network in `mlr3torch` is assembled without any data flowing through it.
+Instead of tensors, the `Graph` passes around a `ModelDescriptor` that carries the *shape* of the
+tensors that will later be there.
+That is what makes `po("nn_linear", out_features = 10)` possible: you say how wide the layer should
+be, and `in_features` follows from whatever is connected to its input.
+
+A `PipeOpTorch` therefore answers two questions that the module itself does not:
+
+1. **Which of the module's arguments follow from the input shape?** `in_features` of
+   `nn_linear()` is not something the user sets, it is read off the incoming shape.
+2. **What shape does the module produce?** The next layer needs it, for the same reason.
+
+Everything else -- building the module, adding it to the network, connecting the edges -- is
+inherited.
+
+## The short way: `pipeop_torch()`
+
+Take a layer that scales each feature by a learned factor:
+
+```{r}
+nn_scale = nn_module("nn_scale",
+  initialize = function(n_features, init = 1) {
+    self$weight = nn_parameter(torch_full(n_features, init))
+  },
+  forward = function(input) input * self$weight
+)
+```
+
+`n_features` is question 1: the user cannot know it, it is the last dimension of the input.
+`pipeop_torch()` takes it as an `auxiliary` argument -- a function of the input shapes -- and turns
+everything else into a hyperparameter:
+
+```{r}
+PipeOpTorchScale = pipeop_torch("nn_scale", nn_scale,
+  auxiliary = list(
+    n_features = function(shapes_in, param_vals, task) tail(shapes_in[[1L]], 1L)
+  )
+)
+
+po_scale = PipeOpTorchScale$new()
+po_scale$param_set$ids()
+```
+
+Question 2 is answered by default: `pipeop_torch()` builds the module and traces it on the
+`"meta"` device, which computes shapes without allocating any memory.
+
+```{r}
+po_scale$shapes_out(list(c(NA, 4)))
+```
+
+Note the `NA`: the batch dimension is unknown while the network is being built, and any other
+dimension may be too -- the sequence length of a transformer, or the size of an image.
+Shape inference has to carry those through rather than reject them.
+
+That is a usable operator:
+
+```{r}
+graph = po("torch_ingress_num") %>>% po_scale %>>% po("nn_head")
+md = graph$train(tsk("iris"))[[1L]]
+network = model_descriptor_to_module(md)
+network
+```
+
+The module was built with `n_features = 4`, taken from the task:
+
+```{r}
+as.numeric(md$graph$pipeops$nn_scale$module$weight)
+```
+
+If a module needs nothing from the input shape at all, there is nothing left to configure and
+`as_pipeop()` is enough:
+
+```{r}
+nn_square = nn_module("nn_square", forward = function(input) input^2)
+as_pipeop(nn_square)$shapes_out(list(c(NA, 4)))
+```
+
+### When to write `shapes_out` yourself
+
+Tracing is convenient but it builds the module, and it is only correct when the output shape
+depends on the shapes of the inputs rather than on the values in them.
+Pass a function to say it directly:
+
+```{r}
+PipeOpTorchScale = pipeop_torch("nn_scale", nn_scale,
+  auxiliary = list(
+    n_features = function(shapes_in, param_vals, task) tail(shapes_in[[1L]], 1L)
+  ),
+  shapes_out = function(shapes_in, param_vals, task) shapes_in
+)
+```
+
+For an operator that genuinely does not change the shape -- activation functions, dropout --
+`shapes_out = NULL` says exactly that.
+
+Whatever you write must cope with `NA` in any dimension.
+The helpers `assert_known_dims()`, `assert_ndim()` and friends state which dimensions you actually
+need, and report the offending `PipeOp` and shape when one of them is unknown.
+Be permissive with the rest: rejecting a shape that would have worked is worse than a runtime error
+later.
+
+## Several channels
+
+A module whose `forward()` takes more than one tensor becomes a `PipeOp` with more than one input
+channel -- the channels are named after the arguments.
+Returning a named list makes several output channels, which have to be declared with `outname`:
+
+```{r}
+nn_split = nn_module("nn_split",
+  initialize = function(d_in, d_out1, d_out2) {
+    self$linear1 = nn_linear(d_in, d_out1)
+    self$linear2 = nn_linear(d_in, d_out2)
+  },
+  forward = function(input) {
+    list(output1 = self$linear1(input), output2 = self$linear2(input))
+  }
+)
+
+PipeOpTorchSplit = pipeop_torch("nn_split", nn_split,
+  outname = c("output1", "output2"),
+  auxiliary = list(d_in = function(shapes_in, param_vals, task) tail(shapes_in[[1L]], 1L))
+)
+
+po_split = PipeOpTorchSplit$new(param_vals = list(d_out1 = 10, d_out2 = 20))
+po_split$shapes_out(list(c(NA, 4)))
+```
+
+## The long way: inheriting from `PipeOpTorch`
+
+`pipeop_torch()` writes an R6 class for you; when you want to ship an operator in a package, or
+need control over its construction, write that class yourself.
+The two questions are now the private methods `.shape_dependent_params()` and `.shapes_out()`:
+
+```{r}
+PipeOpTorchScale = R6::R6Class("PipeOpTorchScale",
+  inherit = PipeOpTorch,
+  public = list(
+    initialize = function(id = "nn_scale", param_vals = list()) {
+      param_set = paradox::ps(
+        init = paradox::p_dbl(default = 1, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        param_set = param_set,
+        module_generator = nn_scale
+      )
+    }
+  ),
+  private = list(
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
+      c(param_vals, list(n_features = tail(shapes_in[[1L]], 1L)))
+    },
+    .shapes_out = function(shapes_in, param_vals, task) shapes_in
+  )
+)
+
+PipeOpTorchScale$new()$shapes_out(list(c(NA, 4)))
+```
+
+`.shape_dependent_params()` returns *all* arguments the module is built with, i.e. the user's
+`param_vals` plus the inferred ones.
+If the module cannot be built by calling the generator with a list of arguments at all, overload
+`.make_module(shapes_in, param_vals, task)` instead and ignore both.
+
+To make the operator available as `po("nn_scale")`, add it to the `PipeOp` dictionary, typically in
+your package's `.onLoad()`:
+
+```{r, eval = FALSE}
+mlr3pipelines::mlr_pipeops$add("nn_scale", PipeOpTorchScale)
+```
+
+## Registering the operator with a learner
+
+Nothing else is needed: a `Graph` that contains the new operator becomes a `Learner` the usual way.
+
+```{r}
+graph = po("torch_ingress_num") %>>%
+  PipeOpTorchScale$new() %>>%
+  po("nn_head") %>>%
+  po("torch_loss", t_loss("cross_entropy")) %>>%
+  po("torch_optimizer", t_opt("adam")) %>>%
+  po("torch_model_classif", batch_size = 32, epochs = 1)
+
+learner = as_learner(graph)
+learner$id = "scaled_mlp"
+learner
+```
+
+## Checking your work
+
+Two things are worth testing, and both are cheap:
+
+* `$shapes_out()` agrees with what the module actually produces, for shapes with and without `NA`s.
+  `mlr3torch`'s own test suite sweeps every combination of unknown dimensions for every operator it
+  ships; the helper that does it lives in `tests/testthat/helper_shape_inference.R`.
+* the operator survives a round-trip through a `Graph`, i.e. `model_descriptor_to_module()` returns
+  a network that runs on a tensor of the announced shape.
+
+```{r}
+po_scale = PipeOpTorchScale$new()
+inferred = po_scale$shapes_out(list(c(NA, 4)))[[1L]]
+
+network = model_descriptor_to_module(
+  (po("torch_ingress_num") %>>% po_scale)$train(tsk("iris"))[[1L]]
+)
+observed = dim(with_no_grad(network(torch_ingress_num.input = torch_randn(2, 4))))
+
+inferred
+observed
+```

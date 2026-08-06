@@ -11,6 +11,9 @@
 
 ## Features
 
+* New function `pipeop_torch()` that creates a `PipeOpTorch` from an `nn_module`, without having to
+  write the R6 class by hand, and an `as_pipeop()` method for `nn_module_generator`s.
+* New article *Writing your own PipeOpTorch*.
 * Added more image learners from {torchvision}.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.

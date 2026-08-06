@@ -148,7 +148,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_model}},
 \code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}}
+\code{\link{mlr_pipeops_torch_model_regr}},
+\code{\link[=pipeop_torch]{pipeop_torch()}}
 
 Other Graph Network:
 \code{\link[=ModelDescriptor]{ModelDescriptor()}},
@@ -162,7 +163,8 @@ Other Graph Network:
 \code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
 \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
 \code{\link[=model_descriptor_union]{model_descriptor_union()}},
-\code{\link[=nn_graph]{nn_graph()}}
+\code{\link[=nn_graph]{nn_graph()}},
+\code{\link[=pipeop_torch]{pipeop_torch()}}
 }
 \concept{Graph Network}
 \concept{PipeOps}

@@ -158,6 +158,7 @@ Collate:
     'nn.R'
     'nn_graph.R'
     'paramset_torchlearner.R'
+    'pipeop_torch.R'
     'preprocess.R'
     'rd_info.R'
     'with_torch_settings.R'

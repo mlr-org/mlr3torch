@@ -48,7 +48,8 @@ Other Graph Network:
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
 \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
-\code{\link[=nn_graph]{nn_graph()}}
+\code{\link[=nn_graph]{nn_graph()}},
+\code{\link[=pipeop_torch]{pipeop_torch()}}
 
 Other Model Configuration:
 \code{\link[=ModelDescriptor]{ModelDescriptor()}},
