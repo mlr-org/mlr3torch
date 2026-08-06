@@ -45,6 +45,13 @@ Below, we list all stages that are available, but they are also described in the
 mlr_reflections$torch$callback_stages
 ```
 
+When a learner has more than one callback, they are called within a stage in the order in which they
+were passed to it.
+A callback that has to observe what the others did -- like `t_clbk("checkpoint")`, which saves the
+network and the optimizer as the other callbacks left them -- can override this through its
+`$weight`: a higher weight is called later, and callbacks with the same weight keep the order they
+were passed in.
+
 For the history callback, we see that it runs code at the beginning, before validation starts, and at the end of an epoch.
 
 ```{r}

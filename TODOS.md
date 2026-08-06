@@ -10,7 +10,7 @@ Branches (all worktrees under `.claude/worktrees/`, all off `main` unless noted)
 | `audit-fixes` (off `736f5165`) | 1.0, 1.2, 1.5, plus the fixes already listed in its `NEWS.md` |
 | `fix/ft-transformer-defaults` | 1.7, 1.8, 1.9, 1.9d, 1.9e, 3.1 |
 | `fix/device-check-and-docs` | 1.9f, 1.9h, 1.9j, 3.2 |
-| `fix/graph-learner-seeding` | 1.6 | 
+| `fix/graph-learner-seeding` | 1.6 (merged into `main` as #492) |
 | `fix/history-requires-measures` | 1.9g |
 | `feat/restore-best-weights` | new `restore_best_weights` parameter, see 1.3 |
 | `fix/ignore-index-off-by-one` (in the `torch` checkout) | the upstream half of 1.2 |
@@ -176,7 +176,7 @@ for every torchvision VGG variant; changed for consistency only.
 
 ### 1.6 ~~`seed` does not seed weight initialization for graph-built learners~~ — FIXED
 
-**Fixed** on `fix/graph-learner-seeding` (`f5cdea88`): `PipeOpTorchModel` now has the learner call `network$reset_parameters()` inside its seeded region, so the initialization happens under the seed. A network passed to `LearnerTorchModel` directly is left alone, since its weights may be the point. This is safe because no pipeop accepts a prebuilt module -- every `nn_*` operator constructs its own. The `seed` documentation added on `audit-fixes` describes the *old* behaviour and should be dropped when that branch and this one are both merged.
+**Fixed** on `main` (`1d6e4fb8`, #492): `PipeOpTorchModel` now has the learner call `network$reset_parameters()` inside its seeded region, so the initialization happens under the seed. A network passed to `LearnerTorchModel` directly is left alone, since its weights may be the point. This is safe because no pipeop accepts a prebuilt module -- every `nn_*` operator constructs its own. The `seed` documentation that `audit-fixes` had added described the *old* behaviour and was dropped when `main` was merged into it.
 A graph-built learner is **not reproducible**, even with an explicit `seed`, while the equivalent
 predefined learner is. `resample()` on such a learner gives different results run to run.
 
@@ -201,8 +201,6 @@ during training and prediction", which is not true for this construction path. T
 today is `torch::torch_manual_seed()` immediately before building the graph, which is undiscoverable
 and does not survive `resample()`/`benchmark()`.
 
-**Documented** in the `seed` entry of the learner parameter docs (`man-roxygen/paramset_torchlearner.R`), with the `torch_manual_seed()` workaround. **Still needs a decision** on whether to fix it, which is structural: seed before the graphs `$train()`, defer module construction into the learner, or thread the seed through `ModelDescriptor`.
-module construction into the learner, or thread the seed through `ModelDescriptor`.
 
 ### 1.7 ~~`lrn("classif.ft_transformer")` cannot be trained with its documented defaults~~ — FIXED
 

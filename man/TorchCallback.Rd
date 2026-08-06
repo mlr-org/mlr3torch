@@ -85,16 +85,24 @@ Other Torch Descriptor:
 \section{Super class}{
 \code{\link[mlr3torch:TorchDescriptor]{TorchDescriptor}} -> \code{TorchCallback}
 }
+\section{Active bindings}{
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{weight}}{(\code{numeric(1)} or \code{NULL})\cr
+Overwrites the \verb{$weight} of the generated \code{\link{CallbackSet}}, see its section \emph{Ordering}.}
+  }
+  \if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
   \itemize{
     \item \href{#method-TorchCallback-initialize}{\code{TorchCallback$new()}}
+    \item \href{#method-TorchCallback-generate}{\code{TorchCallback$generate()}}
     \item \href{#method-TorchCallback-clone}{\code{TorchCallback$clone()}}
   }
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="generate"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-generate'><code>TorchDescriptor$generate()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-help'><code>TorchDescriptor$help()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="print"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-print'><code>TorchDescriptor$print()</code></a></span></li>
 </ul>
@@ -113,7 +121,8 @@ Other Torch Descriptor:
   label = NULL,
   packages = NULL,
   man = NULL,
-  additional_args = NULL
+  additional_args = NULL,
+  weight = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -135,7 +144,22 @@ String in the format \verb{[pkg]::[topic]} pointing to a manual page for this ob
 The referenced help package can be opened via method \verb{$help()}.}
       \item{\code{additional_args}}{(\code{any})\cr
 Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.}
+      \item{\code{weight}}{(\code{numeric(1)} or \code{NULL})\cr
+Overwrites the \verb{$weight} of the generated \code{\link{CallbackSet}}, see its section \emph{Ordering}.
+If \code{NULL} (default), the callback's own weight is kept.}
     }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchCallback-generate"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchCallback-generate}{}}}
+\subsection{\code{TorchCallback$generate()}}{
+  Generates the \code{\link{CallbackSet}}, applying \verb{$weight} if it is set.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchCallback$generate()}
     \if{html}{\out{</div>}}
   }
 }

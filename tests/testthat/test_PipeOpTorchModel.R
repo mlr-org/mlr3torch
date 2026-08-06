@@ -156,3 +156,37 @@ test_that("marshaling", {
   pred = glrn$predict(task)
   expect_class(pred, "Prediction")
 })
+
+test_that("graph-built learners are reproducible from the seed", {
+  # `PipeOpTorch` operators build their modules while the Graph trains, i.e. before the learner sets
+  # the torch seed, so the weights used to be drawn outside the seeded region. `PipeOpTorchModel`
+  # now makes the learner re-initialize them under the seed.
+  mk = function(seed) as_learner(
+    po("torch_ingress_num") %>>% po("nn_linear", out_features = 4) %>>% po("nn_head") %>>%
+      po("torch_loss", t_loss("cross_entropy")) %>>% po("torch_optimizer", t_opt("adam")) %>>%
+      po("torch_model_classif", batch_size = 50, epochs = 1, seed = seed, predict_type = "prob"))
+  predict_once = function(seed) {
+    l = mk(seed)
+    l$train(tsk("iris"))
+    l$predict(tsk("iris"))$prob
+  }
+
+  a = predict_once(1L)
+  expect_equal(predict_once(1L), a)
+  expect_false(isTRUE(all.equal(predict_once(2L), a)))
+})
+
+test_that("a network passed to LearnerTorchModel directly is not re-initialized", {
+  # only the pipeop path resets, because a hand-built network's weights may be the point
+  task = tsk("mtcars")
+  network = nn_linear(task$n_features, 1)
+  with_no_grad(network$weight$fill_(0.789))
+
+  learner = LearnerTorchModel$new(network = network, task_type = "regr",
+    ingress_tokens = list(input = ingress_num(shape = c(NA, task$n_features))),
+    optimizer = t_opt("adam", lr = 0), loss = t_loss("mse"))
+  learner$param_set$set_values(batch_size = 32, epochs = 1, seed = 1L)
+  learner$train(task)
+
+  expect_equal(unique(as.numeric(learner$model$network$state_dict()[[1L]])), 0.789, tolerance = 1e-6)
+})
