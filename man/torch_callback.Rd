@@ -122,16 +122,27 @@ then wraps this generator in a \code{\link{TorchCallback}} that can be passed to
 \section{Ordering}{
 
 Within a stage, callbacks are called in the order in which they were passed to the learner.
-A callback can override this via its \verb{$weight} field: callbacks with a higher weight are
-called after those with a lower one, and callbacks with the same weight keep the order in
-which they were passed.
+A callback can override this via its \verb{$weight} field: callbacks with a higher weight are called
+after those with a lower one, and callbacks with the same weight keep the order in which they
+were passed.
 
 This matters for callbacks that build on what the others did.
-The built-in callbacks therefore declare the weights below, spaced so that a custom callback
-can be slotted between any two of them.
-The table is generated from the callbacks themselves, so it cannot go stale; the same numbers
-are available programmatically as the \code{weight} column of
-\verb{as.data.table(}\code{\link{mlr3torch_callbacks}}\verb{)}, and printing a \code{\link{TorchCallback}} shows its weight.\tabular{rll}{
+The built-in callbacks therefore declare the weights of section \emph{Callback Weights} below, spaced
+so that a custom callback can be slotted between any two of them.
+The same numbers are available programmatically as the \code{weight} column of
+\verb{as.data.table(}\code{\link{mlr3torch_callbacks}}\verb{)}, and printing a \code{\link{TorchCallback}} shows its weight.
+
+Two callbacks that need to run in a fixed order relative to each other should have different
+weights, as equal ones only keep the order they happen to be passed in.
+
+\code{\link{CallbackSetCheckpoint}} is the one exception to the rule that equal weights keep the order the
+callbacks were passed in: it is always called last within its stage, also when another callback
+has weight \code{Inf} as well.
+Every weight, \code{Inf} included, is otherwise free to use.
+}
+
+\section{Callback Weights}{
+\tabular{rll}{
    weight \tab callback \tab why \cr
    \code{-200} \tab \code{unfreeze} \tab changes which parameters of the network are trained, which the batch that is about to run and everything that inspects or saves the network must already see \cr
    \code{0} \tab \emph{default} \tab custom callbacks, unless they ask for something else \cr
@@ -142,15 +153,6 @@ are available programmatically as the \code{weight} column of
    \code{500} \tab \code{lr_cosine_annealing}, \code{lr_lambda}, \code{lr_multiplicative}, \code{lr_one_cycle}, \code{lr_reduce_on_plateau}, \code{lr_step} \tab stepping the schedule changes the learning rate for the \emph{next} epoch or batch, so it happens after everything that reports on the one that just ran, and before the checkpoint saves the optimizer \cr
    \code{Inf} \tab \code{checkpoint} \tab saves the network, the optimizer and the other callbacks' \verb{$state_dict()}s, so everything that still changes them must have run \cr
 }
-
-
-Two callbacks that need to run in a fixed order relative to each other should have different
-weights, as equal ones only keep the order they happen to be passed in.
-
-\code{\link{CallbackSetCheckpoint}} is the one exception to the rule that equal weights keep the order
-the callbacks were passed in: it is always called last within its stage, also when another
-callback has weight \code{Inf} as well.
-Every weight, \code{Inf} included, is otherwise free to use.
 }
 
 \examples{

@@ -46,7 +46,7 @@
   trigger a fallback learner.
 * The `LearnerTorch`'s `sampler` and `batch_sampler` parameters are now not used
   during prediction.
-* `logical()` features are now encoded as 1-based instead of 1-based.
+* `logical()` features are now encoded as 1-based instead of 0-based.
 * `lazy_tensor` columns are now again printed correctly inside `data.table`s
 * Fixed some links on the pkgdown website and the help pages.
 * Fixed various other shape inference bugs.

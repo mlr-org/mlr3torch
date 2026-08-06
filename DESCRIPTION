@@ -150,7 +150,6 @@ Collate:
     'TorchOptimizer.R'
     'bibentries.R'
     'cache.R'
-    'callback_ordering.R'
     'lazy_tensor.R'
     'learner_torch_methods.R'
     'materialize.R'

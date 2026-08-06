@@ -224,6 +224,17 @@ TorchCallback = R6Class("TorchCallback",
       cb = super$generate()
       if (!is.null(self$weight)) cb$weight = assert_number(self$weight)
       cb
+    },
+    #' @description
+    #' Prints the object.
+    #' @param ... (any)\cr
+    #'   Currently unused.
+    print = function(...) {
+      super$print(...)
+      # the effective weight, which this descriptor may leave to its class and hence not have in
+      # `$weight`
+      catn(str_indent("* Weight:", format(callback_weight(self))))
+      invisible(self)
     }
   ),
   active = list(
@@ -266,6 +277,7 @@ TorchCallback = R6Class("TorchCallback",
 #'
 #' @inheritSection mlr_callback_set Stages
 #' @inheritSection mlr_callback_set Ordering
+#' @inheritSection mlr_callback_set Callback Weights
 #'
 #' @section Internals:
 #' It first creates an `R6` class inheriting from [`CallbackSet`] (using [`callback_set()`]) and

@@ -100,13 +100,13 @@ hands the decision back to the \code{\link{CallbackSet}} class, whose weight is 
   \itemize{
     \item \href{#method-TorchCallback-initialize}{\code{TorchCallback$new()}}
     \item \href{#method-TorchCallback-generate}{\code{TorchCallback$generate()}}
+    \item \href{#method-TorchCallback-print}{\code{TorchCallback$print()}}
     \item \href{#method-TorchCallback-clone}{\code{TorchCallback$clone()}}
   }
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-help'><code>TorchDescriptor$help()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="print"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-print'><code>TorchDescriptor$print()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -164,6 +164,26 @@ weight is a property of the \code{\link{CallbackSet}} class itself.}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{TorchCallback$generate()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchCallback-print"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchCallback-print}{}}}
+\subsection{\code{TorchCallback$print()}}{
+  Prints the object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchCallback$print(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{(any)\cr
+Currently unused.}
+    }
     \if{html}{\out{</div>}}
   }
 }
