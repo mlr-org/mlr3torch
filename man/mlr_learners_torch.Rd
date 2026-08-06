@@ -175,6 +175,13 @@ field of the learner.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
+\item \code{restore_best_weights} :: \code{logical(1)}\cr
+Whether to restore the weights of the best epoch when training ends, instead of keeping those
+of the last epoch that was trained. Is initialized to \code{FALSE}, i.e. the network of the last
+epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
+\verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
+memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
+network as training left it.
 }
 
 \strong{Dataloader}:
