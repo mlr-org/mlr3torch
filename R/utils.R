@@ -10,6 +10,9 @@ auto_device = function(device = NULL) {
     device = if (cuda_is_available()) "cuda" else "cpu"
     lg$debug("Auto-detected device '%s'.", device)
   }
+  if (!is.null(device) && device == "cuda" && !cuda_is_available()) {
+    stopf("Device is set to 'cuda', but no CUDA device is available. Set `device` to 'cpu', or to 'auto' to select automatically.") # nolint
+  }
   return(device)
 }
 

@@ -23,12 +23,15 @@ The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"} or other values
 The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible, then try \code{"mps"} and otherwise
 fall back to \code{"cpu"}.
 \item \code{num_threads} :: \code{integer(1)}\cr
-The number of threads for intraop pararallelization (if \code{device} is \code{"cpu"}).
+The number of threads for intraop parallelization (if \code{device} is \code{"cpu"}).
 This value is initialized to 1.
+When resampling, benchmarking or tuning in parallel, each worker uses this many threads, so
+divide the available cores among the workers instead of setting this to the number of cores.
 \item \code{num_interop_threads} :: \code{integer(1)}\cr
-The number of threads for intraop and interop pararallelization (if \code{device} is \code{"cpu"}).
+The number of threads for interop parallelization (if \code{device} is \code{"cpu"}).
 This value is initialized to 1.
-Note that this can only be set once during a session and changing the value within an R session will raise a warning.
+Note that this can only be set \strong{once} per session, so training a learnerd once already sets this.
+You can work around this via encapsulation, see \code{\link[mlr3:Learner]{mlr3::Learner}}.
 \item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
 The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
@@ -130,7 +133,7 @@ It is ignored when a \code{batch_sampler} is provided.
 The timeout value for collecting a batch from workers.
 Negative values mean no timeout and the default is \code{-1}.
 \item \code{worker_init_fn} :: \verb{function(id)}\cr
-A function that receives the worker id (in \verb{[1, num_workers]}) and is exectued after seeding
+A function that receives the worker id (in \verb{[1, num_workers]}) and is executed after seeding
 on the worker but before data loading.
 \item \code{worker_globals} :: \code{list()} | \code{character()}\cr
 When loading data in parallel, this allows to export globals to the workers.
@@ -140,7 +143,7 @@ are copied to the workers.
 Which packages to load on the workers.
 }
 
-Also see \code{torch::dataloder} for more information.
+Also see \code{torch::dataloader} for more information.
 }
 
 \section{Input and Output Channels}{
