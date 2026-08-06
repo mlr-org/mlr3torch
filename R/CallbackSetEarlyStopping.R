@@ -2,6 +2,12 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
   inherit = CallbackSet,
   lock_objects = FALSE,
   public = list(
+    # 100, so that it decides on the validation scores as a custom callback left them -- they can
+    # be changed in `$on_valid_end()`, which is the stage this callback acts in -- and so that the
+    # callbacks reporting on the epoch already see in `ctx$terminate` whether it is the last one.
+    # This callback is not in `mlr3torch_callbacks` but created by the learner from its `patience`
+    # and `min_delta` parameters, so there is no registration to declare the weight at.
+    weight = 100,
     initialize = function(patience, min_delta) {
       self$patience = assert_int(patience, lower = 1L)
       self$min_delta = assert_double(min_delta, lower = 0, len = 1L, any.missing = FALSE)

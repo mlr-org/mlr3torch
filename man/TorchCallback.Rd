@@ -89,7 +89,9 @@ Other Torch Descriptor:
   \if{html}{\out{<div class="r6-active-bindings">}}
   \describe{
     \item{\code{weight}}{(\code{numeric(1)} or \code{NULL})\cr
-Overwrites the \verb{$weight} of the generated \code{\link{CallbackSet}}, see its section \emph{Ordering}.}
+Overwrites the \verb{$weight} of the generated \code{\link{CallbackSet}}, see its section \emph{Ordering}.
+Setting it to \code{NULL} does not restore the weight of a \code{\link{mlr3torch_callbacks}} entry but
+hands the decision back to the \code{\link{CallbackSet}} class, whose weight is usually the default.}
   }
   \if{html}{\out{</div>}}
 }
@@ -146,7 +148,9 @@ The referenced help package can be opened via method \verb{$help()}.}
 Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.}
       \item{\code{weight}}{(\code{numeric(1)} or \code{NULL})\cr
 Overwrites the \verb{$weight} of the generated \code{\link{CallbackSet}}, see its section \emph{Ordering}.
-If \code{NULL} (default), the callback's own weight is kept.}
+If \code{NULL} (default), the callback's own weight is kept.
+This is where a callback in \code{\link{mlr3torch_callbacks}} declares when it is called, unless its
+weight is a property of the \code{\link{CallbackSet}} class itself.}
     }
     \if{html}{\out{</div>}}
   }

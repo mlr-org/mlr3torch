@@ -116,13 +116,17 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 
 train_loop = function(ctx, cbs) {
   # callbacks are called in the order they were passed, unless they request otherwise via their
-  # weight. CallbackSetCheckpoint has weight Inf so that it saves the network and optimizer as the
-  # other callbacks left them at the end of the stage.
-  # order() breaks ties by the second argument, which keeps the order the callbacks were passed in.
+  # weight, see the section 'Ordering' of CallbackSet.
   weights = map_dbl(seq_along(cbs), function(i) {
     assert_number(cbs[[i]]$weight, .var.name = sprintf("weight of callback '%s'", names(cbs)[[i]] %??% i))
   })
-  cbs = cbs[order(weights, seq_along(cbs))]
+  # CallbackSetCheckpoint saves the network, the optimizer and the state dicts of the other
+  # callbacks, so it must run after everything that still changes them. Its weight Inf alone does
+  # not achieve that, because a callback with weight Inf that was passed earlier would tie with it
+  # and hence keep running first; sorting checkpoints last within a weight closes that gap.
+  is_checkpoint = map_lgl(cbs, is_checkpoint_callback)
+  # order() breaks ties by the next argument, so the last one keeps the order they were passed in.
+  cbs = cbs[order(weights, is_checkpoint, seq_along(cbs))]
 
   # callbacks such as CallbackSetCheckpoint need access to the other callbacks to save their states,
   # in the order they are called in
@@ -243,6 +247,16 @@ train_loop = function(ctx, cbs) {
     epochs                = ctx$epoch,
     callbacks             = callback_states
   )
+}
+
+# Whether `cb` is a checkpoint callback, either as a TorchCallback descriptor (as in
+# `learner$callbacks`) or as the CallbackSet it generates (as in `ctx$callbacks`).
+is_checkpoint_callback = function(cb) {
+  if (inherits(cb, "TorchCallback")) {
+    identical(cb$generator, CallbackSetCheckpoint)
+  } else {
+    inherits(cb, "CallbackSetCheckpoint")
+  }
 }
 
 eval_train_in_epoch = function(ctx) {

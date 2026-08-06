@@ -197,6 +197,8 @@ TorchCallback = R6Class("TorchCallback",
     #' @param weight (`numeric(1)` or `NULL`)\cr
     #'   Overwrites the `$weight` of the generated [`CallbackSet`], see its section *Ordering*.
     #'   If `NULL` (default), the callback's own weight is kept.
+    #'   This is where a callback in [`mlr3torch_callbacks`] declares when it is called, unless its
+    #'   weight is a property of the [`CallbackSet`] class itself.
     initialize = function(callback_generator, param_set = NULL, id = NULL,
       label = NULL, packages = NULL, man = NULL, additional_args = NULL, weight = NULL) {
       assert_class(callback_generator, "R6ClassGenerator")
@@ -227,6 +229,8 @@ TorchCallback = R6Class("TorchCallback",
   active = list(
     #' @field weight (`numeric(1)` or `NULL`)\cr
     #'   Overwrites the `$weight` of the generated [`CallbackSet`], see its section *Ordering*.
+    #'   Setting it to `NULL` does not restore the weight of a [`mlr3torch_callbacks`] entry but
+    #'   hands the decision back to the [`CallbackSet`] class, whose weight is usually the default.
     weight = function(rhs) {
       if (!missing(rhs)) private$.weight = assert_number(rhs, null.ok = TRUE)
       private$.weight

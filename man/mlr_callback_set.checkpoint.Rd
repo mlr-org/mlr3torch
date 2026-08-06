@@ -59,8 +59,13 @@ Other Callback:
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
     \item{\code{weight}}{(\code{numeric(1)})\cr
-\code{Inf}, so that this callback runs after all others and hence saves the network and
-optimizer as they are at the end of the stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.}
+\code{Inf}, so that this callback runs after all others and hence saves the network, the
+optimizer and the other callbacks' states as they are at the end of the stage, see section
+\emph{Ordering} of \code{\link{CallbackSet}}.
+A callback that also has weight \code{Inf} still runs before this one.
+The weight is declared here rather than in \code{\link{mlr3torch_callbacks}}, because saving a state
+that other callbacks may still change is not a checkpoint, i.e. this is a property of the
+class and not a default that this dictionary entry picked.}
   }
   \if{html}{\out{</div>}}
 }

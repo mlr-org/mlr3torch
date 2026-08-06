@@ -27,6 +27,13 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   inherit = CallbackSet,
   lock_objects = FALSE,
   public = list(
+    #' @field weight (`numeric(1)`)\cr
+    #'   `500`, so that the schedule steps after the callbacks that report on the epoch that just
+    #'   ran -- they see the learning rate this epoch was trained with -- and before the checkpoint
+    #'   callback saves the optimizer, see section *Ordering* of [`CallbackSet`].
+    #'   Every learning rate scheduler inherits this, including those created via
+    #'   [`as_lr_scheduler()`].
+    weight = 500,
     #' @field scheduler_fn (`lr_scheduler_generator`)\cr
     #' The `torch` function that creates a learning rate scheduler
     scheduler_fn = NULL,

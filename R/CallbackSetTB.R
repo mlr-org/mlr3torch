@@ -81,6 +81,8 @@ mlr3torch_callbacks$add("tb", function() {
     id = "tb",
     packages = "tfevents",
     label = "TensorBoard",
-    man = "mlr3torch::mlr_callback_set.tb"
+    man = "mlr3torch::mlr_callback_set.tb",
+    # logs the scores of the epoch that just ran, like the history callback, but to disk
+    weight = 300
   )
 })

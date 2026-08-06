@@ -102,9 +102,13 @@ test_that("weight influences the phash", {
   afterwards$weight = 1
   expect_equal(at_construction$phash, afterwards$phash)
 
-  # and clearing it again is not a one-way trip
-  heavy$weight = NULL
+  # and setting it back to what the dictionary entry declares is not a one-way trip
+  heavy$weight = light$weight
   expect_equal(light$phash, heavy$phash)
+
+  # NULL is not that value, it hands the decision back to the CallbackSet class
+  afterwards$weight = NULL
+  expect_equal(afterwards$generate()$weight, CallbackSetHistory$new()$weight)
 })
 
 test_that("weight reaches the hash of a learner using the callback", {
@@ -162,11 +166,93 @@ test_that("weight overrides the order within a stage", {
     c("CallbackSetA", "CallbackSetB"))
 })
 
-test_that("the checkpoint callback runs last", {
-  # it has weight Inf, so it saves the network as the other callbacks left it
-  cb = t_clbk("checkpoint", freq = 1, path = tempfile())$generate()
-  expect_equal(cb$weight, Inf)
+test_that("the built-in callbacks have the documented weights", {
+  # the table in the 'Ordering' section of CallbackSet
   expect_equal(CallbackSet$new()$weight, 0)
+  expect_equal(t_clbk("unfreeze")$weight, -200)
+  expect_equal(CallbackSetEarlyStopping$new(patience = 1L, min_delta = 0)$weight, 100)
+  expect_equal(t_clbk("history")$weight, 200)
+  expect_equal(t_clbk("tb")$weight, 300)
+  expect_equal(t_clbk("progress")$weight, 400)
+  expect_equal(t_clbk("checkpoint", freq = 1, path = tempfile())$generate()$weight, Inf)
+
+  # the schedulers declare it on their base class, so every one of them has it, also the subclasses
+  # and the ones a user creates from a torch scheduler
+  expect_equal(t_clbk("lr_step", step_size = 1)$generate()$weight, 500)
+  expect_equal(t_clbk("lr_one_cycle", max_lr = 0.1)$generate()$weight, 500)
+  expect_equal(t_clbk("lr_reduce_on_plateau")$generate()$weight, 500)
+  expect_equal(as_lr_scheduler(torch::lr_step, step_on_epoch = TRUE)$generate()$weight, 500)
+})
+
+test_that("the built-in callbacks are called in the documented order", {
+  seen = new.env()
+  # ctx$callbacks is the callbacks in the order they are called in
+  spy = torch_callback("spy", on_epoch_end = function() seen$order = names(self$ctx$callbacks))
+
+  learner = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+    validate = 0.3, measures_valid = msr("classif.ce"), patience = 1L,
+    callbacks = list(
+      # deliberately not in the order they should be called in
+      t_clbk("lr_step", step_size = 1),
+      t_clbk("checkpoint", freq = 1, path = tempfile()),
+      t_clbk("history"),
+      spy,
+      t_clbk("progress"),
+      t_clbk("unfreeze", starting_weights = select_all(), unfreeze = data.table())
+    )
+  )
+  capture.output(capture.output(learner$train(tsk("iris")), type = "message"))
+
+  expect_equal(seen$order,
+    c("unfreeze", "spy", "early_stopping", "history", "progress", "lr_step", "checkpoint"))
+})
+
+test_that("early stopping decides on the validation scores as the custom callbacks left them", {
+  # $on_valid_end() is the stage early stopping acts in, so a callback changing the scores there
+  # has to run first for its change to be seen
+  cheat = torch_callback("cheat",
+    on_valid_end = function() self$ctx$last_scores_valid[[1L]] = self$ctx$epoch)
+
+  learner = lrn("classif.mlp", epochs = 10L, batch_size = 50, neurons = 10, validate = 0.3,
+    measures_valid = msr("classif.ce"), patience = 1L, callbacks = cheat)
+  learner$train(tsk("iris"))
+
+  # classif.ce is minimized and the callback makes it worse every epoch, so training stops at once
+  expect_equal(learner$internal_tuned_values$epochs, 1L)
+})
+
+test_that("the lr scheduler steps after the callbacks that report on the epoch", {
+  seen = new.env()
+  spy = torch_callback("spy",
+    on_epoch_end = function() seen$lr = c(seen$lr, self$ctx$optimizer$param_groups[[1L]]$lr))
+
+  lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, opt.lr = 0.1,
+    callbacks = list(t_clbk("lr_step", step_size = 1, gamma = 0.1), spy))$train(tsk("iris"))
+
+  # the learning rate the epoch was trained with, not the one the scheduler stepped to afterwards
+  expect_equal(seen$lr, c(0.1, 0.01))
+})
+
+test_that("the checkpoint callback runs last, also when another callback has weight Inf", {
+  # equal weights otherwise keep the order the callbacks were passed in, which would let this
+  # callback change the network after the checkpoint had already saved it
+  greedy = torch_callback("greedy", weight = Inf,
+    on_epoch_end = function() {
+      torch::with_no_grad(self$ctx$network$parameters[[1L]]$mul_(0))
+    }
+  )
+
+  # the checkpoint holds the zeroed network, i.e. it was written after `greedy` ran
+  run = function(callbacks) {
+    path = tempfile()
+    lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+      callbacks = callbacks(path))$train(tsk("iris"))
+    as.numeric(torch_load(file.path(path, "network1.pt"))[[1L]]$flatten())
+  }
+  cp = function(path) t_clbk("checkpoint", freq = 1, path = path)
+
+  expect_true(all(run(function(path) list(cp(path), greedy)) == 0))
+  expect_true(all(run(function(path) list(greedy, cp(path))) == 0))
 })
 
 test_that("weight is validated", {

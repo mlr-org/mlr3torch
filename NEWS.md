@@ -27,6 +27,10 @@
 * `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
   of the training run.
 * `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage.
+* The built-in callbacks now declare weights, so that within a stage they run in the order their
+  data dependencies require: `unfreeze` (`-200`), custom callbacks (`0`), early stopping (`100`),
+  `history` (`200`), `tb` (`300`), `progress` (`400`), the `lr_*` schedulers (`500`) and
+  `checkpoint` (`Inf`), which is always called last, also when another callback has weight `Inf`.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
 
 ## Bug fixes

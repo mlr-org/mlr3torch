@@ -51,6 +51,8 @@ A callback that has to observe what the others did -- like `t_clbk("checkpoint")
 network and the optimizer as the other callbacks left them -- can override this through its
 `$weight`: a higher weight is called later, and callbacks with the same weight keep the order they
 were passed in.
+The default weight is `0`; the weights the built-in callbacks use are listed in the *Ordering*
+section of `CallbackSet`.
 
 For the history callback, we see that it runs code at the beginning, before validation starts, and at the end of an epoch.
 

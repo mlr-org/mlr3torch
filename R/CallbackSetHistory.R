@@ -101,6 +101,9 @@ mlr3torch_callbacks$add("history", function() {
     param_set = ps(),
     id = "history",
     label = "History",
-    man = "mlr3torch::mlr_callback_set.history"
+    man = "mlr3torch::mlr_callback_set.history",
+    # records the scores of the epoch that just ran, so it is called after the callbacks that
+    # produce or change them and before those that change the state of the next epoch
+    weight = 200
   )
 })

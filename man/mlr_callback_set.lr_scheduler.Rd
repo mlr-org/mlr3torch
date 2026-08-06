@@ -24,6 +24,13 @@ As of this writing, the following are available:
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
+    \item{\code{weight}}{(\code{numeric(1)})\cr
+\code{500}, so that the schedule steps after the callbacks that report on the epoch that just
+ran -- they see the learning rate this epoch was trained with -- and before the checkpoint
+callback saves the optimizer, see section \emph{Ordering} of \code{\link{CallbackSet}}.
+Every learning rate scheduler inherits this, including those created via
+\code{\link[=as_lr_scheduler]{as_lr_scheduler()}}.}
+
     \item{\code{scheduler_fn}}{(\code{lr_scheduler_generator})\cr
 The \code{torch} function that creates a learning rate scheduler}
 

@@ -140,7 +140,10 @@ mlr3torch_callbacks$add("unfreeze", function() {
     ),
     id = "unfreeze",
     label = "Unfreeze",
-    man = "mlr3torch::mlr_callback_set.unfreeze"
+    man = "mlr3torch::mlr_callback_set.unfreeze",
+    # changes which parameters of the network are trained, which the batch about to run and every
+    # callback that looks at or saves the network must already see
+    weight = -200
   )
 })
 

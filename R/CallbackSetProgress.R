@@ -101,6 +101,8 @@ mlr3torch_callbacks$add("progress", function() {
     id = "progress",
     label = "Progress",
     man = "mlr3torch::mlr_callback_set.progress",
-    packages = "progress"
+    packages = "progress",
+    # its summary closes the epoch, so it is printed after what the other callbacks have to say
+    weight = 400
   )
 })
