@@ -85,6 +85,14 @@
 * `nn("reshape")` with a `function(shape)` target now resolves a `-1` whenever the number of elements
   per observation is known, i.e. when the batch dimension is the only unknown one.
 * Fixed various other shape inference bugs.
+* Setting `device = "cuda"` when no CUDA device is available now fails with a one-line message
+  instead of a roughly 60 frame C++ backtrace from libtorch, which previously ended up in
+  `rr$errors` and made the actual cause hard to see.
+* The `weight_decay` and `eps` parameters of the predefined optimizers no longer carry upper bounds
+  of `1` and `1e-4`. `torch` only rejects negative values, so these blocked legitimate tuning
+  ranges. Negative values are still rejected.
+* Documented that `num_interop_threads` can only be set once per session and that training any
+  learner already consumes that one chance, and fixed several typos in the parameter documentation.
 
 # mlr3torch 0.3.3
 
