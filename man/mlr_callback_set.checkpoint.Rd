@@ -59,8 +59,10 @@ Other Callback:
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
     \item{\code{weight}}{(\code{numeric(1)})\cr
-\code{Inf}, so that this callback runs after all others and hence saves the network and
-optimizer as they are at the end of the stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.}
+\code{Inf}, so that this callback runs after the other callbacks and hence saves the network and
+optimizer as they are at the end of the stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.
+The only exception is the restore of \code{restore_best_weights}, which happens afterwards, so
+a checkpoint always holds the network as training left it.}
   }
   \if{html}{\out{</div>}}
 }
