@@ -120,16 +120,15 @@ train_loop = function(ctx, cbs) {
   weights = map_dbl(seq_along(cbs), function(i) {
     assert_number(cbs[[i]]$weight, .var.name = sprintf("weight of callback '%s'", names(cbs)[[i]] %??% i))
   })
-  # CallbackSetCheckpoint saves the network, the optimizer and the state dicts of the other
-  # callbacks, so it must run after everything that still changes them. Its weight Inf alone does
+  # CallbackSetCheckpoint saves the network and the optimizer, so it must run after everything
+  # that still changes them. Its weight Inf alone does
   # not achieve that, because a callback with weight Inf that was passed earlier would tie with it
   # and hence keep running first; sorting checkpoints last within a weight closes that gap.
   is_checkpoint = map_lgl(cbs, is_checkpoint_callback)
   # order() breaks ties by the next argument, so the last one keeps the order they were passed in.
   cbs = cbs[order(weights, is_checkpoint, seq_along(cbs))]
 
-  # callbacks such as CallbackSetCheckpoint need access to the other callbacks to save their states,
-  # in the order they are called in
+  # so that a callback can reach the others, in the order they are called in
   ctx$callbacks = cbs
 
   call = function(step_name) {

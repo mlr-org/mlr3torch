@@ -79,12 +79,12 @@ Every weight, \code{Inf} included, is otherwise free to use.
    weight \tab callback \tab why \cr
    \code{-200} \tab \code{unfreeze} \tab changes which parameters of the network are trained, which the batch that is about to run and everything that inspects or saves the network must already see \cr
    \code{0} \tab \emph{default} \tab custom callbacks, unless they ask for something else \cr
-   \code{100} \tab early stopping (the learner's \code{patience}) \tab decides on \code{ctx$last_scores_valid}, which a custom callback can still change in the same stage, and sets \code{ctx$terminate} before the callbacks that report on the epoch run \cr
+   \code{100} \tab early stopping (the learner's \code{patience}) \tab decides on \code{ctx$last_scores_valid}, which a custom callback can still change in the same stage \cr
    \code{200} \tab \code{history} \tab records \code{ctx$last_scores_train} and \code{ctx$last_scores_valid} of the epoch that just ran \cr
    \code{300} \tab \code{tb} \tab logs the same scores to disk \cr
    \code{400} \tab \code{progress} \tab its summary closes the epoch, so it is printed after what the other callbacks have to say \cr
-   \code{500} \tab \code{lr_cosine_annealing}, \code{lr_lambda}, \code{lr_multiplicative}, \code{lr_one_cycle}, \code{lr_reduce_on_plateau}, \code{lr_step} \tab stepping the schedule changes the learning rate for the \emph{next} epoch or batch, so it happens after everything that reports on the one that just ran, and before the checkpoint saves the optimizer \cr
-   \code{Inf} \tab \code{checkpoint} \tab saves the network, the optimizer and the other callbacks' \verb{$state_dict()}s, so everything that still changes them must have run \cr
+   \code{500} \tab \code{lr_cosine_annealing}, \code{lr_lambda}, \code{lr_multiplicative}, \code{lr_one_cycle}, \code{lr_reduce_on_plateau}, \code{lr_step} \tab stepping the schedule changes the learning rate for the \emph{next} epoch or batch, so it happens after everything that reports on the one that just ran. Note that the weight applies to every stage, so the scheduler is also \emph{created} late in \code{on_begin}, and a callback running before it there sees the learning rate the optimizer was built with \cr
+   \code{Inf} \tab \code{checkpoint} \tab saves the network and the optimizer, so everything that still changes them must have run \cr
 }
 }
 

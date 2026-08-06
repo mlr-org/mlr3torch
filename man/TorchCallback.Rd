@@ -88,10 +88,10 @@ Other Torch Descriptor:
 \section{Active bindings}{
   \if{html}{\out{<div class="r6-active-bindings">}}
   \describe{
-    \item{\code{weight}}{(\code{numeric(1)} or \code{NULL})\cr
-Overwrites the \verb{$weight} of the generated \code{\link{CallbackSet}}, see its section \emph{Ordering}.
-Setting it to \code{NULL} does not restore the weight of a \code{\link{mlr3torch_callbacks}} entry but
-hands the decision back to the \code{\link{CallbackSet}} class, whose weight is usually the default.}
+    \item{\code{weight}}{(\code{numeric(1)})\cr
+The weight the generated \code{\link{CallbackSet}} will have, see its section \emph{Ordering}.
+Assigning a number overrides what the \code{\link{CallbackSet}} class declares; assigning \code{NULL}
+hands the decision back to it.}
   }
   \if{html}{\out{</div>}}
 }

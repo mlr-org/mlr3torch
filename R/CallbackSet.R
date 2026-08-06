@@ -270,12 +270,12 @@ callback_set = function(
 callback_weight_reasons = list(
   "-200" = "changes which parameters of the network are trained, which the batch that is about to run and everything that inspects or saves the network must already see", # nolint
   "0" = "custom callbacks, unless they ask for something else",
-  "100" = "decides on `ctx$last_scores_valid`, which a custom callback can still change in the same stage, and sets `ctx$terminate` before the callbacks that report on the epoch run", # nolint
+  "100" = "decides on `ctx$last_scores_valid`, which a custom callback can still change in the same stage", # nolint
   "200" = "records `ctx$last_scores_train` and `ctx$last_scores_valid` of the epoch that just ran",
   "300" = "logs the same scores to disk",
   "400" = "its summary closes the epoch, so it is printed after what the other callbacks have to say", # nolint
-  "500" = "stepping the schedule changes the learning rate for the *next* epoch or batch, so it happens after everything that reports on the one that just ran, and before the checkpoint saves the optimizer", # nolint
-  "Inf" = "saves the network, the optimizer and the other callbacks' `$state_dict()`s, so everything that still changes them must have run" # nolint
+  "500" = "stepping the schedule changes the learning rate for the *next* epoch or batch, so it happens after everything that reports on the one that just ran. Note that the weight applies to every stage, so the scheduler is also *created* late in `on_begin`, and a callback running before it there sees the learning rate the optimizer was built with", # nolint
+  "Inf" = "saves the network and the optimizer, so everything that still changes them must have run" # nolint
 )
 
 # The callbacks that declare a weight, grouped by it. `mlr3torch_callbacks` covers the ones with a

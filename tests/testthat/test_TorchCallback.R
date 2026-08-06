@@ -120,16 +120,20 @@ test_that("the dictionary reports the effective weight of each callback", {
   expect_numeric(tbl$weight, any.missing = FALSE)
 
   # the weight the generated CallbackSet ends up with, also when the class rather than the
-  # dictionary entry declares it -- `$weight` of the descriptor is NULL for those
-  expect_null(t_clbk("checkpoint")$weight)
+  # dictionary entry declares it
+  expect_equal(t_clbk("checkpoint")$weight, Inf)
   expect_equal(tbl[list("checkpoint"), "weight", on = "key"][[1L]], Inf)
   expect_equal(tbl[list("lr_step"), "weight", on = "key"][[1L]], 500)
   # and the value the dictionary entry set, which the descriptor does carry
   expect_equal(t_clbk("history")$weight, 200)
   expect_equal(tbl[list("history"), "weight", on = "key"][[1L]], 200)
 
-  # an override on the descriptor wins over the class
-  cb = t_clbk("checkpoint")
+  # an override on the descriptor wins over the class, and NULL hands the decision back to it
+  cb = t_clbk("checkpoint", path = tempfile(), freq = 1)
   cb$weight = 1
-  expect_equal(callback_weight(cb), 1)
+  expect_equal(cb$weight, 1)
+  expect_equal(cb$generate()$weight, 1)
+  cb$weight = NULL
+  expect_equal(cb$weight, Inf)
+  expect_equal(cb$generate()$weight, Inf)
 })

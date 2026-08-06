@@ -42,9 +42,8 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   # TODO: This should also save the learner itself
   public = list(
     #' @field weight (`numeric(1)`)\cr
-    #'   `Inf`, so that this callback runs after all others and hence saves the network, the
-    #'   optimizer and the other callbacks' states as they are at the end of the stage, see section
-    #'   *Ordering* of [`CallbackSet`].
+    #'   `Inf`, so that this callback runs after all others and hence saves the network and the
+    #'   optimizer as they are at the end of the stage, see section *Ordering* of [`CallbackSet`].
     #'   A callback that also has weight `Inf` still runs before this one.
     #'   The weight is declared here rather than in [`mlr3torch_callbacks`], because saving a state
     #'   that other callbacks may still change is not a checkpoint, i.e. this is a property of the

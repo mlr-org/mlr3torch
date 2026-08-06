@@ -274,7 +274,7 @@ test_that("the documented ordering table is generated from the callbacks", {
   # would resolve to the `name` column rather than to the argument
   weight_of = function(pattern) tbl$weight[grepl(pattern, tbl$name, fixed = TRUE)]
 
-  expect_equal(weight_of("`checkpoint`"), CallbackSetCheckpoint$public_fields$weight)
+  expect_equal(weight_of("`checkpoint`"), t_clbk("checkpoint")$weight)
   expect_equal(weight_of("`history`"), t_clbk("history")$weight)
   expect_equal(weight_of("early stopping"), CallbackSetEarlyStopping$public_fields$weight)
   # every weight has a reason, so adding a level forces one to be written
