@@ -1214,3 +1214,31 @@ test_that("sampler and batch_sampler are checked", {
   expect_error(learner$param_set$set_values(sampler = sampler(1)), "torch_sampler")
   learner$param_set$set_values(sampler = sampler)
 })
+
+test_that("resample() returns the learners in iteration order", {
+  # `Learner$hash` digests `param_set$values` as a whole. Without `hash_input.list()` the `nn_module`
+  # in `activation` is serialized together with its environment, which torch mutates when the module
+  # is first instantiated, so the iterations recorded different hashes and `ResultData$learners()`
+  # -- which merges on `learner_hash` with `sort = TRUE` -- returned them in hash order.
+  task = tsk("iris")
+  set.seed(1)
+  rr = resample(task, lrn("classif.mlp", epochs = 1, batch_size = 32, neurons = 5,
+    device = "cpu", predict_type = "prob"), rsmp("cv", folds = 3), store_models = TRUE)
+
+  for (i in 1:3) {
+    expect_equal(
+      rr$learners[[i]]$predict(task, rr$resampling$test_set(i))$prob,
+      rr$predictions()[[i]]$prob
+    )
+  }
+})
+
+test_that("hash_input() recurses into lists so that nn_modules hash stably", {
+  expect_equal(hash_input(list(a = nn_relu, b = 1)), list(a = hash_input(nn_relu), b = 1))
+  # training instantiates the module, which mutates its environment but must not change the hash
+  l = lrn("classif.mlp", epochs = 1, batch_size = 32, neurons = 5)
+  before = l$hash
+  l$clone(deep = TRUE)$train(tsk("iris"))
+  expect_equal(l$hash, before)
+  expect_equal(l$clone(deep = TRUE)$hash, before)
+})

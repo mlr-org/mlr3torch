@@ -52,6 +52,8 @@
 * `logical()` features are now encoded as 1-based instead of 1-based.
 * `lazy_tensor` columns are now again printed correctly inside `data.table`s
 * Fixed some links on the pkgdown website and the help pages.
+* `nn("reshape")` with a `function(shape)` target now resolves a `-1` whenever the number of elements
+  per observation is known, i.e. when the batch dimension is the only unknown one.
 * Fixed various other shape inference bugs.
 * `po("torch_model_{regr, classif}")` now resets the parameters of the network
   at the beginning of `$train()` when the network is built from `PipeOpTorch` objects,

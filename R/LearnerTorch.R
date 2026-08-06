@@ -737,6 +737,32 @@ unmarshal_model.LearnerTorch = function(model, inplace = FALSE, ...) {
 
 #' @keywords internal
 #' @export
+hash_input.list = function(x, ...) {
+  # `mlr3misc::hash_input()` has no `list` method, so `calculate_hash()` passes a plain list straight
+  # to `digest()`. That serializes every element as-is, including closures *together with their
+  # environments*, which is not stable: a `Learner`'s `param_set$values` holding an `nn_module`
+  # changes its serialization as soon as the module is instantiated, so two `identical()` learners
+  # hash differently. Recursing makes the element-wise methods -- notably `hash_input.nn_module()`
+  # below -- reachable, which is what they were written for.
+  map(x, hash_input)
+}
+
+#' @keywords internal
+#' @export
 hash_input.nn_module = function(x) {
-  data.table::address(x)
+  # This used to be `data.table::address(x)`, which is not stable across copies: two `identical()`
+  # learners then hashed differently, and because `ResultData$learners()` merges on `learner_hash`
+  # with `sort = TRUE`, `resample(..., store_models = TRUE)$learners[[i]]` returned the model of
+  # some other iteration.
+  #
+  # The default `hash_input.function()` is not usable either: `torch::nn_module()` returns a closure
+  # whose body is the same wrapper for every module, so all generators would hash equal.
+  # `attr(x, "module")` is the underlying `R6ClassGenerator` -- present on generators and on
+  # instances alike -- and its public methods are the module's actual `initialize`/`forward`.
+  # Together with the class this is stable across copies and distinguishes modules that share a
+  # class name, as well as anonymous ones (`nn_module()` without a `classname`), which all have
+  # class `c("nn_module", "nn_module_generator")`.
+  generator = attr(x, "module")
+  methods = if (inherits(generator, "R6ClassGenerator")) generator$public_methods
+  list(class(x), map(methods, hash_input))
 }
