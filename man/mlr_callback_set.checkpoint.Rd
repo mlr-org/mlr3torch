@@ -86,6 +86,7 @@ optimizer as they are at the end of the stage, see section \emph{Ordering} of \c
 \subsection{Public methods}{
   \itemize{
     \item \href{#method-CallbackSetCheckpoint-initialize}{\code{CallbackSetCheckpoint$new()}}
+    \item \href{#method-CallbackSetCheckpoint-on_begin}{\code{CallbackSetCheckpoint$on_begin()}}
     \item \href{#method-CallbackSetCheckpoint-on_epoch_end}{\code{CallbackSetCheckpoint$on_epoch_end()}}
     \item \href{#method-CallbackSetCheckpoint-on_end}{\code{CallbackSetCheckpoint$on_end()}}
     \item \href{#method-CallbackSetCheckpoint-clone}{\code{CallbackSetCheckpoint$clone()}}
@@ -116,6 +117,18 @@ The path to a folder where the models are saved.}
       \item{\code{freq}}{(\code{integer(1)})\cr
 How often the model is saved, in epochs.}
     }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_begin"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_begin}{}}}
+\subsection{\code{CallbackSetCheckpoint$on_begin()}}{
+  Refuses to start when this run would write over the checkpoint of another run.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetCheckpoint$on_begin()}
     \if{html}{\out{</div>}}
   }
 }

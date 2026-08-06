@@ -185,9 +185,9 @@ test_that("the checkpoint of another run is never overwritten", {
 
   second = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
     callbacks = t_clbk("checkpoint", freq = 1, path = path))
-  expect_error(second$train(task), "Checkpoint of epoch 1 already exists")
+  expect_error(second$train(task), "were written by another run")
 
-  # the earlier run's checkpoint is still the one on disk
+  # refused before the first epoch, so the earlier run's checkpoint is untouched
   after = as.numeric(torch_load(file.path(path, "network1.pt"))[[1L]]$flatten())
   expect_equal(after, before)
   expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt", "state1.rds"))

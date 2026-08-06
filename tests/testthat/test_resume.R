@@ -203,3 +203,85 @@ test_that("stateless callbacks do not interfere with resuming", {
   expect_no_warning(resumed$train(tsk("iris")))
   expect_equal(resumed$model$epochs, 4L)
 })
+
+test_that("early stopping still fires in a resumed run", {
+  # `stagnation` is restored, so it can start at or above `patience`. An equality test would step
+  # over the trigger and never match again, letting the resumed run use its whole epoch budget.
+  task = tsk("iris")
+  task$internal_valid_task = 1:30
+  path = tempfile()
+  make = function(epochs, ...) {
+    lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10, seed = 1,
+      patience = 2L, min_delta = 0, validate = "predefined", measures_valid = msr("classif.ce"),
+      opt.lr = 0, ...)
+  }
+
+  # opt.lr = 0 means the score can never improve, so the first run stops as soon as it can
+  first = make(20L, callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  first$train(task)
+  expect_equal(first$model$epochs, 3L)
+  expect_equal(first$model$callbacks$early_stopping$stagnation, 2L)
+
+  resumed = make(20L, path = path)
+  resumed$train(task)
+  # it cannot improve either, so it stops at its first validated epoch rather than running to 20
+  expect_equal(resumed$model$epochs, 4L)
+})
+
+test_that("the history stays ordered by epoch across resumes", {
+  path = tempfile()
+  make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("history")),
+    measures_train = msrs("classif.acc"))
+
+  resumed = resumer(4L, path, callbacks = t_clbk("history"), measures_train = msrs("classif.acc"))
+  resumed$train(tsk("iris"))
+  expect_equal(resumed$model$callbacks$history$epoch, 1:4)
+})
+
+test_that("resuming a checkpoint written by another mlr3torch version warns", {
+  path = tempfile()
+  make_checkpoint(epochs = 2L, path = path)
+  file = file.path(path, "state2.rds")
+  state = readRDS(file)
+  state$version = "0.0.1"
+  saveRDS(state, file)
+
+  resumed = resumer(4L, path)
+  expect_warning(resumed$train(tsk("iris")), "written by mlr3torch 0.0.1")
+})
+
+test_that("re-running a finished script is a no-op, whatever `freq` is", {
+  # `epochs` is the total, so running the same script again resumes a checkpoint that is already
+  # there and trains nothing. It must not try to rewrite that checkpoint.
+  task = tsk("iris")
+  walk(c(1L, 2L, 3L), function(freq) {
+    path = tempfile()
+    make = function() {
+      lrn("classif.mlp", epochs = 5L, batch_size = 50, neurons = 10, path = TRUE,
+        callbacks = t_clbk("checkpoint", freq = freq, path = path))
+    }
+    make()$train(task)
+    before = list.files(path)
+
+    again = make()
+    expect_warning(again$train(task), "No further epochs are trained")
+    expect_equal(again$model$epochs, 5L)
+    expect_set_equal(list.files(path), before)
+  })
+})
+
+test_that("an incomplete checkpoint does not make its folder unusable", {
+  # a checkpoint that is too incomplete to resume from must also be one that may be written over,
+  # otherwise the folder is stuck: every attempt resumes from an earlier epoch and then collides
+  task = tsk("iris")
+  path = tempfile()
+  first = lrn("classif.mlp", epochs = 6L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  first$train(task)
+  file.remove(file.path(path, "optimizer6.pt"))
+
+  resumed = lrn("classif.mlp", epochs = 8L, batch_size = 50, neurons = 10, path = path,
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  expect_warning(resumed$train(task), "Ignoring incomplete checkpoint\\(s\\) 6")
+  expect_equal(resumed$model$epochs, 8L)
+})

@@ -270,7 +270,7 @@ resume_training = function(ctx, resume_path) {
   ctx$network$load_state_dict(torch_load(checkpoint$network))
   ctx$optimizer$load_state_dict(torch_load(checkpoint$optimizer))
 
-  state = readRDS(checkpoint$state)
+  state = read_checkpoint_state(checkpoint$state)
   load_callback_states(ctx$callbacks, state$callbacks)
 
   epochs_trained = checkpoint$epoch
@@ -305,7 +305,10 @@ checkpoint_callback_path = function(cbs) {
   cbs[[1L]]$path
 }
 
-# Restores `states` into the callbacks `cbs` of this run, matching them by id.
+# Restores `states` into the callbacks `cbs` of this run, matching them by id and nothing else.
+# Giving two structurally different callbacks the same id in the two runs therefore feeds the state
+# of one into the other, which neither this function nor $load_state_dict() can detect -- see the
+# 'Resuming' section of LearnerTorch.
 load_callback_states = function(cbs, states) {
   if (!length(states)) return(invisible(NULL))
   unknown = setdiff(names(states), names(cbs))

@@ -29,7 +29,9 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
 
       if (improvement <= self$min_delta) {
         self$stagnation = self$stagnation + 1L
-        if (self$stagnation == self$patience) {
+        # `>=` rather than `==`: a resumed run restores `stagnation` and can therefore start at or
+        # above `patience`, which an equality test would step over and never match again
+        if (self$stagnation >= self$patience) {
           self$ctx$terminate = TRUE
         }
       } else {

@@ -64,6 +64,15 @@
 #'   be used to start a run and to continue it after an interruption.
 #'   This is initialized to `NULL`, i.e. no resuming.
 #'
+#'   Callback states are matched to the callbacks of the resuming run **by id and nothing else**.
+#'   A state whose id is not among this run's callbacks is skipped with a warning, and a callback
+#'   whose id is not in the checkpoint simply starts fresh -- adding a callback to a resumed run is
+#'   allowed and is not reported.
+#'   Giving two structurally different callbacks the same id in the two runs is therefore not
+#'   detected: the state of one is fed into the other, which can restore a nonsensical state without
+#'   any error or warning.
+#'   Resume with the same callback ids the checkpoint was written with, or with different ones.
+#'
 #' **Early Stopping**:
 #' * `patience` :: `integer(1)`\cr
 #'   This activates early stopping using the validation scores.

@@ -75,6 +75,22 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
       }
     },
     #' @description
+    #' Refuses to start when this run would write over the checkpoint of another run.
+    on_begin = function() {
+      # the epoch this run starts from: 0, or the epoch a resumed checkpoint left off at
+      private$.start_epoch = self$ctx$epoch
+      # A run never writes the same epoch twice, so a complete checkpoint under an epoch this run
+      # is going to write belongs to a different run and is not ours to destroy. A run continuing
+      # an earlier one writes epochs that one does not have, so it does not collide. Checking here
+      # rather than in $.save() means the folder is not half rewritten before this is noticed.
+      planned = seq_len(self$ctx$total_epochs)
+      clash = intersect(planned[planned > private$.start_epoch], checkpoint_files(self$path)$complete)
+      if (length(clash)) {
+        stopf("Checkpoint(s) %s in '%s' were written by another run, and this one would write over them. Use a fresh folder, or continue that run instead of starting it over.", # nolint
+          paste0(clash, collapse = ", "), self$path)
+      }
+    },
+    #' @description
     #' Saves the network and optimizer state dict.
     #' Does nothing if `freq` is not met.
     on_epoch_end = function() {
@@ -87,6 +103,10 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
     #' Saves the final network and optimizer, unless the last epoch was already saved.
     on_end = function() {
       # NOT on_exit, because we only write when the epoch ran successfully
+      if (self$ctx$epoch == private$.start_epoch) {
+        # this run trained no epochs of its own, so the checkpoint it resumed is the current one
+        return(NULL)
+      }
       if (self$ctx$epoch == 0L || self$ctx$epoch %% self$freq == 0) {
         # nothing was trained, or the last epoch was already saved
         return(NULL)
@@ -95,16 +115,8 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
     }
   ),
   private = list(
+    .start_epoch = 0L,
     .save = function(suffix) {
-      # A run never writes the same epoch twice, so a complete checkpoint under this number belongs
-      # to a different run and is not ours to destroy. A run continuing an earlier one writes epochs
-      # that one does not have, so it never gets here; an incomplete checkpoint has no state file
-      # and is unusable anyway, so replacing that is allowed -- otherwise a run killed while writing
-      # could never be restarted into its own folder.
-      if (file.exists(file.path(self$path, paste0("state", suffix, ".rds")))) {
-        stopf("Checkpoint of epoch %i already exists in '%s' and was written by another run. Use a fresh folder, or continue that run instead of starting it over.", # nolint
-          suffix, self$path)
-      }
       torch_save(self$ctx$network$state_dict(), file.path(self$path, paste0("network", suffix, ".pt")))
       torch_save(self$ctx$optimizer$state_dict(), file.path(self$path, paste0("optimizer", suffix, ".pt")))
       saveRDS(
@@ -135,19 +147,31 @@ can_checkpoint_into = function(path) {
     (dir.exists(path) && length(list.files(path, pattern = "^(network|optimizer)[0-9]+\\.pt$|^state[0-9]+\\.rds$")) > 0L) # nolint
 }
 
-checkpoint_suffixes = function(path) {
-  if (!dir.exists(path)) return(integer(0))
+# The checkpoints in `path`, split into those that can be read and those that cannot. Both the
+# reading and the writing side go through this, so they cannot disagree on what "exists" means:
+# a checkpoint that is too incomplete to resume from is also one that may be written over.
+checkpoint_files = function(path) {
+  none = list(complete = integer(0), incomplete = integer(0))
+  if (!dir.exists(path)) return(none)
   suffixes = as.integer(gsub("^network|\\.pt$", "", list.files(path, pattern = "^network[0-9]+\\.pt$")))
   # paste0() recycles a zero-length suffix to "", which would look for 'optimizer.pt'
-  if (!length(suffixes)) return(integer(0))
+  if (!length(suffixes)) return(none)
   complete = file.exists(file.path(path, paste0("optimizer", suffixes, ".pt"))) &
     file.exists(file.path(path, paste0("state", suffixes, ".rds")))
-  if (!all(complete)) {
+  list(
+    complete = sort(suffixes[complete], decreasing = TRUE),
+    incomplete = sort(suffixes[!complete])
+  )
+}
+
+checkpoint_suffixes = function(path) {
+  files = checkpoint_files(path)
+  if (length(files$incomplete)) {
     # silently skipping these would look like the run simply got less far than it did
     warningf("Ignoring incomplete checkpoint(s) %s in '%s', which are missing an optimizer or a state file. This is what a run killed while writing a checkpoint leaves behind.", # nolint
-      paste0(sort(suffixes[!complete]), collapse = ", "), path)
+      paste0(files$incomplete, collapse = ", "), path)
   }
-  sort(suffixes[complete], decreasing = TRUE)
+  files$complete
 }
 
 read_checkpoint_state = function(file) {
