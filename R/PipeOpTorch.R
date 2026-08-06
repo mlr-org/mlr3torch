@@ -346,7 +346,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
         names(shapes_in) = self$input$name
       }
       shapes_out = private$.shapes_out(shapes_in, self$param_set$get_values(), task = task)
-      set_names(map(shapes_out, as.integer, self$output$name)
+      set_names(map(shapes_out, as.integer), self$output$name)
     }
   ),
   private = list(
