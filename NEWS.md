@@ -44,6 +44,9 @@
 * `lazy_tensor` columns are now again printed correctly inside `data.table`s
 * Fixed some links on the pkgdown website and the help pages.
 * Fixed various other shape inference bugs.
+* `po("torch_model_{regr, classif}")` now resets the parameters of the network
+  at the beginning of `$train()` when the network is built from `PipeOpTorch` objects,
+  which makes the results reproducible for the set `seed` parameter.
 * `nn()` now properly interprets `nn("linear_1")` as `po("nn_linear", id = "linear_21")`.
 
 # mlr3torch 0.3.3
