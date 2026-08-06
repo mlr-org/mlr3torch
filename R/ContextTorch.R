@@ -149,3 +149,66 @@ ContextTorch = R6Class("ContextTorch",
     device = NULL
   )
 )
+
+#' @title Context for Predicting with a Torch Learner
+#'
+#' @name mlr_context_torch_predict
+#'
+#' @description
+#' Context for predicting with a torch learner, i.e. what callbacks have access to through
+#' `self$ctx` during the `predict_begin`, `predict_batch_end` and `predict_end` stages
+#' (see [`CallbackSet`]).
+#' Prediction has no epochs, no loss and no optimizer, so this is considerably smaller than
+#' [`ContextTorch`], which is what the training stages get.
+#'
+#' @family Callback
+#' @export
+ContextTorchPredict = R6Class("ContextTorchPredict",
+  lock_objects = FALSE,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param learner ([`Learner`][mlr3::Learner])\cr
+    #'   The torch learner.
+    #' @param task ([`Task`][mlr3::Task])\cr
+    #'   The task to predict on.
+    #' @param loader ([`torch::dataloader`])\cr
+    #'   The data loader for prediction.
+    #' @param network ([`torch::nn_module`])\cr
+    #'   The network that is predicting.
+    #' @param device (`character(1)`)\cr
+    #'   The device.
+    initialize = function(learner, task, loader, network, device) {
+      self$learner = assert_class(learner, "Learner")
+      self$task = assert_class(task, "Task")
+      self$loader = loader
+      self$network = network
+      self$device = device
+      self$step = 0L
+    },
+    #' @field learner ([`Learner`][mlr3::Learner])\cr
+    #'   The torch learner.
+    learner = NULL,
+    #' @field task ([`Task`][mlr3::Task])\cr
+    #'   The task that is being predicted on.
+    task = NULL,
+    #' @field loader ([`torch::dataloader`])\cr
+    #'   The data loader for prediction. Its length is the number of batches.
+    loader = NULL,
+    #' @field network ([`torch::nn_module`])\cr
+    #'   The network that is predicting.
+    network = NULL,
+    #' @field step (`integer(1)`)\cr
+    #'   The index of the batch that was predicted last, `0` before the first one.
+    step = NULL,
+    #' @field batch (named `list()` of `torch_tensor`s)\cr
+    #'   The current batch.
+    batch = NULL,
+    #' @field y_hat (`torch_tensor`)\cr
+    #'   The network's output for the current batch.
+    y_hat = NULL,
+    #' @field device (`character(1)`)\cr
+    #'   The device.
+    device = NULL
+  )
+)

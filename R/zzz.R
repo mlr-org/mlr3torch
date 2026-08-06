@@ -58,7 +58,11 @@ register_mlr3 = function() {
       "on_valid_end",
       "on_epoch_end",
       "on_end",
-      "on_exit"
+      "on_exit",
+      # the prediction loop, which is separate from the training loop and has no epochs
+      "on_predict_begin",
+      "on_predict_batch_end",
+      "on_predict_end"
     )
   )
 

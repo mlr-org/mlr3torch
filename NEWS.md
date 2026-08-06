@@ -11,6 +11,9 @@
 
 ## Features
 
+* Callbacks now also run during prediction: the new stages `predict_begin`, `predict_batch_end` and
+  `predict_end` get a `ContextTorchPredict`, and `t_clbk("progress")` uses them to show a progress
+  bar while predicting.
 * Added more image learners from {torchvision}.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.

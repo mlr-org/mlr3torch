@@ -181,3 +181,61 @@ test_that("weight is validated", {
     callbacks = list(TorchCallback$new(bad, param_set = ps(), id = "bad")))
   expect_error(learner$train(tsk("iris")), "weight")
 })
+
+test_that("the prediction stages are called with a ContextTorchPredict", {
+  seen = new.env()
+  seen$batches = 0L
+  cb = torch_callback("predict_spy",
+    on_predict_begin = function() {
+      seen$class = class(self$ctx)[[1L]]
+      seen$total = length(self$ctx$loader)
+      seen$step_before = self$ctx$step
+      seen$task = self$ctx$task$id
+    },
+    on_predict_batch_end = function() {
+      seen$batches = seen$batches + 1L
+      seen$last_step = self$ctx$step
+      seen$y_hat_dim = dim(self$ctx$y_hat)
+    },
+    on_predict_end = function() seen$ended = TRUE
+  )
+
+  learner = lrn("classif.mlp", epochs = 1, batch_size = 50, neurons = 5, device = "cpu",
+    callbacks = cb)
+  task = tsk("iris")
+  learner$train(task)
+  learner$predict(task)
+
+  expect_equal(seen$class, "ContextTorchPredict")
+  expect_equal(seen$task, "iris")
+  expect_equal(seen$step_before, 0L)
+  expect_equal(seen$batches, 3L)
+  expect_equal(seen$last_step, 3L)
+  expect_equal(seen$total, 3L)
+  expect_equal(seen$y_hat_dim, c(50L, 3L))
+  expect_true(seen$ended)
+
+  # the context is detached again afterwards
+  expect_null(learner$callbacks$predict_spy$ctx)
+})
+
+test_that("callbacks without a prediction stage are not created during prediction", {
+  constructed = new.env()
+  constructed$n = 0L
+  CallbackSetCounting = R6Class("CallbackSetCounting",
+    inherit = CallbackSet,
+    public = list(
+      initialize = function() constructed$n = constructed$n + 1L,
+      on_begin = function() NULL
+    )
+  )
+  cb = TorchCallback$new(CallbackSetCounting, id = "counting", param_set = ps())
+
+  learner = lrn("classif.mlp", epochs = 1, batch_size = 50, neurons = 5, device = "cpu",
+    callbacks = cb)
+  learner$train(tsk("iris"))
+  expect_equal(constructed$n, 1L)
+
+  learner$predict(tsk("iris"))
+  expect_equal(constructed$n, 1L)
+})

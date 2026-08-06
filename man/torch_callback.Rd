@@ -23,6 +23,9 @@ torch_callback(
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
   on_valid_end = NULL,
+  on_predict_begin = NULL,
+  on_predict_batch_end = NULL,
+  on_predict_end = NULL,
   state_dict = NULL,
   load_state_dict = NULL,
   initialize = NULL,
@@ -56,7 +59,7 @@ String in the format \verb{[pkg]::[topic]} pointing to a manual page for this ob
 The referenced help package can be opened via method \verb{$help()}.
 The default is \code{NULL}.}
 
-\item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end, on_valid_end, on_exit}{(\code{function})\cr
+\item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end, on_valid_end, on_exit, on_predict_begin, on_predict_batch_end, on_predict_end}{(\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
 
 \item{state_dict}{(\verb{function()})\cr
@@ -118,6 +121,17 @@ then wraps this generator in a \code{\link{TorchCallback}} that can be passed to
 \item \code{end} :: Run after last epoch.
 \item \code{exit} :: Run last, using \code{on.exit()}.
 }
+
+The prediction loop is separate from the training loop and runs its own stages, with
+\code{\link{ContextTorchPredict}} as \code{self$ctx}:
+\itemize{
+\item \code{predict_begin} :: Run before the prediction loop begins.
+\item \code{predict_batch_end} :: Run after each batch was predicted.
+\item \code{predict_end} :: Run after the last batch was predicted.
+}
+
+A callback that implements none of these three is not created at prediction time at all, so
+anything a callback does in its \verb{$initialize()} only happens during training.
 }
 
 \section{Ordering}{
@@ -170,6 +184,7 @@ Other Callback:
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
+\code{\link{mlr_context_torch_predict}},
 \code{\link[=t_clbk]{t_clbk()}}
 }
 \concept{Callback}
