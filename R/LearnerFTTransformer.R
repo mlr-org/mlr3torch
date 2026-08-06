@@ -60,11 +60,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         init_token = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = "train"),
         ingress_tokens = p_uty(tags = "train", custom_check = check_ingress_tokens)
       )
-      # `query_idx` and `is_first_layer` are structural: `.network()` derives them from each block's
-      # position, so setting them on the learner has no effect and only invites a tuner to waste
-      # evaluations on them. They stay on `po("nn_ft_transformer_block")`, where they are meaningful,
-      # but the learner exposes everything else. Because this is a detached clone, `.network()`
-      # copies the values onto the blocks itself.
+      # these params are set internally
       block_ps = private$.block$param_set$clone(deep = TRUE)
       private$.block_param_set = block_ps$subset(
         setdiff(block_ps$ids(), c("query_idx", "is_first_layer"))

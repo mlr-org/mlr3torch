@@ -95,17 +95,8 @@ nn_ft_transformer_block = nn_module(
       batch_first = TRUE
     )
 
-    # `attention_initialization` follows the reference implementation, which keeps the query, key and
-    # value projections as three separate `nn.Linear`s: "kaiming" leaves each of them at PyTorch's
-    # `nn.Linear` default, and "xavier" applies `xavier_uniform_` with a gain of `1 / sqrt(2)`,
-    # which compensates for the three being one matrix there.
-    # torch packs the three into a single `(3 * d_token, d_token)` matrix and applies
-    # `xavier_uniform_` to it as a whole, which matches neither: the fan-out of the packed matrix is
-    # `3 * d_token`. Each projection is therefore initialized separately here.
-    # The biases are already zeroed by torch, which is what the reference does as well.
     init_projection = switch(attention_initialization,
-      # `a = sqrt(5)` is what `nn.Linear` uses
-      kaiming = function(x) nn_init_kaiming_uniform_(x, a = sqrt(5)),
+      kaiming = function(x) nn_int_kaiming_uniform_(x, a = sqrt(5)),
       xavier = function(x) nn_init_xavier_uniform_(x, gain = 1 / sqrt(2))
     )
     with_no_grad({
@@ -200,10 +191,6 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         attention_initialization = p_fct(levels = c("kaiming", "xavier"), init = "kaiming", tags = "train"),
         attention_normalization = p_uty(init = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
         ffn_d_hidden = p_int(lower = 1, tags = "train"),
-        # deliberately not initialized: exactly one of `ffn_d_hidden` and `ffn_d_hidden_multiplier`
-        # may be set, so an init here would force everyone setting `ffn_d_hidden` to clear it first.
-        # `LearnerTorchFTTransformer` sets it to the reference implementation's `4/3`, because there
-        # the learner has to be trainable without configuring anything.
         ffn_d_hidden_multiplier = p_dbl(lower = 0, tags = "train"),
         ffn_dropout = p_dbl(lower = 0, upper = 1, init = 0.1, tags = "train"),
         ffn_activation = p_uty(init = nn_reglu, custom_check = check_nn_module_generator, tags = "train"),

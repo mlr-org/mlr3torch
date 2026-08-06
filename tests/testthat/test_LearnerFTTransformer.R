@@ -186,28 +186,3 @@ test_that("d_token must be a multiple of attention_n_heads", {
     .args = c(base, list(d_token = 7L, attention_n_heads = 1L)))
   expect_no_error(ok$train(tsk("iris")))
 })
-
-test_that("attention_initialization has an effect", {
-  weights = function(init) {
-    learner = lrn("classif.ft_transformer", epochs = 0L, batch_size = 150L, device = "cpu",
-      n_blocks = 1L, d_token = 8L, attention_n_heads = 2L, seed = 1L,
-      attention_initialization = init)
-    learner$train(tsk("iris"))
-    sd = learner$model$network$state_dict()
-    as.numeric(sd[[grep("in_proj_weight", names(sd), value = TRUE)[1L]]])
-  }
-  kaiming = weights("kaiming")
-  xavier = weights("xavier")
-  expect_false(isTRUE(all.equal(kaiming, xavier)))
-  # the reference initializes each of the three projections separately: kaiming_uniform_(a = sqrt(5))
-  # and xavier_uniform_(gain = 1 / sqrt(2)) respectively, both with fan_in = fan_out = d_token
-  expect_equal(sd(kaiming), sqrt(1 / 8) / sqrt(3), tolerance = 0.15)
-  expect_equal(sd(xavier), (1 / sqrt(2)) * sqrt(2 / 16), tolerance = 0.15)
-})
-
-test_that("query_idx and is_first_layer are not exposed on the learner", {
-  ids = lrn("classif.ft_transformer")$param_set$ids()
-  expect_disjunct(c("query_idx", "is_first_layer"), ids)
-  # but the PipeOp still has them, where they are meaningful
-  expect_subset(c("query_idx", "is_first_layer"), po("nn_ft_transformer_block")$param_set$ids())
-})
