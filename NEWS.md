@@ -1,36 +1,5 @@
 # mlr3torch (development version)
 
-## Bug fixes
-
-* The documentation of `nn_ft_transformer_block()` no longer claims defaults that its signature does
-  not have. The seven quoted values are the `PipeOp`'s parameter inits, so they are attributed to it
-  now. `prenormalization` said normalization is applied after attention when the value is `TRUE`,
-  which was meant to be `FALSE`, and `attention_initialization` now describes what its levels do.
-
-* `lrn("classif.ft_transformer")` / `lrn("regr.ft_transformer")` can now be trained without setting
-  `n_blocks`, `d_token` and the width of the feed-forward network. `n_blocks` and `d_token` are
-  initialized to `3` and `192`, and the hidden dimension falls back to `d_token * 4/3`, which is the
-  default configuration of the reference implementation. Previously these were documented as
-  defaulted but were in fact required.
-* `attention_initialization` of the FT-Transformer now has an effect. It was declared and validated
-  but never used, so both levels produced the same weights. Following the reference implementation,
-  `"kaiming"` initializes each of the query, key and value projections with
-  `nn_init_kaiming_uniform_(a = sqrt(5))` and `"xavier"` with
-  `nn_init_xavier_uniform_(gain = 1 / sqrt(2))`. Since `torch` packs the three projections into one
-  matrix and initialized that as a whole, this changes the initial weights for both levels.
-* The FT-Transformer now checks that `d_token` is a multiple of `attention_n_heads` and reports both
-  values, instead of failing inside `torch` with `embed_dim must be divisible by num_heads`. As in
-  the reference implementation, the constraint does not apply to a single attention head.
-* `n_blocks = 0` is accepted by the FT-Transformer's parameter set and now works, leaving the
-  tokenizer, the CLS token and the head. It previously failed while assembling the `Graph`.
-
-## Breaking changes
-
-* `query_idx` and `is_first_layer` are no longer exposed on `lrn("classif.ft_transformer")` /
-  `lrn("regr.ft_transformer")`. Both are determined by each block's position in the network, so
-  setting them had no effect while making them reachable for tuning.
-  `po("nn_ft_transformer_block")` still has them.
-
 ## Features
 
 * Added learners for the remaining image classification networks of `torchvision`:
@@ -79,6 +48,7 @@
   Since `$state_dict()` is what ends up in `learner$model$callbacks$<id>`, the schedule of
   `t_clbk("lr_*")` and the trainable weights of `t_clbk("unfreeze")` are now part of the model.
 
+
 ## Breaking changes
 
 * The `freq_type` parameter of `t_clbk("checkpoint")` was removed; checkpoints are now always
@@ -87,6 +57,10 @@
 * The construction argument `only_batch_unknown` of `PipeOpTorch` was removed.
   Any dimension of an input shape can now be unknown, so `private$.shapes_out()` must always
   handle `NA`s and assert those dimensions it actually needs to be known.
+* `query_idx` and `is_first_layer` are no longer exposed on `lrn("classif.ft_transformer")` /
+  `lrn("regr.ft_transformer")`. Both are determined by each block's position in the network, so
+  setting them had no effect while making them reachable for tuning.
+  `po("nn_ft_transformer_block")` still has them.
 
 ## Bug fixes
 
@@ -116,6 +90,27 @@
 * `nn("reshape")` with a `function(shape)` target now resolves a `-1` whenever the number of elements
   per observation is known, i.e. when the batch dimension is the only unknown one.
 * Fixed various other shape inference bugs.
+* The documentation of `nn_ft_transformer_block()` no longer claims defaults that its signature does
+  not have. The seven quoted values are the `PipeOp`'s parameter inits, so they are attributed to it
+  now. `prenormalization` said normalization is applied after attention when the value is `TRUE`,
+  which was meant to be `FALSE`, and `attention_initialization` now describes what its levels do.
+
+* `lrn("classif.ft_transformer")` / `lrn("regr.ft_transformer")` can now be trained without setting
+  `n_blocks`, `d_token` and the width of the feed-forward network. `n_blocks` and `d_token` are
+  initialized to `3` and `192`, and the hidden dimension falls back to `d_token * 4/3`, which is the
+  default configuration of the reference implementation. Previously these were documented as
+  defaulted but were in fact required.
+* `attention_initialization` of the FT-Transformer now has an effect. It was declared and validated
+  but never used, so both levels produced the same weights. Following the reference implementation,
+  `"kaiming"` initializes each of the query, key and value projections with
+  `nn_init_kaiming_uniform_(a = sqrt(5))` and `"xavier"` with
+  `nn_init_xavier_uniform_(gain = 1 / sqrt(2))`. Since `torch` packs the three projections into one
+  matrix and initialized that as a whole, this changes the initial weights for both levels.
+* The FT-Transformer now checks that `d_token` is a multiple of `attention_n_heads` and reports both
+  values, instead of failing inside `torch` with `embed_dim must be divisible by num_heads`. As in
+  the reference implementation, the constraint does not apply to a single attention head.
+* `n_blocks = 0` is accepted by the FT-Transformer's parameter set and now works, leaving the
+  tokenizer, the CLS token and the head. It previously failed while assembling the `Graph`.
 
 # mlr3torch 0.3.3
 
