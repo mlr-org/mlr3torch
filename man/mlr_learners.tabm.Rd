@@ -5,15 +5,15 @@
 \alias{LearnerTorchTabM}
 \title{TabM}
 \description{
-TabM is an MLP-based tabular deep learning model that efficiently represents an
-ensemble of \code{k} MLPs: the \code{k} submodels are trained in parallel on the same batches
-and share most of their weights, which acts as a strong regularizer.
+TabM is an MLP-based tabular deep learning model that represents an ensemble of \code{k}
+MLPs: the \code{k} submodels are trained in parallel on the same batches and share most of
+their weights.
 The network produces \code{k} predictions per observation; the learner averages the
 predicted \emph{probabilities} (classification) or the predicted values (regression)
 over the \code{k} submodels, and its loss function trains all \code{k} submodels jointly.
 
 Numerical features are used as-is, or -- if the \code{num_embeddings} parameter is set --
-embedded feature-wise first, which usually improves the performance considerably.
+embedded feature-wise first.
 Categorical features are one-hot encoded.
 }
 \section{Dictionary}{
@@ -75,7 +75,7 @@ Parameters of the embeddings for the numerical features:
 \itemize{
 \item \code{num_embeddings} :: \code{character(1)}\cr
 The type of the numerical feature embeddings, one of \code{"none"} (default),
-\code{"linear_relu"}, \code{"periodic"} or \code{"piecewise_linear"}. The last two usually perform best.
+\code{"linear_relu"}, \code{"periodic"} or \code{"piecewise_linear"}.
 \item \code{d_embedding} :: \code{integer(1)}\cr
 The embedding size. If unset, \code{32} is used for \code{"linear_relu"}, \code{24} for
 \code{"periodic"} and \code{16} for \code{"piecewise_linear"}.
