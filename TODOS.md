@@ -503,16 +503,33 @@ worktree under `.claude/worktrees/` and none of them is pushed yet.
 |---|---|---|---|
 | `more-fixes` (the main checkout) | `more-fixes` | 1.1, 1.4, 1.9h, 1.10, 2.1, 2.2, 2.3, scaling docs of 5.0 | PR #499, open |
 | `pipeop-torch-helper` | `feat/pipeop-torch-helper-fn` | issues #144, #403, #398 | committed, not pushed |
-| `predict-progress` | `feat/predict-progress` | issue #435 | in progress |
-| `model-printer` | `feat/learner-torch-model-printer` | issue #393 | in progress |
-| `torch-model-dict` | `feat/torch-model-dictionary` | issue #376 | in progress |
-| `nn-examples` | `docs/nn-in-examples` | issue #346 | in progress |
+| `predict-progress` | `feat/predict-progress` | issue #435 | committed, not pushed |
+| `model-printer` | `feat/learner-torch-model-printer` | issue #393 | committed, not pushed |
+| `torch-model-dict` | `feat/torch-model-dictionary` | issue #376 | committed, not pushed |
+| `nn-examples` | `docs/nn-in-examples` | issue #346 | committed, not pushed |
 
 `feat/pipeop-torch-helper-fn` adds `pipeop_torch()`, which generates the `PipeOpTorch` R6 class
 from an `nn_module` (`auxiliary` names the module arguments that follow from the input shape,
 output shapes are traced on the meta device unless given), an `as_pipeop()` method for
 `nn_module_generator`s, and the article *Writing your own PipeOpTorch* -- which is 4.7 of this
 file. The custom-`PipeOpTorch` example moved out of `?mlr_pipeops_torch` into that article.
+
+`feat/predict-progress` gives the prediction loop its own callback stages (`predict_begin`,
+`predict_batch_end`, `predict_end`) with a `ContextTorchPredict`, and `t_clbk("progress")` uses
+them. Only callbacks implementing one of the three are constructed at prediction time, so the
+checkpoint callback does not create a directory when a learner predicts.
+
+`feat/learner-torch-model-printer` adds `print.learner_torch_model()`, which used to dump the
+optimizer state dict.
+
+`feat/torch-model-dictionary` only adds a regression test: `classif.torch_model` and
+`regr.torch_model` have been in the dictionary since #117, so **issue #376 can be closed as already
+done**.
+
+`docs/nn-in-examples` converts `po("nn_x")` to `nn("x")` in the man-page examples, the vignettes and
+the README. Package code is deliberately untouched, because those ids become the module names of
+the network. Note this branch and `feat/pipeop-torch-helper-fn` both rewrite the examples of
+`?mlr_pipeops_torch`, so expect a conflict when merging the second one.
 
 Note that every branch off `main` still carries the `_pkgdown.yml` bug that breaks the pkgdown
 build (`equals-.lazy_tensor` has to be `` "`==.lazy_tensor`" ``); it is fixed on `more-fixes`.
