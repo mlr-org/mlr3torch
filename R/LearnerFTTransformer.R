@@ -5,6 +5,7 @@
 #' @template params_learner
 #' @template learner
 #' @template learner_example
+#' @template scaling
 #'
 #' @description
 #' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tensor`] inputs
@@ -12,7 +13,7 @@
 #'
 #' Some differences from the paper implementation: no attention compression, no option to have prenormalization in the first layer.
 #'
-#' If training is unstable, consider a combination of standardizing features (e.g. using `po("scale")`), using an adaptive optimizer (e.g. Adam), reducing the learning rate,
+#' If training is unstable, consider a combination of scaling the features (see section *Input Scaling*), using an adaptive optimizer (e.g. Adam), reducing the learning rate,
 #' and using a learning rate scheduler (see [`CallbackSetLRScheduler`] for options).
 #'
 #' @section Parameters:
