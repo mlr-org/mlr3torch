@@ -101,6 +101,7 @@ paramset_torchlearner = function(task_type, jittable = FALSE) {
     # early stopping
     patience              = p_int(lower = 0L, tags = c("train", "required"), init = 0L),
     min_delta             = p_dbl(lower = 0, tags = c("train", "required"), init = 0),
+    restore_best_weights  = p_lgl(tags = c("train", "required"), init = FALSE),
     # dataloader parameters
     batch_size            = p_int(tags = c("train", "predict"), lower = 1L),
     batch_size_predict    = p_int(tags = c("train", "predict"), lower = 1L),

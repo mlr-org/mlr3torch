@@ -16,6 +16,8 @@
 * Ported the `TabM` tabular learner from Python.
 * `LearnerTorch` now has `.loss_fn(task, param_vals)` private method that allows
   to customize the construction of the loss function.
+* `LearnerTorch` now has `restore_best_weights` parameter that can be used when
+   early stopping is active.
 * A network can now return more than one prediction during training as a list.
   The first is expected to be the primary prediction.
   In `ContextTorch`, `$y_hat` is the primary prediction and `$y_hats` contains
@@ -55,6 +57,10 @@
   at the beginning of `$train()` when the network is built from `PipeOpTorch` objects,
   which makes the results reproducible for the set `seed` parameter.
 * `nn()` now properly interprets `nn("linear_1")` as `po("nn_linear", id = "linear_21")`.
+* Fixed some bugs in `FTTransformer`: `attention_initialization` now has an
+  effect, `n_blocks = 0` is allowed and the hidden dimension falls back to
+  `d_token * 4/3` as in the reference implementation.
+* Fixed some issues in the documentation.
 
 # mlr3torch 0.3.3
 

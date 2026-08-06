@@ -64,6 +64,13 @@
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold for early stopping.
 #'   Is initialized to 0.
+#' * `restore_best_weights` :: `logical(1)`\cr
+#'   Whether to restore the weights of the best epoch when training ends, instead of keeping those
+#'   of the last epoch that was trained. Is initialized to `FALSE`, i.e. the network of the last
+#'   epoch is stored. Setting this to `TRUE` makes the stored network the one of the epoch that
+#'   `$internal_tuned_values` reports, and costs one additional copy of the network's parameters in
+#'   memory. Checkpoints written by `t_clbk("checkpoint")` are unaffected: they always hold the
+#'   network as training left it.
 #'
 #' **Dataloader**:
 #' * `batch_size` :: `integer(1)`\cr
