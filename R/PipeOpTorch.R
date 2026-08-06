@@ -346,9 +346,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
         names(shapes_in) = self$input$name
       }
       shapes_out = private$.shapes_out(shapes_in, self$param_set$get_values(), task = task)
-      # `.shapes_out()` implementations commonly derive extents arithmetically (e.g. `floor(x / stride + 1)`),
-      # which yields doubles. Coercing here keeps shapes comparable via `identical()` and stable under hashing.
-      set_names(map(shapes_out, function(s) if (is.numeric(s)) as.integer(s) else s), self$output$name)
+      set_names(map(shapes_out, as.integer, self$output$name)
     }
   ),
   private = list(

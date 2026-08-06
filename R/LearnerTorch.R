@@ -737,18 +737,6 @@ unmarshal_model.LearnerTorch = function(model, inplace = FALSE, ...) {
 
 #' @keywords internal
 #' @export
-hash_input.list = function(x, ...) {
-  # `mlr3misc::hash_input()` has no `list` method, so `calculate_hash()` passes a plain list straight
-  # to `digest()`. That serializes every element as-is, including closures *together with their
-  # environments*, which is not stable: a `Learner`'s `param_set$values` holding an `nn_module`
-  # changes its serialization as soon as the module is instantiated, so two `identical()` learners
-  # hash differently. Recursing makes the element-wise methods -- notably `hash_input.nn_module()`
-  # below -- reachable, which is what they were written for.
-  map(x, hash_input)
-}
-
-#' @keywords internal
-#' @export
 hash_input.nn_module = function(x) {
   # This used to be `data.table::address(x)`, which is not stable across copies: two `identical()`
   # learners then hashed differently, and because `ResultData$learners()` merges on `learner_hash`

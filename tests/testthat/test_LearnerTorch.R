@@ -1221,7 +1221,7 @@ test_that("resample() returns the learners in iteration order", {
   # is first instantiated, so the iterations recorded different hashes and `ResultData$learners()`
   # -- which merges on `learner_hash` with `sort = TRUE` -- returned them in hash order.
   task = tsk("iris")
-  set.seed(1)
+  withr::local_seed(1)
   rr = resample(task, lrn("classif.mlp", epochs = 1, batch_size = 32, neurons = 5,
     device = "cpu", predict_type = "prob"), rsmp("cv", folds = 3), store_models = TRUE)
 
