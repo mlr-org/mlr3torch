@@ -295,49 +295,50 @@ The task. Must be provided if the loss function requires a task.</p></dd>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, loss <span class="op">=</span> <span class="fu"><a href="t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"mse"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The parameters of the loss are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(38)&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                      id    class lower upper nlevels        default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:              epochs ParamInt 0e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:              device ParamFct    NA    NA      12 &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:         num_threads ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4: num_interop_threads ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:                seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:           eval_freq ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      measures_train ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:            patience ParamInt 0e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:           min_delta ParamDbl 0e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:          batch_size ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:  batch_size_predict ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:             shuffle ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:             sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:       batch_sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:         num_workers ParamInt 0e+00   Inf     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:          collate_fn ParamUty    NA    NA     Inf         [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:          pin_memory ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:           drop_last ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:             timeout ParamDbl  -Inf   Inf     Inf             -1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21:      worker_init_fn ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22:      worker_globals ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23:     worker_packages ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24:      tensor_dataset ParamFct    NA    NA       1 &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25:           jit_trace ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26:             neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:                   p ParamDbl 0e+00     1     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:            n_layers ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29:          activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30:     activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31:               shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32:              opt.lr ParamDbl 0e+00   Inf     Inf          0.001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33:           opt.betas ParamUty    NA    NA     Inf    0.900,0.999</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34:             opt.eps ParamDbl 1e-16   Inf     Inf          1e-08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35:    opt.weight_decay ParamDbl 0e+00   Inf     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36:         opt.amsgrad ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37:    opt.param_groups ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38:      loss.reduction ParamFct    NA    NA       2           mean</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                      id    class lower upper nlevels        default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(39)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       id    class lower upper nlevels        default</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:               epochs ParamInt 0e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:               device ParamFct    NA    NA      12 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:          num_threads ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:  num_interop_threads ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:                 seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:            eval_freq ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:       measures_train ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:       measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:             patience ParamInt 0e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:            min_delta ParamDbl 0e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11: restore_best_weights ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:           batch_size ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:   batch_size_predict ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:              shuffle ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:              sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:        batch_sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:          num_workers ParamInt 0e+00   Inf     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:           collate_fn ParamUty    NA    NA     Inf         [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:           pin_memory ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:            drop_last ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21:              timeout ParamDbl  -Inf   Inf     Inf             -1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22:       worker_init_fn ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23:       worker_globals ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24:      worker_packages ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:       tensor_dataset ParamFct    NA    NA       1 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:            jit_trace ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:              neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:                    p ParamDbl 0e+00     1     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29:             n_layers ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30:           activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31:      activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32:                shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33:               opt.lr ParamDbl 0e+00   Inf     Inf          0.001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34:            opt.betas ParamUty    NA    NA     Inf    0.900,0.999</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35:              opt.eps ParamDbl 1e-16   Inf     Inf          1e-08</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36:     opt.weight_decay ParamDbl 0e+00   Inf     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37:          opt.amsgrad ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38:     opt.param_groups ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39:       loss.reduction ParamFct    NA    NA       2           mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       id    class lower upper nlevels        default</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1:       [NULL]</span>
@@ -350,10 +351,10 @@ The task. Must be provided if the loss function requires a task.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  8:    &lt;list[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  9:            0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10:            0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12:       [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:         TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:         TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 15:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 16:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 17:       [NULL]</span>
@@ -363,14 +364,14 @@ The task. Must be provided if the loss function requires a task.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 21:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 22:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 23:       [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24:        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 25:        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:          0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:       [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29: &lt;nn_relu[1]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30: &lt;nn_relu[1]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31:    &lt;list[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 32:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 33:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 34:       [NULL]</span>
@@ -378,6 +379,7 @@ The task. Must be provided if the loss function requires a task.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 36:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 37:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 38:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
 </code></pre></div>

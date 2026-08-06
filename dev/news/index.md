@@ -17,6 +17,8 @@
 - Ported the `TabM` tabular learner from Python.
 - `LearnerTorch` now has `.loss_fn(task, param_vals)` private method
   that allows to customize the construction of the loss function.
+- `LearnerTorch` now has `restore_best_weights` parameter that can be
+  used when early stopping is active.
 - A network can now return more than one prediction during training as a
   list. The first is expected to be the primary prediction. In
   `ContextTorch`, `$y_hat` is the primary prediction and `$y_hats`

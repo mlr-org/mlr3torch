@@ -159,9 +159,9 @@ For a complete description of the available parameters see
 <span><span class="co">#&gt; • Model: -</span></span>
 <span><span class="co">#&gt; • Parameters: epochs=30, device=cpu, num_threads=1, num_interop_threads=1,</span></span>
 <span><span class="co">#&gt; seed=random, eval_freq=1, measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;,</span></span>
-<span><span class="co">#&gt; patience=0, min_delta=0, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,</span></span>
-<span><span class="co">#&gt; jit_trace=FALSE, neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
-<span><span class="co">#&gt; activation_args=&lt;list&gt;</span></span>
+<span><span class="co">#&gt; patience=0, min_delta=0, restore_best_weights=FALSE, batch_size=32,</span></span>
+<span><span class="co">#&gt; shuffle=TRUE, tensor_dataset=FALSE, jit_trace=FALSE, neurons=50,50, p=0.5,</span></span>
+<span><span class="co">#&gt; activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;</span></span>
 <span><span class="co">#&gt; • Validate: NULL</span></span>
 <span><span class="co">#&gt; • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3torch</span>, and <span style="color: #0000BB;">torch</span></span></span>
 <span><span class="co">#&gt; • Predict Types: [response]</span></span>
@@ -392,9 +392,10 @@ common <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="ex
 <span><span class="co">#&gt; • Model: -</span></span>
 <span><span class="co">#&gt; • Parameters: epochs=30, device=cpu, num_threads=1, num_interop_threads=1,</span></span>
 <span><span class="co">#&gt; seed=random, eval_freq=1, measures_train=&lt;list&gt;,</span></span>
-<span><span class="co">#&gt; measures_valid=&lt;MeasureRegrSimple&gt;, patience=0, min_delta=0, batch_size=32,</span></span>
-<span><span class="co">#&gt; shuffle=TRUE, tensor_dataset=FALSE, jit_trace=FALSE, neurons=50,50, p=0.5,</span></span>
-<span><span class="co">#&gt; activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;, opt.lr=0.5, opt.nesterov=FALSE</span></span>
+<span><span class="co">#&gt; measures_valid=&lt;MeasureRegrSimple&gt;, patience=0, min_delta=0,</span></span>
+<span><span class="co">#&gt; restore_best_weights=FALSE, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,</span></span>
+<span><span class="co">#&gt; jit_trace=FALSE, neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
+<span><span class="co">#&gt; activation_args=&lt;list&gt;, opt.lr=0.5, opt.nesterov=FALSE</span></span>
 <span><span class="co">#&gt; • Validate: 0.3</span></span>
 <span><span class="co">#&gt; • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3torch</span>, and <span style="color: #0000BB;">torch</span></span></span>
 <span><span class="co">#&gt; • Predict Types: [response]</span></span>

@@ -137,6 +137,13 @@ field of the learner.</p></li>
 <li><p><code>min_delta</code> :: <code>double(1)</code><br>
 The minimum improvement threshold for early stopping.
 Is initialized to 0.</p></li>
+<li><p><code>restore_best_weights</code> :: <code>logical(1)</code><br>
+Whether to restore the weights of the best epoch when training ends, instead of keeping those
+of the last epoch that was trained. Is initialized to <code>FALSE</code>, i.e. the network of the last
+epoch is stored. Setting this to <code>TRUE</code> makes the stored network the one of the epoch that
+<code>$internal_tuned_values</code> reports, and costs one additional copy of the network's parameters in
+memory. Checkpoints written by <code>t_clbk("checkpoint")</code> are unaffected: they always hold the
+network as training left it.</p></li>
 </ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
 The batch size used by the training and prediction dataloader.
 It is required for training (unless a <code>batch_sampler</code> is provided, which already determines the

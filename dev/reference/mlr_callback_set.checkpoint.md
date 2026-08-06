@@ -46,10 +46,13 @@ Other Callback:
 - `weight`:
 
   (`numeric(1)`)  
-  `Inf`, so that this callback runs after all others and hence saves the
-  network and optimizer as they are at the end of the stage, see section
-  *Ordering* of
+  `Inf`, so that this callback runs after the other callbacks and hence
+  saves the network and optimizer as they are at the end of the stage,
+  see section *Ordering* of
   [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md).
+  The only exception is the restore of `restore_best_weights`, which
+  happens afterwards, so a checkpoint always holds the network as
+  training left it.
 
 ## Methods
 

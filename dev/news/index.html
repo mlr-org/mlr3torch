@@ -83,6 +83,8 @@
 <li>Ported the <code>TabM</code> tabular learner from Python.</li>
 <li>
 <code>LearnerTorch</code> now has <code>.loss_fn(task, param_vals)</code> private method that allows to customize the construction of the loss function.</li>
+<li>
+<code>LearnerTorch</code> now has <code>restore_best_weights</code> parameter that can be used when early stopping is active.</li>
 <li>A network can now return more than one prediction during training as a list. The first is expected to be the primary prediction. In <code>ContextTorch</code>, <code>$y_hat</code> is the primary prediction and <code>$y_hats</code> contains the complete prediction.</li>
 <li>New parameter <code>batch_size_predict</code> for <code>LearnerTorch</code>, which overrides <code>batch_size</code> for prediction</li>
 <li>Added multihead attention and transformer encoder pipeops.</li>

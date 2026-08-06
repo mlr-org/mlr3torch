@@ -338,6 +338,9 @@ po_model$state
 #> $param_vals$min_delta
 #> [1] 0
 #> 
+#> $param_vals$restore_best_weights
+#> [1] FALSE
+#> 
 #> $param_vals$batch_size
 #> [1] 20
 #> 
@@ -356,7 +359,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.051 
+#>   0.049 
 #> 
 #> $task_hash
 #> [1] "c7c4f02878d51895"
