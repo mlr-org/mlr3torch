@@ -321,3 +321,122 @@ categ_cardinalities = function(task) {
   cardinalities[types == "logical"] = 2L
   set_names(as.integer(cardinalities), features)
 }
+
+# Identity of a `function()`, including the values that it captures.
+#
+# `mlr3misc::hash_input.function()` reads `formals()` and `as.character(body())` -- the AST, never
+# the byte code that R's JIT compiler installs on first call -- and is therefore stable across
+# copies and sessions. It ignores the closure's environment, which is not enough here:
+# `PipeOpTaskPreprocTorch` wraps every preprocessing function into a `crate()`d closure whose body
+# is the same for all of them, and which is told apart only by the `trafo` and `param_vals` that it
+# captures. Dropping the environment would make all of them collide, and their identity ends up in
+# `DataDescriptor$hash`, i.e. in the key of the materialization cache.
+#
+# Environments that have a name -- namespaces, the global environment, package environments --
+# stand for themselves: walking their contents would be expensive, and they are not part of what a
+# closure "is". Anonymous environments, which is what `crate()` creates, are hashed by content.
+hash_input_closure = function(x) {
+  list(hash_input(x), hash_input_environment(environment(x)))
+}
+
+# Content of an environment, with `seen` guarding against the reference cycles that R6 objects
+# (`self`, `private`, `super`) and recursive closures introduce.
+hash_input_environment = function(env, seen = list(), depth = 0L) {
+  if (!is.environment(env)) {
+    return(NULL)
+  }
+  name = environmentName(env)
+  if (nzchar(name)) {
+    return(name)
+  }
+  if (depth >= 20L || some(seen, function(e) identical(e, env))) {
+    return("<not descended into>")
+  }
+  seen = c(seen, env)
+  values = as.list(env, all.names = TRUE)
+  values = values[order(names(values))]
+  list(names(values), map(values, hash_input_value, seen = seen, depth = depth + 1L),
+    hash_input_environment(parent.env(env), seen, depth + 1L))
+}
+
+hash_input_value = function(x, seen = list(), depth = 0L) {
+  if (depth >= 20L) {
+    return("<not descended into>")
+  }
+  if (inherits(x, "nn_module")) {
+    return(nn_module_identity(x, seen, depth))
+  }
+  if (is.function(x)) {
+    return(list(hash_input(x), hash_input_environment(environment(x), seen, depth + 1L)))
+  }
+  if (is.environment(x)) {
+    return(hash_input_environment(x, seen, depth + 1L))
+  }
+  if (is.list(x)) {
+    return(map(x, hash_input_value, seen = seen, depth = depth + 1L))
+  }
+  hash_input(x)
+}
+
+# Identity of an `nn_module` *instance*: its class, the values it was configured with, the shapes
+# and dtypes of its parameters and buffers, and the same for its sub-modules.
+#
+# This used to be `data.table::address()`, which changes whenever the module is copied. Since
+# `PipeOpModule$deep_clone()` copies it, a deep clone hashed differently from its original.
+#
+# The parameter *values* are deliberately left out.
+#  * They are not free: reading them means pulling every weight out of torch and into R, whereas
+#    everything hashed here is metadata.
+#  * `PipeOpTorchModel` re-initializes the whole network from the learner's seed before training
+#    (`.reset_parameters_`), so the weights that a module happens to carry while the graph is
+#    assembled do not influence the fitted model.
+#  * Leaving them out is what makes two identically specified networks hash identically, which is
+#    the point of hashing them at all.
+# The price is that a module whose configuration shows up *only* in the values of its parameters is
+# not told apart from another one -- `torch::nn_prelu(init = )` is the single such case among the
+# modules that this package builds.
+#
+# Methods are hashed via `hash_input()` (formals and deparsed body) rather than by `digest()`ing
+# them, again to stay clear of the byte code. They are not redundant with the class: a module
+# created by `nn_module()` without a `classname` has class `"nn_module"` and nothing else.
+nn_module_identity = function(x, seen = list(), depth = 0L) {
+  if (inherits(x, "nn_module_generator")) {
+    # `attr(x, "module")` is an `R6ClassGenerator` then, not an instance
+    return(hash_input(x))
+  }
+  instance = attr(x, "module")
+  if (!R6::is.R6(instance)) {
+    return(class(x))
+  }
+  # `get()` rather than `instance$.__enclos_env__`: torch defines a `$.nn_Module` that does not
+  # hand out the enclosing environment itself, so the cycle check below would never fire
+  enclos = get(".__enclos_env__", envir = instance)
+  if (depth >= 20L || some(seen, function(e) identical(e, enclos))) {
+    return("<not descended into>")
+  }
+  seen = c(seen, enclos, instance)
+  fields = list()
+  for (name in ls(instance)) {
+    # active bindings are torch's views on the parameters, buffers and sub-modules, which are
+    # covered by `state_dict()` and `children` below
+    if (bindingIsActive(name, instance)) next
+    value = get(name, envir = instance)
+    fields[[name]] = if (is.function(value) && !inherits(value, "nn_module") &&
+      identical(environment(value), enclos)) {
+      # a method of this class: it is enclosed by the very object being described here, so only its
+      # code carries information. Functions that a module *stores* (e.g. what `nn_fn` wraps) are not
+      # enclosed by it and go through `hash_input_value()`, which keeps what they capture.
+      hash_input(value)
+    } else {
+      hash_input_value(value, seen, depth + 1L)
+    }
+  }
+  state = map(instance$state_dict(), function(tensor) list(dim(tensor), as.character(tensor$dtype)))
+  children = map(instance$children, nn_module_identity, seen = seen, depth = depth + 1L)
+  list(class(x), names(fields), fields, names(state), state, names(children), children)
+}
+
+# Identity of what a `PipeOpModule` wraps, which is either an `nn_module` or a plain function.
+module_identity = function(x) {
+  hash_input_value(x)
+}

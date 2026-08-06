@@ -366,10 +366,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
       return(dt)
     },
     .additional_phash_input = function() {
-      list(
-        self$param_set$ids(), self$packages,
-        formals(self$fn), body(self$fn), address(environment(self$fn))
-      )
+      list(self$param_set$ids(), self$packages, hash_input_closure(self$fn))
     },
     # Default is the most conservative variant, i.e. unknown shapes.
     .shapes_out = function(shapes_in, param_vals, task) list(NULL),
