@@ -908,6 +908,7 @@ tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NU
 #' @template params_learner
 #' @template learner
 #' @template learner_example
+#' @template scaling
 #'
 #' @description
 #' TabM is an MLP-based tabular deep learning model that represents an ensemble of `k`

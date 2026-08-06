@@ -64,6 +64,9 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
   private = list(
     .train = function(inputs) {
       md = inputs[[1]]
+      # the shape is known here for every graph-built network, so the common mistake -- a missing or
+      # wrongly sized head -- is caught before a single batch is trained
+      assert_output_dim(md$pointer_shape[length(md$pointer_shape)], md$task)
       network = model_descriptor_to_module(
         model_descriptor = md,
         output_pointers = list(md$pointer),

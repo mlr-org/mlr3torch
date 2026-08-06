@@ -57,6 +57,39 @@ test_that("an existing empty directory can be checkpointed into", {
     c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt")))
 })
 
+test_that("a fixed path cannot be used for a second training run", {
+  # the limitation that the `path` function exists to work around, see the test below
+  path = tempfile()
+  learner = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  learner$train(tsk("iris"))
+  expect_error(learner$train(tsk("iris")), "already exists")
+})
+
+test_that("path can be a function, which makes checkpointing work with resample()", {
+  root = tempfile()
+  dir.create(root)
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 1, path = function() tempfile(tmpdir = root)))
+  rr = resample(tsk("iris"), learner, rsmp("cv", folds = 3))
+  expect_equal(nrow(rr$errors), 0L)
+
+  # every iteration checkpointed into a directory of its own
+  dirs = list.dirs(root, recursive = FALSE)
+  expect_length(dirs, 3L)
+  for (d in dirs) {
+    expect_set_equal(list.files(d), c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt")))
+  }
+})
+
+test_that("path must be a string or a function of no arguments", {
+  expect_error(t_clbk("checkpoint", freq = 1, path = function(epoch) tempfile()), "path")
+  expect_error(t_clbk("checkpoint", freq = 1, path = 1), "path")
+  # a function that does not return a path fails when it is called, i.e. at the start of training
+  cb = t_clbk("checkpoint", freq = 1, path = function() 1)
+  expect_error(cb$generate(), "return value of the `path` function", fixed = TRUE)
+})
+
 test_that("an epoch that was interrupted is not saved under its own number", {
   task = tsk("iris")
   path = tempfile()

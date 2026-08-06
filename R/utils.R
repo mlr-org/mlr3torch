@@ -291,6 +291,20 @@ output_dim_for.TaskRegr = function(x, ...) {
   1L
 }
 
+# The number of outputs a network produces is dictated by the task: both the loss and the prediction
+# encoder assume [`output_dim_for()`]. Neither failure mode points at the network on its own -- too
+# few outputs abort inside ATen with a message about target bounds, too many train through and only
+# break at predict time -- so the mismatch is reported here instead.
+# `observed` may be `NA`, i.e. inferred but unknown, in which case nothing is claimed.
+assert_output_dim = function(observed, task) {
+  expected = output_dim_for(task)
+  if (is.na(observed) || observed == expected) {
+    return(invisible(NULL))
+  }
+  error_config("The network produces %i outputs per observation, but %s task '%s' requires %i. Add or fix the output layer, e.g. po(\"nn_head\"), which sizes itself from the task.", # nolint
+    observed, task$task_type, task$id, expected)
+}
+
 single_lazy_tensor = function(task) {
   identical(task$feature_types[, "type"][[1L]], "lazy_tensor")
 }

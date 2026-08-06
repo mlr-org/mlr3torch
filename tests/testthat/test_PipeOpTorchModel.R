@@ -190,3 +190,35 @@ test_that("a network passed to LearnerTorchModel directly is not re-initialized"
 
   expect_equal(unique(as.numeric(learner$model$network$state_dict()[[1L]])), 0.789, tolerance = 1e-6)
 })
+
+test_that("a network whose output size does not match the task is rejected", {
+  task = tsk("iris")
+  graph = function(out_features) {
+    po("torch_ingress_num") %>>%
+      po("nn_linear", out_features = out_features) %>>%
+      po("torch_loss", t_loss("cross_entropy")) %>>%
+      po("torch_optimizer", t_opt("adam")) %>>%
+      po("torch_model_classif", batch_size = 50, epochs = 1, device = "cpu")
+  }
+  # too few outputs used to abort inside ATen ('Target 3 is out of bounds'), too many trained
+  # through and only broke at predict time
+  expect_error(as_learner(graph(2L))$train(task), "produces 2 outputs.*requires 3")
+  expect_error(as_learner(graph(5L))$train(task), "produces 5 outputs.*requires 3")
+  expect_no_error(as_learner(graph(3L))$train(task))
+
+  # binary tasks need a single output, see the section 'Network Head and Target Encoding'
+  expect_error(as_learner(graph(2L))$train(tsk("sonar")), "produces 2 outputs.*requires 1")
+
+  # it is a configuration error, so it does not trigger the fallback learner
+  err = tryCatch(as_learner(graph(5L))$train(task), error = identity)
+  expect_class(err, "Mlr3ErrorConfig")
+})
+
+test_that("an unknown output size is not rejected", {
+  # `nn_head` sizes itself from the task, so its shape is only known once the task is seen
+  task = tsk("iris")
+  graph = po("torch_ingress_num") %>>% po("nn_head") %>>%
+    po("torch_loss", t_loss("cross_entropy")) %>>% po("torch_optimizer", t_opt("adam")) %>>%
+    po("torch_model_classif", batch_size = 50, epochs = 1, device = "cpu")
+  expect_no_error(as_learner(graph)$train(task))
+})

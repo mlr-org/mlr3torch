@@ -130,10 +130,6 @@ When resampling, benchmarking or tuning in parallel, each worker uses this many 
 divide the available cores among the workers instead of setting this to the number of cores.
 \item \code{num_interop_threads} :: \code{integer(1)}\cr
 The number of threads for interop parallelization (if \code{device} is \code{"cpu"}).
-This value is initialized to 1.
-Note that this can only be set \strong{once} per session, so training a learner once already sets this.
-Because the value is initialized, a deviating value only takes effect if it is set on the first
-learner that is trained in a session. You can work around this via encapsulation, see \code{\link[mlr3:Learner]{mlr3::Learner}}.
 \item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
 The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the

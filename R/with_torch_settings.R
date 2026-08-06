@@ -1,4 +1,4 @@
-with_torch_settings = function(seed, num_threads = 1, num_interop_threads = 1, expr) {
+with_torch_settings = function(seed, num_threads = 1, num_interop_threads = NULL, expr) {
   old_num_threads = torch_get_num_threads()
   if (running_on_mac()) {
     if (!isTRUE(all.equal(num_threads, 1L))) {
@@ -11,7 +11,9 @@ with_torch_settings = function(seed, num_threads = 1, num_interop_threads = 1, e
     torch_set_num_threads(num_threads)
   }
 
-  if (num_interop_threads != torch_get_num_interop_threads()) {
+  # Unlike the intraop count, this cannot be restored on exit: torch permits it to be set only once
+  # per session. It is therefore only touched when the user asked for a specific value.
+  if (!is.null(num_interop_threads) && num_interop_threads != torch_get_num_interop_threads()) {
     result = try(torch::torch_set_num_interop_threads(num_interop_threads), silent = TRUE)
     if (inherits(result, "try-error")) {
       lg$warn(sprintf("Can only set the interop threads once, keeping the previous value %s", torch_get_num_interop_threads()))
