@@ -267,3 +267,28 @@ test_that("weight is validated", {
     callbacks = list(TorchCallback$new(bad, param_set = ps(), id = "bad")))
   expect_error(learner$train(tsk("iris")), "weight")
 })
+
+test_that("the documented ordering table is generated from the callbacks", {
+  tbl = callback_weight_table()
+
+  # weights are read from the callbacks, so the table cannot document one the code does not use
+  # not tbl[...] : inside `[` a data.table evaluates `i` with its columns in scope, so `pattern`
+  # would resolve to the `name` column rather than to the argument
+  lookup = function(pattern) tbl$weight[grepl(pattern, tbl$name, fixed = TRUE)]
+  expect_equal(lookup("`checkpoint`"), CallbackSetCheckpoint$public_fields$weight)
+  expect_equal(lookup("`lr_step`"), CallbackSetLRScheduler$public_fields$weight)
+  expect_equal(lookup("`history`"), t_clbk("history")$weight)
+  expect_equal(lookup("early stopping"), CallbackSetEarlyStopping$public_fields$weight)
+  expect_equal(lookup("*default*"), CallbackSet$public_fields$weight)
+
+  # every callback of the dictionary is in it, and callbacks sharing a weight share a row
+  expect_true(all(as.data.table(mlr3torch_callbacks)$key %in%
+    unlist(strsplit(gsub("[`]", "", tbl$name), ", ", fixed = TRUE))))
+  expect_equal(anyDuplicated(tbl$weight), 0L)
+
+  # and the rendered section has a row per weight, each with a reason
+  section = callback_ordering_section()
+  rows = grep("^\\| `", section, value = TRUE)
+  expect_equal(length(rows), nrow(tbl))
+  expect_false(any(grepl("\\|\\s*\\|$", rows)))
+})

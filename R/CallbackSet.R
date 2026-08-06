@@ -45,39 +45,7 @@
 #' * `end` :: Run after last epoch.
 #' * `exit` :: Run at last, using `on.exit()`.
 #'
-#' @section Ordering:
-#' Within a stage, callbacks are called in the order in which they were passed to the learner.
-#' A callback can override this via its `$weight` field: callbacks with a higher weight are called
-#' after those with a lower one, and callbacks with the same weight keep the order in which they
-#' were passed.
-#' The default weight is `0`, which is what a custom callback gets unless it asks for something
-#' else.
-#'
-#' This matters for callbacks that build on what the others did.
-#' The built-in callbacks therefore declare weights in steps of `100`, so that a custom callback
-#' can be slotted between any two of them:
-#'
-#' | weight | callback | why |
-#' | ---: | --- | --- |
-#' | `-200` | `unfreeze` | changes which parameters of the network are trained, which the batch that is about to run and everything that inspects or saves the network must already see |
-#' | `0` | *default* | custom callbacks |
-#' | `100` | early stopping (the learner's `patience`) | decides on `ctx$last_scores_valid`, which a custom callback can still change in the same stage, and sets `ctx$terminate` before the callbacks that report on the epoch run |
-#' | `200` | `history` | records `ctx$last_scores_train` and `ctx$last_scores_valid` of the epoch that just ran |
-#' | `300` | `tb` | logs the same scores to disk |
-#' | `400` | `progress` | its summary closes the epoch, so it is printed after what the other callbacks have to say |
-#' | `500` | the `lr_*` schedulers | stepping the schedule changes the learning rate for the *next* epoch or batch, so it happens after everything that reports on the one that just ran, and before the checkpoint saves the optimizer |
-#' | `Inf` | `checkpoint` | saves the network, the optimizer and the other callbacks' `$state_dict()`s, so everything that still changes them must have run |
-#'
-#' The same table is available programmatically, and cannot go stale, as the `weight` column of
-#' `as.data.table(`[`mlr3torch_callbacks`]`)`; printing a [`TorchCallback`] also shows it.
-#'
-#' Two callbacks that need to run in a fixed order relative to each other should have different
-#' weights, as equal ones only keep the order they happen to be passed in.
-#'
-#' [`CallbackSetCheckpoint`] is the one exception to the rule that equal weights keep the order the
-#' callbacks were passed in: it is always called last within its stage, also when another callback
-#' has weight `Inf` as well.
-#' Every weight, `Inf` included, is otherwise free to use.
+#' @eval callback_ordering_section()
 #'
 #' @section Terminate Training:
 #' If training is to be stopped, it is possible to set the field `$terminate` of [`ContextTorch`].

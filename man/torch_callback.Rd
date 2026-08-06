@@ -122,36 +122,34 @@ then wraps this generator in a \code{\link{TorchCallback}} that can be passed to
 \section{Ordering}{
 
 Within a stage, callbacks are called in the order in which they were passed to the learner.
-A callback can override this via its \verb{$weight} field: callbacks with a higher weight are called
-after those with a lower one, and callbacks with the same weight keep the order in which they
-were passed.
-The default weight is \code{0}, which is what a custom callback gets unless it asks for something
-else.
+A callback can override this via its \verb{$weight} field: callbacks with a higher weight are
+called after those with a lower one, and callbacks with the same weight keep the order in
+which they were passed.
 
 This matters for callbacks that build on what the others did.
-The built-in callbacks therefore declare weights in steps of \code{100}, so that a custom callback
-can be slotted between any two of them:\tabular{rll}{
+The built-in callbacks therefore declare the weights below, spaced so that a custom callback
+can be slotted between any two of them.
+The table is generated from the callbacks themselves, so it cannot go stale; the same numbers
+are available programmatically as the \code{weight} column of
+\verb{as.data.table(}\code{\link{mlr3torch_callbacks}}\verb{)}, and printing a \code{\link{TorchCallback}} shows its weight.\tabular{rll}{
    weight \tab callback \tab why \cr
    \code{-200} \tab \code{unfreeze} \tab changes which parameters of the network are trained, which the batch that is about to run and everything that inspects or saves the network must already see \cr
-   \code{0} \tab \emph{default} \tab custom callbacks \cr
+   \code{0} \tab \emph{default} \tab custom callbacks, unless they ask for something else \cr
    \code{100} \tab early stopping (the learner's \code{patience}) \tab decides on \code{ctx$last_scores_valid}, which a custom callback can still change in the same stage, and sets \code{ctx$terminate} before the callbacks that report on the epoch run \cr
    \code{200} \tab \code{history} \tab records \code{ctx$last_scores_train} and \code{ctx$last_scores_valid} of the epoch that just ran \cr
    \code{300} \tab \code{tb} \tab logs the same scores to disk \cr
    \code{400} \tab \code{progress} \tab its summary closes the epoch, so it is printed after what the other callbacks have to say \cr
-   \code{500} \tab the \verb{lr_*} schedulers \tab stepping the schedule changes the learning rate for the \emph{next} epoch or batch, so it happens after everything that reports on the one that just ran, and before the checkpoint saves the optimizer \cr
+   \code{500} \tab \code{lr_cosine_annealing}, \code{lr_lambda}, \code{lr_multiplicative}, \code{lr_one_cycle}, \code{lr_reduce_on_plateau}, \code{lr_step} \tab stepping the schedule changes the learning rate for the \emph{next} epoch or batch, so it happens after everything that reports on the one that just ran, and before the checkpoint saves the optimizer \cr
    \code{Inf} \tab \code{checkpoint} \tab saves the network, the optimizer and the other callbacks' \verb{$state_dict()}s, so everything that still changes them must have run \cr
 }
 
 
-The same table is available programmatically, and cannot go stale, as the \code{weight} column of
-\verb{as.data.table(}\code{\link{mlr3torch_callbacks}}\verb{)}; printing a \code{\link{TorchCallback}} also shows it.
-
 Two callbacks that need to run in a fixed order relative to each other should have different
 weights, as equal ones only keep the order they happen to be passed in.
 
-\code{\link{CallbackSetCheckpoint}} is the one exception to the rule that equal weights keep the order the
-callbacks were passed in: it is always called last within its stage, also when another callback
-has weight \code{Inf} as well.
+\code{\link{CallbackSetCheckpoint}} is the one exception to the rule that equal weights keep the order
+the callbacks were passed in: it is always called last within its stage, also when another
+callback has weight \code{Inf} as well.
 Every weight, \code{Inf} included, is otherwise free to use.
 }
 
