@@ -37,13 +37,7 @@
 * `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
   under that epoch's own number, so `network<n>.pt` is now always the
   network at the *end* of epoch `n` rather than sometimes a half-trained one.
-* `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult`  above 1.
-* T
-  the learner of iteration `i`. The list was returned in hash order, which for learners holding an
-  `nn_module` hyperparameter -- such as `lrn("classif.mlp")` and its `activation` -- was neither the
-  iteration order nor deterministic. `$score()` and `as.data.table(rr)` were never affected.
-  `hash_input()` now recurses into lists, and `hash_input()` for `nn_module`s is based on the
-  module's class and methods rather than on `data.table::address()`.
+* `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
     sometimes doubles like `NA`).
 * `po("torch_model_classif")` and `po("torch_model_regr")` now have the correct

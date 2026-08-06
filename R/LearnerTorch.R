@@ -738,19 +738,5 @@ unmarshal_model.LearnerTorch = function(model, inplace = FALSE, ...) {
 #' @keywords internal
 #' @export
 hash_input.nn_module = function(x) {
-  # This used to be `data.table::address(x)`, which is not stable across copies: two `identical()`
-  # learners then hashed differently, and because `ResultData$learners()` merges on `learner_hash`
-  # with `sort = TRUE`, `resample(..., store_models = TRUE)$learners[[i]]` returned the model of
-  # some other iteration.
-  #
-  # The default `hash_input.function()` is not usable either: `torch::nn_module()` returns a closure
-  # whose body is the same wrapper for every module, so all generators would hash equal.
-  # `attr(x, "module")` is the underlying `R6ClassGenerator` -- present on generators and on
-  # instances alike -- and its public methods are the module's actual `initialize`/`forward`.
-  # Together with the class this is stable across copies and distinguishes modules that share a
-  # class name, as well as anonymous ones (`nn_module()` without a `classname`), which all have
-  # class `c("nn_module", "nn_module_generator")`.
-  generator = attr(x, "module")
-  methods = if (inherits(generator, "R6ClassGenerator")) generator$public_methods
-  list(class(x), map(methods, hash_input))
+  data.table::address(x)
 }
