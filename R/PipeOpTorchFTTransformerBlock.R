@@ -13,10 +13,6 @@
 #'   Dropout probability in the attention mechanism.
 #' @param attention_initialization (`character(1)`)\cr
 #'   Initialization of the query, key and value projections, either `"kaiming"` or `"xavier"`.
-#'   Following the reference implementation, each of the three is initialized separately:
-#'   `"kaiming"` uses `nn_init_kaiming_uniform_(a = sqrt(5))`, which is what `nn_linear` applies, and
-#'   `"xavier"` uses `nn_init_xavier_uniform_(gain = 1 / sqrt(2))`.
-#'   `po("nn_ft_transformer_block")` initializes this to `"kaiming"`.
 #' @param ffn_d_hidden (`integer(1)`)\cr
 #'   Hidden dimension of the feed-forward network. Multiplied by 2 if using ReGLU or GeGLU activation.
 #' @param ffn_d_hidden_multiplier (`numeric(1)`)\cr
@@ -24,28 +20,28 @@
 #' @param ffn_dropout (`numeric(1)`)\cr
 #'   Dropout probability in the feed-forward network.
 #' @param ffn_activation (`nn_module`)\cr
-#'   Activation function for the feed-forward network. `po("nn_ft_transformer_block")` initializes this to `nn_reglu`.
+#'   Activation function for the feed-forward network.
 #' @param residual_dropout (`numeric(1)`)\cr
 #'   Dropout probability for residual connections.
 #' @param prenormalization (`logical(1)`)\cr
 #'   Whether to apply normalization before attention and FFN (`TRUE`) or after (`FALSE`).
 #' @param is_first_layer (`logical(1)`)\cr
-#'   Whether this is the first layer in the transformer stack. `po("nn_ft_transformer_block")` initializes this to `FALSE`.
+#'   Whether this is the first layer in the transformer stack.
 #' @param attention_normalization (`nn_module`)\cr
-#'   Normalization module to use for attention. `po("nn_ft_transformer_block")` initializes this to `nn_layer_norm`.
+#'   Normalization module to use for attention.
 #' @param ffn_normalization (`nn_module`)\cr
-#'   Normalization module to use for the feed-forward network. `po("nn_ft_transformer_block")` initializes this to `nn_layer_norm`.
+#'   Normalization module to use for the feed-forward network.
 #' @param query_idx (`integer()` or `NULL`)\cr
 #'   Indices of the tensor to apply attention to. Should not be set manually.
 #'   If NULL, then attention is applied to the entire tensor.
 #'   In the last block in a stack of transformers, this is set to `-1`
 #'   so that attention is applied only to the embedding of the CLS token.
 #' @param attention_bias (`logical(1)`)\cr
-#'   Whether attention has a bias. `po("nn_ft_transformer_block")` initializes this to `TRUE`.
+#'   Whether attention has a bias.
 #' @param ffn_bias_first (`logical(1)`)\cr
-#'   Whether the first layer in the FFN has a bias. `po("nn_ft_transformer_block")` initializes this to `TRUE`.
+#'   Whether the first layer in the FFN has a bias.
 #' @param ffn_bias_second (`logical(1)`)\cr
-#'   Whether the second layer in the FFN has a bias. `po("nn_ft_transformer_block")` initializes this to `TRUE`.
+#'   Whether the second layer in the FFN has a bias.
 #'
 #' @references
 #' `r format_bib("devlin2018bert")`
