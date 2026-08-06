@@ -354,7 +354,10 @@ hash_input_environment = function(env, seen = list(), depth = 0L) {
   }
   seen = c(seen, env)
   values = as.list(env, all.names = TRUE)
-  values = values[order(names(values))]
+  # an empty environment has no names at all, and `order(NULL)` is an error
+  if (length(values)) {
+    values = values[order(names(values))]
+  }
   list(names(values), map(values, hash_input_value, seen = seen, depth = depth + 1L),
     hash_input_environment(parent.env(env), seen, depth + 1L))
 }
@@ -364,7 +367,7 @@ hash_input_value = function(x, seen = list(), depth = 0L) {
     return("<not descended into>")
   }
   if (inherits(x, "nn_module")) {
-    return(nn_module_identity(x, seen, depth))
+    return(nn_module_identity(x))
   }
   if (is.function(x)) {
     return(list(hash_input(x), hash_input_environment(environment(x), seen, depth + 1L)))
@@ -378,62 +381,50 @@ hash_input_value = function(x, seen = list(), depth = 0L) {
   hash_input(x)
 }
 
-# Identity of an `nn_module` *instance*: its class, the values it was configured with, the shapes
-# and dtypes of its parameters and buffers, and the same for its sub-modules.
+# Identity of an `nn_module`: its class, its methods, and the shapes of its parameters.
 #
 # This used to be `data.table::address()`, which changes whenever the module is copied. Since
-# `PipeOpModule$deep_clone()` copies it, a deep clone hashed differently from its original.
+# `PipeOpModule$deep_clone()` copies it, a deep clone hashed differently from its original, which
+# violates the invariant that mlr3pipelines' own `expect_deep_clone()` asserts for every `PipeOp`.
+#
+# `attr(x, "module")` is the underlying R6 object: the `R6ClassGenerator` for a generator, the
+# instance itself for a constructed module. Its methods are the module's real `initialize()` /
+# `forward()`. They are hashed via `hash_input()` -- formals and the deparsed body -- rather than by
+# `digest()`ing them, to stay clear of the byte code that R's JIT compiler installs on first call and
+# that made `digest()`ing a module unstable. They are also not redundant with the class: a module
+# built by `nn_module()` without a `classname` has class `"nn_module"` and nothing else.
+#
+# For an instance the methods alone are not enough, as every instance of a class shares them:
+# `nn_linear(2, 3)` and `nn_linear(5, 7)` differ only in what `initialize()` was called with, which
+# surfaces in the shapes of the parameters. `state_dict()` covers sub-modules too, under prefixed
+# names.
 #
 # The parameter *values* are deliberately left out.
 #  * They are not free: reading them means pulling every weight out of torch and into R, whereas
 #    everything hashed here is metadata.
-#  * `PipeOpTorchModel` re-initializes the whole network from the learner's seed before training
-#    (`.reset_parameters_`), so the weights that a module happens to carry while the graph is
-#    assembled do not influence the fitted model.
+#  * `$phash` describes a `PipeOp`'s configuration; `PipeOp`'s contract excludes `$state`, and
+#    `PipeOpLearner` likewise hashes the learner's `$phash` rather than its trained model.
 #  * Leaving them out is what makes two identically specified networks hash identically, which is
 #    the point of hashing them at all.
 # The price is that a module whose configuration shows up *only* in the values of its parameters is
 # not told apart from another one -- `torch::nn_prelu(init = )` is the single such case among the
 # modules that this package builds.
-#
-# Methods are hashed via `hash_input()` (formals and deparsed body) rather than by `digest()`ing
-# them, again to stay clear of the byte code. They are not redundant with the class: a module
-# created by `nn_module()` without a `classname` has class `"nn_module"` and nothing else.
-nn_module_identity = function(x, seen = list(), depth = 0L) {
-  if (inherits(x, "nn_module_generator")) {
-    # `attr(x, "module")` is an `R6ClassGenerator` then, not an instance
-    return(hash_input(x))
+nn_module_identity = function(x) {
+  obj = attr(x, "module")
+  if (inherits(obj, "R6ClassGenerator")) {
+    # a generator carries no constructor arguments yet, so its methods identify it completely
+    return(list(class(x), map(obj$public_methods, hash_input)))
   }
-  instance = attr(x, "module")
-  if (!R6::is.R6(instance)) {
+  if (!R6::is.R6(obj)) {
     return(class(x))
   }
-  # `get()` rather than `instance$.__enclos_env__`: torch defines a `$.nn_Module` that does not
-  # hand out the enclosing environment itself, so the cycle check below would never fire
-  enclos = get(".__enclos_env__", envir = instance)
-  if (depth >= 20L || some(seen, function(e) identical(e, enclos))) {
-    return("<not descended into>")
-  }
-  seen = c(seen, enclos, instance)
-  fields = list()
-  for (name in ls(instance)) {
-    # active bindings are torch's views on the parameters, buffers and sub-modules, which are
-    # covered by `state_dict()` and `children` below
-    if (bindingIsActive(name, instance)) next
-    value = get(name, envir = instance)
-    fields[[name]] = if (is.function(value) && !inherits(value, "nn_module") &&
-      identical(environment(value), enclos)) {
-      # a method of this class: it is enclosed by the very object being described here, so only its
-      # code carries information. Functions that a module *stores* (e.g. what `nn_fn` wraps) are not
-      # enclosed by it and go through `hash_input_value()`, which keeps what they capture.
-      hash_input(value)
-    } else {
-      hash_input_value(value, seen, depth + 1L)
-    }
-  }
-  state = map(instance$state_dict(), function(tensor) list(dim(tensor), as.character(tensor$dtype)))
-  children = map(instance$children, nn_module_identity, seen = seen, depth = depth + 1L)
-  list(class(x), names(fields), fields, names(state), state, names(children), children)
+  # `get()` rather than `obj$...`: torch defines a `$.nn_Module` that resolves parameters and
+  # sub-modules. Active bindings are torch's views on those and are covered by `state_dict()`.
+  ids = sort(ls(obj))
+  ids = ids[map_lgl(ids, function(id) !bindingIsActive(id, obj) && is.function(get(id, envir = obj)))]
+  methods = map(ids, function(id) hash_input(get(id, envir = obj)))
+  shapes = map(obj$state_dict(), function(tensor) list(dim(tensor), as.character(tensor$dtype)))
+  list(class(x), ids, methods, names(shapes), shapes)
 }
 
 # Identity of what a `PipeOpModule` wraps, which is either an `nn_module` or a plain function.
