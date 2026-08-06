@@ -1214,3 +1214,25 @@ test_that("sampler and batch_sampler are checked", {
   expect_error(learner$param_set$set_values(sampler = sampler(1)), "torch_sampler")
   learner$param_set$set_values(sampler = sampler)
 })
+
+test_that("the model has a printer", {
+  learner = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 5, device = "cpu",
+    validate = 0.3, measures_valid = msr("classif.ce"), callbacks = t_clbk("history"))
+  learner$train(tsk("iris"))
+
+  out = capture.output(print(learner$model))
+  expect_match(out[1L], "^<learner_torch_model> trained for 2 epochs")
+  expect_true(any(grepl("Network:.*nn_sequential.*43 parameters", out)))
+  expect_true(any(grepl("Callbacks:.*history", out)))
+  expect_true(any(grepl("Validation scores:.*classif.ce", out)))
+  # the state dicts of optimizer and loss are only named, not printed
+  expect_true(any(grepl("Elements:.*optimizer", out)))
+  expect_false(any(grepl("CPULongType", out)))
+  # a printer must not be longer than the thing it summarizes
+  expect_lt(length(out), 10L)
+
+  # singular for a single epoch
+  learner$param_set$set_values(epochs = 1)
+  learner$train(tsk("iris"))
+  expect_match(capture.output(print(learner$model))[1L], "trained for 1 epoch$")
+})
