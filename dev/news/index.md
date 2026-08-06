@@ -67,6 +67,10 @@
 - [`nn()`](https://mlr3torch.mlr-org.com/dev/reference/nn.md) now
   properly interprets `nn("linear_1")` as
   `po("nn_linear", id = "linear_21")`.
+- Fixed some bugs in `FTTransformer`: `attention_initialization` now has
+  an effect, `n_blocks = 0` is allowed and the hidden dimension falls
+  back to `d_token * 4/3` as in the reference implementation.
+- Fixed some issues in the documentation.
 
 ## mlr3torch 0.3.3
 

@@ -119,6 +119,8 @@
 <code>po("torch_model_{regr, classif}")</code> now resets the parameters of the network at the beginning of <code>$train()</code> when the network is built from <code>PipeOpTorch</code> objects, which makes the results reproducible for the set <code>seed</code> parameter.</li>
 <li>
 <code><a href="../reference/nn.html">nn()</a></code> now properly interprets <code>nn("linear_1")</code> as <code>po("nn_linear", id = "linear_21")</code>.</li>
+<li>Fixed some bugs in <code>FTTransformer</code>: <code>attention_initialization</code> now has an effect, <code>n_blocks = 0</code> is allowed and the hidden dimension falls back to <code>d_token * 4/3</code> as in the reference implementation.</li>
+<li>Fixed some issues in the documentation.</li>
 </ul></div>
 </div>
     <div class="section level2">

@@ -50,8 +50,8 @@ nn_ft_transformer_block(
 - attention_initialization:
 
   (`character(1)`)  
-  Initialization method for attention weights. Either "kaiming" or
-  "xavier".
+  Initialization of the query, key and value projections, either
+  `"kaiming"` or `"xavier"`.
 
 - ffn_d_hidden:
 
@@ -74,8 +74,7 @@ nn_ft_transformer_block(
 - ffn_activation:
 
   (`nn_module`)  
-  Activation function for the feed-forward network. Default value is
-  `nn_reglu`.
+  Activation function for the feed-forward network.
 
 - residual_dropout:
 
@@ -86,25 +85,22 @@ nn_ft_transformer_block(
 
   (`logical(1)`)  
   Whether to apply normalization before attention and FFN (`TRUE`) or
-  after (`TRUE`).
+  after (`FALSE`).
 
 - is_first_layer:
 
   (`logical(1)`)  
-  Whether this is the first layer in the transformer stack. Default
-  value is `FALSE`.
+  Whether this is the first layer in the transformer stack.
 
 - attention_normalization:
 
   (`nn_module`)  
-  Normalization module to use for attention. Default value is
-  `nn_layer_norm`.
+  Normalization module to use for attention.
 
 - ffn_normalization:
 
   (`nn_module`)  
-  Normalization module to use for the feed-forward network. Default
-  value is `nn_layer_norm`.
+  Normalization module to use for the feed-forward network.
 
 - query_idx:
 
@@ -117,17 +113,17 @@ nn_ft_transformer_block(
 - attention_bias:
 
   (`logical(1)`)  
-  Whether attention has a bias. Default is `TRUE`
+  Whether attention has a bias.
 
 - ffn_bias_first:
 
   (`logical(1)`)  
-  Whether the first layer in the FFN has a bias. Default is `TRUE`
+  Whether the first layer in the FFN has a bias.
 
 - ffn_bias_second:
 
   (`logical(1)`)  
-  Whether the second layer in the FFN has a bias. Default is `TRUE`
+  Whether the second layer in the FFN has a bias.
 
 ## References
 

@@ -124,7 +124,7 @@ Dropout probability in the attention mechanism.</p></dd>
 
 <dt id="arg-attention-initialization">attention_initialization<a class="anchor" aria-label="anchor" href="#arg-attention-initialization"></a></dt>
 <dd><p>(<code>character(1)</code>)<br>
-Initialization method for attention weights. Either "kaiming" or "xavier".</p></dd>
+Initialization of the query, key and value projections, either <code>"kaiming"</code> or <code>"xavier"</code>.</p></dd>
 
 
 <dt id="arg-ffn-d-hidden">ffn_d_hidden<a class="anchor" aria-label="anchor" href="#arg-ffn-d-hidden"></a></dt>
@@ -144,7 +144,7 @@ Dropout probability in the feed-forward network.</p></dd>
 
 <dt id="arg-ffn-activation">ffn_activation<a class="anchor" aria-label="anchor" href="#arg-ffn-activation"></a></dt>
 <dd><p>(<code>nn_module</code>)<br>
-Activation function for the feed-forward network. Default value is <code>nn_reglu</code>.</p></dd>
+Activation function for the feed-forward network.</p></dd>
 
 
 <dt id="arg-residual-dropout">residual_dropout<a class="anchor" aria-label="anchor" href="#arg-residual-dropout"></a></dt>
@@ -154,22 +154,22 @@ Dropout probability for residual connections.</p></dd>
 
 <dt id="arg-prenormalization">prenormalization<a class="anchor" aria-label="anchor" href="#arg-prenormalization"></a></dt>
 <dd><p>(<code>logical(1)</code>)<br>
-Whether to apply normalization before attention and FFN (<code>TRUE</code>) or after (<code>TRUE</code>).</p></dd>
+Whether to apply normalization before attention and FFN (<code>TRUE</code>) or after (<code>FALSE</code>).</p></dd>
 
 
 <dt id="arg-is-first-layer">is_first_layer<a class="anchor" aria-label="anchor" href="#arg-is-first-layer"></a></dt>
 <dd><p>(<code>logical(1)</code>)<br>
-Whether this is the first layer in the transformer stack. Default value is <code>FALSE</code>.</p></dd>
+Whether this is the first layer in the transformer stack.</p></dd>
 
 
 <dt id="arg-attention-normalization">attention_normalization<a class="anchor" aria-label="anchor" href="#arg-attention-normalization"></a></dt>
 <dd><p>(<code>nn_module</code>)<br>
-Normalization module to use for attention. Default value is <code>nn_layer_norm</code>.</p></dd>
+Normalization module to use for attention.</p></dd>
 
 
 <dt id="arg-ffn-normalization">ffn_normalization<a class="anchor" aria-label="anchor" href="#arg-ffn-normalization"></a></dt>
 <dd><p>(<code>nn_module</code>)<br>
-Normalization module to use for the feed-forward network. Default value is <code>nn_layer_norm</code>.</p></dd>
+Normalization module to use for the feed-forward network.</p></dd>
 
 
 <dt id="arg-query-idx">query_idx<a class="anchor" aria-label="anchor" href="#arg-query-idx"></a></dt>
@@ -182,17 +182,17 @@ so that attention is applied only to the embedding of the CLS token.</p></dd>
 
 <dt id="arg-attention-bias">attention_bias<a class="anchor" aria-label="anchor" href="#arg-attention-bias"></a></dt>
 <dd><p>(<code>logical(1)</code>)<br>
-Whether attention has a bias. Default is <code>TRUE</code></p></dd>
+Whether attention has a bias.</p></dd>
 
 
 <dt id="arg-ffn-bias-first">ffn_bias_first<a class="anchor" aria-label="anchor" href="#arg-ffn-bias-first"></a></dt>
 <dd><p>(<code>logical(1)</code>)<br>
-Whether the first layer in the FFN has a bias. Default is <code>TRUE</code></p></dd>
+Whether the first layer in the FFN has a bias.</p></dd>
 
 
 <dt id="arg-ffn-bias-second">ffn_bias_second<a class="anchor" aria-label="anchor" href="#arg-ffn-bias-second"></a></dt>
 <dd><p>(<code>logical(1)</code>)<br>
-Whether the second layer in the FFN has a bias. Default is <code>TRUE</code></p></dd>
+Whether the second layer in the FFN has a bias.</p></dd>
 
 </dl></div>
     <div class="section level2">
