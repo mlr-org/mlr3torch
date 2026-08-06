@@ -27,7 +27,10 @@ like the run simply got less far than it did.
 
 \code{path} may already contain checkpoints, which is what a run continuing an earlier one writes
 into: it writes epochs that folder does not have yet, so nothing of the earlier run is touched.
-A run that starts over instead of continuing does overwrite them, and warns when it does.
+A run that would write over a checkpoint of another run errors instead, so a folder is never
+silently left holding the epochs of two different trainings.
+An incomplete checkpoint is replaced rather than protected -- it cannot be resumed from anyway,
+and refusing would mean a run killed while writing could never be restarted into its own folder.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

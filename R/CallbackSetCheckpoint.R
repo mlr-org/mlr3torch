@@ -23,7 +23,10 @@
 #'
 #' `path` may already contain checkpoints, which is what a run continuing an earlier one writes
 #' into: it writes epochs that folder does not have yet, so nothing of the earlier run is touched.
-#' A run that starts over instead of continuing does overwrite them, and warns when it does.
+#' A run that would write over a checkpoint of another run errors instead, so a folder is never
+#' silently left holding the epochs of two different trainings.
+#' An incomplete checkpoint is replaced rather than protected -- it cannot be resumed from anyway,
+#' and refusing would mean a run killed while writing could never be restarted into its own folder.
 #'
 #' @param path (`character(1)`)\cr
 #'   The path to a folder where the models are saved.
@@ -85,12 +88,13 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   ),
   private = list(
     .save = function(suffix) {
-      # A run never writes the same epoch twice, so an existing complete checkpoint under this
-      # number belongs to a different run -- most likely one that was meant to be continued rather
-      # than started over. A resumed run writes epochs the checkpoint it continues does not have,
-      # and an incomplete leftover has no state file, so neither warns.
+      # A run never writes the same epoch twice, so a complete checkpoint under this number belongs
+      # to a different run and is not ours to destroy. A run continuing an earlier one writes epochs
+      # that one does not have, so it never gets here; an incomplete checkpoint has no state file
+      # and is unusable anyway, so replacing that is allowed -- otherwise a run killed while writing
+      # could never be restarted into its own folder.
       if (file.exists(file.path(self$path, paste0("state", suffix, ".rds")))) {
-        warningf("Overwriting the checkpoint of epoch %i in '%s', which another run wrote. Use a fresh folder, or the 'path' parameter of the learner to continue that run instead of starting over.", # nolint
+        stopf("Checkpoint of epoch %i already exists in '%s' and was written by another run. Use a fresh folder, or continue that run instead of starting it over.", # nolint
           suffix, self$path)
       }
       torch_save(self$ctx$network$state_dict(), file.path(self$path, paste0("network", suffix, ".pt")))

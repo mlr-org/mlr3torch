@@ -47,7 +47,8 @@
   states. A checkpoint is only complete when all three files are there, and reading a folder that
   holds a partial one -- what a run killed while writing leaves behind -- warns instead of quietly
   skipping it. `path` may now already contain checkpoints, so a run continuing an earlier one can
-  keep writing into it; a run that starts over and thereby overwrites them warns.
+  keep writing into it. A run that would write over the checkpoint of another run errors instead,
+  so a folder never ends up holding the epochs of two different trainings.
 * The learning rate scheduling and unfreezing callbacks implement `$state_dict()` and
   `$load_state_dict()`, and the early stopping callback additionally stores its best score and
   stagnation counter. The state of a training run can therefore be carried over into another one.

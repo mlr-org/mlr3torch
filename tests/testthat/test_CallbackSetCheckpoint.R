@@ -174,8 +174,8 @@ test_that("a folder that already contains checkpoints can be checkpointed into",
   expect_equal(as.numeric(torch_load(file.path(path, "network2.pt"))[[1L]]$flatten()), kept)
 })
 
-test_that("overwriting the checkpoint of another run warns", {
-  # a run started over instead of continued silently destroyed the earlier run's checkpoints
+test_that("the checkpoint of another run is never overwritten", {
+  # a run started over instead of continued used to destroy the earlier run's checkpoints
   task = tsk("iris")
   path = tempfile()
   first = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
@@ -185,15 +185,17 @@ test_that("overwriting the checkpoint of another run warns", {
 
   second = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
     callbacks = t_clbk("checkpoint", freq = 1, path = path))
-  expect_warning(second$train(task), "Overwriting the checkpoint of epoch 1")
+  expect_error(second$train(task), "Checkpoint of epoch 1 already exists")
 
-  # the warning is not cosmetic: the file really is a different network now
+  # the earlier run's checkpoint is still the one on disk
   after = as.numeric(torch_load(file.path(path, "network1.pt"))[[1L]]$flatten())
-  expect_false(isTRUE(all.equal(before, after)))
+  expect_equal(after, before)
+  expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt", "state1.rds"))
 })
 
-test_that("an incomplete leftover checkpoint is overwritten without warning", {
-  # what a run killed while writing leaves behind, which the next run legitimately replaces
+test_that("an incomplete leftover checkpoint may be replaced", {
+  # what a run killed while writing leaves behind. It is unusable, and refusing to replace it would
+  # mean such a run could never be restarted into its own folder.
   task = tsk("iris")
   path = tempfile()
   dir.create(path)
@@ -201,7 +203,8 @@ test_that("an incomplete leftover checkpoint is overwritten without warning", {
 
   learner = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
     callbacks = t_clbk("checkpoint", freq = 1, path = path))
-  expect_no_warning(learner$train(task))
+  expect_no_error(learner$train(task))
+  expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt", "state1.rds"))
 })
 
 test_that("latest_checkpoint() finds the most recent complete checkpoint", {
