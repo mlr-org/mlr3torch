@@ -8,6 +8,10 @@
 Saves the training and validation history during training.
 The history is saved as a data.table where the validation measures are prefixed with \code{"valid."}
 and the training measures are prefixed with \code{"train."}.
+
+This callback records the \code{measures_train} and \code{measures_valid} of the learner and nothing else,
+so at least one of them has to be set -- it errors otherwise. In particular the training loss is
+not recorded.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -50,6 +54,8 @@ print(learner$model$callbacks$history)
 \if{latex}{\out{\hypertarget{method-CallbackSetHistory-on_begin}{}}}
 \subsection{\code{CallbackSetHistory$on_begin()}}{
   Initializes lists where the train and validation metrics are stored.
+Errors if neither \code{measures_train} nor \code{measures_valid} is set, as there would be nothing
+to record.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetHistory$on_begin()}

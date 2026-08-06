@@ -5,7 +5,7 @@ test_that("Basic checks", {
 
 test_that("deep cloning", {
   learner = lrn("classif.torch_featureless", callbacks = "history")
-  learner$param_set$set_values(epochs = 1, batch_size = 1)
+  learner$param_set$set_values(epochs = 1, batch_size = 1, measures_train = msr("classif.ce"))
   task = tsk("iris")
   learner$train(task)
   learner$state$train_task = NULL
@@ -190,7 +190,7 @@ test_that("the state of a trained network contains what it should", {
   task = tsk("mtcars")$select("am")
 
   learner = lrn("regr.torch_featureless", epochs = 0, batch_size = 10,
-    callbacks = t_clbk("history", id = "history1"),
+    callbacks = t_clbk("history", id = "history1"), measures_train = msr("regr.mse"),
     optimizer = t_opt("sgd", lr = 1),
     loss = t_loss("l1")
   )
@@ -391,7 +391,7 @@ test_that("predict parameters do what they should: classification and regression
 
 test_that("quick accessors work", {
   task = tsk("mtcars")
-  learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 1, callbacks = "history")
+  learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 1, callbacks = "history", measures_train = msr("regr.mse"))
   expect_true(is.null(learner$network))
   learner$train(task)
   expect_class(learner$network, "nn_module")

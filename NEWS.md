@@ -1,5 +1,13 @@
 # mlr3torch (development version)
 
+## Breaking changes
+
+* The `history` callback now errors when neither `measures_train` nor `measures_valid` is set,
+  instead of silently producing an empty table. It only ever records those two measures -- in
+  particular it never recorded the training loss -- so without them there was nothing to save, which
+  read like training itself had gone wrong. The condition is an `Mlr3ErrorConfig`, so it does not
+  trigger the fallback learner.
+
 ## Features
 
 * Added learners for the remaining image classification networks of `torchvision`:

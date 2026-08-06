@@ -7,6 +7,10 @@
 #' The history is saved as a data.table where the validation measures are prefixed with `"valid."`
 #' and the training measures are prefixed with `"train."`.
 #'
+#' This callback records the `measures_train` and `measures_valid` of the learner and nothing else,
+#' so at least one of them has to be set -- it errors otherwise. In particular the training loss is
+#' not recorded.
+#'
 #' @export
 #' @include CallbackSet.R
 #' @examplesIf torch::torch_is_installed()
@@ -29,7 +33,14 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
   public = list(
     #' @description
     #' Initializes lists where the train and validation metrics are stored.
+    #' Errors if neither `measures_train` nor `measures_valid` is set, as there would be nothing
+    #' to record.
     on_begin = function() {
+      if (!length(self$ctx$measures_train) && !length(self$ctx$measures_valid)) {
+        # the callback only ever records these two, so without them it silently produced an empty
+        # table, which reads like the training itself went wrong
+        error_config("The 'history' callback requires 'measures_train' or 'measures_valid' to be set, as it only records those. Set at least one of them, or remove the callback.") # nolint
+      }
       self$train = list(list(epoch = numeric(0)))
       self$valid = list(list(epoch = numeric(0)))
     },
