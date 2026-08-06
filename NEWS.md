@@ -8,6 +8,11 @@
   dimensions.
 * The dropout probability `p` of `lrn("classif.mlp")` / `lrn("regr.mlp")` is now initialized to
   `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
+* The `cache` argument of `materialize()` is now a [`utils::hashtab()`] instead of an
+  `environment()`, so that two distinct cache keys can no longer share an entry through a digest
+  collision. Code passing `cache = new.env()` has to pass `cache = hashtab()`; the default
+  `cache = "auto"` is unaffected. This raises the R dependency to `>= 4.2.0`, which is when
+  `hashtab()` was added.
 
 ## Features
 

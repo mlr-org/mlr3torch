@@ -13,7 +13,7 @@ The lazy tensor to materialize.}
 \item{device}{(\code{character(1L)})\cr
 The device to put the materialized tensor on (after running the preprocessing graph).}
 
-\item{cache}{(\code{NULL} or \code{environment()})\cr
+\item{cache}{(\code{NULL} or \code{\link[utils:hashtab]{hashtab()}})\cr
 Whether to cache the (intermediate) results of the materialization.
 This can make data loading faster when multiple \code{lazy_tensor}s reference the same dataset or graph.}
 
@@ -39,8 +39,8 @@ a) Output(s) from the dataset might be input to multiple graphs.
 (in task_dataset this should rarely be the case because we try to merge them).
 b) Different lazy tensors might be outputs from the same graph.
 
-For this reason it is possible to provide a cache environment.
-The hash key for a) is the hash of the indices and the dataset.
-The hash key for b) is the hash of the indices dataset and preprocessing graph.
+For this reason it is possible to provide a cache, which is a \code{\link[utils:hashtab]{hashtab()}}.
+The key for a) is the indices and the dataset, the key for b) is the indices, the dataset and the
+preprocessing graph.
 }
 \keyword{internal}
