@@ -68,11 +68,13 @@ test_that("restore_best_weights restores the weights of the best epoch", {
   expect_equal(last$model$epochs, restored$model$epochs)
   expect_equal(last$internal_tuned_values$epochs, restored$internal_tuned_values$epochs)
 
-  # early stopping has weight 0 and the checkpoint callback Inf, so the checkpoint written on exit
-  # must be the restored network, not the last epoch's
+  # the restore runs after the checkpoint callback, so the checkpoint holds the network as training
+  # left it and not the restored one
   path = tempfile()
   checkpointed = make_es_learner(epochs = 30, patience = 3, restore_best_weights = TRUE,
     callbacks = t_clbk("checkpoint", path = path, freq = 100))
-  saved = torch_load(file.path(path, sprintf("network%s.pt", checkpointed$model$epochs)))
-  expect_equal(lapply(saved, function(x) as.numeric(x$cpu())), state_nums(checkpointed))
+  saved = lapply(torch_load(file.path(path, sprintf("network%s.pt", checkpointed$model$epochs))),
+    function(x) as.numeric(x$cpu()))
+  expect_equal(saved, state_nums(last))
+  expect_false(isTRUE(all.equal(saved, state_nums(checkpointed))))
 })

@@ -2,11 +2,13 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
   inherit = CallbackSet,
   lock_objects = FALSE,
   public = list(
-    # The default weight of 0 is deliberate. This callback is appended after the user's, so in
-    # `on_valid_end` it still runs last and therefore sees any change they made to
-    # `ctx$last_scores_valid` -- which is how a callback influences early stopping. In `on_exit` a
-    # weight of 0 also puts the restore below `CallbackSetCheckpoint` (weight `Inf`), so the
-    # checkpoint written there is the restored network rather than the last epoch's.
+    # The weight of `Inf` is deliberate and matters in two stages. In `on_valid_end` it makes this
+    # callback run last, so it sees the change a user callback made to `ctx$last_scores_valid` --
+    # overwriting that field is how a user callback influences early stopping. In `on_exit` it puts
+    # the restore of the best weights after `CallbackSetCheckpoint`, which has weight `Inf` as well
+    # but is passed by the user and hence comes before this callback, which the learner appends.
+    # A checkpoint therefore holds the network as training left it, not the restored one.
+    weight = Inf,
     initialize = function(patience, min_delta, restore_best_weights = FALSE) {
       self$patience = assert_int(patience, lower = 1L)
       self$min_delta = assert_double(min_delta, lower = 0, len = 1L, any.missing = FALSE)
@@ -52,7 +54,8 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         return(NULL)
       }
       # this stage also runs when training was interrupted, in which case the best weights seen so
-      # far are still the right ones to keep
+      # far are still the right ones to keep. Callbacks that write the network out -- such as
+      # `CallbackSetCheckpoint` -- have already run at this point, see the `weight` above.
       self$ctx$network$load_state_dict(self$best_state_dict)
       invisible(NULL)
     },
