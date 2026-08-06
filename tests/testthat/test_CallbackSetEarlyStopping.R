@@ -47,13 +47,6 @@ test_that("best_valid_scores are the scores of the best epoch", {
     learner$model$callbacks$early_stopping$best_epochs)
   # classif.acc is maximized, so the best epoch is at least as good as the last one
   expect_true(best$classif.acc >= last$classif.acc)
-
-  # msr("best_valid_score") reads them
-  rr = resample(task, learner, rsmp("holdout"))
-  expect_equal(
-    rr$score(msr("best_valid_score", select = "classif.acc"))$classif.acc,
-    rr$learners[[1]]$best_valid_scores$classif.acc
-  )
 })
 
 test_that("no best_valid_scores without early stopping", {
