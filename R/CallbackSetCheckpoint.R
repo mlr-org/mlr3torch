@@ -18,6 +18,12 @@
 #'
 #' A checkpoint counts as complete only if all three files are present, so a run that was killed
 #' while writing one of them falls back to the previous checkpoint rather than to a partial one.
+#' Reading a folder that holds such a partial checkpoint warns, as skipping it silently would look
+#' like the run simply got less far than it did.
+#'
+#' `path` may already contain checkpoints, which is what a run continuing an earlier one writes
+#' into: it writes epochs that folder does not have yet, so nothing of the earlier run is touched.
+#' A run that starts over instead of continuing does overwrite them, and warns when it does.
 #'
 #' @param path (`character(1)`)\cr
 #'   The path to a folder where the models are saved.
@@ -79,6 +85,14 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   ),
   private = list(
     .save = function(suffix) {
+      # A run never writes the same epoch twice, so an existing complete checkpoint under this
+      # number belongs to a different run -- most likely one that was meant to be continued rather
+      # than started over. A resumed run writes epochs the checkpoint it continues does not have,
+      # and an incomplete leftover has no state file, so neither warns.
+      if (file.exists(file.path(self$path, paste0("state", suffix, ".rds")))) {
+        warningf("Overwriting the checkpoint of epoch %i in '%s', which another run wrote. Use a fresh folder, or the 'path' parameter of the learner to continue that run instead of starting over.", # nolint
+          suffix, self$path)
+      }
       torch_save(self$ctx$network$state_dict(), file.path(self$path, paste0("network", suffix, ".pt")))
       torch_save(self$ctx$optimizer$state_dict(), file.path(self$path, paste0("optimizer", suffix, ".pt")))
       saveRDS(
@@ -112,15 +126,18 @@ can_checkpoint_into = function(path) {
 checkpoint_suffixes = function(path) {
   if (!dir.exists(path)) return(integer(0))
   suffixes = as.integer(gsub("^network|\\.pt$", "", list.files(path, pattern = "^network[0-9]+\\.pt$")))
+  # paste0() recycles a zero-length suffix to "", which would look for 'optimizer.pt'
+  if (!length(suffixes)) return(integer(0))
   complete = file.exists(file.path(path, paste0("optimizer", suffixes, ".pt"))) &
     file.exists(file.path(path, paste0("state", suffixes, ".rds")))
+  if (!all(complete)) {
+    # silently skipping these would look like the run simply got less far than it did
+    warningf("Ignoring incomplete checkpoint(s) %s in '%s', which are missing an optimizer or a state file. This is what a run killed while writing a checkpoint leaves behind.", # nolint
+      paste0(sort(suffixes[!complete]), collapse = ", "), path)
+  }
   sort(suffixes[complete], decreasing = TRUE)
 }
 
-# Reads a `state<n>.rds` and warns if it was written by a different version of mlr3torch.
-# What a callback stores in its state dict is up to the callback, so it may change between
-# releases: a mismatch is not necessarily fatal, but it is the first thing worth knowing when a
-# resumed run behaves oddly or fails while restoring.
 read_checkpoint_state = function(file) {
   state = readRDS(file)
   current = as.character(utils::packageVersion("mlr3torch"))

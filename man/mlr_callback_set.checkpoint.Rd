@@ -22,6 +22,12 @@ callback stores in its state dict is up to the callback and may change between r
 
 A checkpoint counts as complete only if all three files are present, so a run that was killed
 while writing one of them falls back to the previous checkpoint rather than to a partial one.
+Reading a folder that holds such a partial checkpoint warns, as skipping it silently would look
+like the run simply got less far than it did.
+
+\code{path} may already contain checkpoints, which is what a run continuing an earlier one writes
+into: it writes epochs that folder does not have yet, so nothing of the earlier run is touched.
+A run that starts over instead of continuing does overwrite them, and warns when it does.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

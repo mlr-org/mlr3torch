@@ -43,9 +43,11 @@
   saves the network and the optimizer as they left them. Previously a learning rate scheduler
   passed after it would step only after the optimizer had already been written.
 * `t_clbk("checkpoint")` additionally writes a `state<n>.rds` next to `network<n>.pt` and
-  `optimizer<n>.pt`, holding the epoch and the states of the other callbacks of the run, so that a
-  later run can continue e.g. the training history or the learning rate schedule. It also accepts a
-  folder that already contains checkpoints, which a continued run keeps writing into.
+  `optimizer<n>.pt`, holding some meta information as well as the callback
+  states. A checkpoint is only complete when all three files are there, and reading a folder that
+  holds a partial one -- what a run killed while writing leaves behind -- warns instead of quietly
+  skipping it. `path` may now already contain checkpoints, so a run continuing an earlier one can
+  keep writing into it; a run that starts over and thereby overwrites them warns.
 * The learning rate scheduling and unfreezing callbacks implement `$state_dict()` and
   `$load_state_dict()`, and the early stopping callback additionally stores its best score and
   stagnation counter. The state of a training run can therefore be carried over into another one.
@@ -64,10 +66,7 @@
 ## Bug fixes
 
 * `t_clbk("checkpoint")` no longer writes a checkpoint when training fails in the middle of an
-  epoch, so `network<n>.pt` is now always the network at the *end* of epoch `n` rather than
-  sometimes a half-trained one. Renaming such a checkpoint to the last complete epoch was not
-  enough, as the batches of the failed epoch that did run have already updated the network and the
-  optimizer. Such a run keeps the checkpoints that `freq` wrote before the error.
+  epoch.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`. Previously any
   existing directory was rejected, which made a pre-created output folder unusable and meant that
   a run failing before its first checkpoint left behind a folder that blocked every later run.
