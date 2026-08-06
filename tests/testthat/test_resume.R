@@ -56,7 +56,7 @@ test_that("the most recent complete checkpoint is used", {
   file.create(file.path(path, "network4.pt"))
 
   resumed = resumer(4L, path)
-  resumed$train(tsk("iris"))
+  expect_warning(resumed$train(tsk("iris")), "Ignoring incomplete checkpoint\\(s\\) 4")
   # continued from epoch 3, not from the incomplete 4 and not from 1
   expect_equal(resumed$model$epochs, 4L)
 })
@@ -68,7 +68,7 @@ test_that("checkpoints without a state file are ignored", {
 
   # epoch 2 is incomplete, so the run continues from epoch 1 instead
   resumed = resumer(4L, path)
-  resumed$train(tsk("iris"))
+  expect_warning(resumed$train(tsk("iris")), "Ignoring incomplete checkpoint\\(s\\) 2")
   expect_equal(resumed$model$epochs, 4L)
 
   # with no complete checkpoint left there is nothing to resume from, and rather than reading the
@@ -76,7 +76,7 @@ test_that("checkpoints without a state file are ignored", {
   # training starts from scratch
   file.remove(list.files(path, pattern = "^state", full.names = TRUE))
   scratch = resumer(2L, path)
-  scratch$train(tsk("iris"))
+  expect_warning(scratch$train(tsk("iris")), "Ignoring incomplete checkpoint")
   expect_equal(scratch$model$epochs, 2L)
 })
 
