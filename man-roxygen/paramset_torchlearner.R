@@ -18,10 +18,6 @@
 #'   divide the available cores among the workers instead of setting this to the number of cores.
 #' * `num_interop_threads` :: `integer(1)`\cr
 #'   The number of threads for interop parallelization (if `device` is `"cpu"`).
-#'   This value is **not** initialized, i.e. torch's default is left in place unless you set it.
-#'   Note that this can only be set **once** per session and is not restored afterwards, so it takes
-#'   effect only for the first learner that is trained with it in a session and then applies to all
-#'   subsequent torch code, too. You can work around this via encapsulation, see [`mlr3::Learner`].
 #' * `seed` :: `integer(1)` or `"random"` or `NULL`\cr
 #'   The torch seed that is used during training and prediction.
 #'   This value is initialized to `"random"`, which means that a random seed will be sampled at the beginning of the

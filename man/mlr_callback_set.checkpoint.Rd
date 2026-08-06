@@ -22,29 +22,6 @@ its own number, so \verb{network<n>.pt} is always the network at the \emph{end} 
 Saving the learner itself in the callback with a trained model is impossible,
 as the model slot is set \emph{after} the last callback step is executed.
 }
-\section{Checkpointing more than one training run}{
-
-So that a checkpoint never overwrites unrelated data, \code{path} must not exist yet or must be an
-empty directory. A fixed \code{path} can therefore only be used for a \emph{single} training run: training
-the same learner a second time into it fails, and so do \code{resample()}, \code{benchmark()} and tuning,
-whose second iteration would write into the directory the first one filled.
-
-Pass a \verb{function()} as \code{path} to check-point such a run. It is called once at the beginning of
-every training run and must return the path for that run, so each iteration gets its own
-directory:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{root = tempfile()
-learner$param_set$set_values(
-  cb.checkpoint.path = function() tempfile(tmpdir = root)
-)
-}\if{html}{\out{</div>}}
-
-Note that the iterations of a \code{resample()} are not distinguishable from within the callback, so
-the function has to make the paths unique itself, e.g. via \code{\link[=tempfile]{tempfile()}} as above. When training
-happens in parallel, the function runs in the worker, so it must not rely on state of the main
-session.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 cb = t_clbk("checkpoint", freq = 1)
@@ -120,7 +97,9 @@ a checkpoint always holds the network as training left it.}
     \describe{
       \item{\code{path}}{(\code{character(1)} | \verb{function()})\cr
 The path to a folder where the models are saved, or a function of no arguments returning it.
-The folder must be new or empty, see section \emph{Checkpointing more than one training run}.}
+The latter is especially useful to create unique directories during \code{resample()} or \code{benchmark()}
+per fit.
+The folder must be new or empty, so that a checkpoint never overwrites unrelated data.}
       \item{\code{freq}}{(\code{integer(1)})\cr
 How often the model is saved, in epochs.}
     }

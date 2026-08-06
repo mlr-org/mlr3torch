@@ -129,7 +129,6 @@ reference:
       - assert_lazy_tensor
       - is_lazy_tensor
       - materialize
-      # non-syntactic topic name, so it has to be backtick-quoted to parse as a symbol
       - "`==.lazy_tensor`"
   - title: Loss
     contents:

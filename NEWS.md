@@ -10,9 +10,6 @@
   `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
 * The `num_interop_threads` parameter of `LearnerTorch` is no longer initialized to `1`, so torch's
   default is left in place unless the parameter is set.
-  Because torch permits the interop thread count to be set only once per session, the initialization
-  used up that one chance during the first training, which both made the parameter itself unusable
-  and permanently reduced interop parallelism for all other torch code in the session.
 
 ## Features
 
@@ -38,8 +35,10 @@
 * `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
 * The `path` of `t_clbk("checkpoint")` can now be a `function()` that is called at the beginning of
-  each training run and returns that run's path, which makes checkpointing usable with `resample()`,
-  `benchmark()` and tuning, where a fixed path would be written into more than once.
+  each training run and returns that run's path.
+* A network whose output dimension does not match the task is now rejected with a message naming
+  both, instead of failing with a torch error during training (too few outputs) or only at predict
+  time (too many outputs).
 
 ## Bug fixes
 
