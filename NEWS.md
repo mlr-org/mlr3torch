@@ -51,8 +51,7 @@
 * Fixed some bugs in `FTTransformer`: `attention_initialization` now has an
   effect, `n_blocks = 0` is allowed and the hidden dimension falls back to
   `d_token * 4/3` as in the reference implementation.
-* The documentation of `nn_ft_transformer_block()` no longer claims defaults that its signature
-  does not have, and it describes `prenormalization` and `attention_initialization` correctly.
+* Fixed some issues in the documentation.
 
 # mlr3torch 0.3.3
 
