@@ -12,7 +12,7 @@
 #'   Additional parameters, constructor arguments or fields.
 #' @export
 #' @examples
-#' po1 = po("nn_linear", id = "linear")
+#' po1 = nn("linear", id = "linear")
 #' # is the same as:
 #' po2 = nn("linear")
 #'

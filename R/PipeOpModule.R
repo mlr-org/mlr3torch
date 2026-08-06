@@ -67,7 +67,7 @@
 #' str(out)
 #'
 #' # How such a PipeOpModule is usually generated
-#' graph = po("torch_ingress_num") %>>% po("nn_linear", out_features = 10L)
+#' graph = po("torch_ingress_num") %>>% nn("linear", out_features = 10L)
 #' result = graph$train(tsk("iris"))
 #' # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph
 #' result[[1]]$graph

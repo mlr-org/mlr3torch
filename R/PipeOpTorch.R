@@ -148,8 +148,8 @@
 #'
 #' # In mlr3torch
 #' network_generator = po("torch_ingress_num") %>>%
-#'   po("nn_linear", out_features = 50) %>>%
-#'   po("nn_head")
+#'   nn("linear", out_features = 50) %>>%
+#'   nn("head")
 #' md = network_generator$train(task)[[1L]]
 #' network = model_descriptor_to_module(md)
 #' y = torch::with_no_grad(network(torch_ingress_num.input = x))
@@ -259,7 +259,7 @@
 #' ## Shape inference
 #'
 #' # `$shapes_out()` reports what an operator makes of an input shape, without building a network
-#' conv = po("nn_conv2d", out_channels = 4, kernel_size = 3)
+#' conv = nn("conv2d", out_channels = 4, kernel_size = 3)
 #' conv$shapes_out(list(c(NA, 3, 32, 32)))
 #'
 #' # any dimension may be unknown, so images of varying size work just as well

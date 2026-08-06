@@ -121,7 +121,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
 #'
 #' # configure the model descriptor
 #' md = as_graph(po("torch_ingress_num") %>>%
-#'   po("nn_head") %>>%
+#'   nn("head") %>>%
 #'   po("torch_loss", "cross_entropy") %>>%
 #'   po("torch_optimizer", "adam"))$train(tsk("iris"))[[1L]]
 #'
@@ -164,7 +164,7 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 #'
 #' # build the model descriptor
 #' md = as_graph(po("torch_ingress_num") %>>%
-#'   po("nn_head") %>>%
+#'   nn("head") %>>%
 #'   po("torch_loss", "mse") %>>%
 #'   po("torch_optimizer", "adam"))$train(tsk("mtcars"))[[1L]]
 #'

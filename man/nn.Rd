@@ -22,7 +22,7 @@ Because the ids within a \code{\link[mlr3pipelines:Graph]{Graph}} must be unique
 with \verb{_<n>} to disambiguate repeated layers, e.g. \code{nn("linear_1")} and \code{nn("linear_2")}.
 }
 \examples{
-po1 = po("nn_linear", id = "linear")
+po1 = nn("linear", id = "linear")
 # is the same as:
 po2 = nn("linear")
 
