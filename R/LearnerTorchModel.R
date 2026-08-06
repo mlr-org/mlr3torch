@@ -61,7 +61,16 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     initialize = function(network = NULL, ingress_tokens = NULL, task_type, properties = NULL, optimizer = NULL, loss = NULL,
       callbacks = list(), packages = character(0), feature_types = NULL) {
       # we need to serialize here as otherwise encapsulation and parallelization fails
-      if (!is.null(network)) private$.network_stored = torch_serialize(assert_class(network, "nn_module"))
+      if (!is.null(network)) {
+        private$.network_stored = torch_serialize(assert_class(network, "nn_module"))
+        # `.network()` consumes `.network_stored`, so the identity has to be recorded here -- `$phash`
+        # must not change just because the learner was trained. It is recorded once and then never
+        # recomputed: it travels with the learner, so a learner sent to another R session keeps the
+        # hash it was built with. Recomputing would not be safe, as `torch_serialize()` is
+        # deterministic for a given network object but two networks with identical weights do not
+        # serialize to the same bytes.
+        private$.network_hash = calculate_hash(private$.network_stored)
+      }
       if (!is.null(ingress_tokens)) self$ingress_tokens = ingress_tokens
       if (is.null(feature_types)) {
         feature_types = unname(mlr_reflections$task_feature_types)
@@ -143,10 +152,12 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       )
     },
     .network_stored = NULL,
+    # identity of the network, recorded when it is stored; see `initialize()` and `PipeOpTorchModel`
+    .network_hash = NULL,
     # set by `PipeOpTorchModel`, see `.network()` above
     .reset_parameters_ = FALSE,
     .additional_phash_input = function() {
-      list(self$properties, self$feature_types, private$.network_stored, self$packages, private$.ingress_tokens_)
+      list(self$properties, self$feature_types, private$.network_hash, self$packages, private$.ingress_tokens_)
      }
   )
 )

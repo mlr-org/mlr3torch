@@ -46,6 +46,9 @@
   was neither the iteration order nor deterministic. `$score()` and `as.data.table(rr)` were never
   affected. `hash_input()` for `nn_module` generators is now based on the generator's class and
   method bodies rather than on `data.table::address()`.
+* `lrn("classif.torch_model")` / `lrn("regr.torch_model")`, and learners built from a `Graph` via
+  `po("torch_model_*")`, no longer change their `$hash` when they are trained. The hash was derived
+  from the stored network, which `$.network()` consumes at the start of training.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 * `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
   under that epoch's own number, so `network<n>.pt` is now always the

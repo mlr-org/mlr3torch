@@ -85,3 +85,33 @@ test_that("LearnerTorchModel and marshaling", {
   learner$train(task)
   expect_class(learner$model, "learner_torch_model")
 })
+
+test_that("training does not change the hash of a LearnerTorchModel", {
+  # `.network()` consumes `.network_stored`, so a `$phash` built from that field changed as soon as
+  # the learner was trained. The identity is recorded once when the network is stored instead.
+  tokens = list(x = TorchIngressToken(c("Sepal.Length", "Sepal.Width"), batchgetter_num, c(NA, 2)))
+  network = nn_linear(2, 3)
+  mk = function(net = network) {
+    lrn("classif.torch_model", network = net, ingress_tokens = tokens, epochs = 1, batch_size = 16,
+      device = "cpu")
+  }
+
+  learner = mk()
+  before = learner$hash
+  learner$train(tsk("iris"))
+  expect_equal(before, learner$hash)
+
+  expect_equal(mk()$hash, mk()$hash)
+  expect_equal(mk()$hash, mk()$clone(deep = TRUE)$hash)
+  expect_false(identical(mk()$hash, mk(nn_linear(2, 3))$hash))
+})
+
+test_that("training does not change the hash of a graph-built learner", {
+  graph = po("torch_ingress_num") %>>% po("nn_head") %>>%
+    po("torch_loss", t_loss("cross_entropy")) %>>% po("torch_optimizer", t_opt("adam")) %>>%
+    po("torch_model_classif", batch_size = 16, epochs = 1, device = "cpu")
+  learner = as_learner(graph)
+  before = learner$hash
+  learner$train(tsk("iris"))
+  expect_equal(before, learner$hash)
+})
