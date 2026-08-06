@@ -1214,3 +1214,79 @@ test_that("sampler and batch_sampler are checked", {
   expect_error(learner$param_set$set_values(sampler = sampler(1)), "torch_sampler")
   learner$param_set$set_values(sampler = sampler)
 })
+
+test_that("resample() returns the learners in iteration order", {
+  # `Learner$hash` digests `param_set$values` as a whole, and `digest()` serializes a closure
+  # together with its environment. Instantiating an R6 generator rebinds its shared enclosing
+  # environment, so the `activation` generator serializes differently before and after training and
+  # the iterations recorded different hashes. `ResultData$learners()` merges on `learner_hash` with
+  # `sort = TRUE`, so the learners came back in hash order rather than iteration order.
+  # This is R6, not torch: a plain `R6Class()` generator digests differently after `$new()` too.
+  # `hash_input()` sidesteps it by looking only at the class and the method bodies, never at an
+  # environment.
+  task = tsk("iris")
+  withr::local_seed(1)
+  rr = resample(task, lrn("classif.mlp", epochs = 1, batch_size = 32, neurons = 5,
+    device = "cpu", predict_type = "prob"), rsmp("cv", folds = 3), store_models = TRUE)
+
+  for (i in 1:3) {
+    expect_equal(
+      rr$learners[[i]]$predict(task, rr$resampling$test_set(i))$prob,
+      rr$predictions()[[i]]$prob
+    )
+  }
+})
+
+test_that("training does not change the hash of a learner holding an nn_module", {
+  # R JIT-compiles the generator's methods when the module is first instantiated, which changes how
+  # `digest()` serializes them. `hash_input()` must shield `$hash` from that.
+  learners = list(
+    lrn("classif.mlp", activation = nn_relu, neurons = 3),
+    lrn("regr.mlp", activation = nn_tanh, neurons = 3),
+    lrn("classif.tabm", activation = nn_relu),
+    lrn("classif.tab_resnet", n_blocks = 1, d_block = 4, d_hidden = 4, dropout1 = 0, dropout2 = 0)
+  )
+  tasks = c("iris", "mtcars", "iris", "iris")
+
+  for (i in seq_along(learners)) {
+    learner = learners[[i]]
+    learner$param_set$set_values(epochs = 1, batch_size = 16, device = "cpu")
+    before = learner$hash
+    learner$train(tsk(tasks[[i]]))
+    expect_equal(before, learner$hash, info = learner$id)
+  }
+})
+
+test_that("learners holding an nn_module hash equal when they are equal", {
+  mk = function() lrn("classif.mlp", activation = nn_relu, neurons = 3)
+  expect_equal(mk()$hash, mk()$hash)
+  expect_equal(mk()$hash, mk()$clone(deep = TRUE)$hash)
+  # a different module must not collide, even with an identical constructor signature
+  expect_false(identical(
+    lrn("classif.mlp", activation = nn_relu, neurons = 3)$hash,
+    lrn("classif.mlp", activation = nn_tanh, neurons = 3)$hash
+  ))
+})
+
+test_that("hashes are reproducible across R sessions", {
+  skip_on_cran()
+  skip_if_not_installed("callr")
+  # `data.table::address()` differs between processes, so a hash built from it is not reproducible.
+  # Comparing a fresh session against one that has trained also covers the JIT effect above.
+  pkg = if (requireNamespace("pkgload", quietly = TRUE) &&
+      isTRUE(pkgload::is_dev_package("mlr3torch"))) pkgload::pkg_path() else NULL
+
+  hash_in_session = function(train) {
+    callr::r(function(pkg, train) {
+      if (is.null(pkg)) suppressMessages(library(mlr3torch)) else pkgload::load_all(pkg, quiet = TRUE)
+      learner = lrn("classif.mlp", activation = nn_relu, neurons = 3, epochs = 1, batch_size = 16,
+        device = "cpu")
+      if (train) learner$train(tsk("iris"))
+      learner$hash
+    }, args = list(pkg = pkg, train = train), libpath = .libPaths())
+  }
+
+  expect_equal(hash_in_session(FALSE), hash_in_session(TRUE))
+  expect_equal(hash_in_session(FALSE), lrn("classif.mlp", activation = nn_relu, neurons = 3,
+    epochs = 1, batch_size = 16, device = "cpu")$hash)
+})

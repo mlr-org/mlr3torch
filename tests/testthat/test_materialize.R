@@ -134,7 +134,7 @@ test_that("materialize_internal: caching of datasets works", {
   ds$count = 0
 
   d = data.table(x1 = x1, x2 = x2)
-  materialize(d, rbind = TRUE, cache = new.env())
+  materialize(d, rbind = TRUE, cache = hashtab())
   expect_true(ds$count == 10)
 })
 

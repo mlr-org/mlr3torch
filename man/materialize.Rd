@@ -24,7 +24,7 @@ In the second case, there is no batch dimension.}
 \item{...}{(any)\cr
 Additional arguments.}
 
-\item{cache}{(\code{character(1)} or \code{environment()} or \code{NULL})\cr
+\item{cache}{(\code{character(1)} or \code{\link[utils:hashtab]{hashtab()}} or \code{NULL})\cr
 Optional cache for (intermediate) materialization results.
 Per default, caching will be enabled when the same dataset or data descriptor (with different output pointer)
 is used for more than one lazy tensor column.}
@@ -52,9 +52,10 @@ With multiple \code{\link{lazy_tensor}} columns we can benefit from caching beca
 a) Output(s) from the dataset might be input to multiple graphs.
 b) Different lazy tensors might be outputs from the same graph.
 
-For this reason it is possible to provide a cache environment.
-The hash key for a) is the hash of the indices and the dataset.
-The hash key for b) is the hash of the indices, dataset and preprocessing graph.
+For this reason it is possible to provide a cache, which is a \code{\link[utils:hashtab]{hashtab()}}.
+The key for a) is the indices and the dataset, the key for b) is the indices, the dataset and the
+preprocessing graph. The keys are stored as they are rather than digested into a string, so two
+different keys can never share an entry.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

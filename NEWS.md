@@ -8,6 +8,11 @@
   dimensions.
 * The dropout probability `p` of `lrn("classif.mlp")` / `lrn("regr.mlp")` is now initialized to
   `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
+* The `cache` argument of `materialize()` is now a [`utils::hashtab()`] instead of an
+  `environment()`, so that two distinct cache keys can no longer share an entry through a digest
+  collision. Code passing `cache = new.env()` has to pass `cache = hashtab()`; the default
+  `cache = "auto"` is unaffected. This raises the R dependency to `>= 4.2.0`, which is when
+  `hashtab()` was added.
 
 ## Features
 
@@ -35,6 +40,15 @@
 
 ## Bug fixes
 
+* `resample(..., store_models = TRUE)$learners[[i]]` (and the `benchmark()` equivalent) is now really
+  the learner of iteration `i`. The list was returned in hash order, which for learners holding an
+  `nn_module` generator as a hyperparameter -- such as `lrn("classif.mlp")` and its `activation` --
+  was neither the iteration order nor deterministic. `$score()` and `as.data.table(rr)` were never
+  affected. `hash_input()` for `nn_module` generators is now based on the generator's class and
+  method bodies rather than on `data.table::address()`.
+* `lrn("classif.torch_model")` / `lrn("regr.torch_model")`, and learners built from a `Graph` via
+  `po("torch_model_*")`, no longer change their `$hash` when they are trained. The hash was derived
+  from the stored network, which `$.network()` consumes at the start of training.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 * `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
   under that epoch's own number, so `network<n>.pt` is now always the
