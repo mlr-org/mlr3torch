@@ -346,7 +346,7 @@ mlr3torch_optimizers$add("adagrad",
     p = ps(
       lr                        = p_dbl(default = 0.01, lower = 0, tags = "train"),
       lr_decay                  = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
-      weight_decay              = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
+      weight_decay              = p_dbl(default = 0, lower = 0, tags = "train"),
       initial_accumulator_value = p_dbl(default = 0, lower = 0, tags = "train"),
       eps                       = p_dbl(default = 1e-10, lower = 1e-16, tags = "train")
     )
