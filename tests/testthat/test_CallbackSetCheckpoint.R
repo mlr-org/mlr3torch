@@ -208,3 +208,39 @@ test_that("the saved callback states belong to the epoch of the checkpoint", {
   expect_equal(state$callbacks$lr_step$last_epoch, 2)
   expect_equal(state$callbacks$lr_step, learner$model$callbacks$lr_step)
 })
+
+test_that("the state file records the mlr3torch version", {
+  path = tempfile()
+  learner = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 5,
+    callbacks = t_clbk("checkpoint", path = path, freq = 1))
+  learner$train(tsk("iris"))
+
+  state = readRDS(file.path(path, "state2.rds"))
+  expect_equal(state$version, as.character(packageVersion("mlr3torch")))
+})
+
+test_that("reading a checkpoint state warns on a version mismatch", {
+  path = tempfile()
+  learner = lrn("classif.mlp", epochs = 1, batch_size = 50, neurons = 5,
+    callbacks = t_clbk("checkpoint", path = path, freq = 1))
+  learner$train(tsk("iris"))
+  file = file.path(path, "state1.rds")
+
+  # the version that wrote it is the one that is running
+  expect_silent(state <- read_checkpoint_state(file))
+  expect_equal(state$epoch, 1L)
+
+  written_by_other = readRDS(file)
+  written_by_other$version = "0.0.1"
+  saveRDS(written_by_other, file)
+  expect_warning(read_checkpoint_state(file), "written by mlr3torch 0.0.1")
+
+  # checkpoints from before the version was recorded
+  written_by_old = readRDS(file)
+  written_by_old$version = NULL
+  saveRDS(written_by_old, file)
+  expect_warning(read_checkpoint_state(file), "before checkpoints recorded one")
+
+  # the state is returned either way, so a mismatch does not stop a resume
+  expect_equal(suppressWarnings(read_checkpoint_state(file))$epoch, 1L)
+})

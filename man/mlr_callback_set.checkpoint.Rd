@@ -13,9 +13,11 @@ are created in \code{path}:
 \itemize{
 \item \verb{network<n>.pt} :: The \verb{$state_dict()} of the network.
 \item \verb{optimizer<n>.pt} :: The \verb{$state_dict()} of the optimizer.
-\item \verb{state<n>.rds} :: The epoch, as well as the \verb{$state_dict()}s of the other callbacks of the
-training run, so that a later run can continue e.g. the training history or the learning rate
-schedule.
+\item \verb{state<n>.rds} :: The epoch, the version of \code{mlr3torch} that wrote the checkpoint, as well as
+the \verb{$state_dict()}s of the other callbacks of the training run, so that a later run can
+continue e.g. the training history or the learning rate schedule.
+Resuming from a checkpoint written by a different version of \code{mlr3torch} warns, because what a
+callback stores in its state dict is up to the callback and may change between releases.
 }
 
 A checkpoint counts as complete only if all three files are present, so a run that was killed

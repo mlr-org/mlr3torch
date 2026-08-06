@@ -10,9 +10,11 @@
 #' are created in `path`:
 #' * `network<n>.pt` :: The `$state_dict()` of the network.
 #' * `optimizer<n>.pt` :: The `$state_dict()` of the optimizer.
-#' * `state<n>.rds` :: The epoch, as well as the `$state_dict()`s of the other callbacks of the
-#'   training run, so that a later run can continue e.g. the training history or the learning rate
-#'   schedule.
+#' * `state<n>.rds` :: The epoch, the version of `mlr3torch` that wrote the checkpoint, as well as
+#'   the `$state_dict()`s of the other callbacks of the training run, so that a later run can
+#'   continue e.g. the training history or the learning rate schedule.
+#'   Resuming from a checkpoint written by a different version of `mlr3torch` warns, because what a
+#'   callback stores in its state dict is up to the callback and may change between releases.
 #'
 #' A checkpoint counts as complete only if all three files are present, so a run that was killed
 #' while writing one of them falls back to the previous checkpoint rather than to a partial one.
@@ -79,14 +81,14 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
     .save = function(suffix) {
       torch_save(self$ctx$network$state_dict(), file.path(self$path, paste0("network", suffix, ".pt")))
       torch_save(self$ctx$optimizer$state_dict(), file.path(self$path, paste0("optimizer", suffix, ".pt")))
-      # what a later run needs on top of the network and the optimizer: the epoch to continue from
-      # and the states of the other callbacks. These are plain R objects -- they are not
-      # torch-serialized when a learner is marshaled either -- so they are saved with saveRDS(),
-      # which unlike torch_save() keeps classes such as data.table intact.
       saveRDS(
         list(
           # the epoch this checkpoint belongs to, i.e. the one that just ran to its end
-          epoch     = suffix,
+          epoch = suffix,
+          # what wrote this checkpoint. What a callback state dict contains is up to the callback,
+          # so it can change between releases; recording the version lets a later run say so instead
+          # of failing somewhere inside `$load_state_dict()`.
+          version = as.character(utils::packageVersion("mlr3torch")),
           callbacks = discard(map(self$ctx$callbacks, function(cb) cb$state_dict()), is.null)
         ),
         file.path(self$path, paste0("state", suffix, ".rds"))
@@ -107,17 +109,31 @@ can_checkpoint_into = function(path) {
     (dir.exists(path) && length(list.files(path, pattern = "^(network|optimizer)[0-9]+\\.pt$|^state[0-9]+\\.rds$")) > 0L) # nolint
 }
 
-# The suffixes of the complete checkpoints in `path`, most recent first.
-# All three files must be there: a run interrupted while writing leaves an incomplete checkpoint,
-# and `state<n>.rds` is also what identifies `<n>` as an epoch -- mlr3torch <= 0.3.3 could name its
-# files after the within-epoch step instead, and reading such a suffix as an epoch would claim a
-# checkpoint was trained far longer than it was.
 checkpoint_suffixes = function(path) {
   if (!dir.exists(path)) return(integer(0))
   suffixes = as.integer(gsub("^network|\\.pt$", "", list.files(path, pattern = "^network[0-9]+\\.pt$")))
   complete = file.exists(file.path(path, paste0("optimizer", suffixes, ".pt"))) &
     file.exists(file.path(path, paste0("state", suffixes, ".rds")))
   sort(suffixes[complete], decreasing = TRUE)
+}
+
+# Reads a `state<n>.rds` and warns if it was written by a different version of mlr3torch.
+# What a callback stores in its state dict is up to the callback, so it may change between
+# releases: a mismatch is not necessarily fatal, but it is the first thing worth knowing when a
+# resumed run behaves oddly or fails while restoring.
+read_checkpoint_state = function(file) {
+  state = readRDS(file)
+  current = as.character(utils::packageVersion("mlr3torch"))
+  if (!identical(state$version, current)) {
+    written_by = if (is.null(state$version)) {
+      "a version of mlr3torch from before checkpoints recorded one"
+    } else {
+      sprintf("mlr3torch %s", state$version)
+    }
+    warningf("Checkpoint '%s' was written by %s, but mlr3torch %s is loaded. Resuming from it may fail or restore an incomplete state, because what a callback stores in its state dict is version specific.", # nolint
+      file, written_by, current)
+  }
+  state
 }
 
 # The files of the most recent complete checkpoint in `path`, or NULL if there is none.
