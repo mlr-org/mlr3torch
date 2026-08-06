@@ -6,9 +6,9 @@
       
       -- <LearnerTorchMLP> (classif.mlp): Multi Layer Perceptron ---------------------
       * Model: -
-      * Parameters: device=auto, num_threads=1, num_interop_threads=1, seed=random,
-      eval_freq=1, measures_train=<list>, measures_valid=<list>, patience=0,
-      min_delta=0, restore_best_weights=FALSE, shuffle=TRUE, tensor_dataset=FALSE,
+      * Parameters: device=auto, num_threads=1, seed=random, eval_freq=1,
+      measures_train=<list>, measures_valid=<list>, patience=0, min_delta=0,
+      restore_best_weights=FALSE, shuffle=TRUE, tensor_dataset=FALSE,
       jit_trace=FALSE, neurons=integer(0), p=0.1, activation=<nn_relu>,
       activation_args=<list>
       * Validate: NULL
