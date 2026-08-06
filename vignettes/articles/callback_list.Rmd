@@ -9,13 +9,19 @@ vignette: >
 
 Below is a list of the predefined callbacks that are available in `mlr3torch`.
 
+The `Weight` column is what orders the callbacks within a training stage: a higher weight runs
+later, and callbacks with the same weight keep the order they were passed to the learner. Custom
+callbacks default to `0`, so this table is what to compare against when giving one a weight of its
+own -- see the *Ordering* section of `CallbackSet`. Early stopping is not listed because it has no
+dictionary entry; the learner builds it from its `patience` parameter, at weight 100.
+
 ```{r, echo = FALSE, message = FALSE}
 library(data.table)
 library(mlr3torch)
 content = as.data.table(mlr3torch::mlr3torch_callbacks)
 content$key = sapply(content$key, function(key) sprintf("[%s](https://mlr3torch.mlr-org.com/reference/%s.html)", key, sub("mlr3torch::", "", t_clbk(key)$man)))
 content$packages = lapply(content$packages, function(ps) setdiff(ps, "mlr3torch"))
-content = content[, .(key, label, packages)]
-names(content) = c("Key", "Label", "Packages")
+content = content[, .(key, label, weight, packages)]
+names(content) = c("Key", "Label", "Weight", "Packages")
 knitr::kable(content)
 ```

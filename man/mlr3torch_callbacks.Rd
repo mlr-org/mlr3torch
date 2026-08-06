@@ -10,7 +10,12 @@ mlr3torch_callbacks
 A \code{\link[mlr3misc:Dictionary]{mlr3misc::Dictionary}} of torch callbacks.
 Use \code{\link[=t_clbk]{t_clbk()}} to conveniently retrieve callbacks.
 Can be converted to a \code{\link[data.table:data.table]{data.table}} using
-\code{\link[data.table:as.data.table]{as.data.table}}.
+\code{\link[data.table:as.data.table]{as.data.table}}, whose \code{weight} column is the overview of when each
+callback is called within a stage -- compare a custom callback's weight against it, see the
+section \emph{Ordering} of \code{\link{CallbackSet}}.
+It is the weight the generated \code{\link{CallbackSet}} will have, which is not always \verb{$weight} of the
+\code{\link{TorchCallback}}: that field is only the override, and is \code{NULL} for a callback that leaves the
+decision to its class.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

@@ -47,8 +47,8 @@ test_that("Can retrieve predefined callback", {
 test_that("dictionary can be converted to a table", {
   tbl = as.data.table(mlr3torch_callbacks)
 
-  expect_data_table(tbl, ncols = 3, key = "key")
-  expect_equal(colnames(tbl), c("key", "label", "packages"))
+  expect_data_table(tbl, ncols = 4, key = "key")
+  expect_equal(colnames(tbl), c("key", "label", "weight", "packages"))
 })
 
 test_that("torch_callback helper function works", {
@@ -112,4 +112,24 @@ test_that("Cloning works", {
   tcb1 = t_clbk("progress")
   tcb2 = tcb1$clone(deep = TRUE)
   expect_deep_clone_mlr3torch(tcb1, tcb2)
+})
+
+test_that("the dictionary reports the effective weight of each callback", {
+  tbl = as.data.table(mlr3torch_callbacks)
+  expect_names(names(tbl), must.include = "weight")
+  expect_numeric(tbl$weight, any.missing = FALSE)
+
+  # the weight the generated CallbackSet ends up with, also when the class rather than the
+  # dictionary entry declares it -- `$weight` of the descriptor is NULL for those
+  expect_null(t_clbk("checkpoint")$weight)
+  expect_equal(tbl[list("checkpoint"), "weight", on = "key"][[1L]], Inf)
+  expect_equal(tbl[list("lr_step"), "weight", on = "key"][[1L]], 500)
+  # and the value the dictionary entry set, which the descriptor does carry
+  expect_equal(t_clbk("history")$weight, 200)
+  expect_equal(tbl[list("history"), "weight", on = "key"][[1L]], 200)
+
+  # an override on the descriptor wins over the class
+  cb = t_clbk("checkpoint")
+  cb$weight = 1
+  expect_equal(callback_weight(cb), 1)
 })

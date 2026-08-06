@@ -76,6 +76,9 @@ can be slotted between any two of them:\tabular{rll}{
 }
 
 
+The same table is available programmatically, and cannot go stale, as the \code{weight} column of
+\verb{as.data.table(}\code{\link{mlr3torch_callbacks}}\verb{)}; printing a \code{\link{TorchCallback}} also shows it.
+
 Two callbacks that need to run in a fixed order relative to each other should have different
 weights, as equal ones only keep the order they happen to be passed in.
 

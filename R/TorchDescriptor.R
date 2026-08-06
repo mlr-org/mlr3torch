@@ -78,6 +78,10 @@ TorchDescriptor = R6Class("TorchDescriptor",
       catn(str_indent("* Generator:", repr))
       catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
       catn(str_indent("* Packages:", as_short_string(self$packages, 1000L)))
+      # the effective weight, which a callback may leave to its class and hence not have in $weight
+      if (test_class(self, "TorchCallback")) {
+        catn(str_indent("* Weight:", format(callback_weight(self))))
+      }
       invisible(self)
     },
     #' @description

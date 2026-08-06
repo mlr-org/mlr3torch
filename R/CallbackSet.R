@@ -68,6 +68,9 @@
 #' | `500` | the `lr_*` schedulers | stepping the schedule changes the learning rate for the *next* epoch or batch, so it happens after everything that reports on the one that just ran, and before the checkpoint saves the optimizer |
 #' | `Inf` | `checkpoint` | saves the network, the optimizer and the other callbacks' `$state_dict()`s, so everything that still changes them must have run |
 #'
+#' The same table is available programmatically, and cannot go stale, as the `weight` column of
+#' `as.data.table(`[`mlr3torch_callbacks`]`)`; printing a [`TorchCallback`] also shows it.
+#'
 #' Two callbacks that need to run in a fixed order relative to each other should have different
 #' weights, as equal ones only keep the order they happen to be passed in.
 #'

@@ -31,6 +31,8 @@
   data dependencies require: `unfreeze` (`-200`), custom callbacks (`0`), early stopping (`100`),
   `history` (`200`), `tb` (`300`), `progress` (`400`), the `lr_*` schedulers (`500`) and
   `checkpoint` (`Inf`), which is always called last, also when another callback has weight `Inf`.
+  `as.data.table(mlr3torch_callbacks)` has a `weight` column listing them, and printing a
+  `TorchCallback` shows its weight.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
 
 ## Bug fixes
