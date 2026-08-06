@@ -20,6 +20,9 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
 
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
+  if (isTRUE(param_vals$path) && !length(checkpoint_callbacks(self$callbacks))) {
+    stopf("Learner '%s' has 'path' set to TRUE, but no 'checkpoint' callback to take the path from. Either add one via t_clbk(\"checkpoint\") or set 'path' to a checkpoint folder.", self$id) # nolint
+  }
   dataset_train = private$.dataset(task, param_vals)
   dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
   loader_train = private$.dataloader(dataset_train, param_vals)
@@ -106,7 +109,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     callbacks = c(callbacks, list(early_stopping = es))
   }
 
-  model = train_loop(ctx, callbacks)
+  model = train_loop(ctx, callbacks, resume_path = param_vals$path)
 
   # In case the seed was "random" initially we want to make the sampled seed available in the state.
   model$seed = param_vals$seed
@@ -115,7 +118,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 }
 
 
-train_loop = function(ctx, cbs) {
+train_loop = function(ctx, cbs, resume_path = NULL) {
   # callbacks are called in the order they were passed, unless they request otherwise via their
   # weight. CallbackSetCheckpoint has weight Inf so that it saves the network and optimizer as the
   # other callbacks left them at the end of the stage.
@@ -148,6 +151,10 @@ train_loop = function(ctx, cbs) {
   # if we increment epoch at the end of the loop it has the wrong value
   # during the final two callback stages
   ctx$epoch = 0L
+
+  # this happens before the 'begin' stage so that the callbacks see the restored state, e.g. the
+  # learning rate scheduler continues the schedule instead of creating a new one
+  if (!is.null(resume_path)) resume_training(ctx, resume_path)
 
   call("on_begin")
 
@@ -244,6 +251,80 @@ train_loop = function(ctx, cbs) {
     epochs                = ctx$epoch,
     callbacks             = callback_states
   )
+}
+
+# Continues training from a checkpoint as written by CallbackSetCheckpoint, i.e. restores the
+# network, the optimizer and the states of the callbacks and continues at the checkpointed epoch.
+# `resume_path` is the path to a checkpoint folder or TRUE for the folder of the checkpoint
+# callback of this run. See the `path` parameter of LearnerTorch.
+resume_training = function(ctx, resume_path) {
+  path = if (isTRUE(resume_path)) checkpoint_callback_path(ctx$callbacks) else resume_path
+
+  checkpoint = latest_checkpoint(path)
+  if (is.null(checkpoint)) {
+    # so that the same script can be used for the first run and for restarts
+    lg$info("No checkpoint found in '%s', starting training from scratch.", path)
+    return(invisible(NULL))
+  }
+  lg$info("Resuming training from checkpoint '%s'.", checkpoint$network)
+
+  ctx$network$load_state_dict(torch_load(checkpoint$network))
+  ctx$optimizer$load_state_dict(torch_load(checkpoint$optimizer))
+
+  state = readRDS(checkpoint$state)
+  load_callback_states(ctx$callbacks, state$callbacks)
+
+  epochs_trained = checkpoint$epoch
+  if (epochs_trained >= ctx$total_epochs) {
+    warningf("The checkpoint was trained for %i epochs, but 'epochs' is %i. No further epochs are trained. Note that 'epochs' is the total number of epochs, including those of the checkpoint.", # nolint
+      epochs_trained, ctx$total_epochs)
+  }
+  ctx$epoch = epochs_trained
+
+  invisible(NULL)
+}
+
+# The checkpoint callbacks among `cbs`, which are either TorchCallback descriptors (as in
+# `learner$callbacks`) or the CallbackSets they generate (as in `ctx$callbacks`).
+checkpoint_callbacks = function(cbs) {
+  keep(cbs, function(cb) {
+    if (inherits(cb, "TorchCallback")) {
+      identical(cb$generator, CallbackSetCheckpoint)
+    } else {
+      inherits(cb, "CallbackSetCheckpoint")
+    }
+  })
+}
+
+# The path that the checkpoint callback of this training run writes to.
+checkpoint_callback_path = function(cbs) {
+  cbs = checkpoint_callbacks(cbs)
+  # already asserted at the beginning of training, this only guards against internal misuse
+  if (!length(cbs)) {
+    stopf("'path' is TRUE, but there is no 'checkpoint' callback to take the path from.")
+  }
+  cbs[[1L]]$path
+}
+
+# Restores `states` into the callbacks `cbs` of this run, matching them by id.
+load_callback_states = function(cbs, states) {
+  if (!length(states)) return(invisible(NULL))
+  unknown = setdiff(names(states), names(cbs))
+  if (length(unknown)) {
+    warningf("The checkpoint contains states for callback(s) %s, which are not part of this training run. They are ignored.", # nolint
+      paste0("'", unknown, "'", collapse = ", "))
+  }
+  iwalk(states[intersect(names(states), names(cbs))], function(state, id) {
+    cb = cbs[[id]]
+    # the default method only accepts NULL, i.e. the callback cannot restore anything.
+    # R6 binds methods to the object's environment, so only the body can be compared.
+    if (identical(body(cb$load_state_dict), body(CallbackSet$public_methods$load_state_dict))) {
+      warningf("Callback '%s' does not implement $load_state_dict(), its state is ignored.", id)
+      return(NULL)
+    }
+    cb$load_state_dict(state)
+  })
+  invisible(NULL)
 }
 
 eval_train_in_epoch = function(ctx) {

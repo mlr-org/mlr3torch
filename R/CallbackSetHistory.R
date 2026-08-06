@@ -52,7 +52,9 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
       if (is.null(self$prev_state)) {
         state
       } else {
-        rbind(state, self$prev_state)
+        # fill = TRUE because this run can have fewer columns than the previous one, e.g. when it
+        # trains no epochs at all because the checkpoint it resumed is already at `epochs`
+        rbind(state, self$prev_state, fill = TRUE)
       }
     },
     #' @description

@@ -30,13 +30,27 @@
   of the training run.
 * `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
+* `t_clbk("checkpoint")` additionally writes a `state<n>.rds` next to `network<n>.pt` and
+  `optimizer<n>.pt`, holding the epoch, the `mlr3torch` version and the states of the other
+  callbacks. All three files are required for a checkpoint to count as complete.
+* `t_clbk("checkpoint")` accepts a `path` that already contains checkpoints, so a run continuing an
+  earlier one can keep writing into it. Writing over the checkpoint of another run is an error.
+* The learning rate scheduling and unfreezing callbacks implement `$state_dict()` and
+  `$load_state_dict()`, and early stopping additionally stores its best score and stagnation
+  counter, so the state of a training run can be carried over into another one.
+* New `LearnerTorch` parameter `path` to continue training from a checkpoint, also in a new R
+  session (#423). It is either the path of a folder written by `t_clbk("checkpoint")` or `TRUE`,
+  which takes the path from the checkpoint callback of the learner. `epochs` is the total number of
+  epochs, i.e. it includes those the checkpoint was already trained for.
 
 ## Bug fixes
 
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
-* `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
-  under that epoch's own number, so `network<n>.pt` is now always the
-  network at the *end* of epoch `n` rather than sometimes a half-trained one.
+* `t_clbk("checkpoint")` no longer writes a checkpoint when training fails in the middle of an
+  epoch, so `network<n>.pt` is now always the network at the *end* of epoch `n` rather than
+  sometimes a half-trained one. Reading a folder that holds an incomplete checkpoint warns.
+* `t_clbk("history")` no longer errors when a run adds no new scores to a history that was loaded
+  via `$load_state_dict()`, which happens when a resumed checkpoint is already at `epochs`.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training.
 * Configuration errors that are only caught during `LearnerTorch` no longer
   trigger a fallback learner.

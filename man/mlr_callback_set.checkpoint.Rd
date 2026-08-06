@@ -8,19 +8,32 @@
 Saves the optimizer and network states during training.
 The final network and optimizer are always stored.
 
-Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, two files
+Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, three files
 are created in \code{path}:
 \itemize{
 \item \verb{network<n>.pt} :: The \verb{$state_dict()} of the network.
 \item \verb{optimizer<n>.pt} :: The \verb{$state_dict()} of the optimizer.
+\item \verb{state<n>.rds} :: The epoch, the version of \code{mlr3torch} that wrote the checkpoint, as well as
+the \verb{$state_dict()}s of the other callbacks of the training run, so that a later run can
+continue e.g. the training history or the learning rate schedule.
+Resuming from a checkpoint written by a different version of \code{mlr3torch} warns, because what a
+callback stores in its state dict is up to the callback and may change between releases.
 }
 
-An epoch that was interrupted -- because training failed or was stopped -- is not written under
-its own number, so \verb{network<n>.pt} is always the network at the \emph{end} of epoch \code{n}.
-}
-\details{
-Saving the learner itself in the callback with a trained model is impossible,
-as the model slot is set \emph{after} the last callback step is executed.
+A checkpoint counts as complete only if all three files are present, so a run that was killed
+while writing one of them falls back to the previous checkpoint rather than to a partial one.
+Reading a folder that holds such a partial checkpoint warns, as skipping it silently would look
+like the run simply got less far than it did.
+
+\code{path} may already contain checkpoints, which is what a run continuing an earlier one writes
+into: it writes epochs that folder does not have yet, so nothing of the earlier run is touched.
+A run that would write over a checkpoint of another run errors instead, so a folder is never
+silently left holding the epochs of two different trainings.
+An incomplete checkpoint is replaced rather than protected -- it cannot be resumed from anyway,
+and refusing would mean a run killed while writing could never be restarted into its own folder.
+
+Training can be continued from such a checkpoint -- also in a new R session -- via the \code{path}
+parameter of \code{\link{LearnerTorch}}, see the example below.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -34,6 +47,11 @@ learner$param_set$set_values(cb.checkpoint.path = pth)
 learner$train(task)
 
 list.files(pth)
+
+# continue training for 3 more epochs, starting from the last checkpoint
+learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1, path = pth)
+learner_resumed$train(task)
+learner_resumed$model$epochs
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -71,7 +89,7 @@ a checkpoint always holds the network as training left it.}
   \itemize{
     \item \href{#method-CallbackSetCheckpoint-initialize}{\code{CallbackSetCheckpoint$new()}}
     \item \href{#method-CallbackSetCheckpoint-on_epoch_end}{\code{CallbackSetCheckpoint$on_epoch_end()}}
-    \item \href{#method-CallbackSetCheckpoint-on_exit}{\code{CallbackSetCheckpoint$on_exit()}}
+    \item \href{#method-CallbackSetCheckpoint-on_end}{\code{CallbackSetCheckpoint$on_end()}}
     \item \href{#method-CallbackSetCheckpoint-clone}{\code{CallbackSetCheckpoint$clone()}}
   }
 }
@@ -118,13 +136,13 @@ Does nothing if \code{freq} is not met.
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_exit"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_exit}{}}}
-\subsection{\code{CallbackSetCheckpoint$on_exit()}}{
-  Saves the final network and optimizer, unless the last complete epoch was already saved.
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_end}{}}}
+\subsection{\code{CallbackSetCheckpoint$on_end()}}{
+  Saves the final network and optimizer, unless the last epoch was already saved.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{CallbackSetCheckpoint$on_exit()}
+    \preformatted{CallbackSetCheckpoint$on_end()}
     \if{html}{\out{</div>}}
   }
 }
