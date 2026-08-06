@@ -2,6 +2,11 @@
 
 ## Bug fixes
 
+* The documentation of `nn_ft_transformer_block()` no longer claims defaults that its signature does
+  not have. The seven quoted values are the `PipeOp`'s parameter inits, so they are attributed to it
+  now. `prenormalization` said normalization is applied after attention when the value is `TRUE`,
+  which was meant to be `FALSE`, and `attention_initialization` now describes what its levels do.
+
 * `lrn("classif.ft_transformer")` / `lrn("regr.ft_transformer")` can now be trained without setting
   `n_blocks`, `d_token` and the width of the feed-forward network. `n_blocks` and `d_token` are
   initialized to `3` and `192`, and the hidden dimension falls back to `d_token * 4/3`, which is the

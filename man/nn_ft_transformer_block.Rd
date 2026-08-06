@@ -35,7 +35,11 @@ Number of attention heads.}
 Dropout probability in the attention mechanism.}
 
 \item{attention_initialization}{(\code{character(1)})\cr
-Initialization method for attention weights. Either "kaiming" or "xavier".}
+Initialization of the query, key and value projections, either \code{"kaiming"} or \code{"xavier"}.
+Following the reference implementation, each of the three is initialized separately:
+\code{"kaiming"} uses \code{nn_init_kaiming_uniform_(a = sqrt(5))}, which is what \code{nn_linear} applies, and
+\code{"xavier"} uses \code{nn_init_xavier_uniform_(gain = 1 / sqrt(2))}.
+\code{po("nn_ft_transformer_block")} initializes this to \code{"kaiming"}.}
 
 \item{ffn_d_hidden}{(\code{integer(1)})\cr
 Hidden dimension of the feed-forward network. Multiplied by 2 if using ReGLU or GeGLU activation.}
@@ -47,22 +51,22 @@ Alternative way to specify the hidden dimension of the feed-forward network as \
 Dropout probability in the feed-forward network.}
 
 \item{ffn_activation}{(\code{nn_module})\cr
-Activation function for the feed-forward network. Default value is \code{nn_reglu}.}
+Activation function for the feed-forward network. \code{po("nn_ft_transformer_block")} initializes this to \code{nn_reglu}.}
 
 \item{residual_dropout}{(\code{numeric(1)})\cr
 Dropout probability for residual connections.}
 
 \item{prenormalization}{(\code{logical(1)})\cr
-Whether to apply normalization before attention and FFN (\code{TRUE}) or after (\code{TRUE}).}
+Whether to apply normalization before attention and FFN (\code{TRUE}) or after (\code{FALSE}).}
 
 \item{is_first_layer}{(\code{logical(1)})\cr
-Whether this is the first layer in the transformer stack. Default value is \code{FALSE}.}
+Whether this is the first layer in the transformer stack. \code{po("nn_ft_transformer_block")} initializes this to \code{FALSE}.}
 
 \item{attention_normalization}{(\code{nn_module})\cr
-Normalization module to use for attention. Default value is \code{nn_layer_norm}.}
+Normalization module to use for attention. \code{po("nn_ft_transformer_block")} initializes this to \code{nn_layer_norm}.}
 
 \item{ffn_normalization}{(\code{nn_module})\cr
-Normalization module to use for the feed-forward network. Default value is \code{nn_layer_norm}.}
+Normalization module to use for the feed-forward network. \code{po("nn_ft_transformer_block")} initializes this to \code{nn_layer_norm}.}
 
 \item{query_idx}{(\code{integer()} or \code{NULL})\cr
 Indices of the tensor to apply attention to. Should not be set manually.
@@ -71,13 +75,13 @@ In the last block in a stack of transformers, this is set to \code{-1}
 so that attention is applied only to the embedding of the CLS token.}
 
 \item{attention_bias}{(\code{logical(1)})\cr
-Whether attention has a bias. Default is \code{TRUE}}
+Whether attention has a bias. \code{po("nn_ft_transformer_block")} initializes this to \code{TRUE}.}
 
 \item{ffn_bias_first}{(\code{logical(1)})\cr
-Whether the first layer in the FFN has a bias. Default is \code{TRUE}}
+Whether the first layer in the FFN has a bias. \code{po("nn_ft_transformer_block")} initializes this to \code{TRUE}.}
 
 \item{ffn_bias_second}{(\code{logical(1)})\cr
-Whether the second layer in the FFN has a bias. Default is \code{TRUE}}
+Whether the second layer in the FFN has a bias. \code{po("nn_ft_transformer_block")} initializes this to \code{TRUE}.}
 }
 \description{
 A transformer block consisting of a multi-head self-attention mechanism followed by a feed-forward
