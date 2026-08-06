@@ -52,13 +52,20 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
       })
 
       private$.param_set_base = ps(
-        n_blocks = p_int(lower = 0L, default = 3L, tags = "train"),
-        d_token = p_int(lower = 1L, default = 192L, tags = "train"),
+        # initialized to the reference implementation's default configuration, so that the learner
+        # can be trained without setting anything beyond `batch_size` and `epochs`
+        n_blocks = p_int(lower = 0L, init = 3L, tags = "train"),
+        d_token = p_int(lower = 1L, init = 192L, tags = "train"),
         cardinalities = p_uty(custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         init_token = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = "train"),
         ingress_tokens = p_uty(tags = "train", custom_check = check_ingress_tokens)
       )
-      param_set = alist(private$.block$param_set, private$.param_set_base)
+      # these params are set internally
+      block_ps = private$.block$param_set$clone(deep = TRUE)
+      private$.block_param_set = block_ps$subset(
+        setdiff(block_ps$ids(), c("query_idx", "is_first_layer"))
+      )
+      param_set = alist(private$.block_param_set, private$.param_set_base)
 
       super$initialize(
         task_type = task_type,
@@ -78,6 +85,8 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
   ),
   private = list(
     .block = NULL,
+    # the block's parameters as the learner exposes them, see `initialize()`
+    .block_param_set = NULL,
     .ingress_tokens = function(task, param_vals) {
       if ("lazy_tensor" %in% task$feature_types$type) {
         if (!all(task$feature_types$type == "lazy_tensor")) {
@@ -160,9 +169,20 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
           nn("merge_cat", param_vals = list(dim = 2))
       }
 
+      block_values = param_vals[intersect(names(param_vals), private$.block_param_set$ids())]
+      # The block requires exactly one of `ffn_d_hidden` and `ffn_d_hidden_multiplier`. If neither is
+      # given, fall back to the reference implementation's `d_token * 4/3` (for the GLU activations
+      # it defaults to), so that the learner is trainable without configuring the FFN width. This is
+      # not an `init` on the parameter, because that would force everyone setting `ffn_d_hidden` to
+      # clear the multiplier first.
+      if (is.null(block_values[["ffn_d_hidden"]]) && is.null(block_values[["ffn_d_hidden_multiplier"]])) {
+        block_values$ffn_d_hidden_multiplier = 4 / 3
+      }
+
       blocks = map(seq_len(param_vals$n_blocks), function(i) {
         block = private$.block$clone(deep = TRUE)
         block$id = sprintf("block_%i", i)
+        block$param_set$set_values(.values = block_values)
 
         if (i == 1) {
           block$param_set$values$is_first_layer = TRUE
@@ -177,13 +197,15 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         block
       })
 
-      if (length(blocks) > 1L) {
-        blocks = Reduce(`%>>%`, blocks)
+      graph = graph_tokenizer %>>% nn("ft_cls", initialization = "uniform")
+
+      # `n_blocks = 0` is a legal value of the parameter and leaves the tokenizer, the CLS token and
+      # the head, i.e. no attention at all. `Reduce()` already handles a single block.
+      if (length(blocks)) {
+        graph = graph %>>% Reduce(`%>>%`, blocks)
       }
 
-      graph = graph_tokenizer %>>%
-        nn("ft_cls", initialization = "uniform") %>>%
-        blocks %>>%
+      graph = graph %>>%
         nn("fn", fn = function(x) x[, -1]) %>>%
         nn("layer_norm", dims = 1) %>>%
         nn("relu") %>>%
