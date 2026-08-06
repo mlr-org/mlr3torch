@@ -41,6 +41,16 @@ Other Callback:
 [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
 -\> `CallbackSetCheckpoint`
 
+## Public fields
+
+- `weight`:
+
+  (`numeric(1)`)  
+  `Inf`, so that this callback runs after all others and hence saves the
+  network and optimizer as they are at the end of the stage, see section
+  *Ordering* of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md).
+
 ## Methods
 
 ### Public methods

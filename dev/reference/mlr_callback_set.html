@@ -128,6 +128,19 @@ These functions perform checks such as that the stages are not accidentally miss
 <li><p><code>exit</code> :: Run at last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
 </ul></div>
     <div class="section level2">
+    <h2 id="ordering">Ordering<a class="anchor" aria-label="anchor" href="#ordering"></a></h2>
+
+
+<p>Within a stage, callbacks are called in the order in which they were passed to the learner.
+A callback can override this via its <code>$weight</code> field: callbacks with a higher weight are called
+after those with a lower one, and callbacks with the same weight keep the order in which they
+were passed.
+The default weight is <code>0</code>.
+This matters for callbacks that observe what the others did, which is why
+<code><a href="mlr_callback_set.checkpoint.html">CallbackSetCheckpoint</a></code> has weight <code>Inf</code>: it always runs last and therefore saves the network
+and optimizer as the other callbacks left them at the end of the stage.</p>
+    </div>
+    <div class="section level2">
     <h2 id="terminate-training">Terminate Training<a class="anchor" aria-label="anchor" href="#terminate-training"></a></h2>
 
 
@@ -157,6 +170,11 @@ This can for example be used to implement custom early stopping.</p>
 <dd><p>(<code><a href="mlr_context_torch.html">ContextTorch</a></code> or <code>NULL</code>)<br>
 The evaluation context for the callback.
 This field should always be <code>NULL</code> except during the <code>$train()</code> call of the torch learner.</p></dd>
+
+
+    <dt><code>weight</code></dt>
+<dd><p>(<code>numeric(1)</code>)<br>
+Controls when this callback is called within a stage, see section <em>Ordering</em>.</p></dd>
 
 
 </dl><p></p></div>

@@ -235,16 +235,16 @@ po_model$state
 #> $optimizer$state$`1`
 #> $optimizer$state$`1`$exp_avg
 #> torch_tensor
-#> Columns 1 to 7   -8.9647   -83.3058  -178.5399 -7073.6016   -95.1406   -98.4922 -4415.2886
+#> Columns 1 to 7   -2.2446   -16.0011   -42.5190 -1654.7808   -25.2810   -25.1469  -906.5828
 #> 
-#> Columns 8 to 10 -479.7274    -9.6964   -93.9056
+#> Columns 8 to 10 -130.0423    -3.5395   -23.2036
 #> [ CPUFloatType{1,10} ]
 #> 
 #> $optimizer$state$`1`$exp_avg_sq
 #> torch_tensor
-#> Columns 1 to 6 4.4456e+00  3.8532e+02  1.8347e+03  2.9622e+06  5.0786e+02  5.3993e+02
+#> Columns 1 to 6 2.9190e-01  1.5391e+01  1.1065e+02  1.7439e+05  3.6604e+01  3.5950e+01
 #> 
-#> Columns 7 to 10 1.1077e+06  1.2939e+04  5.3139e+00  5.0109e+02
+#> Columns 7 to 10 5.1424e+04  9.7318e+02  6.9314e-01  3.1785e+01
 #> [ CPUFloatType{1,10} ]
 #> 
 #> $optimizer$state$`1`$max_exp_avg_sq
@@ -260,12 +260,12 @@ po_model$state
 #> $optimizer$state$`2`
 #> $optimizer$state$`2`$exp_avg
 #> torch_tensor
-#> -27.1800
+#> -7.1045
 #> [ CPUFloatType{1} ]
 #> 
 #> $optimizer$state$`2`$exp_avg_sq
 #> torch_tensor
-#>  41.6493
+#>  2.9232
 #> [ CPUFloatType{1} ]
 #> 
 #> $optimizer$state$`2`$max_exp_avg_sq
@@ -356,7 +356,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>    0.05 
+#>   0.044 
 #> 
 #> $task_hash
 #> [1] "c7c4f02878d51895"

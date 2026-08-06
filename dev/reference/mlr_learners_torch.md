@@ -169,14 +169,18 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   and otherwise fall back to `"cpu"`.
 
 - `num_threads` :: `integer(1)`  
-  The number of threads for intraop pararallelization (if `device` is
-  `"cpu"`). This value is initialized to 1.
+  The number of threads for intraop parallelization (if `device` is
+  `"cpu"`). This value is initialized to 1. When resampling,
+  benchmarking or tuning in parallel, each worker uses this many
+  threads, so divide the available cores among the workers instead of
+  setting this to the number of cores.
 
 - `num_interop_threads` :: `integer(1)`  
-  The number of threads for intraop and interop pararallelization (if
-  `device` is `"cpu"`). This value is initialized to 1. Note that this
-  can only be set once during a session and changing the value within an
-  R session will raise a warning.
+  The number of threads for interop parallelization (if `device` is
+  `"cpu"`). This value is initialized to 1. Note that this can only be
+  set **once** per session, so training a learnerd once already sets
+  this. You can work around this via encapsulation, see
+  [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html).
 
 - `seed` :: `integer(1)` or `"random"` or `NULL`  
   The torch seed that is used during training and prediction. This value
@@ -292,7 +296,7 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `worker_init_fn` :: `function(id)`  
   A function that receives the worker id (in `[1, num_workers]`) and is
-  exectued after seeding on the worker but before data loading.
+  executed after seeding on the worker but before data loading.
 
 - `worker_globals` :: [`list()`](https://rdrr.io/r/base/list.html) \|
   [`character()`](https://rdrr.io/r/base/character.html)  
@@ -304,7 +308,9 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   [`character()`](https://rdrr.io/r/base/character.html)  
   Which packages to load on the workers.
 
-Also see `torch::dataloder` for more information.
+Also see
+[`torch::dataloader`](https://torch.mlverse.org/docs/reference/dataloader.html)
+for more information.
 
 ## Inheriting
 
@@ -650,7 +656,10 @@ Creates a new instance of this
   [`TorchCallback`](https://mlr3torch.mlr-org.com/dev/reference/TorchCallback.md)s)  
   The callbacks to use for training. Defaults to an
   empty` `[`list()`](https://rdrr.io/r/base/list.html), i.e. no
-  callbacks.
+  callbacks. Within a stage they are called in the order in which they
+  are provided, unless a callback requests otherwise via its `$weight`,
+  see section *Ordering* of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md).
 
 - `jittable`:
 

@@ -104,6 +104,7 @@ For more information on how to correctly implement a new callback, see <code><a 
 <span>  state_dict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  load_state_dict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  initialize <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  weight <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  public <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  private <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  active <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -170,6 +171,12 @@ Function that loads a callback state.</p></dd>
 The initialization method of the callback.</p></dd>
 
 
+<dt id="arg-weight">weight<a class="anchor" aria-label="anchor" href="#arg-weight"></a></dt>
+<dd><p>(<code>numeric(1)</code>)<br>
+Controls when the callback is called within a stage, see section <em>Ordering</em> of <code><a href="mlr_callback_set.html">CallbackSet</a></code>.
+Defaults to <code>0</code>.</p></dd>
+
+
 <dt id="arg-public-private-active">public, private, active<a class="anchor" aria-label="anchor" href="#arg-public-private-active"></a></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
 Additional public, private, and active fields to add to the callback.</p></dd>
@@ -220,6 +227,19 @@ then wraps this generator in a <code><a href="TorchCallback.html">TorchCallback<
 <li><p><code>end</code> :: Run after last epoch.</p></li>
 <li><p><code>exit</code> :: Run at last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="ordering">Ordering<a class="anchor" aria-label="anchor" href="#ordering"></a></h2>
+
+
+<p>Within a stage, callbacks are called in the order in which they were passed to the learner.
+A callback can override this via its <code>$weight</code> field: callbacks with a higher weight are called
+after those with a lower one, and callbacks with the same weight keep the order in which they
+were passed.
+The default weight is <code>0</code>.
+This matters for callbacks that observe what the others did, which is why
+<code><a href="mlr_callback_set.checkpoint.html">CallbackSetCheckpoint</a></code> has weight <code>Inf</code>: it always runs last and therefore saves the network
+and optimizer as the other callbacks left them at the end of the stage.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Callback:

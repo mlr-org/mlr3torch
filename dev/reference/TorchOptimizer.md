@@ -188,7 +188,7 @@ torch_opt$param_set
 #> 1:           lr ParamDbl     0   Inf     Inf <NoDefault[0]>    0.1
 #> 2:     momentum ParamDbl     0     1     Inf              0 [NULL]
 #> 3:    dampening ParamDbl     0     1     Inf              0 [NULL]
-#> 4: weight_decay ParamDbl     0     1     Inf              0 [NULL]
+#> 4: weight_decay ParamDbl     0   Inf     Inf              0 [NULL]
 #> 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]
 #> 6: param_groups ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
 torch_opt$label
@@ -260,7 +260,7 @@ learner$param_set
 #> 32:              opt.lr ParamDbl     0   Inf     Inf <NoDefault[0]>
 #> 33:        opt.momentum ParamDbl     0     1     Inf              0
 #> 34:       opt.dampening ParamDbl     0     1     Inf              0
-#> 35:    opt.weight_decay ParamDbl     0     1     Inf              0
+#> 35:    opt.weight_decay ParamDbl     0   Inf     Inf              0
 #> 36:        opt.nesterov ParamLgl    NA    NA       2          FALSE
 #> 37:    opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
 #> 38:      loss.reduction ParamFct    NA    NA       2           mean

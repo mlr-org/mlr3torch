@@ -131,14 +131,23 @@ for each argument of the wrapped loss function, where the parametes are then of 
     <p><code><a href="TorchDescriptor.html">TorchDescriptor</a></code> -&gt; <code>TorchCallback</code></p>
     </div>
     <div class="section level2">
+    <h2 id="active-bindings">Active bindings<a class="anchor" aria-label="anchor" href="#active-bindings"></a></h2>
+    <p></p><div class="r6-active-bindings"><dl><dt><code>weight</code></dt>
+<dd><p>(<code>numeric(1)</code> or <code>NULL</code>)<br>
+Overwrites the <code>$weight</code> of the generated <code><a href="mlr_callback_set.html">CallbackSet</a></code>, see its section <em>Ordering</em>.</p></dd>
+
+
+</dl><p></p></div>
+    </div>
+    <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 <p></p><ul><li><p><a href="#method-TorchCallback-initialize"><code>TorchCallback$new()</code></a></p></li>
+<li><p><a href="#method-TorchCallback-generate"><code>TorchCallback$generate()</code></a></p></li>
 <li><p><a href="#method-TorchCallback-clone"><code>TorchCallback$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="generate"><a href="TorchDescriptor.html#method-generate"><code>TorchDescriptor$generate()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href="TorchDescriptor.html#method-help"><code>TorchDescriptor$help()</code></a></span></li>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href="TorchDescriptor.html#method-help"><code>TorchDescriptor$help()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="print"><a href="TorchDescriptor.html#method-print"><code>TorchDescriptor$print()</code></a></span></li>
 </ul></details></p><hr><a id="method-TorchCallback-initialize"></a><div class="section">
 <h3 id="torchcallback-new-"><code>TorchCallback$new()</code><a class="anchor" aria-label="anchor" href="#torchcallback-new-"></a></h3>
@@ -151,7 +160,8 @@ for each argument of the wrapped loss function, where the parametes are then of 
 <span>  label <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  man <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  additional_args <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  additional_args <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  weight <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
@@ -184,8 +194,22 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <dd><p>(<code>any</code>)<br>
 Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.</p></dd>
 
+      <dt><code>weight</code></dt>
+<dd><p>(<code>numeric(1)</code> or <code>NULL</code>)<br>
+Overwrites the <code>$weight</code> of the generated <code><a href="mlr_callback_set.html">CallbackSet</a></code>, see its section <em>Ordering</em>.
+If <code>NULL</code> (default), the callback's own weight is kept.</p></dd>
+
 
 </dl><p></p></div>
+</div>
+
+</div>
+
+<p></p><hr><a id="method-TorchCallback-generate"></a><div class="section">
+<h3 id="torchcallback-generate-"><code>TorchCallback$generate()</code><a class="anchor" aria-label="anchor" href="#torchcallback-generate-"></a></h3>
+<p>Generates the <code><a href="mlr_callback_set.html">CallbackSet</a></code>, applying <code>$weight</code> if it is set.</p><div class="section">
+<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">TorchCallback</span><span class="op">$</span><span class="fu">generate</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 </div>
@@ -193,7 +217,7 @@ Additional arguments if necessary. For learning rate schedulers, this is the tor
 <p></p><hr><a id="method-TorchCallback-clone"></a><div class="section">
 <h3 id="torchcallback-clone-"><code>TorchCallback$clone()</code><a class="anchor" aria-label="anchor" href="#torchcallback-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">TorchCallback</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
@@ -228,7 +252,7 @@ Additional arguments if necessary. For learning rate schedulers, this is the tor
 <span class="r-in"><span><span class="va">torch_callback</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchCallback:checkpoint&gt; Checkpoint</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: CallbackSetCheckpoint</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/RtmpbLzGz5/file1d5833508590, freq=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/RtmpeZoZSj/file1e315a6dd3e9, freq=1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: mlr3torch,torch</span>
 <span class="r-in"><span><span class="va">torch_callback</span><span class="op">$</span><span class="va">label</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Checkpoint"</span>
@@ -283,15 +307,15 @@ Additional arguments if necessary. For learning rate schedulers, this is the tor
 <span class="r-out co"><span class="r-pr">#&gt;</span> 24:      tensor_dataset ParamFct    NA    NA       1 &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 25:           jit_trace ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 26:             neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:                   p ParamDbl 0e+00 1e+00     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:                   p ParamDbl 0e+00     1     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 28:            n_layers ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 29:          activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 30:     activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 31:               shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 32:              opt.lr ParamDbl 0e+00   Inf     Inf          0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 33:           opt.betas ParamUty    NA    NA     Inf    0.900,0.999</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34:             opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35:    opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34:             opt.eps ParamDbl 1e-16   Inf     Inf          1e-08</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35:    opt.weight_decay ParamDbl 0e+00   Inf     Inf              0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 36:         opt.amsgrad ParamLgl    NA    NA       2          FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 37:    opt.param_groups ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 38:      loss.reduction ParamFct    NA    NA       2           mean</span>

@@ -188,7 +188,8 @@ The loss to use for training.</p></dd>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="TorchCallback.html">TorchCallback</a></code>s)<br>
 The callbacks used during training.
 Must have unique ids.
-They are executed in the order in which they are provided</p></dd>
+They are executed in the order in which they are provided, unless a callback requests
+otherwise via its <code>$weight</code>, see section <em>Ordering</em> of <code><a href="mlr_callback_set.html">CallbackSet</a></code>.</p></dd>
 
       <dt><code>packages</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
@@ -253,14 +254,14 @@ The feature types. Defaults to all available feature types.</p></dd>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, <span class="va">ids</span><span class="op">$</span><span class="va">test</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;PredictionClassif&gt;</span><span style="font-weight: bold;"> for </span><span style="color: #0000BB; font-weight: bold;">50</span><span style="font-weight: bold;"> observations:</span> <span style="color: #00BBBB;">────────────────────────────────────</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  row_ids     truth response</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        2    setosa   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        3    setosa   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        4    setosa   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      ---       ---      ---</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      145 virginica   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      146 virginica   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      150 virginica   setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  row_ids     truth   response</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        2    setosa versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        3    setosa versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        4    setosa versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      ---       ---        ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      145 virginica versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      146 virginica versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      150 virginica versicolor</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

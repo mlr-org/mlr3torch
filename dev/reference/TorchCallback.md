@@ -57,17 +57,27 @@ Other Torch Descriptor:
 [`TorchDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.md)
 -\> `TorchCallback`
 
+## Active bindings
+
+- `weight`:
+
+  (`numeric(1)` or `NULL`)  
+  Overwrites the `$weight` of the generated
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md),
+  see its section *Ordering*.
+
 ## Methods
 
 ### Public methods
 
 - [`TorchCallback$new()`](#method-TorchCallback-initialize)
 
+- [`TorchCallback$generate()`](#method-TorchCallback-generate)
+
 - [`TorchCallback$clone()`](#method-TorchCallback-clone)
 
 Inherited methods
 
-- [`TorchDescriptor$generate()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-generate)
 - [`TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-help)
 - [`TorchDescriptor$print()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-print)
 
@@ -87,7 +97,8 @@ Creates a new instance of this
       label = NULL,
       packages = NULL,
       man = NULL,
-      additional_args = NULL
+      additional_args = NULL,
+      weight = NULL
     )
 
 #### Arguments
@@ -131,6 +142,26 @@ Creates a new instance of this
   Additional arguments if necessary. For learning rate schedulers, this
   is the torch::LRScheduler.
 
+- `weight`:
+
+  (`numeric(1)` or `NULL`)  
+  Overwrites the `$weight` of the generated
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md),
+  see its section *Ordering*. If `NULL` (default), the callback's own
+  weight is kept.
+
+------------------------------------------------------------------------
+
+### `TorchCallback$generate()`
+
+Generates the
+[`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md),
+applying `$weight` if it is set.
+
+#### Usage
+
+    TorchCallback$generate()
+
 ------------------------------------------------------------------------
 
 ### `TorchCallback$clone()`
@@ -167,7 +198,7 @@ torch_callback = t_clbk("checkpoint",
 torch_callback
 #> <TorchCallback:checkpoint> Checkpoint
 #> * Generator: CallbackSetCheckpoint
-#> * Parameters: path=/tmp/RtmpbLzGz5/file1d5833508590, freq=1
+#> * Parameters: path=/tmp/RtmpeZoZSj/file1e315a6dd3e9, freq=1
 #> * Packages: mlr3torch,torch
 torch_callback$label
 #> [1] "Checkpoint"
@@ -222,15 +253,15 @@ learner$param_set
 #> 24:      tensor_dataset ParamFct    NA    NA       1 <NoDefault[0]>
 #> 25:           jit_trace ParamLgl    NA    NA       2 <NoDefault[0]>
 #> 26:             neurons ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 27:                   p ParamDbl 0e+00 1e+00     Inf <NoDefault[0]>
+#> 27:                   p ParamDbl 0e+00     1     Inf <NoDefault[0]>
 #> 28:            n_layers ParamInt 1e+00   Inf     Inf <NoDefault[0]>
 #> 29:          activation ParamUty    NA    NA     Inf <NoDefault[0]>
 #> 30:     activation_args ParamUty    NA    NA     Inf <NoDefault[0]>
 #> 31:               shape ParamUty    NA    NA     Inf <NoDefault[0]>
 #> 32:              opt.lr ParamDbl 0e+00   Inf     Inf          0.001
 #> 33:           opt.betas ParamUty    NA    NA     Inf    0.900,0.999
-#> 34:             opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08
-#> 35:    opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0
+#> 34:             opt.eps ParamDbl 1e-16   Inf     Inf          1e-08
+#> 35:    opt.weight_decay ParamDbl 0e+00   Inf     Inf              0
 #> 36:         opt.amsgrad ParamLgl    NA    NA       2          FALSE
 #> 37:    opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
 #> 38:      loss.reduction ParamFct    NA    NA       2           mean

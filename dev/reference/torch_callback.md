@@ -33,6 +33,7 @@ torch_callback(
   state_dict = NULL,
   load_state_dict = NULL,
   initialize = NULL,
+  weight = NULL,
   public = NULL,
   private = NULL,
   active = NULL,
@@ -101,6 +102,14 @@ torch_callback(
   (`function()`)  
   The initialization method of the callback.
 
+- weight:
+
+  (`numeric(1)`)  
+  Controls when the callback is called within a stage, see section
+  *Ordering* of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md).
+  Defaults to `0`.
+
 - public, private, active:
 
   ([`list()`](https://rdrr.io/r/base/list.html))  
@@ -167,6 +176,18 @@ that can be passed to a torch learner.
 
 - `exit` :: Run at last, using
   [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
+
+## Ordering
+
+Within a stage, callbacks are called in the order in which they were
+passed to the learner. A callback can override this via its `$weight`
+field: callbacks with a higher weight are called after those with a
+lower one, and callbacks with the same weight keep the order in which
+they were passed. The default weight is `0`. This matters for callbacks
+that observe what the others did, which is why
+[`CallbackSetCheckpoint`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.checkpoint.md)
+has weight `Inf`: it always runs last and therefore saves the network
+and optimizer as the other callbacks left them at the end of the stage.
 
 ## See also
 

@@ -160,6 +160,13 @@ available, but they are also described in the documentation of
 <span><span class="co">##  [4] "on_after_backward"    "on_batch_end"         "on_before_valid"     </span></span>
 <span><span class="co">##  [7] "on_batch_valid_begin" "on_batch_valid_end"   "on_valid_end"        </span></span>
 <span><span class="co">## [10] "on_epoch_end"         "on_end"               "on_exit"</span></span></code></pre>
+<p>When a learner has more than one callback, they are called within a
+stage in the order in which they were passed to it. A callback that has
+to observe what the others did – like <code>t_clbk("checkpoint")</code>,
+which saves the network and the optimizer as the other callbacks left
+them – can override this through its <code>$weight</code>: a higher
+weight is called later, and callbacks with the same weight keep the
+order they were passed in.</p>
 <p>For the history callback, we see that it runs code at the beginning,
 before validation starts, and at the end of an epoch.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -246,7 +253,7 @@ have to implement these methods.</p>
 <span><span class="co">##     load_state_dict: function (state_dict) </span></span>
 <span><span class="co">##     on_before_valid: function () </span></span>
 <span><span class="co">##     on_batch_end: function () </span></span>
-<span><span class="co">##   Parent env: &lt;environment: 0x55c1d9443360&gt;</span></span>
+<span><span class="co">##   Parent env: &lt;environment: 0x55d0cd5b73a8&gt;</span></span>
 <span><span class="co">##   Locked objects: FALSE</span></span>
 <span><span class="co">##   Locked class: FALSE</span></span>
 <span><span class="co">##   Portable: TRUE</span></span></code></pre>

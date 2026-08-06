@@ -53,6 +53,14 @@ mlr_reflections$torch$callback_stages
     ##  [7] "on_batch_valid_begin" "on_batch_valid_end"   "on_valid_end"        
     ## [10] "on_epoch_end"         "on_end"               "on_exit"
 
+When a learner has more than one callback, they are called within a
+stage in the order in which they were passed to it. A callback that has
+to observe what the others did – like `t_clbk("checkpoint")`, which
+saves the network and the optimizer as the other callbacks left them –
+can override this through its `$weight`: a higher weight is called
+later, and callbacks with the same weight keep the order they were
+passed in.
+
 For the history callback, we see that it runs code at the beginning,
 before validation starts, and at the end of an epoch.
 
@@ -149,7 +157,7 @@ custom_logger$generator
     ##     load_state_dict: function (state_dict) 
     ##     on_before_valid: function () 
     ##     on_batch_end: function () 
-    ##   Parent env: <environment: 0x55c1d9443360>
+    ##   Parent env: <environment: 0x55d0cd5b73a8>
     ##   Locked objects: FALSE
     ##   Locked class: FALSE
     ##   Portable: TRUE

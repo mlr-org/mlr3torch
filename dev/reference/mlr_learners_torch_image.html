@@ -169,7 +169,8 @@ The loss to use for training.</p></dd>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="TorchCallback.html">TorchCallback</a></code>s)<br>
 The callbacks used during training.
 Must have unique ids.
-They are executed in the order in which they are provided</p></dd>
+They are executed in the order in which they are provided, unless a callback requests
+otherwise via its <code>$weight</code>, see section <em>Ordering</em> of <code><a href="mlr_callback_set.html">CallbackSet</a></code>.</p></dd>
 
       <dt><code>packages</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>

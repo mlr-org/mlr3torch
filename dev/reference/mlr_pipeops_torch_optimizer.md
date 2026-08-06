@@ -121,7 +121,7 @@ po_opt$param_set
 #> 1:           lr ParamDbl     0   Inf     Inf <NoDefault[0]>   0.01
 #> 2:     momentum ParamDbl     0     1     Inf              0 [NULL]
 #> 3:    dampening ParamDbl     0     1     Inf              0 [NULL]
-#> 4: weight_decay ParamDbl     0     1     Inf              0 [NULL]
+#> 4: weight_decay ParamDbl     0   Inf     Inf              0 [NULL]
 #> 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]
 #> 6: param_groups ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))

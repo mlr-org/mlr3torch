@@ -114,7 +114,9 @@ Creates a new instance of this
   ([`list()`](https://rdrr.io/r/base/list.html) of
   [`TorchCallback`](https://mlr3torch.mlr-org.com/dev/reference/TorchCallback.md)s)  
   The callbacks used during training. Must have unique ids. They are
-  executed in the order in which they are provided
+  executed in the order in which they are provided, unless a callback
+  requests otherwise via its `$weight`, see section *Ordering* of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md).
 
 - `packages`:
 

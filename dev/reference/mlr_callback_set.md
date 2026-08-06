@@ -67,6 +67,18 @@ not accidentally misspelled.
 - `exit` :: Run at last, using
   [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
 
+## Ordering
+
+Within a stage, callbacks are called in the order in which they were
+passed to the learner. A callback can override this via its `$weight`
+field: callbacks with a higher weight are called after those with a
+lower one, and callbacks with the same weight keep the order in which
+they were passed. The default weight is `0`. This matters for callbacks
+that observe what the others did, which is why
+[`CallbackSetCheckpoint`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.checkpoint.md)
+has weight `Inf`: it always runs last and therefore saves the network
+and optimizer as the other callbacks left them at the end of the stage.
+
 ## Terminate Training
 
 If training is to be stopped, it is possible to set the field
@@ -100,6 +112,12 @@ Other Callback:
   or `NULL`)  
   The evaluation context for the callback. This field should always be
   `NULL` except during the `$train()` call of the torch learner.
+
+- `weight`:
+
+  (`numeric(1)`)  
+  Controls when this callback is called within a stage, see section
+  *Ordering*.
 
 ## Active bindings
 

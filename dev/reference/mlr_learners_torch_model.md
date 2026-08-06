@@ -139,7 +139,9 @@ Creates a new instance of this
   ([`list()`](https://rdrr.io/r/base/list.html) of
   [`TorchCallback`](https://mlr3torch.mlr-org.com/dev/reference/TorchCallback.md)s)  
   The callbacks used during training. Must have unique ids. They are
-  executed in the order in which they are provided
+  executed in the order in which they are provided, unless a callback
+  requests otherwise via its `$weight`, see section *Ordering* of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md).
 
 - `packages`:
 
@@ -198,12 +200,12 @@ learner$train(task, ids$train)
 learner$predict(task, ids$test)
 #> 
 #> ── <PredictionClassif> for 50 observations: ────────────────────────────────────
-#>  row_ids     truth response
-#>        2    setosa   setosa
-#>        3    setosa   setosa
-#>        4    setosa   setosa
-#>      ---       ---      ---
-#>      145 virginica   setosa
-#>      146 virginica   setosa
-#>      150 virginica   setosa
+#>  row_ids     truth   response
+#>        2    setosa versicolor
+#>        3    setosa versicolor
+#>        4    setosa versicolor
+#>      ---       ---        ---
+#>      145 virginica versicolor
+#>      146 virginica versicolor
+#>      150 virginica versicolor
 ```

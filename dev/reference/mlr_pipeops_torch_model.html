@@ -92,12 +92,15 @@ The device. One of <code>"auto"</code>, <code>"cpu"</code>, or <code>"cuda"</cod
 The value is initialized to <code>"auto"</code>, which will select <code>"cuda"</code> if possible, then try <code>"mps"</code> and otherwise
 fall back to <code>"cpu"</code>.</p></li>
 <li><p><code>num_threads</code> :: <code>integer(1)</code><br>
-The number of threads for intraop pararallelization (if <code>device</code> is <code>"cpu"</code>).
-This value is initialized to 1.</p></li>
-<li><p><code>num_interop_threads</code> :: <code>integer(1)</code><br>
-The number of threads for intraop and interop pararallelization (if <code>device</code> is <code>"cpu"</code>).
+The number of threads for intraop parallelization (if <code>device</code> is <code>"cpu"</code>).
 This value is initialized to 1.
-Note that this can only be set once during a session and changing the value within an R session will raise a warning.</p></li>
+When resampling, benchmarking or tuning in parallel, each worker uses this many threads, so
+divide the available cores among the workers instead of setting this to the number of cores.</p></li>
+<li><p><code>num_interop_threads</code> :: <code>integer(1)</code><br>
+The number of threads for interop parallelization (if <code>device</code> is <code>"cpu"</code>).
+This value is initialized to 1.
+Note that this can only be set <strong>once</strong> per session, so training a learnerd once already sets this.
+You can work around this via encapsulation, see <code><a href="https://mlr3.mlr-org.com/reference/Learner.html" class="external-link">mlr3::Learner</a></code>.</p></li>
 <li><p><code>seed</code> :: <code>integer(1)</code> or <code>"random"</code> or <code>NULL</code><br>
 The torch seed that is used during training and prediction.
 This value is initialized to <code>"random"</code>, which means that a random seed will be sampled at the beginning of the
@@ -169,7 +172,7 @@ It is ignored when a <code>batch_sampler</code> is provided.</p></li>
 The timeout value for collecting a batch from workers.
 Negative values mean no timeout and the default is <code>-1</code>.</p></li>
 <li><p><code>worker_init_fn</code> :: <code>function(id)</code><br>
-A function that receives the worker id (in <code>[1, num_workers]</code>) and is exectued after seeding
+A function that receives the worker id (in <code>[1, num_workers]</code>) and is executed after seeding
 on the worker but before data loading.</p></li>
 <li><p><code>worker_globals</code> :: <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> | <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
 When loading data in parallel, this allows to export globals to the workers.
@@ -177,7 +180,7 @@ If this is a character vector, the objects in the global environment with those 
 are copied to the workers.</p></li>
 <li><p><code>worker_packages</code> :: <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
 Which packages to load on the workers.</p></li>
-</ul><p>Also see <code>torch::dataloder</code> for more information.</p>
+</ul><p>Also see <code><a href="https://torch.mlverse.org/docs/reference/dataloader.html" class="external-link">torch::dataloader</a></code> for more information.</p>
     </div>
     <div class="section level2">
     <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>

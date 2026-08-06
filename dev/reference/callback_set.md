@@ -31,6 +31,7 @@ callback_set(
   state_dict = NULL,
   load_state_dict = NULL,
   initialize = NULL,
+  weight = NULL,
   public = NULL,
   private = NULL,
   active = NULL,
@@ -69,6 +70,14 @@ callback_set(
 
   (`function()`)  
   The initialization method of the callback.
+
+- weight:
+
+  (`numeric(1)`)  
+  Controls when the callback is called within a stage, see section
+  *Ordering* of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md).
+  Defaults to `0`.
 
 - public, private, active:
 

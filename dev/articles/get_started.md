@@ -86,7 +86,7 @@ prediction = mlp$predict(task, row_ids = splits$test)
 # Compute the mse
 prediction$score(msr("regr.mse"))
 #> regr.mse 
-#> 289.5967
+#> 289.5966
 ```
 
 ## Configuring a Learner
@@ -203,7 +203,7 @@ sgd$param_set
 #> 1:           lr ParamDbl     0   Inf     Inf <NoDefault[0]> [NULL]
 #> 2:     momentum ParamDbl     0     1     Inf              0 [NULL]
 #> 3:    dampening ParamDbl     0     1     Inf              0 [NULL]
-#> 4: weight_decay ParamDbl     0     1     Inf              0 [NULL]
+#> 4: weight_decay ParamDbl     0   Inf     Inf              0 [NULL]
 #> 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]
 #> 6: param_groups ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
 ```
@@ -377,11 +377,11 @@ head(mlp_custom$model$callbacks$history)
 #>    epoch valid.regr.mae
 #>    <num>          <num>
 #> 1:     1   1.952632e+04
-#> 2:     2   1.480274e+10
+#> 2:     2   1.480273e+10
 #> 3:     3   1.907161e+09
 #> 4:     4   6.248891e+04
-#> 5:     5   8.702154e+01
-#> 6:     6   3.612310e+01
+#> 5:     5   8.702156e+01
+#> 6:     6   3.612308e+01
 ```
 
 The plot below shows it for the epochs 6 to 30.
