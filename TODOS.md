@@ -491,3 +491,28 @@ modes; `resample`/`benchmark`/`AutoTuner`/`tnr("internal")`; `po("learner")` in 
 `GraphLearner` marshal round-trip; callr encapsulation; all 17 edge cases (single feature,
 single-row predict, constant feature, `batch_size` > n, `predict_newdata`, clear errors for
 factor-only features and missing values).
+
+---
+
+## Appendix C — work in flight
+
+Branches that exist but are not merged, so that none of it gets lost. All of them live in a
+worktree under `.claude/worktrees/` and none of them is pushed yet.
+
+| Worktree | Branch | Addresses | Status |
+|---|---|---|---|
+| `more-fixes` (the main checkout) | `more-fixes` | 1.1, 1.4, 1.9h, 1.10, 2.1, 2.2, 2.3, scaling docs of 5.0 | PR #499, open |
+| `pipeop-torch-helper` | `feat/pipeop-torch-helper-fn` | issues #144, #403, #398 | committed, not pushed |
+| `predict-progress` | `feat/predict-progress` | issue #435 | in progress |
+| `model-printer` | `feat/learner-torch-model-printer` | issue #393 | in progress |
+| `torch-model-dict` | `feat/torch-model-dictionary` | issue #376 | in progress |
+| `nn-examples` | `docs/nn-in-examples` | issue #346 | in progress |
+
+`feat/pipeop-torch-helper-fn` adds `pipeop_torch()`, which generates the `PipeOpTorch` R6 class
+from an `nn_module` (`auxiliary` names the module arguments that follow from the input shape,
+output shapes are traced on the meta device unless given), an `as_pipeop()` method for
+`nn_module_generator`s, and the article *Writing your own PipeOpTorch* -- which is 4.7 of this
+file. The custom-`PipeOpTorch` example moved out of `?mlr_pipeops_torch` into that article.
+
+Note that every branch off `main` still carries the `_pkgdown.yml` bug that breaks the pkgdown
+build (`equals-.lazy_tensor` has to be `` "`==.lazy_tensor`" ``); it is fixed on `more-fixes`.
