@@ -13,13 +13,24 @@ are created in \code{path}:
 \itemize{
 \item \verb{network<n>.pt} :: The \verb{$state_dict()} of the network.
 \item \verb{optimizer<n>.pt} :: The \verb{$state_dict()} of the optimizer.
-\item \verb{state<n>.rds} :: The epoch, as well as the \verb{$state_dict()}s of the other callbacks of the
-training run, so that a later run can continue e.g. the training history or the learning rate
-schedule.
+\item \verb{state<n>.rds} :: The epoch, the version of \code{mlr3torch} that wrote the checkpoint, as well as
+the \verb{$state_dict()}s of the other callbacks of the training run, so that a later run can
+continue e.g. the training history or the learning rate schedule.
+Resuming from a checkpoint written by a different version of \code{mlr3torch} warns, because what a
+callback stores in its state dict is up to the callback and may change between releases.
 }
 
 A checkpoint counts as complete only if all three files are present, so a run that was killed
 while writing one of them falls back to the previous checkpoint rather than to a partial one.
+Reading a folder that holds such a partial checkpoint warns, as skipping it silently would look
+like the run simply got less far than it did.
+
+\code{path} may already contain checkpoints, which is what a run continuing an earlier one writes
+into: it writes epochs that folder does not have yet, so nothing of the earlier run is touched.
+A run that would write over a checkpoint of another run errors instead, so a folder is never
+silently left holding the epochs of two different trainings.
+An incomplete checkpoint is replaced rather than protected -- it cannot be resumed from anyway,
+and refusing would mean a run killed while writing could never be restarted into its own folder.
 
 Training can be continued from such a checkpoint -- also in a new R session -- via the \code{path}
 parameter of \code{\link{LearnerTorch}}, see the example below.

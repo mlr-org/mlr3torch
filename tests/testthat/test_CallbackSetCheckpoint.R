@@ -150,17 +150,61 @@ test_that("ending a run early still saves the epoch that finished", {
 })
 
 test_that("a folder that already contains checkpoints can be checkpointed into", {
+  # this is what a run continuing an earlier one does: it writes epochs the folder does not have,
+  # so nothing of the earlier run is touched
+  task = tsk("iris")
+  path = tempfile()
+  first = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  first$train(task)
+  kept = as.numeric(torch_load(file.path(path, "network2.pt"))[[1L]]$flatten())
+
+  # a callback pointed at that folder is accepted rather than rejected as an existing directory
+  expect_no_error(t_clbk("checkpoint", freq = 1, path = path)$generate())
+
+  # writing only epochs 3 and 4 leaves the earlier ones alone and does not warn
+  writer = torch_callback("writer", weight = -1,
+    on_begin = function() self$ctx$epoch = 2L)
+  second = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10,
+    callbacks = list(writer, t_clbk("checkpoint", freq = 1, path = path)))
+  expect_no_warning(second$train(task))
+
+  expect_set_equal(list.files(path),
+    c(paste0("network", 1:4, ".pt"), paste0("optimizer", 1:4, ".pt"), paste0("state", 1:4, ".rds")))
+  expect_equal(as.numeric(torch_load(file.path(path, "network2.pt"))[[1L]]$flatten()), kept)
+})
+
+test_that("the checkpoint of another run is never overwritten", {
+  # a run started over instead of continued used to destroy the earlier run's checkpoints
   task = tsk("iris")
   path = tempfile()
   first = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
     callbacks = t_clbk("checkpoint", freq = 1, path = path))
   first$train(task)
+  before = as.numeric(torch_load(file.path(path, "network1.pt"))[[1L]]$flatten())
 
   second = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
     callbacks = t_clbk("checkpoint", freq = 1, path = path))
-  expect_no_error(second$train(task))
-  expect_set_equal(list.files(path),
-    c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt"), paste0("state", 1:2, ".rds")))
+  expect_error(second$train(task), "Checkpoint of epoch 1 already exists")
+
+  # the earlier run's checkpoint is still the one on disk
+  after = as.numeric(torch_load(file.path(path, "network1.pt"))[[1L]]$flatten())
+  expect_equal(after, before)
+  expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt", "state1.rds"))
+})
+
+test_that("an incomplete leftover checkpoint may be replaced", {
+  # what a run killed while writing leaves behind. It is unusable, and refusing to replace it would
+  # mean such a run could never be restarted into its own folder.
+  task = tsk("iris")
+  path = tempfile()
+  dir.create(path)
+  file.create(file.path(path, c("network1.pt", "optimizer1.pt")))
+
+  learner = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  expect_no_error(learner$train(task))
+  expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt", "state1.rds"))
 })
 
 test_that("latest_checkpoint() finds the most recent complete checkpoint", {
@@ -177,21 +221,24 @@ test_that("latest_checkpoint() finds the most recent complete checkpoint", {
   expect_equal(latest_checkpoint(path)$epoch, 10L)
   expect_equal(basename(latest_checkpoint(path)$network), "network10.pt")
 
-  # a run that was killed while writing leaves an incomplete checkpoint, which is skipped
+  # a run that was killed while writing leaves an incomplete checkpoint, which is skipped -- but
+  # not silently, as that would look like the run simply got less far than it did
   file.create(file.path(path, c("network11.pt", "optimizer11.pt")))
-  expect_equal(latest_checkpoint(path)$epoch, 10L)
+  expect_warning(latest_checkpoint(path), "Ignoring incomplete checkpoint\\(s\\) 11")
+  expect_equal(suppressWarnings(latest_checkpoint(path))$epoch, 10L)
 
   # all three files are required, so the previous complete checkpoint is used instead. Without the
   # state file nothing says that the suffix counts epochs rather than within-epoch steps, which is
   # how mlr3torch <= 0.3.3 could name them.
   file.remove(file.path(path, "state10.rds"))
-  expect_equal(checkpoint_suffixes(path), 2L)
-  expect_equal(latest_checkpoint(path)$epoch, 2L)
-  expect_equal(basename(latest_checkpoint(path)$state), "state2.rds")
+  expect_warning(checkpoint_suffixes(path), "checkpoint\\(s\\) 10, 11")
+  expect_equal(suppressWarnings(checkpoint_suffixes(path)), 2L)
+  expect_equal(suppressWarnings(latest_checkpoint(path))$epoch, 2L)
+  expect_equal(basename(suppressWarnings(latest_checkpoint(path))$state), "state2.rds")
 
   # and a folder that holds only such checkpoints has nothing to offer
   file.remove(file.path(path, "state2.rds"))
-  expect_null(latest_checkpoint(path))
+  expect_null(suppressWarnings(latest_checkpoint(path)))
 })
 
 test_that("the saved callback states belong to the epoch of the checkpoint", {
@@ -207,4 +254,42 @@ test_that("the saved callback states belong to the epoch of the checkpoint", {
   state = readRDS(file.path(path, "state2.rds"))
   expect_equal(state$callbacks$lr_step$last_epoch, 2)
   expect_equal(state$callbacks$lr_step, learner$model$callbacks$lr_step)
+})
+
+test_that("the state file records the mlr3torch version", {
+  path = tempfile()
+  learner = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 5,
+    callbacks = t_clbk("checkpoint", path = path, freq = 1))
+  learner$train(tsk("iris"))
+
+  state = readRDS(file.path(path, "state2.rds"))
+  expect_equal(state$version, as.character(packageVersion("mlr3torch")))
+})
+
+test_that("reading a checkpoint state warns on a version mismatch", {
+  path = tempfile()
+  learner = lrn("classif.mlp", epochs = 1, batch_size = 50, neurons = 5,
+    callbacks = t_clbk("checkpoint", path = path, freq = 1))
+  learner$train(tsk("iris"))
+  file = file.path(path, "state1.rds")
+
+  # the version that wrote it is the one that is running
+  expect_silent({
+    state = read_checkpoint_state(file)
+  })
+  expect_equal(state$epoch, 1L)
+
+  written_by_other = readRDS(file)
+  written_by_other$version = "0.0.1"
+  saveRDS(written_by_other, file)
+  expect_warning(read_checkpoint_state(file), "written by mlr3torch 0.0.1")
+
+  # checkpoints from before the version was recorded
+  written_by_old = readRDS(file)
+  written_by_old$version = NULL
+  saveRDS(written_by_old, file)
+  expect_warning(read_checkpoint_state(file), "before checkpoints recorded one")
+
+  # the state is returned either way, so a mismatch does not stop a resume
+  expect_equal(suppressWarnings(read_checkpoint_state(file))$epoch, 1L)
 })

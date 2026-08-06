@@ -10,12 +10,23 @@
 #' are created in `path`:
 #' * `network<n>.pt` :: The `$state_dict()` of the network.
 #' * `optimizer<n>.pt` :: The `$state_dict()` of the optimizer.
-#' * `state<n>.rds` :: The epoch, as well as the `$state_dict()`s of the other callbacks of the
-#'   training run, so that a later run can continue e.g. the training history or the learning rate
-#'   schedule.
+#' * `state<n>.rds` :: The epoch, the version of `mlr3torch` that wrote the checkpoint, as well as
+#'   the `$state_dict()`s of the other callbacks of the training run, so that a later run can
+#'   continue e.g. the training history or the learning rate schedule.
+#'   Resuming from a checkpoint written by a different version of `mlr3torch` warns, because what a
+#'   callback stores in its state dict is up to the callback and may change between releases.
 #'
 #' A checkpoint counts as complete only if all three files are present, so a run that was killed
 #' while writing one of them falls back to the previous checkpoint rather than to a partial one.
+#' Reading a folder that holds such a partial checkpoint warns, as skipping it silently would look
+#' like the run simply got less far than it did.
+#'
+#' `path` may already contain checkpoints, which is what a run continuing an earlier one writes
+#' into: it writes epochs that folder does not have yet, so nothing of the earlier run is touched.
+#' A run that would write over a checkpoint of another run errors instead, so a folder is never
+#' silently left holding the epochs of two different trainings.
+#' An incomplete checkpoint is replaced rather than protected -- it cannot be resumed from anyway,
+#' and refusing would mean a run killed while writing could never be restarted into its own folder.
 #'
 #' Training can be continued from such a checkpoint -- also in a new R session -- via the `path`
 #' parameter of [`LearnerTorch`], see the example below.
@@ -85,16 +96,25 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   ),
   private = list(
     .save = function(suffix) {
+      # A run never writes the same epoch twice, so a complete checkpoint under this number belongs
+      # to a different run and is not ours to destroy. A run continuing an earlier one writes epochs
+      # that one does not have, so it never gets here; an incomplete checkpoint has no state file
+      # and is unusable anyway, so replacing that is allowed -- otherwise a run killed while writing
+      # could never be restarted into its own folder.
+      if (file.exists(file.path(self$path, paste0("state", suffix, ".rds")))) {
+        stopf("Checkpoint of epoch %i already exists in '%s' and was written by another run. Use a fresh folder, or continue that run instead of starting it over.", # nolint
+          suffix, self$path)
+      }
       torch_save(self$ctx$network$state_dict(), file.path(self$path, paste0("network", suffix, ".pt")))
       torch_save(self$ctx$optimizer$state_dict(), file.path(self$path, paste0("optimizer", suffix, ".pt")))
-      # what a later run needs on top of the network and the optimizer: the epoch to continue from
-      # and the states of the other callbacks. These are plain R objects -- they are not
-      # torch-serialized when a learner is marshaled either -- so they are saved with saveRDS(),
-      # which unlike torch_save() keeps classes such as data.table intact.
       saveRDS(
         list(
           # the epoch this checkpoint belongs to, i.e. the one that just ran to its end
-          epoch     = suffix,
+          epoch = suffix,
+          # what wrote this checkpoint. What a callback state dict contains is up to the callback,
+          # so it can change between releases; recording the version lets a later run say so instead
+          # of failing somewhere inside `$load_state_dict()`.
+          version = as.character(utils::packageVersion("mlr3torch")),
           callbacks = discard(map(self$ctx$callbacks, function(cb) cb$state_dict()), is.null)
         ),
         file.path(self$path, paste0("state", suffix, ".rds"))
@@ -115,17 +135,34 @@ can_checkpoint_into = function(path) {
     (dir.exists(path) && length(list.files(path, pattern = "^(network|optimizer)[0-9]+\\.pt$|^state[0-9]+\\.rds$")) > 0L) # nolint
 }
 
-# The suffixes of the complete checkpoints in `path`, most recent first.
-# All three files must be there: a run interrupted while writing leaves an incomplete checkpoint,
-# and `state<n>.rds` is also what identifies `<n>` as an epoch -- mlr3torch <= 0.3.3 could name its
-# files after the within-epoch step instead, and reading such a suffix as an epoch would claim a
-# checkpoint was trained far longer than it was.
 checkpoint_suffixes = function(path) {
   if (!dir.exists(path)) return(integer(0))
   suffixes = as.integer(gsub("^network|\\.pt$", "", list.files(path, pattern = "^network[0-9]+\\.pt$")))
+  # paste0() recycles a zero-length suffix to "", which would look for 'optimizer.pt'
+  if (!length(suffixes)) return(integer(0))
   complete = file.exists(file.path(path, paste0("optimizer", suffixes, ".pt"))) &
     file.exists(file.path(path, paste0("state", suffixes, ".rds")))
+  if (!all(complete)) {
+    # silently skipping these would look like the run simply got less far than it did
+    warningf("Ignoring incomplete checkpoint(s) %s in '%s', which are missing an optimizer or a state file. This is what a run killed while writing a checkpoint leaves behind.", # nolint
+      paste0(sort(suffixes[!complete]), collapse = ", "), path)
+  }
   sort(suffixes[complete], decreasing = TRUE)
+}
+
+read_checkpoint_state = function(file) {
+  state = readRDS(file)
+  current = as.character(utils::packageVersion("mlr3torch"))
+  if (!identical(state$version, current)) {
+    written_by = if (is.null(state$version)) {
+      "a version of mlr3torch from before checkpoints recorded one"
+    } else {
+      sprintf("mlr3torch %s", state$version)
+    }
+    warningf("Checkpoint '%s' was written by %s, but mlr3torch %s is loaded. Resuming from it may fail or restore an incomplete state, because what a callback stores in its state dict is version specific.", # nolint
+      file, written_by, current)
+  }
+  state
 }
 
 # The files of the most recent complete checkpoint in `path`, or NULL if there is none.
