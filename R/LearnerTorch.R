@@ -483,13 +483,16 @@ LearnerTorch = R6Class("LearnerTorch",
       }
       list(epochs = self$model$callbacks$early_stopping$best_epochs)
     },
-    .extract_internal_valid_scores = function(which = "last") {
-      scores = if (which == "best") {
-        # the best epoch is only tracked when early stopping is active
-        self$model$callbacks$early_stopping$best_valid_scores
+    .extract_internal_valid_scores = function() {
+      if (is.null(self$model$internal_valid_scores)) {
+        named_list()
       } else {
         self$model$internal_valid_scores
       }
+    },
+    .extract_best_valid_scores = function() {
+      # the best epoch is only tracked when early stopping is active
+      scores = self$model$callbacks$early_stopping$best_valid_scores
       if (is.null(scores)) {
         named_list()
       } else {
