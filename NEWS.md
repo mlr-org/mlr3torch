@@ -2,12 +2,8 @@
 
 ## Features
 
-* New parameter `restore_best_weights` for `LearnerTorch`. When early stopping is active
-  (`patience > 0`) and this is set to `TRUE`, the weights of the best epoch are restored when
-  training ends, instead of keeping those of the last epoch that was trained. It is initialized to
-  `FALSE`, i.e. the previous behaviour is unchanged. Setting it costs one extra copy of the
-  network's parameters in memory, and is not needed when tuning `epochs` with `AutoTuner` or
-  `tnr("internal")`, which retrain on the tuned number of epochs anyway.
+* New parameter `restore_best_weights` for `LearnerTorch`: when early stopping is active, restore
+  the weights of the best epoch at the end of training (default `FALSE`).
 
 * Added learners for the remaining image classification networks of `torchvision`:
   ConvNeXt (`classif.convnext_*`), EfficientNet (`classif.efficientnet_b0` to
