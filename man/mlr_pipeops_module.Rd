@@ -108,7 +108,8 @@ Other Graph Network:
 \code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
 \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
 \code{\link[=model_descriptor_union]{model_descriptor_union()}},
-\code{\link[=nn_graph]{nn_graph()}}
+\code{\link[=nn_graph]{nn_graph()}},
+\code{\link[=pipeop_torch]{pipeop_torch()}}
 
 Other PipeOp:
 \code{\link{mlr_pipeops_torch_callbacks}},
