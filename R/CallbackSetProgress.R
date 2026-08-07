@@ -3,7 +3,8 @@
 #' @name mlr_callback_set.progress
 #'
 #' @description
-#' Prints a progress bar and the metrics for training and validation.
+#' Prints a progress bar and the metrics for training and validation, as well as a progress bar
+#' during prediction.
 #'
 #' @family Callback
 #' @include CallbackSet.R
@@ -21,6 +22,9 @@
 #' )
 #'
 #' learner$train(task)
+#'
+#' # the prediction loop has a progress bar of its own
+#' p = learner$predict(task)
 CallbackSetProgress = R6Class("CallbackSetProgress",
   inherit = CallbackSet,
   lock_objects = FALSE,
@@ -87,6 +91,26 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
     #' Prints the time at the end of training.
     on_end = function() {
       catf("Finished training for %s epochs (%s)", self$ctx$epoch, format(Sys.time()))
+    },
+    #' @description
+    #' Creates the progress bar for prediction.
+    on_predict_begin = function() {
+      catf("Prediction started (%s)", format(Sys.time()))
+      self$pb_predict = progress::progress_bar$new(
+        total = length(self$ctx$loader),
+        format = "Prediction: [:bar]"
+      )
+      self$pb_predict$tick(0)
+    },
+    #' @description
+    #' Increments the prediction progress bar.
+    on_predict_batch_end = function() {
+      self$pb_predict$tick()
+    },
+    #' @description
+    #' Prints the time at the end of prediction.
+    on_predict_end = function() {
+      catf("Finished prediction (%s)", format(Sys.time()))
     }
   )
 )

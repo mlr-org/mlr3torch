@@ -14,8 +14,36 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
   self$network$to(device = param_vals$device)
   self$network$eval()
   data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
-  predict_tensor = torch_network_predict(self$network, data_loader, device = param_vals$device)
+
+  # Only the callbacks that implement a prediction stage are created: constructing the others
+  # would repeat whatever their `$initialize()` does -- creating a checkpoint directory, say --
+  # for a run that does not train.
+  cbs = predict_callbacks(self$callbacks)
+  ctx = NULL
+  call = function(stage) NULL
+  if (length(cbs)) {
+    ctx = ContextTorchPredict$new(learner = self, task = task, loader = data_loader,
+      network = self$network, device = param_vals$device)
+    walk(cbs, function(cb) cb$ctx = ctx)
+    on.exit(walk(cbs, function(cb) cb$ctx = NULL), add = TRUE)
+    call = function(stage) {
+      walk(cbs, function(cb) if (exists(stage, cb, inherits = FALSE)) cb[[stage]]())
+    }
+  }
+
+  predict_tensor = torch_network_predict(self$network, data_loader, device = param_vals$device,
+    ctx = ctx, call = call)
   private$.encode_prediction(predict_tensor = predict_tensor, task = task)
+}
+
+# The callbacks that have something to do during prediction, instantiated. Which stages a callback
+# implements is visible on its generator, so this decides without constructing anything.
+predict_callbacks = function(callbacks) {
+  stages = c("on_predict_begin", "on_predict_batch_end", "on_predict_end")
+  callbacks = Filter(function(cb) {
+    any(stages %in% names(cb$generator$public_methods))
+  }, normalize_to_list(callbacks))
+  map(callbacks, function(cb) cb$generate())
 }
 
 learner_torch_train = function(self, private, super, task, param_vals) {
@@ -285,7 +313,7 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
   torch_cat(predictions, dim = 1L)
 }
 
-torch_network_predict = function(network, loader, device) {
+torch_network_predict = function(network, loader, device, ctx = NULL, call = function(stage) NULL) {
   # an unnamed argument
   # TODO: Maybe we should be stricter, but then we need to ensure that the .getbatch() method of the dataset
   # returns a list where the names of x correspond to the argument names of the network
@@ -293,6 +321,8 @@ torch_network_predict = function(network, loader, device) {
   predictions = vector("list", length = length(loader))
   train_iterator = dataloader_make_iter(loader)
   step = 0L
+  call("on_predict_begin")
+  on.exit(call("on_predict_end"), add = TRUE)
   while (step < length(loader)) {
     step = step + 1L
     batch = dataloader_next(train_iterator)
@@ -302,7 +332,12 @@ torch_network_predict = function(network, loader, device) {
     } else {
       with_no_grad(invoke(network$forward, .args = batch$x))
     }
-
+    if (!is.null(ctx)) {
+      ctx$step = step
+      ctx$batch = batch
+      ctx$y_hat = predictions[[step]]
+    }
+    call("on_predict_batch_end")
   }
   torch_cat(predictions, dim = 1L)
 }

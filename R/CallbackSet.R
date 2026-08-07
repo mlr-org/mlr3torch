@@ -46,6 +46,15 @@
 #' * `end` :: Run after last epoch.
 #' * `exit` :: Run last, using `on.exit()`.
 #'
+#' The prediction loop is separate from the training loop and runs its own stages, with
+#' [`ContextTorchPredict`] as `self$ctx`:
+#' * `predict_begin` :: Run before the prediction loop begins.
+#' * `predict_batch_end` :: Run after each batch was predicted.
+#' * `predict_end` :: Run after the last batch was predicted.
+#'
+#' A callback that implements none of these three is not created at prediction time at all, so
+#' anything a callback does in its `$initialize()` only happens during training.
+#'
 #' @section Ordering:
 #' Within a stage, callbacks are called in the order in which they were passed to the learner.
 #' A callback can override this via its `$weight` field: callbacks with a higher weight are called
@@ -140,7 +149,7 @@ CallbackSet = R6Class("CallbackSet",
 #'
 #' @param classname (`character(1)`)\cr
 #'   The class name.
-#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end,on_valid_end,on_exit (`function`)\cr
+#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end,on_valid_end,on_exit,on_predict_begin,on_predict_batch_end,on_predict_end (`function`)\cr
 #'   Function to execute at the given stage, see section *Stages*.
 #' @param initialize (`function()`)\cr
 #'   The initialization method of the callback.
@@ -184,6 +193,10 @@ callback_set = function(
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
   on_valid_end = NULL,
+  # prediction
+  on_predict_begin = NULL,
+  on_predict_batch_end = NULL,
+  on_predict_end = NULL,
   # other methods
   state_dict = NULL,
   load_state_dict = NULL,
@@ -198,6 +211,9 @@ callback_set = function(
   assert_function(state_dict, nargs = 0, null.ok = TRUE)
   assert_function(load_state_dict, args = "state_dict", nargs = 1, null.ok = TRUE)
   more_public = list(
+    on_predict_begin = assert_function(on_predict_begin, nargs = 0, null.ok = TRUE),
+    on_predict_batch_end = assert_function(on_predict_batch_end, nargs = 0, null.ok = TRUE),
+    on_predict_end = assert_function(on_predict_end, nargs = 0, null.ok = TRUE),
     on_begin = assert_function(on_begin, nargs = 0, null.ok = TRUE),
     on_end = assert_function(on_end, nargs = 0, null.ok = TRUE),
     on_epoch_begin = assert_function(on_epoch_begin, nargs = 0, null.ok = TRUE),

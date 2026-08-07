@@ -5,7 +5,8 @@
 \alias{CallbackSetProgress}
 \title{Progress Callback}
 \description{
-Prints a progress bar and the metrics for training and validation.
+Prints a progress bar and the metrics for training and validation, as well as a progress bar
+during prediction.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -19,6 +20,9 @@ learner$param_set$set_values(
 )
 
 learner$train(task)
+
+# the prediction loop has a progress bar of its own
+p = learner$predict(task)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -33,6 +37,7 @@ Other Callback:
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
+\code{\link{mlr_context_torch_predict}},
 \code{\link[=t_clbk]{t_clbk()}},
 \code{\link[=torch_callback]{torch_callback()}}
 }
@@ -50,6 +55,9 @@ Other Callback:
     \item \href{#method-CallbackSetProgress-on_batch_valid_end}{\code{CallbackSetProgress$on_batch_valid_end()}}
     \item \href{#method-CallbackSetProgress-on_epoch_end}{\code{CallbackSetProgress$on_epoch_end()}}
     \item \href{#method-CallbackSetProgress-on_end}{\code{CallbackSetProgress$on_end()}}
+    \item \href{#method-CallbackSetProgress-on_predict_begin}{\code{CallbackSetProgress$on_predict_begin()}}
+    \item \href{#method-CallbackSetProgress-on_predict_batch_end}{\code{CallbackSetProgress$on_predict_batch_end()}}
+    \item \href{#method-CallbackSetProgress-on_predict_end}{\code{CallbackSetProgress$on_predict_end()}}
     \item \href{#method-CallbackSetProgress-clone}{\code{CallbackSetProgress$clone()}}
   }
 }
@@ -148,6 +156,42 @@ The number of digits to print for the measures.}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetProgress$on_end()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetProgress-on_predict_begin"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_predict_begin}{}}}
+\subsection{\code{CallbackSetProgress$on_predict_begin()}}{
+  Creates the progress bar for prediction.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$on_predict_begin()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetProgress-on_predict_batch_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_predict_batch_end}{}}}
+\subsection{\code{CallbackSetProgress$on_predict_batch_end()}}{
+  Increments the prediction progress bar.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$on_predict_batch_end()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetProgress-on_predict_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_predict_end}{}}}
+\subsection{\code{CallbackSetProgress$on_predict_end()}}{
+  Prints the time at the end of prediction.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$on_predict_end()}
     \if{html}{\out{</div>}}
   }
 }

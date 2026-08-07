@@ -51,6 +51,17 @@ These functions perform checks such as that the stages are not accidentally miss
 \item \code{end} :: Run after last epoch.
 \item \code{exit} :: Run last, using \code{on.exit()}.
 }
+
+The prediction loop is separate from the training loop and runs its own stages, with
+\code{\link{ContextTorchPredict}} as \code{self$ctx}:
+\itemize{
+\item \code{predict_begin} :: Run before the prediction loop begins.
+\item \code{predict_batch_end} :: Run after each batch was predicted.
+\item \code{predict_end} :: Run after the last batch was predicted.
+}
+
+A callback that implements none of these three is not created at prediction time at all, so
+anything a callback does in its \verb{$initialize()} only happens during training.
 }
 
 \section{Ordering}{
@@ -84,6 +95,7 @@ Other Callback:
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
+\code{\link{mlr_context_torch_predict}},
 \code{\link[=t_clbk]{t_clbk()}},
 \code{\link[=torch_callback]{torch_callback()}}
 }

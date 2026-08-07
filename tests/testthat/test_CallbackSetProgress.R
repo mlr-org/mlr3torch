@@ -41,3 +41,20 @@ test_that("manual test", {
   learner$param_set$set_values(eval_freq = 2)
   expect_error(capture.output(learner$train(task)), regexp = NA)
 })
+
+test_that("progress is also shown during prediction", {
+  learner = lrn("classif.mlp", epochs = 1, batch_size = 50, neurons = 5, device = "cpu",
+    callbacks = t_clbk("progress"))
+  task = tsk("iris")
+  invisible(suppressMessages(capture.output(learner$train(task))))
+
+  # `invisible()`, so that the printed prediction is not part of the captured output
+  stdout = suppressMessages(capture.output(invisible(learner$predict(task))))
+  expect_true(any(startsWith(stdout, "Prediction started")))
+  expect_true(any(startsWith(stdout, "Finished prediction")))
+
+  # without the callback, prediction is silent
+  quiet = lrn("classif.mlp", epochs = 1, batch_size = 50, neurons = 5, device = "cpu")
+  invisible(quiet$train(task))
+  expect_length(suppressMessages(capture.output(invisible(quiet$predict(task)))), 0L)
+})
