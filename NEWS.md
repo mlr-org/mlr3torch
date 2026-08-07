@@ -11,6 +11,8 @@
 
 ## Features
 
+* The `$model` of a `LearnerTorch` now has a printer, which summarizes the network, the callbacks
+  and the validation scores instead of dumping the optimizer and loss state dicts.
 * Added more image learners from {torchvision}.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.
