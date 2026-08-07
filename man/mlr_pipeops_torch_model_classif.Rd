@@ -37,7 +37,7 @@ its \verb{$train()} method is called on the \code{\link[mlr3:Task]{Task}} stored
 
 # configure the model descriptor
 md = as_graph(po("torch_ingress_num") \%>>\%
-  po("nn_head") \%>>\%
+  nn("head") \%>>\%
   po("torch_loss", "cross_entropy") \%>>\%
   po("torch_optimizer", "adam"))$train(tsk("iris"))[[1L]]
 

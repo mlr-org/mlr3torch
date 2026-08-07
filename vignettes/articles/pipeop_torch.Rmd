@@ -87,7 +87,7 @@ architecture = po("torch_ingress_ltnsr")
 ```
 
 We now define a relatively simple convolutional neural network.
-Note that in the code below `po("nn_relu_1")` is equivalent to `po("nn_relu", id = "nn_relu_1")`.
+Note that in the code below `nn("relu_1")` is equivalent to `nn("relu", id = "nn_relu_1")`.
 This is needed, because `mlr3pipelines::Graph`s require that each `PipeOp` has a unique ID.
 
 What we can further notice is that we don't have to specify the input dimension for the convolutional layers, which are inferred from the task during `$train()`ing.
@@ -95,35 +95,35 @@ This means that our `Learner` can be applied to tasks with different image sizes
 
 ```{r}
 architecture = architecture %>>%
-  po("nn_conv2d_1", out_channels = 64, kernel_size = 11, stride = 4, padding = 2) %>>%
-  po("nn_relu_1", inplace = TRUE) %>>%
-  po("nn_max_pool2d_1", kernel_size = 3, stride = 2) %>>%
-  po("nn_conv2d_2", out_channels = 192, kernel_size = 5, padding = 2) %>>%
-  po("nn_relu_2", inplace = TRUE) %>>%
-  po("nn_max_pool2d_2", kernel_size = 3, stride = 2)
+  nn("conv2d_1", out_channels = 64, kernel_size = 11, stride = 4, padding = 2) %>>%
+  nn("relu_1", inplace = TRUE) %>>%
+  nn("max_pool2d_1", kernel_size = 3, stride = 2) %>>%
+  nn("conv2d_2", out_channels = 192, kernel_size = 5, padding = 2) %>>%
+  nn("relu_2", inplace = TRUE) %>>%
+  nn("max_pool2d_2", kernel_size = 3, stride = 2)
 ```
 
 We can now continue with specifying the classification part of the network, which is a dense network that repeats a layer twice:
 
 ```{r}
-dense_layer = po("nn_dropout") %>>%
-  po("nn_linear", out_features = 4096) %>>%
-  po("nn_relu_6")
+dense_layer = nn("dropout") %>>%
+  nn("linear", out_features = 4096) %>>%
+  nn("relu_6")
 ```
 
-In order to repeat a segment from a network multiple times, we can use `po("nn_block")`, which we here repeat twice.
+In order to repeat a segment from a network multiple times, we can use `nn("block")`, which we here repeat twice.
 Then, we follow with the output head of the network, where we don't have to specify the number of classes, as they can also be inferred from the task
 
 ```{r}
-classifier = po("nn_block", dense_layer, n_blocks = 2L) %>>%
-  po("nn_head")
+classifier = nn("block", dense_layer, n_blocks = 2L) %>>%
+  nn("head")
 ```
 
 Next, we can combine the convolutional part with the dense head:
 
 ```{r}
 architecture = architecture %>>%
-  po("nn_flatten") %>>%
+  nn("flatten") %>>%
   classifier
 ```
 
@@ -161,8 +161,8 @@ Below, we increase the number of blocks and latent dimension of the dense part, 
 
 ```{r}
 cnn$param_set$set_values(
-  nn_block.n_blocks = 4L,
-  nn_block.nn_linear.out_features = 4096 * 2,
+  block.n_blocks = 4L,
+  block.linear.out_features = 4096 * 2,
   torch_optimizer.lr = 0.2
 )
 ```
