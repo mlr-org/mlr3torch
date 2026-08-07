@@ -506,7 +506,7 @@ worktree under `.claude/worktrees/` and none of them is pushed yet.
 | `predict-progress` | `feat/predict-progress` | issue #435 | committed, not pushed |
 | `model-printer` | `feat/learner-torch-model-printer` | issue #393 | committed, not pushed |
 | `torch-model-dict` | `feat/torch-model-dictionary` | issue #376 | committed, not pushed |
-| `nn-examples` | `docs/nn-in-examples` | issue #346 | committed, not pushed |
+| `nn-examples` | `docs-nn-in-examples` | issue #346 | committed, not pushed |
 
 `feat/pipeop-torch-helper-fn` adds `pipeop_torch()`, which generates the `PipeOpTorch` R6 class
 from an `nn_module` (`auxiliary` names the module arguments that follow from the input shape,
@@ -526,10 +526,13 @@ optimizer state dict.
 `regr.torch_model` have been in the dictionary since #117, so **issue #376 can be closed as already
 done**.
 
-`docs/nn-in-examples` converts `po("nn_x")` to `nn("x")` in the man-page examples, the vignettes and
+`docs-nn-in-examples` converts `po("nn_x")` to `nn("x")` in the man-page examples, the vignettes and
 the README. Package code is deliberately untouched, because those ids become the module names of
 the network. Note this branch and `feat/pipeop-torch-helper-fn` both rewrite the examples of
 `?mlr_pipeops_torch`, so expect a conflict when merging the second one.
+
+The branch is `docs-nn-in-examples`, not `docs/nn-in-examples`: the remote has a branch named
+`docs`, i.e. the file `refs/heads/docs`, so no ref can live below that name.
 
 Note that every branch off `main` still carries the `_pkgdown.yml` bug that breaks the pkgdown
 build (`equals-.lazy_tensor` has to be `` "`==.lazy_tensor`" ``); it is fixed on `more-fixes`.
