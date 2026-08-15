@@ -388,3 +388,24 @@ as_multi_tensor_dataset = function(dataset, param_vals) {
     dataset
   }
 }
+
+#' @export
+print.learner_torch_model = function(x, ...) {
+  n_params = if (!is.null(x$network)) sum(map_dbl(x$network$parameters, function(p) prod(dim(p))))
+
+  catn(sprintf("<learner_torch_model> trained for %s epoch%s",
+    x$epochs %??% "?", if (isTRUE(x$epochs == 1)) "" else "s"))
+  catn(str_indent("* Network: ", if (is.null(x$network)) {
+    "- (the model is marshaled)"
+  } else {
+    sprintf("<%s> with %s parameters", class(x$network)[[1L]], format(n_params, big.mark = ","))
+  }))
+  catn(str_indent("* Callbacks: ", if (length(x$callbacks)) paste0(names(x$callbacks), collapse = ", ") else "-"))
+  if (length(x$internal_valid_scores)) {
+    scores = sprintf("%s = %s", names(x$internal_valid_scores),
+      format(unlist(x$internal_valid_scores), digits = 4L))
+    catn(str_indent("* Validation scores: ", paste0(scores, collapse = ", ")))
+  }
+  catn(str_indent("* Fields: ", paste0(names(x), collapse = ", ")))
+  invisible(x)
+}

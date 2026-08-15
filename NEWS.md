@@ -11,6 +11,7 @@
 
 ## Features
 
+* The `$model` of a `LearnerTorch` now has a printer.
 * Added more image learners from {torchvision}.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.
