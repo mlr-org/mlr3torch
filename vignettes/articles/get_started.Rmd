@@ -81,7 +81,6 @@ mlp_scaled = as_learner(po("scale") %>>% lrn("regr.mlp",
 ```
 
 Below, we compare it with the same network trained on the unscaled features.
-Both learners are given 100 epochs so the comparison is not about how fast they converge, but about where they end up.
 
 ```{r}
 mlp_unscaled = lrn("regr.mlp",
@@ -94,7 +93,7 @@ mlp_scaled$train(task, row_ids = splits$train)
 mlp_scaled$predict(task, row_ids = splits$test)$score(msr("regr.mse"))
 ```
 
-Because scaling is a property of the data and not of a specific architecture, this applies to all tabular learners of `mlr3torch`, such as `lrn("regr.tab_resnet")` or `lrn("classif.ft_transformer")`.
+Because scaling is a property of the data and not of a specific architecture, this naturally applies to other learners as well.
 
 ## Configuring a Learner
 

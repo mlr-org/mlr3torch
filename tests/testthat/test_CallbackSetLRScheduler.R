@@ -131,20 +131,16 @@ test_that("plateau works", {
 })
 
 test_that("plateau does not step when an epoch has no validation scores", {
-  # `last_scores_valid` is empty in epochs where no validation is performed, and for the whole run
-  # when no validation is configured; the scheduler needs a score, so it must be skipped there
   task = tsk("iris")
   mlp = function(...) lrn("classif.mlp",
     callbacks = t_clbk("lr_reduce_on_plateau"), epochs = 8, batch_size = 150, neurons = 10, ...)
 
-  # no validation at all: the scheduler is never stepped and the learning rate stays as configured
   without_valid = mlp()
   expect_no_error(without_valid$train(task))
   expect_equal(without_valid$model$callbacks$lr_reduce_on_plateau$last_epoch, 0)
   expect_equal(without_valid$model$optimizer$param_groups[[1L]]$lr,
     without_valid$param_set$values$opt.lr %??% formals(optim_ignite_adam)$lr)
 
-  # `eval_freq > 1`: stepped once per epoch that validated, i.e. after epochs 4 and 8
   every_fourth = mlp(validate = 0.2, measures_valid = msrs("classif.ce"), eval_freq = 4)
   expect_no_error(every_fourth$train(task))
   expect_equal(every_fourth$model$callbacks$lr_reduce_on_plateau$last_epoch, 2)

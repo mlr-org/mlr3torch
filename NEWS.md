@@ -9,7 +9,8 @@
 * The dropout probability `p` of `lrn("classif.mlp")` / `lrn("regr.mlp")` is now initialized to
   `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
 * The `num_interop_threads` parameter of `LearnerTorch` is no longer initialized to `1`, so torch's
-  default is left in place unless the parameter is set.
+  default is left in place unless the parameter is set. Setting it to a value that torch can no
+  longer apply is now an error instead of a warning.
 
 ## Features
 
@@ -36,9 +37,6 @@
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
 * The `path` of `t_clbk("checkpoint")` can now be a `function()` that is called at the beginning of
   each training run and returns that run's path.
-* A network built from `PipeOpTorch` objects whose output dimension does not match the task is now
-  rejected before training with a message naming both, instead of failing with a torch error during
-  training (too few outputs) or only at predict time (too many outputs).
 
 ## Bug fixes
 

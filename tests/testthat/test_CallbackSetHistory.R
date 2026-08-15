@@ -25,8 +25,6 @@ test_that("CallbackSetHistory works", {
 })
 
 test_that("a restored history is continued and not prepended", {
-  # the state dict is only loaded by a callback of the user's own, so a minimal one does it here
-  # distinct epoch numbers, so that the ordering and not only the contents is pinned down
   state = data.table(epoch = c(7, 8), train.regr.mse = c(100, 90))
   loader = torch_callback("loader",
     on_begin = function() self$ctx$callbacks$history$load_state_dict(state)

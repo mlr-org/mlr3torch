@@ -85,9 +85,11 @@ true_shape_preproc = function(obj, shape) {
 # non-empty subset of them, so that a shape with several unknown dimensions -- what commit 21aa514a
 # made possible -- is covered rather than only the single-`NA` and batch-plus-one cases.
 na_patterns = function(rank) {
-  map(seq_len(bitwShiftL(1L, rank) - 1L), function(mask) {
-    which(bitwAnd(mask, bitwShiftL(1L, seq_len(rank) - 1L)) > 0L)
-  })
+  # one column per dimension, one row per combination of "is this dimension blanked out?"
+  combinations = expand.grid(rep(list(c(FALSE, TRUE)), rank))
+  patterns = lapply(seq_len(nrow(combinations)), function(i) which(unname(unlist(combinations[i, ]))))
+  # the first row blanks out nothing, which is the case the caller checks separately
+  patterns[lengths(patterns) > 0L]
 }
 
 expect_shape_case = function(shape, inferred_shape, true_shape, label) {
