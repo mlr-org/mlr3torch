@@ -9,6 +9,14 @@
 #' to the architecture, which is also represented as a [`Graph`][mlr3pipelines::Graph] consisting mostly of [`PipeOpModule`]s
 #' an [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s.
 #'
+#' The convenient way to construct such a `PipeOp` is the [`nn()`] helper, which prefixes the given
+#' key with `"nn_"` to look it up in the [`mlr_pipeops`][mlr3pipelines::mlr_pipeops] dictionary and
+#' uses the unprefixed key as the id of the resulting `PipeOp`:
+#' `nn("linear", out_features = 10)` is equivalent to
+#' `po("nn_linear", id = "linear", out_features = 10)`.
+#' Because ids must be unique within a [`Graph`][mlr3pipelines::Graph], repeated layers can be
+#' disambiguated with a `_<n>` suffix, e.g. `nn("linear_1")` and `nn("linear_2")`.
+#'
 #' While the former [`Graph`][mlr3pipelines::Graph] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch::torch_tensor].
 #'
 #' The relationship between a `PipeOpTorch` and a [`PipeOpModule`] is similar to the
@@ -148,8 +156,8 @@
 #'
 #' # In mlr3torch
 #' network_generator = po("torch_ingress_num") %>>%
-#'   po("nn_linear", out_features = 50) %>>%
-#'   po("nn_head")
+#'   nn("linear", out_features = 50) %>>%
+#'   nn("head")
 #' md = network_generator$train(task)[[1L]]
 #' network = model_descriptor_to_module(md)
 #' y = torch::with_no_grad(network(torch_ingress_num.input = x))
@@ -259,7 +267,7 @@
 #' ## Shape inference
 #'
 #' # `$shapes_out()` reports what an operator makes of an input shape, without building a network
-#' conv = po("nn_conv2d", out_channels = 4, kernel_size = 3)
+#' conv = nn("conv2d", out_channels = 4, kernel_size = 3)
 #' conv$shapes_out(list(c(NA, 3, 32, 32)))
 #'
 #' # any dimension may be unknown, so images of varying size work just as well

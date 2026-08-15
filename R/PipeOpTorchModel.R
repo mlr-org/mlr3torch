@@ -20,7 +20,6 @@
 #' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and
 #' its `$train()` method is called on the [`Task`][mlr3::Task] stored in the [`ModelDescriptor`].
 #'
-#' @family PipeOps
 #' @export
 PipeOpTorchModel = R6Class("PipeOpTorchModel",
   inherit = PipeOpLearner,
@@ -114,14 +113,13 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
 #' @inheritSection mlr_pipeops_torch_model State
 #' @section Parameters: See [`LearnerTorch`]
 #' @inheritSection mlr_pipeops_torch_model Internals
-#' @family PipeOps
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' # simple logistic regression
 #'
 #' # configure the model descriptor
 #' md = as_graph(po("torch_ingress_num") %>>%
-#'   po("nn_head") %>>%
+#'   nn("head") %>>%
 #'   po("torch_loss", "cross_entropy") %>>%
 #'   po("torch_optimizer", "adam"))$train(tsk("iris"))[[1L]]
 #'
@@ -157,14 +155,13 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 #' @inheritSection mlr_pipeops_torch_model State
 #' @section Parameters: See [`LearnerTorch`]
 #' @inheritSection mlr_pipeops_torch_model Internals
-#' @family PipeOps
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' # simple linear regression
 #'
 #' # build the model descriptor
 #' md = as_graph(po("torch_ingress_num") %>>%
-#'   po("nn_head") %>>%
+#'   nn("head") %>>%
 #'   po("torch_loss", "mse") %>>%
 #'   po("torch_optimizer", "adam"))$train(tsk("mtcars"))[[1L]]
 #'
