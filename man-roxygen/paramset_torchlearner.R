@@ -59,7 +59,8 @@
 #'   If the performance of a model does not improve for `patience` evaluation steps, training is ended.
 #'   Note that this counts *evaluation steps*, not epochs: when `eval_freq` is greater than `1`,
 #'   `patience` evaluation steps correspond to `patience * eval_freq` epochs.
-#'   Note that the final model is stored in the learner, not the best model.
+#'   Note that the final model is stored in the learner, not the best model, unless
+#'   `restore_best_weights` is set to `TRUE`.
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.
 #'   This also requires to specify the `$validate` field of the Learner, as well as `measures_valid`.
@@ -73,7 +74,9 @@
 #'   of the last epoch that was trained. Is initialized to `FALSE`, i.e. the network of the last
 #'   epoch is stored. Setting this to `TRUE` makes the stored network the one of the epoch that
 #'   `$internal_tuned_values` reports, and costs one additional copy of the network's parameters in
-#'   memory. Checkpoints written by `t_clbk("checkpoint")` are unaffected: they always hold the
+#'   memory. Because `$internal_valid_scores` describes the network that is stored, it then reports
+#'   the scores of the best epoch, i.e. the same scores as `$best_valid_scores`.
+#'   Checkpoints written by `t_clbk("checkpoint")` are unaffected: they always hold the
 #'   network as training left it.
 #'
 #' **Dataloader**:

@@ -18,6 +18,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       self$epoch_at_best_score = NULL
       self$best_valid_scores = NULL
       self$best_state_dict = NULL
+      self$restored_best_weights = FALSE
     },
     on_valid_end = function() {
       if (is.null(self$ctx$last_scores_valid)) {
@@ -60,6 +61,9 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       # far are still the right ones to keep. Callbacks that write the network out -- such as
       # `CallbackSetCheckpoint` -- have already run at this point, see the `weight` above.
       self$ctx$network$load_state_dict(self$best_state_dict)
+      # the learner reads this to decide whether the network it stores is the one of the best epoch,
+      # in which case the validation scores of that epoch are the ones describing it
+      self$restored_best_weights = TRUE
       invisible(NULL)
     },
     state_dict = function() {

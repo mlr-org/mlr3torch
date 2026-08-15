@@ -395,7 +395,10 @@ LearnerTorch = R6Class("LearnerTorch",
     },
 
     #' @field internal_valid_scores
-    #' Retrieves the internal validation scores of the *last* epoch as a named `list()`.
+    #' Retrieves the internal validation scores of the epoch that the stored network comes from, as a
+    #' named `list()`.
+    #' This is the *last* epoch, unless `restore_best_weights` is `TRUE`, in which case it is the
+    #' *best* epoch and these scores are the same as `$best_valid_scores`.
     #' Specify the `$validate` field and the `measures_valid` parameter to configure this.
     #' Returns `NULL` if learner is not trained yet.
     internal_valid_scores = function() {
@@ -405,8 +408,8 @@ LearnerTorch = R6Class("LearnerTorch",
     #' Retrieves the internal validation scores of the *best* epoch as a named `list()`.
     #' This is the epoch that is also reported via `$internal_tuned_values`, i.e. the epoch with the best
     #' score of the first validation measure.
-    #' Because the trained network is the one after the last epoch, this can differ from
-    #' `$internal_valid_scores`.
+    #' Unless `restore_best_weights` is `TRUE`, the trained network is the one after the last epoch,
+    #' so this can differ from `$internal_valid_scores`.
     #' Tracking the best epoch requires early stopping to be active (`patience > 0`), otherwise this is an
     #' empty list.
     #' Returns `NULL` if learner is not trained yet.

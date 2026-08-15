@@ -109,3 +109,27 @@ test_that("restore_best_weights restores the weights of the best epoch", {
   expect_equal(saved, state_nums(last))
   expect_false(isTRUE(all.equal(saved, state_nums(checkpointed))))
 })
+
+test_that("restore_best_weights makes the internal valid scores those of the best epoch", {
+  task = tsk("mtcars")
+  make_es_learner = function(...) {
+    learner = lrn("regr.mlp", batch_size = 8, neurons = c(50, 50), p = 0, validate = 0.3,
+      measures_valid = msrs(c("regr.mse", "regr.mae")), seed = 3, opt.lr = 0.5, ...)
+    # the R seed decides the validation split, so every learner has to be trained under the same one
+    withr::with_seed(42, learner$train(task))
+    learner
+  }
+
+  # without the restore the stored network is the one of the last epoch, which is a different one
+  last = make_es_learner(epochs = 30, patience = 3)
+  expect_false(isTRUE(all.equal(last$internal_valid_scores, last$best_valid_scores)))
+
+  restored = make_es_learner(epochs = 30, patience = 3, restore_best_weights = TRUE)
+  # both fields now describe the same network, namely the one of the best epoch
+  expect_equal(restored$internal_valid_scores, restored$best_valid_scores)
+  expect_equal(restored$best_valid_scores, last$best_valid_scores)
+
+  # and those are the scores that training for exactly that many epochs produces
+  reference = make_es_learner(epochs = last$internal_tuned_values$epochs, patience = 0)
+  expect_equal(restored$internal_valid_scores, reference$internal_valid_scores)
+})
