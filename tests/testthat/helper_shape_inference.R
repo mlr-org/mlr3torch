@@ -81,11 +81,7 @@ true_shape_preproc = function(obj, shape) {
   }
 }
 
-# The dimensions that are blanked out to `NA` before the shape is handed to the inference: every
-# non-empty subset of them, so that a shape with several unknown dimensions -- what commit 21aa514a
-# made possible -- is covered rather than only the single-`NA` and batch-plus-one cases.
 na_patterns = function(rank) {
-  # one column per dimension, one row per combination of "is this dimension blanked out?"
   combinations = expand.grid(rep(list(c(FALSE, TRUE)), rank))
   patterns = lapply(seq_len(nrow(combinations)), function(i) which(unname(unlist(combinations[i, ]))))
   # the first row blanks out nothing, which is the case the caller checks separately

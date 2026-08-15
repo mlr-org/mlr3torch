@@ -31,7 +31,9 @@ divide the available cores among the workers instead of setting this to the numb
 The number of threads for interop parallelization (if \code{device} is \code{"cpu"}).
 Note that this can only be set \strong{once} per session, so setting this for one learner also changes the
 behavior of other learners, and a later learner asking for a different value errors.
-To avoid this, use encapsulation for running the training in a separate session.
+\code{NULL} (default) uses whatever is set.
+In order to use different values for this parameter, use encapsulation to train the learners
+in separate R sessions.
 \item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
 The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
