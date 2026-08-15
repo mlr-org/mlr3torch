@@ -142,6 +142,9 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
+This parameter only seeds torch's random number generator, it does \strong{not} seed R's.
+Anything that is drawn from R's RNG is therefore unaffected by it, so to make those parts
+reproducible you need to seed R's RNG as well, e.g. via \code{\link[=set.seed]{set.seed()}}.
 \item \code{tensor_dataset} :: \code{logical(1)} | \code{"device"}\cr
 Whether to load all batches at once at the beginning of training and stack them.
 This is initialized to \code{FALSE}.

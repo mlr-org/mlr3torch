@@ -11,6 +11,7 @@
 
 ## Features
 
+* The `$model` of a `LearnerTorch` now has a printer.
 * Added more image learners from {torchvision}.
 * `LearnerTorch` now tracks the validation scores of the best epoch and exposes them via the new
   `$best_valid_scores` field, so `msr("best_valid_score")` can be used for tuning.
