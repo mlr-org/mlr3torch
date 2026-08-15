@@ -72,7 +72,7 @@ ModelDescriptor(
 
   ([`Task`](https://mlr3.mlr-org.com/reference/Task.html))  
   (Training)-Task for which the model is being built. May be necessary
-  for for some aspects of what loss to use etc.
+  for some aspects of what loss to use etc.
 
 - optimizer:
 

@@ -19,9 +19,30 @@ Items from this dictionary can be retrieved using
 
 Defined by the constructor argument `param_set`. If no parameter set is
 provided during construction, the parameter set is constructed by
-creating a parameter for each argument of the wrapped loss function,
-where the parameters are then of type
+creating a parameter for each argument of the wrapped optimizer, where
+the parameters are then of type
 [`ParamUty`](https://paradox.mlr-org.com/reference/Domain.html).
+
+In addition, every `TorchOptimizer` has the parameter:
+
+- `param_groups` :: `function(params) -> list()`  
+  A function that receives the named
+  [`list()`](https://rdrr.io/r/base/list.html) of network parameters and
+  returns a [`list()`](https://rdrr.io/r/base/list.html) of parameter
+  groups, in the format expected by the wrapped `torch` optimizer. This
+  makes it possible to optimize different parts of the network
+  differently, e.g. to give the first layer a different learning rate
+  than the rest:
+
+      param_groups = function(params) list(
+        list(params = params[startsWith(names(params), "0.")], lr = 0.9),
+        list(params = params[!startsWith(names(params), "0.")], lr = 0.001)
+      )
+
+  When a
+  [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)
+  is configured, this is reachable as `opt.param_groups`. Default is
+  `NULL`, i.e. all parameters form a single group.
 
 ## See also
 
@@ -272,7 +293,7 @@ learner$param_set
 #>  1:       [NULL]
 #>  2:         auto
 #>  3:            1
-#>  4:            1
+#>  4:       [NULL]
 #>  5:       random
 #>  6:            1
 #>  7:    <list[0]>
@@ -296,7 +317,7 @@ learner$param_set
 #> 25:        FALSE
 #> 26:        FALSE
 #> 27:             
-#> 28:          0.5
+#> 28:          0.1
 #> 29:       [NULL]
 #> 30: <nn_relu[1]>
 #> 31:    <list[0]>

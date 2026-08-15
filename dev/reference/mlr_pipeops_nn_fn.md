@@ -110,7 +110,7 @@ The objects of this class are cloneable with this method.
 
 ``` r
 custom_fn =  function(x, a) x / a
-obj = po("nn_fn", fn = custom_fn, a = 2)
+obj = nn("fn", fn = custom_fn, a = 2)
 obj$param_set
 #> <ParamSet(1)>
 #>        id    class lower upper nlevels        default  value

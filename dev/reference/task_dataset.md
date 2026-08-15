@@ -3,8 +3,8 @@
 Creates a torch
 [dataset](https://torch.mlverse.org/docs/reference/dataset.html) from an
 mlr3 [`Task`](https://mlr3.mlr-org.com/reference/Task.html). The
-resulting dataset's `$.get_batch()` method returns a list with elements
-`x`, `y` and `index`:
+resulting dataset's `$.getbatch()` method returns a list with elements
+`x`, `y` and `.index`:
 
 - `x` is a list with tensors, whose content is defined by the parameter
   `feature_ingress_tokens`.

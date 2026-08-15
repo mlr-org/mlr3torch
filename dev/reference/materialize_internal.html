@@ -115,7 +115,7 @@ Whtether to rbind the resulting tensors (<code>TRUE</code>) or return them as a 
 <li><p>Returning the result of the <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code> pointed to by the <code><a href="DataDescriptor.html">DataDescriptor</a></code> (<code>pointer</code>).</p></li>
 </ol><p>When materializing multiple <code><a href="lazy_tensor.html">lazy_tensor</a></code> columns, caching can be useful because:
 a) Output(s) from the dataset might be input to multiple graphs.
-(in task_dataset this is shoudl rarely be the case because because we try to merge them).
+(in task_dataset this should rarely be the case because we try to merge them).
 b) Different lazy tensors might be outputs from the same graph.</p>
 <p>For this reason it is possible to provide a cache environment.
 The hash key for a) is the hash of the indices and the dataset.

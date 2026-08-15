@@ -101,7 +101,7 @@ The features can either be a single <code><a href="lazy_tensor.html">lazy_tensor
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
 
 
-<p>Parameters from <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>, as well as:</p><ul><li><p><code>activation</code> :: <code>[nn_module]</code><br>
+<p>Parameters from <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>, as well as:</p><ul><li><p><code>activation</code> :: <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code><br>
 The activation function. Is initialized to <code><a href="https://torch.mlverse.org/docs/reference/nn_relu.html" class="external-link">nn_relu</a></code>.</p></li>
 <li><p><code>activation_args</code> :: named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 A named list with initialization arguments for the activation function.
@@ -112,7 +112,7 @@ Setting this to <code>c(10, 20)</code> would have a the first hidden layer with 
 <li><p><code>n_layers</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
 The number of layers. This parameter must only be set when <code>neurons</code> has length 1.</p></li>
 <li><p><code>p</code> :: <code>numeric(1)</code><br>
-The dropout probability. Is initialized to <code>0.5</code>.</p></li>
+The dropout probability. Is initialized to <code>0.1</code>.</p></li>
 <li><p><code>shape</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or <code>NULL</code><br>
 The input shape of length 2, e.g. <code>c(NA, 5)</code>.
 Only needs to be present when there is a lazy tensor input with unknown shape (<code>NULL</code>).
@@ -121,7 +121,7 @@ Otherwise the input shape is inferred from the number of numeric features.</p></
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
-“Revisiting Deep Learning  for Tabular Data.”
+“Revisiting Deep Learning for Tabular Data.”
 <em>arXiv</em>, <b>2106.11959</b>.</p>
     </div>
     <div class="section level2">

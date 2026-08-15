@@ -134,10 +134,7 @@ the channels are defined. Arguments are <strong>not</strong> matched by name.</p
 <code><a href="model_descriptor_to_learner.html">model_descriptor_to_learner()</a></code>,
 <code><a href="model_descriptor_to_module.html">model_descriptor_to_module()</a></code>,
 <code><a href="model_descriptor_union.html">model_descriptor_union()</a></code>,
-<code><a href="nn_graph.html">nn_graph()</a></code></p>
-<p>Other PipeOp:
-<code><a href="mlr_pipeops_torch_callbacks.html">mlr_pipeops_torch_callbacks</a></code>,
-<code><a href="mlr_pipeops_torch_optimizer.html">mlr_pipeops_torch_optimizer</a></code></p></div>
+<code><a href="nn_graph.html">nn_graph()</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
@@ -272,37 +269,26 @@ The R packages this object depends on.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ out2:Float [1:1, 1:2]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># How such a PipeOpModule is usually generated</span></span></span>
-<span class="r-in"><span><span class="va">graph</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">graph</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="fu"><a href="nn.html">nn</a></span><span class="op">(</span><span class="st">"linear"</span>, out_features <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">result</span> <span class="op">=</span> <span class="va">graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph</span></span></span>
 <span class="r-in"><span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">graph</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Graph with 2 PipeOps:</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 ID         State  sccssors         prdcssors</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             &lt;char&gt;        &lt;char&gt;    &lt;char&gt;            &lt;char&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt; nn_linear                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          nn_linear &lt;&lt;UNTRAINED&gt;&gt;           torch_ingress_num</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 ID         State sccssors         prdcssors</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             &lt;char&gt;        &lt;char&gt;   &lt;char&gt;            &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt;   linear                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             linear &lt;&lt;UNTRAINED&gt;&gt;          torch_ingress_num</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ── Pipeline: <span style="font-weight: bold;">&lt;INPUT&gt; -&gt; torch_ingress_num -&gt; nn_linear -&gt; &lt;OUTPUT&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Pipeline: <span style="font-weight: bold;">&lt;INPUT&gt; -&gt; torch_ingress_num -&gt; linear -&gt; &lt;OUTPUT&gt;</span> </span>
 <span class="r-in"><span><span class="va">linear_module</span> <span class="op">=</span> <span class="va">result</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">nn_linear</span></span></span>
 <span class="r-in"><span><span class="va">linear_module</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">PipeOp </span><span style="color: #0000BB; font-weight: bold;">&lt;nn_linear&gt;</span><span style="font-weight: bold;">: not trained</span> <span style="color: #00BBBB;">─────────────────────────────────────────────</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Values: list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Input channels:</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    name        train predict</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  &lt;char&gt;       &lt;char&gt;  &lt;char&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   input torch_tensor    NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Output channels:</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    name        train predict</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  &lt;char&gt;       &lt;char&gt;  &lt;char&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  output torch_tensor    NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span><span class="fu">formalArgs</span><span class="op">(</span><span class="va">linear_module</span><span class="op">$</span><span class="va">module</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "input"</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>argument is not a function</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span><span class="va">linear_module</span><span class="op">$</span><span class="va">input</span><span class="op">$</span><span class="va">name</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "input"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Constructing a PipeOpModule using a simple function</span></span></span>
 <span class="r-in"><span><span class="va">po_add1</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"module"</span>,</span></span>

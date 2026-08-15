@@ -9,13 +9,13 @@
 A callback set is a collection of functions that are executed at different stages of the training loop.
 They can be used to gain more control over the training process of a neural network without
 having to write everything from scratch.
-When used a in torch learner, the CallbackSet is wrapped in a TorchCallback.
-The latters parameter set represents the arguments of the CallbackSet's $initialize() method."><meta property="og:description" content="Base class from which callbacks should inherit (see section Inheriting).
+When used in a torch learner, the CallbackSet is wrapped in a TorchCallback.
+The latter's parameter set represents the arguments of the CallbackSet's $initialize() method."><meta property="og:description" content="Base class from which callbacks should inherit (see section Inheriting).
 A callback set is a collection of functions that are executed at different stages of the training loop.
 They can be used to gain more control over the training process of a neural network without
 having to write everything from scratch.
-When used a in torch learner, the CallbackSet is wrapped in a TorchCallback.
-The latters parameter set represents the arguments of the CallbackSet's $initialize() method."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
+When used in a torch learner, the CallbackSet is wrapped in a TorchCallback.
+The latter's parameter set represents the arguments of the CallbackSet's $initialize() method."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -85,8 +85,8 @@ The latters parameter set represents the arguments of the CallbackSet's $initial
 A callback set is a collection of functions that are executed at different stages of the training loop.
 They can be used to gain more control over the training process of a neural network without
 having to write everything from scratch.</p>
-<p>When used a in torch learner, the <code>CallbackSet</code> is wrapped in a <code><a href="TorchCallback.html">TorchCallback</a></code>.
-The latters parameter set represents the arguments of the <code>CallbackSet</code>'s <code>$initialize()</code> method.</p>
+<p>When used in a torch learner, the <code>CallbackSet</code> is wrapped in a <code><a href="TorchCallback.html">TorchCallback</a></code>.
+The latter's parameter set represents the arguments of the <code>CallbackSet</code>'s <code>$initialize()</code> method.</p>
     </div>
 
 
@@ -98,7 +98,7 @@ The latters parameter set represents the arguments of the <code>CallbackSet</cod
 The evaluation context (a <code><a href="mlr_context_torch.html">ContextTorch</a></code>) can be accessed via <code>self$ctx</code>, which contains
 the current state of the training loop.
 This context is assigned at the beginning of the training loop and removed afterwards.
-Different stages of a callback can communicate with each other by assigning values to <code>$self</code>.</p>
+Different stages of a callback can communicate with each other by assigning values to <code>self</code>.</p>
 <p><em>State</em>:
 To be able to store information in the <code>$model</code> slot of a <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>, callbacks support a state API.
 You can overload the <code>$state_dict()</code> public method to define what will be stored in <code>learner$model$callbacks$&lt;id&gt;</code>
@@ -116,16 +116,17 @@ These functions perform checks such as that the stages are not accidentally miss
 
 
 <ul><li><p><code>begin</code> :: Run before the training loop begins.</p></li>
-<li><p><code>epoch_begin</code> :: Run he beginning of each epoch.</p></li>
+<li><p><code>epoch_begin</code> :: Run at the beginning of each epoch.</p></li>
 <li><p><code>batch_begin</code> :: Run before the forward call.</p></li>
 <li><p><code>after_backward</code> :: Run after the backward call.</p></li>
 <li><p><code>batch_end</code> :: Run after the optimizer step.</p></li>
+<li><p><code>before_valid</code> :: Run before the validation loop begins.</p></li>
 <li><p><code>batch_valid_begin</code> :: Run before the forward call in the validation loop.</p></li>
 <li><p><code>batch_valid_end</code> :: Run after the forward call in the validation loop.</p></li>
 <li><p><code>valid_end</code> :: Run at the end of validation.</p></li>
 <li><p><code>epoch_end</code> :: Run at the end of each epoch.</p></li>
 <li><p><code>end</code> :: Run after last epoch.</p></li>
-<li><p><code>exit</code> :: Run at last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
+<li><p><code>exit</code> :: Run last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="ordering">Ordering<a class="anchor" aria-label="anchor" href="#ordering"></a></h2>
@@ -216,7 +217,7 @@ Currently unused.</p></dd>
 
 <p></p><hr><a id="method-CallbackSet-state_dict"></a><div class="section">
 <h3 id="callbackset-state-dict-"><code>CallbackSet$state_dict()</code><a class="anchor" aria-label="anchor" href="#callbackset-state-dict-"></a></h3>
-<p>Returns information that is kept in the the <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>'s state after training.
+<p>Returns information that is kept in the <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>'s state after training.
 This information should be loadable into the callback using <code>$load_state_dict()</code> to be able to continue training.
 This returns <code>NULL</code> by default.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>

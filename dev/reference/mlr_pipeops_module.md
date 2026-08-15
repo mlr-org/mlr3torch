@@ -58,10 +58,6 @@ Other Graph Network:
 [`model_descriptor_union()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_union.md),
 [`nn_graph()`](https://mlr3torch.mlr-org.com/dev/reference/nn_graph.md)
 
-Other PipeOp:
-[`mlr_pipeops_torch_callbacks`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_callbacks.md),
-[`mlr_pipeops_torch_optimizer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_optimizer.md)
-
 ## Super class
 
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
@@ -209,37 +205,26 @@ str(out)
 #>  $ out2:Float [1:1, 1:2]
 
 # How such a PipeOpModule is usually generated
-graph = po("torch_ingress_num") %>>% po("nn_linear", out_features = 10L)
+graph = po("torch_ingress_num") %>>% nn("linear", out_features = 10L)
 result = graph$train(tsk("iris"))
 # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph
 result[[1]]$graph
 #> 
 #> ── Graph with 2 PipeOps: ───────────────────────────────────────────────────────
-#>                 ID         State  sccssors         prdcssors
-#>             <char>        <char>    <char>            <char>
-#>  torch_ingress_num <<UNTRAINED>> nn_linear                  
-#>          nn_linear <<UNTRAINED>>           torch_ingress_num
+#>                 ID         State sccssors         prdcssors
+#>             <char>        <char>   <char>            <char>
+#>  torch_ingress_num <<UNTRAINED>>   linear                  
+#>             linear <<UNTRAINED>>          torch_ingress_num
 #> 
-#> ── Pipeline: <INPUT> -> torch_ingress_num -> nn_linear -> <OUTPUT> 
+#> ── Pipeline: <INPUT> -> torch_ingress_num -> linear -> <OUTPUT> 
 linear_module = result[[1L]]$graph$pipeops$nn_linear
 linear_module
-#> 
-#> ── PipeOp <nn_linear>: not trained ─────────────────────────────────────────────
-#> Values: list()
-#> 
-#> ── Input channels: 
-#>    name        train predict
-#>  <char>       <char>  <char>
-#>   input torch_tensor    NULL
-#> 
-#> ── Output channels: 
-#>    name        train predict
-#>  <char>       <char>  <char>
-#>  output torch_tensor    NULL
+#> NULL
 formalArgs(linear_module$module)
-#> [1] "input"
+#> Warning: argument is not a function
+#> NULL
 linear_module$input$name
-#> [1] "input"
+#> NULL
 
 # Constructing a PipeOpModule using a simple function
 po_add1 = po("module",

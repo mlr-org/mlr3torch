@@ -157,11 +157,11 @@ For a complete description of the available parameters see
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;LearnerTorchMLP&gt;</span><span style="font-weight: bold;"> (regr.mlp): Multi Layer Perceptron</span> <span style="color: #00BBBB;">────────────────────────</span></span></span>
 <span><span class="co">#&gt; • Model: -</span></span>
-<span><span class="co">#&gt; • Parameters: epochs=30, device=cpu, num_threads=1, num_interop_threads=1,</span></span>
-<span><span class="co">#&gt; seed=random, eval_freq=1, measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;,</span></span>
-<span><span class="co">#&gt; patience=0, min_delta=0, restore_best_weights=FALSE, batch_size=32,</span></span>
-<span><span class="co">#&gt; shuffle=TRUE, tensor_dataset=FALSE, jit_trace=FALSE, neurons=50,50, p=0.5,</span></span>
-<span><span class="co">#&gt; activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;</span></span>
+<span><span class="co">#&gt; • Parameters: epochs=30, device=cpu, num_threads=1, seed=random, eval_freq=1,</span></span>
+<span><span class="co">#&gt; measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;, patience=0, min_delta=0,</span></span>
+<span><span class="co">#&gt; restore_best_weights=FALSE, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,</span></span>
+<span><span class="co">#&gt; jit_trace=FALSE, neurons=50,50, p=0.1, activation=&lt;nn_relu&gt;,</span></span>
+<span><span class="co">#&gt; activation_args=&lt;list&gt;</span></span>
 <span><span class="co">#&gt; • Validate: NULL</span></span>
 <span><span class="co">#&gt; • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3torch</span>, and <span style="color: #0000BB;">torch</span></span></span>
 <span><span class="co">#&gt; • Predict Types: [response]</span></span>
@@ -187,7 +187,46 @@ of the predictions.</p>
 <span><span class="co"># Compute the mse</span></span>
 <span><span class="va">prediction</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mse </span></span>
-<span><span class="co">#&gt; 289.5967</span></span></code></pre></div>
+<span><span class="co">#&gt; 247.8626</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="scaling-the-features">Scaling the Features<a class="anchor" aria-label="anchor" href="#scaling-the-features"></a>
+</h2>
+<p>Neural networks are sensitive to the scale of their inputs: when the
+features live on very different scales, training is slower and less
+stable. The “mtcars” task is a good example of this, its features range
+from <code>drat</code>, which is around 4, to <code>disp</code>, which
+is in the hundreds:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">task</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>cols <span class="op">=</span> <span class="va">task</span><span class="op">$</span><span class="va">feature_names</span><span class="op">)</span>, <span class="va">range</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      am carb cyl  disp drat gear  hp qsec vs    wt</span></span>
+<span><span class="co">#&gt; [1,]  0    1   4  71.1 2.76    3  52 14.5  0 1.513</span></span>
+<span><span class="co">#&gt; [2,]  1    8   8 472.0 4.93    5 335 22.9  1 5.424</span></span></code></pre></div>
+<p>We therefore recommend to standardize the features before they enter
+the network. This is a preprocessing step like any other in
+<code>mlr3</code>, i.e. we prepend <code>po("scale")</code> to the
+learner and thereby obtain a <code>GraphLearner</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mlp_scaled</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"scale"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>,</span>
+<span>  neurons <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">50</span><span class="op">)</span>, batch_size <span class="op">=</span> <span class="fl">32</span>, epochs <span class="op">=</span> <span class="fl">100</span>, device <span class="op">=</span> <span class="st">"cpu"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Below, we compare it with the same network trained on the unscaled
+features.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mlp_unscaled</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>,</span>
+<span>  neurons <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">50</span><span class="op">)</span>, batch_size <span class="op">=</span> <span class="fl">32</span>, epochs <span class="op">=</span> <span class="fl">100</span>, device <span class="op">=</span> <span class="st">"cpu"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">mlp_unscaled</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">splits</span><span class="op">$</span><span class="va">train</span><span class="op">)</span></span>
+<span><span class="va">mlp_unscaled</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">splits</span><span class="op">$</span><span class="va">test</span><span class="op">)</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; regr.mse </span></span>
+<span><span class="co">#&gt; 144.6317</span></span>
+<span></span>
+<span><span class="va">mlp_scaled</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">splits</span><span class="op">$</span><span class="va">train</span><span class="op">)</span></span>
+<span><span class="va">mlp_scaled</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">splits</span><span class="op">$</span><span class="va">test</span><span class="op">)</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; regr.mse </span></span>
+<span><span class="co">#&gt; 26.36343</span></span></code></pre></div>
+<p>Because scaling is a property of the data and not of a specific
+architecture, this naturally applies to other learners as well.</p>
 </div>
 <div class="section level2">
 <h2 id="configuring-a-learner">Configuring a Learner<a class="anchor" aria-label="anchor" href="#configuring-a-learner"></a>
@@ -229,7 +268,7 @@ function, which is also known as Mean Absolute Error (MAE). The printed
 output below informs us about the wrapped loss function
 <code>(nn_l1_loss</code>), the configured parameters, the packages it
 depends on and for which task types it can be used.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">l1</span> <span class="op">=</span> <span class="fu"><a href="../reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"l1"</span><span class="op">)</span></span>
 <span><span class="va">l1</span></span>
 <span><span class="co">#&gt; &lt;TorchLoss:l1&gt; Absolute Error</span></span>
@@ -240,7 +279,7 @@ depends on and for which task types it can be used.</p>
 <p>Its <code>ParamSet</code> contains only one parameter, namely
 <code>reduction</code>, which specifies how the loss is reduced over the
 batch.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># the paradox::ParamSet of the loss</span></span>
 <span><span class="va">l1</span><span class="op">$</span><span class="va">param_set</span></span>
 <span><span class="co">#&gt; &lt;ParamSet(1)&gt;</span></span>
@@ -251,14 +290,14 @@ batch.</p>
 <code>loss</code> during initialization of the learner. The parameters
 of the loss are added to the learner’s <code>ParamSet</code>, prefixed
 with <code>"loss."</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mlp_l1</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, loss <span class="op">=</span> <span class="va">l1</span><span class="op">)</span></span>
 <span><span class="va">mlp_l1</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">values</span><span class="op">$</span><span class="va">loss.reduction</span></span>
 <span><span class="co">#&gt; NULL</span></span></code></pre></div>
 <p>All predefined loss functions are stored in the
 <code>mlr3torch_losses</code> dictionary, from which they can be
 retrieved using <code>t_loss(&lt;key&gt;)</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mlr3torch_losses</span></span>
 <span><span class="co">#&gt; &lt;DictionaryMlr3torchLosses&gt; with 3 stored values</span></span>
 <span><span class="co">#&gt; Keys: cross_entropy, l1, mse</span></span></code></pre></div>
@@ -276,7 +315,7 @@ such as AdamW (<code>optim_ignite_adamw</code>) or SGD
 constructed using <code>t_opt(&lt;key&gt;)</code>. For optimizers, the
 associated <code>ParamSet</code> is more interesting as we see
 below:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sgd</span> <span class="op">=</span> <span class="fu"><a href="../reference/t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"sgd"</span><span class="op">)</span></span>
 <span><span class="va">sgd</span></span>
 <span><span class="co">#&gt; &lt;TorchOptimizer:sgd&gt; Stochastic Gradient Descent</span></span>
@@ -299,7 +338,7 @@ below:</p>
 usual <code>mlr3</code> way, i.e. either during construction, or
 afterwards using the <code>$set_values()</code> method of the parameter
 set.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sgd</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="fu">set_values</span><span class="op">(</span></span>
 <span>  lr <span class="op">=</span> <span class="fl">0.5</span>, <span class="co"># increase learning rate</span></span>
 <span>  nesterov <span class="op">=</span> <span class="cn">FALSE</span> <span class="co"># no nesterov momentum</span></span>
@@ -307,7 +346,7 @@ set.</p>
 <p>Below we see that the optimizer’s parameters are added to the
 learner’s <code>ParamSet</code> (prefixed with <code>"opt."</code>) and
 that the values are set to the values we specified.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mlp_sgd</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, optimizer <span class="op">=</span> <span class="va">sgd</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">mlp_sgd</span><span class="op">$</span><span class="va">param_set</span><span class="op">)</span><span class="op">[</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/startsWith.html" class="external-link">startsWith</a></span><span class="op">(</span><span class="va">id</span>, <span class="st">"opt."</span><span class="op">)</span><span class="op">]</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span>
@@ -323,7 +362,7 @@ that the values are set to the values we specified.</p>
 tuned using <a href="https://github.com/mlr-org/mlr3tuning" class="external-link"><code>mlr3tuning</code></a>.</p>
 <p>All available optimizers are stored in the
 <code>mlr3torch_optimizers</code> dictionary.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mlr3torch_optimizers</span></span>
 <span><span class="co">#&gt; &lt;DictionaryMlr3torchOptimizers&gt; with 5 stored values</span></span>
 <span><span class="co">#&gt; Keys: adagrad, adam, adamw, rmsprop, sgd</span></span></code></pre></div>
@@ -340,7 +379,7 @@ show how to use predefined callbacks. Below, we retrieve the
 <code>"history"</code> callback using <code><a href="../reference/t_clbk.html">t_clbk()</a></code>, which has
 no parameters and merely saves the training and validation history in
 the learner so it can be accessed afterwards.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">history</span> <span class="op">=</span> <span class="fu"><a href="../reference/t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"history"</span><span class="op">)</span></span>
 <span><span class="va">history</span></span>
 <span><span class="co">#&gt; &lt;TorchCallback:history&gt; History</span></span>
@@ -350,11 +389,11 @@ the learner so it can be accessed afterwards.</p>
 <p>If we wanted to learn about what the callback does, we can access the
 help page of the wrapped object using the <code>$help()</code> method.
 Note that this is also possible for the loss and optimizer.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">history</span><span class="op">$</span><span class="fu">help</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>All predefined callbacks are stored in the
 <code>mlr3torch_callbacks</code> dictionary.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mlr3torch_callbacks</span></span>
 <span><span class="co">#&gt; &lt;DictionaryMlr3torchCallbacks&gt; with 11 stored values</span></span>
 <span><span class="co">#&gt; Keys: checkpoint, history, lr_cosine_annealing, lr_lambda,</span></span>
@@ -371,7 +410,7 @@ MAE <code>Measure</code>. Note that the <code>mearures_valid</code> and
 <code>measures_train</code> parameters of <code>LearnerTorch</code> take
 common <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">mlr3::Measure</a></code>s, whereas the loss function must be a
 <code>TorchLoss</code>.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mlp_custom</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>,</span>
 <span>  <span class="co"># construction arguments</span></span>
 <span>  optimizer <span class="op">=</span> <span class="va">sgd</span>, loss <span class="op">=</span> <span class="va">l1</span>, callbacks <span class="op">=</span> <span class="va">history</span>,</span>
@@ -390,12 +429,11 @@ common <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="ex
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;LearnerTorchMLP&gt;</span><span style="font-weight: bold;"> (regr.mlp): Multi Layer Perceptron</span> <span style="color: #00BBBB;">────────────────────────</span></span></span>
 <span><span class="co">#&gt; • Model: -</span></span>
-<span><span class="co">#&gt; • Parameters: epochs=30, device=cpu, num_threads=1, num_interop_threads=1,</span></span>
-<span><span class="co">#&gt; seed=random, eval_freq=1, measures_train=&lt;list&gt;,</span></span>
-<span><span class="co">#&gt; measures_valid=&lt;MeasureRegrSimple&gt;, patience=0, min_delta=0,</span></span>
-<span><span class="co">#&gt; restore_best_weights=FALSE, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,</span></span>
-<span><span class="co">#&gt; jit_trace=FALSE, neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
-<span><span class="co">#&gt; activation_args=&lt;list&gt;, opt.lr=0.5, opt.nesterov=FALSE</span></span>
+<span><span class="co">#&gt; • Parameters: epochs=30, device=cpu, num_threads=1, seed=random, eval_freq=1,</span></span>
+<span><span class="co">#&gt; measures_train=&lt;list&gt;, measures_valid=&lt;MeasureRegrSimple&gt;, patience=0,</span></span>
+<span><span class="co">#&gt; min_delta=0, restore_best_weights=FALSE, batch_size=32, shuffle=TRUE,</span></span>
+<span><span class="co">#&gt; tensor_dataset=FALSE, jit_trace=FALSE, neurons=50,50, p=0.1,</span></span>
+<span><span class="co">#&gt; activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;, opt.lr=0.5, opt.nesterov=FALSE</span></span>
 <span><span class="co">#&gt; • Validate: 0.3</span></span>
 <span><span class="co">#&gt; • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3torch</span>, and <span style="color: #0000BB;">torch</span></span></span>
 <span><span class="co">#&gt; • Predict Types: [response]</span></span>
@@ -408,34 +446,34 @@ common <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="ex
 <span><span class="co">#&gt; • Callbacks: history</span></span></code></pre></div>
 <p>We now train the learner on the “mtcars” task again and use the same
 train-test split as before.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mlp_custom</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">splits</span><span class="op">$</span><span class="va">train</span><span class="op">)</span></span>
 <span><span class="va">prediction_custom</span> <span class="op">=</span> <span class="va">mlp_custom</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">splits</span><span class="op">$</span><span class="va">test</span><span class="op">)</span></span></code></pre></div>
 <p>Below we make predictions on the unseen test data and compare the
 scores. Because we directly optimized the L1 (aka MAE) loss and tweaked
 the learning rate, our configured <code>mlp_custom</code> learner has a
 lower MAE than the default <code>mlp</code> learner.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prediction_custom</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mae </span></span>
-<span><span class="co">#&gt; 13.14184</span></span>
+<span><span class="co">#&gt; 7.107885</span></span>
 <span><span class="va">prediction</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mae </span></span>
-<span><span class="co">#&gt; 15.44357</span></span></code></pre></div>
+<span><span class="co">#&gt; 14.04447</span></span></code></pre></div>
 <p>Because we configured the learner to use the history callback, we can
 find the validation history in its <code>$model</code> slot:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mlp_custom</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">callbacks</span><span class="op">$</span><span class="va">history</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    epoch valid.regr.mae</span></span>
 <span><span class="co">#&gt;    &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1   1.952632e+04</span></span>
-<span><span class="co">#&gt; 2:     2   1.480274e+10</span></span>
-<span><span class="co">#&gt; 3:     3   1.907161e+09</span></span>
-<span><span class="co">#&gt; 4:     4   6.248891e+04</span></span>
-<span><span class="co">#&gt; 5:     5   8.702154e+01</span></span>
-<span><span class="co">#&gt; 6:     6   3.612310e+01</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:     1   4.854304e+06</span></span>
+<span><span class="co">#&gt; 2:     2   6.452428e+01</span></span>
+<span><span class="co">#&gt; 3:     3   4.424063e+02</span></span>
+<span><span class="co">#&gt; 4:     4   1.363021e+01</span></span>
+<span><span class="co">#&gt; 5:     5   3.004845e+02</span></span>
+<span><span class="co">#&gt; 6:     6   1.792240e+01</span></span></code></pre></div>
 <p>The plot below shows it for the epochs 6 to 30.</p>
-<p><img src="get_started_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" alt="" width="50%" style="display: block; margin: auto;"></p>
+<p><img src="get_started_files/figure-html/unnamed-chunk-23-1.png" class="r-plt" alt="" width="50%" style="display: block; margin: auto;"></p>
 <p>Other important information that is stored in the
 <code>Learner</code>’s model is the <code>$network</code>, which is the
 underlying <code>nn_module</code>. For a full description of the model,

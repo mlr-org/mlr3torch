@@ -96,8 +96,19 @@ Items from this dictionary can be retrieved using <code><a href="t_opt.html">t_o
 
 <p>Defined by the constructor argument <code>param_set</code>.
 If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-for each argument of the wrapped loss function, where the parameters are then of type <code><a href="https://paradox.mlr-org.com/reference/Domain.html" class="external-link">ParamUty</a></code>.</p>
-    </div>
+for each argument of the wrapped optimizer, where the parameters are then of type <code><a href="https://paradox.mlr-org.com/reference/Domain.html" class="external-link">ParamUty</a></code>.</p>
+<p>In addition, every <code>TorchOptimizer</code> has the parameter:</p><ul><li><p><code>param_groups</code> :: <code>function(params) -&gt; list()</code><br>
+A function that receives the named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of network parameters and returns a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of
+parameter groups, in the format expected by the wrapped <code>torch</code> optimizer.
+This makes it possible to optimize different parts of the network differently, e.g. to give the
+first layer a different learning rate than the rest:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">param_groups</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>params <span class="op">=</span> <span class="va">params</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/startsWith.html" class="external-link">startsWith</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"0."</span><span class="op">)</span><span class="op">]</span>, lr <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>params <span class="op">=</span> <span class="va">params</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/startsWith.html" class="external-link">startsWith</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>, <span class="st">"0."</span><span class="op">)</span><span class="op">]</span>, lr <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre><p></p></div>
+<p>When a <code><a href="mlr_learners_torch.html">LearnerTorch</a></code> is configured, this is reachable as <code>opt.param_groups</code>.
+Default is <code>NULL</code>, i.e. all parameters form a single group.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Torch Descriptor:
@@ -333,7 +344,7 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  2:         auto</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  3:            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:            1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  5:       random</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  6:            1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  7:    &lt;list[0]&gt;</span>
@@ -357,7 +368,7 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 25:        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 26:        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 27:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:          0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 29:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 30: &lt;nn_relu[1]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 31:    &lt;list[0]&gt;</span>

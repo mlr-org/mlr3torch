@@ -112,7 +112,9 @@ impact on the runtime of the learner. These include:
 - `device`: Use a GPU if possible.
 
 - `num_threads`: Set this to the number of CPU cores available if
-  training on CPU.
+  training on CPU. When resampling, benchmarking or tuning in parallel,
+  each worker uses `num_threads` threads, so divide the available cores
+  among the workers instead to avoid oversubscribing the machine.
 
 - `tensor_dataset`: Set this to `TRUE` (or `"device"` if on a GPU) if
   the dataset fits into memory.
@@ -177,10 +179,12 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `num_interop_threads` :: `integer(1)`  
   The number of threads for interop parallelization (if `device` is
-  `"cpu"`). This value is initialized to 1. Note that this can only be
-  set **once** per session, so training a learnerd once already sets
-  this. You can work around this via encapsulation, see
-  [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html).
+  `"cpu"`). Note that this can only be set **once** per session, so
+  setting this for one learner also changes the behavior of other
+  learners, and a later learner asking for a different value errors.
+  `NULL` (default) uses whatever is set. In order to use different
+  values for this parameter, use encapsulation to train the learners in
+  separate R sessions.
 
 - `seed` :: `integer(1)` or `"random"` or `NULL`  
   The torch seed that is used during training and prediction. This value
@@ -190,7 +194,11 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   used during prediction. Note that by setting the seed during the
   training phase this will mean that by default (i.e. when `seed` is
   `"random"`), clones of the learner will use a different seed. If set
-  to `NULL`, no seeding will be done.
+  to `NULL`, no seeding will be done. This parameter only seeds torch's
+  random number generator, it does **not** seed R's. Anything that is
+  drawn from R's RNG is therefore unaffected by it, so to make those
+  parts reproducible you need to seed R's RNG as well, e.g. via
+  [`set.seed()`](https://rdrr.io/r/base/Random.html).
 
 - `tensor_dataset` :: `logical(1)` \| `"device"`  
   Whether to load all batches at once at the beginning of training and
@@ -227,13 +235,16 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 - `patience` :: `integer(1)`  
   This activates early stopping using the validation scores. If the
   performance of a model does not improve for `patience` evaluation
-  steps, training is ended. Note that the final model is stored in the
-  learner, not the best model. This is initialized to `0`, which means
-  no early stopping. The first entry from `measures_valid` is used as
-  the metric. This also requires to specify the `$validate` field of the
-  Learner, as well as `measures_valid`. If this is set, the epoch after
-  which no improvement was observed, can be accessed via the
-  `$internal_tuned_values` field of the learner.
+  steps, training is ended. Note that this counts *evaluation steps*,
+  not epochs: when `eval_freq` is greater than `1`, `patience`
+  evaluation steps correspond to `patience * eval_freq` epochs. Note
+  that the final model is stored in the learner, not the best model.
+  This is initialized to `0`, which means no early stopping. The first
+  entry from `measures_valid` is used as the metric. This also requires
+  to specify the `$validate` field of the Learner, as well as
+  `measures_valid`. If this is set, the epoch after which no improvement
+  was observed, can be accessed via the `$internal_tuned_values` field
+  of the learner.
 
 - `min_delta` :: `double(1)`  
   The minimum improvement threshold for early stopping. Is initialized
@@ -324,7 +335,7 @@ for more information.
 
 ## Inheriting
 
-There are no seperate classes for classification and regression to
+There are no separate classes for classification and regression to
 inherit from. Instead, the `task_type` must be specified as a
 construction argument. Currently, only classification and regression are
 supported.
@@ -408,10 +419,10 @@ This must respect the dataloader parameters from the
 [`ParamSet`](https://paradox.mlr-org.com/reference/ParamSet.html).
 
 - `.dataloader(dataset, param_vals)`  
-  ([`Task`](https://mlr3.mlr-org.com/reference/Task.html),
+  ([`dataset`](https://torch.mlverse.org/docs/reference/dataset.html),
   [`list()`](https://rdrr.io/r/base/list.html)) -\>
   [`torch::dataloader`](https://torch.mlverse.org/docs/reference/dataloader.html)  
-  Create a dataloader from the task. Needs to respect at least
+  Create a dataloader from the dataset. Needs to respect at least
   `batch_size` and `shuffle` (otherwise predictions will be incorrectly
   ordered). Use `get_batch_size(param_vals, "train")` to obtain the
   batch size for the respective phase, which takes the
@@ -434,7 +445,7 @@ While it is possible to add parameters by specifying the `param_set`
 construction argument, it is currently not possible to remove existing
 parameters, i.e. those listed in section *Parameters*. None of the
 parameters provided in `param_set` can have an id that starts with
-`"loss."`, `"opt.", or `"cb."\`, as these are preserved for the
+`"loss."`, `"opt."`, or `"cb."`, as these are preserved for the
 dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.
 

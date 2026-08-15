@@ -180,11 +180,11 @@ well as the <code>lazy_tensor</code>.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;LearnerTorchMLP&gt;</span><span style="font-weight: bold;"> (classif.mlp): Multi Layer Perceptron</span> <span style="color: #00BBBB;">─────────────────────</span></span></span>
 <span><span class="co">#&gt; • Model: -</span></span>
-<span><span class="co">#&gt; • Parameters: epochs=10, device=auto, num_threads=1, num_interop_threads=1,</span></span>
-<span><span class="co">#&gt; seed=random, eval_freq=1, measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;,</span></span>
-<span><span class="co">#&gt; patience=0, min_delta=0, restore_best_weights=FALSE, batch_size=32,</span></span>
-<span><span class="co">#&gt; shuffle=TRUE, tensor_dataset=FALSE, jit_trace=FALSE, neurons=100,100, p=0.5,</span></span>
-<span><span class="co">#&gt; activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;</span></span>
+<span><span class="co">#&gt; • Parameters: epochs=10, device=auto, num_threads=1, seed=random, eval_freq=1,</span></span>
+<span><span class="co">#&gt; measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;, patience=0, min_delta=0,</span></span>
+<span><span class="co">#&gt; restore_best_weights=FALSE, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,</span></span>
+<span><span class="co">#&gt; jit_trace=FALSE, neurons=100,100, p=0.1, activation=&lt;nn_relu&gt;,</span></span>
+<span><span class="co">#&gt; activation_args=&lt;list&gt;</span></span>
 <span><span class="co">#&gt; • Validate: NULL</span></span>
 <span><span class="co">#&gt; • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3torch</span>, and <span style="color: #0000BB;">torch</span></span></span>
 <span><span class="co">#&gt; • Predict Types: [response] and prob</span></span>
@@ -411,7 +411,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.0bfb65.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.548136.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -458,7 +458,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.0bfb65.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.548136.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -509,10 +509,10 @@ feature.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Graph with 2 PipeOps:</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.0bfb65.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.0bfb65.x</span></span>
+<span><span class="co">#&gt;  nop.548136.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.548136.x</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── Pipeline: <span style="font-weight: bold;">&lt;INPUT&gt; -&gt; nop.0bfb65.x -&gt; poly.x -&gt; &lt;OUTPUT&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; ── Pipeline: <span style="font-weight: bold;">&lt;INPUT&gt; -&gt; nop.548136.x -&gt; poly.x -&gt; &lt;OUTPUT&gt;</span></span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now

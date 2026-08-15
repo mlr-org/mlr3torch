@@ -17,8 +17,8 @@ We start by sampling some input tensor: 2 batches with 3 features:
 input = torch_randn(2, 3)
 input
 #> torch_tensor
-#> -0.8552  2.3046 -0.2906
-#>  1.5001  0.8543 -0.2275
+#> -1.7708  1.0721 -1.5368
+#>  0.0843  0.7181  0.9159
 #> [ CPUFloatType{2,3} ]
 ```
 
@@ -37,8 +37,8 @@ Applying this module gives a 2-batch of 4 units:
 output = module_1(input)
 output
 #> torch_tensor
-#> -0.2088  0.0378  0.9401 -0.4581
-#>  0.6124 -0.2505 -0.6638 -0.6723
+#> -1.9172  1.5953  0.4899 -0.6827
+#> -0.6896  0.0093 -0.2818  1.0252
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -62,8 +62,8 @@ output = module_2(output)
 output = softmax(output)
 output
 #> torch_tensor
-#>  0.2580  0.1786  0.5634
-#>  0.2454  0.2225  0.5321
+#>  0.4814  0.2651  0.2535
+#>  0.3836  0.3546  0.2619
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -106,8 +106,8 @@ We can use the generated `PipeOp` in the familiar way:
 output = po_module_1$train(list(input))[[1]]
 output
 #> torch_tensor
-#> -0.2088  0.0378  0.9401 -0.4581
-#>  0.6124 -0.2505 -0.6638 -0.6723
+#> -1.9172  1.5953  0.4899 -0.6827
+#> -0.6896  0.0093 -0.2818  1.0252
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -139,8 +139,8 @@ the whole `Graph`.
 output = module_graph$train(input)[[1]]
 output
 #> torch_tensor
-#>  0.2580  0.1786  0.5634
-#>  0.2454  0.2225  0.5321
+#>  0.4814  0.2651  0.2535
+#>  0.3836  0.3546  0.2619
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -198,8 +198,8 @@ And it can be used to transform tensors just as any other
 
 graph_module(input)
 #> torch_tensor
-#>  0.2580  0.1786  0.5634
-#>  0.2454  0.2225  0.5321
+#>  0.4814  0.2651  0.2535
+#>  0.3836  0.3546  0.2619
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -298,18 +298,18 @@ for example, adds a `PipeOpModule` wrapping a
 
 ``` r
 
-po_torch_linear = po("nn_linear", out_features = 4)
+po_torch_linear = nn("linear", out_features = 4)
 md = po_torch_linear$train(list(md))[[1]]
 
 md$graph
 #> 
 #> ── Graph with 2 PipeOps: ───────────────────────────────────────────────────────
-#>                 ID         State  sccssors         prdcssors
-#>             <char>        <char>    <char>            <char>
-#>  torch_ingress_num <<UNTRAINED>> nn_linear                  
-#>          nn_linear <<UNTRAINED>>           torch_ingress_num
+#>                 ID         State sccssors         prdcssors
+#>             <char>        <char>   <char>            <char>
+#>  torch_ingress_num <<UNTRAINED>>   linear                  
+#>             linear <<UNTRAINED>>          torch_ingress_num
 #> 
-#> ── Pipeline: <INPUT> -> torch_ingress_num -> nn_linear -> <OUTPUT>
+#> ── Pipeline: <INPUT> -> torch_ingress_num -> linear -> <OUTPUT>
 ```
 
 The `$pointer` is now updated to identify the output of that
@@ -319,7 +319,7 @@ changed to 4 units (was 3 for the input before).
 ``` r
 
 md$pointer
-#> [1] "nn_linear" "output"
+#> [1] "linear" "output"
 md$pointer_shape
 #> [1] NA  4
 ```
@@ -335,8 +335,8 @@ small_module = model_descriptor_to_module(md, list(md$pointer))
 
 small_module(input)
 #> torch_tensor
-#>  0.7758 -0.1152  0.3078 -1.2098
-#> -0.1574  1.2320  0.9289 -0.9397
+#>  0.4261 -0.1420  0.8086  0.1415
+#> -0.4291 -0.3349  0.7110  0.7122
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -406,9 +406,9 @@ batch
 
 small_module(batch$x[[1]])
 #> torch_tensor
-#>  1.5157  0.1427  3.3131 -1.0091
-#>  1.3952  0.2708  3.1178 -1.1033
-#>  1.3902  0.1714  3.0492 -0.9798
+#>  0.0088 -0.0504  3.2746  2.0782
+#>  0.0420 -0.0108  3.0912  1.8759
+#> -0.0241 -0.0667  3.0280  1.9288
 #> [ CPUFloatType{3,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -419,10 +419,10 @@ The sequential NN from above can easily be implemented as follows:
 ``` r
 
 graph_generator = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 4, id = "linear1") %>>%
-    po("nn_sigmoid") %>>%
-  po("nn_linear", out_features = 3, id = "linear2") %>>%
-  po("nn_softmax", dim = 2)
+  nn("linear", out_features = 4, id = "linear1") %>>%
+    nn("sigmoid") %>>%
+  nn("linear", out_features = 3, id = "linear2") %>>%
+  nn("softmax", dim = 2)
 ```
 
 Note how the second `nn_linear` does not need to be informed about the
@@ -438,8 +438,8 @@ graph_module = model_descriptor_to_module(md_sequential, list(md_sequential$poin
 
 graph_module(input)
 #> torch_tensor
-#>  0.2981  0.3481  0.3538
-#>  0.2697  0.2999  0.4304
+#>  0.3710  0.3233  0.3058
+#>  0.3579  0.3244  0.3178
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -467,26 +467,26 @@ iris_sepal = tsk("iris")$select(c("Sepal.Length", "Sepal.Width"))
 ``` r
 
 graph_sepal = po("torch_ingress_num", id = "sepal.in") %>>%
-  po("nn_linear", out_features = 4, id = "linear1")
+  nn("linear", out_features = 4, id = "linear1")
 
 graph_petal = po("torch_ingress_num", id = "petal.in") %>>%
-  po("nn_linear", out_features = 3, id = "linear2") %>>%
-  po("nn_tanh") %>>%
-  po("nn_linear", out_features = 5, id = "linear3")
+  nn("linear", out_features = 3, id = "linear2") %>>%
+  nn("tanh") %>>%
+  nn("linear", out_features = 5, id = "linear3")
 
 graph_common = ppl("branch", graphs = list(
-    sigmoid = po("nn_sigmoid"),
-    relu = po("nn_relu")
+    sigmoid = nn("sigmoid"),
+    relu = nn("relu")
   )) %>>%
   gunion(list(
-    po("nn_linear", out_features = 1, id = "lin_out"),
-    po("nn_linear", out_features = 3, id = "cat_out") %>>%
-      po("nn_softmax", dim = 2)
+    nn("linear", out_features = 1, id = "lin_out"),
+    nn("linear", out_features = 3, id = "cat_out") %>>%
+      nn("softmax", dim = 2)
   ))
 
 
 graph_iris = gunion(list(graph_sepal, graph_petal)) %>>%
-  po("nn_merge_cat") %>>%
+  nn("merge_cat") %>>%
   graph_common
 
 graph_iris$plot(html = TRUE)
@@ -517,14 +517,14 @@ iris_mds
 #> * Loss:  N/A
 #> * pointer:  lin_out.output [(NA,1)]
 #> 
-#> $nn_softmax.output
+#> $softmax.output
 #> <ModelDescriptor: 11 ops>
 #> * Ingress:  sepal.in.input: [(NA,2)], petal.in.input: [(NA,2)]
 #> * Task:  iris [classif]
 #> * Callbacks:  N/A
 #> * Optimizer:  N/A
 #> * Loss:  N/A
-#> * pointer:  nn_softmax.output [(NA,3)]
+#> * pointer:  softmax.output [(NA,3)]
 ```
 
 We make multiple observations here:
@@ -558,19 +558,19 @@ We make multiple observations here:
     #> [1] NA  5
     ```
 
-    `po("nn_merge_cat")` unites the two `ModelDescriptor`s and contains
-    the common ingress. The `pointer_shape` now reflects the output of
-    the “cat”-operation: the 2nd dimension is added up:
+    `nn("merge_cat")` unites the two `ModelDescriptor`s and contains the
+    common ingress. The `pointer_shape` now reflects the output of the
+    “cat”-operation: the 2nd dimension is added up:
 
     ``` r
 
-    graph_iris$pipeops$nn_merge_cat$.result[[1]]$ingress
+    graph_iris$pipeops$merge_cat$.result[[1]]$ingress
     #> $sepal.in.input
     #> Ingress: Task[selector_name(c("Sepal.Length", "Sepal.Width"), assert_present = TRUE)] --> Tensor(NA, 2)
     #> 
     #> $petal.in.input
     #> Ingress: Task[selector_name(c("Petal.Length", "Petal.Width"), assert_present = TRUE)] --> Tensor(NA, 2)
-    graph_iris$pipeops$nn_merge_cat$.result[[1]]$pointer_shape
+    graph_iris$pipeops$merge_cat$.result[[1]]$pointer_shape
     #> [1] NA  9
     ```
 
@@ -595,7 +595,7 @@ We make multiple observations here:
     #> [1] "lin_out" "output" 
     #> 
     #> [[2]]
-    #> [1] "nn_softmax" "output"
+    #> [1] "softmax" "output"
     iris_module = model_descriptor_to_module(iris_mds_union, output_pointers, list_output = TRUE)
     ```
 
@@ -673,14 +673,14 @@ We make multiple observations here:
     )
     #> $lin_out.output
     #> torch_tensor
-    #>  0.2686
-    #>  0.2985
+    #>  0.3742
+    #>  0.3720
     #> [ CPUFloatType{2,1} ][ grad_fn = <AddmmBackward0> ]
     #> 
-    #> $nn_softmax.output
+    #> $softmax.output
     #> torch_tensor
-    #>  0.2698  0.5772  0.1530
-    #>  0.2692  0.5684  0.1624
+    #>  0.3236  0.2327  0.4437
+    #>  0.3195  0.2281  0.4524
     #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
     ```
 
@@ -693,27 +693,27 @@ We make multiple observations here:
     iris_module$graph$pipeops$linear1$.result
     #> $output
     #> torch_tensor
-    #>  1.5317  1.0853 -0.4996  3.4200
-    #>  1.2888  0.7894 -0.3643  3.3636
+    #> -0.9548 -1.1640  1.3344 -0.7819
+    #> -0.8565 -0.9073  1.4252 -0.6038
     #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
     iris_module$graph$pipeops$linear3$.result
     #> $output
     #> torch_tensor
-    #> -0.1556 -0.3723 -0.6241  0.0175  0.0898
-    #> -0.1556 -0.3723 -0.6241  0.0175  0.0898
+    #> -0.2709 -0.6887  0.2125 -0.4929  0.3352
+    #> -0.2709 -0.6887  0.2125 -0.4929  0.3352
     #> [ CPUFloatType{2,5} ][ grad_fn = <AddmmBackward0> ]
     ```
 
-    We observe that the `po("nn_merge_cat")` concatenates these, as
+    We observe that the `nn("merge_cat")` concatenates these, as
     expected:
 
     ``` r
 
-    iris_module$graph$pipeops$nn_merge_cat$.result
+    iris_module$graph$pipeops$merge_cat$.result
     #> $output
     #> torch_tensor
-    #>  1.5317  1.0853 -0.4996  3.4200 -0.1556 -0.3723 -0.6241  0.0175  0.0898
-    #>  1.2888  0.7894 -0.3643  3.3636 -0.1556 -0.3723 -0.6241  0.0175  0.0898
+    #> -0.9548 -1.1640  1.3344 -0.7819 -0.2709 -0.6887  0.2125 -0.4929  0.3352
+    #> -0.8565 -0.9073  1.4252 -0.6038 -0.2709 -0.6887  0.2125 -0.4929  0.3352
     #> [ CPUFloatType{2,9} ][ grad_fn = <CatBackward0> ]
     ```
 
@@ -780,9 +780,9 @@ lr_sequential
 #> 
 #> ── <LearnerTorchModel> (classif.model): Torch Model ────────────────────────────
 #> • Model: -
-#> • Parameters: device=auto, num_threads=1, num_interop_threads=1, seed=random,
-#> eval_freq=1, measures_train=<list>, measures_valid=<list>, patience=0,
-#> min_delta=0, restore_best_weights=FALSE, shuffle=TRUE, tensor_dataset=FALSE,
+#> • Parameters: device=auto, num_threads=1, seed=random, eval_freq=1,
+#> measures_train=<list>, measures_valid=<list>, patience=0, min_delta=0,
+#> restore_best_weights=FALSE, shuffle=TRUE, tensor_dataset=FALSE,
 #> jit_trace=FALSE, opt.lr=0.02
 #> • Validate: NULL
 #> • Packages: mlr3, mlr3torch, and torch
@@ -954,12 +954,12 @@ before:
 ``` r
 
 graph_sequential_full = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 4, id = "linear1") %>>%
-    po("nn_sigmoid") %>>%
-    po("nn_linear", out_features = 3, id = "linear2") %>>%
-    po("nn_softmax", dim = 2, id = "softmax") %>>%
-    po("nn_linear", out_features = 3, id = "linear3") %>>%
-    po("nn_softmax", dim = 2, id = "softmax2") %>>%
+  nn("linear", out_features = 4, id = "linear1") %>>%
+    nn("sigmoid") %>>%
+    nn("linear", out_features = 3, id = "linear2") %>>%
+    nn("softmax", dim = 2, id = "softmax") %>>%
+    nn("linear", out_features = 3, id = "linear3") %>>%
+    nn("softmax", dim = 2, id = "softmax2") %>>%
     po("torch_optimizer", optimizer = adam) %>>%
     po("torch_loss", loss = xe) %>>%
     po("torch_callbacks", callbacks = history) %>>%
@@ -1006,10 +1006,10 @@ columns from the `Task` and fits a model:
 
 gr = po("select", selector = selector_name("Petal.Length")) %>>%
   po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 5, id = "linear1") %>>%
-  po("nn_relu") %>>%
-  po("nn_linear", out_features = 3, id = "linear2") %>>%
-  po("nn_softmax", dim = 2) %>>%
+  nn("linear", out_features = 5, id = "linear1") %>>%
+  nn("relu") %>>%
+  nn("linear", out_features = 3, id = "linear2") %>>%
+  nn("softmax", dim = 2) %>>%
   po("torch_optimizer", optimizer = adam) %>>%
   po("torch_loss", loss = xe) %>>%
   po("torch_model_classif", batch_size = 50, epochs = 50)
@@ -1035,15 +1035,15 @@ How about using `Petal.Length` and `Sepal.Length` separately at first?
 gr = gunion(list(
       po("select", selector = selector_name("Petal.Length"), id = "sel1") %>>%
         po("torch_ingress_num", id = "ingress.petal") %>>%
-        po("nn_linear", out_features = 3, id = "linear1"),
+        nn("linear", out_features = 3, id = "linear1"),
       po("select", selector = selector_name("Sepal.Length"), id = "sel2") %>>%
         po("torch_ingress_num", id = "ingress.sepal") %>>%
-        po("nn_linear", out_features = 3, id = "linear2")
+        nn("linear", out_features = 3, id = "linear2")
     )) %>>%
-    po("nn_merge_cat")  %>>%
-    po("nn_relu", id = "act1") %>>%
-    po("nn_linear", out_features = 3, id = "linear3") %>>%
-    po("nn_softmax", dim = 2, id = "act3") %>>%
+    nn("merge_cat")  %>>%
+    nn("relu", id = "act1") %>>%
+    nn("linear", out_features = 3, id = "linear3") %>>%
+    nn("softmax", dim = 2, id = "act3") %>>%
     po("torch_optimizer", optimizer = adam, lr = 0.1) %>>%
     po("torch_loss", loss = xe) %>>%
     po("torch_model_classif", batch_size = 50, epochs = 50)

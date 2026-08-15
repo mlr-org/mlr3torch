@@ -83,10 +83,10 @@ lrn("regr.mlp", loss = quantile_loss, loss.q = 0.9)
 #> 
 #> ── <LearnerTorchMLP> (regr.mlp): Multi Layer Perceptron ────────────────────────
 #> • Model: -
-#> • Parameters: device=auto, num_threads=1, num_interop_threads=1, seed=random,
-#> eval_freq=1, measures_train=<list>, measures_valid=<list>, patience=0,
-#> min_delta=0, restore_best_weights=FALSE, shuffle=TRUE, tensor_dataset=FALSE,
-#> jit_trace=FALSE, neurons=integer(0), p=0.5, activation=<nn_relu>,
+#> • Parameters: device=auto, num_threads=1, seed=random, eval_freq=1,
+#> measures_train=<list>, measures_valid=<list>, patience=0, min_delta=0,
+#> restore_best_weights=FALSE, shuffle=TRUE, tensor_dataset=FALSE,
+#> jit_trace=FALSE, neurons=integer(0), p=0.1, activation=<nn_relu>,
 #> activation_args=<list>, loss.q=0.9
 #> • Validate: NULL
 #> • Packages: mlr3, mlr3torch, and torch

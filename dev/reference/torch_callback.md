@@ -154,13 +154,15 @@ that can be passed to a torch learner.
 
 - `begin` :: Run before the training loop begins.
 
-- `epoch_begin` :: Run he beginning of each epoch.
+- `epoch_begin` :: Run at the beginning of each epoch.
 
 - `batch_begin` :: Run before the forward call.
 
 - `after_backward` :: Run after the backward call.
 
 - `batch_end` :: Run after the optimizer step.
+
+- `before_valid` :: Run before the validation loop begins.
 
 - `batch_valid_begin` :: Run before the forward call in the validation
   loop.
@@ -174,7 +176,7 @@ that can be passed to a torch learner.
 
 - `end` :: Run after last epoch.
 
-- `exit` :: Run at last, using
+- `exit` :: Run last, using
   [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
 
 ## Ordering

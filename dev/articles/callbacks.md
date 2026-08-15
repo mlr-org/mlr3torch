@@ -157,7 +157,7 @@ custom_logger$generator
     ##     load_state_dict: function (state_dict) 
     ##     on_before_valid: function () 
     ##     on_batch_end: function () 
-    ##   Parent env: <environment: 0x5626278b66e0>
+    ##   Parent env: <environment: 0x557acd3b8180>
     ##   Locked objects: FALSE
     ##   Locked class: FALSE
     ##   Portable: TRUE
@@ -178,11 +178,11 @@ mlp = lrn("classif.mlp",
 mlp$train(task)
 ```
 
-    ## Epoch 1: 1.22
-    ## Epoch 2: 0.93
-    ## Epoch 3: 1.19
-    ## Epoch 4: 1.39
-    ## Epoch 5: 1.05
+    ## Epoch 1: 1.07
+    ## Epoch 2: 0.91
+    ## Epoch 3: 0.97
+    ## Epoch 4: 0.88
+    ## Epoch 5: 0.85
 
 The information that is returnede by `state_dict()` is now accessible
 via the `Learner`’s `$model`-slot:
@@ -192,4 +192,4 @@ via the `Learner`’s `$model`-slot:
 mlp$model$callbacks$custom_logger
 ```
 
-    ## [1] 1.047876
+    ## [1] 0.8472005

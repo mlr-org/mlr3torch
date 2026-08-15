@@ -117,7 +117,8 @@ and the training measures are prefixed with <code>"train."</code>.</p>
 
 <p></p><hr><a id="method-CallbackSetHistory-load_state_dict"></a><div class="section">
 <h3 id="callbacksethistory-load-state-dict-"><code>CallbackSetHistory$load_state_dict()</code><a class="anchor" aria-label="anchor" href="#callbacksethistory-load-state-dict-"></a></h3>
-<p>Sets the field <code>$train</code> and <code>$valid</code> to those contained in the state dict.</p><div class="section">
+<p>Remembers the history contained in the state dict, so that the epochs of the current run are
+appended to it by <code>$state_dict()</code>.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">load_state_dict</span><span class="op">(</span><span class="va">state_dict</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">

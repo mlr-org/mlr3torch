@@ -194,7 +194,9 @@ The current epoch.</p></dd>
 
     <dt><code>step</code></dt>
 <dd><p>(<code>integer(1)</code>)<br>
-The current iteration.</p></dd>
+The current iteration, i.e. the index of the batch within the current epoch.
+This is reset to <code>0</code> at the beginning of every epoch, so a globally unique step is
+<code>(epoch - 1) * length(loader_train) + step</code>.</p></dd>
 
 
     <dt><code>prediction_encoder</code></dt>

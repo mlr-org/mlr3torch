@@ -20,7 +20,7 @@ Items from this dictionary can be retrieved using
 Defined by the constructor argument `param_set`. If no parameter set is
 provided during construction, the parameter set is constructed by
 creating a parameter for each argument of the wrapped loss function,
-where the parametes are then of type `ParamUty`.
+where the parameters are then of type `ParamUty`.
 
 ## See also
 
@@ -282,7 +282,7 @@ learner$param_set
 #>  1:       [NULL]
 #>  2:         auto
 #>  3:            1
-#>  4:            1
+#>  4:       [NULL]
 #>  5:       random
 #>  6:            1
 #>  7:    <list[0]>
@@ -306,7 +306,7 @@ learner$param_set
 #> 25:        FALSE
 #> 26:        FALSE
 #> 27:             
-#> 28:          0.5
+#> 28:          0.1
 #> 29:       [NULL]
 #> 30: <nn_relu[1]>
 #> 31:    <list[0]>

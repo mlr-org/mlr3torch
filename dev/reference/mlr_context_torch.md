@@ -127,7 +127,9 @@ Other Callback:
 - `step`:
 
   (`integer(1)`)  
-  The current iteration.
+  The current iteration, i.e. the index of the batch within the current
+  epoch. This is reset to `0` at the beginning of every epoch, so a
+  globally unique step is `(epoch - 1) * length(loader_train) + step`.
 
 - `prediction_encoder`:
 

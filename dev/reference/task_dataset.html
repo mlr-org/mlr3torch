@@ -6,14 +6,14 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Create a Dataset from a Task — task_dataset"><meta name="description" content="Creates a torch dataset from an mlr3 Task.
-The resulting dataset's $.get_batch() method returns a list with elements x, y and index:
+The resulting dataset's $.getbatch() method returns a list with elements x, y and .index:
 x is a list with tensors, whose content is defined by the parameter feature_ingress_tokens.
 y is the target variable and its content is defined by the parameter target_batchgetter.
 .index is the index of the batch in the task's data.
 
 
 The data is returned on the device specified by the parameter device."><meta property="og:description" content="Creates a torch dataset from an mlr3 Task.
-The resulting dataset's $.get_batch() method returns a list with elements x, y and index:
+The resulting dataset's $.getbatch() method returns a list with elements x, y and .index:
 x is a list with tensors, whose content is defined by the parameter feature_ingress_tokens.
 y is the target variable and its content is defined by the parameter target_batchgetter.
 .index is the index of the batch in the task's data.
@@ -86,7 +86,7 @@ The data is returned on the device specified by the parameter device."><meta pro
 
     <div class="ref-description section level2">
     <p>Creates a torch <a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">dataset</a> from an mlr3 <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>.
-The resulting dataset's <code>$.get_batch()</code> method returns a list with elements <code>x</code>, <code>y</code> and <code>index</code>:</p><ul><li><p><code>x</code> is a list with tensors, whose content is defined by the parameter <code>feature_ingress_tokens</code>.</p></li>
+The resulting dataset's <code>$.getbatch()</code> method returns a list with elements <code>x</code>, <code>y</code> and <code>.index</code>:</p><ul><li><p><code>x</code> is a list with tensors, whose content is defined by the parameter <code>feature_ingress_tokens</code>.</p></li>
 <li><p><code>y</code> is the target variable and its content is defined by the parameter <code>target_batchgetter</code>.</p></li>
 <li><p><code>.index</code> is the index of the batch in the task's data.</p></li>
 </ul><p>The data is returned on the device specified by the parameter <code>device</code>.</p>

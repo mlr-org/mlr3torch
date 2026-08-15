@@ -21,7 +21,13 @@ output shapes are assumed to be unknown (`NULL`).
 
 - `.shapes_out(shapes_in, param_vals, task)`  
   ([`list()`](https://rdrr.io/r/base/list.html),
-  `list(), `Task`or`NULL`) -> `list()`\cr This private method calculates the output shapes of the lazy tensor columns that are created from applying the preprocessing function with the provided parameter values (`param_vals`). The `task`is very rarely needed, but if it is it should be checked that it is not`NULL\`.
+  [`list()`](https://rdrr.io/r/base/list.html), `Task` or `NULL`) -\>
+  [`list()`](https://rdrr.io/r/base/list.html)  
+  This private method calculates the output shapes of the lazy tensor
+  columns that are created from applying the preprocessing function with
+  the provided parameter values (`param_vals`). The `task` is very
+  rarely needed, but if it is it should be checked that it is not
+  `NULL`.
 
   This private method only has the responsibility to calculate the
   output shapes for one input column, i.e. the input `shapes_in` can be
@@ -179,9 +185,9 @@ Creates a new instance of this
 - `param_set`:
 
   ([`ParamSet`](https://paradox.mlr-org.com/reference/ParamSet.html))  
-  In case the function `fn` takes additional parameter besides a
+  In case the function `fn` takes additional parameters besides a
   [`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html)
-  they can be specfied as parameters. None of the parameters can have
+  they can be specified as parameters. None of the parameters can have
   the `"predict"` tag. All tags should include `"train"`.
 
 - `packages`:

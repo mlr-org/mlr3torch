@@ -9,9 +9,17 @@
 - The construction argument `only_batch_unknown` of `PipeOpTorch` was
   removed, as shape inference functions are now expected to handle
   multiple unknown dimensions.
+- The dropout probability `p` of `lrn("classif.mlp")` /
+  `lrn("regr.mlp")` is now initialized to `0.1` instead of `0.5`. Set
+  `p = 0.5` explicitly to keep the old behaviour.
+- The `num_interop_threads` parameter of `LearnerTorch` is no longer
+  initialized to `1`, so torch’s default is left in place unless the
+  parameter is set. Setting it to a value that torch can no longer apply
+  is now an error instead of a warning.
 
 ### Features
 
+- The `$model` of a `LearnerTorch` now has a printer.
 - Added more image learners from {torchvision}.
 - Most `LearnerTorchVision` are now `jittable`.
 - Ported the `TabM` tabular learner from Python.
@@ -39,6 +47,9 @@
   is called within a stage.
 - `t_clbk("checkpoint")` now accepts an existing empty directory as its
   `path`
+- The `path` of `t_clbk("checkpoint")` can now be a `function()` that is
+  called at the beginning of each training run and returns that run’s
+  path.
 
 ### Bug fixes
 
@@ -48,6 +59,13 @@
   under that epoch’s own number, so `network<n>.pt` is now always the
   network at the *end* of epoch `n` rather than sometimes a half-trained
   one.
+- [`replace_head()`](https://mlr3torch.mlr-org.com/dev/reference/replace_head.md)
+  for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
+- `PipeOpTorch$shapes_out()` now always returns
+  [`integer()`](https://rdrr.io/r/base/integer.html) shapes (and not
+  sometimes doubles like `NA`).
+- `po("torch_model_classif")` and `po("torch_model_regr")` now have the
+  correct `$packages`.
 - The `batch_sampler` parameter can now be used without setting
   `batch_size` for training.
 - Configuration errors that are only caught during `LearnerTorch` no
@@ -71,6 +89,8 @@
   an effect, `n_blocks = 0` is allowed and the hidden dimension falls
   back to `d_token * 4/3` as in the reference implementation.
 - Fixed some issues in the documentation.
+- Examples, vignettes and the README now use `nn("linear")` instead of
+  the equivalent, but longer `po("nn_linear")`.
 
 ## mlr3torch 0.3.3
 

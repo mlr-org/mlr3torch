@@ -53,8 +53,8 @@ Converts the lists to data.tables.
 
 ### `CallbackSetHistory$load_state_dict()`
 
-Sets the field `$train` and `$valid` to those contained in the state
-dict.
+Remembers the history contained in the state dict, so that the epochs of
+the current run are appended to it by `$state_dict()`.
 
 #### Usage
 

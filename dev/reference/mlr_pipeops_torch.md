@@ -15,6 +15,18 @@ consisting mostly of
 an
 [`PipeOpNOP`](https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_nop.html)s.
 
+The convenient way to construct such a `PipeOp` is the
+[`nn()`](https://mlr3torch.mlr-org.com/dev/reference/nn.md) helper,
+which prefixes the given key with `"nn_"` to look it up in the
+[`mlr_pipeops`](https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops.html)
+dictionary and uses the unprefixed key as the id of the resulting
+`PipeOp`: `nn("linear", out_features = 10)` is equivalent to
+`po("nn_linear", id = "linear", out_features = 10)`. Because ids must be
+unique within a
+[`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html),
+repeated layers can be disambiguated with a `_<n>` suffix, e.g.
+`nn("linear_1")` and `nn("linear_2")`.
+
 While the former
 [`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)
 operates on
@@ -60,7 +72,9 @@ methods, or overload `private$.make_module()`.
 
 - `.make_module(shapes_in, param_vals, task)`  
   ([`list()`](https://rdrr.io/r/base/list.html),
-  [`list()`](https://rdrr.io/r/base/list.html)) -\> `nn_module`  
+  [`list()`](https://rdrr.io/r/base/list.html),
+  [`Task`](https://mlr3.mlr-org.com/reference/Task.html) or `NULL`) -\>
+  `nn_module`  
   This private method is called to generate the `nn_module` that is
   passed as argument `module` to
   [`PipeOpModule`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_module.md).
@@ -86,10 +100,10 @@ methods, or overload `private$.make_module()`.
   the case for
   [`PipeOpTorchHead`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_head.md)),
   the function should return valid output shapes (possibly containing
-  `NA`s) if the `task` argument is provided or not. Any dimension of
-  `shapes_in` can be `NA`, i.e. unknown, so this method must not assume
-  that a dimension it reads is known. It has to assert the dimensions it
-  actually needs and propagate the `NA`s it can live with.
+  `NA`s) whether or not the `task` argument is provided. Any dimension
+  of `shapes_in` can be `NA`, i.e. unknown, so this method must not
+  assume that a dimension it reads is known. It has to assert the
+  dimensions it actually needs and propagate the `NA`s it can live with.
 
   The inference should generally be **permissive**. For example,
   applying a convolutional layer to an input of shape `c(NA, 3, NA, NA)`
@@ -106,8 +120,9 @@ methods, or overload `private$.make_module()`.
 
 - `.shape_dependent_params(shapes_in, param_vals, task)`  
   ([`list()`](https://rdrr.io/r/base/list.html),
-  [`list()`](https://rdrr.io/r/base/list.html)) -\> named
-  [`list()`](https://rdrr.io/r/base/list.html)  
+  [`list()`](https://rdrr.io/r/base/list.html),
+  [`Task`](https://mlr3.mlr-org.com/reference/Task.html) or `NULL`) -\>
+  named [`list()`](https://rdrr.io/r/base/list.html)  
   This private method has the same inputs as `.shapes_out`. If
   `.make_module()` is not overwritten, it constructs the arguments
   passed to `module_generator`. Usually this means that it must infer
@@ -176,9 +191,9 @@ first
 [`PipeOpModule`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_module.md)
 is added to the
 [`graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html) slot
-of this union and the the edges that connect the sending `PipeOpModule`s
-to the input channel of this `PipeOpModule` are addeded to the graph.
-This is possible because every incoming
+of this union and the edges that connect the sending `PipeOpModule`s to
+the input channel of this `PipeOpModule` are addeded to the graph. This
+is possible because every incoming
 [`ModelDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/ModelDescriptor.md)
 contains the information about the `id` and the `channel` name of the
 sending `PipeOp` in the slot `pointer`.
@@ -312,8 +327,8 @@ Creates a new instance of this
 - `outname`:
 
   ([`character()`](https://rdrr.io/r/base/character.html))  
-  The names of the output channels channels. These will be the ouput
-  channels of the generated
+  The names of the output channels. These will be the ouput channels of
+  the generated
   [`PipeOpModule`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_module.md)
   and therefore also the names of the list returned by its `$train()`.
   In case there is more than one output channel, the `nn_module` that is
@@ -352,8 +367,8 @@ task.
 
   ([`list()`](https://rdrr.io/r/base/list.html) of
   [`integer()`](https://rdrr.io/r/base/integer.html))  
-  The input input shapes, which must be in the same order as the input
-  channel names of the `PipeOp`.
+  The input shapes, which must be in the same order as the input channel
+  names of the `PipeOp`.
 
 - `task`:
 
@@ -416,8 +431,8 @@ y = torch::with_no_grad(network(x))
 
 # In mlr3torch
 network_generator = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 50) %>>%
-  po("nn_head")
+  nn("linear", out_features = 50) %>>%
+  nn("head")
 md = network_generator$train(task)[[1L]]
 network = model_descriptor_to_module(md)
 y = torch::with_no_grad(network(torch_ingress_num.input = x))
@@ -616,7 +631,7 @@ identical(tasks_out[[1L]], tasks_out[[2L]])
 ## Shape inference
 
 # `$shapes_out()` reports what an operator makes of an input shape, without building a network
-conv = po("nn_conv2d", out_channels = 4, kernel_size = 3)
+conv = nn("conv2d", out_channels = 4, kernel_size = 3)
 conv$shapes_out(list(c(NA, 3, 32, 32)))
 #> $output
 #> [1] NA  4 30 30
@@ -630,5 +645,5 @@ conv$shapes_out(list(c(NA, 3, NA, NA)))
 
 # a dimension the operator does need is reported, naming the PipeOp and the shape it was given
 try(conv$shapes_out(list(c(NA, NA, 32, 32))))
-#> Error : PipeOp 'nn_conv2d' requires the channel dimension (dimension 2) of the input shape to be known, but got shape (NA,NA,32,32).
+#> Error : PipeOp 'conv2d' requires the channel dimension (dimension 2) of the input shape to be known, but got shape (NA,NA,32,32).
 ```

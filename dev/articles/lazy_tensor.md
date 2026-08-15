@@ -81,11 +81,11 @@ mlp
 #> 
 #> ── <LearnerTorchMLP> (classif.mlp): Multi Layer Perceptron ─────────────────────
 #> • Model: -
-#> • Parameters: epochs=10, device=auto, num_threads=1, num_interop_threads=1,
-#> seed=random, eval_freq=1, measures_train=<list>, measures_valid=<list>,
-#> patience=0, min_delta=0, restore_best_weights=FALSE, batch_size=32,
-#> shuffle=TRUE, tensor_dataset=FALSE, jit_trace=FALSE, neurons=100,100, p=0.5,
-#> activation=<nn_relu>, activation_args=<list>
+#> • Parameters: epochs=10, device=auto, num_threads=1, seed=random, eval_freq=1,
+#> measures_train=<list>, measures_valid=<list>, patience=0, min_delta=0,
+#> restore_best_weights=FALSE, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,
+#> jit_trace=FALSE, neurons=100,100, p=0.1, activation=<nn_relu>,
+#> activation_args=<list>
 #> • Validate: NULL
 #> • Packages: mlr3, mlr3torch, and torch
 #> • Predict Types: [response] and prob
@@ -360,7 +360,7 @@ desc
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,1)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.0bfb65.x.output
+#> * pointer: nop.548136.x.output
 #> * shape: [(NA,1)]
 ```
 
@@ -409,7 +409,7 @@ unclass(lt[[1]])
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,1)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.0bfb65.x.output
+#> * pointer: nop.548136.x.output
 #> * shape: [(NA,1)]
 ```
 
@@ -466,10 +466,10 @@ descout$graph
 #> ── Graph with 2 PipeOps: ───────────────────────────────────────────────────────
 #>            ID         State sccssors    prdcssors
 #>        <char>        <char>   <char>       <char>
-#>  nop.0bfb65.x        <list>   poly.x             
-#>        poly.x <<UNTRAINED>>          nop.0bfb65.x
+#>  nop.548136.x        <list>   poly.x             
+#>        poly.x <<UNTRAINED>>          nop.548136.x
 #> 
-#> ── Pipeline: <INPUT> -> nop.0bfb65.x -> poly.x -> <OUTPUT>
+#> ── Pipeline: <INPUT> -> nop.548136.x -> poly.x -> <OUTPUT>
 ```
 
 We see that the `$graph` has a new pipeop with id `"poly.x"` and the

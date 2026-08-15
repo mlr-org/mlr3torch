@@ -96,7 +96,10 @@ to the number of lazy tensor input columns.</p>
 
 <p>In addition to specifying the construction arguments, you can overwrite the private <code>.shapes_out()</code> method.
 If you don't overwrite it, the output shapes are assumed to be unknown (<code>NULL</code>).</p><ul><li><p><code>.shapes_out(shapes_in, param_vals, task)</code><br>
-(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code>list(), </code>Task<code>or</code>NULL<code>) -&gt; </code>list()<code>\cr This private method calculates the output shapes of the lazy tensor columns that are created from applying the preprocessing function with the provided parameter values (</code>param_vals<code>). The </code>task<code>is very rarely needed, but if it is it should be checked that it is not</code>NULL`.</p>
+(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code>Task</code> or <code>NULL</code>) -&gt; <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
+This private method calculates the output shapes of the lazy tensor columns that are created from applying
+the preprocessing function with the provided parameter values (<code>param_vals</code>).
+The <code>task</code> is very rarely needed, but if it is it should be checked that it is not <code>NULL</code>.</p>
 <p>This private method only has the responsibility to calculate the output shapes for one input column, i.e. the
 input <code>shapes_in</code> can be assumed to have exactly one shape vector for which it must calculate the output shapes
 and return it as a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of length 1.
@@ -216,8 +219,8 @@ Parameter values to be set after construction.</p></dd>
 
       <dt><code>param_set</code></dt>
 <dd><p>(<code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code>)<br>
-In case the function <code>fn</code> takes additional parameter besides a <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> they can be
-specfied as parameters. None of the parameters can have the <code>"predict"</code> tag.
+In case the function <code>fn</code> takes additional parameters besides a <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> they can be
+specified as parameters. None of the parameters can have the <code>"predict"</code> tag.
 All tags should include <code>"train"</code>.</p></dd>
 
       <dt><code>packages</code></dt>

@@ -202,7 +202,7 @@ learner$predict(task, ids$test)
 #> ── <PredictionClassif> for 50 observations: ────────────────────────────────────
 #>  row_ids     truth   response
 #>        2    setosa versicolor
-#>        3    setosa versicolor
+#>        3    setosa  virginica
 #>        4    setosa versicolor
 #>      ---       ---        ---
 #>      145 virginica versicolor

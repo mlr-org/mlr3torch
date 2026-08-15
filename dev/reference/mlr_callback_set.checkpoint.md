@@ -87,8 +87,14 @@ Creates a new instance of this
 
 - `path`:
 
-  (`character(1)`)  
-  The path to a folder where the models are saved.
+  (`character(1)` \| `function()`)  
+  The path to a folder where the models are saved, or a function of no
+  arguments returning it. The latter is especially useful to create
+  unique directories during
+  [`resample()`](https://mlr3.mlr-org.com/reference/resample.html) or
+  [`benchmark()`](https://mlr3.mlr-org.com/reference/benchmark.html) per
+  fit. The folder must be new or empty, so that a checkpoint never
+  overwrites unrelated data.
 
 - `freq`:
 

@@ -92,6 +92,9 @@ imagenet
 #> • Properties: multiclass
 #> • Features (1):
 #>   • lt (1): image
+#> Downloading <tiny_imagenet> ...
+#> Processing <tiny_imagenet> ...
+#> Dataset <tiny_imagenet> downloaded and extracted successfully.
 #> • Target classes: abacus (0%), academic gown, academic robe, judge's robe (0%),
 #> acorn (0%), African elephant, Loxodonta africana (0%), albatross, mollymawk
 #> (0%), alp (0%), altar (0%), American alligator, Alligator mississipiensis (0%),
@@ -119,7 +122,7 @@ architecture = po("torch_ingress_ltnsr")
 
 We now define a relatively simple convolutional neural network. Note
 that in the code below `po("nn_relu_1")` is equivalent to
-`po("nn_relu", id = "nn_linear_1")`. This is needed, because
+`nn("relu", id = "nn_relu_1")`. This is needed, because
 [`mlr3pipelines::Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)s
 require that each `PipeOp` has a unique ID.
 
@@ -132,12 +135,12 @@ network structure.
 ``` r
 
 architecture = architecture %>>%
-  po("nn_conv2d_1", out_channels = 64, kernel_size = 11, stride = 4, padding = 2) %>>%
-  po("nn_relu_1", inplace = TRUE) %>>%
-  po("nn_max_pool2d_1", kernel_size = 3, stride = 2) %>>%
-  po("nn_conv2d_2", out_channels = 192, kernel_size = 5, padding = 2) %>>%
-  po("nn_relu_2", inplace = TRUE) %>>%
-  po("nn_max_pool2d_2", kernel_size = 3, stride = 2)
+  nn("conv2d_1", out_channels = 64, kernel_size = 11, stride = 4, padding = 2) %>>%
+  nn("relu_1") %>>%
+  nn("max_pool2d_1", kernel_size = 3, stride = 2) %>>%
+  nn("conv2d_2", out_channels = 192, kernel_size = 5, padding = 2) %>>%
+  nn("relu_2") %>>%
+  nn("max_pool2d_2", kernel_size = 3, stride = 2)
 ```
 
 We can now continue with specifying the classification part of the
@@ -145,20 +148,20 @@ network, which is a dense network that repeats a layer twice:
 
 ``` r
 
-dense_layer = po("nn_dropout") %>>%
-  po("nn_linear", out_features = 4096) %>>%
-  po("nn_relu_6")
+dense_layer = nn("dropout") %>>%
+  nn("linear", out_features = 4096) %>>%
+  nn("relu_6")
 ```
 
 In order to repeat a segment from a network multiple times, we can use
-`po("nn_block")`, which we here repeat twice. Then, we follow with the
+`nn("block")`, which we here repeat twice. Then, we follow with the
 output head of the network, where we don’t have to specify the number of
 classes, as they can also be inferred from the task
 
 ``` r
 
-classifier = po("nn_block", dense_layer, n_blocks = 2L) %>>%
-  po("nn_head")
+classifier = nn("block", dense_layer, n_blocks = 2L) %>>%
+  nn("head")
 ```
 
 Next, we can combine the convolutional part with the dense head:
@@ -166,7 +169,7 @@ Next, we can combine the convolutional part with the dense head:
 ``` r
 
 architecture = architecture %>>%
-  po("nn_flatten") %>>%
+  nn("flatten") %>>%
   classifier
 ```
 
@@ -188,8 +191,8 @@ loss, SGD as the optimizer and checkpoint our model every 20 epochs.
 checkpoint = tempfile()
 architecture = architecture %>>%
   po("torch_loss", t_loss("cross_entropy")) %>>%
-  po("torch_optimizer", t_opt("sgd", lr=0.01)) %>>%
-  po("torch_callbacks", 
+  po("torch_optimizer", t_opt("sgd", lr = 0.01)) %>>%
+  po("torch_callbacks",
     t_clbk("checkpoint", freq = 20, path = checkpoint)) %>>%
   po("torch_model_classif",
     batch_size = 32, epochs = 100L, device = "cuda")
@@ -205,11 +208,11 @@ subset for readability:
 ``` r
 
 as.data.table(cnn$param_set)[c(32, 34, 42), 1:4]
-#>                       id    class lower upper
-#>                   <char>   <char> <num> <num>
-#> 1:     nn_block.n_blocks ParamInt     0   Inf
-#> 2: nn_block.nn_dropout.p ParamDbl     0     1
-#> 3:  torch_loss.reduction ParamFct    NA    NA
+#>                      id    class lower upper
+#>                  <char>   <char> <num> <num>
+#> 1:       block.n_blocks ParamInt     0   Inf
+#> 2:      block.dropout.p ParamDbl     0     1
+#> 3: torch_loss.reduction ParamFct    NA    NA
 ```
 
 We can still change them, or if we wanted to, even tune them! Below, we
@@ -219,8 +222,8 @@ well as change the learning rate of the SGD optimizer.
 ``` r
 
 cnn$param_set$set_values(
-  nn_block.n_blocks = 4L,
-  nn_block.nn_linear.out_features = 4096 * 2,
+  block.n_blocks = 4L,
+  block.linear.out_features = 4096 * 2,
   torch_optimizer.lr = 0.2
 )
 ```

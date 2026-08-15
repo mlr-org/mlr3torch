@@ -216,16 +216,17 @@ then wraps this generator in a <code><a href="TorchCallback.html">TorchCallback<
 
 
 <ul><li><p><code>begin</code> :: Run before the training loop begins.</p></li>
-<li><p><code>epoch_begin</code> :: Run he beginning of each epoch.</p></li>
+<li><p><code>epoch_begin</code> :: Run at the beginning of each epoch.</p></li>
 <li><p><code>batch_begin</code> :: Run before the forward call.</p></li>
 <li><p><code>after_backward</code> :: Run after the backward call.</p></li>
 <li><p><code>batch_end</code> :: Run after the optimizer step.</p></li>
+<li><p><code>before_valid</code> :: Run before the validation loop begins.</p></li>
 <li><p><code>batch_valid_begin</code> :: Run before the forward call in the validation loop.</p></li>
 <li><p><code>batch_valid_end</code> :: Run after the forward call in the validation loop.</p></li>
 <li><p><code>valid_end</code> :: Run at the end of validation.</p></li>
 <li><p><code>epoch_end</code> :: Run at the end of each epoch.</p></li>
 <li><p><code>end</code> :: Run after last epoch.</p></li>
-<li><p><code>exit</code> :: Run at last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
+<li><p><code>exit</code> :: Run last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="ordering">Ordering<a class="anchor" aria-label="anchor" href="#ordering"></a></h2>

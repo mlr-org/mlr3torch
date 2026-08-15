@@ -36,7 +36,8 @@ Parameters from
 [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md),
 as well as:
 
-- `activation` :: `[nn_module]`  
+- `activation` ::
+  [`nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html)  
   The activation function. Is initialized to
   [`nn_relu`](https://torch.mlverse.org/docs/reference/nn_relu.html).
 
@@ -55,7 +56,7 @@ as well as:
   has length 1.
 
 - `p` :: `numeric(1)`  
-  The dropout probability. Is initialized to `0.5`.
+  The dropout probability. Is initialized to `0.1`.
 
 - `shape` :: [`integer()`](https://rdrr.io/r/base/integer.html) or
   `NULL`  

@@ -38,6 +38,9 @@
 - [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch_model.md)
   [`LearnerTorchModel`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch_model.md)
   : Learner Torch Model
+- [`replace_head()`](https://mlr3torch.mlr-org.com/dev/reference/replace_head.md)
+  : Replace the head of a network Replaces the head of the network with
+  a linear layer with d_out classes.
 
 ## Tasks
 
@@ -440,6 +443,8 @@
   : Check for lazy tensor
 - [`materialize()`](https://mlr3torch.mlr-org.com/dev/reference/materialize.md)
   : Materialize Lazy Tensor Columns
+- [`` `==`( ``*`<lazy_tensor>`*`)`](https://mlr3torch.mlr-org.com/dev/reference/equals-.lazy_tensor.md)
+  : Compare lazy tensors
 
 ## Loss
 
@@ -463,8 +468,8 @@
 - [`t_opt()`](https://mlr3torch.mlr-org.com/dev/reference/t_opt.md)
   [`t_opts()`](https://mlr3torch.mlr-org.com/dev/reference/t_opt.md) :
   Optimizers Quick Access
-- [`TorchLoss`](https://mlr3torch.mlr-org.com/dev/reference/TorchLoss.md)
-  : Torch Loss
+- [`TorchOptimizer`](https://mlr3torch.mlr-org.com/dev/reference/TorchOptimizer.md)
+  : Torch Optimizer
 - [`mlr_pipeops_torch_optimizer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_optimizer.md)
   [`PipeOpTorchOptimizer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_optimizer.md)
   : Optimizer Configuration

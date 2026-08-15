@@ -6,9 +6,9 @@ executed at different stages of the training loop. They can be used to
 gain more control over the training process of a neural network without
 having to write everything from scratch.
 
-When used a in torch learner, the `CallbackSet` is wrapped in a
+When used in a torch learner, the `CallbackSet` is wrapped in a
 [`TorchCallback`](https://mlr3torch.mlr-org.com/dev/reference/TorchCallback.md).
-The latters parameter set represents the arguments of the
+The latter's parameter set represents the arguments of the
 `CallbackSet`'s `$initialize()` method.
 
 ## Inheriting
@@ -19,7 +19,7 @@ For each available stage (see section *Stages*) a public method
 can be accessed via `self$ctx`, which contains the current state of the
 training loop. This context is assigned at the beginning of the training
 loop and removed afterwards. Different stages of a callback can
-communicate with each other by assigning values to `$self`.
+communicate with each other by assigning values to `self`.
 
 *State*: To be able to store information in the `$model` slot of a
 [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md),
@@ -44,13 +44,15 @@ not accidentally misspelled.
 
 - `begin` :: Run before the training loop begins.
 
-- `epoch_begin` :: Run he beginning of each epoch.
+- `epoch_begin` :: Run at the beginning of each epoch.
 
 - `batch_begin` :: Run before the forward call.
 
 - `after_backward` :: Run after the backward call.
 
 - `batch_end` :: Run after the optimizer step.
+
+- `before_valid` :: Run before the validation loop begins.
 
 - `batch_valid_begin` :: Run before the forward call in the validation
   loop.
@@ -64,7 +66,7 @@ not accidentally misspelled.
 
 - `end` :: Run after last epoch.
 
-- `exit` :: Run at last, using
+- `exit` :: Run last, using
   [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
 
 ## Ordering
@@ -159,7 +161,7 @@ Prints the object.
 
 ### `CallbackSet$state_dict()`
 
-Returns information that is kept in the the
+Returns information that is kept in the
 [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)'s
 state after training. This information should be loadable into the
 callback using `$load_state_dict()` to be able to continue training.

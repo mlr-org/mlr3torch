@@ -52,11 +52,11 @@ mlp
 #> 
 #> ── <LearnerTorchMLP> (regr.mlp): Multi Layer Perceptron ────────────────────────
 #> • Model: -
-#> • Parameters: epochs=30, device=cpu, num_threads=1, num_interop_threads=1,
-#> seed=random, eval_freq=1, measures_train=<list>, measures_valid=<list>,
-#> patience=0, min_delta=0, restore_best_weights=FALSE, batch_size=32,
-#> shuffle=TRUE, tensor_dataset=FALSE, jit_trace=FALSE, neurons=50,50, p=0.5,
-#> activation=<nn_relu>, activation_args=<list>
+#> • Parameters: epochs=30, device=cpu, num_threads=1, seed=random, eval_freq=1,
+#> measures_train=<list>, measures_valid=<list>, patience=0, min_delta=0,
+#> restore_best_weights=FALSE, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,
+#> jit_trace=FALSE, neurons=50,50, p=0.1, activation=<nn_relu>,
+#> activation_args=<list>
 #> • Validate: NULL
 #> • Packages: mlr3, mlr3torch, and torch
 #> • Predict Types: [response]
@@ -86,8 +86,57 @@ prediction = mlp$predict(task, row_ids = splits$test)
 # Compute the mse
 prediction$score(msr("regr.mse"))
 #> regr.mse 
-#> 289.5967
+#> 247.8626
 ```
+
+## Scaling the Features
+
+Neural networks are sensitive to the scale of their inputs: when the
+features live on very different scales, training is slower and less
+stable. The “mtcars” task is a good example of this, its features range
+from `drat`, which is around 4, to `disp`, which is in the hundreds:
+
+``` r
+
+sapply(task$data(cols = task$feature_names), range)
+#>      am carb cyl  disp drat gear  hp qsec vs    wt
+#> [1,]  0    1   4  71.1 2.76    3  52 14.5  0 1.513
+#> [2,]  1    8   8 472.0 4.93    5 335 22.9  1 5.424
+```
+
+We therefore recommend to standardize the features before they enter the
+network. This is a preprocessing step like any other in `mlr3`, i.e. we
+prepend `po("scale")` to the learner and thereby obtain a
+`GraphLearner`.
+
+``` r
+
+mlp_scaled = as_learner(po("scale") %>>% lrn("regr.mlp",
+  neurons = c(50, 50), batch_size = 32, epochs = 100, device = "cpu"
+))
+```
+
+Below, we compare it with the same network trained on the unscaled
+features.
+
+``` r
+
+mlp_unscaled = lrn("regr.mlp",
+  neurons = c(50, 50), batch_size = 32, epochs = 100, device = "cpu"
+)
+mlp_unscaled$train(task, row_ids = splits$train)
+mlp_unscaled$predict(task, row_ids = splits$test)$score(msr("regr.mse"))
+#> regr.mse 
+#> 144.6317
+
+mlp_scaled$train(task, row_ids = splits$train)
+mlp_scaled$predict(task, row_ids = splits$test)$score(msr("regr.mse"))
+#> regr.mse 
+#> 26.36343
+```
+
+Because scaling is a property of the data and not of a specific
+architecture, this naturally applies to other learners as well.
 
 ## Configuring a Learner
 
@@ -327,12 +376,11 @@ mlp_custom
 #> 
 #> ── <LearnerTorchMLP> (regr.mlp): Multi Layer Perceptron ────────────────────────
 #> • Model: -
-#> • Parameters: epochs=30, device=cpu, num_threads=1, num_interop_threads=1,
-#> seed=random, eval_freq=1, measures_train=<list>,
-#> measures_valid=<MeasureRegrSimple>, patience=0, min_delta=0,
-#> restore_best_weights=FALSE, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,
-#> jit_trace=FALSE, neurons=50,50, p=0.5, activation=<nn_relu>,
-#> activation_args=<list>, opt.lr=0.5, opt.nesterov=FALSE
+#> • Parameters: epochs=30, device=cpu, num_threads=1, seed=random, eval_freq=1,
+#> measures_train=<list>, measures_valid=<MeasureRegrSimple>, patience=0,
+#> min_delta=0, restore_best_weights=FALSE, batch_size=32, shuffle=TRUE,
+#> tensor_dataset=FALSE, jit_trace=FALSE, neurons=50,50, p=0.1,
+#> activation=<nn_relu>, activation_args=<list>, opt.lr=0.5, opt.nesterov=FALSE
 #> • Validate: 0.3
 #> • Packages: mlr3, mlr3torch, and torch
 #> • Predict Types: [response]
@@ -363,10 +411,10 @@ than the default `mlp` learner.
 
 prediction_custom$score(msr("regr.mae"))
 #> regr.mae 
-#> 13.14184
+#> 7.107885
 prediction$score(msr("regr.mae"))
 #> regr.mae 
-#> 15.44357
+#> 14.04447
 ```
 
 Because we configured the learner to use the history callback, we can
@@ -377,17 +425,17 @@ find the validation history in its `$model` slot:
 head(mlp_custom$model$callbacks$history)
 #>    epoch valid.regr.mae
 #>    <num>          <num>
-#> 1:     1   1.952632e+04
-#> 2:     2   1.480274e+10
-#> 3:     3   1.907161e+09
-#> 4:     4   6.248891e+04
-#> 5:     5   8.702154e+01
-#> 6:     6   3.612310e+01
+#> 1:     1   4.854304e+06
+#> 2:     2   6.452428e+01
+#> 3:     3   4.424063e+02
+#> 4:     4   1.363021e+01
+#> 5:     5   3.004845e+02
+#> 6:     6   1.792240e+01
 ```
 
 The plot below shows it for the epochs 6 to 30.
 
-![](get_started_files/figure-html/unnamed-chunk-20-1.png)
+![](get_started_files/figure-html/unnamed-chunk-23-1.png)
 
 Other important information that is stored in the `Learner`’s model is
 the `$network`, which is the underlying `nn_module`. For a full

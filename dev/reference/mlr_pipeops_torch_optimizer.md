@@ -29,10 +29,6 @@ is reference-identical to the parameter set of the pipeop itself.
 
 ## See also
 
-Other PipeOp:
-[`mlr_pipeops_module`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_module.md),
-[`mlr_pipeops_torch_callbacks`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_callbacks.md)
-
 Other Model Configuration:
 [`ModelDescriptor()`](https://mlr3torch.mlr-org.com/dev/reference/ModelDescriptor.md),
 [`mlr_pipeops_torch_callbacks`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_callbacks.md),
