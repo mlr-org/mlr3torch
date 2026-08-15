@@ -6,9 +6,12 @@
 * The construction argument `only_batch_unknown` of `PipeOpTorch` was removed,
   as shape inference functions are now expected to handle multiple unknown
   dimensions.
+* The dropout probability `p` of `lrn("classif.mlp")` / `lrn("regr.mlp")` is now initialized to
+  `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
 
 ## Features
 
+* The `$model` of a `LearnerTorch` now has a printer.
 * Added more image learners from {torchvision}.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.
@@ -37,6 +40,11 @@
 * `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
   under that epoch's own number, so `network<n>.pt` is now always the
   network at the *end* of epoch `n` rather than sometimes a half-trained one.
+* `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
+* `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
+    sometimes doubles like `NA`).
+* `po("torch_model_classif")` and `po("torch_model_regr")` now have the correct
+  `$packages`.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training.
 * Configuration errors that are only caught during `LearnerTorch` no longer
   trigger a fallback learner.

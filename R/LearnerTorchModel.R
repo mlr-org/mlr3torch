@@ -85,7 +85,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
         param_set = ps(),
         feature_types = feature_types,
         jittable = TRUE,
-        man = "mlr3torch::mlr_learners.torch_model"
+        man = "mlr3torch::mlr_learners_torch_model"
       )
     }
   ),

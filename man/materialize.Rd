@@ -30,7 +30,7 @@ Per default, caching will be enabled when the same dataset or data descriptor (w
 is used for more than one lazy tensor column.}
 }
 \value{
-(\code{list()} of \code{\link{lazy_tensor}}s or a \code{\link{lazy_tensor}})
+(\code{list()} of \code{\link[torch:torch_tensor]{torch_tensor}}s or a \code{\link[torch:torch_tensor]{torch_tensor}})
 }
 \description{
 This will materialize a \code{\link[=lazy_tensor]{lazy_tensor()}} or a \code{data.frame()} / \code{list()} containing -- among other things --
