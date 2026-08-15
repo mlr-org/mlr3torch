@@ -400,7 +400,6 @@ print.learner_torch_model = function(x, ...) {
   } else {
     sprintf("<%s> with %s parameters", class(x$network)[[1L]], format(n_params, big.mark = ","))
   }))
-  catn(str_indent("* Seed: ", as.character(x$seed %??% "-")))
   catn(str_indent("* Callbacks: ", if (length(x$callbacks)) paste0(names(x$callbacks), collapse = ", ") else "-"))
   if (length(x$internal_valid_scores)) {
     scores = sprintf("%s = %s", names(x$internal_valid_scores),

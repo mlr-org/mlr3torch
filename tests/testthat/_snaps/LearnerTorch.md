@@ -29,9 +29,8 @@
     Output
       <learner_torch_model> trained for 2 epochs
       * Network:  <nn_sequential> with 43 parameters
-      * Seed:  1085987528
       * Callbacks:  history
-      * Validation scores:  classif.ce = 0.6222
+      * Validation scores:  classif.ce = 0.9111
       * Fields:  network, internal_valid_scores, loss_fn, optimizer, epochs,
         callbacks, seed, task_col_info
 
