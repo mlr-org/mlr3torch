@@ -71,6 +71,10 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       # Because we control the creation of the LearnerTorchModel, we know that it's fitted in the same
       # process as the current .train function, hence, we can avoid the serialization round-trip
       get_private(private$.learner, ".network_stored") = network
+      # `.network()` consumes `.network_stored`, so the learner's identity has to be recorded now and
+      # then left alone, as in `LearnerTorchModel$initialize()`. The network is built from the graph,
+      # which identifies it without paying for the serialization that is deliberately skipped above.
+      get_private(private$.learner, ".network_hash") = calculate_hash(md$graph$hash, md$pointer)
       # the modules were constructed above, i.e. outside the learner's seeded region, so the learner
       # re-initializes them under the seed to make graph-built learners reproducible
       get_private(private$.learner, ".reset_parameters_") = TRUE
