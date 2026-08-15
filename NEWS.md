@@ -61,6 +61,8 @@
   effect, `n_blocks = 0` is allowed and the hidden dimension falls back to
   `d_token * 4/3` as in the reference implementation.
 * Fixed some issues in the documentation.
+* Examples, vignettes and the README now use `nn("linear")` instead of the equivalent, but longer
+  `po("nn_linear")`.
 
 # mlr3torch 0.3.3
 

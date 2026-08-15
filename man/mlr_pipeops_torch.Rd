@@ -11,6 +11,14 @@ During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps a
 to the architecture, which is also represented as a \code{\link[mlr3pipelines:Graph]{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
 an \code{\link[mlr3pipelines:PipeOpNOP]{PipeOpNOP}}s.
 
+The convenient way to construct such a \code{PipeOp} is the \code{\link[=nn]{nn()}} helper, which prefixes the given
+key with \code{"nn_"} to look it up in the \code{\link[mlr3pipelines:mlr_pipeops]{mlr_pipeops}} dictionary and
+uses the unprefixed key as the id of the resulting \code{PipeOp}:
+\code{nn("linear", out_features = 10)} is equivalent to
+\code{po("nn_linear", id = "linear", out_features = 10)}.
+Because ids must be unique within a \code{\link[mlr3pipelines:Graph]{Graph}}, repeated layers can be
+disambiguated with a \verb{_<n>} suffix, e.g. \code{nn("linear_1")} and \code{nn("linear_2")}.
+
 While the former \code{\link[mlr3pipelines:Graph]{Graph}} operates on \code{\link{ModelDescriptor}}s, the latter operates on \link[torch:torch_tensor]{tensors}.
 
 The relationship between a \code{PipeOpTorch} and a \code{\link{PipeOpModule}} is similar to the
@@ -162,8 +170,8 @@ y = torch::with_no_grad(network(x))
 
 # In mlr3torch
 network_generator = po("torch_ingress_num") \%>>\%
-  po("nn_linear", out_features = 50) \%>>\%
-  po("nn_head")
+  nn("linear", out_features = 50) \%>>\%
+  nn("head")
 md = network_generator$train(task)[[1L]]
 network = model_descriptor_to_module(md)
 y = torch::with_no_grad(network(torch_ingress_num.input = x))
@@ -273,7 +281,7 @@ identical(tasks_out[[1L]], tasks_out[[2L]])
 ## Shape inference
 
 # `$shapes_out()` reports what an operator makes of an input shape, without building a network
-conv = po("nn_conv2d", out_channels = 4, kernel_size = 3)
+conv = nn("conv2d", out_channels = 4, kernel_size = 3)
 conv$shapes_out(list(c(NA, 3, 32, 32)))
 
 # any dimension may be unknown, so images of varying size work just as well
