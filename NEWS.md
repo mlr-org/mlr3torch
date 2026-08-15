@@ -36,9 +36,9 @@
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
 * The `path` of `t_clbk("checkpoint")` can now be a `function()` that is called at the beginning of
   each training run and returns that run's path.
-* A network whose output dimension does not match the task is now rejected with a message naming
-  both, instead of failing with a torch error during training (too few outputs) or only at predict
-  time (too many outputs).
+* A network built from `PipeOpTorch` objects whose output dimension does not match the task is now
+  rejected before training with a message naming both, instead of failing with a torch error during
+  training (too few outputs) or only at predict time (too many outputs).
 
 ## Bug fixes
 

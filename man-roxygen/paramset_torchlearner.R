@@ -18,6 +18,7 @@
 #'   divide the available cores among the workers instead of setting this to the number of cores.
 #' * `num_interop_threads` :: `integer(1)`\cr
 #'   The number of threads for interop parallelization (if `device` is `"cpu"`).
+#'   Note that this can only be set **once** per session, so training a learner once already sets this.
 #' * `seed` :: `integer(1)` or `"random"` or `NULL`\cr
 #'   The torch seed that is used during training and prediction.
 #'   This value is initialized to `"random"`, which means that a random seed will be sampled at the beginning of the

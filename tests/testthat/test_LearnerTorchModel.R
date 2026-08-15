@@ -85,15 +85,3 @@ test_that("LearnerTorchModel and marshaling", {
   learner$train(task)
   expect_class(learner$model, "learner_torch_model")
 })
-
-test_that("a hand-built network with the wrong output size is caught on the first batch", {
-  # there is no shape to check upfront here, unlike for a network built from PipeOpTorch objects
-  task = tsk("iris")
-  learner = LearnerTorchModel$new(task_type = "classif", network = nn_sequential(nn_linear(4, 7)),
-    ingress_tokens = list(x = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L))))
-  learner$param_set$set_values(batch_size = 50, epochs = 1, device = "cpu")
-
-  err = tryCatch(learner$train(task), error = identity)
-  expect_class(err, "Mlr3ErrorConfig")
-  expect_match(conditionMessage(err), "produces 7 outputs.*requires 3")
-})

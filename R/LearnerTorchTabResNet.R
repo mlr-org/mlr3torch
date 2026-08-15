@@ -6,7 +6,6 @@
 #' @template params_learner
 #' @template learner
 #' @template learner_example
-#' @template scaling
 #'
 #' @description
 #' Tabular resnet.

@@ -184,13 +184,6 @@ train_loop = function(ctx, cbs) {
       # of `LearnerTorch`. `y_hat` is always that primary prediction, `y_hats` the complete output.
       ctx$y_hat = if (is.list(ctx$y_hats)) ctx$y_hats[[1L]] else ctx$y_hats
 
-      # Networks that were not built from `PipeOpTorch`s -- those of `LearnerTorchModel` and
-      # `LearnerTorchModule` -- have no known output shape, so the check happens on the first batch
-      # instead. A prediction that is not one row per observation is left to the loss.
-      if (ctx$epoch == 1L && ctx$step == 1L && length(dim(ctx$y_hat)) == 2L) {
-        assert_output_dim(dim(ctx$y_hat)[2L], ctx$task_train)
-      }
-
       loss = ctx$loss_fn(ctx$y_hats, ctx$batch$y)
 
       loss$backward()

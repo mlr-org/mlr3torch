@@ -10,7 +10,7 @@ or on standard tabular features.
 
 Some differences from the paper implementation: no attention compression, no option to have prenormalization in the first layer.
 
-If training is unstable, consider a combination of scaling the features (see section \emph{Input Scaling}), using an adaptive optimizer (e.g. Adam), reducing the learning rate,
+If training is unstable, consider a combination of standardizing features (e.g. using \code{po("scale")}), using an adaptive optimizer (e.g. Adam), reducing the learning rate,
 and using a learning rate scheduler (see \code{\link{CallbackSetLRScheduler}} for options).
 }
 \section{Dictionary}{
@@ -34,13 +34,6 @@ lrn("regr.ft_transformer", ...)
 \item Feature Types: \dQuote{logical}, \dQuote{integer}, \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, \dQuote{lazy_tensor}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}
 }
-}
-
-\section{Input Scaling}{
-
-Neural networks are sensitive to the scale of their inputs, so features on very different scales
-can slow down or destabilize training.
-Standardize them beforehand, e.g. by prepending \code{po("scale")} to the learner.
 }
 
 \section{Parameters}{

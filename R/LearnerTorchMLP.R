@@ -6,7 +6,6 @@
 #' @template params_learner
 #' @template learner
 #' @template learner_example
-#' @template scaling
 #'
 #' @description
 #' Fully connected feed forward network with dropout after each activation function.
