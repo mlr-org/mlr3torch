@@ -13,7 +13,6 @@
 #' @section Internals:
 #' During training the loss is cloned and added to the [`ModelDescriptor`].
 #'
-#' @family PipeOps
 #' @family Model Configuration
 #'
 #' @export

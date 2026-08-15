@@ -20,7 +20,6 @@
 #' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and
 #' its `$train()` method is called on the [`Task`][mlr3::Task] stored in the [`ModelDescriptor`].
 #'
-#' @family PipeOps
 #' @export
 PipeOpTorchModel = R6Class("PipeOpTorchModel",
   inherit = PipeOpLearner,
@@ -114,7 +113,6 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
 #' @inheritSection mlr_pipeops_torch_model State
 #' @section Parameters: See [`LearnerTorch`]
 #' @inheritSection mlr_pipeops_torch_model Internals
-#' @family PipeOps
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' # simple logistic regression
@@ -157,7 +155,6 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 #' @inheritSection mlr_pipeops_torch_model State
 #' @section Parameters: See [`LearnerTorch`]
 #' @inheritSection mlr_pipeops_torch_model Internals
-#' @family PipeOps
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' # simple linear regression

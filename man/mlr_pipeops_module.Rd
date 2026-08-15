@@ -109,13 +109,8 @@ Other Graph Network:
 \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
 \code{\link[=model_descriptor_union]{model_descriptor_union()}},
 \code{\link[=nn_graph]{nn_graph()}}
-
-Other PipeOp:
-\code{\link{mlr_pipeops_torch_callbacks}},
-\code{\link{mlr_pipeops_torch_optimizer}}
 }
 \concept{Graph Network}
-\concept{PipeOp}
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpModule}
 }

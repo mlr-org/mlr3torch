@@ -26,7 +26,6 @@
 #' the channels are defined. Arguments are **not** matched by name.
 #'
 #' @family Graph Network
-#' @family PipeOp
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' ## creating an PipeOpModule manually

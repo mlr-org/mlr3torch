@@ -87,7 +87,7 @@ architecture = po("torch_ingress_ltnsr")
 ```
 
 We now define a relatively simple convolutional neural network.
-Note that in the code below `nn("relu_1")` is equivalent to `nn("relu", id = "nn_relu_1")`.
+Note that in the code below `po("nn_relu_1")` is equivalent to `nn("relu", id = "nn_relu_1")`.
 This is needed, because `mlr3pipelines::Graph`s require that each `PipeOp` has a unique ID.
 
 What we can further notice is that we don't have to specify the input dimension for the convolutional layers, which are inferred from the task during `$train()`ing.
@@ -96,10 +96,10 @@ This means that our `Learner` can be applied to tasks with different image sizes
 ```{r}
 architecture = architecture %>>%
   nn("conv2d_1", out_channels = 64, kernel_size = 11, stride = 4, padding = 2) %>>%
-  nn("relu_1", inplace = TRUE) %>>%
+  nn("relu_1") %>>%
   nn("max_pool2d_1", kernel_size = 3, stride = 2) %>>%
   nn("conv2d_2", out_channels = 192, kernel_size = 5, padding = 2) %>>%
-  nn("relu_2", inplace = TRUE) %>>%
+  nn("relu_2") %>>%
   nn("max_pool2d_2", kernel_size = 3, stride = 2)
 ```
 
@@ -140,8 +140,8 @@ We use the standard cross-entropy loss, SGD as the optimizer and checkpoint our 
 checkpoint = tempfile()
 architecture = architecture %>>%
   po("torch_loss", t_loss("cross_entropy")) %>>%
-  po("torch_optimizer", t_opt("sgd", lr=0.01)) %>>%
-  po("torch_callbacks", 
+  po("torch_optimizer", t_opt("sgd", lr = 0.01)) %>>%
+  po("torch_callbacks",
     t_clbk("checkpoint", freq = 20, path = checkpoint)) %>>%
   po("torch_model_classif",
     batch_size = 32, epochs = 100L, device = "cuda")
