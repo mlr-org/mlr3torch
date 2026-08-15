@@ -74,7 +74,8 @@ This activates early stopping using the validation scores.
 If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
 Note that this counts \emph{evaluation steps}, not epochs: when \code{eval_freq} is greater than \code{1},
 \code{patience} evaluation steps correspond to \code{patience * eval_freq} epochs.
-Note that the final model is stored in the learner, not the best model.
+Note that the final model is stored in the learner, not the best model, unless
+\code{restore_best_weights} is set to \code{TRUE}.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
@@ -88,7 +89,9 @@ Whether to restore the weights of the best epoch when training ends, instead of 
 of the last epoch that was trained. Is initialized to \code{FALSE}, i.e. the network of the last
 epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
-memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
+memory. Because \verb{$internal_valid_scores} describes the network that is stored, it then reports
+the scores of the best epoch, i.e. the same scores as \verb{$best_valid_scores}.
+Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
 network as training left it.
 }
 

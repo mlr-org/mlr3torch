@@ -16,7 +16,9 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       self$stagnation = 0L
       self$best_score = NULL
       self$epoch_at_best_score = NULL
+      self$best_valid_scores = NULL
       self$best_state_dict = NULL
+      self$restored_best_weights = FALSE
     },
     on_valid_end = function() {
       if (is.null(self$ctx$last_scores_valid)) {
@@ -25,6 +27,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       if (is.null(self$best_score)) {
         self$best_score = self$ctx$last_scores_valid[[1L]]
         self$epoch_at_best_score = self$ctx$epoch
+        self$best_valid_scores = self$ctx$last_scores_valid
         private$.remember_weights()
         return(NULL)
       }
@@ -46,6 +49,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         self$stagnation = 0
         self$best_score = self$ctx$last_scores_valid[[1L]]
         self$epoch_at_best_score = self$ctx$epoch
+        self$best_valid_scores = self$ctx$last_scores_valid
         private$.remember_weights()
       }
     },
@@ -57,6 +61,9 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       # far are still the right ones to keep. Callbacks that write the network out -- such as
       # `CallbackSetCheckpoint` -- have already run at this point, see the `weight` above.
       self$ctx$network$load_state_dict(self$best_state_dict)
+      # the learner reads this to decide whether the network it stores is the one of the best epoch,
+      # in which case the validation scores of that epoch are the ones describing it
+      self$restored_best_weights = TRUE
       invisible(NULL)
     },
     state_dict = function() {
@@ -64,12 +71,16 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         # `best_epochs` is what the learner reports as its internally tuned `epochs`
         best_epochs = self$epoch_at_best_score,
         best_score = self$best_score,
+        # all validation scores of the epoch at which `best_score` was observed;
+        # this is what the learner reports as its `$best_valid_scores`
+        best_valid_scores = self$best_valid_scores,
         stagnation = self$stagnation
       )
     },
     load_state_dict = function(state_dict) {
       self$epoch_at_best_score = state_dict$best_epochs
       self$best_score = state_dict$best_score
+      self$best_valid_scores = state_dict$best_valid_scores
       self$stagnation = state_dict$stagnation
       invisible(NULL)
     }

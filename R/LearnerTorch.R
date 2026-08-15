@@ -395,11 +395,26 @@ LearnerTorch = R6Class("LearnerTorch",
     },
 
     #' @field internal_valid_scores
-    #' Retrieves the internal validation scores as a named `list()`.
+    #' Retrieves the internal validation scores of the epoch that the stored network comes from, as a
+    #' named `list()`.
+    #' This is the *last* epoch, unless `restore_best_weights` is `TRUE`, in which case it is the
+    #' *best* epoch and these scores are the same as `$best_valid_scores`.
     #' Specify the `$validate` field and the `measures_valid` parameter to configure this.
     #' Returns `NULL` if learner is not trained yet.
     internal_valid_scores = function() {
       self$state$internal_valid_scores
+    },
+    #' @field best_valid_scores
+    #' Retrieves the internal validation scores of the *best* epoch as a named `list()`.
+    #' This is the epoch that is also reported via `$internal_tuned_values`, i.e. the epoch with the best
+    #' score of the first validation measure.
+    #' Unless `restore_best_weights` is `TRUE`, the trained network is the one after the last epoch,
+    #' so this can differ from `$internal_valid_scores`.
+    #' Tracking the best epoch requires early stopping to be active (`patience > 0`), otherwise this is an
+    #' empty list.
+    #' Returns `NULL` if learner is not trained yet.
+    best_valid_scores = function() {
+      self$state$best_valid_scores
     },
     #' @field internal_tuned_values
     #' When early stopping is active, this returns a named list with the early-stopped epochs,
@@ -478,6 +493,15 @@ LearnerTorch = R6Class("LearnerTorch",
         named_list()
       } else {
         self$model$internal_valid_scores
+      }
+    },
+    .extract_best_valid_scores = function() {
+      # the best epoch is only tracked when early stopping is active
+      scores = self$model$callbacks$early_stopping$best_valid_scores
+      if (is.null(scores)) {
+        named_list()
+      } else {
+        scores
       }
     },
     .validate = NULL,

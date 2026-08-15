@@ -175,7 +175,8 @@ This activates early stopping using the validation scores.
 If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
 Note that this counts \emph{evaluation steps}, not epochs: when \code{eval_freq} is greater than \code{1},
 \code{patience} evaluation steps correspond to \code{patience * eval_freq} epochs.
-Note that the final model is stored in the learner, not the best model.
+Note that the final model is stored in the learner, not the best model, unless
+\code{restore_best_weights} is set to \code{TRUE}.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
@@ -189,7 +190,9 @@ Whether to restore the weights of the best epoch when training ends, instead of 
 of the last epoch that was trained. Is initialized to \code{FALSE}, i.e. the network of the last
 epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
-memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
+memory. Because \verb{$internal_valid_scores} describes the network that is stored, it then reports
+the scores of the best epoch, i.e. the same scores as \verb{$best_valid_scores}.
+Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
 network as training left it.
 }
 
@@ -356,8 +359,20 @@ The torch optimizer.}
 List of torch callbacks.
 The ids will be set as the names.}
 
-    \item{\code{internal_valid_scores}}{Retrieves the internal validation scores as a named \code{list()}.
+    \item{\code{internal_valid_scores}}{Retrieves the internal validation scores of the epoch that the stored network comes from, as a
+named \code{list()}.
+This is the \emph{last} epoch, unless \code{restore_best_weights} is \code{TRUE}, in which case it is the
+\emph{best} epoch and these scores are the same as \verb{$best_valid_scores}.
 Specify the \verb{$validate} field and the \code{measures_valid} parameter to configure this.
+Returns \code{NULL} if learner is not trained yet.}
+
+    \item{\code{best_valid_scores}}{Retrieves the internal validation scores of the \emph{best} epoch as a named \code{list()}.
+This is the epoch that is also reported via \verb{$internal_tuned_values}, i.e. the epoch with the best
+score of the first validation measure.
+Unless \code{restore_best_weights} is \code{TRUE}, the trained network is the one after the last epoch,
+so this can differ from \verb{$internal_valid_scores}.
+Tracking the best epoch requires early stopping to be active (\code{patience > 0}), otherwise this is an
+empty list.
 Returns \code{NULL} if learner is not trained yet.}
 
     \item{\code{internal_tuned_values}}{When early stopping is active, this returns a named list with the early-stopped epochs,

@@ -8,7 +8,8 @@ test_that("the early stopping state can be saved and restored", {
   first = make(3L)
   first$train(task)
   state = first$model$callbacks$early_stopping
-  expect_names(names(state), permutation.of = c("best_epochs", "best_score", "stagnation"))
+  expect_names(names(state),
+    permutation.of = c("best_epochs", "best_score", "best_valid_scores", "stagnation"))
 
   # a run that continues where the first one stopped keeps its best score and stagnation counter
   restored = NULL
@@ -26,6 +27,36 @@ test_that("the early stopping state can be saved and restored", {
   expect_equal(restored$best_score, state$best_score)
   expect_equal(restored$stagnation, state$stagnation)
   expect_equal(restored$epoch_at_best_score, state$best_epochs)
+})
+
+test_that("best_valid_scores are the scores of the best epoch", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", epochs = 5L, batch_size = 50, neurons = 10, validate = 0.3,
+    measures_valid = msrs(c("classif.acc", "classif.ce")), patience = 2L, min_delta = 0)
+  learner$train(task)
+
+  best = learner$best_valid_scores
+  last = learner$internal_valid_scores
+  expect_list(best, types = "numeric")
+  # all validation measures are tracked, not just the one early stopping looks at
+  expect_names(names(best), permutation.of = names(last))
+  # the first measure is the one early stopping optimizes, so it holds the best score
+  expect_equal(best[[1L]], learner$model$callbacks$early_stopping$best_score)
+  # the best epoch is the one reported as the internally tuned value
+  expect_equal(learner$internal_tuned_values$epochs,
+    learner$model$callbacks$early_stopping$best_epochs)
+  # classif.acc is maximized, so the best epoch is at least as good as the last one
+  expect_true(best$classif.acc >= last$classif.acc)
+})
+
+test_that("no best_valid_scores without early stopping", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, validate = 0.3,
+    measures_valid = msrs("classif.acc"), patience = 0L)
+  learner$train(task)
+
+  expect_equal(learner$best_valid_scores, named_list())
+  expect_list(learner$internal_valid_scores, types = "numeric")
 })
 
 test_that("the internally tuned epochs still come from the state dict", {
@@ -77,4 +108,28 @@ test_that("restore_best_weights restores the weights of the best epoch", {
     function(x) as.numeric(x$cpu()))
   expect_equal(saved, state_nums(last))
   expect_false(isTRUE(all.equal(saved, state_nums(checkpointed))))
+})
+
+test_that("restore_best_weights makes the internal valid scores those of the best epoch", {
+  task = tsk("mtcars")
+  make_es_learner = function(...) {
+    learner = lrn("regr.mlp", batch_size = 8, neurons = c(50, 50), p = 0, validate = 0.3,
+      measures_valid = msrs(c("regr.mse", "regr.mae")), seed = 3, opt.lr = 0.5, ...)
+    # the R seed decides the validation split, so every learner has to be trained under the same one
+    withr::with_seed(42, learner$train(task))
+    learner
+  }
+
+  # without the restore the stored network is the one of the last epoch, which is a different one
+  last = make_es_learner(epochs = 30, patience = 3)
+  expect_false(isTRUE(all.equal(last$internal_valid_scores, last$best_valid_scores)))
+
+  restored = make_es_learner(epochs = 30, patience = 3, restore_best_weights = TRUE)
+  # both fields now describe the same network, namely the one of the best epoch
+  expect_equal(restored$internal_valid_scores, restored$best_valid_scores)
+  expect_equal(restored$best_valid_scores, last$best_valid_scores)
+
+  # and those are the scores that training for exactly that many epochs produces
+  reference = make_es_learner(epochs = last$internal_tuned_values$epochs, patience = 0)
+  expect_equal(restored$internal_valid_scores, reference$internal_valid_scores)
 })
