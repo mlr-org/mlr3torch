@@ -2,52 +2,51 @@
 #'
 #' @description
 #' Creates a class inheriting from [`PipeOpTorch`] that wraps an [`nn_module`][torch::nn_module],
-#' without having to write the R6 class by hand.
+#' without having to write either of them by hand.
 #' Start by reading the *Inheriting* section of [`PipeOpTorch`], which describes what the generated
 #' class does; this function is a shortcut for the common cases.
 #'
-#' The two things a [`PipeOpTorch`] has to know beyond the module itself are handled by the
-#' `auxiliary` and `shapes_out` arguments:
-#' * arguments of the module that are not set by the user but follow from the shape of the input,
-#'   such as `in_features` of [`nn_linear`][torch::nn_linear], and
-#' * the shape of the tensors that the module produces.
+#' The module is written as it would be with [`nn_module()`][torch::nn_module], except that
+#' `initialize` can take two further arguments that the `PipeOp` supplies: `shapes_in` and `task`.
+#' This is what makes a layer whose size follows from the data -- the `in_features` of a
+#' [`nn_linear`][torch::nn_linear], say -- possible without the user having to state it.
+#'
+#' A module that states its own output shapes needs none of this and is converted by
+#' [`as_pipeop()`][mlr3pipelines::as_pipeop] instead.
 #'
 #' @template param_id
-#' @param module_generator (`nn_module_generator`)\cr
-#'   The module that the `PipeOp` wraps, e.g. [`nn_linear`][torch::nn_linear].
+#' @param initialize (`function` or `NULL`)\cr
+#'   The `$initialize()` method of the module.
+#'   Its arguments become the hyperparameters of the `PipeOp`, except for `shapes_in` (the input
+#'   shapes, named after the input channels) and `task` (the [`Task`][mlr3::Task] or `NULL`), which
+#'   are supplied by the `PipeOp` and passed only if the function declares them.
+#' @param forward (`function`)\cr
+#'   The `$forward()` method of the module.
+#' @param shapes_out (`function`)\cr
+#'   The shapes of the tensors that the module produces, as a function of `shapes_in`, `param_vals`
+#'   and `task` -- only the arguments that are declared are passed, so an operator whose output
+#'   shape depends on nothing else is written as `function(shapes_in)`, and one that does not change
+#'   the shape as `function(shapes_in) shapes_in`.
+#'   It returns one shape per output channel, in the order of `out_channels`.
+#'   Any dimension of `shapes_in` can be `NA`, i.e. unknown, so this function must not assume that a
+#'   dimension it reads is known; see the *Inheriting* section of [`PipeOpTorch`].
 #' @param param_set ([`ParamSet`][paradox::ParamSet] or `NULL`)\cr
 #'   The parameter set.
-#'   If left as `NULL` (default), it is inferred from the arguments of the module's `$initialize()`
-#'   method: each becomes an untyped parameter tagged `"train"`, except for the names of
-#'   `auxiliary`, which the user does not set.
-#' @param auxiliary (named `list()` of `function`s)\cr
-#'   The arguments of the module that are inferred from the input shapes rather than set by the
-#'   user, e.g. `in_features` of [`nn_linear`][torch::nn_linear].
-#'   Each element is a `function(shapes_in, param_vals, task)` returning the value for the argument
-#'   it is named after; `shapes_in` is named after the input channels.
-#'   Implemented as the private `$.shape_dependent_params()` method of [`PipeOpTorch`], so pass
-#'   `shape_dependent_params` instead if the arguments cannot be computed one at a time.
-#' @param shape_dependent_params (`function` or `NULL`)\cr
-#'   The private `$.shape_dependent_params(shapes_in, param_vals, task)` method of [`PipeOpTorch`],
-#'   for the cases `auxiliary` cannot express.
-#'   It must return *all* arguments that are passed to the module, i.e. `param_vals` plus the
-#'   inferred ones. Cannot be combined with `auxiliary`.
-#' @param shapes_out (`function` or `"infer"` or `NULL`)\cr
-#'   The private `$.shapes_out(shapes_in, param_vals, task)` method of [`PipeOpTorch`].
-#'   With the default `"infer"`, the module is built and traced on the "meta" device, i.e. without
-#'   allocating any memory, which is correct as long as the output shape does not depend on the
-#'   *values* in the tensor. `NULL` keeps the shapes unchanged, which is what shape-preserving
-#'   operators such as activation functions want.
-#' @param inname (`character()` or `NULL`)\cr
-#'   The names of the input channels. If `NULL` (default), the argument names of the module's
-#'   `$forward()` method are used.
-#' @param outname (`character()`)\cr
-#'   The names of the output channels, `"output"` by default.
-#'   A module with more than one output channel must return a named `list()`.
+#'   If left as `NULL` (default), it is inferred from the arguments of `initialize`: each becomes an
+#'   untyped parameter tagged `"train"`, and additionally `"required"` if it has no default.
+#'   The arguments that the `PipeOp` supplies -- `shapes_in` and `task` -- are not among them.
+#' @param in_channels (`character()` or `integer(1)` or `NULL`)\cr
+#'   The input channels, either as names or as a count, where `0` means a single *vararg* channel.
+#'   If `NULL` (default), the arguments of `forward` are used.
+#' @param out_channels (`character()` or `integer(1)`)\cr
+#'   The output channels, either as names or as a count, `1` by default.
+#'   A module with more than one output channel must return a `list()`, in the order of the
+#'   channels.
 #' @param classname (`character(1)`)\cr
 #'   The class name of the generated [`R6Class`][R6::R6Class].
 #' @param parent_env (`environment`)\cr
-#'   The parent environment for the R6 class.
+#'   The environment in which the module's methods are evaluated, the calling environment by
+#'   default, as for [`nn_module()`][torch::nn_module].
 #' @template param_packages
 #' @param tags (`character()`)\cr
 #'   Tags for the `PipeOp`. The tag `"torch"` is always added.
@@ -59,73 +58,150 @@
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' # A layer that scales its input by a learned factor, with the number of features -- which the
-#' # user cannot know when the network is built -- inferred from the input shape.
-#' nn_scale = nn_module("nn_scale",
-#'   initialize = function(n_features, init = 1) {
-#'     self$weight = nn_parameter(torch_full(n_features, init))
+#' # user cannot know when the network is built -- read off the input shape.
+#' PipeOpTorchScale = pipeop_torch("nn_scale",
+#'   initialize = function(shapes_in, init = 1) {
+#'     self$weight = nn_parameter(torch_full(tail(shapes_in[[1L]], 1L), init))
 #'   },
-#'   forward = function(input) input * self$weight
-#' )
-#'
-#' PipeOpTorchScale = pipeop_torch("nn_scale", nn_scale,
-#'   auxiliary = list(
-#'     n_features = function(shapes_in, param_vals, task) tail(shapes_in[[1L]], 1L)
-#'   )
+#'   forward = function(input) input * self$weight,
+#'   shapes_out = function(shapes_in) shapes_in # scaling leaves the shape as it is
 #' )
 #'
 #' po_scale = PipeOpTorchScale$new()
-#' # `init` is a hyperparameter, `n_features` is not
+#' # `init` is a hyperparameter, the number of features is not
 #' po_scale$param_set$ids()
 #' po_scale$shapes_out(list(c(NA, 4)))
 #'
-#' # the operator can now be used like any other, and `nn_scale` is built with n_features = 4
+#' # the operator can now be used like any other, and the module is built with 4 features
 #' md = po("torch_ingress_num") %>>% po_scale %>>% po("nn_head")
 #' network = model_descriptor_to_module(md$train(tsk("iris"))[[1L]])
 #' network
-pipeop_torch = function(id, module_generator, param_set = NULL, auxiliary = NULL,
-  shape_dependent_params = NULL, shapes_out = "infer", inname = NULL, outname = "output",
-  packages = character(0), tags = NULL, classname = NULL, parent_env = parent.frame()) {
+#'
+#' # A module that already exists is wrapped by calling it from `initialize()`
+#' PipeOpTorchLinear2 = pipeop_torch("nn_linear2",
+#'   initialize = function(shapes_in, out_features, bias = TRUE) {
+#'     self$linear = nn_linear(tail(shapes_in[[1L]], 1L), out_features, bias)
+#'   },
+#'   forward = function(input) self$linear(input),
+#'   shapes_out = function(shapes_in, param_vals) {
+#'     list(c(head(shapes_in[[1L]], -1L), param_vals$out_features))
+#'   }
+#' )
+#' PipeOpTorchLinear2$new(param_vals = list(out_features = 10))$shapes_out(list(c(NA, 4)))
+pipeop_torch = function(id, initialize = NULL, forward, shapes_out, param_set = NULL,
+  in_channels = NULL, out_channels = 1L, packages = character(0), tags = NULL,
+  classname = NULL, parent_env = parent.frame()) {
   assert_string(id)
-  assert_class(module_generator, "nn_module_generator")
+  assert_function(initialize, null.ok = TRUE)
+  assert_function(forward)
+  assert_function(shapes_out)
+  # `parent.frame()` has to be forced here: as the default of an argument that is only used further
+  # down it would be evaluated in whichever frame happens to force it
+  force(parent_env)
+
+  module_generator = invoke(nn_module, classname = id, parent_env = parent_env,
+    .args = discard(list(initialize = initialize, forward = forward), is.null))
+
+  pipeop_torch_class(id = id, module_generator = module_generator, shapes_out = shapes_out,
+    param_set = param_set, in_channels = in_channels, out_channels = out_channels,
+    packages = packages, tags = tags, classname = classname)
+}
+
+#' @title Convert a Torch Module to a PipeOp
+#'
+#' @description
+#' Converts an [`nn_module`][torch::nn_module] into a [`PipeOpTorch`], so that it can be used in a
+#' [`Graph`][mlr3pipelines::Graph].
+#' Everything the operator needs is taken from the module itself, which therefore has to be written
+#' for this purpose:
+#'
+#' * `$initialize()` may take the arguments `shapes_in` (the input shapes, named after the input
+#'   channels) and `task` (the [`Task`][mlr3::Task] or `NULL`) besides its own; they are supplied by
+#'   the `PipeOp` and passed only if it declares them.
+#'   Its remaining arguments become the hyperparameters of the `PipeOp`: untyped, and required if
+#'   they have no default.
+#' * `$shapes_out()` states the shapes of the tensors that `$forward()` produces, as a function of
+#'   `shapes_in`, `param_vals` and `task`.
+#'   It is called on the module *class* rather than on an instance -- there is no instance yet when
+#'   the network is assembled -- so it cannot use `self`.
+#' * the arguments of `$forward()` become the input channels; the `PipeOp`'s id is the module's
+#'   class name.
+#'
+#' Use [`pipeop_torch()`] for a module that is not written this way, or when the operator needs more
+#' than one output channel.
+#'
+#' @param x (`nn_module_generator`)\cr
+#'   The module to convert.
+#' @param clone (`logical(1)`)\cr
+#'   Ignored, a new [`PipeOpTorch`] is created in either case.
+#' @return A [`PipeOpTorch`].
+#' @export
+#' @examplesIf torch::torch_is_installed()
+#' nn_scale = nn_module("nn_scale",
+#'   initialize = function(shapes_in, init = 1) {
+#'     self$weight = nn_parameter(torch_full(tail(shapes_in[[1L]], 1L), init))
+#'   },
+#'   forward = function(input) input * self$weight,
+#'   shapes_out = function(shapes_in) shapes_in
+#' )
+#'
+#' po_scale = as_pipeop(nn_scale)
+#' po_scale$id
+#' po_scale$param_set$ids()
+#' po_scale$shapes_out(list(c(NA, 4)))
+as_pipeop.nn_module_generator = function(x, clone = FALSE) { # nolint
+  id = assert_string(x$classname, .var.name = "the module's class name")
+  shapes_out = get_method(x, "shapes_out")
+  if (is.null(shapes_out)) {
+    stopf("The module '%s' has no `shapes_out()` method, so the shapes it produces are unknown. Add one, or use `pipeop_torch()` to state them separately.", id) # nolint
+  }
+  pipeop_torch_class(id = id, module_generator = x, shapes_out = shapes_out)$new()
+}
+
+pipeop_torch_class = function(id, module_generator, shapes_out, param_set = NULL,
+  in_channels = NULL, out_channels = 1L, packages = character(0), tags = NULL,
+  classname = NULL) {
   if (!is.null(param_set)) assert_param_set(param_set)
-  assert_list(auxiliary, types = "function", names = "unique", null.ok = TRUE)
-  assert_function(shape_dependent_params, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE)
-  assert(
-    check_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE),
-    check_choice(shapes_out, "infer")
-  )
-  assert_character(inname, null.ok = TRUE)
-  assert_character(outname, min.len = 1L)
   assert_character(packages, any.missing = FALSE)
   assert_character(tags, null.ok = TRUE)
   assert_string(classname, null.ok = TRUE)
-  if (!is.null(auxiliary) && !is.null(shape_dependent_params)) {
-    stopf("Pass either 'auxiliary' or 'shape_dependent_params', not both.")
-  }
 
   # a module that only implements `$forward()` has no arguments to infer anything from
-  init = get_init(module_generator)
-  init_args = if (is.null(init)) character(0) else names(formals(init))
-  if (!is.null(auxiliary)) {
-    assert_subset(names(auxiliary), init_args, .var.name = "names of 'auxiliary'")
-  }
+  init = get_method(module_generator, "initialize")
+  init_args = (if (is.null(init)) NULL else names(formals(init))) %??% character(0)
+  # the arguments the operator supplies itself, which are therefore not hyperparameters
+  reserved = intersect(c("shapes_in", "task"), init_args)
   if (!is.null(param_set)) {
-    assert_disjunct(param_set$ids(), names(auxiliary),
-      .var.name = "parameter ids and the names of 'auxiliary'")
+    assert_disjunct(param_set$ids(), reserved,
+      .var.name = "parameter ids and the arguments supplied by the PipeOp")
+    if ("..." %nin% init_args) {
+      assert_subset(param_set$ids(), init_args, .var.name = "parameter ids")
+    }
   }
+
+  inname = channel_names(in_channels, prefix = "input", vararg = TRUE,
+    forward = get_method(module_generator, "forward"))
+  outname = channel_names(out_channels, prefix = "output")
 
   classname = classname %??% paste0("PipeOpTorch",
     paste0(capitalize(strsplit(sub("^nn_", "", id), split = "_")[[1L]]), collapse = ""))
 
-  # the parameter set is built during construction so that each instance owns its own copy
+  # the parameter set is built during construction so that each instance owns its own copy, and
+  # `shapes_out()` is assigned rather than declared as a method, which would rebind its environment
   init_fun = crate(function(id = id, param_vals = list()) { # nolint
     info = private$.__construction_info
+    private$.shapes_out_fn = info$shapes_out
     super$initialize(
       id = id,
       module_generator = info$module_generator,
-      param_set = info$param_set %??% inferps(info$module_generator, ignore = names(info$auxiliary) %??% character(0)),
+      param_set = if (is.null(info$param_set)) {
+        inferps(get_method(info$module_generator, "initialize"), ignore = info$reserved,
+          required = TRUE)
+      } else {
+        info$param_set$clone(deep = TRUE)
+      },
       param_vals = param_vals,
-      inname = info$inname %??% setdiff(names(formals(info$module_generator$public_methods$forward)), "..."),
+      inname = info$inname,
       outname = info$outname,
       packages = info$packages,
       tags = info$tags
@@ -138,121 +214,70 @@ pipeop_torch = function(id, module_generator, param_set = NULL, auxiliary = NULL
     .__construction_info = list(
       module_generator = module_generator,
       param_set = if (!is.null(param_set)) param_set$clone(deep = TRUE),
-      auxiliary = auxiliary,
+      shapes_out = shapes_out,
+      reserved = reserved,
       inname = inname,
       outname = outname,
       packages = packages,
       tags = tags
     ),
-    .auxiliary = auxiliary
+    .reserved = reserved,
+    .shapes_out_fn = NULL,
+    .shapes_out = crate(function(shapes_in, param_vals, task) {
+      shapes = invoke_declared(private$.shapes_out_fn, # nolint
+        list(shapes_in = shapes_in, param_vals = param_vals, task = task))
+      if (!test_list(shapes) || length(shapes) != nrow(self$output)) { # nolint
+        stopf("The `shapes_out()` of PipeOp with id '%s' must return a list of %i shape(s), one per output channel.", # nolint
+          self$id, nrow(self$output)) # nolint
+      }
+      shapes
+    }, .parent = topenv()),
+    # two operators generated from the same `id` are only the same if they do the same thing
+    .additional_phash_input = crate(function() {
+      fns = list(private$.shapes_out_fn, get_method(self$module_generator, "initialize"), # nolint
+        get_method(self$module_generator, "forward")) # nolint
+      c(list(self$input$name, self$output$name, self$param_set$ids()), # nolint
+        map(fns, function(fn) if (!is.null(fn)) list(formals(fn), body(fn))))
+    }, .parent = topenv())
   )
 
-  if (!is.null(auxiliary)) {
+  if (length(reserved)) {
+    # `shapes_in` and `task` are handed to the module's constructor only if it asks for them
     private$.shape_dependent_params = crate(function(shapes_in, param_vals, task) {
-      c(param_vals, lapply(private$.auxiliary, function(fn) fn(shapes_in, param_vals, task)))
+      c(param_vals, list(shapes_in = shapes_in, task = task)[private$.reserved]) # nolint
     }, .parent = topenv())
-  } else if (!is.null(shape_dependent_params)) {
-    private$.shape_dependent_params = shape_dependent_params
   }
 
-  if (identical(shapes_out, "infer")) {
-    private$.shapes_out = crate(function(shapes_in, param_vals, task) {
-      getFromNamespace("infer_shapes_module", "mlr3torch")(shapes_in = shapes_in,
-        make_module = function() private$.make_module(shapes_in, param_vals, task), # nolint
-        input_names = self$input$name, output_names = self$output$name, id = self$id) # nolint
-    }, .parent = topenv())
-  } else if (is.function(shapes_out)) {
-    private$.shapes_out = shapes_out
-  }
-
+  # the generated methods are mlr3torch's own, so they are resolved in its namespace; the user's
+  # functions keep the environments they were written in
   R6Class(classname,
     inherit = PipeOpTorch,
     public = list(initialize = init_fun),
     private = private,
-    parent_env = parent_env
+    parent_env = topenv(environment())
   )
 }
 
-# The module counterpart of `infer_shapes()`: the output shapes of a module are read off tensors
-# that are pushed through it, rather than being computed. As there, the unknown dimensions are
-# filled in more than once and a dimension that does not come out the same every time is unknown.
-# Unlike `infer_shapes()`, all inputs are traced together, because a module's inputs are not
-# independent of one another.
-infer_shapes_module = function(shapes_in, make_module, input_names, output_names, id) {
-  assert_shapes(shapes_in)
-  # The module is rebuilt per trace because it is moved to the device that is traced on, and a
-  # module on the "meta" device cannot be moved back.
-  trace = function(na_repl, device) {
-    module = make_module()
-    module$to(device = torch_device(device))
-    tensors = lapply(shapes_in, function(shape) {
-      shape[is.na(shape)] = na_repl
-      mlr3misc::invoke(torch_empty, .args = as.list(as.integer(shape)), device = torch_device(device))
-    })
-    names(tensors) = input_names[seq_along(tensors)]
-    out = with_no_grad(mlr3misc::invoke(module$forward, .args = tensors))
-    if (inherits(out, "torch_tensor")) out = list(out)
-    lapply(out, dim)
-  }
-
-  traced = lapply(na_replacements(unlist(shapes_in)), function(na_repl) {
-    # "meta" allocates nothing, so the trace costs no memory however large the shape is, but not
-    # every operator implements it; one that does not raises rather than returning a wrong shape.
-    tryCatch(list(shapes = trace(na_repl, "meta")), error = function(e) {
-      tryCatch(list(shapes = trace(na_repl, "cpu")), error = function(e) list(condition = e))
-    })
-  })
-  shapes = map(Filter(function(x) !is.null(x$shapes), traced), "shapes")
-  if (length(shapes) < 2L) {
-    # the traces with the larger values are the informative ones, so report the last failure
-    condition = last(Filter(function(x) !is.null(x$condition), traced))$condition
-    stopf("%s\nThe output shapes of PipeOp with id '%s' could not be inferred by tracing the module, specify them explicitly instead (see the `shapes_out` argument).", # nolint
-      conditionMessage(condition), id)
-  }
-  if (length(unique(lengths(shapes))) > 1L) {
-    stopf("Failed to infer shapes for PipeOp with id '%s', as the number of outputs varies with the values filled in for the unknown dimensions.", id) # nolint
-  }
-
-  # one shape per output channel, unknown wherever the traces disagree
-  shapes_out = lapply(seq_along(shapes[[1L]]), function(i) {
-    per_trace = map(shapes, i)
-    if (length(unique(lengths(per_trace))) > 1L) {
-      stopf("Failed to infer shapes for PipeOp with id '%s', as the number of dimensions varies with the values filled in for the unknown dimensions.", id) # nolint
-    }
-    as.integer(apply(do.call(rbind, per_trace), 2L, function(xs) if (length(unique(xs)) == 1L) xs[[1L]] else NA))
-  })
-
-  if (length(shapes_out) != length(output_names)) {
-    stopf("PipeOp with id '%s' has %i output channel(s), but its module returned %i output(s).",
-      id, length(output_names), length(shapes_out))
-  }
-  set_names(shapes_out, output_names)
+# `shapes_in`, `param_vals` and `task` are passed by name and only to a function that declares
+# them, so that an operator that needs nothing but the input shapes is written as
+# `function(shapes_in)` rather than with three arguments of which it ignores two.
+invoke_declared = function(fn, args) {
+  fmls = names(formals(fn))
+  if ("..." %nin% fmls) args = args[intersect(fmls, names(args))]
+  do.call(fn, args)
 }
 
-#' @title Convert a Torch Module to a PipeOp
-#'
-#' @description
-#' Wraps an [`nn_module`][torch::nn_module] into a [`PipeOpTorch`], so that it can be used in a
-#' [`Graph`][mlr3pipelines::Graph].
-#' All arguments of the module's `$initialize()` become hyperparameters of the `PipeOp`, so a module
-#' with arguments that have to be inferred from the input shapes -- such as `in_features` of
-#' [`nn_linear`][torch::nn_linear] -- needs [`pipeop_torch()`] and its `auxiliary` argument instead.
-#'
-#' The `PipeOp`'s id is the module's class name. Use [`pipeop_torch()`] directly to choose another
-#' one, or to configure anything else about the resulting class.
-#'
-#' @param x (`nn_module_generator`)\cr
-#'   The module to wrap.
-#' @param clone (`logical(1)`)\cr
-#'   Ignored, a new [`PipeOpTorch`] is created in either case.
-#' @return A [`PipeOpTorch`].
-#' @export
-#' @examplesIf torch::torch_is_installed()
-#' nn_square = nn_module("nn_square", forward = function(input) input^2)
-#' po_square = as_pipeop(nn_square)
-#' po_square$id
-#' po_square$shapes_out(list(c(NA, 4)))
-as_pipeop.nn_module_generator = function(x, clone = FALSE) { # nolint
-  id = assert_string(x$classname, .var.name = "the module's class name")
-  pipeop_torch(id = id, module_generator = x, parent_env = parent.frame())$new()
+# Channels are given either as names or as a count, `0` meaning a single vararg channel as elsewhere
+# in mlr3pipelines. The input channels default to the arguments of the module's `$forward()`.
+channel_names = function(x, prefix, vararg = FALSE, forward = NULL) {
+  if (is.null(x)) {
+    x = setdiff(names(formals(forward)), "...")
+    return(if (length(x)) x else "...")
+  }
+  if (is.character(x)) {
+    return(assert_names(x, type = "unique", .var.name = sprintf("%s channels", prefix)))
+  }
+  assert_int(x, lower = if (vararg) 0L else 1L, .var.name = sprintf("number of %s channels", prefix))
+  if (x == 0L) return("...")
+  paste0(prefix, if (x > 1L) seq_len(x))
 }

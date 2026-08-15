@@ -11,8 +11,9 @@
 
 ## Features
 
-* New function `pipeop_torch()` that creates a `PipeOpTorch` from an `nn_module`, without having to
-  write the R6 class by hand, and an `as_pipeop()` method for `nn_module_generator`s.
+* New function `pipeop_torch()` that creates a `PipeOpTorch` and the `nn_module` it wraps in one go,
+  without having to write the R6 class by hand. An `as_pipeop()` method converts an `nn_module`
+  that states its own output shapes.
 * New article *Writing your own PipeOpTorch*.
 * Added more image learners from {torchvision}.
 * Most `LearnerTorchVision` are now `jittable`.

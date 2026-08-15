@@ -8,7 +8,7 @@
 }
 \arguments{
 \item{x}{(\code{nn_module_generator})\cr
-The module to wrap.}
+The module to convert.}
 
 \item{clone}{(\code{logical(1)})\cr
 Ignored, a new \code{\link{PipeOpTorch}} is created in either case.}
@@ -17,20 +17,40 @@ Ignored, a new \code{\link{PipeOpTorch}} is created in either case.}
 A \code{\link{PipeOpTorch}}.
 }
 \description{
-Wraps an \code{\link[torch:nn_module]{nn_module}} into a \code{\link{PipeOpTorch}}, so that it can be used in a
+Converts an \code{\link[torch:nn_module]{nn_module}} into a \code{\link{PipeOpTorch}}, so that it can be used in a
 \code{\link[mlr3pipelines:Graph]{Graph}}.
-All arguments of the module's \verb{$initialize()} become hyperparameters of the \code{PipeOp}, so a module
-with arguments that have to be inferred from the input shapes -- such as \code{in_features} of
-\code{\link[torch:nn_linear]{nn_linear}} -- needs \code{\link[=pipeop_torch]{pipeop_torch()}} and its \code{auxiliary} argument instead.
+Everything the operator needs is taken from the module itself, which therefore has to be written
+for this purpose:
+\itemize{
+\item \verb{$initialize()} may take the arguments \code{shapes_in} (the input shapes, named after the input
+channels) and \code{task} (the \code{\link[mlr3:Task]{Task}} or \code{NULL}) besides its own; they are supplied by
+the \code{PipeOp} and passed only if it declares them.
+Its remaining arguments become the hyperparameters of the \code{PipeOp}: untyped, and required if
+they have no default.
+\item \verb{$shapes_out()} states the shapes of the tensors that \verb{$forward()} produces, as a function of
+\code{shapes_in}, \code{param_vals} and \code{task}.
+It is called on the module \emph{class} rather than on an instance -- there is no instance yet when
+the network is assembled -- so it cannot use \code{self}.
+\item the arguments of \verb{$forward()} become the input channels; the \code{PipeOp}'s id is the module's
+class name.
+}
 
-The \code{PipeOp}'s id is the module's class name. Use \code{\link[=pipeop_torch]{pipeop_torch()}} directly to choose another
-one, or to configure anything else about the resulting class.
+Use \code{\link[=pipeop_torch]{pipeop_torch()}} for a module that is not written this way, or when the operator needs more
+than one output channel.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
-nn_square = nn_module("nn_square", forward = function(input) input^2)
-po_square = as_pipeop(nn_square)
-po_square$id
-po_square$shapes_out(list(c(NA, 4)))
+nn_scale = nn_module("nn_scale",
+  initialize = function(shapes_in, init = 1) {
+    self$weight = nn_parameter(torch_full(tail(shapes_in[[1L]], 1L), init))
+  },
+  forward = function(input) input * self$weight,
+  shapes_out = function(shapes_in) shapes_in
+)
+
+po_scale = as_pipeop(nn_scale)
+po_scale$id
+po_scale$param_set$ids()
+po_scale$shapes_out(list(c(NA, 4)))
 \dontshow{\}) # examplesIf}
 }

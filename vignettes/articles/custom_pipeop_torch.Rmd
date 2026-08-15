@@ -33,8 +33,8 @@ be, and `in_features` follows from whatever is connected to its input.
 
 A `PipeOpTorch` therefore answers two questions that the module itself does not:
 
-1. **Which of the module's arguments follow from the input shape?** `in_features` of
-   `nn_linear()` is not something the user sets, it is read off the incoming shape.
+1. **What does the module need to know about its input?** `in_features` of `nn_linear()` is not
+   something the user sets, it is read off the incoming shape.
 2. **What shape does the module produce?** The next layer needs it, for the same reason.
 
 Everything else -- building the module, adding it to the network, connecting the edges -- is
@@ -42,42 +42,37 @@ inherited.
 
 ## The short way: `pipeop_torch()`
 
-Take a layer that scales each feature by a learned factor:
+Take a layer that scales each feature by a learned factor.
+Written with `pipeop_torch()`, it looks exactly like `nn_module()` would, with two additions:
+`initialize()` takes `shapes_in` -- question 1 -- and `shapes_out` answers question 2.
 
 ```{r}
-nn_scale = nn_module("nn_scale",
-  initialize = function(n_features, init = 1) {
-    self$weight = nn_parameter(torch_full(n_features, init))
+PipeOpTorchScale = pipeop_torch("nn_scale",
+  initialize = function(shapes_in, init = 1) {
+    self$weight = nn_parameter(torch_full(tail(shapes_in[[1L]], 1L), init))
   },
-  forward = function(input) input * self$weight
+  forward = function(input) input * self$weight,
+  shapes_out = function(shapes_in) shapes_in
 )
 ```
 
-`n_features` is question 1: the user cannot know it, it is the last dimension of the input.
-`pipeop_torch()` takes it as an `auxiliary` argument -- a function of the input shapes -- and turns
-everything else into a hyperparameter:
+The remaining arguments of `initialize()` become the hyperparameters of the operator: `init` is
+something the user sets, the number of features is not.
 
 ```{r}
-PipeOpTorchScale = pipeop_torch("nn_scale", nn_scale,
-  auxiliary = list(
-    n_features = function(shapes_in, param_vals, task) tail(shapes_in[[1L]], 1L)
-  )
-)
-
 po_scale = PipeOpTorchScale$new()
 po_scale$param_set$ids()
-```
-
-Question 2 is answered by default: `pipeop_torch()` builds the module and traces it on the
-`"meta"` device, which computes shapes without allocating any memory.
-
-```{r}
 po_scale$shapes_out(list(c(NA, 4)))
 ```
 
 Note the `NA`: the batch dimension is unknown while the network is being built, and any other
 dimension may be too -- the sequence length of a transformer, or the size of an image.
-Shape inference has to carry those through rather than reject them.
+Both `initialize()` and `shapes_out()` see those `NA`s and have to cope with them, either by
+carrying them through, as here, or by saying which ones they need.
+The helpers `assert_known_dims()`, `assert_ndim()` and friends state which dimensions you actually
+need, and report the offending `PipeOp` and shape when one of them is unknown.
+Be permissive with the rest: rejecting a shape that would have worked is worse than a runtime error
+later.
 
 That is a usable operator:
 
@@ -88,75 +83,102 @@ network = model_descriptor_to_module(md)
 network
 ```
 
-The module was built with `n_features = 4`, taken from the task:
+The module was built with four features, taken from the task:
 
 ```{r}
 as.numeric(md$graph$pipeops$nn_scale$module$weight)
 ```
 
-If a module needs nothing from the input shape at all, there is nothing left to configure and
-`as_pipeop()` is enough:
+Besides `shapes_in`, `initialize()` can take the `task`, and `shapes_out()` can take the
+`param_vals` and the `task` as well -- each is passed only if the function declares it.
+That is how a layer whose width is a hyperparameter states its output shape:
 
 ```{r}
-nn_square = nn_module("nn_square", forward = function(input) input^2)
-as_pipeop(nn_square)$shapes_out(list(c(NA, 4)))
-```
-
-### When to write `shapes_out` yourself
-
-Tracing is convenient but it builds the module, and it is only correct when the output shape
-depends on the shapes of the inputs rather than on the values in them.
-Pass a function to say it directly:
-
-```{r}
-PipeOpTorchScale = pipeop_torch("nn_scale", nn_scale,
-  auxiliary = list(
-    n_features = function(shapes_in, param_vals, task) tail(shapes_in[[1L]], 1L)
-  ),
-  shapes_out = function(shapes_in, param_vals, task) shapes_in
+PipeOpTorchLinear2 = pipeop_torch("nn_linear2",
+  initialize = function(shapes_in, out_features, bias = TRUE) {
+    self$linear = nn_linear(tail(shapes_in[[1L]], 1L), out_features, bias)
+  },
+  forward = function(input) self$linear(input),
+  shapes_out = function(shapes_in, param_vals) {
+    list(c(head(shapes_in[[1L]], -1L), param_vals$out_features))
+  }
 )
+
+PipeOpTorchLinear2$new(param_vals = list(out_features = 10))$shapes_out(list(c(NA, 4)))
 ```
 
-For an operator that genuinely does not change the shape -- activation functions, dropout --
-`shapes_out = NULL` says exactly that.
+`out_features` has no default, so it is a *required* hyperparameter and the operator refuses to be
+used without it.
+This is also how you wrap a module that already exists: call it from `initialize()`.
 
-Whatever you write must cope with `NA` in any dimension.
-The helpers `assert_known_dims()`, `assert_ndim()` and friends state which dimensions you actually
-need, and report the offending `PipeOp` and shape when one of them is unknown.
-Be permissive with the rest: rejecting a shape that would have worked is worse than a runtime error
-later.
+## Converting a module with `as_pipeop()`
+
+A module can also carry the answers itself, in which case `as_pipeop()` converts it without any
+further configuration.
+The rules are the same -- `initialize()` may take `shapes_in` and `task`, `shapes_out()` states the
+output shapes -- except that `shapes_out()` is written as a method of the module:
+
+```{r}
+nn_scale = nn_module("nn_scale",
+  initialize = function(shapes_in, init = 1) {
+    self$weight = nn_parameter(torch_full(tail(shapes_in[[1L]], 1L), init))
+  },
+  forward = function(input) input * self$weight,
+  shapes_out = function(shapes_in) shapes_in
+)
+
+as_pipeop(nn_scale)$shapes_out(list(c(NA, 4)))
+```
+
+It is called before any instance of the module exists, so it cannot use `self`.
+A module written for `torch` rather than for `mlr3torch` has no such method, and `as_pipeop()` says
+so rather than guessing.
 
 ## Several channels
 
 A module whose `forward()` takes more than one tensor becomes a `PipeOp` with more than one input
-channel -- the channels are named after the arguments.
-Returning a named list makes several output channels, which have to be declared with `outname`:
+channel -- the channels are named after the arguments, and `shapes_in` is named after the channels.
+Returning a list makes several output channels, which have to be declared with `out_channels`:
 
 ```{r}
-nn_split = nn_module("nn_split",
-  initialize = function(d_in, d_out1, d_out2) {
-    self$linear1 = nn_linear(d_in, d_out1)
-    self$linear2 = nn_linear(d_in, d_out2)
+PipeOpTorchSplit = pipeop_torch("nn_split",
+  initialize = function(shapes_in, d_out1, d_out2) {
+    self$linear1 = nn_linear(tail(shapes_in$input, 1L), d_out1)
+    self$linear2 = nn_linear(tail(shapes_in$input, 1L), d_out2)
   },
   forward = function(input) {
-    list(output1 = self$linear1(input), output2 = self$linear2(input))
+    list(self$linear1(input), self$linear2(input))
+  },
+  out_channels = 2,
+  shapes_out = function(shapes_in, param_vals) {
+    list(c(head(shapes_in$input, -1L), param_vals$d_out1),
+      c(head(shapes_in$input, -1L), param_vals$d_out2))
   }
-)
-
-PipeOpTorchSplit = pipeop_torch("nn_split", nn_split,
-  outname = c("output1", "output2"),
-  auxiliary = list(d_in = function(shapes_in, param_vals, task) tail(shapes_in[[1L]], 1L))
 )
 
 po_split = PipeOpTorchSplit$new(param_vals = list(d_out1 = 10, d_out2 = 20))
 po_split$shapes_out(list(c(NA, 4)))
 ```
 
+`in_channels` and `out_channels` also take a count instead of names -- `in_channels = 0` for a
+module whose `forward()` takes `...`, i.e. a *vararg* channel.
+
 ## The long way: inheriting from `PipeOpTorch`
 
 `pipeop_torch()` writes an R6 class for you; when you want to ship an operator in a package, or
 need control over its construction, write that class yourself.
-The two questions are now the private methods `.shape_dependent_params()` and `.shapes_out()`:
+The module is then an ordinary `torch` module that knows nothing about shapes,
+
+```{r}
+nn_scale = nn_module("nn_scale",
+  initialize = function(n_features, init = 1) {
+    self$weight = nn_parameter(torch_full(n_features, init))
+  },
+  forward = function(input) input * self$weight
+)
+```
+
+and the two questions are the private methods `.shape_dependent_params()` and `.shapes_out()`:
 
 ```{r}
 PipeOpTorchScale = R6::R6Class("PipeOpTorchScale",
