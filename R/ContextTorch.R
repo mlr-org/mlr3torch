@@ -126,7 +126,9 @@ ContextTorch = R6Class("ContextTorch",
     #'   The current epoch.
     epoch = NULL,
     #' @field step (`integer(1)`)\cr
-    #'   The current iteration.
+    #'   The current iteration, i.e. the index of the batch within the current epoch.
+    #'   This is reset to `0` at the beginning of every epoch, so a globally unique step is
+    #'   `(epoch - 1) * length(loader_train) + step`.
     step = NULL,
     #' @field prediction_encoder (`function()`)\cr
     #'   The learner's prediction encoder.

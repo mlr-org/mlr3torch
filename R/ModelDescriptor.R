@@ -27,7 +27,7 @@
 #' @param ingress (uniquely named `list` of `TorchIngressToken`)\cr
 #'   List of inputs that go into `graph`. Names of this must be a subset of `graph$input$name`.
 #' @param task ([`Task`][mlr3::Task])\cr
-#'   (Training)-Task for which the model is being built. May be necessary for for some aspects of what loss to use etc.
+#'   (Training)-Task for which the model is being built. May be necessary for some aspects of what loss to use etc.
 #' @param optimizer ([`TorchOptimizer`] | `NULL`)\cr
 #'   Additional info: what optimizer to use.
 #' @param loss ([`TorchLoss`] | `NULL`)\cr

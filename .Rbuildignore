@@ -38,3 +38,4 @@ data-raw
 ^paper$
 ^cran-comments\.md$
 ^\.claude$
+^TODOS\.md$

@@ -79,7 +79,7 @@ predictions$score()
 }
 \references{
 Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
-\dQuote{Revisiting Deep Learning  for Tabular Data.}
+\dQuote{Revisiting Deep Learning for Tabular Data.}
 \emph{arXiv}, \bold{2106.11959}.
 }
 \seealso{

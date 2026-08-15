@@ -86,6 +86,7 @@ reference:
   - title: Learners
     contents:
       - starts_with("mlr_learners")
+      - replace_head
   - title: Tasks
     contents:
       - starts_with("mlr_tasks")
@@ -100,7 +101,6 @@ reference:
       - mlr_pipeops_torch
       - mlr_pipeops_torch_ingress
       - starts_with("mlr_pipeops_torch_model")
-      - starts_with("pipeop_torch_ingress")
       - starts_with("batchgetter")
       - starts_with("mlr_pipeops_torch_ingress")
       - mlr_pipeops_torch_loss
@@ -114,6 +114,8 @@ reference:
       - mlr_pipeops_preproc_torch
       - pipeop_preproc_torch
       - starts_with("PipeOpPreprocTorch")
+      - starts_with("mlr_pipeops_trafo")
+      - starts_with("mlr_pipeops_augment")
   - title: NN Modules
     contents:
       - starts_with("nn")
@@ -127,6 +129,7 @@ reference:
       - assert_lazy_tensor
       - is_lazy_tensor
       - materialize
+      - "equals-.lazy_tensor"
   - title: Loss
     contents:
       - t_loss
@@ -138,7 +141,7 @@ reference:
   - title: Optimizer
     contents:
       - t_opt
-      - TorchLoss
+      - TorchOptimizer
       - mlr_pipeops_torch_optimizer
       - as_torch_optimizer
       - mlr3torch_optimizers

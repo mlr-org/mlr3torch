@@ -166,7 +166,8 @@ replace_head.maxvit = function(network, d_out) {
 
 #' @export
 replace_head.mobilenet_v2 = function(network, d_out) {
-  network$classifier$`1` = nn_linear(1280, d_out)
+  # not hardcoded to 1280: `width_mult` above 1 widens the last channel, e.g. 1792 for 1.4
+  network$classifier$`1` = nn_linear(network$classifier$`1`$in_features, d_out)
   network
 }
 
@@ -185,7 +186,7 @@ replace_head.resnet = function(network, d_out) {
 
 #' @export
 replace_head.VGG = function(network, d_out) {
-  network$classifier$`6` = nn_linear(4096, d_out)
+  network$classifier$`6` = nn_linear(network$classifier$`6`$in_features, d_out)
   network
 }
 

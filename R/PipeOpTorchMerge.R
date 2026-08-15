@@ -21,7 +21,6 @@
 #'    The reason is that the first dimension should be the batch dimension.
 #' This private method can be overwritten by [`PipeOpTorch`]s inheriting from this class.
 #'
-#' @family PipeOps
 #' @include PipeOpTorch.R
 #' @export
 PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
@@ -76,7 +75,6 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 #'
 #'
 #' @inheritSection mlr_pipeops_nn_merge Input and Output Channels
-#' @family PipeOps
 #' @export
 PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
   public = list(

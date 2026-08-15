@@ -50,7 +50,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   measures_valid = normalize_to_list(param_vals$measures_valid)
 
   if (length(measures_valid) && is.null(self$validate)) {
-    stopf("Learner '%s' has measures_valid set, but its validate field is NULL. If this is happening in an AutoTuner, you probably forgot to set epochs = to_tune(upper = <max_epochs>, internal = TRUE).", self$id) # nolint
+    stopf("Learner '%s' has measures_valid set, but its validate field is NULL. Configure validation data, e.g. via set_validate(learner, 0.3) or set_validate(learner, \"test\"). If this is happening in an AutoTuner, you may also have forgotten to set epochs = to_tune(upper = <max_epochs>, internal = TRUE).", self$id) # nolint
   }
   if (!length(measures_valid) && param_vals$patience != 0) {
     stopf("Learner '%s' has a non 0 patience parameter but has no measures_valid set.", self$id)
@@ -98,7 +98,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (param_vals$patience > 0L) {
     es = CallbackSetEarlyStopping$new(
       patience = param_vals$patience,
-      min_delta = param_vals$min_delta
+      min_delta = param_vals$min_delta,
+      restore_best_weights = param_vals$restore_best_weights
     )
     es$ctx = ctx
 
@@ -386,4 +387,25 @@ as_multi_tensor_dataset = function(dataset, param_vals) {
   } else {
     dataset
   }
+}
+
+#' @export
+print.learner_torch_model = function(x, ...) {
+  n_params = if (!is.null(x$network)) sum(map_dbl(x$network$parameters, function(p) prod(dim(p))))
+
+  catn(sprintf("<learner_torch_model> trained for %s epoch%s",
+    x$epochs %??% "?", if (isTRUE(x$epochs == 1)) "" else "s"))
+  catn(str_indent("* Network: ", if (is.null(x$network)) {
+    "- (the model is marshaled)"
+  } else {
+    sprintf("<%s> with %s parameters", class(x$network)[[1L]], format(n_params, big.mark = ","))
+  }))
+  catn(str_indent("* Callbacks: ", if (length(x$callbacks)) paste0(names(x$callbacks), collapse = ", ") else "-"))
+  if (length(x$internal_valid_scores)) {
+    scores = sprintf("%s = %s", names(x$internal_valid_scores),
+      format(unlist(x$internal_valid_scores), digits = 4L))
+    catn(str_indent("* Validation scores: ", paste0(scores, collapse = ", ")))
+  }
+  catn(str_indent("* Fields: ", paste0(names(x), collapse = ", ")))
+  invisible(x)
 }
