@@ -1216,8 +1216,11 @@ test_that("sampler and batch_sampler are checked", {
 })
 
 test_that("the model has a printer", {
+  # the seed parameter only seeds torch, the internal validation split comes from R's RNG
+  withr::local_seed(1)
   learner = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 5, device = "cpu",
-    validate = 0.3, measures_valid = msr("classif.ce"), callbacks = t_clbk("history"))
+    validate = 0.3, measures_valid = msr("classif.ce"), callbacks = t_clbk("history"),
+    seed = 1)
   learner$train(tsk("iris"))
   expect_snapshot(learner$model)
 })

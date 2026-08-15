@@ -30,6 +30,9 @@
 #'   Note that by setting the seed during the training phase this will mean that by default (i.e. when `seed` is
 #'   `"random"`), clones of the learner will use a different seed.
 #'   If set to `NULL`, no seeding will be done.
+#'   This parameter only seeds torch's random number generator, it does **not** seed R's.
+#'   Anything that is drawn from R's RNG is therefore unaffected by it, so to make those parts
+#'   reproducible you need to seed R's RNG as well, e.g. via [`set.seed()`].
 #' * `tensor_dataset` :: `logical(1)` | `"device"`\cr
 #'   Whether to load all batches at once at the beginning of training and stack them.
 #'   This is initialized to `FALSE`.
