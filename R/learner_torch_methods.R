@@ -389,23 +389,7 @@ as_multi_tensor_dataset = function(dataset, param_vals) {
   }
 }
 
-#' @title Print a Torch Learner's Model
-#'
-#' @description
-#' Prints a summary of the `$model` of a trained [`LearnerTorch`], see its section *Model* for what
-#' the elements are. The optimizer and loss state dicts are large and mostly uninformative when
-#' printed, so only their names are shown; access the elements directly for their contents.
-#'
-#' @param x (`learner_torch_model`)\cr
-#'   The model of a trained [`LearnerTorch`].
-#' @param ... (any)\cr
-#'   Currently unused.
-#' @return `x`, invisibly.
 #' @export
-#' @examplesIf torch::torch_is_installed()
-#' learner = lrn("classif.mlp", epochs = 1, batch_size = 150, neurons = 10)
-#' learner$train(tsk("iris"))
-#' learner$model
 print.learner_torch_model = function(x, ...) {
   n_params = if (!is.null(x$network)) sum(map_dbl(x$network$parameters, function(p) prod(dim(p))))
 
@@ -423,6 +407,6 @@ print.learner_torch_model = function(x, ...) {
       format(unlist(x$internal_valid_scores), digits = 4L))
     catn(str_indent("* Validation scores: ", paste0(scores, collapse = ", ")))
   }
-  catn(str_indent("* Elements: ", paste0(names(x), collapse = ", ")))
+  catn(str_indent("* Fields: ", paste0(names(x), collapse = ", ")))
   invisible(x)
 }
