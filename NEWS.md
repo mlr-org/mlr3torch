@@ -6,14 +6,22 @@
 * The construction argument `only_batch_unknown` of `PipeOpTorch` was removed,
   as shape inference functions are now expected to handle multiple unknown
   dimensions.
+* The dropout probability `p` of `lrn("classif.mlp")` / `lrn("regr.mlp")` is now initialized to
+  `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
+* The `num_interop_threads` parameter of `LearnerTorch` is no longer initialized to `1`, so torch's
+  default is left in place unless the parameter is set. Setting it to a value that torch can no
+  longer apply is now an error instead of a warning.
 
 ## Features
 
+* The `$model` of a `LearnerTorch` now has a printer.
 * Added more image learners from {torchvision}.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.
 * `LearnerTorch` now has `.loss_fn(task, param_vals)` private method that allows
   to customize the construction of the loss function.
+* `LearnerTorch` now has `restore_best_weights` parameter that can be used when
+   early stopping is active.
 * A network can now return more than one prediction during training as a list.
   The first is expected to be the primary prediction.
   In `ContextTorch`, `$y_hat` is the primary prediction and `$y_hats` contains
@@ -27,6 +35,8 @@
 * `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
   of the training run.
 * `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage.
+  A callback that needs a default other than `0` sets it in its `$initialize()`, so it can still be
+  overwritten via `t_clbk("<id>", weight = <value>)`.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
 * `t_clbk("checkpoint")` additionally writes a `state<n>.rds` next to `network<n>.pt` and
   `optimizer<n>.pt`, holding the epoch, the `mlr3torch` version and the states of the other
@@ -40,6 +50,8 @@
   session (#423). It is either the path of a folder written by `t_clbk("checkpoint")` or `TRUE`,
   which takes the path from the checkpoint callback of the learner. `epochs` is the total number of
   epochs, i.e. it includes those the checkpoint was already trained for.
+* The `path` of `t_clbk("checkpoint")` can now be a `function()` that is called at the beginning of
+  each training run and returns that run's path.
 
 ## Bug fixes
 
@@ -49,6 +61,11 @@
   sometimes a half-trained one. Reading a folder that holds an incomplete checkpoint warns.
 * `t_clbk("history")` no longer errors when a run adds no new scores to a history that was loaded
   via `$load_state_dict()`, which happens when a resumed checkpoint is already at `epochs`.
+* `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
+* `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
+    sometimes doubles like `NA`).
+* `po("torch_model_classif")` and `po("torch_model_regr")` now have the correct
+  `$packages`.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training.
 * Configuration errors that are only caught during `LearnerTorch` no longer
   trigger a fallback learner.
@@ -62,6 +79,12 @@
   at the beginning of `$train()` when the network is built from `PipeOpTorch` objects,
   which makes the results reproducible for the set `seed` parameter.
 * `nn()` now properly interprets `nn("linear_1")` as `po("nn_linear", id = "linear_21")`.
+* Fixed some bugs in `FTTransformer`: `attention_initialization` now has an
+  effect, `n_blocks = 0` is allowed and the hidden dimension falls back to
+  `d_token * 4/3` as in the reference implementation.
+* Fixed some issues in the documentation.
+* Examples, vignettes and the README now use `nn("linear")` instead of the equivalent, but longer
+  `po("nn_linear")`.
 
 # mlr3torch 0.3.3
 

@@ -23,6 +23,10 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       TORCH_INSTALL: 1
+      # `lazy_tensor.Rmd` downloads MNIST and `pipeop_torch.Rmd` downloads tiny-imagenet (~240 MB)
+      # from hosts that are regularly slow or briefly unavailable. R's default 60s download timeout
+      # turns a slow host into a red build; give a cold cache enough room to succeed once.
+      R_DEFAULT_INTERNET_TIMEOUT: 3600
     steps:
       - uses: actions/checkout@v7
 
@@ -32,16 +36,64 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: any::pkgdown, any::rappdirs, local::.
           needs: website
+
+      - name: Get torchvision package version
+        run: |
+          echo "TORCHVISION_PACKAGE_VERSION=$(Rscript -e 'cat(as.character(packageVersion("torchvision")))')" >> $GITHUB_ENV
+
+      - name: Get cache paths
+        run: |
+          echo "TORCH_CACHE_PATH=$(Rscript -e 'cat(rappdirs::user_cache_dir("torch"))')" >> $GITHUB_ENV
+          echo "MLR3TORCH_CACHE_PATH=$(Rscript -e 'cat(tools::R_user_dir("mlr3torch", "cache"))')" >> $GITHUB_ENV
+
+      # Same split-restore/save trick as in r-cmd-check.yml: `actions/cache` only saves in a post
+      # step guarded by `post-if: success()`, so a job that failed for any reason never repopulates
+      # the cache -- which is self-perpetuating once the entry is evicted. `actions/cache/save` with
+      # `if: always()` persists whatever was downloaded even when the build failed, so one
+      # slow-but-successful download warms the cache permanently.
+      #
+      # The key is deliberately *not* shared with r-cmd-check.yml: pkgdown only pulls MNIST and
+      # tiny-imagenet, while the test suite also needs CIFAR and melanoma. Sharing a key would let
+      # this (much faster) job win the race to write it, after which r-cmd-check's own save step --
+      # guarded on `cache-hit != 'true'` -- would be skipped forever and its datasets never cached.
+      - name: Restore dataset downloads
+        id: torch_cache
+        uses: actions/cache/restore@v6
+        with:
+          path: |
+            ${{ env.TORCH_CACHE_PATH }}
+            ${{ env.MLR3TORCH_CACHE_PATH }}
+          key: ${{ runner.os }}-pkgdown-r-${{ env.TORCHVISION_PACKAGE_VERSION }}
+          # Fall back to an entry from a previous torchvision version: the cached dataset archives
+          # do not depend on it, so a version bump should not cold-start every runner.
+          restore-keys: |
+            ${{ runner.os }}-pkgdown-r-
 
       - name: Install template
         run: pak::pkg_install("mlr-org/mlr3pkgdowntemplate")
         shell: Rscript {0}
 
+      # The datasets used in the articles need disk storage, and without `mlr3torch.cache` they land
+      # in a `tempfile()` -- so nothing above would ever be cached. pkgdown renders each article in a
+      # `callr::r_safe()` subprocess, which does not inherit `options()` from this job but does
+      # source the project `.Rprofile` (callr's `user_profile = "project"` default).
+      - name: Enable the mlr3torch cache for article rendering
+        run: echo 'options(mlr3torch.cache = TRUE)' >> .Rprofile
+
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
+
+      - name: Save dataset downloads
+        uses: actions/cache/save@v6
+        if: always() && steps.torch_cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ${{ env.TORCH_CACHE_PATH }}
+            ${{ env.MLR3TORCH_CACHE_PATH }}
+          key: ${{ runner.os }}-pkgdown-r-${{ env.TORCHVISION_PACKAGE_VERSION }}
 
       - name: Deploy
         if: github.event_name != 'pull_request'

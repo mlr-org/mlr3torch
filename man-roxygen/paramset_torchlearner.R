@@ -18,9 +18,11 @@
 #'   divide the available cores among the workers instead of setting this to the number of cores.
 #' * `num_interop_threads` :: `integer(1)`\cr
 #'   The number of threads for interop parallelization (if `device` is `"cpu"`).
-#'   This value is initialized to 1.
-#'   Note that this can only be set **once** per session, so training a learnerd once already sets this.
-#'   You can work around this via encapsulation, see [`mlr3::Learner`].
+#'   Note that this can only be set **once** per session, so setting this for one learner also changes the
+#'   behavior of other learners, and a later learner asking for a different value errors.
+#'   `NULL` (default) uses whatever is set.
+#'   In order to use different values for this parameter, use encapsulation to train the learners
+#'   in separate R sessions.
 #' * `seed` :: `integer(1)` or `"random"` or `NULL`\cr
 #'   The torch seed that is used during training and prediction.
 #'   This value is initialized to `"random"`, which means that a random seed will be sampled at the beginning of the
@@ -29,6 +31,9 @@
 #'   Note that by setting the seed during the training phase this will mean that by default (i.e. when `seed` is
 #'   `"random"`), clones of the learner will use a different seed.
 #'   If set to `NULL`, no seeding will be done.
+#'   This parameter only seeds torch's random number generator, it does **not** seed R's.
+#'   Anything that is drawn from R's RNG is therefore unaffected by it, so to make those parts
+#'   reproducible you need to seed R's RNG as well, e.g. via [`set.seed()`].
 #' * `tensor_dataset` :: `logical(1)` | `"device"`\cr
 #'   Whether to load all batches at once at the beginning of training and stack them.
 #'   This is initialized to `FALSE`.
@@ -77,6 +82,8 @@
 #' * `patience` :: `integer(1)`\cr
 #'   This activates early stopping using the validation scores.
 #'   If the performance of a model does not improve for `patience` evaluation steps, training is ended.
+#'   Note that this counts *evaluation steps*, not epochs: when `eval_freq` is greater than `1`,
+#'   `patience` evaluation steps correspond to `patience * eval_freq` epochs.
 #'   Note that the final model is stored in the learner, not the best model.
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.
@@ -86,6 +93,13 @@
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold for early stopping.
 #'   Is initialized to 0.
+#' * `restore_best_weights` :: `logical(1)`\cr
+#'   Whether to restore the weights of the best epoch when training ends, instead of keeping those
+#'   of the last epoch that was trained. Is initialized to `FALSE`, i.e. the network of the last
+#'   epoch is stored. Setting this to `TRUE` makes the stored network the one of the epoch that
+#'   `$internal_tuned_values` reports, and costs one additional copy of the network's parameters in
+#'   memory. Checkpoints written by `t_clbk("checkpoint")` are unaffected: they always hold the
+#'   network as training left it.
 #'
 #' **Dataloader**:
 #' * `batch_size` :: `integer(1)`\cr

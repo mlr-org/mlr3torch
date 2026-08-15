@@ -31,8 +31,16 @@
 #' Training can be continued from such a checkpoint -- also in a new R session -- via the `path`
 #' parameter of [`LearnerTorch`], see the example below.
 #'
-#' @param path (`character(1)`)\cr
-#'   The path to a folder where the models are saved.
+#' @details
+#' Saving the learner itself in the callback with a trained model is impossible,
+#' as the model slot is set *after* the last callback step is executed.
+#'
+#' @param path (`character(1)` | `function()`)\cr
+#'   The path to a folder where the models are saved, or a function of no arguments returning it.
+#'   The latter is especially useful to create unique directories during `resample()` or `benchmark()`
+#'   per fit.
+#'   The folder must be new, empty, or already contain checkpoints, so that a checkpoint never
+#'   overwrites unrelated data.
 #' @param freq (`integer(1)`)\cr
 #'   How often the model is saved, in epochs.
 #' @family Callback
@@ -60,14 +68,23 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   lock_objects = FALSE,
   # TODO: This should also save the learner itself
   public = list(
-    #' @field weight (`numeric(1)`)\cr
-    #'   `Inf`, so that this callback runs after all others and hence saves the network and
-    #'   optimizer as they are at the end of the stage, see section *Ordering* of [`CallbackSet`].
-    weight = Inf,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(path, freq) {
+    #' @param weight (`numeric(1)`)\cr
+    #'   Controls when this callback is called within a stage, see section *Ordering* of
+    #'   [`CallbackSet`].
+    #'   Defaults to `Inf`, so that this callback runs after the other callbacks and hence saves the
+    #'   network and optimizer as they are at the end of the stage.
+    #'   The only exception is the restore of `restore_best_weights`, which happens afterwards, so
+    #'   a checkpoint always holds the network as training left it.
+    initialize = function(path, freq, weight = Inf) {
+      self$weight = assert_number(weight)
       self$freq = assert_int(freq, lower = 1L)
+      # a function is evaluated once per training run, which is what makes resampling, benchmarking
+      # and tuning possible: every iteration can compute a path of its own
+      if (is.function(path)) {
+        path = assert_string(path(), .var.name = "return value of the `path` function")
+      }
       # We can either start in a new folder or continue an already existing checkpoint
       self$path = if (can_checkpoint_into(path)) path else assert_path_for_output(path)
       if (!dir.exists(path)) {
@@ -203,12 +220,17 @@ latest_checkpoint = function(path) {
   )
 }
 
+# the path is either given directly or computed once per training run
+check_checkpoint_path = function(x) {
+  if (is.function(x)) check_function(x, nargs = 0L) else check_string(x)
+}
+
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("checkpoint", function() {
   TorchCallback$new(
     callback_generator = CallbackSetCheckpoint,
     param_set = ps(
-      path = p_uty(tags = c("train", "required")),
+      path = p_uty(tags = c("train", "required"), custom_check = check_checkpoint_path),
       freq = p_int(lower = 1L, tags = c("train", "required"))
     ),
     id = "checkpoint",

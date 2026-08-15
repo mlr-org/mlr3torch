@@ -106,16 +106,17 @@ then wraps this generator in a \code{\link{TorchCallback}} that can be passed to
 
 \itemize{
 \item \code{begin} :: Run before the training loop begins.
-\item \code{epoch_begin} :: Run he beginning of each epoch.
+\item \code{epoch_begin} :: Run at the beginning of each epoch.
 \item \code{batch_begin} :: Run before the forward call.
 \item \code{after_backward} :: Run after the backward call.
 \item \code{batch_end} :: Run after the optimizer step.
+\item \code{before_valid} :: Run before the validation loop begins.
 \item \code{batch_valid_begin} :: Run before the forward call in the validation loop.
 \item \code{batch_valid_end} :: Run after the forward call in the validation loop.
 \item \code{valid_end} :: Run at the end of validation.
 \item \code{epoch_end} :: Run at the end of each epoch.
 \item \code{end} :: Run after last epoch.
-\item \code{exit} :: Run at last, using \code{on.exit()}.
+\item \code{exit} :: Run last, using \code{on.exit()}.
 }
 }
 
@@ -126,8 +127,10 @@ A callback can override this via its \verb{$weight} field: callbacks with a high
 after those with a lower one, and callbacks with the same weight keep the order in which they
 were passed.
 The default weight is \code{0}.
+A callback that needs another default sets it in its \verb{$initialize()} method, so that it stays
+overwritable, e.g. via \verb{t_clbk("<id>", weight = <value>)}.
 This matters for callbacks that observe what the others did, which is why
-\code{\link{CallbackSetCheckpoint}} has weight \code{Inf}: it always runs last and therefore saves the network
+\code{\link{CallbackSetCheckpoint}} defaults to weight \code{Inf}: it runs last and therefore saves the network
 and optimizer as the other callbacks left them at the end of the stage.
 }
 

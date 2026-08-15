@@ -11,7 +11,7 @@
 #' * `n_blocks` :: `integer(1)`\cr
 #'   How often to repeat the block.
 #' * `trafo` :: `function(i, param_vals, param_set) -> list()`\cr
-#'   A function that allows to transform the parameters vaues of each layer (`block`).
+#'   A function that allows to transform the parameter values of each layer (`block`).
 #'   Here,
 #'   * `i` :: `integer(1)`\cr
 #'       is the index of the layer, ranging from `1` to `n_blocks`.
@@ -130,7 +130,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
             TorchIngressToken(
               features = "placeholder",
               batchgetter = function(data, ...) NULL,
-              shape = shapes_in[[1]])),
+              shape = shapes_in[[i]])),
               paste0("nop.", i, ".input")
           ),
           task = task,

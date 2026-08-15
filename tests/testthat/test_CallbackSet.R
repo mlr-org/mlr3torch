@@ -163,10 +163,22 @@ test_that("weight overrides the order within a stage", {
 })
 
 test_that("the checkpoint callback runs last", {
-  # it has weight Inf, so it saves the network as the other callbacks left it
+  # it defaults to weight Inf, so it saves the network as the other callbacks left it
   cb = t_clbk("checkpoint", freq = 1, path = tempfile())$generate()
   expect_equal(cb$weight, Inf)
   expect_equal(CallbackSet$new()$weight, 0)
+})
+
+test_that("a callback's default weight is set in $initialize() and can be overwritten", {
+  # the default is not baked into the class as a public field, so both the constructor and
+  # `t_clbk()` can put the callback somewhere else in the order
+  expect_equal(CallbackSetCheckpoint$new(path = tempfile(), freq = 1, weight = 3)$weight, 3)
+  expect_equal(t_clbk("checkpoint", freq = 1, path = tempfile(), weight = 3)$generate()$weight, 3)
+
+  expect_equal(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0)$weight, Inf)
+  expect_equal(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0, weight = -1)$weight, -1)
+
+  expect_error(CallbackSetCheckpoint$new(path = tempfile(), freq = 1, weight = "high"), "weight")
 })
 
 test_that("weight is validated", {

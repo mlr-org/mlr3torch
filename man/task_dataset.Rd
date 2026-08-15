@@ -22,7 +22,7 @@ It must return the target as a torch \link[torch:torch_tensor]{tensor} on the se
 }
 \description{
 Creates a torch \link[torch:dataset]{dataset} from an mlr3 \code{\link[mlr3:Task]{Task}}.
-The resulting dataset's \verb{$.get_batch()} method returns a list with elements \code{x}, \code{y} and \code{index}:
+The resulting dataset's \verb{$.getbatch()} method returns a list with elements \code{x}, \code{y} and \code{.index}:
 \itemize{
 \item \code{x} is a list with tensors, whose content is defined by the parameter \code{feature_ingress_tokens}.
 \item \code{y} is the target variable and its content is defined by the parameter \code{target_batchgetter}.

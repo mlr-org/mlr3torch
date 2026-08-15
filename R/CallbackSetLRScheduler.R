@@ -168,7 +168,13 @@ CallbackSetLRSchedulerReduceOnPlateau = R6Class("CallbackSetLRSchedulerReduceOnP
       )
 
       self$on_epoch_end = function() {
-        self$scheduler$step(self$ctx$last_scores_valid[[1L]])
+        # `last_scores_valid` is NULL in epochs where no validation is performed
+        # (i.e. when `eval_freq > 1`) and for the whole run when no validation is configured.
+        scores = self$ctx$last_scores_valid
+        if (!length(scores)) {
+          return(NULL)
+        }
+        self$scheduler$step(scores[[1L]])
       }
     }
   )

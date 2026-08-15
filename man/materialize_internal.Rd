@@ -36,7 +36,7 @@ Materializing a lazy tensor consists of:
 
 When materializing multiple \code{\link{lazy_tensor}} columns, caching can be useful because:
 a) Output(s) from the dataset might be input to multiple graphs.
-(in task_dataset this is shoudl rarely be the case because because we try to merge them).
+(in task_dataset this should rarely be the case because we try to merge them).
 b) Different lazy tensors might be outputs from the same graph.
 
 For this reason it is possible to provide a cache environment.

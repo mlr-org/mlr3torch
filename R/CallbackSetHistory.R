@@ -52,14 +52,16 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
       if (is.null(self$prev_state)) {
         state
       } else {
-        # the previous run's epochs come first, so that the history stays ordered by epoch.
+        # the restored history comes first, the epochs of this run are appended to it, so that the
+        # history stays ordered by epoch.
         # fill = TRUE because this run can have fewer columns than the previous one, e.g. when it
         # trains no epochs at all because the checkpoint it resumed is already at `epochs`
         rbind(self$prev_state, state, fill = TRUE)
       }
     },
     #' @description
-    #' Sets the field `$train` and `$valid` to those contained in the state dict.
+    #' Remembers the history contained in the state dict, so that the epochs of the current run are
+    #' appended to it by `$state_dict()`.
     #' @param state_dict (`callback_state_history`)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {

@@ -9,6 +9,14 @@
 #' to the architecture, which is also represented as a [`Graph`][mlr3pipelines::Graph] consisting mostly of [`PipeOpModule`]s
 #' an [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s.
 #'
+#' The convenient way to construct such a `PipeOp` is the [`nn()`] helper, which prefixes the given
+#' key with `"nn_"` to look it up in the [`mlr_pipeops`][mlr3pipelines::mlr_pipeops] dictionary and
+#' uses the unprefixed key as the id of the resulting `PipeOp`:
+#' `nn("linear", out_features = 10)` is equivalent to
+#' `po("nn_linear", id = "linear", out_features = 10)`.
+#' Because ids must be unique within a [`Graph`][mlr3pipelines::Graph], repeated layers can be
+#' disambiguated with a `_<n>` suffix, e.g. `nn("linear_1")` and `nn("linear_2")`.
+#'
 #' While the former [`Graph`][mlr3pipelines::Graph] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch::torch_tensor].
 #'
 #' The relationship between a `PipeOpTorch` and a [`PipeOpModule`] is similar to the
@@ -33,7 +41,7 @@
 #' `private$.shape_dependent_params()` methods, or overload `private$.make_module()`.
 #'
 #' * `.make_module(shapes_in, param_vals, task)`\cr
-#'   (`list()`, `list()`) -> `nn_module`\cr
+#'   (`list()`, `list()`, [`Task`][mlr3::Task] or `NULL`) -> `nn_module`\cr
 #'   This private method is called to generate the `nn_module` that is passed as argument `module` to
 #'   [`PipeOpModule`]. It must be overwritten, when no `module_generator` is provided.
 #'   If left as is, it calls the provided `module_generator` with the arguments obtained by
@@ -48,7 +56,7 @@
 #'   The `shapes_in` are named after the input channels of the `PipeOp` and are in the same order.
 #'   The output shapes must be in the same order as the output names of the `PipeOp`.
 #'   In case the output shapes depends on the task (as is the case for [`PipeOpTorchHead`]), the function should return
-#'   valid output shapes (possibly containing `NA`s) if the `task` argument is provided or not.
+#'   valid output shapes (possibly containing `NA`s) whether or not the `task` argument is provided.
 #'   Any dimension of `shapes_in` can be `NA`, i.e. unknown, so this method must not assume that a
 #'   dimension it reads is known.
 #'   It has to assert the dimensions it actually needs and propagate the `NA`s it can live with.
@@ -58,13 +66,13 @@
 #'   enough for the given kernel size.
 #'   This can sometimes lead to runtime errors but this is preferable over rejecting valid
 #'   architectures.
-#'  
+#'
 #'   There are various assertion helpers for common input checks, such as [`assert_known_dims()`] and the
 #'   "See also" links on its page.
-#'    There are also [`shape_helpers`], which provide the shape
+#'   There are also [`shape_helpers`], which provide the shape
 #'   arithmetic (broadcasting, resolving negative dimension indices).
 #' * `.shape_dependent_params(shapes_in, param_vals, task)`\cr
-#'   (`list()`, `list()`) -> named `list()`\cr
+#'   (`list()`, `list()`, [`Task`][mlr3::Task] or `NULL`) -> named `list()`\cr
 #'   This private method has the same inputs as `.shapes_out`.
 #'   If `.make_module()` is not overwritten, it constructs the arguments passed to `module_generator`.
 #'   Usually this means that it must infer the auxiliary parameters that can be inferred from the input shapes
@@ -104,7 +112,7 @@
 #'
 #' A [model descriptor union][model_descriptor_union] of all incoming [`ModelDescriptor`]s is then created.
 #' Note that this modifies the [`graph`][mlr3pipelines::Graph] of the first [`ModelDescriptor`] **in place** for efficiency.
-#' The [`PipeOpModule`] is added to the [`graph`][mlr3pipelines::Graph] slot of this union and the the edges that connect the
+#' The [`PipeOpModule`] is added to the [`graph`][mlr3pipelines::Graph] slot of this union and the edges that connect the
 #' sending `PipeOpModule`s to the input channel of this `PipeOpModule` are addeded to the graph.
 #' This is possible because every incoming [`ModelDescriptor`] contains the information about the
 #' `id` and the `channel` name of the sending `PipeOp` in the slot `pointer`.
@@ -148,8 +156,8 @@
 #'
 #' # In mlr3torch
 #' network_generator = po("torch_ingress_num") %>>%
-#'   po("nn_linear", out_features = 50) %>>%
-#'   po("nn_head")
+#'   nn("linear", out_features = 50) %>>%
+#'   nn("head")
 #' md = network_generator$train(task)[[1L]]
 #' network = model_descriptor_to_module(md)
 #' y = torch::with_no_grad(network(torch_ingress_num.input = x))
@@ -259,7 +267,7 @@
 #' ## Shape inference
 #'
 #' # `$shapes_out()` reports what an operator makes of an input shape, without building a network
-#' conv = po("nn_conv2d", out_channels = 4, kernel_size = 3)
+#' conv = nn("conv2d", out_channels = 4, kernel_size = 3)
 #' conv$shapes_out(list(c(NA, 3, 32, 32)))
 #'
 #' # any dimension may be unknown, so images of varying size work just as well
@@ -292,7 +300,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'   If left as `NULL` (default), the argument `module_generator` must be given and the argument names of the
     #'   `modue_generator`'s forward function are set as `inname`.
     #' @param outname (`character()`) \cr
-    #'   The names of the output channels channels. These will be the ouput channels of the generated [`PipeOpModule`]
+    #'   The names of the output channels. These will be the ouput channels of the generated [`PipeOpModule`]
     #'   and therefore also the names of the list returned by its `$train()`.
     #'   In case there is more than one output channel, the `nn_module` that is constructed by this
     #'   [`PipeOp`][mlr3pipelines::PipeOp] during training must return a named `list()`, where the names of the list are the
@@ -323,7 +331,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #' @description
     #'  Calculates the output shapes for the given input shapes, parameters and task.
     #' @param shapes_in (`list()` of `integer()`)\cr
-    #'   The input input shapes, which must be in the same order as the input channel names of the `PipeOp`.
+    #'   The input shapes, which must be in the same order as the input channel names of the `PipeOp`.
     #' @param task ([`Task`][mlr3::Task] or `NULL`)\cr
     #'  The task, which is very rarely used (default is `NULL`). An exception is [`PipeOpTorchHead`].
     #' @return
@@ -345,7 +353,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
       if ("..." %nin% self$input$name) {
         names(shapes_in) = self$input$name
       }
-      set_names(private$.shapes_out(shapes_in, self$param_set$get_values(), task = task), self$output$name)
+      shapes_out = private$.shapes_out(shapes_in, self$param_set$get_values(), task = task)
+      set_names(map(shapes_out, as.integer), self$output$name)
     }
   ),
   private = list(

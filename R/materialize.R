@@ -27,11 +27,11 @@
 #' @param rbind (`logical(1)`)\cr
 #'   Whether to rbind the lazy tensor columns (`TRUE`) or return them as a list of tensors (`FALSE`).
 #'   In the second case, there is no batch dimension.
-#' @return (`list()` of [`lazy_tensor`]s or a [`lazy_tensor`])
 #' @param device (`character(1)`)\cr
 #'   The torch device.
 #' @param ... (any)\cr
 #'   Additional arguments.
+#' @return (`list()` of [`torch_tensor`][torch::torch_tensor]s or a [`torch_tensor`][torch::torch_tensor])
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' lt1 = as_lazy_tensor(torch_randn(10, 3))
@@ -156,7 +156,7 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 #'
 #' When materializing multiple [`lazy_tensor`] columns, caching can be useful because:
 #' a) Output(s) from the dataset might be input to multiple graphs.
-#'    (in task_dataset this is shoudl rarely be the case because because we try to merge them).
+#'    (in task_dataset this should rarely be the case because we try to merge them).
 #' b) Different lazy tensors might be outputs from the same graph.
 #'
 #' For this reason it is possible to provide a cache environment.

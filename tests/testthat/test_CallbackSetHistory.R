@@ -24,6 +24,20 @@ test_that("CallbackSetHistory works", {
   expect_data_table(learner$model$callbacks$history, nrows = 3)
 })
 
+test_that("a restored history is continued and not prepended", {
+  state = data.table(epoch = c(7, 8), train.regr.mse = c(100, 90))
+  loader = torch_callback("loader",
+    on_begin = function() self$ctx$callbacks$history$load_state_dict(state)
+  )
+  learner = lrn("regr.torch_featureless", epochs = 2, batch_size = 50,
+    callbacks = list(t_clbk("history"), loader), measures_train = msrs("regr.mse"))
+  learner$train(tsk("mtcars"))
+
+  history = learner$model$callbacks$history
+  expect_equal(history$epoch, c(7, 8, 1, 2))
+  expect_equal(history$train.regr.mse[1:2], c(100, 90))
+})
+
 test_that("history works with eval_freq", {
   learner = lrn("regr.torch_featureless", epochs = 10, batch_size = 50, eval_freq = 4, callbacks = "history",
     measures_train = msrs("regr.mse"))

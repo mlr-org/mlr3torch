@@ -35,6 +35,10 @@ and refusing would mean a run killed while writing could never be restarted into
 Training can be continued from such a checkpoint -- also in a new R session -- via the \code{path}
 parameter of \code{\link{LearnerTorch}}, see the example below.
 }
+\details{
+Saving the learner itself in the callback with a trained model is impossible,
+as the model slot is set \emph{after} the last callback step is executed.
+}
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 cb = t_clbk("checkpoint", freq = 1)
@@ -73,15 +77,6 @@ Other Callback:
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetCheckpoint}
 }
-\section{Public fields}{
-  \if{html}{\out{<div class="r6-fields">}}
-  \describe{
-    \item{\code{weight}}{(\code{numeric(1)})\cr
-\code{Inf}, so that this callback runs after all others and hence saves the network and
-optimizer as they are at the end of the stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.}
-  }
-  \if{html}{\out{</div>}}
-}
 \section{Methods}{
 \subsection{Public methods}{
   \itemize{
@@ -106,16 +101,27 @@ optimizer as they are at the end of the stage, see section \emph{Ordering} of \c
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{CallbackSetCheckpoint$new(path, freq)}
+    \preformatted{CallbackSetCheckpoint$new(path, freq, weight = Inf)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{path}}{(\code{character(1)})\cr
-The path to a folder where the models are saved.}
+      \item{\code{path}}{(\code{character(1)} | \verb{function()})\cr
+The path to a folder where the models are saved, or a function of no arguments returning it.
+The latter is especially useful to create unique directories during \code{resample()} or \code{benchmark()}
+per fit.
+The folder must be new, empty, or already contain checkpoints, so that a checkpoint never
+overwrites unrelated data.}
       \item{\code{freq}}{(\code{integer(1)})\cr
 How often the model is saved, in epochs.}
+      \item{\code{weight}}{(\code{numeric(1)})\cr
+Controls when this callback is called within a stage, see section \emph{Ordering} of
+\code{\link{CallbackSet}}.
+Defaults to \code{Inf}, so that this callback runs after the other callbacks and hence saves the
+network and optimizer as they are at the end of the stage.
+The only exception is the restore of \code{restore_best_weights}, which happens afterwards, so
+a checkpoint always holds the network as training left it.}
     }
     \if{html}{\out{</div>}}
   }

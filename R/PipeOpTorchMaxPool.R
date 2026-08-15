@@ -67,7 +67,7 @@ max_output_shape = pool_output_shape
 #' @section Parameters:
 #' * `kernel_size` :: `integer()`\cr
 #'   The size of the window. Can be single number or a vector.
-#' * `stride` :: (`integer(1))`\cr
+#' * `stride` :: `integer()`\cr
 #'   The stride of the window. Can be a single number or a vector. Default: `kernel_size`
 #' * `padding` :: `integer()`\cr
 #'  Implicit zero paddings on both sides of the input. Can be a single number or a tuple (padW,). Default: 0
