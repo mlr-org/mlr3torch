@@ -17,9 +17,11 @@
 #' a) Output(s) from the dataset might be input to multiple graphs.
 #' b) Different lazy tensors might be outputs from the same graph.
 #'
-#' For this reason it is possible to provide a cache environment.
-#' The hash key for a) is the hash of the indices and the dataset.
-#' The hash key for b) is the hash of the indices, dataset and preprocessing graph.
+#' For this reason it is possible to provide a cache, which is a [`hashtab()`][utils::hashtab].
+#' The key for a) is the indices and the dataset, the key for b) is the indices, the dataset and the
+#' preprocessing graph. The keys hold the dataset and the graph themselves and are compared with
+#' `identical()`, rather than being digested into a single string, so two different keys can never
+#' share an entry.
 #'
 #' @param x (any)\cr
 #'   The object to materialize.
@@ -48,17 +50,17 @@ materialize = function(x, device = "cpu", rbind = FALSE, ...) {
 }
 
 #' @rdname materialize
-#' @param cache (`character(1)` or `environment()` or `NULL`)\cr
+#' @param cache (`character(1)` or [`hashtab()`][utils::hashtab] or `NULL`)\cr
 #'   Optional cache for (intermediate) materialization results.
 #'   Per default, caching will be enabled when the same dataset or data descriptor (with different output pointer)
 #'   is used for more than one lazy tensor column.
 #' @export
 materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ...) { # nolint
   x_lt = x[map_lgl(x, is_lazy_tensor)]
-  assert(check_choice(cache, "auto"), check_environment(cache, null.ok = TRUE))
+  assert(check_choice(cache, "auto"), check_class(cache, "hashtab", null.ok = TRUE))
 
   if (identical(cache, "auto")) {
-    cache = if (auto_cache_lazy_tensors(x_lt)) new.env()
+    cache = if (auto_cache_lazy_tensors(x_lt)) hashtab()
   }
 
   map(x, function(col) {
@@ -159,15 +161,16 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 #'    (in task_dataset this should rarely be the case because we try to merge them).
 #' b) Different lazy tensors might be outputs from the same graph.
 #'
-#' For this reason it is possible to provide a cache environment.
-#' The hash key for a) is the hash of the indices and the dataset.
-#' The hash key for b) is the hash of the indices dataset and preprocessing graph.
+#' For this reason it is possible to provide a cache, which is a [`hashtab()`][utils::hashtab].
+#' The key for a) is the indices and the dataset, the key for b) is the indices, the dataset and the
+#' preprocessing graph. The dataset and the graph enter the key as the objects, not as their hashes,
+#' so they are compared with `identical()`.
 #'
 #' @param x ([`lazy_tensor()`])\cr
 #'   The lazy tensor to materialize.
 #' @param device (`character(1L)`)\cr
 #'   The device to put the materialized tensor on (after running the preprocessing graph).
-#' @param cache (`NULL` or `environment()`)\cr
+#' @param cache (`NULL` or [`hashtab()`][utils::hashtab])\cr
 #'   Whether to cache the (intermediate) results of the materialization.
 #'   This can make data loading faster when multiple `lazy_tensor`s reference the same dataset or graph.
 #' @param rbind (`logical(1)`)\cr
@@ -185,19 +188,34 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
 
   pointer_name = paste0(data_descriptor$pointer, collapse = ".")
   if (do_caching) {
-    output_hash = calculate_hash(ids, data_descriptor$hash)
-    output_hit = exists(output_hash, cache, inherits = FALSE)
+    # The cache is a `hashtab()`, which stores the keys themselves and compares candidates within a
+    # bucket using `identical()`. Digesting a key into a single string, as this used to do, meant a
+    # digest collision between two distinct keys silently returned the wrong tensors.
+    # The leading tag keeps the dataset-level and the graph-level entries apart.
+    #
+    # The dataset enters the key as the object rather than as `data_descriptor$dataset_hash`. That
+    # field is `calculate_hash(address(dataset))`, i.e. a digest of the dataset's identity, and
+    # `identical()` on the object decides exactly what the address does -- without the digest that
+    # two datasets could collide in. `hashtab()` hashes an environment by reference, so this costs
+    # nothing for a dataset that holds a lot of data; it is in fact cheaper than digesting a key on
+    # every lookup was.
+    #
+    # `data_descriptor$hash` is likewise spelled out as the three things it is built from, and the
+    # graph goes in as the object too, so that no key contains a digest at all. The entries that the
+    # output-level cache is for are the ones that `merge_compatible_lazy_tensor_graphs()` produces:
+    # it merges the columns that share a dataset into one graph and hands each of them a
+    # `DataDescriptor` over that same graph with `clone_graph = FALSE`, differing only in `pointer`.
+    output_key = list("output", ids, ds, graph, data_descriptor$input_map)
+    output = gethash(cache, output_key)
 
-    if (output_hit) {
-      return(cache[[output_hash]][[pointer_name]])
+    if (!is.null(output)) {
+      return(output[[pointer_name]])
     }
-    input_hash = calculate_hash(data_descriptor$dataset_hash, ids)
+    input_key = list("input", ds, ids)
 
-    input_hit = exists(input_hash, cache, inherits = FALSE)
-
-    if (input_hit) {
-      input = cache[[input_hash]]
-    }
+    # `get_input()` and `get_output()` always return a list, so `NULL` unambiguously means "absent"
+    input = gethash(cache, input_key)
+    input_hit = !is.null(input)
   }
 
   if (!do_caching || !input_hit) {
@@ -205,7 +223,7 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   }
 
   if (do_caching && !input_hit) {
-    cache[[input_hash]] = input
+    sethash(cache, input_key, input)
   }
 
   # input is the output of a dataset so it can contain more than what we need for the graph,
@@ -223,7 +241,7 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   output = get_output(input, graph, varying_shapes, rbind, device)
 
   if (do_caching) {
-    cache[[output_hash]] = output
+    sethash(cache, output_key, output)
   }
 
   output[[pointer_name]]
