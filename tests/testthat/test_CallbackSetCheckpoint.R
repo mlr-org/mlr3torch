@@ -57,6 +57,22 @@ test_that("an existing empty directory can be checkpointed into", {
     c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt")))
 })
 
+test_that("path can be a function, which makes checkpointing work with resample()", {
+  root = tempfile()
+  dir.create(root)
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 1, path = function() tempfile(tmpdir = root)))
+  rr = resample(tsk("iris"), learner, rsmp("cv", folds = 3))
+  expect_equal(nrow(rr$errors), 0L)
+
+  # every iteration checkpointed into a directory of its own
+  dirs = list.dirs(root, recursive = FALSE)
+  expect_length(dirs, 3L)
+  for (d in dirs) {
+    expect_set_equal(list.files(d), c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt")))
+  }
+})
+
 test_that("an epoch that was interrupted is not saved under its own number", {
   task = tsk("iris")
   path = tempfile()

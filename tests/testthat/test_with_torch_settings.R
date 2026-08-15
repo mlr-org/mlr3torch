@@ -39,19 +39,59 @@ test_that("with_torch_settings leaves global state untouched", {
   expect_false(torch_equal(at, bt))
 })
 
-test_that("interop threads proper warning message", {
+test_that("num_interop_threads is only set when the user asks for it", {
   skip_if_not_installed("callr")
-  # otherwise capture.output does for some reason not capture the warning message 
+  skip_on_cran()
+  mlp = function(...) lrn("classif.mlp", epochs = 1, batch_size = 50, neurons = 5, device = "cpu", ...)
+
+  # because a learner that does not ask for a value leaves the interop count alone, one that carries
+  # an explicit value still takes effect after it
+  explicit = callr::r(function(mlp) {
+    library(mlr3torch)
+    # a value that differs from whatever this machine defaults to
+    target = if (torch::torch_get_num_interop_threads() == 2L) 3L else 2L
+    mlp()$train(tsk("iris"))
+    mlp(num_interop_threads = target)$train(tsk("iris"))
+    c(target, torch::torch_get_num_interop_threads())
+  }, args = list(mlp = mlp))
+  expect_equal(explicit[1L], explicit[2L])
+})
+
+test_that("the interop threads are set to the requested value", {
+  skip_if_not_installed("callr")
+  skip_on_cran()
+  # the interop count is never restored, so a session that has not touched it yet is needed
+  result = callr::r(function() {
+    library(torch)
+    with_torch_settings = getFromNamespace("with_torch_settings", "mlr3torch")
+    # a value that differs from whatever this machine defaults to, so that it is really set
+    target = if (torch::torch_get_num_interop_threads() == 2L) 3L else 2L
+    with_torch_settings(NULL, 1, target, invisible(NULL))
+    set = torch::torch_get_num_interop_threads()
+    # asking for the value it already has, or for nothing at all, leaves it alone
+    with_torch_settings(NULL, 1, target, invisible(NULL))
+    with_torch_settings(NULL, 1, NULL, invisible(NULL))
+    c(target, set, torch::torch_get_num_interop_threads())
+  })
+  expect_equal(result[[2L]], result[[1L]])
+  expect_equal(result[[3L]], result[[1L]])
+})
+
+test_that("interop threads that can no longer be set are an error", {
+  skip_if_not_installed("callr")
+  # only macOS actually refuses the second call; elsewhere torch accepts it as long as the interop
+  # pool has not been used yet, and there is no reliable way to make it refuse
   skip_if(!running_on_mac())
 
   result = callr::r(function() {
     library(torch)
     with_torch_settings = getFromNamespace("with_torch_settings", "mlr3torch")
     with_torch_settings(NULL, 1, 2, invisible(NULL))
-    x1 = capture.output(with_torch_settings(NULL, 1, 2, invisible(NULL)))
-    x2 = capture.output(with_torch_settings(NULL, 1, 1, invisible(NULL)))
-    list(x1, x2)
+    tryCatch({
+      with_torch_settings(NULL, 1, 1, invisible(NULL))
+      NA_character_
+    }, error = function(e) conditionMessage(e))
   })
-  expect_true(length(result[[1]]) == 0)
-  expect_true(grepl("keeping the previous value 2", result[[2]], fixed = TRUE))
+  expect_match(result, "Cannot set the number of interop threads to 1", fixed = TRUE)
+  expect_match(result, "already set to 2", fixed = TRUE)
 })

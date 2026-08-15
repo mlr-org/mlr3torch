@@ -8,6 +8,9 @@
   dimensions.
 * The dropout probability `p` of `lrn("classif.mlp")` / `lrn("regr.mlp")` is now initialized to
   `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
+* The `num_interop_threads` parameter of `LearnerTorch` is no longer initialized to `1`, so torch's
+  default is left in place unless the parameter is set. Setting it to a value that torch can no
+  longer apply is now an error instead of a warning.
 
 ## Features
 
@@ -33,6 +36,8 @@
   of the training run.
 * `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
+* The `path` of `t_clbk("checkpoint")` can now be a `function()` that is called at the beginning of
+  each training run and returns that run's path.
 
 ## Bug fixes
 

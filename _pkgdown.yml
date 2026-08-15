@@ -129,7 +129,7 @@ reference:
       - assert_lazy_tensor
       - is_lazy_tensor
       - materialize
-      - "equals-.lazy_tensor"
+      - "`==.lazy_tensor`"
   - title: Loss
     contents:
       - t_loss

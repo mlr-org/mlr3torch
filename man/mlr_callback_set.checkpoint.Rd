@@ -95,8 +95,11 @@ a checkpoint always holds the network as training left it.}
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{path}}{(\code{character(1)})\cr
-The path to a folder where the models are saved.}
+      \item{\code{path}}{(\code{character(1)} | \verb{function()})\cr
+The path to a folder where the models are saved, or a function of no arguments returning it.
+The latter is especially useful to create unique directories during \code{resample()} or \code{benchmark()}
+per fit.
+The folder must be new or empty, so that a checkpoint never overwrites unrelated data.}
       \item{\code{freq}}{(\code{integer(1)})\cr
 How often the model is saved, in epochs.}
     }
