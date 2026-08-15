@@ -59,6 +59,10 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       self$ctx$network$load_state_dict(self$best_state_dict)
       invisible(NULL)
     },
+    # `best_state_dict` is deliberately not part of the state, in either direction: with
+    # `restore_best_weights` the network already *is* the best network by the time the learner
+    # stores its model, so keeping the snapshot as well would double the memory of the model for
+    # nothing. It is only needed while training runs and dies with this callback afterwards.
     state_dict = function() {
       list(
         # `best_epochs` is what the learner reports as its internally tuned `epochs`

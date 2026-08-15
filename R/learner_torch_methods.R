@@ -103,6 +103,9 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     )
     es$ctx = ctx
 
+    # early stopping comes AFTER the other callbacks (including checkpoint) so the
+    # best weights are reset after the actual epoch's model is saved to disk by the
+    # checkpointing callback
     callbacks = c(callbacks, list(early_stopping = es))
   }
 

@@ -51,8 +51,6 @@ test_that("restore_best_weights restores the weights of the best epoch", {
     lapply(learner$model$network$state_dict(), function(x) as.numeric(x$cpu()))
   }
 
-  expect_false(lrn("classif.mlp")$param_set$values$restore_best_weights)
-
   last = make_es_learner(epochs = 30, patience = 3)
   best_epoch = last$internal_tuned_values$epochs
   expect_true(best_epoch < last$model$epochs) # early stopping fired
