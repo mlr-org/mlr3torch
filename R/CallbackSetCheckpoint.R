@@ -42,8 +42,10 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   # TODO: This should also save the learner itself
   public = list(
     #' @field weight (`numeric(1)`)\cr
-    #'   `Inf`, so that this callback runs after all others and hence saves the network and
+    #'   `Inf`, so that this callback runs after the other callbacks and hence saves the network and
     #'   optimizer as they are at the end of the stage, see section *Ordering* of [`CallbackSet`].
+    #'   The only exception is the restore of `restore_best_weights`, which happens afterwards, so
+    #'   a checkpoint always holds the network as training left it.
     weight = Inf,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.

@@ -23,7 +23,7 @@ ModelDescriptor(
 List of inputs that go into \code{graph}. Names of this must be a subset of \code{graph$input$name}.}
 
 \item{task}{(\code{\link[mlr3:Task]{Task}})\cr
-(Training)-Task for which the model is being built. May be necessary for for some aspects of what loss to use etc.}
+(Training)-Task for which the model is being built. May be necessary for some aspects of what loss to use etc.}
 
 \item{optimizer}{(\code{\link{TorchOptimizer}} | \code{NULL})\cr
 Additional info: what optimizer to use.}

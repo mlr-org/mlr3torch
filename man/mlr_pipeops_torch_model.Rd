@@ -30,8 +30,9 @@ divide the available cores among the workers instead of setting this to the numb
 \item \code{num_interop_threads} :: \code{integer(1)}\cr
 The number of threads for interop parallelization (if \code{device} is \code{"cpu"}).
 This value is initialized to 1.
-Note that this can only be set \strong{once} per session, so training a learnerd once already sets this.
-You can work around this via encapsulation, see \code{\link[mlr3:Learner]{mlr3::Learner}}.
+Note that this can only be set \strong{once} per session, so training a learner once already sets this.
+Because the value is initialized, a deviating value only takes effect if it is set on the first
+learner that is trained in a session. You can work around this via encapsulation, see \code{\link[mlr3:Learner]{mlr3::Learner}}.
 \item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
 The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
@@ -67,6 +68,8 @@ Note that the final model is always evaluated.
 \item \code{patience} :: \code{integer(1)}\cr
 This activates early stopping using the validation scores.
 If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
+Note that this counts \emph{evaluation steps}, not epochs: when \code{eval_freq} is greater than \code{1},
+\code{patience} evaluation steps correspond to \code{patience * eval_freq} epochs.
 Note that the final model is stored in the learner, not the best model.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
@@ -76,6 +79,13 @@ field of the learner.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
+\item \code{restore_best_weights} :: \code{logical(1)}\cr
+Whether to restore the weights of the best epoch when training ends, instead of keeping those
+of the last epoch that was trained. Is initialized to \code{FALSE}, i.e. the network of the last
+epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
+\verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
+memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
+network as training left it.
 }
 
 \strong{Dataloader}:
@@ -145,7 +155,7 @@ A trained \code{\link{LearnerTorchModel}}.
 A \code{\link{LearnerTorchModel}} is created by calling \code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}} on the
 provided \code{\link{ModelDescriptor}} that is received through the input channel.
 Then the parameters are set according to the parameters specified in \code{PipeOpTorchModel} and
-its '$train()\verb{ method is called on the [}Task\verb{][mlr3::Task] stored in the [}ModelDescriptor`].
+its \verb{$train()} method is called on the \code{\link[mlr3:Task]{Task}} stored in the \code{\link{ModelDescriptor}}.
 }
 
 \seealso{

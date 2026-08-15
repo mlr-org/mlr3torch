@@ -21,7 +21,7 @@ The parameters available for the provided \code{block}, as well as
 \item \code{n_blocks} :: \code{integer(1)}\cr
 How often to repeat the block.
 \item \code{trafo} :: \verb{function(i, param_vals, param_set) -> list()}\cr
-A function that allows to transform the parameters vaues of each layer (\code{block}).
+A function that allows to transform the parameter values of each layer (\code{block}).
 Here,
 \itemize{
 \item \code{i} :: \code{integer(1)}\cr
