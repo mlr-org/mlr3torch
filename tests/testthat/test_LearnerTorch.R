@@ -1217,24 +1217,33 @@ test_that("sampler and batch_sampler are checked", {
 
 test_that("resample() returns the learners in iteration order", {
   # `Learner$hash` digests `param_set$values` as a whole, and `digest()` serializes a closure
-  # together with its environment. Instantiating an R6 generator rebinds its shared enclosing
-  # environment, so the `activation` generator serializes differently before and after training and
-  # the iterations recorded different hashes. `ResultData$learners()` merges on `learner_hash` with
-  # `sort = TRUE`, so the learners came back in hash order rather than iteration order.
-  # This is R6, not torch: a plain `R6Class()` generator digests differently after `$new()` too.
-  # `hash_input()` sidesteps it by looking only at the class and the method bodies, never at an
-  # environment.
+  # together with its *byte-code*. R compiles an R6 generator's methods when the generator is first
+  # instantiated, so the `activation` generator digests differently before and after training.
+  # `mlr3::workhorse()` records `learner$hash` before training each iteration, so iteration 1 saw the
+  # uncompiled generator and later iterations saw progressively more compiled ones -- three distinct
+  # hashes. `ResultData$learners()` merges on `learner_hash` with `sort = TRUE`, so the learners came
+  # back in hash order rather than iteration order.
+  # This is R6, not torch: a plain `R6Class()` generator digests differently after `$new()` too, and
+  # `compiler::enableJIT(0)` makes the drift disappear.
+  # `hash_input()` sidesteps it by looking only at the class and the method bodies, never at bytecode.
   task = tsk("iris")
   withr::local_seed(1)
   rr = resample(task, lrn("classif.mlp", epochs = 1, batch_size = 32, neurons = 5,
     device = "cpu", predict_type = "prob"), rsmp("cv", folds = 3), store_models = TRUE)
 
+  # the symptom: learner `i` must be the model that produced prediction `i`
   for (i in 1:3) {
     expect_equal(
       rr$learners[[i]]$predict(task, rr$resampling$test_set(i))$prob,
       rr$predictions()[[i]]$prob
     )
   }
+
+  # the invariant the symptom follows from, asserted directly: the sort above is a no-op only if
+  # every iteration recorded the same hash. Checking it here does not depend on the permutation that
+  # `order()` happens to produce for three drifting hashes.
+  fact = get_private(rr)$.data$data$fact
+  expect_equal(uniqueN(fact$learner_hash), 1L)
 })
 
 test_that("training does not change the hash of a learner holding an nn_module", {

@@ -52,7 +52,7 @@ Imports:
     data.table,
     lgr,
     methods,
-    mlr3misc (>= 0.19.0),
+    mlr3misc (>= 0.22.0.9000),
     paradox (>= 1.0.0),
     R6,
     withr
