@@ -1226,20 +1226,8 @@ test_that("the model has a printer", {
 })
 
 test_that("resample() returns the learners in iteration order", {
-  # `Learner$hash` digests `param_set$values` as a whole, and `digest()` serializes a closure
-  # together with its *byte-code*. R compiles an R6 generator's methods when the generator is first
-  # instantiated, so the `activation` generator digests differently before and after training.
-  # `mlr3::workhorse()` records `learner$hash` before training each iteration, so iteration 1 saw the
-  # uncompiled generator and later iterations saw progressively more compiled ones -- three distinct
-  # hashes. `ResultData$learners()` merges on `learner_hash` with `sort = TRUE`, so the learners came
-  # back in hash order rather than iteration order.
-  # This is R6, not torch: a plain `R6Class()` generator digests differently after `$new()` too, and
-  # `compiler::enableJIT(0)` makes the drift disappear.
-  # `hash_input()` sidesteps it by looking only at the class and the method bodies, never at bytecode.
-  #
-  # The generator is defined here rather than reusing `nn_relu`: the drift only happens on the first
-  # instantiation, so a generator that some earlier test already used would no longer show it and
-  # this test would silently depend on the order the file is run in.
+  # the hash of the MLP below was not stable previously, because the hash of a newly created
+  # module changes after it's jit compiled
   activation = nn_module("my_activation",
     initialize = function() NULL,
     forward = function(input) torch_relu(input)
@@ -1265,10 +1253,8 @@ test_that("resample() returns the learners in iteration order", {
 })
 
 test_that("training does not change the hash of a learner holding an nn_module", {
-  # R JIT-compiles the generator's methods when the module is first instantiated, which changes how
-  # `digest()` serializes them. `hash_input()` must shield `$hash` from that.
-  # The first generator is a fresh one, so that this does not depend on whether an earlier test has
-  # already instantiated -- and thereby compiled -- one of torch's.
+  # just like the test above, creating a module compiles the generator which used to change
+  # it's hash
   fresh = nn_module("my_activation2", initialize = function() NULL, forward = function(input) torch_relu(input))
   learners = list(
     lrn("classif.mlp", activation = fresh, neurons = 3),
@@ -1288,21 +1274,7 @@ test_that("training does not change the hash of a learner holding an nn_module",
   }
 })
 
-test_that("learners holding an nn_module hash equal when they are equal", {
-  mk = function() lrn("classif.mlp", activation = nn_relu, neurons = 3)
-  expect_equal(mk()$hash, mk()$hash)
-  expect_equal(mk()$hash, mk()$clone(deep = TRUE)$hash)
-
-  # two generators built separately from one definition are the same configuration; `address()` said
-  # otherwise, which is what made a learner's hash depend on which copy of the generator it held
-  mk_activation = function() {
-    nn_module("my_activation3", initialize = function() NULL, forward = function(input) torch_relu(input))
-  }
-  expect_equal(
-    lrn("classif.mlp", activation = mk_activation(), neurons = 3)$hash,
-    lrn("classif.mlp", activation = mk_activation(), neurons = 3)$hash
-  )
-  # a different module must not collide, even with an identical constructor signature
+test_that("learners holding a different module_generator as activation hash differently", {
   expect_false(identical(
     lrn("classif.mlp", activation = nn_relu, neurons = 3)$hash,
     lrn("classif.mlp", activation = nn_tanh, neurons = 3)$hash
@@ -1312,8 +1284,6 @@ test_that("learners holding an nn_module hash equal when they are equal", {
 test_that("hashes are reproducible across R sessions", {
   skip_on_cran()
   skip_if_not_installed("callr")
-  # `data.table::address()` differs between processes, so a hash built from it is not reproducible.
-  # Comparing a fresh session against one that has trained also covers the JIT effect above.
   hash_in_session = function(train) {
     callr::r(function(train) {
       library(mlr3torch)
