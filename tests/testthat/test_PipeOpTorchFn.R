@@ -104,3 +104,23 @@ test_that("shape inference falls back to tracing the function", {
   obj = po("nn_fn", fn = function(x) x * 2)
   expect_equal(obj$shapes_out(list(c(NA, NA, 16L)))[[1L]], c(NA, NA, 16L))
 })
+
+test_that("phash takes the fn and shapes_out into account", {
+  # `hash_input()`'s deparse of the body drops the names of the arguments, so these two used to hash
+  # equal even though they select different columns
+  f1 = function(x, a) torch_narrow(x, 2, start = 1, length = a)
+  f2 = function(x, a) torch_narrow(x, 2, length = 1, start = a)
+  expect_false(po("nn_fn", fn = f1)$phash == po("nn_fn", fn = f2)$phash)
+
+  # two closures crated from one definition share their body and differ only in what they capture
+  mk = function(k) po("nn_fn", fn = mlr3misc::crate(function(x) x * k, k))
+  expect_false(mk(2)$phash == mk(3)$phash)
+
+  fn = function(x, a) x + a
+  expect_equal(po("nn_fn", fn = fn)$phash, po("nn_fn", fn = fn)$phash)
+  expect_equal(po("nn_fn", fn = fn)$phash, po("nn_fn", fn = fn)$clone(deep = TRUE)$phash)
+
+  # `shapes_out` is part of the configuration as well
+  shapes_out = function(shapes_in, param_vals, task) shapes_in
+  expect_false(po("nn_fn", fn = fn, shapes_out = shapes_out)$phash == po("nn_fn", fn = fn)$phash)
+})

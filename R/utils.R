@@ -321,3 +321,20 @@ categ_cardinalities = function(task) {
   cardinalities[types == "logical"] = 2L
   set_names(as.integer(cardinalities), features)
 }
+
+# Identity of a `function()` for hashing purposes, `NULL` if there is no function.
+#
+# `mlr3misc::hash_input()` reads `formals()` and `as.character(body())`, and the deparse drops the
+# names of the arguments, so `f(a = 1, b = 2)` and `f(b = 1, a = 2)` become indistinguishable.
+# `body()` is the call itself and keeps them apart. The environment stands in for what a closure
+# captures: two closures crated from the same definition share their body and differ only in that.
+fn_phash_input = function(fn) {
+  if (is.null(fn)) {
+    return(NULL)
+  }
+  if (is.primitive(fn)) {
+    # a primitive has neither formals, body, nor an environment
+    return(deparse(fn))
+  }
+  list(formals(fn), body(fn), address(environment(fn)))
+}
