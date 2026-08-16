@@ -8,6 +8,8 @@
   dimensions.
 * The dropout probability `p` of `lrn("classif.mlp")` / `lrn("regr.mlp")` is now initialized to
   `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
+* The `cache` argument of `materialize()` is now a `utils::hashtab()` instead of an `environment()`,
+  which avoids possible hash collisions and raises the R dependency to `>= 4.2.0`.
 * The `num_interop_threads` parameter of `LearnerTorch` is no longer initialized to `1`, so torch's
   default is left in place unless the parameter is set. Setting it to a value that torch can no
   longer apply is now an error instead of a warning.
@@ -44,6 +46,7 @@
 * `lrn("classif.torch_model")` / `lrn("regr.torch_model")`, and learners built from a `Graph` via
   `po("torch_model_*")`, no longer change their `$hash` when they are trained. The hash was derived
   from the stored network, which `$.network()` consumes at the start of training.
+* Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 * `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
   under that epoch's own number, so `network<n>.pt` is now always the

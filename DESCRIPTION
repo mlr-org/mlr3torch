@@ -43,7 +43,7 @@ Depends:
     mlr3 (>= 1.0.1),
     mlr3pipelines (>= 0.6.0),
     torch (>= 0.16.2),
-    R (>= 3.5.0)
+    R (>= 4.2.0)
 Imports:
     backports,
     cli,
@@ -52,7 +52,7 @@ Imports:
     data.table,
     lgr,
     methods,
-    mlr3misc (>= 0.19.0),
+    mlr3misc (>= 0.22.0.9000),
     paradox (>= 1.0.0),
     R6,
     withr
@@ -76,6 +76,8 @@ Suggests:
     tfevents,
     torchvision (>= 0.6.0),
     waldo
+Remotes:
+    mlr-org/mlr3misc
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: yes

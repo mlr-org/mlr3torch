@@ -134,7 +134,7 @@ test_that("materialize_internal: caching of datasets works", {
   ds$count = 0
 
   d = data.table(x1 = x1, x2 = x2)
-  materialize(d, rbind = TRUE, cache = new.env())
+  materialize(d, rbind = TRUE, cache = hashtab())
   expect_true(ds$count == 10)
 })
 
@@ -227,4 +227,104 @@ test_that("materialize with shape (NA, NA) and .getbatch implementation", {
   po_module = po("module", module = mod, id = "mod")
   lt1 = transform_lazy_tensor(lt, po_module, shape = c(NA, NA, 1))
   expect_equal(materialize(lt1[1])[[1L]]$shape, c(3, 1))
+})
+
+test_that("materialize()'s cache is keyed by the objects that identify an entry", {
+  ds = dataset(
+    initialize = function() self$x = torch_randn(10, 3),
+    .getbatch = function(i) list(x = self$x[i, , drop = FALSE]),
+    .length = function() 10
+  )()
+  x1 = as_lazy_tensor(ds, list(x = c(NA, 3)))
+  x2 = as_lazy_tensor(ds, list(x = c(NA, 3)))
+  d = data.table(x1 = x1, x2 = x2)
+
+  # the cache used to be an `environment()`, whose keys are strings and therefore had to be digested
+  expect_error(materialize(d, rbind = TRUE, cache = new.env()), "hashtab")
+
+  cache = hashtab()
+  expect_equal(materialize(d, rbind = TRUE, cache = cache), materialize(d, rbind = TRUE, cache = NULL))
+
+  # keys are the identifying objects themselves, so `identical()` decides a hit and two distinct
+  # keys cannot end up sharing an entry through a digest collision
+  keys = list()
+  collect_key = function(key, value) {
+    keys[[length(keys) + 1L]] <<- key
+  }
+  maphash(cache, collect_key)
+  expect_true(length(keys) > 0L)
+  expect_true(every(keys, is.list))
+  # the dataset-level key is `list(dataset, ids)` and the graph-level one
+  # `list(ids, dataset, graph, input_map)`, so the two can never be confused for one another
+  expect_set_equal(unique(lengths(keys)), c(2L, 4L))
+
+  # the dataset is in the key as the object, not as `dd()$dataset_hash`, which is only
+  # `calculate_hash(address(dataset))` and could therefore collide for two distinct datasets
+  expect_true(every(keys, function(key) some(key, function(part) identical(part, ds))))
+  expect_true(every(keys, function(key) !any(map_lgl(key, identical, dd(x1)$dataset_hash))))
+
+  # a second dataset that is equal in every respect still gets its own entries
+  ds2 = dataset(
+    initialize = function() self$x = torch_randn(10, 3),
+    .getbatch = function(i) list(x = self$x[i, , drop = FALSE]),
+    .length = function() 10
+  )()
+  y = as_lazy_tensor(ds2, list(x = c(NA, 3)))
+  before = numhash(cache)
+  materialize(data.table(y1 = y, y2 = y), rbind = TRUE, cache = cache)
+  expect_true(numhash(cache) > before)
+})
+
+test_that("materialize()'s cache keeps entries for different graphs apart", {
+  # two lazy tensor columns over the same dataset that differ only in their preprocessing graph:
+  # they share the cached dataset output, but must not share the cached graph output
+  x = as_lazy_tensor(as.double(1:10))
+  task = as_task_regr(data.table(y = 1:10, a = x, b = x), target = "y")
+  task = po("preproc_torch", fn = mlr3misc::crate(function(x) x + 1),
+    stages = "both", affect_columns = selector_name("a"))$train(list(task))[[1L]]
+  task = po("preproc_torch", fn = mlr3misc::crate(function(x) x * 2),
+    stages = "both", affect_columns = selector_name("b"))$train(list(task))[[1L]]
+
+  d = task$data(cols = c("a", "b"))
+  cached = materialize(d, rbind = TRUE, cache = hashtab())
+  expect_equal(cached, materialize(d, rbind = TRUE, cache = NULL))
+  expect_equal(as.numeric(cached$a), as.double(1:10) + 1)
+  expect_equal(as.numeric(cached$b), as.double(1:10) * 2)
+})
+
+test_that("materialize()'s cache runs a merged graph once for all of its columns", {
+  # `merge_compatible_lazy_tensor_graphs()` merges the columns that share a dataset into one graph
+  # and hands each of them a `DataDescriptor` over that same graph object, differing only in
+  # `pointer`. That is what the output-level cache is for, and why the graph is in the key as the
+  # object rather than as `$hash`.
+  ds = dataset(
+    initialize = function() self$x = torch_randn(10, 3),
+    .getbatch = function(i) list(x = self$x[i, , drop = FALSE]),
+    .length = function() 10
+  )()
+  x = as_lazy_tensor(ds, list(x = c(NA, 3)))
+  task = as_task_regr(data.table(y = 1:10, a = x, b = x), target = "y")
+  task = po("preproc_torch", fn = mlr3misc::crate(function(x) x + 1), stages = "both",
+    affect_columns = selector_name("a"))$train(list(task))[[1L]]
+  task = po("preproc_torch", fn = mlr3misc::crate(function(x) x * 2), stages = "both",
+    affect_columns = selector_name("b"))$train(list(task))[[1L]]
+
+  merged = merge_lazy_tensor_graphs(task$data(cols = c("a", "b")))
+  expect_true(identical(dd(merged$a)$graph, dd(merged$b)$graph))
+  expect_equal(dd(merged$a)$hash, dd(merged$b)$hash)
+
+  cache = hashtab()
+  cached = materialize(merged, rbind = TRUE, cache = cache)
+  expect_equal(cached, materialize(merged, rbind = TRUE, cache = NULL))
+  raw = materialize(x, rbind = TRUE)
+  expect_true(torch_allclose(cached$a, raw + 1))
+  expect_true(torch_allclose(cached$b, raw * 2))
+
+  # one dataset read and one graph run for the two columns, rather than one of each per column
+  sizes = integer()
+  collect_size = function(key, value) {
+    sizes <<- c(sizes, length(key))
+  }
+  maphash(cache, collect_size)
+  expect_equal(sort(sizes), c(2L, 4L))
 })
