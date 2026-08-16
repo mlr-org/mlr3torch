@@ -737,6 +737,14 @@ unmarshal_model.LearnerTorch = function(model, inplace = FALSE, ...) {
 
 #' @keywords internal
 #' @export
-hash_input.nn_module = function(x) {
-  data.table::address(x)
+hash_input.nn_module_generator = function(x) {
+  # A nn_module_generator is a function that holds an R6ClassGenerator as it's attribute.
+  # Our default hash_input.function does not respect this, so we need a specialized
+  # implementation for this.
+  # We also can't hash the generator directly, because digest() hashes the serialized object
+  # which depends on whether the generator's methods have been jit compiled, which changes
+  # after a module was used.
+  generator = attr(x, "module")
+  methods = if (inherits(generator, "R6ClassGenerator")) generator$public_methods
+  list(class(x), map(methods, hash_input))
 }
