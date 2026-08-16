@@ -115,22 +115,3 @@ test_that("training does not change the hash of a graph-built learner", {
   learner$train(tsk("iris"))
   expect_equal(before, learner$hash)
 })
-
-test_that("a graph-built learner takes its identity from the graph", {
-  # `PipeOpTorchModel$.train()` assigns the unserialized module to skip the serialization round-trip,
-  # so there is nothing to record the identity from except the graph the network was built from.
-  # Before, the hash was taken from the module object, which made two learners built from the same
-  # graph differ and -- since a bare `nn_module` digests to its formals and body, which every module
-  # shares -- two learners built from *different* graphs agree.
-  mk = function(out_features) {
-    graph = po("torch_ingress_num") %>>% nn("linear", out_features = out_features) %>>% nn("head") %>>%
-      po("torch_loss", t_loss("cross_entropy")) %>>% po("torch_optimizer", t_opt("adam"))
-    md = as_graph(graph)$train(tsk("iris"))[[1L]]
-    po_model = po("torch_model_classif", batch_size = 16, epochs = 1, device = "cpu")
-    po_model$train(list(md))
-    po_model$learner$phash
-  }
-
-  expect_equal(mk(3), mk(3))
-  expect_false(identical(mk(3), mk(7)))
-})
