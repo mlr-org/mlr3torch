@@ -92,8 +92,9 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     .fn = NULL,
     .shapes_out_fn = NULL,
     .additional_phash_input = function() {
-      # `mlr3misc::hash_input()` is not enough: it deparses the body via `as.character()`, which drops
-      # the names of the arguments -- `f(a = 1, b = 2)` and `f(b = 1, a = 2)` hash equal -- and it
+      # `mlr3misc::hash_input()` is not enough: `as.character(body(fn))` returns the top-level
+      # elements of the body, so for a body that is a single call its argument names are lost and
+      # `function(x) f(x, a = 1, b = 2)` hashes like `function(x) f(x, b = 1, a = 2)`. It also
       # ignores the environment, which is all that tells two closures with the same body apart.
       list(fn_phash_input(private$.fn), fn_phash_input(private$.shapes_out_fn))
     }

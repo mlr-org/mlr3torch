@@ -324,10 +324,11 @@ categ_cardinalities = function(task) {
 
 # Identity of a `function()` for hashing purposes, `NULL` if there is no function.
 #
-# `mlr3misc::hash_input()` reads `formals()` and `as.character(body())`, and the deparse drops the
-# names of the arguments, so `f(a = 1, b = 2)` and `f(b = 1, a = 2)` become indistinguishable.
-# `body()` is the call itself and keeps them apart. The environment stands in for what a closure
-# captures: two closures crated from the same definition share their body and differ only in that.
+# `mlr3misc::hash_input()` reads `formals()` and `as.character(body())`. The latter returns the
+# top-level elements of the body, so a body that is a single call loses its argument names and
+# `f(x, a = 1, b = 2)` becomes indistinguishable from `f(x, b = 1, a = 2)`; `body()` itself keeps
+# them apart. The environment stands in for what a closure captures: two closures crated from the
+# same definition share their body and differ only in that.
 fn_phash_input = function(fn) {
   if (is.null(fn)) {
     return(NULL)

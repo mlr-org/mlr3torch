@@ -106,8 +106,8 @@ test_that("shape inference falls back to tracing the function", {
 })
 
 test_that("phash takes the fn and shapes_out into account", {
-  # `hash_input()`'s deparse of the body drops the names of the arguments, so these two used to hash
-  # equal even though they select different columns
+  # `hash_input()` loses the argument names of a body that is a single call, so these two used to
+  # hash equal even though they select different columns
   f1 = function(x, a) torch_narrow(x, 2, start = 1, length = a)
   f2 = function(x, a) torch_narrow(x, 2, length = 1, start = a)
   expect_false(po("nn_fn", fn = f1)$phash == po("nn_fn", fn = f2)$phash)
