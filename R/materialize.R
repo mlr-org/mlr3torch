@@ -188,30 +188,15 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
 
   pointer_name = paste0(data_descriptor$pointer, collapse = ".")
   if (do_caching) {
-    # The cache is a `hashtab()`, which stores the keys themselves and compares candidates within a
-    # bucket using `identical()`. Digesting a key into a single string, as this used to do, meant a
-    # digest collision between two distinct keys silently returned the wrong tensors.
-    # The leading tag keeps the dataset-level and the graph-level entries apart.
-    #
-    # The dataset enters the key as the object rather than as `data_descriptor$dataset_hash`. That
-    # field is `calculate_hash(address(dataset))`, i.e. a digest of the dataset's identity, and
-    # `identical()` on the object decides exactly what the address does -- without the digest that
-    # two datasets could collide in. `hashtab()` hashes an environment by reference, so this costs
-    # nothing for a dataset that holds a lot of data; it is in fact cheaper than digesting a key on
-    # every lookup was.
-    #
-    # `data_descriptor$hash` is likewise spelled out as the three things it is built from, and the
-    # graph goes in as the object too, so that no key contains a digest at all. The entries that the
-    # output-level cache is for are the ones that `merge_compatible_lazy_tensor_graphs()` produces:
-    # it merges the columns that share a dataset into one graph and hands each of them a
-    # `DataDescriptor` over that same graph with `clone_graph = FALSE`, differing only in `pointer`.
-    output_key = list("output", ids, ds, graph, data_descriptor$input_map)
+    # R's hashmap uses the address for graph and ds, so it's cheap
+    # the two keys have different lengths, so they cannot be confused for one another
+    output_key = list(ids, ds, graph, data_descriptor$input_map)
     output = gethash(cache, output_key)
 
     if (!is.null(output)) {
       return(output[[pointer_name]])
     }
-    input_key = list("input", ds, ids)
+    input_key = list(ds, ids)
 
     # `get_input()` and `get_output()` always return a list, so `NULL` unambiguously means "absent"
     input = gethash(cache, input_key)

@@ -254,8 +254,9 @@ test_that("materialize()'s cache is keyed by the objects that identify an entry"
   maphash(cache, collect_key)
   expect_true(length(keys) > 0L)
   expect_true(every(keys, is.list))
-  # the dataset-level and the graph-level entries are kept apart by a leading tag
-  expect_set_equal(unique(map_chr(keys, function(key) key[[1L]])), c("input", "output"))
+  # the dataset-level key is `list(dataset, ids)` and the graph-level one
+  # `list(ids, dataset, graph, input_map)`, so the two can never be confused for one another
+  expect_set_equal(unique(lengths(keys)), c(2L, 4L))
 
   # the dataset is in the key as the object, not as `dd()$dataset_hash`, which is only
   # `calculate_hash(address(dataset))` and could therefore collide for two distinct datasets
@@ -320,10 +321,10 @@ test_that("materialize()'s cache runs a merged graph once for all of its columns
   expect_true(torch_allclose(cached$b, raw * 2))
 
   # one dataset read and one graph run for the two columns, rather than one of each per column
-  tags = character()
-  collect_tag = function(key, value) {
-    tags <<- c(tags, key[[1L]])
+  sizes = integer()
+  collect_size = function(key, value) {
+    sizes <<- c(sizes, length(key))
   }
-  maphash(cache, collect_tag)
-  expect_equal(sort(tags), c("input", "output"))
+  maphash(cache, collect_size)
+  expect_equal(sort(sizes), c(2L, 4L))
 })
