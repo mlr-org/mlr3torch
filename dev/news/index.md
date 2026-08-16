@@ -60,6 +60,7 @@
 
 ### Bug fixes
 
+- Fixed some hashing bugs related to R jit compilation.
 - `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of
   `NULL`.
 - `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
