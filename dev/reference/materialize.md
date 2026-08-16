@@ -55,9 +55,8 @@ materialize(x, device = "cpu", rbind = FALSE, cache = "auto", ...)
 
 - cache:
 
-  (`character(1)` or
-  [`environment()`](https://rdrr.io/r/base/environment.html) or
-  `NULL`)  
+  (`character(1)` or [`hashtab()`](https://rdrr.io/r/utils/hashtab.html)
+  or `NULL`)  
   Optional cache for (intermediate) materialization results. Per
   default, caching will be enabled when the same dataset or data
   descriptor (with different output pointer) is used for more than one
@@ -92,9 +91,13 @@ columns we can benefit from caching because: a) Output(s) from the
 dataset might be input to multiple graphs. b) Different lazy tensors
 might be outputs from the same graph.
 
-For this reason it is possible to provide a cache environment. The hash
-key for a) is the hash of the indices and the dataset. The hash key for
-b) is the hash of the indices, dataset and preprocessing graph.
+For this reason it is possible to provide a cache, which is a
+[`hashtab()`](https://rdrr.io/r/utils/hashtab.html). The key for a) is
+`list(dataset, indices)`, the key for b) is
+`list(indices, dataset, graph, input_map)`. The dataset and the graph go
+into the key as the objects themselves, so keys are compared with
+[`identical()`](https://rdrr.io/r/base/identical.html) rather than being
+digested into a string, and two different keys can never share an entry.
 
 ## Examples
 
@@ -102,86 +105,86 @@ b) is the hash of the indices, dataset and preprocessing graph.
 lt1 = as_lazy_tensor(torch_randn(10, 3))
 materialize(lt1, rbind = TRUE)
 #> torch_tensor
-#>  0.6616 -1.2092  0.3113
-#> -0.3344 -0.6531  0.0576
-#>  0.0587 -1.1405  1.5523
-#> -0.5867  0.9528 -1.7471
-#> -0.3158  1.4079  0.0602
-#>  1.0230 -0.5660 -0.6662
-#>  0.2349  2.3392 -0.3709
-#>  0.6756  0.8452 -0.3174
-#> -0.9063 -0.7318 -0.2507
-#>  0.7335 -0.6884  1.1614
+#>  0.6706 -0.6449 -1.0899
+#>  0.5073 -0.7457  0.2930
+#> -0.7621  0.8003 -0.2081
+#> -0.7912  0.0008 -1.5396
+#>  0.5826  2.0506 -0.0469
+#>  0.2074  0.3080  2.2132
+#> -0.2235  0.1896  1.2560
+#>  0.0806  0.0990 -1.5092
+#>  0.0177 -0.8251  1.4496
+#>  1.0293  0.8361 -1.0813
 #> [ CPUFloatType{10,3} ]
 materialize(lt1, rbind = FALSE)
 #> [[1]]
 #> torch_tensor
-#>  0.6616
-#> -1.2092
-#>  0.3113
+#>  0.6706
+#> -0.6449
+#> -1.0899
 #> [ CPUFloatType{3} ]
 #> 
 #> [[2]]
 #> torch_tensor
-#> -0.3344
-#> -0.6531
-#>  0.0576
+#>  0.5073
+#> -0.7457
+#>  0.2930
 #> [ CPUFloatType{3} ]
 #> 
 #> [[3]]
 #> torch_tensor
-#>  0.0587
-#> -1.1405
-#>  1.5523
+#> -0.7621
+#>  0.8003
+#> -0.2081
 #> [ CPUFloatType{3} ]
 #> 
 #> [[4]]
 #> torch_tensor
-#> -0.5867
-#>  0.9528
-#> -1.7471
+#> -0.7912
+#>  0.0008
+#> -1.5396
 #> [ CPUFloatType{3} ]
 #> 
 #> [[5]]
 #> torch_tensor
-#> -0.3158
-#>  1.4079
-#>  0.0602
+#>  0.5826
+#>  2.0506
+#> -0.0469
 #> [ CPUFloatType{3} ]
 #> 
 #> [[6]]
 #> torch_tensor
-#>  1.0230
-#> -0.5660
-#> -0.6662
+#>  0.2074
+#>  0.3080
+#>  2.2132
 #> [ CPUFloatType{3} ]
 #> 
 #> [[7]]
 #> torch_tensor
-#>  0.2349
-#>  2.3392
-#> -0.3709
+#> -0.2235
+#>  0.1896
+#>  1.2560
 #> [ CPUFloatType{3} ]
 #> 
 #> [[8]]
 #> torch_tensor
-#>  0.6756
-#>  0.8452
-#> -0.3174
+#>  0.0806
+#>  0.0990
+#> -1.5092
 #> [ CPUFloatType{3} ]
 #> 
 #> [[9]]
 #> torch_tensor
-#> -0.9063
-#> -0.7318
-#> -0.2507
+#>  0.0177
+#> -0.8251
+#>  1.4496
 #> [ CPUFloatType{3} ]
 #> 
 #> [[10]]
 #> torch_tensor
-#>  0.7335
-#> -0.6884
-#>  1.1614
+#>  1.0293
+#>  0.8361
+#> -1.0813
 #> [ CPUFloatType{3} ]
 #> 
 lt2 = as_lazy_tensor(torch_randn(10, 4))
@@ -189,184 +192,184 @@ d = data.table::data.table(lt1 = lt1, lt2 = lt2)
 materialize(d, rbind = TRUE)
 #> $lt1
 #> torch_tensor
-#>  0.6616 -1.2092  0.3113
-#> -0.3344 -0.6531  0.0576
-#>  0.0587 -1.1405  1.5523
-#> -0.5867  0.9528 -1.7471
-#> -0.3158  1.4079  0.0602
-#>  1.0230 -0.5660 -0.6662
-#>  0.2349  2.3392 -0.3709
-#>  0.6756  0.8452 -0.3174
-#> -0.9063 -0.7318 -0.2507
-#>  0.7335 -0.6884  1.1614
+#>  0.6706 -0.6449 -1.0899
+#>  0.5073 -0.7457  0.2930
+#> -0.7621  0.8003 -0.2081
+#> -0.7912  0.0008 -1.5396
+#>  0.5826  2.0506 -0.0469
+#>  0.2074  0.3080  2.2132
+#> -0.2235  0.1896  1.2560
+#>  0.0806  0.0990 -1.5092
+#>  0.0177 -0.8251  1.4496
+#>  1.0293  0.8361 -1.0813
 #> [ CPUFloatType{10,3} ]
 #> 
 #> $lt2
 #> torch_tensor
-#> -2.2840  0.5105  0.1254  0.8047
-#> -1.4333 -0.6383  0.4430  0.7250
-#>  0.8166 -0.5199 -0.8227 -0.0712
-#>  0.7565  0.2666 -1.6437 -1.6717
-#>  1.2561  0.3188  1.0680 -0.7886
-#>  1.2913 -1.2919  1.0426 -1.4532
-#>  1.2813  0.3135  0.3921  0.8692
-#> -1.3950  0.3835  0.6045 -0.4758
-#>  0.7747  2.5041 -0.5435  0.6630
-#> -1.9322  1.2033 -0.2343  1.0170
+#>  0.2151 -1.1371 -0.8470 -0.9002
+#>  0.2158  1.2042 -0.4487 -0.3178
+#>  0.2654  0.3054 -0.3116  0.8645
+#> -0.2884 -0.2866  0.7029 -0.9460
+#> -0.1262 -0.9146  2.4314 -0.2951
+#> -0.6425  0.3728  0.2225 -0.8410
+#> -0.5084 -0.5913  0.6405  0.7696
+#>  0.4307 -0.5037 -0.2557 -1.9463
+#> -0.8664  0.6819 -0.1516  0.0353
+#>  0.1360 -0.0247 -0.0616 -0.1379
 #> [ CPUFloatType{10,4} ]
 #> 
 materialize(d, rbind = FALSE)
 #> $lt1
 #> $lt1[[1]]
 #> torch_tensor
-#>  0.6616
-#> -1.2092
-#>  0.3113
+#>  0.6706
+#> -0.6449
+#> -1.0899
 #> [ CPUFloatType{3} ]
 #> 
 #> $lt1[[2]]
 #> torch_tensor
-#> -0.3344
-#> -0.6531
-#>  0.0576
+#>  0.5073
+#> -0.7457
+#>  0.2930
 #> [ CPUFloatType{3} ]
 #> 
 #> $lt1[[3]]
 #> torch_tensor
-#>  0.0587
-#> -1.1405
-#>  1.5523
+#> -0.7621
+#>  0.8003
+#> -0.2081
 #> [ CPUFloatType{3} ]
 #> 
 #> $lt1[[4]]
 #> torch_tensor
-#> -0.5867
-#>  0.9528
-#> -1.7471
+#> -0.7912
+#>  0.0008
+#> -1.5396
 #> [ CPUFloatType{3} ]
 #> 
 #> $lt1[[5]]
 #> torch_tensor
-#> -0.3158
-#>  1.4079
-#>  0.0602
+#>  0.5826
+#>  2.0506
+#> -0.0469
 #> [ CPUFloatType{3} ]
 #> 
 #> $lt1[[6]]
 #> torch_tensor
-#>  1.0230
-#> -0.5660
-#> -0.6662
+#>  0.2074
+#>  0.3080
+#>  2.2132
 #> [ CPUFloatType{3} ]
 #> 
 #> $lt1[[7]]
 #> torch_tensor
-#>  0.2349
-#>  2.3392
-#> -0.3709
+#> -0.2235
+#>  0.1896
+#>  1.2560
 #> [ CPUFloatType{3} ]
 #> 
 #> $lt1[[8]]
 #> torch_tensor
-#>  0.6756
-#>  0.8452
-#> -0.3174
+#>  0.0806
+#>  0.0990
+#> -1.5092
 #> [ CPUFloatType{3} ]
 #> 
 #> $lt1[[9]]
 #> torch_tensor
-#> -0.9063
-#> -0.7318
-#> -0.2507
+#>  0.0177
+#> -0.8251
+#>  1.4496
 #> [ CPUFloatType{3} ]
 #> 
 #> $lt1[[10]]
 #> torch_tensor
-#>  0.7335
-#> -0.6884
-#>  1.1614
+#>  1.0293
+#>  0.8361
+#> -1.0813
 #> [ CPUFloatType{3} ]
 #> 
 #> 
 #> $lt2
 #> $lt2[[1]]
 #> torch_tensor
-#> -2.2840
-#>  0.5105
-#>  0.1254
-#>  0.8047
+#>  0.2151
+#> -1.1371
+#> -0.8470
+#> -0.9002
 #> [ CPUFloatType{4} ]
 #> 
 #> $lt2[[2]]
 #> torch_tensor
-#> -1.4333
-#> -0.6383
-#>  0.4430
-#>  0.7250
+#>  0.2158
+#>  1.2042
+#> -0.4487
+#> -0.3178
 #> [ CPUFloatType{4} ]
 #> 
 #> $lt2[[3]]
 #> torch_tensor
-#>  0.8166
-#> -0.5199
-#> -0.8227
-#> -0.0712
+#>  0.2654
+#>  0.3054
+#> -0.3116
+#>  0.8645
 #> [ CPUFloatType{4} ]
 #> 
 #> $lt2[[4]]
 #> torch_tensor
-#>  0.7565
-#>  0.2666
-#> -1.6437
-#> -1.6717
+#> -0.2884
+#> -0.2866
+#>  0.7029
+#> -0.9460
 #> [ CPUFloatType{4} ]
 #> 
 #> $lt2[[5]]
 #> torch_tensor
-#>  1.2561
-#>  0.3188
-#>  1.0680
-#> -0.7886
+#> -0.1262
+#> -0.9146
+#>  2.4314
+#> -0.2951
 #> [ CPUFloatType{4} ]
 #> 
 #> $lt2[[6]]
 #> torch_tensor
-#>  1.2913
-#> -1.2919
-#>  1.0426
-#> -1.4532
+#> -0.6425
+#>  0.3728
+#>  0.2225
+#> -0.8410
 #> [ CPUFloatType{4} ]
 #> 
 #> $lt2[[7]]
 #> torch_tensor
-#>  1.2813
-#>  0.3135
-#>  0.3921
-#>  0.8692
+#> -0.5084
+#> -0.5913
+#>  0.6405
+#>  0.7696
 #> [ CPUFloatType{4} ]
 #> 
 #> $lt2[[8]]
 #> torch_tensor
-#> -1.3950
-#>  0.3835
-#>  0.6045
-#> -0.4758
+#>  0.4307
+#> -0.5037
+#> -0.2557
+#> -1.9463
 #> [ CPUFloatType{4} ]
 #> 
 #> $lt2[[9]]
 #> torch_tensor
-#>  0.7747
-#>  2.5041
-#> -0.5435
-#>  0.6630
+#> -0.8664
+#>  0.6819
+#> -0.1516
+#>  0.0353
 #> [ CPUFloatType{4} ]
 #> 
 #> $lt2[[10]]
 #> torch_tensor
-#> -1.9322
-#>  1.2033
-#> -0.2343
-#>  1.0170
+#>  0.1360
+#> -0.0247
+#> -0.0616
+#> -0.1379
 #> [ CPUFloatType{4} ]
 #> 
 #> 

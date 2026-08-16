@@ -94,7 +94,7 @@ The device to put the materialized tensor on (after running the preprocessing gr
 
 
 <dt id="arg-cache">cache<a class="anchor" aria-label="anchor" href="#arg-cache"></a></dt>
-<dd><p>(<code>NULL</code> or <code><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment()</a></code>)<br>
+<dd><p>(<code>NULL</code> or <code><a href="https://rdrr.io/r/utils/hashtab.html" class="external-link">hashtab()</a></code>)<br>
 Whether to cache the (intermediate) results of the materialization.
 This can make data loading faster when multiple <code>lazy_tensor</code>s reference the same dataset or graph.</p></dd>
 
@@ -117,9 +117,10 @@ Whtether to rbind the resulting tensors (<code>TRUE</code>) or return them as a 
 a) Output(s) from the dataset might be input to multiple graphs.
 (in task_dataset this should rarely be the case because we try to merge them).
 b) Different lazy tensors might be outputs from the same graph.</p>
-<p>For this reason it is possible to provide a cache environment.
-The hash key for a) is the hash of the indices and the dataset.
-The hash key for b) is the hash of the indices dataset and preprocessing graph.</p>
+<p>For this reason it is possible to provide a cache, which is a <code><a href="https://rdrr.io/r/utils/hashtab.html" class="external-link">hashtab()</a></code>.
+The key for a) is <code>list(dataset, indices)</code>, the key for b) is
+<code>list(indices, dataset, graph, input_map)</code>. The dataset and the graph go into the key as the
+objects themselves, not as their hashes, so they are compared with <code><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical()</a></code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

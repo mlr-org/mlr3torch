@@ -12,6 +12,13 @@
 - The dropout probability `p` of `lrn("classif.mlp")` /
   `lrn("regr.mlp")` is now initialized to `0.1` instead of `0.5`. Set
   `p = 0.5` explicitly to keep the old behaviour.
+- The `cache` argument of
+  [`materialize()`](https://mlr3torch.mlr-org.com/dev/reference/materialize.md)
+  is now a [`utils::hashtab()`](https://rdrr.io/r/utils/hashtab.html)
+  instead of an
+  [`environment()`](https://rdrr.io/r/base/environment.html), which
+  avoids possible hash collisions and raises the R dependency to
+  `>= 4.2.0`.
 - The `num_interop_threads` parameter of `LearnerTorch` is no longer
   initialized to `1`, so torch’s default is left in place unless the
   parameter is set. Setting it to a value that torch can no longer apply

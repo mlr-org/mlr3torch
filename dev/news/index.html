@@ -76,6 +76,7 @@
 <ul><li>The <code>freq_type</code> parameter of <code>t_clbk("checkpoint")</code> was removed and checkpointing is always per epoch.</li>
 <li>The construction argument <code>only_batch_unknown</code> of <code>PipeOpTorch</code> was removed, as shape inference functions are now expected to handle multiple unknown dimensions.</li>
 <li>The dropout probability <code>p</code> of <code>lrn("classif.mlp")</code> / <code>lrn("regr.mlp")</code> is now initialized to <code>0.1</code> instead of <code>0.5</code>. Set <code>p = 0.5</code> explicitly to keep the old behaviour.</li>
+<li>The <code>cache</code> argument of <code><a href="../reference/materialize.html">materialize()</a></code> is now a <code><a href="https://rdrr.io/r/utils/hashtab.html" class="external-link">utils::hashtab()</a></code> instead of an <code><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment()</a></code>, which avoids possible hash collisions and raises the R dependency to <code>&gt;= 4.2.0</code>.</li>
 <li>The <code>num_interop_threads</code> parameter of <code>LearnerTorch</code> is no longer initialized to <code>1</code>, so torch’s default is left in place unless the parameter is set. Setting it to a value that torch can no longer apply is now an error instead of a warning.</li>
 </ul></div>
 <div class="section level3">
