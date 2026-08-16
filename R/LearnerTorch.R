@@ -738,28 +738,12 @@ unmarshal_model.LearnerTorch = function(model, inplace = FALSE, ...) {
 #' @keywords internal
 #' @export
 hash_input.nn_module_generator = function(x) {
-  # This used to be `data.table::address(x)`, which is not stable across copies: two `identical()`
-  # learners then hashed differently.
-  #
-  # `mlr3misc::hash_input.function()` does not apply on its own. A generator carries a class
-  # attribute, so dispatch goes through `class(x)` and then to `.default` -- the implicit `"function"`
-  # class is never consulted. Routing to it explicitly would not help either: the generator returned
-  # by `torch::nn_module()` is a thin wrapper whose body is only
-  # `instance <- Module$new(<formals>); create_nn_module_callable(instance)`. That varies with the
-  # constructor signature but not with the implementation, so two generators differing only in their
-  # `forward()` hash equal.
-  #
-  # `attr(x, "module")` is the underlying `R6ClassGenerator`, whose public methods are the module's
-  # actual `initialize`/`forward`. Hashing those *via* `hash_input()` reuses
-  # `hash_input.function()` per method, which reads `formals()` and `as.character(body())` and so
-  # never serializes a closure's environment or its byte code -- `digest()`ing a generator directly is
-  # unstable because R JIT-compiles its methods, which changes their serialization. Together with the
-  # class this distinguishes generators that share a class name, as well as anonymous ones
-  # (`nn_module()` without a `classname`), which all have class `c("nn_module", "nn_module_generator")`.
-  #
-  # Only generators are handled. An *instance* also inherits `nn_module` -- and `nn_module` precedes
-  # `nn_module_generator` in a generator's class vector -- but an instance's identity includes its
-  # parameter tensors, which the class and the methods do not capture.
+  # A nn_module_generator is a function that holds an R6ClassGenerator as it's attribute.
+  # Our default hash_input.function does not respect this, so we need a specialized
+  # implementation for this.
+  # We also can't hash the generator directly, because digest() hashes the serialized object
+  # which depends on whether the generator's methods have been jit compiled, which changes
+  # after a module was used.
   generator = attr(x, "module")
   methods = if (inherits(generator, "R6ClassGenerator")) generator$public_methods
   list(class(x), map(methods, hash_input))

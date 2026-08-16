@@ -1314,17 +1314,14 @@ test_that("hashes are reproducible across R sessions", {
   skip_if_not_installed("callr")
   # `data.table::address()` differs between processes, so a hash built from it is not reproducible.
   # Comparing a fresh session against one that has trained also covers the JIT effect above.
-  pkg = if (requireNamespace("pkgload", quietly = TRUE) &&
-      isTRUE(pkgload::is_dev_package("mlr3torch"))) pkgload::pkg_path() else NULL
-
   hash_in_session = function(train) {
-    callr::r(function(pkg, train) {
-      if (is.null(pkg)) suppressMessages(library(mlr3torch)) else pkgload::load_all(pkg, quiet = TRUE)
+    callr::r(function(train) {
+      library(mlr3torch)
       learner = lrn("classif.mlp", activation = nn_relu, neurons = 3, epochs = 1, batch_size = 16,
         device = "cpu")
       if (train) learner$train(tsk("iris"))
       learner$hash
-    }, args = list(pkg = pkg, train = train), libpath = .libPaths())
+    }, args = list(train = train), libpath = .libPaths())
   }
 
   expect_equal(hash_in_session(FALSE), hash_in_session(TRUE))

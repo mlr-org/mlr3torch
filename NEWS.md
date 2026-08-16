@@ -41,12 +41,7 @@
 
 ## Bug fixes
 
-* `resample(..., store_models = TRUE)$learners[[i]]` (and the `benchmark()` equivalent) is now really
-  the learner of iteration `i`. The list was returned in hash order, which for learners holding an
-  `nn_module` generator as a hyperparameter -- such as `lrn("classif.mlp")` and its `activation` --
-  was neither the iteration order nor deterministic. `$score()` and `as.data.table(rr)` were never
-  affected. `hash_input()` for `nn_module` generators is now based on the generator's class and
-  method bodies rather than on `data.table::address()`.
+* Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 * `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
   under that epoch's own number, so `network<n>.pt` is now always the
