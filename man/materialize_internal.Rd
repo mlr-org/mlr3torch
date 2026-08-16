@@ -40,8 +40,8 @@ a) Output(s) from the dataset might be input to multiple graphs.
 b) Different lazy tensors might be outputs from the same graph.
 
 For this reason it is possible to provide a cache, which is a \code{\link[utils:hashtab]{hashtab()}}.
-The key for a) is the indices and the dataset, the key for b) is the indices, the dataset and the
-preprocessing graph. The dataset and the graph enter the key as the objects, not as their hashes,
-so they are compared with \code{identical()}.
+The key for a) is \code{list(dataset, indices)}, the key for b) is
+\code{list(indices, dataset, graph, input_map)}. The dataset and the graph go into the key as the
+objects themselves, not as their hashes, so they are compared with \code{identical()}.
 }
 \keyword{internal}

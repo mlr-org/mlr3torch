@@ -18,10 +18,10 @@
 #' b) Different lazy tensors might be outputs from the same graph.
 #'
 #' For this reason it is possible to provide a cache, which is a [`hashtab()`][utils::hashtab].
-#' The key for a) is the indices and the dataset, the key for b) is the indices, the dataset and the
-#' preprocessing graph. The keys hold the dataset and the graph themselves and are compared with
-#' `identical()`, rather than being digested into a single string, so two different keys can never
-#' share an entry.
+#' The key for a) is `list(dataset, indices)`, the key for b) is
+#' `list(indices, dataset, graph, input_map)`. The dataset and the graph go into the key as the
+#' objects themselves, so keys are compared with `identical()` rather than being digested into a
+#' string, and two different keys can never share an entry.
 #'
 #' @param x (any)\cr
 #'   The object to materialize.
@@ -162,9 +162,9 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 #' b) Different lazy tensors might be outputs from the same graph.
 #'
 #' For this reason it is possible to provide a cache, which is a [`hashtab()`][utils::hashtab].
-#' The key for a) is the indices and the dataset, the key for b) is the indices, the dataset and the
-#' preprocessing graph. The dataset and the graph enter the key as the objects, not as their hashes,
-#' so they are compared with `identical()`.
+#' The key for a) is `list(dataset, indices)`, the key for b) is
+#' `list(indices, dataset, graph, input_map)`. The dataset and the graph go into the key as the
+#' objects themselves, not as their hashes, so they are compared with `identical()`.
 #'
 #' @param x ([`lazy_tensor()`])\cr
 #'   The lazy tensor to materialize.

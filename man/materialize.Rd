@@ -53,10 +53,10 @@ a) Output(s) from the dataset might be input to multiple graphs.
 b) Different lazy tensors might be outputs from the same graph.
 
 For this reason it is possible to provide a cache, which is a \code{\link[utils:hashtab]{hashtab()}}.
-The key for a) is the indices and the dataset, the key for b) is the indices, the dataset and the
-preprocessing graph. The keys hold the dataset and the graph themselves and are compared with
-\code{identical()}, rather than being digested into a single string, so two different keys can never
-share an entry.
+The key for a) is \code{list(dataset, indices)}, the key for b) is
+\code{list(indices, dataset, graph, input_map)}. The dataset and the graph go into the key as the
+objects themselves, so keys are compared with \code{identical()} rather than being digested into a
+string, and two different keys can never share an entry.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
