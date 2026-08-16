@@ -41,12 +41,6 @@
 
 ## Bug fixes
 
-* The `$phash` of `po("module")` and of the `po("trafo_*")` / `po("augment_*")` / `po("preproc_torch")`
-  preprocessing operators no longer depends on where the module or the function happens to live in
-  memory, so a copy of such a `PipeOp` -- a deep clone, or one that has been serialized -- now hashes
-  like the original, and the hash is reproducible across R sessions. Two `po("module")`s wrapping
-  equivalent modules now hash equal, where they used to differ; the parameter *values* of a module
-  remain excluded from `$phash`, as `$state` is for every other `PipeOp`.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 * `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
   under that epoch's own number, so `network<n>.pt` is now always the

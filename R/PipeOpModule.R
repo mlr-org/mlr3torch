@@ -105,10 +105,6 @@ PipeOpModule = R6Class("PipeOpModule",
       private$.multi_output = length(outname) > 1L
       assert(check_class(module, "nn_module"), check_class(module, "function"), combine = "or")
       self$module = module
-      # The module's identity is recorded here, once, and then never recomputed: `$module` is a
-      # public field and `nn_graph`'s deep clone temporarily sets it to `NULL` before re-attaching
-      # the cloned module, so a `$phash` that recomputed would depend on when it was asked.
-      private$.module_hash = calculate_hash(module_identity(module))
       packages = union(c("mlr3torch", "torch"), packages)
 
       input = data.table(name = inname, train = "torch_tensor", predict = "NULL")
@@ -135,12 +131,16 @@ PipeOpModule = R6Class("PipeOpModule",
       rep(list(NULL), nrow(self$output))
     },
     .multi_output = NULL,
-    # identity of `self$module`, recorded when it is stored; see `initialize()`
-    .module_hash = NULL,
     .additional_phash_input = function() {
       # mlr3pipelines does not use calculate_hash, but calls directly into digest, hence we have to take
       # care of the byte code
-      list(private$.module_hash, self$input$name, self$output$name, self$packages)
+      fn_input = if (test_class(self$module, "nn_module")) {
+        address(self$module)
+      } else {
+        list(formals(self$module), body(self$module), address(environment(self$module)))
+      }
+
+      list(fn_input, self$input$name, self$output$name, self$packages)
     },
     deep_clone = function(name, value) {
       if (name == "module" && test_class(value, "nn_module")) {

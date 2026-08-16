@@ -48,7 +48,6 @@ Imports:
     backports,
     cli,
     checkmate (>= 2.2.0),
-    codetools,
     coro,
     data.table,
     lgr,

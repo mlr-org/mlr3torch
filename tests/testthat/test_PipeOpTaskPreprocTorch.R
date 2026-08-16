@@ -287,18 +287,3 @@ test_that("predict shapes are added during training", {
   expect_error(graph$train(task), "has a different shape")
 })
 
-
-test_that("phash of a PipeOpTaskPreprocTorch does not depend on the fn's identity in memory", {
-  # `$phash` used to include `address(environment(self$fn))`, so two pipeops built from the same
-  # crated function -- and a pipeop that had travelled through `serialize()` -- did not hash alike.
-  mk = function(a) po("preproc_torch", fn = mlr3misc::crate(function(x) x + a, a))
-
-  expect_equal(mk(1)$phash, mk(1)$phash)
-  expect_equal(mk(1)$phash, unserialize(serialize(mk(1), NULL))$phash)
-  expect_equal(mk(1)$phash, mk(1)$clone(deep = TRUE)$phash)
-
-  # what the function captures still has to tell two of them apart: it is all that distinguishes
-  # them, since the body is the same
-  expect_false(mk(1)$phash == mk(2)$phash)
-  expect_false(po("trafo_nop")$phash == po("trafo_reshape")$phash)
-})
