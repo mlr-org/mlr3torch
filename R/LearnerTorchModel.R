@@ -152,7 +152,8 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       )
     },
     .network_stored = NULL,
-    # identity of the network, recorded when it is stored; see `initialize()` and `PipeOpTorchModel`
+    # identity of the network passed to `initialize()`, recorded there when it is stored. Stays `NULL`
+    # for a learner built by `PipeOpTorchModel`, whose network is not part of its configuration.
     .network_hash = NULL,
     # set by `PipeOpTorchModel`, see `.network()` above
     .reset_parameters_ = FALSE,
