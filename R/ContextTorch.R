@@ -94,8 +94,6 @@ ContextTorchTrain = R6Class("ContextTorchTrain",
         null.ok = TRUE) %??% list()
       self$measures_valid = assert_list(measures_valid, names = "unique", any.missing = FALSE, types = "Measure",
         null.ok = TRUE) %??% list()
-      # TODO: should this be deleted?
-      # self$network = assert_class(network, "nn_module")
       self$optimizer = assert_class(optimizer, "torch_optimizer")
       self$loss_fn = assert_class(loss_fn, "nn_module")
       self$total_epochs = assert_integerish(total_epochs, lower = 0, any.missing = FALSE)
@@ -104,8 +102,6 @@ ContextTorchTrain = R6Class("ContextTorchTrain",
       self$prediction_encoder = assert_function(prediction_encoder, args = c("predict_tensor", "task"))
       self$eval_freq = assert_int(eval_freq, lower = 1L)
       self$terminate = FALSE
-      # TODO: should this be deleted?
-      # self$device = torch_device(assert_choice(device, mlr_reflections$torch$devices))
     },
     #' @field task_train ([`Task`][mlr3::Task])\cr
     #'   The training task.
@@ -205,7 +201,8 @@ ContextTorchPredict = R6Class("ContextTorchPredict",
     #' @param loader_predict ([`torch::dataloader`])\cr
     #'   The data loader for prediction.
     #' @param device (`character(1)`)\cr
-    #'     initialize = function(learner, network, loader_predict, device) {
+    #'   The device.
+    initialize = function(learner, network, loader_predict, device) {
       super$initialize(learner = learner, network = network, device = device)
       self$loader_predict = assert_class(loader_predict, "dataloader")
     },

@@ -46,6 +46,8 @@ Other Callback:
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
+\code{\link{mlr_context_torch_predict}},
+\code{\link{mlr_context_torch_train}},
 \code{\link[=torch_callback]{torch_callback()}}
 
 Other Torch Descriptor:

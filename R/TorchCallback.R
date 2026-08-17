@@ -312,6 +312,9 @@ torch_callback = function(
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
   on_valid_end = NULL,
+  on_predict_begin = NULL,
+  on_batch_predict_end = NULL,
+  on_predict_end = NULL,
   state_dict = NULL,
   load_state_dict = NULL,
   # other arguments
@@ -337,6 +340,10 @@ torch_callback = function(
     on_batch_valid_begin = on_batch_valid_begin,
     on_batch_valid_end = on_batch_valid_end,
     on_valid_end = on_valid_end,
+    # prediction
+    on_predict_begin = on_predict_begin,
+    on_batch_predict_end = on_batch_predict_end,
+    on_predict_end = on_predict_end,
     # other arguments
     state_dict = state_dict, load_state_dict = load_state_dict,
     initialize = initialize,

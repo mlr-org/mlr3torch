@@ -88,7 +88,6 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
     on_end = function() {
       catf("Finished training for %s epochs (%s)", self$ctx$epoch, format(Sys.time()))
     },
-    },
     #' @description
     #' Initializes the progress bar for prediction.
     on_predict_begin = function() {

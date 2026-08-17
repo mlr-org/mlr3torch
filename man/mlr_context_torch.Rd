@@ -5,7 +5,7 @@
 \alias{ContextTorch}
 \title{Context for Torch Learner}
 \description{
-Context for training a torch learner.
+Base context class for torch learners.
 This is the - mostly read-only - information callbacks have access to through the argument \code{ctx}.
 For more information on callbacks, see \code{\link{CallbackSet}}.
 }
@@ -21,6 +21,8 @@ Other Callback:
 \code{\link{mlr_callback_set.progress}},
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
+\code{\link{mlr_context_torch_predict}},
+\code{\link{mlr_context_torch_train}},
 \code{\link[=t_clbk]{t_clbk()}},
 \code{\link[=torch_callback]{torch_callback()}}
 }
@@ -31,80 +33,8 @@ Other Callback:
     \item{\code{learner}}{(\code{\link[mlr3:Learner]{Learner}})\cr
 The torch learner.}
 
-    \item{\code{task_train}}{(\code{\link[mlr3:Task]{Task}})\cr
-The training task.}
-
-    \item{\code{task_valid}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
-The validation task.}
-
-    \item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
-The data loader for training.}
-
-    \item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
-The data loader for validation.}
-
-    \item{\code{measures_train}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s)\cr
-Measures used for training.}
-
-    \item{\code{measures_valid}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s)\cr
-Measures used for validation.}
-
     \item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The torch network.}
-
-    \item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}})\cr
-The optimizer.}
-
-    \item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
-The loss function.}
-
-    \item{\code{total_epochs}}{(\code{integer(1)})\cr
-The total number of epochs the learner is trained for.}
-
-    \item{\code{last_scores_train}}{(named \code{list()} or \code{NULL})\cr
-The scores from the last training batch. Names are the ids of the training measures.
-If \code{\link{LearnerTorch}} sets \code{eval_freq} different from \code{1}, this is \code{NULL} in all epochs
-that don't evaluate the model.}
-
-    \item{\code{last_scores_valid}}{(\code{list()})\cr
-The scores from the last validation batch. Names are the ids of the validation measures.
-If \code{\link{LearnerTorch}} sets \code{eval_freq} different from \code{1}, this is \code{NULL} in all epochs
-that don't evaluate the model.}
-
-    \item{\code{last_loss}}{(\code{numeric(1)})\cr
-The loss from the last trainings batch.}
-
-    \item{\code{y_hat}}{(\code{\link[torch:torch_tensor]{torch_tensor}})\cr
-The model's primary prediction for the current batch.
-If the network has auxiliary classifiers, this is the first of the predictions it
-returns, i.e. the one that is scored and returned when predicting.}
-
-    \item{\code{y_hats}}{(\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()})\cr
-The complete output of the network for the current batch, i.e. what the loss is applied
-to. This is a \code{list()} of predictions if the network has auxiliary classifiers and
-identical to \code{y_hat} otherwise.}
-
-    \item{\code{epoch}}{(\code{integer(1)})\cr
-The current epoch.}
-
-    \item{\code{step}}{(\code{integer(1)})\cr
-The current iteration, i.e. the index of the batch within the current epoch.
-This is reset to \code{0} at the beginning of every epoch, so a globally unique step is
-\code{(epoch - 1) * length(loader_train) + step}.}
-
-    \item{\code{prediction_encoder}}{(\verb{function()})\cr
-The learner's prediction encoder.}
-
-    \item{\code{batch}}{(named \code{list()} of \code{torch_tensor}s)\cr
-The current batch.}
-
-    \item{\code{terminate}}{(\code{logical(1)})\cr
-If this field is set to \code{TRUE} at the end of an epoch, training stops.}
-
-    \item{\code{callbacks}}{(named \code{list()} of \code{\link{CallbackSet}}s)\cr
-The callbacks that are active during training, named by their ids.
-This allows a callback to access the state of the other callbacks, which is for example
-what \code{\link{CallbackSetCheckpoint}} does to save them.}
 
     \item{\code{device}}{(\code{torch::torch_device})\cr
 The device.}
@@ -125,22 +55,7 @@ The device.}
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{ContextTorch$new(
-  learner,
-  task_train,
-  task_valid = NULL,
-  loader_train,
-  loader_valid = NULL,
-  measures_train = NULL,
-  measures_valid = NULL,
-  network,
-  optimizer,
-  loss_fn,
-  total_epochs,
-  prediction_encoder,
-  eval_freq = 1L,
-  device
-)}
+    \preformatted{ContextTorch$new(learner, network, device)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -148,31 +63,8 @@ The device.}
     \describe{
       \item{\code{learner}}{(\code{\link[mlr3:Learner]{Learner}})\cr
 The torch learner.}
-      \item{\code{task_train}}{(\code{\link[mlr3:Task]{Task}})\cr
-The training task.}
-      \item{\code{task_valid}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
-The validation task.}
-      \item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
-The data loader for training.}
-      \item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}} or \code{NULL})\cr
-The data loader for validation.}
-      \item{\code{measures_train}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s or \code{NULL})\cr
-Measures used for training. Default is \code{NULL}.}
-      \item{\code{measures_valid}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s or \code{NULL})\cr
-Measures used for validation.}
       \item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The torch network.}
-      \item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}})\cr
-The optimizer.}
-      \item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
-The loss function.}
-      \item{\code{total_epochs}}{(\code{integer(1)})\cr
-The total number of epochs the learner is trained for.}
-      \item{\code{prediction_encoder}}{(\verb{function()})\cr
-The learner's prediction encoder.
-See section \emph{Inheriting} of \code{\link{LearnerTorch}}.}
-      \item{\code{eval_freq}}{(\code{integer(1)})\cr
-The evaluation frequency.}
       \item{\code{device}}{(\code{character(1)})\cr
 The device.}
     }
