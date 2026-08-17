@@ -76,7 +76,6 @@
 #' network = model_descriptor_to_module(md$train(tsk("iris"))[[1L]])
 #' network
 #'
- 
 #' # To use it via `nn("custom_scale")` or `po("nn_custom_scale")` we could run the line below:
 #' # mlr_pipeops$add("nn_custom_scale", PipeOpTorchCustomScale)
 pipeop_torch = function(id, initialize = NULL, forward, shapes_out, param_set = NULL,

@@ -43,7 +43,6 @@ be automatically inferred from the shapes of the input tensors.
 
 \section{Inheriting}{
 
-Inheriting:
 When inheriting from this class, one should overload either the \code{private$.shapes_out()} and the
 \code{private$.shape_dependent_params()} methods, or overload \code{private$.make_module()}.
 \itemize{
@@ -232,7 +231,7 @@ Other Graph Network:
   \describe{
     \item{\code{module_generator}}{(\code{nn_module_generator} or \code{NULL})\cr
 The module generator wrapped by this \code{PipeOpTorch}. If \code{NULL}, the private method
-\code{private$.make_module(shapes_in, param_vals)} must be overwritte, see section 'Inheriting'.
+\code{private$.make_module(shapes_in, param_vals)} must be overwritten, see section 'Inheriting'.
 Do not change this after construction.}
   }
   \if{html}{\out{</div>}}
@@ -285,19 +284,18 @@ The parameter set.}
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
       \item{\code{inname}}{(\code{character()})\cr
-The names of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}'s input channels. These will be the input channels of the generated \code{\link{PipeOpModule}}.
-Unless the wrapped \code{module_generator}'s forward method (if present) has the argument \code{...}, \code{inname} must be
-identical to those argument names in order to avoid any ambiguity.\cr
-If the forward method has the argument \code{...}, the order of the input channels determines how the tensors
-will be passed to the wrapped \code{nn_module}.\cr
-If left as \code{NULL} (default), the argument \code{module_generator} must be given and the argument names of the
-\code{modue_generator}'s forward function are set as \code{inname}.}
+The names of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}'s input channels, \code{"input"} by default.
+These will be the input channels of the generated \code{\link{PipeOpModule}}.
+The tensors are passed to the wrapped \code{nn_module} by position, i.e. the order of the input channels
+determines which argument of the forward method they end up in.
+Unless the forward method has the argument \code{...}, naming the input channels after its arguments is
+therefore recommended, as it avoids any ambiguity.}
       \item{\code{outname}}{(\code{character()}) \cr
-The names of the output channels. These will be the ouput channels of the generated \code{\link{PipeOpModule}}
-and therefore also the names of the list returned by its \verb{$train()}.
+The names of the output channels, \code{"output"} by default. These will be the ouput channels of the
+generated \code{\link{PipeOpModule}} and therefore also the names of the list returned by its \verb{$train()}.
 In case there is more than one output channel, the \code{nn_module} that is constructed by this
-\code{\link[mlr3pipelines:PipeOp]{PipeOp}} during training must return a named \code{list()}, where the names of the list are the
-names out the output channels. The default is \code{"output"}.}
+\code{\link[mlr3pipelines:PipeOp]{PipeOp}} during training must return a \code{list()} whose elements are in the
+order of the output channels.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{tags}}{(\code{character()})\cr

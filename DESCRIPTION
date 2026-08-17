@@ -41,7 +41,7 @@ BugReports: https://github.com/mlr-org/mlr3torch/issues
 URL: https://mlr3torch.mlr-org.com/, https://github.com/mlr-org/mlr3torch/
 Depends:
     mlr3 (>= 1.0.1),
-    mlr3pipelines (>= 0.11.0.9000),
+    mlr3pipelines (>= 0.11.0),
     torch (>= 0.16.2),
     R (>= 4.2.0)
 Imports:
@@ -77,8 +77,7 @@ Suggests:
     torchvision (>= 0.6.0),
     waldo
 Remotes:
-    mlr-org/mlr3misc,
-    mlr-org/mlr3pipelines
+    mlr-org/mlr3misc
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: yes

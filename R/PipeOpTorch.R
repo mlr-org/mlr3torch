@@ -38,7 +38,6 @@
 #' be automatically inferred from the shapes of the input tensors.
 #'
 #' @section Inheriting:
-#' Inheriting:
 #' When inheriting from this class, one should overload either the `private$.shapes_out()` and the
 #' `private$.shape_dependent_params()` methods, or overload `private$.make_module()`.
 #'
@@ -196,7 +195,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
   public = list(
     #' @field module_generator (`nn_module_generator` or `NULL`)\cr
     #'    The module generator wrapped by this `PipeOpTorch`. If `NULL`, the private method
-    #'    `private$.make_module(shapes_in, param_vals)` must be overwritte, see section 'Inheriting'.
+    #'    `private$.make_module(shapes_in, param_vals)` must be overwritten, see section 'Inheriting'.
     #'    Do not change this after construction.
     module_generator = NULL,
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
@@ -207,19 +206,18 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #' @param tags (`character()`)\cr
     #'   The tags of the [`PipeOp`][mlr3pipelines::PipeOp]. The tags `"torch"` is always added.
     #' @param inname (`character()`)\cr
-    #'   The names of the [`PipeOp`][mlr3pipelines::PipeOp]'s input channels. These will be the input channels of the generated [`PipeOpModule`].
-    #'   Unless the wrapped `module_generator`'s forward method (if present) has the argument `...`, `inname` must be
-    #'   identical to those argument names in order to avoid any ambiguity.\cr
-    #'   If the forward method has the argument `...`, the order of the input channels determines how the tensors
-    #'   will be passed to the wrapped `nn_module`.\cr
-    #'   If left as `NULL` (default), the argument `module_generator` must be given and the argument names of the
-    #'   `modue_generator`'s forward function are set as `inname`.
+    #'   The names of the [`PipeOp`][mlr3pipelines::PipeOp]'s input channels, `"input"` by default.
+    #'   These will be the input channels of the generated [`PipeOpModule`].
+    #'   The tensors are passed to the wrapped `nn_module` by position, i.e. the order of the input channels
+    #'   determines which argument of the forward method they end up in.
+    #'   Unless the forward method has the argument `...`, naming the input channels after its arguments is
+    #'   therefore recommended, as it avoids any ambiguity.
     #' @param outname (`character()`) \cr
-    #'   The names of the output channels. These will be the ouput channels of the generated [`PipeOpModule`]
-    #'   and therefore also the names of the list returned by its `$train()`.
+    #'   The names of the output channels, `"output"` by default. These will be the ouput channels of the
+    #'   generated [`PipeOpModule`] and therefore also the names of the list returned by its `$train()`.
     #'   In case there is more than one output channel, the `nn_module` that is constructed by this
-    #'   [`PipeOp`][mlr3pipelines::PipeOp] during training must return a named `list()`, where the names of the list are the
-    #'   names out the output channels. The default is `"output"`.
+    #'   [`PipeOp`][mlr3pipelines::PipeOp] during training must return a `list()` whose elements are in the
+    #'   order of the output channels.
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
       inname = "input", outname = "output", packages = "torch", tags = NULL) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)

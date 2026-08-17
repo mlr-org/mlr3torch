@@ -17,8 +17,8 @@ library(mlr3torch)
 
 The {mlr3torch} package already provides `PipeOpTorch` objects for many common neural network layers.
 However, sooner or later you will want to add your own custom layer.
-This article will explain you how to do so.
-We assume that you already understand how to use them, which is covered in [Defining an Architecture](pipeop_torch.html).
+This article will show you how to do so.
+We assume that you already understand how to use existing `PipeOpTorch` objects, which is covered in [Defining an Architecture](pipeop_torch.html).
 
 A `PipeOpTorch` is a descriptor of an `nn_module_generator`: it does not contain a module, it says
 how to build one once the shape of its input is known.
@@ -57,7 +57,7 @@ For `nn_my_linear`, the `in_features` need to be manually specified.
 However, they are an *auxiliary* parameter, in the sense that they can be inferred from the input shape that the layer will receive during runtime.
 The core idea of a `PipeOpTorch` is that it does not require specifying such auxiliary parameters but that they are automatically determined.
 To enable this, a `PipeOpTorch` needs to define how to infer these auxiliary parameters and how to compute the output shapes for the specified input shapes and hyperparameters.
-In the code below, the `$initialize()` method of the module generator takes in the `shapes_in` and  computes the `in_features` from their last dimension.
+In the code below, the `$initialize()` method of the module generator takes in the `shapes_in` and computes the `in_features` from their last dimension.
 The shape inference is implemented via the `$shapes_out()` method.
 Note that the input shapes can have unknown dimensions, which are encoded as being `NA`, so we need to assert that the feature dimension which we use to set `in_features` is actually known and also that the number of input dimensions is at least 2.
 The {mlr3torch} package also comes with other such assertion helpers that are useful when implementing the shape inference.
@@ -74,10 +74,10 @@ PipeOpTorchMyLinear = pipeop_torch("nn_my_linear",
     nnf_linear(input, self$weight, self$bias)
   },
   shapes_out = function(shapes_in, param_vals) {
-    shape_in <- shapes_in[[1L]]
+    shape_in = shapes_in[[1L]]
     assert_ndim(shape_in, min = 2L)
     assert_known_dims(shape_in, length(shape_in))
-    list(c(head(shapes_in[[1L]], -1L), param_vals$out_features))
+    list(c(head(shape_in, -1L), param_vals$out_features))
   }
 )
 ```
@@ -114,11 +114,11 @@ Under the hood, `pipeop_torch` creates an `R6Class` that inherits from `PipeOpTo
 Next, we will show how to do this manually, starting from the `nn_my_linear` from above.
 For more information and details, also see the *Inheriting* section of `PipeOpTorch`.
 
-In the code below, we specify the parameter set, how to infer the `in_features` from the input shapes (via `$.shapes_dependent_params()`), as well as the shape inference (via `$.shapes_out()`).
+In the code below, we specify the parameter set, how to infer the `in_features` from the input shapes (via `private$.shape_dependent_params()`), as well as the shape inference (via `private$.shapes_out()`).
 The signature of the two private methods is:
 
 * `.shape_dependent_params(shapes_in, param_vals, task)` returns *all* arguments with which the module generator is called, i.e. the user-specified `param_vals` plus the auxiliary parameters that are inferred from the input shapes.
-* `.shapes_out(shapes_in, param_vals, task)` returns the output shapes, exactly like the `shapes_out` argument of `pipeop_torch()`.
+* `.shapes_out(shapes_in, param_vals, task)` returns the output shapes, just like the `shapes_out` argument of `pipeop_torch()`, except that it always receives all three arguments and not only those that it declares.
 
 ```{r}
 library(paradox)
@@ -222,7 +222,7 @@ nn_parallel_linear = nn_module("nn_parallel_linear",
 The channel names are now specified via the `inname` and `outname` arguments of `super$initialize()`.
 The tensors are passed to the module's `$forward()` method by position, so it is the *order* of the input channels that has to match its arguments.
 Naming the `inname`s after those arguments is nonetheless recommended, as it avoids any ambiguity about which tensor ends up where.
-Both `shapes_in` and the returned output shapes are named after the channels.
+The `shapes_in` are named after the input channels, while the shapes returned by `.shapes_out()` are assigned to the output channels by position.
 
 ```{r}
 PipeOpTorchParallelLinear = R6::R6Class("PipeOpTorchParallelLinear",
@@ -257,8 +257,8 @@ PipeOpTorchParallelLinear = R6::R6Class("PipeOpTorchParallelLinear",
         assert_known_dims(shape_in, length(shape_in))
       }
       list(
-        output1 = c(head(shapes_in[["input1"]], -1L), param_vals$d_out1),
-        output2 = c(head(shapes_in[["input2"]], -1L), param_vals$d_out2)
+        c(head(shapes_in[["input1"]], -1L), param_vals$d_out1),
+        c(head(shapes_in[["input2"]], -1L), param_vals$d_out2)
       )
     }
   )
@@ -270,5 +270,5 @@ po_parallel_linear = PipeOpTorchParallelLinear$new(
 po_parallel_linear$shapes_out(list(input1 = c(NA, 2), input2 = c(NA, 2)))
 ```
 
-Note that it is also possible to dynamically determine the input and output channels depending on the constructor arguemnts of the `PipeOpTorch`.
+Note that it is also possible to dynamically determine the input and output channels depending on the constructor arguments of the `PipeOpTorch`.
 What is not possible is that the number of input or output channels depends on specific parameter values.
