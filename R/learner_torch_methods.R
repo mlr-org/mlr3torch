@@ -14,7 +14,29 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
   self$network$to(device = param_vals$device)
   self$network$eval()
   data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
-  predict_tensor = torch_network_predict(self$network, data_loader, device = param_vals$device)
+  ctx = ContextTorchPredict$new(
+    learner = self,
+    network = self$network,
+    loader_predict = data_loader,
+    device = param_vals$device
+  )
+
+  callbacks = set_names(lapply(self$callbacks, function(descriptor) {
+    cb = descriptor$generate()
+    cb$ctx = ctx
+    cb
+  }), ids(self$callbacks))
+
+  call = function(step_name) {
+    lapply(callbacks, function(x) {
+      if (exists(step_name, x, inherits = FALSE)) {
+        x[[step_name]]()
+      }
+    })
+  }
+
+  predict_tensor = torch_network_predict(ctx, call)
+  walk(callbacks, function(cb) cb$ctx = NULL)
   private$.encode_prediction(predict_tensor = predict_tensor, task = task)
 }
 
@@ -71,7 +93,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     stopf("Validation Dataloader of Learner '%s' has length 0", self$id)
   }
 
-  ctx = ContextTorch$new(
+  ctx = ContextTorchTrain$new(
     learner = self,
     task_train = task,
     task_valid = task_valid,
@@ -285,25 +307,33 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
   torch_cat(predictions, dim = 1L)
 }
 
-torch_network_predict = function(network, loader, device) {
+torch_network_predict = function(ctx, callback_receiver = function(step_name) NULL) {
+  network = ctx$network
+  loader = ctx$loader_predict
+  # TODO: determine the meaning of the below comment
   # an unnamed argument
   # TODO: Maybe we should be stricter, but then we need to ensure that the .getbatch() method of the dataset
   # returns a list where the names of x correspond to the argument names of the network
   one_arg = has_one_arg(network)
   predictions = vector("list", length = length(loader))
-  train_iterator = dataloader_make_iter(loader)
-  step = 0L
-  while (step < length(loader)) {
-    step = step + 1L
-    batch = dataloader_next(train_iterator)
-    batch$x = lapply(batch$x, function(x) x$to(device = device))
-    predictions[[step]] = if (one_arg) {
-      with_no_grad(network$forward(batch$x[[1L]]))
-    } else {
-      with_no_grad(invoke(network$forward, .args = batch$x))
-    }
+  predict_iterator = dataloader_make_iter(loader)
+  ctx$step_predict = 0L
 
+  callback_receiver("on_predict_begin")
+
+  while (ctx$step_predict < length(loader)) {
+    ctx$step_predict = ctx$step_predict + 1L
+    ctx$batch = dataloader_next(predict_iterator)
+    ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
+
+    predictions[[ctx$step_predict]] = if (one_arg) {
+      with_no_grad(network$forward(ctx$batch$x[[1L]]))
+    } else {
+      with_no_grad(invoke(network$forward, .args = ctx$batch$x))
+    }
+    callback_receiver("on_batch_predict_end")
   }
+  callback_receiver("on_predict_end")
   torch_cat(predictions, dim = 1L)
 }
 

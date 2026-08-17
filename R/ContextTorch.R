@@ -3,13 +3,52 @@
 #' @name mlr_context_torch
 #'
 #' @description
-#' Context for training a torch learner.
+#' Base context class for torch learners.
 #' This is the - mostly read-only - information callbacks have access to through the argument `ctx`.
 #' For more information on callbacks, see [`CallbackSet`].
 #'
 #' @family Callback
 #' @export
 ContextTorch = R6Class("ContextTorch",
+  lock_objects = FALSE,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param learner ([`Learner`][mlr3::Learner])\cr
+    #'   The torch learner.
+    #' @param network ([`torch::nn_module`])\cr
+    #'   The torch network.
+    #' @param device (`character(1)`)\cr
+    #'   The device.
+    initialize = function(learner, network, device) {
+      self$learner = assert_r6(learner, "Learner")
+      self$network = assert_class(network, "nn_module")
+      self$device = torch_device(assert_choice(device, mlr_reflections$torch$devices))
+    },
+    #' @field learner ([`Learner`][mlr3::Learner])\cr
+    #'   The torch learner.
+    learner = NULL,
+    #' @field network ([`torch::nn_module`])\cr
+    #'   The torch network.
+    network = NULL,
+    #' @field device (`torch::torch_device`)\cr
+    #'   The device.
+    device = NULL
+  )
+)
+
+#' @title Context for Torch Training
+#'
+#' @name mlr_context_torch_train
+#'
+#' @description
+#' Context for training a torch learner.
+#' Inherits from [`ContextTorch`].
+#'
+#' @family Callback
+#' @export
+ContextTorchTrain = R6Class("ContextTorchTrain",
+  inherit = ContextTorch,
   lock_objects = FALSE,
   public = list(
     #' @description
@@ -46,7 +85,7 @@ ContextTorch = R6Class("ContextTorch",
     initialize = function(learner, task_train, task_valid = NULL, loader_train, loader_valid = NULL,
       measures_train = NULL, measures_valid = NULL, network, optimizer, loss_fn, total_epochs, prediction_encoder,
       eval_freq = 1L, device) {
-      self$learner = assert_r6(learner, "Learner")
+      super$initialize(learner = learner, network = network, device = device)
       self$task_train = assert_r6(task_train, "Task")
       self$task_valid = assert_r6(task_valid, "Task", null.ok = TRUE)
       self$loader_train = assert_class(loader_train, "dataloader")
@@ -55,7 +94,8 @@ ContextTorch = R6Class("ContextTorch",
         null.ok = TRUE) %??% list()
       self$measures_valid = assert_list(measures_valid, names = "unique", any.missing = FALSE, types = "Measure",
         null.ok = TRUE) %??% list()
-      self$network = assert_class(network, "nn_module")
+      # TODO: should this be deleted?
+      # self$network = assert_class(network, "nn_module")
       self$optimizer = assert_class(optimizer, "torch_optimizer")
       self$loss_fn = assert_class(loss_fn, "nn_module")
       self$total_epochs = assert_integerish(total_epochs, lower = 0, any.missing = FALSE)
@@ -64,11 +104,9 @@ ContextTorch = R6Class("ContextTorch",
       self$prediction_encoder = assert_function(prediction_encoder, args = c("predict_tensor", "task"))
       self$eval_freq = assert_int(eval_freq, lower = 1L)
       self$terminate = FALSE
-      self$device = torch_device(assert_choice(device, mlr_reflections$torch$devices))
+      # TODO: should this be deleted?
+      # self$device = torch_device(assert_choice(device, mlr_reflections$torch$devices))
     },
-    #' @field learner ([`Learner`][mlr3::Learner])\cr
-    #'   The torch learner.
-    learner = NULL,
     #' @field task_train ([`Task`][mlr3::Task])\cr
     #'   The training task.
     task_train = NULL,
@@ -87,9 +125,6 @@ ContextTorch = R6Class("ContextTorch",
     #' @field measures_valid (`list()` of [`Measure`][mlr3::Measure]s)\cr
     #'   Measures used for validation.
     measures_valid = NULL,
-    #' @field network ([`torch::nn_module`])\cr
-    #'   The torch network.
-    network = NULL,
     #' @field optimizer ([`torch::optimizer`])\cr
     #'   The optimizer.
     optimizer = NULL,
@@ -143,9 +178,42 @@ ContextTorch = R6Class("ContextTorch",
     #'   The callbacks that are active during training, named by their ids.
     #'   This allows a callback to access the state of the other callbacks, which is for example
     #'   what [`CallbackSetCheckpoint`] does to save them.
-    callbacks = NULL,
-    #' @field device (`torch::torch_device`)\cr
-    #'   The device.
-    device = NULL
+    callbacks = NULL
+  )
+)
+
+#' @title Context for Torch Prediction
+#'
+#' @name mlr_context_torch_predict
+#'
+#' @description
+#' Context available during prediction of a torch learner.
+#' Inherits from [`ContextTorch`].
+#'
+#' @family Callback
+#' @export
+ContextTorchPredict = R6Class("ContextTorchPredict",
+  inherit = ContextTorch,
+  lock_objects = FALSE,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param learner ([`Learner`][mlr3::Learner])\cr
+    #'   The torch learner.
+    #' @param network ([`torch::nn_module`])\cr
+    #'   The torch network.
+    #' @param loader_predict ([`torch::dataloader`])\cr
+    #'   The data loader for prediction.
+    #' @param device (`character(1)`)\cr
+    #'     initialize = function(learner, network, loader_predict, device) {
+      super$initialize(learner = learner, network = network, device = device)
+      self$loader_predict = assert_class(loader_predict, "dataloader")
+    },
+    #' @field loader_predict ([`torch::dataloader`])\cr
+    #'   The data loader for prediction.
+    loader_predict = NULL,
+    #' @field step_predict (`integer(1)`)\cr
+    #'   The current prediction batch step.
+    step_predict = NULL
   )
 )

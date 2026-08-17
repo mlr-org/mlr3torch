@@ -18,7 +18,10 @@ test_that("manual test", {
   # callbacks = list(t_clbk("progress"), cbutil)
   # cbutil = torch_callback("util", on_batch_valid_begin = function() Sys.sleep(1))
 
-  stdout = suppressMessages(capture.output(learner$train(task)))
+  stdout = suppressMessages(capture.output({
+    learner$train(task)
+    learner$predict(task)
+  }))
 
   expected = c(
     "Epoch 1 started",
@@ -31,7 +34,9 @@ test_that("manual test", {
     "Measures (Valid):",
     " * classif.ce =",
     "",
-    "Finished training for 1 epochs"
+    "Finished training for 1 epochs",
+    "",
+    "Finished prediction"
   )
 
   expect_true(length(stdout) == length(expected))

@@ -87,6 +87,26 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
     #' Prints the time at the end of training.
     on_end = function() {
       catf("Finished training for %s epochs (%s)", self$ctx$epoch, format(Sys.time()))
+    },
+    },
+    #' @description
+    #' Initializes the progress bar for prediction.
+    on_predict_begin = function() {
+      self$pb_predict = progress::progress_bar$new(
+        total = length(self$ctx$loader_predict),
+        format = "Predicting [:bar]"
+      )
+      self$pb_predict$tick(0)
+    },
+    #' @description
+    #' Increments the prediction progress bar.
+    on_batch_predict_end = function() {
+      self$pb_predict$tick()
+    },
+    #' @description
+    #' Prints completion message after prediction.
+    on_predict_end = function() {
+      catf("Finished prediction (%s)", format(Sys.time()))
     }
   )
 )

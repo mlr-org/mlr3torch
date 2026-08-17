@@ -45,6 +45,9 @@
 #' * `epoch_end` :: Run at the end of each epoch.
 #' * `end` :: Run after last epoch.
 #' * `exit` :: Run last, using `on.exit()`.
+#' * `predict_begin` :: Run before the prediction starts.
+#' * `batch_predict_end` :: Run after each batch during prediction.
+#' * `predict_end` :: Run after prediction is finished.
 #'
 #' @section Ordering:
 #' Within a stage, callbacks are called in the order in which they were passed to the learner.
@@ -140,7 +143,7 @@ CallbackSet = R6Class("CallbackSet",
 #'
 #' @param classname (`character(1)`)\cr
 #'   The class name.
-#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end,on_valid_end,on_exit (`function`)\cr
+#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end,on_valid_end,,on_predict_begin,on_batch_predict_end,on_predict_end,on_exit (`function`)\cr
 #'   Function to execute at the given stage, see section *Stages*.
 #' @param initialize (`function()`)\cr
 #'   The initialization method of the callback.
@@ -184,6 +187,10 @@ callback_set = function(
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
   on_valid_end = NULL,
+  # prediction
+  on_predict_begin = NULL,
+  on_batch_predict_end = NULL,
+  on_predict_end = NULL,
   # other methods
   state_dict = NULL,
   load_state_dict = NULL,
@@ -209,6 +216,10 @@ callback_set = function(
     on_batch_valid_begin = assert_function(on_batch_valid_begin, nargs = 0, null.ok = TRUE),
     on_batch_valid_end = assert_function(on_batch_valid_end, nargs = 0, null.ok = TRUE),
     on_valid_end = assert_function(on_valid_end, nargs = 0, null.ok = TRUE),
+    on_predict_begin = assert_function(on_predict_begin, nargs = 0, null.ok = TRUE),
+    on_batch_predict_end = assert_function(on_batch_predict_end, nargs = 0, null.ok = TRUE),
+    on_predict_end = assert_function(on_predict_end, nargs = 0, null.ok = TRUE),
+    # TODO: rename this (maybe the entire stage?) since it's unclear now that we are adding prediction.
     on_exit = assert_function(on_exit, nargs = 0, null.ok = TRUE),
     # NULL is filtered out below, so that inheriting from another callback keeps its weight
     weight = if (!is.null(weight)) assert_number(weight)
