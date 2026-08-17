@@ -57,6 +57,21 @@
 #' This matters for callbacks that observe what the others did, which is why
 #' [`CallbackSetCheckpoint`] defaults to weight `Inf`: it runs last and therefore saves the network
 #' and optimizer as the other callbacks left them at the end of the stage.
+#' Because it also writes the other callbacks' states, a callback that has a `$state_dict()` and
+#' updates it in the `epoch_end` or `end` stage may not be ordered after it -- its state would be
+#' stored an epoch behind, so training errors instead.
+#'
+#' @section Resuming:
+#' A checkpoint written by [`CallbackSetCheckpoint`] contains the `$state_dict()` of every callback
+#' of the run, and a run that resumes from it hands those back to `$load_state_dict()`, matched to
+#' this run's callbacks by id (see the `path` parameter of [`LearnerTorch`]).
+#' A callback that implements neither method therefore restores nothing and starts over, which for
+#' a stateless callback is the correct behaviour.
+#' Each of the predefined callbacks documents what it restores in a *Resuming* section of its own.
+#'
+#' `$load_state_dict()` is called *before* the `begin` stage, so a callback that only creates the
+#' object its state belongs to in `$on_begin()` -- as the learning rate schedulers do -- has to
+#' remember the state and apply it there.
 #'
 #' @section Terminate Training:
 #' If training is to be stopped, it is possible to set the field `$terminate` of [`ContextTorch`].

@@ -15,6 +15,24 @@
 #' * [torch::lr_step()]
 #' * Custom schedulers defined with [torch::lr_scheduler()].
 #'
+#' Attaching more than one of these is possible but rarely what you want, as they are not
+#' independent: a schedule that sets the rate from the initial one ([torch::lr_lambda()]) overwrites
+#' what a schedule that scales the current one ([torch::lr_step()], [torch::lr_multiplicative()])
+#' did in the same epoch, so which one has an effect comes down to the order the callbacks were
+#' passed in (see the section *Ordering* of [`CallbackSet`]).
+#'
+#' @section Resuming:
+#' The state of the wrapped `torch` scheduler is stored and restored, so a resumed run continues the
+#' schedule instead of starting it over.
+#' Creating a scheduler resets the optimizer's learning rate to the one the schedule started at, so
+#' the rate the restored schedule had reached is put back afterwards.
+#'
+#' That state contains the scheduler's configuration as well as its progress, and restoring it
+#' overwrites what the resuming run was configured with.
+#' Resuming with different scheduler arguments -- or a different `opt.lr`, which the schedule's base
+#' rates are derived from -- therefore silently continues the schedule of the checkpointed run.
+#' Configure both runs the same way; a schedule cannot be changed halfway through.
+#'
 #' @param .scheduler (`lr_scheduler_generator`)\cr
 #'   The `torch` scheduler generator (e.g. `torch::lr_step`).
 #' @param ... (any)\cr
@@ -51,8 +69,13 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
+      # Creating a scheduler sets the optimizer's learning rate back to the `initial_lr` that the
+      # first scheduler recorded on it. When the optimizer was restored from a checkpoint that is
+      # the rate the schedule *started* at, not the one it had reached, so it is remembered here
+      # and put back in $.restore_scheduler_state().
+      lrs = map_dbl(self$ctx$optimizer$param_groups, function(group) group$lr)
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
-      private$.restore_scheduler_state()
+      private$.restore_scheduler_state(lrs)
     },
     #' @description
     #' Returns the state of the wrapped `torch` scheduler, so that a later run can continue the
@@ -76,12 +99,23 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   private = list(
     .scheduler_args = NULL,
     .prev_state = NULL,
-    .restore_scheduler_state = function() {
+    # `lrs` are the learning rates the optimizer had before the scheduler was created, or NULL when
+    # the state is restored while the scheduler already exists.
+    .restore_scheduler_state = function(lrs = NULL) {
       if (is.null(private$.prev_state)) return(NULL)
       # the state dict of the freshly created scheduler describes the schedule this run is
       # configured for, which is not necessarily the one the state was saved for
       private$.assert_compatible_state(self$scheduler$state_dict(), private$.prev_state)
       self$scheduler$load_state_dict(private$.prev_state)
+      # `$load_state_dict()` only restores the scheduler, so the optimizer is still at the
+      # `initial_lr` the constructor put it back to. Most schedules recompute the rate from
+      # `base_lrs` and `last_epoch` on their next step and so repair themselves, but one that
+      # computes it from the current rate -- `lr_multiplicative` -- would start over from there.
+      if (!is.null(lrs)) {
+        walk(seq_along(self$ctx$optimizer$param_groups), function(i) {
+          self$ctx$optimizer$param_groups[[i]]$lr = lrs[[i]]
+        })
+      }
       private$.prev_state = NULL
     },
     # Schedulers whose shape depends on the length of the training run overwrite this to fail
@@ -98,6 +132,13 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 #' Changes the learning rate based on the 1cycle learning rate policy.
 #'
 #' Wraps [torch::lr_one_cycle()], where the default values for `epochs` and `steps_per_epoch` are the number of training epochs and the number of batches per epoch.
+#'
+#' @section Resuming:
+#' As for [`CallbackSetLRScheduler`], with one additional restriction: the 1cycle policy is defined
+#' over the total number of steps of the run, so a resumed run must be configured for the same
+#' number of steps as the one that wrote the checkpoint, i.e. the same `epochs` and the same number
+#' of batches per epoch.
+#' A run that is not errors before its first epoch rather than somewhere in the middle.
 #'
 #' @param ... (any)\cr
 #'   The scheduler-specific initialization arguments.
@@ -149,6 +190,11 @@ CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
 #' @description
 #' Reduces the learning rate when the first validation metric stops improving for `patience` epochs.
 #' Wraps [torch::lr_reduce_on_plateau()]
+#'
+#' @section Resuming:
+#' As for [`CallbackSetLRScheduler`]. For this schedule the restored state includes the best score
+#' seen so far and how long it has been stagnating, so `patience` keeps counting across runs instead
+#' of starting over.
 #'
 #' @param ... (any)\cr
 #'   The scheduler-specific initialization arguments.

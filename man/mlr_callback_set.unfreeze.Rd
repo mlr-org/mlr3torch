@@ -7,6 +7,15 @@
 \description{
 Unfreeze some weights (parameters of the network) after some number of steps or epochs.
 }
+\section{Resuming}{
+
+Which weights were trainable at the end of a run is stored, and they are marked trainable again
+on resume, so weights an earlier run unfroze stay unfrozen.
+This is needed because \code{unfreeze} is a schedule over epoch or batch numbers, and a resumed run
+does not pass those of the run it continues again.
+Weights that the resuming network does not have are ignored.
+}
+
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 task = tsk("iris")

@@ -6,7 +6,9 @@
 \title{Checkpoint Callback}
 \description{
 Saves the optimizer and network states during training.
-The final network and optimizer are always stored.
+The last epoch of a run that finished is always stored, whether or not \code{freq} falls on it.
+A run that failed in the middle of an epoch keeps only what \code{freq} wrote before that, because
+the network and optimizer are then at no epoch boundary.
 
 Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, three files
 are created in \code{path}:
@@ -39,6 +41,18 @@ parameter of \code{\link{LearnerTorch}}, see the example below.
 Saving the learner itself in the callback with a trained model is impossible,
 as the model slot is set \emph{after} the last callback step is executed.
 }
+\section{Resuming}{
+
+This callback keeps no state of its own: it stores nothing in the checkpoint it writes and
+restores nothing from the one a run resumes.
+What resuming changes is where it starts writing.
+A resumed run only writes the epochs it trains itself, so the checkpoints of the run it continues
+stay as they are, and a run that trains no epochs of its own -- because the checkpoint is already
+at \code{epochs} -- writes nothing.
+Pointing this callback's \code{path} and \code{\link{LearnerTorch}}'s \code{path} at the same folder hence continues a
+run in place, which is what setting the latter to \code{TRUE} does.
+}
+
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 cb = t_clbk("checkpoint", freq = 1)

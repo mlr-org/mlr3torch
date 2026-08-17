@@ -169,6 +169,36 @@ test_that("the checkpoint callback runs last", {
   expect_equal(CallbackSet$new()$weight, 0)
 })
 
+test_that("a stateful callback may not run after the checkpoint callback", {
+  # the checkpoint reads the states of the other callbacks when it writes them, so one that updates
+  # its state in the same stage afterwards would be stored as it was an epoch earlier
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 1, path = tempfile()),
+      t_clbk("history", weight = Inf)))
+  expect_error(learner$train(tsk("iris")), "'history'.*run after the 'checkpoint' callback")
+
+  # a callback that keeps no state cannot lose one, whatever its weight
+  stateless = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 1, path = tempfile()),
+      torch_callback("noop", weight = Inf, on_epoch_end = function() NULL)))
+  expect_no_error(stateless$train(tsk("iris")))
+})
+
+test_that("early stopping may run after the checkpoint callback", {
+  # it updates its state in `valid_end`, which is over by the time the checkpoint writes in
+  # `epoch_end`, so the checkpoint stores the state of the epoch it belongs to
+  path = tempfile()
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, patience = 2L,
+    validate = 0.3, measures_valid = msr("classif.ce"),
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  expect_no_error(learner$train(tsk("iris")))
+
+  expect_equal(
+    readRDS(file.path(path, "state2.rds"))$callbacks$early_stopping,
+    learner$model$callbacks$early_stopping
+  )
+})
+
 test_that("a callback's default weight is set in $initialize() and can be overwritten", {
   # the default is not baked into the class as a public field, so both the constructor and
   # `t_clbk()` can put the callback somewhere else in the order

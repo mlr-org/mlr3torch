@@ -7,6 +7,14 @@
 \description{
 Prints a progress bar and the metrics for training and validation.
 }
+\section{Resuming}{
+
+A resumed run prints only the epochs it trains itself, numbered as what they are: it starts at
+the epoch after the checkpoint, not at epoch 1.
+The time training has taken is carried across runs, so the total this reports when training ends
+covers the runs the checkpoint came from as well and not only the last one.
+}
+
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 task = tsk("iris")
@@ -44,20 +52,21 @@ Other Callback:
 \subsection{Public methods}{
   \itemize{
     \item \href{#method-CallbackSetProgress-initialize}{\code{CallbackSetProgress$new()}}
+    \item \href{#method-CallbackSetProgress-on_begin}{\code{CallbackSetProgress$on_begin()}}
     \item \href{#method-CallbackSetProgress-on_epoch_begin}{\code{CallbackSetProgress$on_epoch_begin()}}
     \item \href{#method-CallbackSetProgress-on_batch_end}{\code{CallbackSetProgress$on_batch_end()}}
     \item \href{#method-CallbackSetProgress-on_before_valid}{\code{CallbackSetProgress$on_before_valid()}}
     \item \href{#method-CallbackSetProgress-on_batch_valid_end}{\code{CallbackSetProgress$on_batch_valid_end()}}
     \item \href{#method-CallbackSetProgress-on_epoch_end}{\code{CallbackSetProgress$on_epoch_end()}}
     \item \href{#method-CallbackSetProgress-on_end}{\code{CallbackSetProgress$on_end()}}
+    \item \href{#method-CallbackSetProgress-state_dict}{\code{CallbackSetProgress$state_dict()}}
+    \item \href{#method-CallbackSetProgress-load_state_dict}{\code{CallbackSetProgress$load_state_dict()}}
     \item \href{#method-CallbackSetProgress-clone}{\code{CallbackSetProgress$clone()}}
   }
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>CallbackSet$load_state_dict()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>CallbackSet$state_dict()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -76,6 +85,18 @@ Other Callback:
       \item{\code{digits}}{\code{integer(1)}\cr
 The number of digits to print for the measures.}
     }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetProgress-on_begin"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_begin}{}}}
+\subsection{\code{CallbackSetProgress$on_begin()}}{
+  Starts this run's timer.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$on_begin()}
     \if{html}{\out{</div>}}
   }
 }
@@ -144,10 +165,43 @@ The number of digits to print for the measures.}
 \if{html}{\out{<a id="method-CallbackSetProgress-on_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_end}{}}}
 \subsection{\code{CallbackSetProgress$on_end()}}{
-  Prints the time at the end of training.
+  Prints the time at the end of training, and how long training took in total.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetProgress$on_end()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetProgress-state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetProgress-state_dict}{}}}
+\subsection{\code{CallbackSetProgress$state_dict()}}{
+  Returns the seconds trained so far, so that a resumed run reports the time of all runs
+together rather than only its own.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$state_dict()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetProgress-load_state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetProgress-load_state_dict}{}}}
+\subsection{\code{CallbackSetProgress$load_state_dict()}}{
+  Loads the time that the previous runs took.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$load_state_dict(state_dict)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{state_dict}}{(named \code{list()})\cr
+The state dict as retrieved via \verb{$state_dict()}.}
+    }
     \if{html}{\out{</div>}}
   }
 }

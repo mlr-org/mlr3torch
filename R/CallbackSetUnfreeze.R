@@ -5,6 +5,13 @@
 #' @description
 #' Unfreeze some weights (parameters of the network) after some number of steps or epochs.
 #'
+#' @section Resuming:
+#' Which weights were trainable at the end of a run is stored, and they are marked trainable again
+#' on resume, so weights an earlier run unfroze stay unfrozen.
+#' This is needed because `unfreeze` is a schedule over epoch or batch numbers, and a resumed run
+#' does not pass those of the run it continues again.
+#' Weights that the resuming network does not have are ignored.
+#'
 #' @param starting_weights (`Select`)\cr
 #'  A `Select` denoting the weights that are trainable from the start.
 #' @param unfreeze (`data.table`)\cr
@@ -112,9 +119,12 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       params = self$ctx$network$parameters
       names(params)[map_lgl(params, function(param) param$requires_grad)]
     },
-    # this is applied both when the state is loaded and at the end of $on_begin(), because the order
-    # the callbacks run in is up to the user (see `$weight` of CallbackSet): whichever of the two
-    # runs last must have the final say, otherwise $on_begin() freezes the weights again
+    # $on_begin() freezes everything outside `starting_weights`, so the restore has to run after it
+    # -- which is why it is called at the end of that method. When resuming, `.prev_state` is
+    # already set by then, as the states are loaded before the `begin` stage. The call in
+    # $load_state_dict() covers a state that is loaded once the network already exists, and is
+    # deliberately not exclusive with the one above: `.prev_state` is kept, so whichever runs last
+    # has the final say.
     .restore_trainable = function() {
       if (is.null(private$.prev_state)) return(NULL)
       weights = intersect(private$.prev_state$trainable, names(self$ctx$network$parameters))

@@ -7,6 +7,13 @@
 #' The history is saved as a data.table where the validation measures are prefixed with `"valid."`
 #' and the training measures are prefixed with `"train."`.
 #'
+#' @section Resuming:
+#' The history is restored and continued rather than started over: the epochs of the resumed run are
+#' appended to the restored ones, so the history covers both runs and stays ordered by epoch.
+#' A run that trains no epochs of its own returns the restored history unchanged.
+#' A measure that only one of the two runs recorded becomes a column that is `NA` for the epochs of
+#' the other.
+#'
 #' @export
 #' @include CallbackSet.R
 #' @examplesIf torch::torch_is_installed()

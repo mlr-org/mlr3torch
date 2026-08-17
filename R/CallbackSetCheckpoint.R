@@ -4,7 +4,9 @@
 #'
 #' @description
 #' Saves the optimizer and network states during training.
-#' The final network and optimizer are always stored.
+#' The last epoch of a run that finished is always stored, whether or not `freq` falls on it.
+#' A run that failed in the middle of an epoch keeps only what `freq` wrote before that, because
+#' the network and optimizer are then at no epoch boundary.
 #'
 #' Checkpoints are written at the end of an epoch. For one written after epoch `<n>`, three files
 #' are created in `path`:
@@ -30,6 +32,16 @@
 #'
 #' Training can be continued from such a checkpoint -- also in a new R session -- via the `path`
 #' parameter of [`LearnerTorch`], see the example below.
+#'
+#' @section Resuming:
+#' This callback keeps no state of its own: it stores nothing in the checkpoint it writes and
+#' restores nothing from the one a run resumes.
+#' What resuming changes is where it starts writing.
+#' A resumed run only writes the epochs it trains itself, so the checkpoints of the run it continues
+#' stay as they are, and a run that trains no epochs of its own -- because the checkpoint is already
+#' at `epochs` -- writes nothing.
+#' Pointing this callback's `path` and [`LearnerTorch`]'s `path` at the same folder hence continues a
+#' run in place, which is what setting the latter to `TRUE` does.
 #'
 #' @details
 #' Saving the learner itself in the callback with a trained model is impossible,
@@ -119,13 +131,10 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
     #' @description
     #' Saves the final network and optimizer, unless the last epoch was already saved.
     on_end = function() {
-      # NOT on_exit, because we only write when the epoch ran successfully
-      if (self$ctx$epoch == private$.start_epoch) {
-        # this run trained no epochs of its own, so the checkpoint it resumed is the current one
-        return(NULL)
-      }
-      if (self$ctx$epoch == 0L || self$ctx$epoch %% self$freq == 0) {
-        # nothing was trained, or the last epoch was already saved
+      # NOT on_exit, because we only write when the epoch ran successfully.
+      # Nothing to do when this run trained no epochs of its own -- the checkpoint it resumed is
+      # then the current one -- or when `freq` already saved the epoch it ended on.
+      if (self$ctx$epoch == private$.start_epoch || self$ctx$epoch %% self$freq == 0) {
         return(NULL)
       }
       private$.save(self$ctx$epoch)

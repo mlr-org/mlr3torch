@@ -5,6 +5,17 @@
 #' @description
 #' Logs training loss, training measures, and validation measures as events.
 #' To view them, use TensorBoard with `tensorflow::tensorboard()` (requires `tensorflow`) or the CLI.
+#'
+#' @section Resuming:
+#' The measures are logged under the epoch they belong to, which a resumed run continues counting on
+#' its own. The training loss is logged per batch and has no epoch to be logged under, so the step it
+#' was last written at is stored in the checkpoint and restored, and a resumed run extends that curve
+#' rather than writing a second one over it starting at `0`.
+#'
+#' A resumed run always logs into a folder of its own, as `path` must not exist yet.
+#' Pointing TensorBoard at the folder that holds both then shows one continuous curve per measure
+#' instead of two that overlap from the start.
+#'
 #' @details
 #' Logs events at most every epoch.
 #'
@@ -35,6 +46,21 @@ CallbackSetTB = R6Class("CallbackSetTB",
       }
     },
     #' @description
+    #' Returns the number of training losses logged so far, which is the step the next one is
+    #' logged under.
+    #' The measures do not need one, as they are logged under the epoch they belong to.
+    state_dict = function() {
+      list(batch_step = private$.batch_step)
+    },
+    #' @description
+    #' Loads the step that the training loss continues at.
+    #' @param state_dict (named `list()`)\cr
+    #'   The state dict as retrieved via `$state_dict()`.
+    load_state_dict = function(state_dict) {
+      private$.batch_step = state_dict$batch_step
+      invisible(NULL)
+    },
+    #' @description
     #' Logs the training loss, training measures, and validation measures as TensorBoard events.
     on_epoch_end = function() {
       if (length(self$ctx$last_scores_train)) {
@@ -47,6 +73,11 @@ CallbackSetTB = R6Class("CallbackSetTB",
     }
   ),
   private = list(
+    # the step the next training loss is logged under. The measures are logged under `ctx$epoch`,
+    # which a resumed run continues on its own, but the loss is logged per batch and so needs a
+    # counter of its own. It is kept here rather than derived from `(epoch - 1) * batches + step`
+    # so that it stays monotonic when a resumed run uses a different `batch_size`.
+    .batch_step = 0L,
     .log_score = function(prefix, measure_name, score) {
       event_list = set_names(list(score, self$ctx$epoch), c(paste0(prefix, measure_name), "step"))
 
@@ -63,9 +94,13 @@ CallbackSetTB = R6Class("CallbackSetTB",
       private$.log_score("train.", measure_name, train_score)
     },
     .log_train_loss = function() {
+      # without an explicit step, tfevents counts from 0 in every run, so a resumed run would write
+      # its loss curve over the one of the run it continues instead of extending it
       tfevents::with_logdir(self$path, {
-        tfevents::log_event(train.loss = self$ctx$last_loss)
+        tfevents::log_event(train.loss = self$ctx$last_loss, step = private$.batch_step)
       })
+      private$.batch_step = private$.batch_step + 1L
+      invisible(NULL)
     }
   )
 )

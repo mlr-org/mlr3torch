@@ -17,7 +17,27 @@ As of this writing, the following are available:
 \item \code{\link[torch:lr_step]{torch::lr_step()}}
 \item Custom schedulers defined with \code{\link[torch:lr_scheduler]{torch::lr_scheduler()}}.
 }
+
+Attaching more than one of these is possible but rarely what you want, as they are not
+independent: a schedule that sets the rate from the initial one (\code{\link[torch:lr_lambda]{torch::lr_lambda()}}) overwrites
+what a schedule that scales the current one (\code{\link[torch:lr_step]{torch::lr_step()}}, \code{\link[torch:lr_multiplicative]{torch::lr_multiplicative()}})
+did in the same epoch, so which one has an effect comes down to the order the callbacks were
+passed in (see the section \emph{Ordering} of \code{\link{CallbackSet}}).
 }
+\section{Resuming}{
+
+The state of the wrapped \code{torch} scheduler is stored and restored, so a resumed run continues the
+schedule instead of starting it over.
+Creating a scheduler resets the optimizer's learning rate to the one the schedule started at, so
+the rate the restored schedule had reached is put back afterwards.
+
+That state contains the scheduler's configuration as well as its progress, and restoring it
+overwrites what the resuming run was configured with.
+Resuming with different scheduler arguments -- or a different \code{opt.lr}, which the schedule's base
+rates are derived from -- therefore silently continues the schedule of the checkpointed run.
+Configure both runs the same way; a schedule cannot be changed halfway through.
+}
+
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetLRScheduler}
 }

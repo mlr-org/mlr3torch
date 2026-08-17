@@ -2,13 +2,13 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
   inherit = CallbackSet,
   lock_objects = FALSE,
   public = list(
-    # The default weight of `Inf` is deliberate and matters in two stages. In `on_valid_end` it
-    # makes this callback run last, so it sees the change a user callback made to
-    # `ctx$last_scores_valid` -- overwriting that field is how a user callback influences early
-    # stopping. In `on_exit` it puts the restore of the best weights after `CallbackSetCheckpoint`,
-    # which defaults to weight `Inf` as well but is passed by the user and hence comes before this
-    # callback, which the learner appends.
-    # A checkpoint therefore holds the network as training left it, not the restored one.
+    # The default weight of `Inf` is deliberate: in `on_valid_end` it makes this callback run last,
+    # so it sees the change a user callback made to `ctx$last_scores_valid` -- overwriting that
+    # field is how a user callback influences early stopping.
+    # That the restore of the best weights comes after `CallbackSetCheckpoint` has written is not
+    # the weight's doing but the stage's: that callback writes in `on_epoch_end` / `on_end`, and
+    # both run before any `on_exit`. A checkpoint therefore holds the network as training left it,
+    # not the restored one.
     initialize = function(patience, min_delta, restore_best_weights = FALSE, weight = Inf) {
       self$weight = assert_number(weight)
       self$patience = assert_int(patience, lower = 1L)
@@ -58,11 +58,13 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       }
       # this stage also runs when training was interrupted, in which case the best weights seen so
       # far are still the right ones to keep. Callbacks that write the network out -- such as
-      # `CallbackSetCheckpoint` -- have already run at this point, see the `weight` above.
+      # `CallbackSetCheckpoint` -- do so in earlier stages and have already run, see above.
       self$ctx$network$load_state_dict(self$best_state_dict)
       invisible(NULL)
     },
     state_dict = function() {
+      # `best_state_dict` is deliberately not part of this: it is a full copy of the network, which
+      # every checkpoint would then carry. What that costs a resumed run is warned about below.
       list(
         # `best_epochs` is what the learner reports as its internally tuned `epochs`
         best_epochs = self$epoch_at_best_score,
@@ -74,6 +76,11 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       self$epoch_at_best_score = state_dict$best_epochs
       self$best_score = state_dict$best_score
       self$stagnation = state_dict$stagnation
+      if (self$restore_best_weights) {
+        # `best_state_dict` stays NULL until this run improves on the restored score, and $on_exit()
+        # then restores nothing. Without this the run would report an epoch it does not hold.
+        warningf("'restore_best_weights' is set, but the weights of the best epoch are not part of a checkpoint. Unless this run improves on the restored best score, it ends with the weights of its last epoch while still reporting the earlier best epoch as its internally tuned 'epochs'.") # nolint
+      }
       invisible(NULL)
     }
   ),

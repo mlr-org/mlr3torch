@@ -127,6 +127,7 @@ train_loop = function(ctx, cbs, resume_path = NULL) {
     assert_number(cbs[[i]]$weight, .var.name = sprintf("weight of callback '%s'", names(cbs)[[i]] %??% i))
   })
   cbs = cbs[order(weights, seq_along(cbs))]
+  assert_checkpoint_writes_last(cbs)
 
   # callbacks such as CallbackSetCheckpoint need access to the other callbacks to save their states,
   # in the order they are called in
@@ -284,16 +285,46 @@ resume_training = function(ctx, resume_path) {
   invisible(NULL)
 }
 
-# The checkpoint callbacks among `cbs`, which are either TorchCallback descriptors (as in
-# `learner$callbacks`) or the CallbackSets they generate (as in `ctx$callbacks`).
+# Whether `cb` checkpoints. It is either a TorchCallback descriptor (as in `learner$callbacks`) or
+# the CallbackSet it generates (as in `ctx$callbacks`).
+is_checkpoint_callback = function(cb) {
+  if (inherits(cb, "TorchCallback")) {
+    identical(cb$generator, CallbackSetCheckpoint)
+  } else {
+    inherits(cb, "CallbackSetCheckpoint")
+  }
+}
+
+# The checkpoint callbacks among `cbs`.
 checkpoint_callbacks = function(cbs) {
-  keep(cbs, function(cb) {
-    if (inherits(cb, "TorchCallback")) {
-      identical(cb$generator, CallbackSetCheckpoint)
-    } else {
-      inherits(cb, "CallbackSetCheckpoint")
-    }
+  keep(cbs, is_checkpoint_callback)
+}
+
+# Whether `cb` overrides `method` of the CallbackSet base class, which is how a callback signals
+# that it takes part in checkpointing. R6 binds methods to the object's environment, so only the
+# body can be compared.
+overrides_default = function(cb, method) {
+  !identical(body(cb[[method]]), body(CallbackSet$public_methods[[method]]))
+}
+
+# The checkpoint callback reads the states of the other callbacks when it writes them, i.e. in the
+# `epoch_end` and `end` stages. A callback that updates its state in one of those stages and runs
+# after the checkpoint is stored as it was an epoch earlier, which nothing downstream can notice.
+# The checkpoint's default weight of `Inf` puts it last, but a tie at `Inf` is broken by the order
+# the callbacks were passed in, so a state-losing order is still reachable.
+assert_checkpoint_writes_last = function(cbs) {
+  checkpoints = which(map_lgl(cbs, is_checkpoint_callback))
+  if (!length(checkpoints)) {
+    return(invisible(NULL))
+  }
+  stale = keep(cbs[-seq_len(max(checkpoints))], function(cb) {
+    overrides_default(cb, "state_dict") && any(c("on_epoch_end", "on_end") %in% cb$stages)
   })
+  if (length(stale)) {
+    stopf("Callback(s) %s update their state at the end of an epoch but run after the 'checkpoint' callback, which would store the state they had one epoch earlier. Give them a lower $weight than the checkpoint callback, see the section 'Ordering' of CallbackSet.", # nolint
+      paste0("'", names(stale), "'", collapse = ", "))
+  }
+  invisible(NULL)
 }
 
 # The path that the checkpoint callback of this training run writes to.
@@ -319,9 +350,8 @@ load_callback_states = function(cbs, states) {
   }
   iwalk(states[intersect(names(states), names(cbs))], function(state, id) {
     cb = cbs[[id]]
-    # the default method only accepts NULL, i.e. the callback cannot restore anything.
-    # R6 binds methods to the object's environment, so only the body can be compared.
-    if (identical(body(cb$load_state_dict), body(CallbackSet$public_methods$load_state_dict))) {
+    # the default method only accepts NULL, i.e. the callback cannot restore anything
+    if (!overrides_default(cb, "load_state_dict")) {
       warningf("Callback '%s' does not implement $load_state_dict(), its state is ignored.", id)
       return(NULL)
     }

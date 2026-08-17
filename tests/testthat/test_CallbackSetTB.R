@@ -99,6 +99,28 @@ test_that("we can disable training loss tracking", {
   expect_equal(n_train_loss_events, 0)
 })
 
+test_that("a resumed run continues the training loss at the step the previous one stopped at", {
+  task = tsk("iris")
+  checkpoint_path = tempfile()
+
+  first = lrn("classif.mlp", epochs = 2, batch_size = 150, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 1, path = checkpoint_path), t_clbk("tb")))
+  first$param_set$set_values(cb.tb.path = tempfile(), cb.tb.log_train_loss = TRUE)
+  first$train(task)
+
+  # one batch per epoch, so the two epochs were logged under steps 0 and 1
+  expect_equal(first$model$callbacks$tb$batch_step, 2L)
+
+  # `path` must not exist yet, so a resumed run logs into a folder of its own -- what carries over
+  # is the step, so that the curve continues instead of starting at 0 again
+  resumed = lrn("classif.mlp", epochs = 4, batch_size = 150, neurons = 10, callbacks = t_clbk("tb"))
+  resumed$param_set$set_values(cb.tb.path = tempfile(), cb.tb.log_train_loss = TRUE,
+    path = checkpoint_path)
+  resumed$train(task)
+
+  expect_equal(resumed$model$callbacks$tb$batch_step, 4L)
+})
+
 test_that("throws an error when using existing directory", {
   path = tempfile()
   dir.create(path)

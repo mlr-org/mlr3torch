@@ -3,6 +3,29 @@ test_that("autotest", {
   expect_torch_callback(cb)
 })
 
+test_that("the training time is carried across a resume", {
+  path = tempfile()
+  first = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 1, path = path), t_clbk("progress")))
+  suppressMessages(capture.output(first$train(tsk("iris"))))
+
+  elapsed = first$model$callbacks$progress$elapsed
+  expect_number(elapsed, lower = 0)
+
+  # the checkpoint of epoch 1 was written before the run finished, so it holds less time than the
+  # completed run does
+  expect_lte(readRDS(file.path(path, "state1.rds"))$callbacks$progress$elapsed, elapsed)
+
+  resumed = lrn("classif.mlp", epochs = 4, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("progress"))
+  resumed$param_set$set_values(path = path)
+  stdout = suppressMessages(capture.output(resumed$train(tsk("iris"))))
+
+  # the total covers both runs, so it is at least what the first one alone took
+  expect_gte(resumed$model$callbacks$progress$elapsed, elapsed)
+  expect_match(stdout[length(stdout)], "Finished training for 4 epochs .*s total")
+})
+
 test_that("manual test", {
   learner = lrn("classif.mlp", epochs = 1, batch_size = 1,
     measures_train = msr("classif.acc"), measures_valid = msr("classif.ce"), callbacks = t_clbk("progress"),

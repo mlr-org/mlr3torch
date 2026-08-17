@@ -37,6 +37,10 @@
 * `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage.
   A callback that needs a default other than `0` sets it in its `$initialize()`, so it can still be
   overwritten via `t_clbk("<id>", weight = <value>)`.
+* Training errors when a callback that stores a state is ordered after `t_clbk("checkpoint")` within
+  an epoch, which would checkpoint the state it had one epoch earlier.
+* `t_clbk("progress")` now reports how long training took and carries that time across a resume, so
+  the total covers the runs the checkpoint came from as well.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
 * `t_clbk("checkpoint")` additionally writes a `state<n>.rds` next to `network<n>.pt` and
   `optimizer<n>.pt`, holding the epoch, the `mlr3torch` version and the states of the other
@@ -61,6 +65,13 @@
   sometimes a half-trained one. Reading a folder that holds an incomplete checkpoint warns.
 * `t_clbk("history")` no longer errors when a run adds no new scores to a history that was loaded
   via `$load_state_dict()`, which happens when a resumed checkpoint is already at `epochs`.
+* `t_clbk("tb")` now logs the training loss under an explicit step and carries that step across a
+  resume, so a resumed run continues the curve instead of writing a second one starting at `0`.
+* Resuming with `restore_best_weights` now warns that the weights of the best epoch are not part of
+  a checkpoint, instead of silently ending with the network of the last epoch.
+* Resuming a learning rate schedule no longer rewinds the optimizer's learning rate to the one the
+  schedule started at. This was only visible for `t_clbk("lr_multiplicative")`, which computes the
+  next rate from the current one and therefore restarted its schedule instead of continuing it.
 * `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
     sometimes doubles like `NA`).
