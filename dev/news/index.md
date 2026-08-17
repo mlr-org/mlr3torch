@@ -60,6 +60,8 @@
 
 ### Bug fixes
 
+- `lrn("classif.torch_model")` / `lrn("regr.torch_model")` no longer
+  change their `$hash` when they are trained.
 - Fixed some hashing bugs related to R jit compilation.
 - `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of
   `NULL`.

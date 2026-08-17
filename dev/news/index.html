@@ -107,7 +107,9 @@
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>Fixed some hashing bugs related to R jit compilation.</li>
+<ul><li>
+<code>lrn("classif.torch_model")</code> / <code>lrn("regr.torch_model")</code> no longer change their <code>$hash</code> when they are trained.</li>
+<li>Fixed some hashing bugs related to R jit compilation.</li>
 <li>
 <code>ContextTorch$epoch</code> is now <code>0</code> during the <code>on_begin</code> stage instead of <code>NULL</code>.</li>
 <li>
