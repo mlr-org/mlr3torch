@@ -2,6 +2,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/LICENSE.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/callback_list.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/callbacks.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/get_started.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/index.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/internals_pipeop_torch.html</loc></url>
@@ -209,6 +210,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_unsqueeze.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/pipeop_preproc_torch.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/replace_head.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/reshape_output_shape.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/shape_helpers.html</loc></url>

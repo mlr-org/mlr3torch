@@ -26,6 +26,10 @@
 
 ### Features
 
+- New function
+  [`pipeop_torch()`](https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.md)
+  that simplifies the creation of `PipeOpTorch` classes.
+- New article *Writing your own PipeOpTorch*.
 - The `$model` of a `LearnerTorch` now has a printer.
 - Added more image learners from {torchvision}.
 - Most `LearnerTorchVision` are now `jittable`.

@@ -34,6 +34,7 @@ For classification, the output of the network must be the scores (before the sof
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_pipeop_torch.html">Writing your own PipeOpTorch</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-overview" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Overview</button>
@@ -105,7 +106,8 @@ For classification, the output of the network must be the scores (before the sof
 <code><a href="model_descriptor_to_learner.html">model_descriptor_to_learner()</a></code>,
 <code><a href="model_descriptor_to_module.html">model_descriptor_to_module()</a></code>,
 <code><a href="model_descriptor_union.html">model_descriptor_union()</a></code>,
-<code><a href="nn_graph.html">nn_graph()</a></code></p></div>
+<code><a href="nn_graph.html">nn_graph()</a></code>,
+<code><a href="pipeop_torch.html">pipeop_torch()</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
@@ -255,9 +257,9 @@ The feature types. Defaults to all available feature types.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;PredictionClassif&gt;</span><span style="font-weight: bold;"> for </span><span style="color: #0000BB; font-weight: bold;">50</span><span style="font-weight: bold;"> observations:</span> <span style="color: #00BBBB;">────────────────────────────────────</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  row_ids     truth  response</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        2    setosa virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        3    setosa virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        4    setosa virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        2    setosa    setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        3    setosa    setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        4    setosa    setosa</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      ---       ---       ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      145 virginica virginica</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      146 virginica virginica</span>

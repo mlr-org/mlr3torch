@@ -84,6 +84,8 @@
 - [`mlr_pipeops_torch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
   [`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
   : Base Class for Torch Module Constructor Wrappers
+- [`pipeop_torch()`](https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.md)
+  : Create a PipeOpTorch
 - [`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress.md)
   [`PipeOpTorchIngress`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress.md)
   : Entrypoint to Torch Network

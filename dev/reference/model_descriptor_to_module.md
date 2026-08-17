@@ -59,4 +59,5 @@ Other Graph Network:
 [`mlr_pipeops_torch_ingress_num`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress_num.md),
 [`model_descriptor_to_learner()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_learner.md),
 [`model_descriptor_union()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_union.md),
-[`nn_graph()`](https://mlr3torch.mlr-org.com/dev/reference/nn_graph.md)
+[`nn_graph()`](https://mlr3torch.mlr-org.com/dev/reference/nn_graph.md),
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.md)

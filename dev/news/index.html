@@ -32,6 +32,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_pipeop_torch.html">Writing your own PipeOpTorch</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-overview" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Overview</button>
@@ -81,7 +82,9 @@
 </ul></div>
 <div class="section level3">
 <h3 id="features-development-version">Features<a class="anchor" aria-label="anchor" href="#features-development-version"></a></h3>
-<ul><li>The <code>$model</code> of a <code>LearnerTorch</code> now has a printer.</li>
+<ul><li>New function <code><a href="../reference/pipeop_torch.html">pipeop_torch()</a></code> that simplifies the creation of <code>PipeOpTorch</code> classes.</li>
+<li>New article <em>Writing your own PipeOpTorch</em>.</li>
+<li>The <code>$model</code> of a <code>LearnerTorch</code> now has a printer.</li>
 <li>Added more image learners from {torchvision}.</li>
 <li>Most <code>LearnerTorchVision</code> are now <code>jittable</code>.</li>
 <li>Ported the <code>TabM</code> tabular learner from Python.</li>

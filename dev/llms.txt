@@ -366,6 +366,8 @@ vision behind the project.
 - [`mlr_pipeops_torch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
   [`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
   : Base Class for Torch Module Constructor Wrappers
+- [`pipeop_torch()`](https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.md)
+  : Create a PipeOpTorch
 - [`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress.md)
   [`PipeOpTorchIngress`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress.md)
   : Entrypoint to Torch Network
@@ -876,6 +878,8 @@ vision behind the project.
 - [Callbacks](https://mlr3torch.mlr-org.com/dev/articles/callback_list.md):
 - [Custom
   Callbacks](https://mlr3torch.mlr-org.com/dev/articles/callbacks.md):
+- [Writing your own
+  PipeOpTorch](https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.md):
 - [Get
   Started](https://mlr3torch.mlr-org.com/dev/articles/get_started.md):
 - [Internals](https://mlr3torch.mlr-org.com/dev/articles/internals_pipeop_torch.md):

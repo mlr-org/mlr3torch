@@ -85,7 +85,8 @@ Other Graph Network:
 [`mlr_pipeops_torch_ingress_num`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress_num.md),
 [`model_descriptor_to_learner()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_learner.md),
 [`model_descriptor_to_module()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_module.md),
-[`model_descriptor_union()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_union.md)
+[`model_descriptor_union()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_union.md),
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.md)
 
 ## Examples
 
@@ -103,21 +104,21 @@ x = torch_randn(16, 10)
 
 network(module_1.input = x)
 #> torch_tensor
-#> -0.6338
-#> -0.2649
-#> -0.2018
-#> -0.3355
-#> -0.2970
-#> -0.5751
-#> -0.0088
-#> -0.2180
-#> -0.5121
-#> -0.4003
-#> -0.3870
-#> -0.2414
-#> -0.1112
-#>  0.0782
-#> -0.0322
-#> -0.1120
+#>  0.4682
+#>  0.1247
+#>  0.1275
+#>  0.2901
+#>  0.0331
+#> -0.0860
+#>  0.5614
+#>  0.3161
+#>  0.2916
+#>  0.5995
+#>  0.4821
+#>  0.1741
+#>  0.0706
+#>  0.1800
+#>  0.4157
+#>  0.6135
 #> [ CPUFloatType{16,1} ][ grad_fn = <AddmmBackward0> ]
 ```

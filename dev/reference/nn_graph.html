@@ -32,6 +32,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_pipeop_torch.html">Writing your own PipeOpTorch</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-overview" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Overview</button>
@@ -140,7 +141,8 @@ Whether the output is a list of tensors.</p></li>
 <code><a href="mlr_pipeops_torch_ingress_num.html">mlr_pipeops_torch_ingress_num</a></code>,
 <code><a href="model_descriptor_to_learner.html">model_descriptor_to_learner()</a></code>,
 <code><a href="model_descriptor_to_module.html">model_descriptor_to_module()</a></code>,
-<code><a href="model_descriptor_union.html">model_descriptor_union()</a></code></p></div>
+<code><a href="model_descriptor_union.html">model_descriptor_union()</a></code>,
+<code><a href="pipeop_torch.html">pipeop_torch()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -158,22 +160,22 @@ Whether the output is a list of tensors.</p></li>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">network</span><span class="op">(</span>module_1.input <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6338</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2649</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2018</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3355</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2970</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5751</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0088</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2180</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5121</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4003</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3870</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2414</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1112</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0782</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0322</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1120</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4682</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1247</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1275</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2901</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0331</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0860</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5614</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3161</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2916</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5995</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4821</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1741</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0706</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1800</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4157</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6135</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{16,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span>
 </code></pre></div>
     </div>

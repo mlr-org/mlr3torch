@@ -34,7 +34,8 @@ Other Graph Network:
 [`model_descriptor_to_learner()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_learner.md),
 [`model_descriptor_to_module()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_module.md),
 [`model_descriptor_union()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_union.md),
-[`nn_graph()`](https://mlr3torch.mlr-org.com/dev/reference/nn_graph.md)
+[`nn_graph()`](https://mlr3torch.mlr-org.com/dev/reference/nn_graph.md),
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.md)
 
 ## Super classes
 
@@ -201,9 +202,9 @@ learner$predict(task, ids$test)
 #> 
 #> ── <PredictionClassif> for 50 observations: ────────────────────────────────────
 #>  row_ids     truth  response
-#>        2    setosa virginica
-#>        3    setosa virginica
-#>        4    setosa virginica
+#>        2    setosa    setosa
+#>        3    setosa    setosa
+#>        4    setosa    setosa
 #>      ---       ---       ---
 #>      145 virginica virginica
 #>      146 virginica virginica

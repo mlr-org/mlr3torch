@@ -5,6 +5,8 @@
 - [Callbacks](https://mlr3torch.mlr-org.com/dev/articles/callback_list.md):
 - [Custom
   Callbacks](https://mlr3torch.mlr-org.com/dev/articles/callbacks.md):
+- [Writing your own
+  PipeOpTorch](https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.md):
 - [Get
   Started](https://mlr3torch.mlr-org.com/dev/articles/get_started.md):
 - [Internals](https://mlr3torch.mlr-org.com/dev/articles/internals_pipeop_torch.md):

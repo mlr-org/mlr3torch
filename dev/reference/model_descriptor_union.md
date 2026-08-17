@@ -70,7 +70,8 @@ Other Graph Network:
 [`mlr_pipeops_torch_ingress_num`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress_num.md),
 [`model_descriptor_to_learner()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_learner.md),
 [`model_descriptor_to_module()`](https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_module.md),
-[`nn_graph()`](https://mlr3torch.mlr-org.com/dev/reference/nn_graph.md)
+[`nn_graph()`](https://mlr3torch.mlr-org.com/dev/reference/nn_graph.md),
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.md)
 
 Other Model Configuration:
 [`ModelDescriptor()`](https://mlr3torch.mlr-org.com/dev/reference/ModelDescriptor.md),

@@ -36,6 +36,7 @@ where \(x\) and \(g\) are created by splitting the input tensor in half along th
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_pipeop_torch.html">Writing your own PipeOpTorch</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-overview" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Overview</button>
@@ -98,16 +99,16 @@ where \(x\) and \(g\) are created by splitting the input tensor in half along th
 <span class="r-in"><span><span class="va">glu</span> <span class="op">=</span> <span class="fu">nn_geglu</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">glu</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2430  0.8123 -0.0756  0.0242  0.8037</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0723 -0.0023 -0.3463  0.2428 -0.0054</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1170  4.3314  0.0217 -0.0722 -0.6502</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1995 -0.2070  0.0297 -0.2924  0.0714</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0163  0.2238 -1.2508 -0.0457 -0.0304</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0105  0.5216 -0.0516  0.0224 -0.1443</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5118 -0.5160 -0.0681 -0.0358  1.6345</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4216 -0.2368  0.0109 -0.0389 -0.0079</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1824  1.1555 -0.5581 -0.0962 -0.0442</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0494  0.0828  0.0241 -0.1536 -0.0147</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2261  0.1363 -0.2125  0.0522  0.0142</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0680  0.6681  0.1287 -0.0643  0.2263</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0929  0.0387 -2.4064 -0.0771 -0.0049</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0695 -0.0269  0.2296 -0.2065 -0.0171</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0295  0.3959 -2.3798  0.0913  0.0046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2101  0.1931  0.1522 -0.1480  0.0867</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2964  1.4363 -0.0237  0.3632  0.0328</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0072  0.1645 -0.0065 -2.1107 -0.0057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0002  0.1673 -0.0509  3.1998  0.0724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0455  0.2309  0.9481 -0.2047 -0.1655</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,5} ]</span>
 </code></pre></div>
     </div>
