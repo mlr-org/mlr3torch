@@ -5,6 +5,8 @@
 #' @description
 #' `PipeOpTorch` is the base class for all [`PipeOp`][mlr3pipelines::PipeOp]s that represent
 #' neural network layers in a [`Graph`][mlr3pipelines::Graph].
+#' If you want to create your own `PipeOpTorch`, check out the [`pipeop_torch()`] helper function and the article
+#' [Writing your own PipeOpTorch](https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.html).
 #' During **training**, it generates a [`PipeOpModule`] that wraps an [`nn_module`][torch::nn_module] and attaches it
 #' to the architecture, which is also represented as a [`Graph`][mlr3pipelines::Graph] consisting mostly of [`PipeOpModule`]s
 #' an [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s.
@@ -35,7 +37,7 @@
 #' Usually the parameters are the arguments of the wrapped [`nn_module`][torch::nn_module] minus the auxiliary parameter that can
 #' be automatically inferred from the shapes of the input tensors.
 #'
-#' @section
+#' @section Inheriting:
 #' Inheriting:
 #' When inheriting from this class, one should overload either the `private$.shapes_out()` and the
 #' `private$.shape_dependent_params()` methods, or overload `private$.make_module()`.
@@ -151,8 +153,43 @@
 #' x = torch_tensor(as.matrix(task$data(1:2, task$feature_names)))
 #' with_no_grad(network(torch_ingress_num.input = x))
 #'
-#' # Writing an operator of your own is described in `vignette("custom_pipeop_torch")` and in the
-#' # section 'Inheriting' above.
+#'
+#' ## What happens during training
+#'
+#' # A `PipeOpTorch` operates on `ModelDescriptor`s, which we here build by hand: two networks that
+#' # each start from one half of the iris task.
+#' task1 = task$clone()$select(paste0("Sepal.", c("Length", "Width")))
+#' task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
+#' ingress = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))
+#' mds_in = ingress$train(list(task1, task2), single_input = FALSE)
+#'
+#' mds_in[[1L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
+#' mds_in[[2L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
+#'
+#' # Training a `PipeOpTorch` on them creates the `PipeOpModule` that wraps the constructed
+#' # `nn_module`, adds it to the network and connects it to both ingress operators.
+#' po_merge = nn("merge_cat", innum = 2)
+#' md_out = po_merge$train(list(input1 = mds_in[[1L]], input2 = mds_in[[2L]]))[[1L]]
+#'
+#' # Note that, for efficiency, the graph of the first input is modified in-place.
+#' identical(md_out$graph, mds_in[[1L]]$graph)
+#' md_out$graph$edges
+#'
+#' # The task is the feature union of the incoming tasks and `ingress` collects the ingress tokens
+#' # of all incoming `ModelDescriptor`s.
+#' md_out$task
+#' md_out$ingress
+#'
+#' # `pointer` and `pointer_shape` now refer to the output of the new module.
+#' md_out$pointer
+#' md_out$pointer_shape
+#'
+#' # During prediction, no network is built: the `PipeOpTorch` receives a `Task` in each channel
+#' # and outputs their feature union.
+#' po_merge$predict(list(input1 = task1, input2 = task2))[[1L]]
+#'
+#' # Writing an operator of your own is described in the article "Writing your own PipeOpTorch" on
+#' # the package website and in the section 'Inheriting' above.
 PipeOpTorch = R6Class("PipeOpTorch",
   inherit = PipeOp,
   cloneable = TRUE,

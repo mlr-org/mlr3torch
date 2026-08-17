@@ -2,6 +2,8 @@
 #'
 #' @description
 #' Helper function to create a custom [`PipeOpTorch`] class for the most common cases.
+#' A practical guide to this function is the article
+#' [Writing your own PipeOpTorch](https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.html).
 #' For more information and the more general case, see the *Inheriting* section of [`PipeOpTorch`].
 #' The function works similarly to [`nn_module()`][torch::nn_module], except that
 #' `$initialize()` can take two further arguments that the `PipeOp` supplies: `shapes_in` and `task`
@@ -172,7 +174,6 @@ pipeop_torch_class = function(id, module_generator, shapes_out, param_set = NULL
         list(shapes_in = shapes_in, param_vals = param_vals, task = task))
     }, .parent = topenv()),
     # two operators generated from the same `id` are only the same if they do the same thing
-    # two operators generated from the same `id` are only the same if they do the same thing
     .additional_phash_input = crate(function() {
       list(self$input$name, self$output$name, self$param_set$ids(), # nolint
         private$.shapes_out_fn, self$module_generator) # nolint
@@ -196,9 +197,6 @@ pipeop_torch_class = function(id, module_generator, shapes_out, param_set = NULL
   )
 }
 
-# `shapes_in`, `param_vals` and `task` are passed by name and only to a function that declares
-# them, so that an operator that needs nothing but the input shapes is written as
-# `function(shapes_in)` rather than with three arguments of which it ignores two.
 invoke_declared = function(fn, args) {
   fmls = names(formals(fn))
   if ("..." %nin% fmls) args = args[intersect(fmls, names(args))]

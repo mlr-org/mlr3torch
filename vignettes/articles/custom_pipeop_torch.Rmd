@@ -19,7 +19,6 @@ The {mlr3torch} package already provides `PipeOpTorch` objects for many common n
 However, sooner or later you will want to add your own custom layer.
 This article will explain you how to do so.
 We assume that you already understand how to use them, which is covered in [Defining an Architecture](pipeop_torch.html).
-The *Inheriting* section of `PipeOpTorch` also explains how to create new `PipeOpTorch` classes in more detail, whereas this article is a more practically oriented guide.
 
 A `PipeOpTorch` is a descriptor of an `nn_module_generator`: it does not contain a module, it says
 how to build one once the shape of its input is known.
@@ -59,6 +58,10 @@ However, they are an *auxiliary* parameter, in the sense that they can be inferr
 The core idea of a `PipeOpTorch` is that it does not require specifying such auxiliary parameters but that they are automatically determined.
 To enable this, a `PipeOpTorch` needs to define how to infer these auxiliary parameters and how to compute the output shapes for the specified input shapes and hyperparameters.
 In the code below, the `$initialize()` method of the module generator takes in the `shapes_in` and  computes the `in_features` from their last dimension.
+The shape inference is implemented via the `$shapes_out()` method.
+Note that the input shapes can have unknown dimensions, which are encoded as being `NA`, so we need to assert that the feature dimension which we use to set `in_features` is actually known and also that the number of input dimensions is at least 2.
+The {mlr3torch} package also comes with other such assertion helpers that are useful when implementing the shape inference.
+Note that when pipeop instances are `$train()`ed, `$shapes_out()` runs before `$initialize()`, so it is enough to have the input shape assertions only in `$shapes_out()`.
 
 ```{r}
 PipeOpTorchMyLinear = pipeop_torch("nn_my_linear",
@@ -71,12 +74,15 @@ PipeOpTorchMyLinear = pipeop_torch("nn_my_linear",
     nnf_linear(input, self$weight, self$bias)
   },
   shapes_out = function(shapes_in, param_vals) {
+    shape_in <- shapes_in[[1L]]
+    assert_ndim(shape_in, min = 2L)
+    assert_known_dims(shape_in, length(shape_in))
     list(c(head(shapes_in[[1L]], -1L), param_vals$out_features))
   }
 )
 ```
 
-`out_features` is the only hyperparameter, and the operator can be used like any other:
+The only non-auxiliary hyperparameter of our module is `out_features`, which can be set via the pipeop's parameter set, which by default is inferred from the module's `$initialize()` method.
 
 ```{r}
 po_linear = PipeOpTorchMyLinear$new(param_vals = list(out_features = 2))
@@ -87,227 +93,182 @@ md = (po("torch_ingress_num") %>>% po_linear)$train(tsk("iris"))[[1L]]
 model_descriptor_to_module(md)
 ```
 
-The rest of this article explains the pieces: what the operator has to know, how to write one whose
-module already exists, and how to write the class by hand instead of generating it.
+In order to use the pipeop via the common `nn("my_linear")`, it needs to be registered:
 
-## What a `PipeOpTorch` has to know
-
-A network in `mlr3torch` is assembled without any data flowing through it.
-Instead of tensors, the `Graph` passes around a `ModelDescriptor` that carries the *shape* of the
-tensors that will later be there.
-That is what makes `po("nn_linear", out_features = 10)` possible: you say how wide the layer should
-be, and `in_features` follows from whatever is connected to its input.
-
-A `PipeOpTorch` therefore answers two questions that the module itself does not:
-
-1. **What does the module need to know about its input?** `in_features` of `nn_linear()` is not
-   something the user sets, it is read off the incoming shape.
-2. **What shape does the module produce?** The next layer needs it, for the same reason.
-
-Everything else -- building the module, adding it to the network, connecting the edges -- is
-inherited.
-
-## The short way: `pipeop_torch()`
-
-Take another layer, one that scales each feature by a learned factor.
-Written with `pipeop_torch()`, it looks exactly like `nn_module()` would, with two additions:
-`initialize()` takes `shapes_in` -- question 1 -- and `shapes_out` answers question 2.
 
 ```{r}
-PipeOpTorchCustomScale = pipeop_torch("nn_custom_scale",
-  initialize = function(shapes_in, init = 1) {
-    self$weight = nn_parameter(torch_full(tail(shapes_in[[1L]], 1L), init))
-  },
-  forward = function(input) input * self$weight,
-  shapes_out = function(shapes_in) shapes_in
-)
+mlr_pipeops$add("nn_my_linear", PipeOpTorchMyLinear)
+nn("my_linear")
 ```
 
-The remaining arguments of `initialize()` become the hyperparameters of the operator: `init` is
-something the user sets, the number of features is not.
+By default, `pipeop_torch` assumes that the module returns a single tensor.
+If this is not the case, you can specify the `out_channels` to either be the number of output channels of the pipeop or by providing explicit channel names.
+Also, you can specify the parameter set of the `PipeOp` explicitly, which allows to annotate their types and admissible ranges.
+
+While `pipeop_torch` covers most of the cases, explicitly implementing a `PipeOpTorch` as an `R6Class` comes with more flexibility, which can come in handy in more complex cases and which we will cover next.
+
+
+## Inheriting explicitly from `PipeOpTorch`
+
+Under the hood, `pipeop_torch` creates an `R6Class` that inherits from `PipeOpTorch`.
+Next, we will show how to do this manually, starting from the `nn_my_linear` from above.
+For more information and details, also see the *Inheriting* section of `PipeOpTorch`.
+
+In the code below, we specify the parameter set, how to infer the `in_features` from the input shapes (via `$.shapes_dependent_params()`), as well as the shape inference (via `$.shapes_out()`).
+The signature of the two private methods is:
+
+* `.shape_dependent_params(shapes_in, param_vals, task)` returns *all* arguments with which the module generator is called, i.e. the user-specified `param_vals` plus the auxiliary parameters that are inferred from the input shapes.
+* `.shapes_out(shapes_in, param_vals, task)` returns the output shapes, exactly like the `shapes_out` argument of `pipeop_torch()`.
 
 ```{r}
-po_custom_scale = PipeOpTorchCustomScale$new()
-po_custom_scale$param_set$ids()
-po_custom_scale$shapes_out(list(c(NA, 4)))
-```
+library(paradox)
 
-Note the `NA`: the batch dimension is unknown while the network is being built, and any other
-dimension may be too -- the sequence length of a transformer, or the size of an image.
-Both `initialize()` and `shapes_out()` see those `NA`s and have to cope with them, either by
-carrying them through, as here, or by saying which ones they need.
-The helpers `assert_known_dims()`, `assert_ndim()` and friends state which dimensions you actually
-need, and report the offending `PipeOp` and shape when one of them is unknown.
-Be permissive with the rest: rejecting a shape that would have worked is worse than a runtime error
-later.
-
-That is a usable operator:
-
-```{r}
-graph = po("torch_ingress_num") %>>% po_custom_scale %>>% po("nn_head")
-md = graph$train(tsk("iris"))[[1L]]
-network = model_descriptor_to_module(md)
-network
-```
-
-The module was built with four features, taken from the task:
-
-```{r}
-as.numeric(md$graph$pipeops$nn_custom_scale$module$weight)
-```
-
-Besides `shapes_in`, `initialize()` can take the `task`, and `shapes_out()` can take the
-`param_vals` and the `task` as well -- each is passed only if the function declares it.
-That is how `PipeOpTorchMyLinear` above states its output shape: the width of the layer is a
-hyperparameter, so `shapes_out()` reads it from `param_vals`.
-Since `out_features` has no default there, it is a *required* hyperparameter and the operator
-refuses to be used without it.
-
-```{r, error = TRUE}
-PipeOpTorchMyLinear$new()$shapes_out(list(c(NA, 4)))
-```
-
-A module that already exists does not have to be rewritten like this: call its generator from
-`initialize()` -- `self$linear = nn_linear(tail(shapes_in[[1L]], 1L), out_features)` -- and delegate
-to it in `forward()`.
-
-## Several channels
-
-A module whose `forward()` takes more than one tensor becomes a `PipeOp` with more than one input
-channel -- the channels are named after the arguments, and `shapes_in` is named after the channels.
-Returning a list makes several output channels, which have to be declared with `out_channels`:
-
-```{r}
-PipeOpTorchSplit = pipeop_torch("nn_split",
-  initialize = function(shapes_in, d_out1, d_out2) {
-    self$linear1 = nn_linear(tail(shapes_in$input, 1L), d_out1)
-    self$linear2 = nn_linear(tail(shapes_in$input, 1L), d_out2)
-  },
-  forward = function(input) {
-    list(self$linear1(input), self$linear2(input))
-  },
-  out_channels = 2,
-  shapes_out = function(shapes_in, param_vals) {
-    list(c(head(shapes_in$input, -1L), param_vals$d_out1),
-      c(head(shapes_in$input, -1L), param_vals$d_out2))
-  }
-)
-
-po_split = PipeOpTorchSplit$new(param_vals = list(d_out1 = 10, d_out2 = 20))
-po_split$shapes_out(list(c(NA, 4)))
-```
-
-`in_channels` and `out_channels` also take a count instead of names -- `in_channels = 0` for a
-module whose `forward()` takes `...`, i.e. a *vararg* channel.
-
-## Making the operator available as `nn("custom_scale")`
-
-So far the class is only the value `pipeop_torch()` returned; `po()` and `nn()` know nothing about
-it, because they look their arguments up in the `mlr_pipeops` dictionary.
-Adding it there is one line:
-
-```{r}
-mlr_pipeops$add("nn_custom_scale", PipeOpTorchCustomScale)
-```
-
-`nn()` prefixes its key with `nn_` to find the entry and uses the unprefixed key as the id, so the
-new layer is now written exactly like the ones that come with {mlr3torch}:
-
-```{r}
-po("torch_ingress_num") %>>% nn("custom_scale", init = 2) %>>% nn("head")
-```
-
-When you ship an operator in a package, that call belongs in the package's `.onLoad()`, so that the
-dictionary is filled when the package is loaded.
-
-## The long way: inheriting from `PipeOpTorch`
-
-`pipeop_torch()` writes an R6 class for you; when you want to ship an operator in a package, or
-need control over its construction, write that class yourself.
-The module is then an ordinary `torch` module that knows nothing about shapes,
-
-```{r}
-nn_custom_scale = nn_module("nn_custom_scale",
-  initialize = function(n_features, init = 1) {
-    self$weight = nn_parameter(torch_full(n_features, init))
-  },
-  forward = function(input) input * self$weight
-)
-```
-
-and the two questions are the private methods `.shape_dependent_params()` and `.shapes_out()`:
-
-```{r}
-PipeOpTorchCustomScale = R6::R6Class("PipeOpTorchCustomScale",
+PipeOpTorchMyLinear = R6::R6Class("PipeOpTorchMyLinear",
   inherit = PipeOpTorch,
   public = list(
-    initialize = function(id = "nn_custom_scale", param_vals = list()) {
-      param_set = paradox::ps(
-        init = paradox::p_dbl(default = 1, tags = "train")
+    initialize = function(id = "nn_my_linear", param_vals = list()) {
+      param_set = ps(
+        out_features = p_int(lower = 1L, tags = c("required", "train"))
       )
       super$initialize(
         id = id,
         param_vals = param_vals,
         param_set = param_set,
-        module_generator = nn_custom_scale
+        module_generator = nn_my_linear
       )
     }
   ),
   private = list(
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      c(param_vals, list(n_features = tail(shapes_in[[1L]], 1L)))
+      c(param_vals, list(in_features = tail(shapes_in[[1L]], 1L)))
     },
-    .shapes_out = function(shapes_in, param_vals, task) shapes_in
+    .shapes_out = function(shapes_in, param_vals, task) {
+      shape_in = shapes_in[[1L]]
+      assert_ndim(shape_in, min = 2L)
+      assert_known_dims(shape_in, length(shape_in))
+      list(c(head(shape_in, -1L), param_vals$out_features))
+    }
+  )
+)
+```
+
+Because `$shapes_out()` is called before the module is constructed, it is again enough to assert the input shapes in `.shapes_out()` only.
+The resulting `PipeOp` behaves just like the generated one:
+
+```{r}
+po_linear = PipeOpTorchMyLinear$new(param_vals = list(out_features = 2))
+po_linear$shapes_out(list(c(NA, 4)))
+
+md = (po("torch_ingress_num") %>>% po_linear)$train(tsk("iris"))[[1L]]
+model_descriptor_to_module(md)
+```
+
+Registering the class in the `mlr_pipeops` dictionary works exactly as above, i.e. via `mlr_pipeops$add("nn_my_linear", PipeOpTorchMyLinear)`.
+If a module cannot be constructed by calling its generator with a list of arguments, the private method `.make_module(shapes_in, param_vals, task)`, which returns the `nn_module`, can be overloaded instead of `.shape_dependent_params()`.
+
+## More than one channel
+
+A module whose `$forward()` method takes more than one tensor becomes a `PipeOp` with more than one input channel, and one that returns more than one tensor becomes a `PipeOp` with more than one output channel.
+As an example we take a module that applies a separate linear layer to each of its two inputs.
+
+With `pipeop_torch()`, the input channels are inferred from the arguments of `$forward()`, so they are called `"input1"` and `"input2"` here, and `shapes_in` is named accordingly.
+Because the module returns two tensors, the output channels have to be specified via `out_channels`, either as a count or, as below, by their names.
+
+```{r}
+PipeOpTorchParallelLinear = pipeop_torch("nn_parallel_linear",
+  initialize = function(shapes_in, d_out1, d_out2, bias = TRUE) {
+    self$linear1 = nn_linear(tail(shapes_in$input1, 1L), d_out1, bias)
+    self$linear2 = nn_linear(tail(shapes_in$input2, 1L), d_out2, bias)
+  },
+  forward = function(input1, input2) {
+    list(self$linear1(input1), self$linear2(input2))
+  },
+  out_channels = c("output1", "output2"),
+  shapes_out = function(shapes_in, param_vals) {
+    for (shape_in in shapes_in) {
+      assert_ndim(shape_in, min = 2L)
+      assert_known_dims(shape_in, length(shape_in))
+    }
+    list(
+      c(head(shapes_in$input1, -1L), param_vals$d_out1),
+      c(head(shapes_in$input2, -1L), param_vals$d_out2)
+    )
+  }
+)
+
+po_parallel_linear = PipeOpTorchParallelLinear$new(
+  param_vals = list(d_out1 = 10, d_out2 = 20)
+)
+po_parallel_linear$shapes_out(list(input1 = c(NA, 2), input2 = c(NA, 2)))
+```
+
+Written as an `R6Class`, the module is again an ordinary `nn_module` that receives its input dimensions:
+
+```{r}
+nn_parallel_linear = nn_module("nn_parallel_linear",
+  initialize = function(d_in1, d_in2, d_out1, d_out2, bias = TRUE) {
+    self$linear1 = nn_linear(d_in1, d_out1, bias)
+    self$linear2 = nn_linear(d_in2, d_out2, bias)
+  },
+  forward = function(input1, input2) {
+    list(
+      output1 = self$linear1(input1),
+      output2 = self$linear2(input2)
+    )
+  }
+)
+```
+
+The channel names are now specified via the `inname` and `outname` arguments of `super$initialize()`.
+The tensors are passed to the module's `$forward()` method by position, so it is the *order* of the input channels that has to match its arguments.
+Naming the `inname`s after those arguments is nonetheless recommended, as it avoids any ambiguity about which tensor ends up where.
+Both `shapes_in` and the returned output shapes are named after the channels.
+
+```{r}
+PipeOpTorchParallelLinear = R6::R6Class("PipeOpTorchParallelLinear",
+  inherit = PipeOpTorch,
+  public = list(
+    initialize = function(id = "nn_parallel_linear", param_vals = list()) {
+      param_set = ps(
+        d_out1 = p_int(lower = 1L, tags = c("required", "train")),
+        d_out2 = p_int(lower = 1L, tags = c("required", "train")),
+        bias = p_lgl(default = TRUE, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        param_set = param_set,
+        inname = c("input1", "input2"),
+        outname = c("output1", "output2"),
+        module_generator = nn_parallel_linear
+      )
+    }
+  ),
+  private = list(
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
+      c(param_vals, list(
+        d_in1 = tail(shapes_in[["input1"]], 1L),
+        d_in2 = tail(shapes_in[["input2"]], 1L)
+      ))
+    },
+    .shapes_out = function(shapes_in, param_vals, task) {
+      for (shape_in in shapes_in) {
+        assert_ndim(shape_in, min = 2L)
+        assert_known_dims(shape_in, length(shape_in))
+      }
+      list(
+        output1 = c(head(shapes_in[["input1"]], -1L), param_vals$d_out1),
+        output2 = c(head(shapes_in[["input2"]], -1L), param_vals$d_out2)
+      )
+    }
   )
 )
 
-PipeOpTorchCustomScale$new()$shapes_out(list(c(NA, 4)))
-```
-
-`.shape_dependent_params()` returns *all* arguments the module is built with, i.e. the user's
-`param_vals` plus the inferred ones.
-If the module cannot be built by calling the generator with a list of arguments at all, overload
-`.make_module(shapes_in, param_vals, task)` instead and ignore both.
-
-A class written this way is added to the dictionary just like a generated one, see
-[above](#making-the-operator-available-as-nncustom_scale).
-
-## Registering the operator with a learner
-
-Nothing else is needed: a `Graph` that contains the new operator becomes a `Learner` the usual way.
-
-```{r}
-graph = po("torch_ingress_num") %>>%
-  PipeOpTorchCustomScale$new() %>>%
-  po("nn_head") %>>%
-  po("torch_loss", t_loss("cross_entropy")) %>>%
-  po("torch_optimizer", t_opt("adam")) %>>%
-  po("torch_model_classif", batch_size = 32, epochs = 1)
-
-learner = as_learner(graph)
-learner$id = "scaled_mlp"
-learner
-```
-
-## Checking your work
-
-Two things are worth testing, and both are cheap:
-
-* `$shapes_out()` agrees with what the module actually produces, for shapes with and without `NA`s.
-  `mlr3torch`'s own test suite sweeps every combination of unknown dimensions for every operator it
-  ships; the helper that does it lives in `tests/testthat/helper_shape_inference.R`.
-* the operator survives a round-trip through a `Graph`, i.e. `model_descriptor_to_module()` returns
-  a network that runs on a tensor of the announced shape.
-
-```{r}
-po_custom_scale = PipeOpTorchCustomScale$new()
-inferred = po_custom_scale$shapes_out(list(c(NA, 4)))[[1L]]
-
-network = model_descriptor_to_module(
-  (po("torch_ingress_num") %>>% po_custom_scale)$train(tsk("iris"))[[1L]]
+po_parallel_linear = PipeOpTorchParallelLinear$new(
+  param_vals = list(d_out1 = 10, d_out2 = 20)
 )
-observed = dim(with_no_grad(network(torch_ingress_num.input = torch_randn(2, 4))))
-
-inferred
-observed
+po_parallel_linear$shapes_out(list(input1 = c(NA, 2), input2 = c(NA, 2)))
 ```
+
+Note that it is also possible to dynamically determine the input and output channels depending on the constructor arguemnts of the `PipeOpTorch`.
+What is not possible is that the number of input or output channels depends on specific parameter values.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/pipeop_torch.R
 \name{pipeop_torch}
 \alias{pipeop_torch}
-\title{Create a Torch PipeOp}
+\title{Create a PipeOpTorch}
 \usage{
 pipeop_torch(
   id,
@@ -34,17 +34,15 @@ The \verb{$forward()} method of the module.}
 \item{shapes_out}{(\code{function})\cr
 The shapes of the tensors that the module produces, as a function of \code{shapes_in}, \code{param_vals}
 and \code{task} -- only the arguments that are declared are passed, so an operator whose output
-shape depends on nothing else is written as \verb{function(shapes_in)}, and one that does not change
-the shape as \code{function(shapes_in) shapes_in}.
-It returns one shape per output channel, in the order of \code{out_channels}.
+shape depends on nothing else is written as \verb{function(shapes_in)}.
 Any dimension of \code{shapes_in} can be \code{NA}, i.e. unknown, so this function must not assume that a
 dimension it reads is known; see the \emph{Inheriting} section of \code{\link{PipeOpTorch}}.}
 
 \item{param_set}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr
 The parameter set.
-If left as \code{NULL} (default), it is inferred from the arguments of \code{initialize}: each becomes an
-untyped parameter tagged \code{"train"}, and additionally \code{"required"} if it has no default.
-The arguments that the \code{PipeOp} supplies -- \code{shapes_in} and \code{task} -- are not among them.}
+If left as \code{NULL} (default), it is inferred from the arguments of \code{initialize}:
+All arguments but \code{shapes_in} and \code{task} become an
+untyped parameter tagged \code{"train"}, and additionally \code{"required"} if it has no default.}
 
 \item{in_channels}{(\code{character()} or \code{integer(1)} or \code{NULL})\cr
 The input channels, either as names or as a count, where \code{0} means a single \emph{vararg} channel.
@@ -62,34 +60,37 @@ The R packages this object depends on.}
 Tags for the \code{PipeOp}. The tag \code{"torch"} is always added.}
 
 \item{classname}{(\code{character(1)})\cr
-The class name of the generated \code{\link[R6:R6Class]{R6Class}}.}
+The class name of the generated \code{\link[R6:R6Class]{R6Class}}.
+By default it is derived from \code{id}: a leading \code{"nn_"} is dropped, the remaining \verb{_}-separated
+words are capitalized and pasted together, and \code{"PipeOpTorch"} is prepended, so the id
+\code{"nn_scale"} gives \code{"PipeOpTorchScale"}.}
 
 \item{parent_env}{(\code{environment})\cr
 The environment in which the module's methods are evaluated, the calling environment by
-default, as for \code{\link[torch:nn_module]{nn_module()}}.}
+default, as for \code{\link[torch:nn_module]{nn_module()}}.
+\code{initialize} and \code{forward} become methods of the module and are therefore evaluated in this
+environment rather than in the one they were written in; \code{shapes_out}, which is not a method of
+the module, keeps its own environment.
+The two only differ when the functions are written somewhere other than the caller of
+\code{pipeop_torch()}, e.g. in a function that wraps it.}
 }
 \value{
 An \code{\link[R6:R6Class]{R6Class}} generator inheriting from \code{\link{PipeOpTorch}}.
 }
 \description{
-Creates a class inheriting from \code{\link{PipeOpTorch}} that wraps an \code{\link[torch:nn_module]{nn_module}},
-without having to write either of them by hand.
-Start by reading the \emph{Inheriting} section of \code{\link{PipeOpTorch}}, which describes what the generated
-class does; this function is a shortcut for the common cases.
-
-The module is written as it would be with \code{\link[torch:nn_module]{nn_module()}}, except that
-\code{initialize} can take two further arguments that the \code{PipeOp} supplies: \code{shapes_in} and \code{task}.
-This is what makes a layer whose size follows from the data -- the \code{in_features} of a
-\code{\link[torch:nn_linear]{nn_linear}}, say -- possible without the user having to state it.
-
-A module that states its own output shapes needs none of this and is converted by
-\code{\link[mlr3pipelines:as_pipeop]{as_pipeop()}} instead.
+Helper function to create a custom \code{\link{PipeOpTorch}} class for the most common cases.
+A practical guide to this function is the article
+\href{https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.html}{Writing your own PipeOpTorch}.
+For more information and the more general case, see the \emph{Inheriting} section of \code{\link{PipeOpTorch}}.
+The function works similarly to \code{\link[torch:nn_module]{nn_module()}}, except that
+\verb{$initialize()} can take two further arguments that the \code{PipeOp} supplies: \code{shapes_in} and \code{task}
+and that it also needs to implement the method \verb{$shapes_out()} which belongs to the \code{PipeOpTorch}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
-# A layer that scales its input by a learned factor, with the number of features -- which the
-# user cannot know when the network is built -- read off the input shape.
-PipeOpTorchScale = pipeop_torch("nn_scale",
+# A layer that scales its input by a learned factor
+# Note that the number of features is read from the input shape
+PipeOpTorchCustomScale = pipeop_torch("nn_custom_scale",
   initialize = function(shapes_in, init = 1) {
     self$weight = nn_parameter(torch_full(tail(shapes_in[[1L]], 1L), init))
   },
@@ -97,27 +98,17 @@ PipeOpTorchScale = pipeop_torch("nn_scale",
   shapes_out = function(shapes_in) shapes_in # scaling leaves the shape as it is
 )
 
-po_scale = PipeOpTorchScale$new()
+po_custom_scale = PipeOpTorchCustomScale$new()
 # `init` is a hyperparameter, the number of features is not
-po_scale$param_set$ids()
-po_scale$shapes_out(list(c(NA, 4)))
-
+po_custom_scale$param_set$ids()
+po_custom_scale$shapes_out(list(c(NA, 4)))
 # the operator can now be used like any other, and the module is built with 4 features
-md = po("torch_ingress_num") \%>>\% po_scale \%>>\% po("nn_head")
+md = po("torch_ingress_num") \%>>\% po_custom_scale \%>>\% po("nn_head")
 network = model_descriptor_to_module(md$train(tsk("iris"))[[1L]])
 network
 
-# A module that already exists is wrapped by calling it from `initialize()`
-PipeOpTorchLinear2 = pipeop_torch("nn_linear2",
-  initialize = function(shapes_in, out_features, bias = TRUE) {
-    self$linear = nn_linear(tail(shapes_in[[1L]], 1L), out_features, bias)
-  },
-  forward = function(input) self$linear(input),
-  shapes_out = function(shapes_in, param_vals) {
-    list(c(head(shapes_in[[1L]], -1L), param_vals$out_features))
-  }
-)
-PipeOpTorchLinear2$new(param_vals = list(out_features = 10))$shapes_out(list(c(NA, 4)))
+# To use it via `nn("custom_scale")` or `po("nn_custom_scale")` we could run the line below:
+# mlr_pipeops$add("nn_custom_scale", PipeOpTorchCustomScale)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -137,4 +128,3 @@ Other Graph Network:
 \code{\link[=nn_graph]{nn_graph()}}
 }
 \concept{Graph Network}
-\concept{PipeOps}
