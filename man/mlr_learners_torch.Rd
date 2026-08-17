@@ -54,8 +54,7 @@ In this case the network returns a \code{list()} of tensors, each with the shape
 the following convention applies:
 \itemize{
 \item The \strong{first} element is the primary prediction. It is the one that is scored by
-\code{measures_train} and the one that the network is expected to return when it is in evaluation
-mode, i.e. when predicting and when calculating the validation scores.
+\code{measures_train}.
 \item The remaining elements are the predictions of the auxiliary classifiers. They only exist to
 contribute to the loss during training and are never scored.
 }
@@ -66,6 +65,16 @@ prediction. For a network that returns a single tensor the two are identical.
 
 Because the configured loss is applied to a single tensor, a learner whose network returns a
 list has to wrap it by overloading \code{.loss_fn()}, see the list of methods below.
+
+In \strong{evaluation mode} -- i.e. when predicting and when calculating the validation scores -- the
+output of the network is passed to \code{\link[=encode_prediction]{encode_prediction()}} as it is, so a network with more than
+one head can return a \code{list()} of tensors there as well. This is how a prediction that consists
+of several quantities is expressed, e.g. a mean and a standard deviation.
+Such a learner needs an \code{\link[=encode_prediction]{encode_prediction()}} method for its task type, or has to overload the
+private \code{.encode_prediction()} method, because the encodings of the built-in task types expect a
+single tensor.
+Note that \code{measures_train} is calculated from \code{ctx$y_hat}, which is a single tensor, so it is the
+validation measures that a multi-head network is scored with.
 
 Furthermore, the target encoding is expected to be as follows:
 \itemize{
@@ -229,8 +238,12 @@ Also see \code{torch::dataloder} for more information.
 There are no seperate classes for classification and regression to inherit from.
 Instead, the \code{task_type} must be specified  as a construction argument.
 Any task type that is registered in
-\code{\link[mlr3:mlr_reflections]{mlr_reflections$task_types}} can be used, see the
-\emph{Adding a Custom Task Type} vignette for how to add support for a new one.
+\code{\link[mlr3:mlr_reflections]{mlr_reflections$task_types}} can be used.
+Support for a task type that \pkg{mlr3torch} does not know is added by implementing methods for
+the three S3 generics that hold the task-type-specific behaviour: \code{\link[=output_dim_for]{output_dim_for()}} (how many
+output neurons the network needs), \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} (how the target is turned into a
+tensor) and \code{\link[=encode_prediction]{encode_prediction()}} (how the network's output is turned back into a prediction).
+Such a learner also has to be given a \code{loss} explicitly.
 
 When inheriting from this class, one should overload the following methods:
 \itemize{

@@ -16,6 +16,8 @@
   A task type whose target cannot be built independently of its features -- or for which building
   them separately would duplicate work, as when the target *is* the input -- can implement a method
   that constructs both at once.
+* A network can now return a `list()` of tensors in evaluation mode, which is passed to
+  `encode_prediction()` as it is, so a prediction can consist of more than one quantity.
 * Added learners for the remaining image classification networks of `torchvision`:
   ConvNeXt (`classif.convnext_*`), EfficientNet (`classif.efficientnet_b0` to
   `classif.efficientnet_b7`), EfficientNetV2 (`classif.efficientnet_v2_{s,m,l}`),

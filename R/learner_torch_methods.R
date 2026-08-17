@@ -271,7 +271,7 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
 
     callback_receiver("on_batch_valid_end")
   }
-  torch_cat(predictions, dim = 1L)
+  cat_predictions(predictions)
 }
 
 torch_network_predict = function(network, loader, device) {
@@ -293,7 +293,41 @@ torch_network_predict = function(network, loader, device) {
     }
 
   }
-  torch_cat(predictions, dim = 1L)
+  cat_predictions(predictions)
+}
+
+# The network's evaluation-mode output is what `encode_prediction()` receives: either a single
+# tensor or, for a network with more than one head, a `list()` of them. The batches are concatenated
+# head-wise, so the encoder sees the same structure it would see for a single batch.
+cat_predictions = function(predictions) {
+  first = predictions[[1L]]
+  if (!is.list(first)) {
+    return(torch_cat(predictions, dim = 1L))
+  }
+  if (!length(first)) {
+    stopf("The network returned an empty list, it must return a tensor or a non-empty list of tensors.")
+  }
+  ok = map_lgl(predictions, function(batch) is.list(batch) && length(batch) == length(first))
+  if (!all(ok)) {
+    stopf("The network returned %i tensors for the first batch but something else for batch %i, it must return the same number of tensors for every batch.", length(first), which(!ok)[[1L]]) # nolint
+  }
+  heads = lapply(seq_along(first), function(i) {
+    torch_cat(lapply(predictions, function(batch) batch[[i]]), dim = 1L)
+  })
+  names(heads) = names(first)
+  heads
+}
+
+# The built-in task types have a single network head, so a one-element list is unwrapped and
+# anything longer is an output that these encodings cannot interpret.
+assert_single_head = function(predict_tensor, task) {
+  if (!is.list(predict_tensor)) {
+    return(predict_tensor)
+  }
+  if (length(predict_tensor) != 1L) {
+    stopf("The network returned %i tensors, but the prediction encoding for task type '%s' expects a single one. Overwrite the learner's private `.encode_prediction()` method to combine them.", length(predict_tensor), task$task_type) # nolint
+  }
+  predict_tensor[[1L]]
 }
 
 #' @title Encode the Network Output as a Prediction
@@ -314,8 +348,11 @@ torch_network_predict = function(network, loader, device) {
 #'
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   The task to predict on.
-#' @param predict_tensor ([`torch_tensor`][torch::torch_tensor])\cr
-#'   The raw output of the network.
+#' @param predict_tensor ([`torch_tensor`][torch::torch_tensor] or `list()` of them)\cr
+#'   The raw output of the network in evaluation mode.
+#'   A network with more than one head -- e.g. one predicting a mean and a standard deviation --
+#'   returns a `list()` of tensors, which is passed on unchanged.
+#'   The encodings of the built-in task types expect a single tensor.
 #' @param predict_type (`character(1)`)\cr
 #'   The predict type of the learner, e.g. `"response"` or `"prob"`.
 #' @param ... (any)\cr
@@ -333,6 +370,7 @@ encode_prediction.default = function(task, predict_tensor, predict_type, ...) { 
 
 #' @export
 encode_prediction.TaskClassif = function(task, predict_tensor, predict_type, ...) { # nolint
+  predict_tensor = assert_single_head(predict_tensor, task)
   # here we assume that the levels of the factors are never reordered!
   # This is important as otherwise all hell breaks loose
   # Currently this check is done in mlr3torch but should at some point be handled in mlr3 / mlr3pipelines
@@ -380,7 +418,7 @@ encode_prediction.TaskRegr = function(task, predict_tensor, predict_type, ...) {
   if (predict_type != "response") {
     stopf("Invalid predict_type for task_type 'regr'.")
   }
-  list(response = as.numeric(predict_tensor))
+  list(response = as.numeric(assert_single_head(predict_tensor, task)))
 }
 
 

@@ -10,8 +10,11 @@ encode_prediction(task, predict_tensor, predict_type, ...)
 \item{task}{(\code{\link[mlr3:Task]{Task}})\cr
 The task to predict on.}
 
-\item{predict_tensor}{(\code{\link[torch:torch_tensor]{torch_tensor}})\cr
-The raw output of the network.}
+\item{predict_tensor}{(\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()} of them)\cr
+The raw output of the network in evaluation mode.
+A network with more than one head -- e.g. one predicting a mean and a standard deviation --
+returns a \code{list()} of tensors, which is passed on unchanged.
+The encodings of the built-in task types expect a single tensor.}
 
 \item{predict_type}{(\code{character(1)})\cr
 The predict type of the learner, e.g. \code{"response"} or \code{"prob"}.}

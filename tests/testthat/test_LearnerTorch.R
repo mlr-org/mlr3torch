@@ -538,12 +538,17 @@ test_that("early stopping works", {
   # the first evaluation can do no comparison, i.e. the second eval with no improvement is the third epoch
   expect_equal(learner$internal_tuned_values, list(epochs = 3))
 
-  # in this scenario early stopping should definitely not trigger yet
+  # with min_delta = 0 and an evaluation after every epoch, the internally tuned number of epochs is
+  # the best one that was recorded. The featureless learner predicts one constant class, so its
+  # validation score is usually the same in every epoch and the first epoch stays the best -- but a
+  # tie between two classes can flip the prediction, which is why the history decides here.
   learner$param_set$set_values(
     min_delta = 0, patience = 5, opt.lr = 0.01, eval_freq = 1
   )
   learner$train(task)
-  expect_equal(learner$internal_tuned_values, list(epochs = 1))
+  history = learner$model$callbacks$history
+  expect_equal(learner$internal_tuned_values,
+    list(epochs = history$epoch[which.min(history$valid.classif.ce)]))
 })
 
 test_that("validation works", {
