@@ -202,9 +202,6 @@ TorchCallback = R6Class("TorchCallback",
       assert_class(callback_generator, "R6ClassGenerator")
       self$weight = weight
 
-      # `weight` is set through the `$weight` field below, which is applied after the CallbackSet is
-      # constructed. Inferring a parameter for it as well would give the same setting two routes,
-      # of which the field silently wins.
       param_set = assert_param_set(param_set %??% inferps(callback_generator, ignore = "weight"))
       if ("ctx" %in% param_set$ids()) {
         stopf("The name 'ctx' is reserved for the ContextTorch and cannot be a construction argument.")
