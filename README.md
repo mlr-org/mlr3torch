@@ -85,9 +85,9 @@ the network. All subsequent pipeops define the neural network layers.
 
 ``` r
 architecture = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 20) %>>%
-  po("nn_relu") %>>%
-  po("nn_head")
+  nn("linear", out_features = 20) %>>%
+  nn("relu") %>>%
+  nn("head")
 ```
 
 To turn this into a learner, we configure the loss, optimizer, callbacks
@@ -154,9 +154,9 @@ block:
 ``` r
 layer = list(
   po("nop"),
-  po("nn_linear", out_features = 50L) %>>%
-    po("nn_dropout") %>>% po("nn_relu")
-) %>>% po("nn_merge_sum")
+  nn("linear", out_features = 50L) %>>%
+    nn("dropout") %>>% nn("relu")
+) %>>% nn("merge_sum")
 ```
 
 Next, we create a neural network that takes as input a `lazy_tensor`
@@ -167,9 +167,9 @@ the training parameters.
 
 ``` r
 deep_network = po("torch_ingress_ltnsr") %>>%
-  po("nn_linear", out_features = 50L) %>>%
-  po("nn_block", layer, n_blocks = 5L) %>>%
-  po("nn_head") %>>%
+  nn("linear", out_features = 50L) %>>%
+  nn("block", layer, n_blocks = 5L) %>>%
+  nn("head") %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%
   po("torch_optimizer", optimizer = t_opt("adam")) %>>%
   po("torch_model_classif",

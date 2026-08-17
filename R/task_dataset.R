@@ -79,7 +79,7 @@ task_dataset = dataset("task_dataset",
     self$cache_lazy_tensors = auto_cache_lazy_tensors(data)
   },
   .getbatch = function(index) {
-    cache = if (self$cache_lazy_tensors) new.env()
+    cache = if (self$cache_lazy_tensors) hashtab()
 
     datapool = self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
     x = lapply(self$feature_ingress_tokens, function(it) {

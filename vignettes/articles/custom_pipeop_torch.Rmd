@@ -15,13 +15,80 @@ knitr::opts_chunk$set(
 library(mlr3torch)
 ```
 
-`mlr3torch` ships a `PipeOp` for most of the layers that `torch` provides, but sooner or later you
-will want a layer of your own in a `Graph`.
-This article shows how to get there, from the shortest path to the full R6 class.
+The {mlr3torch} package already provides `PipeOpTorch` objects for many common neural network layers.
+However, sooner or later you will want to add your own custom layer.
+This article will explain you how to do so.
+We assume that you already understand how to use them, which is covered in [Defining an Architecture](pipeop_torch.html).
+The *Inheriting* section of `PipeOpTorch` also explains how to create new `PipeOpTorch` classes in more detail, whereas this article is a more practically oriented guide.
 
-If you have not built a network from `PipeOp`s before, read
-[Defining an Architecture](pipeop_torch.html) first; for what a `ModelDescriptor` is and how a
-`Graph` of `PipeOp`s becomes a `nn_module`, see [Networks as Graphs](internals_pipeop_torch.html).
+A `PipeOpTorch` is a descriptor of an `nn_module_generator`: it does not contain a module, it says
+how to build one once the shape of its input is known.
+We will first create a custom module generator and then turn it into a `PipeOpTorch`.
+As an example we re-implement `torch::nn_linear()`.
+
+## A module generator
+
+A module generator is created with `torch::nn_module()` and it requires implementing two methods:
+
+1. `$initialize()`, which constructs the instance, and 
+2. `$forward()`, which runs the constructed layer on some tensor inputs.
+
+```{r}
+nn_my_linear = nn_module("nn_my_linear",
+  initialize = function(in_features, out_features) {
+    self$weight = nn_parameter(torch_randn(out_features, in_features) / sqrt(in_features))
+    self$bias = nn_parameter(torch_zeros(out_features))
+  },
+  forward = function(input) {
+    nnf_linear(input, self$weight, self$bias)
+  }
+)
+```
+
+Calling the generator builds a module instance (via `$initialize()` ) and calling the resulting module on an input tensor runs its `$forward()` method:
+
+```{r}
+layer = nn_my_linear(in_features = 4, out_features = 2)
+layer(torch_randn(3, 4))
+```
+
+## The same layer as a `PipeOpTorch`
+
+For `nn_my_linear`, the `in_features` need to be manually specified.
+However, they are an *auxiliary* parameter, in the sense that they can be inferred from the input shape that the layer will receive during runtime.
+The core idea of a `PipeOpTorch` is that it does not require specifying such auxiliary parameters but that they are automatically determined.
+To enable this, a `PipeOpTorch` needs to define how to infer these auxiliary parameters and how to compute the output shapes for the specified input shapes and hyperparameters.
+In the code below, the `$initialize()` method of the module generator takes in the `shapes_in` and  computes the `in_features` from their last dimension.
+
+```{r}
+PipeOpTorchMyLinear = pipeop_torch("nn_my_linear",
+  initialize = function(shapes_in, out_features) {
+    in_features = tail(shapes_in[[1L]], 1L)
+    self$weight = nn_parameter(torch_randn(out_features, in_features) / sqrt(in_features))
+    self$bias = nn_parameter(torch_zeros(out_features))
+  },
+  forward = function(input) {
+    nnf_linear(input, self$weight, self$bias)
+  },
+  shapes_out = function(shapes_in, param_vals) {
+    list(c(head(shapes_in[[1L]], -1L), param_vals$out_features))
+  }
+)
+```
+
+`out_features` is the only hyperparameter, and the operator can be used like any other:
+
+```{r}
+po_linear = PipeOpTorchMyLinear$new(param_vals = list(out_features = 2))
+po_linear$param_set$ids()
+po_linear$shapes_out(list(c(NA, 4)))
+
+md = (po("torch_ingress_num") %>>% po_linear)$train(tsk("iris"))[[1L]]
+model_descriptor_to_module(md)
+```
+
+The rest of this article explains the pieces: what the operator has to know, how to write one whose
+module already exists, and how to write the class by hand instead of generating it.
 
 ## What a `PipeOpTorch` has to know
 
@@ -42,12 +109,12 @@ inherited.
 
 ## The short way: `pipeop_torch()`
 
-Take a layer that scales each feature by a learned factor.
+Take another layer, one that scales each feature by a learned factor.
 Written with `pipeop_torch()`, it looks exactly like `nn_module()` would, with two additions:
 `initialize()` takes `shapes_in` -- question 1 -- and `shapes_out` answers question 2.
 
 ```{r}
-PipeOpTorchScale = pipeop_torch("nn_scale",
+PipeOpTorchCustomScale = pipeop_torch("nn_custom_scale",
   initialize = function(shapes_in, init = 1) {
     self$weight = nn_parameter(torch_full(tail(shapes_in[[1L]], 1L), init))
   },
@@ -60,9 +127,9 @@ The remaining arguments of `initialize()` become the hyperparameters of the oper
 something the user sets, the number of features is not.
 
 ```{r}
-po_scale = PipeOpTorchScale$new()
-po_scale$param_set$ids()
-po_scale$shapes_out(list(c(NA, 4)))
+po_custom_scale = PipeOpTorchCustomScale$new()
+po_custom_scale$param_set$ids()
+po_custom_scale$shapes_out(list(c(NA, 4)))
 ```
 
 Note the `NA`: the batch dimension is unknown while the network is being built, and any other
@@ -77,7 +144,7 @@ later.
 That is a usable operator:
 
 ```{r}
-graph = po("torch_ingress_num") %>>% po_scale %>>% po("nn_head")
+graph = po("torch_ingress_num") %>>% po_custom_scale %>>% po("nn_head")
 md = graph$train(tsk("iris"))[[1L]]
 network = model_descriptor_to_module(md)
 network
@@ -86,53 +153,23 @@ network
 The module was built with four features, taken from the task:
 
 ```{r}
-as.numeric(md$graph$pipeops$nn_scale$module$weight)
+as.numeric(md$graph$pipeops$nn_custom_scale$module$weight)
 ```
 
 Besides `shapes_in`, `initialize()` can take the `task`, and `shapes_out()` can take the
 `param_vals` and the `task` as well -- each is passed only if the function declares it.
-That is how a layer whose width is a hyperparameter states its output shape:
+That is how `PipeOpTorchMyLinear` above states its output shape: the width of the layer is a
+hyperparameter, so `shapes_out()` reads it from `param_vals`.
+Since `out_features` has no default there, it is a *required* hyperparameter and the operator
+refuses to be used without it.
 
-```{r}
-PipeOpTorchLinear2 = pipeop_torch("nn_linear2",
-  initialize = function(shapes_in, out_features, bias = TRUE) {
-    self$linear = nn_linear(tail(shapes_in[[1L]], 1L), out_features, bias)
-  },
-  forward = function(input) self$linear(input),
-  shapes_out = function(shapes_in, param_vals) {
-    list(c(head(shapes_in[[1L]], -1L), param_vals$out_features))
-  }
-)
-
-PipeOpTorchLinear2$new(param_vals = list(out_features = 10))$shapes_out(list(c(NA, 4)))
+```{r, error = TRUE}
+PipeOpTorchMyLinear$new()$shapes_out(list(c(NA, 4)))
 ```
 
-`out_features` has no default, so it is a *required* hyperparameter and the operator refuses to be
-used without it.
-This is also how you wrap a module that already exists: call it from `initialize()`.
-
-## Converting a module with `as_pipeop()`
-
-A module can also carry the answers itself, in which case `as_pipeop()` converts it without any
-further configuration.
-The rules are the same -- `initialize()` may take `shapes_in` and `task`, `shapes_out()` states the
-output shapes -- except that `shapes_out()` is written as a method of the module:
-
-```{r}
-nn_scale = nn_module("nn_scale",
-  initialize = function(shapes_in, init = 1) {
-    self$weight = nn_parameter(torch_full(tail(shapes_in[[1L]], 1L), init))
-  },
-  forward = function(input) input * self$weight,
-  shapes_out = function(shapes_in) shapes_in
-)
-
-as_pipeop(nn_scale)$shapes_out(list(c(NA, 4)))
-```
-
-It is called before any instance of the module exists, so it cannot use `self`.
-A module written for `torch` rather than for `mlr3torch` has no such method, and `as_pipeop()` says
-so rather than guessing.
+A module that already exists does not have to be rewritten like this: call its generator from
+`initialize()` -- `self$linear = nn_linear(tail(shapes_in[[1L]], 1L), out_features)` -- and delegate
+to it in `forward()`.
 
 ## Several channels
 
@@ -163,6 +200,26 @@ po_split$shapes_out(list(c(NA, 4)))
 `in_channels` and `out_channels` also take a count instead of names -- `in_channels = 0` for a
 module whose `forward()` takes `...`, i.e. a *vararg* channel.
 
+## Making the operator available as `nn("custom_scale")`
+
+So far the class is only the value `pipeop_torch()` returned; `po()` and `nn()` know nothing about
+it, because they look their arguments up in the `mlr_pipeops` dictionary.
+Adding it there is one line:
+
+```{r}
+mlr_pipeops$add("nn_custom_scale", PipeOpTorchCustomScale)
+```
+
+`nn()` prefixes its key with `nn_` to find the entry and uses the unprefixed key as the id, so the
+new layer is now written exactly like the ones that come with {mlr3torch}:
+
+```{r}
+po("torch_ingress_num") %>>% nn("custom_scale", init = 2) %>>% nn("head")
+```
+
+When you ship an operator in a package, that call belongs in the package's `.onLoad()`, so that the
+dictionary is filled when the package is loaded.
+
 ## The long way: inheriting from `PipeOpTorch`
 
 `pipeop_torch()` writes an R6 class for you; when you want to ship an operator in a package, or
@@ -170,7 +227,7 @@ need control over its construction, write that class yourself.
 The module is then an ordinary `torch` module that knows nothing about shapes,
 
 ```{r}
-nn_scale = nn_module("nn_scale",
+nn_custom_scale = nn_module("nn_custom_scale",
   initialize = function(n_features, init = 1) {
     self$weight = nn_parameter(torch_full(n_features, init))
   },
@@ -181,10 +238,10 @@ nn_scale = nn_module("nn_scale",
 and the two questions are the private methods `.shape_dependent_params()` and `.shapes_out()`:
 
 ```{r}
-PipeOpTorchScale = R6::R6Class("PipeOpTorchScale",
+PipeOpTorchCustomScale = R6::R6Class("PipeOpTorchCustomScale",
   inherit = PipeOpTorch,
   public = list(
-    initialize = function(id = "nn_scale", param_vals = list()) {
+    initialize = function(id = "nn_custom_scale", param_vals = list()) {
       param_set = paradox::ps(
         init = paradox::p_dbl(default = 1, tags = "train")
       )
@@ -192,7 +249,7 @@ PipeOpTorchScale = R6::R6Class("PipeOpTorchScale",
         id = id,
         param_vals = param_vals,
         param_set = param_set,
-        module_generator = nn_scale
+        module_generator = nn_custom_scale
       )
     }
   ),
@@ -204,7 +261,7 @@ PipeOpTorchScale = R6::R6Class("PipeOpTorchScale",
   )
 )
 
-PipeOpTorchScale$new()$shapes_out(list(c(NA, 4)))
+PipeOpTorchCustomScale$new()$shapes_out(list(c(NA, 4)))
 ```
 
 `.shape_dependent_params()` returns *all* arguments the module is built with, i.e. the user's
@@ -212,12 +269,8 @@ PipeOpTorchScale$new()$shapes_out(list(c(NA, 4)))
 If the module cannot be built by calling the generator with a list of arguments at all, overload
 `.make_module(shapes_in, param_vals, task)` instead and ignore both.
 
-To make the operator available as `po("nn_scale")`, add it to the `PipeOp` dictionary, typically in
-your package's `.onLoad()`:
-
-```{r, eval = FALSE}
-mlr3pipelines::mlr_pipeops$add("nn_scale", PipeOpTorchScale)
-```
+A class written this way is added to the dictionary just like a generated one, see
+[above](#making-the-operator-available-as-nncustom_scale).
 
 ## Registering the operator with a learner
 
@@ -225,7 +278,7 @@ Nothing else is needed: a `Graph` that contains the new operator becomes a `Lear
 
 ```{r}
 graph = po("torch_ingress_num") %>>%
-  PipeOpTorchScale$new() %>>%
+  PipeOpTorchCustomScale$new() %>>%
   po("nn_head") %>>%
   po("torch_loss", t_loss("cross_entropy")) %>>%
   po("torch_optimizer", t_opt("adam")) %>>%
@@ -247,11 +300,11 @@ Two things are worth testing, and both are cheap:
   a network that runs on a tensor of the announced shape.
 
 ```{r}
-po_scale = PipeOpTorchScale$new()
-inferred = po_scale$shapes_out(list(c(NA, 4)))[[1L]]
+po_custom_scale = PipeOpTorchCustomScale$new()
+inferred = po_custom_scale$shapes_out(list(c(NA, 4)))[[1L]]
 
 network = model_descriptor_to_module(
-  (po("torch_ingress_num") %>>% po_scale)$train(tsk("iris"))[[1L]]
+  (po("torch_ingress_num") %>>% po_custom_scale)$train(tsk("iris"))[[1L]]
 )
 observed = dim(with_no_grad(network(torch_ingress_num.input = torch_randn(2, 4))))
 

@@ -13,7 +13,7 @@
 #'
 #' @examplesIf torch::torch_is_installed()
 #' custom_fn =  function(x, a) x / a
-#' obj = po("nn_fn", fn = custom_fn, a = 2)
+#' obj = nn("fn", fn = custom_fn, a = 2)
 #' obj$param_set
 #'
 #' graph = po("torch_ingress_ltnsr") %>>% obj

@@ -130,6 +130,22 @@ test_that("plateau works", {
   expect_class(mlp$network, c("nn_sequential", "nn_module"))
 })
 
+test_that("plateau does not step when an epoch has no validation scores", {
+  task = tsk("iris")
+  mlp = function(...) lrn("classif.mlp",
+    callbacks = t_clbk("lr_reduce_on_plateau"), epochs = 8, batch_size = 150, neurons = 10, ...)
+
+  without_valid = mlp()
+  expect_no_error(without_valid$train(task))
+  expect_equal(without_valid$model$callbacks$lr_reduce_on_plateau$last_epoch, 0)
+  expect_equal(without_valid$model$optimizer$param_groups[[1L]]$lr,
+    without_valid$param_set$values$opt.lr %??% formals(optim_ignite_adam)$lr)
+
+  every_fourth = mlp(validate = 0.2, measures_valid = msrs("classif.ce"), eval_freq = 4)
+  expect_no_error(every_fourth$train(task))
+  expect_equal(every_fourth$model$callbacks$lr_reduce_on_plateau$last_epoch, 2)
+})
+
 test_that("1cycle works", {
   cb = t_clbk("lr_one_cycle", max_lr = 0.01)
 

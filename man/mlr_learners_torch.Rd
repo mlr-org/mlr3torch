@@ -130,10 +130,11 @@ When resampling, benchmarking or tuning in parallel, each worker uses this many 
 divide the available cores among the workers instead of setting this to the number of cores.
 \item \code{num_interop_threads} :: \code{integer(1)}\cr
 The number of threads for interop parallelization (if \code{device} is \code{"cpu"}).
-This value is initialized to 1.
-Note that this can only be set \strong{once} per session, so training a learner once already sets this.
-Because the value is initialized, a deviating value only takes effect if it is set on the first
-learner that is trained in a session. You can work around this via encapsulation, see \code{\link[mlr3:Learner]{mlr3::Learner}}.
+Note that this can only be set \strong{once} per session, so setting this for one learner also changes the
+behavior of other learners, and a later learner asking for a different value errors.
+\code{NULL} (default) uses whatever is set.
+In order to use different values for this parameter, use encapsulation to train the learners
+in separate R sessions.
 \item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
 The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
@@ -142,6 +143,9 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
+This parameter only seeds torch's random number generator, it does \strong{not} seed R's.
+Anything that is drawn from R's RNG is therefore unaffected by it, so to make those parts
+reproducible you need to seed R's RNG as well, e.g. via \code{\link[=set.seed]{set.seed()}}.
 \item \code{tensor_dataset} :: \code{logical(1)} | \code{"device"}\cr
 Whether to load all batches at once at the beginning of training and stack them.
 This is initialized to \code{FALSE}.

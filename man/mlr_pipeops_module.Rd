@@ -77,7 +77,7 @@ out = po_module$train(list(x = x, z = z))
 str(out)
 
 # How such a PipeOpModule is usually generated
-graph = po("torch_ingress_num") \%>>\% po("nn_linear", out_features = 10L)
+graph = po("torch_ingress_num") \%>>\% nn("linear", out_features = 10L)
 result = graph$train(tsk("iris"))
 # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph
 result[[1]]$graph
@@ -110,13 +110,8 @@ Other Graph Network:
 \code{\link[=model_descriptor_union]{model_descriptor_union()}},
 \code{\link[=nn_graph]{nn_graph()}},
 \code{\link[=pipeop_torch]{pipeop_torch()}}
-
-Other PipeOp:
-\code{\link{mlr_pipeops_torch_callbacks}},
-\code{\link{mlr_pipeops_torch_optimizer}}
 }
 \concept{Graph Network}
-\concept{PipeOp}
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpModule}
 }

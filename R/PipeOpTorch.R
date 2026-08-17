@@ -9,6 +9,14 @@
 #' to the architecture, which is also represented as a [`Graph`][mlr3pipelines::Graph] consisting mostly of [`PipeOpModule`]s
 #' an [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s.
 #'
+#' The convenient way to construct such a `PipeOp` is the [`nn()`] helper, which prefixes the given
+#' key with `"nn_"` to look it up in the [`mlr_pipeops`][mlr3pipelines::mlr_pipeops] dictionary and
+#' uses the unprefixed key as the id of the resulting `PipeOp`:
+#' `nn("linear", out_features = 10)` is equivalent to
+#' `po("nn_linear", id = "linear", out_features = 10)`.
+#' Because ids must be unique within a [`Graph`][mlr3pipelines::Graph], repeated layers can be
+#' disambiguated with a `_<n>` suffix, e.g. `nn("linear_1")` and `nn("linear_2")`.
+#'
 #' While the former [`Graph`][mlr3pipelines::Graph] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch::torch_tensor].
 #'
 #' The relationship between a `PipeOpTorch` and a [`PipeOpModule`] is similar to the
@@ -224,7 +232,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
         names(shapes_in) = self$input$name
       }
       shapes_out = private$.shapes_out(shapes_in, self$param_set$get_values(), task = task)
-      set_names(map(shapes_out, as.integer), self$output$name)
+      assert_shapes_out(shapes_out, self)
     }
   ),
   private = list(
@@ -243,9 +251,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
       result_template = Reduce(model_descriptor_union, inputs)
       task = result_template$task
 
-      # first user-supplied function: infer shapes that get created for module
+      # first user-supplied function: infer shapes that get created for module, checked by `$shapes_out()`
       shapes_out = self$shapes_out(input_shapes, task)
-      shapes_out = assert_list(shapes_out, types = "numeric", any.missing = FALSE, len = nrow(self$output))
 
       # we need this so PipeOpBlock can implement $shapes_out() without creating the possibly expensive network
       if (!private$.only_shape) {

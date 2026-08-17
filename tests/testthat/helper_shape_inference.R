@@ -81,6 +81,13 @@ true_shape_preproc = function(obj, shape) {
   }
 }
 
+na_patterns = function(rank) {
+  combinations = expand.grid(rep(list(c(FALSE, TRUE)), rank))
+  patterns = lapply(seq_len(nrow(combinations)), function(i) which(unname(unlist(combinations[i, ]))))
+  # the first row blanks out nothing, which is the case the caller checks separately
+  patterns[lengths(patterns) > 0L]
+}
+
 expect_shape_case = function(shape, inferred_shape, true_shape, label) {
   shape = as.integer(shape)
   # Both sides report one shape per output channel, so every channel is compared: an operator such
@@ -91,8 +98,7 @@ expect_shape_case = function(shape, inferred_shape, true_shape, label) {
   expect_equal(shapes_of(inferred_shape(shape)), shapes_of(true_shape(shape, shape)),
     label = sprintf("%s: known shape %s", label, shape_to_str(shape)))
 
-  na_idx = c(as.list(seq_along(shape)), lapply(seq_along(shape)[-1L], function(i) c(1L, i)))
-  for (idx in na_idx) {
+  for (idx in na_patterns(length(shape))) {
     partial = shape
     partial[idx] = NA_integer_
     inferred = tryCatch(inferred_shape(partial), error = function(e) e)
@@ -116,9 +122,9 @@ expect_shape_case = function(shape, inferred_shape, true_shape, label) {
 
 # --- sampling ------------------------------------------------------------------------------
 #
-# How many shapes each generator draws per PipeOp. Every draw additionally sweeps all
-# single-`NA` patterns and the batch-plus-one patterns, so a budget of 3 already means dozens of
-# comparisons per operator. Raise it while working on the shape inference:
+# How many shapes each generator draws per PipeOp. Every draw additionally sweeps all 2^rank - 1
+# unknown-dimension patterns, so a budget of 3 already means dozens of comparisons per operator.
+# Raise it while working on the shape inference:
 #     MLR3TORCH_SHAPE_BUDGET=50 Rscript -e 'testthat::test_local()'
 shape_inference_budget = function(default = 3L) {
   budget = Sys.getenv("MLR3TORCH_SHAPE_BUDGET")

@@ -150,8 +150,9 @@ test_that("a PipeOp from pipeop_torch() can be used in a network", {
 })
 
 test_that("the functions keep the environments they were written in", {
-  # R6 rebinds the environment of anything it is given as a method, which would silently drop the
-  # closures of the module's methods and of `shapes_out()`
+  # `initialize` and `forward` become methods of the module and are therefore evaluated in
+  # `parent_env`, which defaults to the caller -- the frame of `make()` here, where they are also
+  # written. `shapes_out()` is not a method and keeps its own environment in either case.
   make = function(k) {
     pipeop_torch("nn_take",
       forward = function(input) input[, 1:k],
@@ -163,13 +164,36 @@ test_that("the functions keep the environments they were written in", {
   network = model_descriptor_to_module((po("torch_ingress_num") %>>% obj)$train(tsk("iris"))[[1L]])
   expect_equal(dim(with_no_grad(network(torch_ingress_num.input = torch_randn(3L, 4L)))), c(3L, 2L))
 
-  # ... also when they are written somewhere other than the call site
+  # ... `shapes_out()` also when it is written somewhere other than the call site
   shapes_out = local({
     k = 2L
     function(shapes_in) list(c(shapes_in[[1L]][1L], k))
   })
   obj = pipeop_torch("nn_x", forward = function(input) input, shapes_out = shapes_out)$new()
   expect_equal(obj$shapes_out(list(c(NA, 4L))), list(output = c(NA, 2L)))
+
+  # `forward` does not, so a wrapper around `pipeop_torch()` -- whose frame is the default
+  # `parent_env`, but not where the functions are written -- has to pass `parent_env` along
+  wrapper = function(...) pipeop_torch("nn_y", ...)
+  make_wrapped = function(k, pass_env = FALSE) {
+    forward = function(input) input[, 1:k]
+    shapes_out = function(shapes_in) list(c(shapes_in[[1L]][1L], k))
+    if (pass_env) {
+      wrapper(forward = forward, shapes_out = shapes_out, parent_env = environment())
+    } else {
+      wrapper(forward = forward, shapes_out = shapes_out)
+    }
+  }
+  build = function(obj) {
+    model_descriptor_to_module((po("torch_ingress_num") %>>% obj)$train(tsk("iris"))[[1L]])
+  }
+  # the closure is only missed when the module runs, which is why it is worth a test
+  network = build(make_wrapped(2L)$new())
+  expect_error(with_no_grad(network(torch_ingress_num.input = torch_randn(3L, 4L))),
+    "object 'k' not found")
+
+  network = build(make_wrapped(2L, pass_env = TRUE)$new())
+  expect_equal(dim(with_no_grad(network(torch_ingress_num.input = torch_randn(3L, 4L)))), c(3L, 2L))
 })
 
 test_that("the generated class does not depend on where it was created", {
@@ -189,6 +213,21 @@ test_that("shapes_out() has to return one shape per output channel", {
   obj = pipeop_torch("nn_b", forward = function(input) input, out_channels = 2L,
     shapes_out = function(shapes_in) shapes_in)$new()
   expect_error(obj$shapes_out(list(c(NA, 4L))), "must return a list of 2 shape")
+})
+
+test_that("shapes_out() has to return shapes", {
+  # the shapes are coerced with `as.integer()`, which would turn these into `NA`s instead of failing
+  for (bad in list(quote(list("a")), quote(list(NULL)), quote(list(list(1, 2))))) {
+    obj = pipeop_torch("nn_c", forward = function(input) input,
+      shapes_out = eval(bquote(function(shapes_in) .(bad))))$new()
+    expect_error(obj$shapes_out(list(c(NA, 4L))), "invalid shape for output channel 'output'",
+      fixed = TRUE)
+  }
+
+  # a shape whose dimensions are all unknown is valid
+  obj = pipeop_torch("nn_d", forward = function(input) input,
+    shapes_out = function(shapes_in) list(c(NA, NA)))$new()
+  expect_equal(obj$shapes_out(list(c(NA, 4L))), list(output = c(NA_integer_, NA_integer_)))
 })
 
 test_that("operators that differ in what they do differ in their phash", {
@@ -212,37 +251,49 @@ test_that("pipeop_torch() argument checks", {
   expect_error(pipeop_torch_scale(param_set = ps(shapes_in = p_uty(tags = "train"))), "disjunct")
   expect_error(pipeop_torch_scale(param_set = ps(nonexistent = p_uty(tags = "train"))),
     "parameter ids")
+  # a `ParamSet` that does not cover a required argument would only fail during training
+  expect_error(pipeop_torch("nn_e",
+    initialize = function(shapes_in, a, b) NULL,
+    forward = function(input) input, shapes_out = function(shapes_in) shapes_in,
+    param_set = ps(a = p_uty(tags = "train"))), "no parameter(s) 'b'", fixed = TRUE)
+  # ... one with a default can be left to the module
+  expect_class(pipeop_torch("nn_f",
+    initialize = function(shapes_in, a, b = 1) NULL,
+    forward = function(input) input, shapes_out = function(shapes_in) shapes_in,
+    param_set = ps(a = p_uty(tags = "train"))), "R6ClassGenerator")
+
+  # `shapes_out()` gets only what it declares, so an argument it cannot get is a typo
+  expect_error(pipeop_torch("nn_g", forward = function(input) input,
+    shapes_out = function(shape_in) shape_in), "arguments of `shapes_out()`", fixed = TRUE)
+
+  # the id has to be one a class name can be derived from, unless it is given
+  expect_error(pipeop_torch("", forward = function(input) input,
+    shapes_out = function(shapes_in) shapes_in), "at least 1 characters")
+  expect_error(pipeop_torch("nn_", forward = function(input) input,
+    shapes_out = function(shapes_in) shapes_in), "No class name can be derived")
+  expect_equal(pipeop_torch("nn_", forward = function(input) input,
+    shapes_out = function(shapes_in) shapes_in, classname = "PipeOpTorchFoo")$classname,
+    "PipeOpTorchFoo")
+  expect_equal(pipeop_torch("nn_multihead_attention", forward = function(input) input,
+    shapes_out = function(shapes_in) shapes_in)$classname, "PipeOpTorchMultiheadAttention")
 })
 
-test_that("as_pipeop() converts a module that describes itself", {
-  nn_scale = invoke(nn_module, "nn_scale", .args = scale_args)
-  obj = as_pipeop(nn_scale)
-  expect_pipeop(obj)
-  expect_class(obj, "PipeOpTorch")
-  expect_equal(obj$id, "nn_scale")
-  expect_equal(obj$param_set$ids(), "init")
-  expect_equal(obj$shapes_out(list(c(NA, 4L))), list(output = c(NA, 4L)))
+test_that("the input channels have to match forward()", {
+  # the module is called with one argument per input channel, so a mismatch would only surface when
+  # the network is run
+  expect_error(pipeop_torch("nn_h", forward = function(input) input, in_channels = 2L,
+    shapes_out = function(shapes_in) shapes_in[1L]), "takes 1 argument(s) (input)", fixed = TRUE)
+  expect_error(pipeop_torch("nn_i", forward = function(a, b) a, in_channels = 1L,
+    shapes_out = function(shapes_in) shapes_in), "2 argument(s) (a, b)", fixed = TRUE)
+  # an argument with a default may be left to the module, and a vararg forward() takes anything
+  expect_class(pipeop_torch("nn_j", forward = function(a, b = 1) a, in_channels = 1L,
+    shapes_out = function(shapes_in) shapes_in), "R6ClassGenerator")
+  expect_class(pipeop_torch("nn_k", forward = function(...) ..1, in_channels = 3L,
+    shapes_out = function(shapes_in) shapes_in[1L]), "R6ClassGenerator")
 
-  graph = po("torch_ingress_num") %>>% obj %>>% po("nn_head")
-  network = model_descriptor_to_module(graph$train(tsk("iris"))[[1L]])
-  x = torch_randn(2L, 4L)
-  expect_equal(dim(with_no_grad(network(torch_ingress_num.input = x))), c(2L, 3L))
-
-  # without a `shapes_out()` method there is nothing to convert
-  nn_square = nn_module("nn_square", forward = function(input) input^2)
-  expect_error(as_pipeop(nn_square), "no `shapes_out()` method", fixed = TRUE)
-
-  # the module's methods keep their environments, wherever it was written
-  make_module = function(k) {
-    nn_module("nn_take",
-      forward = function(input) input[, 1:k],
-      shapes_out = function(shapes_in) list(c(shapes_in[[1L]][1L], k))
-    )
-  }
-  expect_equal(as_pipeop(make_module(2L))$shapes_out(list(c(NA, 5L))), list(output = c(NA, 2L)))
-
-  # `shapes_out()` is called before any module exists, so `self` is not available to it
-  nn_selfish = nn_module("nn_selfish", forward = function(input) input,
-    shapes_out = function(shapes_in) self$anything)
-  expect_error(as_pipeop(nn_selfish)$shapes_out(list(c(NA, 4L))), "object 'self' not found")
+  # a vararg channel is only meaningful on the input side, and only on its own
+  expect_error(pipeop_torch("nn_l", forward = function(input) input, out_channels = "...",
+    shapes_out = function(shapes_in) shapes_in), "not a valid output channel name")
+  expect_error(pipeop_torch("nn_n", forward = function(...) ..1, in_channels = c("...", "a"),
+    shapes_out = function(shapes_in) shapes_in), "must be the only input channel")
 })

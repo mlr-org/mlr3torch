@@ -8,13 +8,17 @@
   dimensions.
 * The dropout probability `p` of `lrn("classif.mlp")` / `lrn("regr.mlp")` is now initialized to
   `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
+* The `cache` argument of `materialize()` is now a `utils::hashtab()` instead of an `environment()`,
+  which avoids possible hash collisions and raises the R dependency to `>= 4.2.0`.
+* The `num_interop_threads` parameter of `LearnerTorch` is no longer initialized to `1`, so torch's
+  default is left in place unless the parameter is set. Setting it to a value that torch can no
+  longer apply is now an error instead of a warning.
 
 ## Features
 
-* New function `pipeop_torch()` that creates a `PipeOpTorch` and the `nn_module` it wraps in one go,
-  without having to write the R6 class by hand. An `as_pipeop()` method converts an `nn_module`
-  that states its own output shapes.
+* New function `pipeop_torch()` that simplifies the creation of `PipeOpTorch` classes.
 * New article *Writing your own PipeOpTorch*.
+* The `$model` of a `LearnerTorch` now has a printer.
 * Added more image learners from {torchvision}.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.
@@ -36,9 +40,12 @@
   of the training run.
 * `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage.
 * `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
+* The `path` of `t_clbk("checkpoint")` can now be a `function()` that is called at the beginning of
+  each training run and returns that run's path.
 
 ## Bug fixes
 
+* Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 * `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
   under that epoch's own number, so `network<n>.pt` is now always the
@@ -65,6 +72,8 @@
   effect, `n_blocks = 0` is allowed and the hidden dimension falls back to
   `d_token * 4/3` as in the reference implementation.
 * Fixed some issues in the documentation.
+* Examples, vignettes and the README now use `nn("linear")` instead of the equivalent, but longer
+  `po("nn_linear")`.
 
 # mlr3torch 0.3.3
 
