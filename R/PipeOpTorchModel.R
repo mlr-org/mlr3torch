@@ -18,9 +18,8 @@
 #' A [`LearnerTorchModel`] is created by calling [`model_descriptor_to_learner()`] on the
 #' provided [`ModelDescriptor`] that is received through the input channel.
 #' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and
-#' its '$train()` method is called on the [`Task`][mlr3::Task] stored in the [`ModelDescriptor`].
+#' its `$train()` method is called on the [`Task`][mlr3::Task] stored in the [`ModelDescriptor`].
 #'
-#' @family PipeOps
 #' @export
 PipeOpTorchModel = R6Class("PipeOpTorchModel",
   inherit = PipeOpLearner,
@@ -72,10 +71,13 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       # Because we control the creation of the LearnerTorchModel, we know that it's fitted in the same
       # process as the current .train function, hence, we can avoid the serialization round-trip
       get_private(private$.learner, ".network_stored") = network
+      # the modules were constructed above, i.e. outside the learner's seeded region, so the learner
+      # re-initializes them under the seed to make graph-built learners reproducible
+      get_private(private$.learner, ".reset_parameters_") = TRUE
       private$.learner$ingress_tokens = md$ingress
 
       if (is.null(md$loss)) {
-        stopf("No loss configured in ModelDescriptor. Use (\"torch_loss\").")
+        stopf("No loss configured in ModelDescriptor. Use po(\"torch_loss\").")
       }
       self$learner$loss = md$loss
       if (is.null(md$optimizer)) {
@@ -88,7 +90,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
 
       ingress_tokens = md$ingress
 
-      private$.learner$packages = unique(private$.learner$packages, md$network$graph$packages)
+      private$.learner$packages = union(private$.learner$packages, md$graph$packages)
 
       super$.train(list(md$task))
     },
@@ -111,14 +113,13 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
 #' @inheritSection mlr_pipeops_torch_model State
 #' @section Parameters: See [`LearnerTorch`]
 #' @inheritSection mlr_pipeops_torch_model Internals
-#' @family PipeOps
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' # simple logistic regression
 #'
 #' # configure the model descriptor
 #' md = as_graph(po("torch_ingress_num") %>>%
-#'   po("nn_head") %>>%
+#'   nn("head") %>>%
 #'   po("torch_loss", "cross_entropy") %>>%
 #'   po("torch_optimizer", "adam"))$train(tsk("iris"))[[1L]]
 #'
@@ -154,14 +155,13 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 #' @inheritSection mlr_pipeops_torch_model State
 #' @section Parameters: See [`LearnerTorch`]
 #' @inheritSection mlr_pipeops_torch_model Internals
-#' @family PipeOps
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' # simple linear regression
 #'
 #' # build the model descriptor
 #' md = as_graph(po("torch_ingress_num") %>>%
-#'   po("nn_head") %>>%
+#'   nn("head") %>>%
 #'   po("torch_loss", "mse") %>>%
 #'   po("torch_optimizer", "adam"))$train(tsk("mtcars"))[[1L]]
 #'

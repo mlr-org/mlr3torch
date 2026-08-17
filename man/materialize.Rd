@@ -24,13 +24,13 @@ In the second case, there is no batch dimension.}
 \item{...}{(any)\cr
 Additional arguments.}
 
-\item{cache}{(\code{character(1)} or \code{environment()} or \code{NULL})\cr
+\item{cache}{(\code{character(1)} or \code{\link[utils:hashtab]{hashtab()}} or \code{NULL})\cr
 Optional cache for (intermediate) materialization results.
 Per default, caching will be enabled when the same dataset or data descriptor (with different output pointer)
 is used for more than one lazy tensor column.}
 }
 \value{
-(\code{list()} of \code{\link{lazy_tensor}}s or a \code{\link{lazy_tensor}})
+(\code{list()} of \code{\link[torch:torch_tensor]{torch_tensor}}s or a \code{\link[torch:torch_tensor]{torch_tensor}})
 }
 \description{
 This will materialize a \code{\link[=lazy_tensor]{lazy_tensor()}} or a \code{data.frame()} / \code{list()} containing -- among other things --
@@ -52,9 +52,11 @@ With multiple \code{\link{lazy_tensor}} columns we can benefit from caching beca
 a) Output(s) from the dataset might be input to multiple graphs.
 b) Different lazy tensors might be outputs from the same graph.
 
-For this reason it is possible to provide a cache environment.
-The hash key for a) is the hash of the indices and the dataset.
-The hash key for b) is the hash of the indices, dataset and preprocessing graph.
+For this reason it is possible to provide a cache, which is a \code{\link[utils:hashtab]{hashtab()}}.
+The key for a) is \code{list(dataset, indices)}, the key for b) is
+\code{list(indices, dataset, graph, input_map)}. The dataset and the graph go into the key as the
+objects themselves, so keys are compared with \code{identical()} rather than being digested into a
+string, and two different keys can never share an entry.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

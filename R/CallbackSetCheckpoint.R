@@ -13,38 +13,53 @@
 #'
 #' An epoch that was interrupted -- because training failed or was stopped -- is not written under
 #' its own number, so `network<n>.pt` is always the network at the *end* of epoch `n`.
+#'
 #' @details
 #' Saving the learner itself in the callback with a trained model is impossible,
 #' as the model slot is set *after* the last callback step is executed.
 #'
-#' @param path (`character(1)`)\cr
-#'   The path to a folder where the models are saved.
+#' @param path (`character(1)` | `function()`)\cr
+#'   The path to a folder where the models are saved, or a function of no arguments returning it.
+#'   The latter is especially useful to create unique directories during `resample()` or `benchmark()`
+#'   per fit.
+#'   The folder must be new or empty, so that a checkpoint never overwrites unrelated data.
 #' @param freq (`integer(1)`)\cr
 #'   How often the model is saved, in epochs.
 #' @family Callback
 #' @export
 #' @include CallbackSet.R
-#' 
+#'
 #' @examplesIf torch::torch_is_installed()
 #' cb = t_clbk("checkpoint", freq = 1)
 #' task = tsk("iris")
-#' 
+#'
 #' pth = tempfile()
 #' learner = lrn("classif.mlp", epochs = 3, batch_size = 1, callbacks = cb)
 #' learner$param_set$set_values(cb.checkpoint.path = pth)
-#' 
+#'
 #' learner$train(task)
-#' 
+#'
 #' list.files(pth)
 CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   inherit = CallbackSet,
   lock_objects = FALSE,
   # TODO: This should also save the learner itself
   public = list(
+    #' @field weight (`numeric(1)`)\cr
+    #'   `Inf`, so that this callback runs after the other callbacks and hence saves the network and
+    #'   optimizer as they are at the end of the stage, see section *Ordering* of [`CallbackSet`].
+    #'   The only exception is the restore of `restore_best_weights`, which happens afterwards, so
+    #'   a checkpoint always holds the network as training left it.
+    weight = Inf,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(path, freq) {
       self$freq = assert_int(freq, lower = 1L)
+      # a function is evaluated once per training run, which is what makes resampling, benchmarking
+      # and tuning possible: every iteration can compute a path of its own
+      if (is.function(path)) {
+        path = assert_string(path(), .var.name = "return value of the `path` function")
+      }
       # an empty folder is a legal target: that is what a pre-created output directory looks like,
       # and what a run that died before writing its first checkpoint leaves behind. Any other
       # existing path is rejected, so that unrelated data is never written into.
@@ -93,12 +108,17 @@ is_empty_dir = function(path) {
   dir.exists(path) && !length(list.files(path, all.files = TRUE, no.. = TRUE))
 }
 
+# the path is either given directly or computed once per training run
+check_checkpoint_path = function(x) {
+  if (is.function(x)) check_function(x, nargs = 0L) else check_string(x)
+}
+
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("checkpoint", function() {
   TorchCallback$new(
     callback_generator = CallbackSetCheckpoint,
     param_set = ps(
-      path = p_uty(tags = c("train", "required")),
+      path = p_uty(tags = c("train", "required"), custom_check = check_checkpoint_path),
       freq = p_int(lower = 1L, tags = c("train", "required"))
     ),
     id = "checkpoint",

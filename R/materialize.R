@@ -17,9 +17,11 @@
 #' a) Output(s) from the dataset might be input to multiple graphs.
 #' b) Different lazy tensors might be outputs from the same graph.
 #'
-#' For this reason it is possible to provide a cache environment.
-#' The hash key for a) is the hash of the indices and the dataset.
-#' The hash key for b) is the hash of the indices, dataset and preprocessing graph.
+#' For this reason it is possible to provide a cache, which is a [`hashtab()`][utils::hashtab].
+#' The key for a) is `list(dataset, indices)`, the key for b) is
+#' `list(indices, dataset, graph, input_map)`. The dataset and the graph go into the key as the
+#' objects themselves, so keys are compared with `identical()` rather than being digested into a
+#' string, and two different keys can never share an entry.
 #'
 #' @param x (any)\cr
 #'   The object to materialize.
@@ -27,11 +29,11 @@
 #' @param rbind (`logical(1)`)\cr
 #'   Whether to rbind the lazy tensor columns (`TRUE`) or return them as a list of tensors (`FALSE`).
 #'   In the second case, there is no batch dimension.
-#' @return (`list()` of [`lazy_tensor`]s or a [`lazy_tensor`])
 #' @param device (`character(1)`)\cr
 #'   The torch device.
 #' @param ... (any)\cr
 #'   Additional arguments.
+#' @return (`list()` of [`torch_tensor`][torch::torch_tensor]s or a [`torch_tensor`][torch::torch_tensor])
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' lt1 = as_lazy_tensor(torch_randn(10, 3))
@@ -48,17 +50,17 @@ materialize = function(x, device = "cpu", rbind = FALSE, ...) {
 }
 
 #' @rdname materialize
-#' @param cache (`character(1)` or `environment()` or `NULL`)\cr
+#' @param cache (`character(1)` or [`hashtab()`][utils::hashtab] or `NULL`)\cr
 #'   Optional cache for (intermediate) materialization results.
 #'   Per default, caching will be enabled when the same dataset or data descriptor (with different output pointer)
 #'   is used for more than one lazy tensor column.
 #' @export
 materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ...) { # nolint
   x_lt = x[map_lgl(x, is_lazy_tensor)]
-  assert(check_choice(cache, "auto"), check_environment(cache, null.ok = TRUE))
+  assert(check_choice(cache, "auto"), check_class(cache, "hashtab", null.ok = TRUE))
 
   if (identical(cache, "auto")) {
-    cache = if (auto_cache_lazy_tensors(x_lt)) new.env()
+    cache = if (auto_cache_lazy_tensors(x_lt)) hashtab()
   }
 
   map(x, function(col) {
@@ -156,18 +158,19 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 #'
 #' When materializing multiple [`lazy_tensor`] columns, caching can be useful because:
 #' a) Output(s) from the dataset might be input to multiple graphs.
-#'    (in task_dataset this is shoudl rarely be the case because because we try to merge them).
+#'    (in task_dataset this should rarely be the case because we try to merge them).
 #' b) Different lazy tensors might be outputs from the same graph.
 #'
-#' For this reason it is possible to provide a cache environment.
-#' The hash key for a) is the hash of the indices and the dataset.
-#' The hash key for b) is the hash of the indices dataset and preprocessing graph.
+#' For this reason it is possible to provide a cache, which is a [`hashtab()`][utils::hashtab].
+#' The key for a) is `list(dataset, indices)`, the key for b) is
+#' `list(indices, dataset, graph, input_map)`. The dataset and the graph go into the key as the
+#' objects themselves, not as their hashes, so they are compared with `identical()`.
 #'
 #' @param x ([`lazy_tensor()`])\cr
 #'   The lazy tensor to materialize.
 #' @param device (`character(1L)`)\cr
 #'   The device to put the materialized tensor on (after running the preprocessing graph).
-#' @param cache (`NULL` or `environment()`)\cr
+#' @param cache (`NULL` or [`hashtab()`][utils::hashtab])\cr
 #'   Whether to cache the (intermediate) results of the materialization.
 #'   This can make data loading faster when multiple `lazy_tensor`s reference the same dataset or graph.
 #' @param rbind (`logical(1)`)\cr
@@ -185,19 +188,19 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
 
   pointer_name = paste0(data_descriptor$pointer, collapse = ".")
   if (do_caching) {
-    output_hash = calculate_hash(ids, data_descriptor$hash)
-    output_hit = exists(output_hash, cache, inherits = FALSE)
+    # R's hashmap uses the address for graph and ds, so it's cheap
+    # the two keys have different lengths, so they cannot be confused for one another
+    output_key = list(ids, ds, graph, data_descriptor$input_map)
+    output = gethash(cache, output_key)
 
-    if (output_hit) {
-      return(cache[[output_hash]][[pointer_name]])
+    if (!is.null(output)) {
+      return(output[[pointer_name]])
     }
-    input_hash = calculate_hash(data_descriptor$dataset_hash, ids)
+    input_key = list(ds, ids)
 
-    input_hit = exists(input_hash, cache, inherits = FALSE)
-
-    if (input_hit) {
-      input = cache[[input_hash]]
-    }
+    # `get_input()` and `get_output()` always return a list, so `NULL` unambiguously means "absent"
+    input = gethash(cache, input_key)
+    input_hit = !is.null(input)
   }
 
   if (!do_caching || !input_hit) {
@@ -205,7 +208,7 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   }
 
   if (do_caching && !input_hit) {
-    cache[[input_hash]] = input
+    sethash(cache, input_key, input)
   }
 
   # input is the output of a dataset so it can contain more than what we need for the graph,
@@ -223,7 +226,7 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   output = get_output(input, graph, varying_shapes, rbind, device)
 
   if (do_caching) {
-    cache[[output_hash]] = output
+    sethash(cache, output_key, output)
   }
 
   output[[pointer_name]]

@@ -55,6 +55,17 @@ Other Callback:
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetCheckpoint}
 }
+\section{Public fields}{
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{weight}}{(\code{numeric(1)})\cr
+\code{Inf}, so that this callback runs after the other callbacks and hence saves the network and
+optimizer as they are at the end of the stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.
+The only exception is the restore of \code{restore_best_weights}, which happens afterwards, so
+a checkpoint always holds the network as training left it.}
+  }
+  \if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
   \itemize{
@@ -84,8 +95,11 @@ Other Callback:
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{path}}{(\code{character(1)})\cr
-The path to a folder where the models are saved.}
+      \item{\code{path}}{(\code{character(1)} | \verb{function()})\cr
+The path to a folder where the models are saved, or a function of no arguments returning it.
+The latter is especially useful to create unique directories during \code{resample()} or \code{benchmark()}
+per fit.
+The folder must be new or empty, so that a checkpoint never overwrites unrelated data.}
       \item{\code{freq}}{(\code{integer(1)})\cr
 How often the model is saved, in epochs.}
     }

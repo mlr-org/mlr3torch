@@ -95,6 +95,8 @@ These include:
 \itemize{
 \item \code{device}: Use a GPU if possible.
 \item \code{num_threads}: Set this to the number of CPU cores available if training on CPU.
+When resampling, benchmarking or tuning in parallel, each worker uses \code{num_threads} threads, so
+divide the available cores among the workers instead to avoid oversubscribing the machine.
 \item \code{tensor_dataset}: Set this to \code{TRUE} (or \code{"device"} if on a GPU) if the dataset fits into memory.
 \item \code{batch_size}: Especially for very small models, choose a larger batch size.
 }
@@ -131,12 +133,17 @@ The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"} or other values
 The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible, then try \code{"mps"} and otherwise
 fall back to \code{"cpu"}.
 \item \code{num_threads} :: \code{integer(1)}\cr
-The number of threads for intraop pararallelization (if \code{device} is \code{"cpu"}).
+The number of threads for intraop parallelization (if \code{device} is \code{"cpu"}).
 This value is initialized to 1.
+When resampling, benchmarking or tuning in parallel, each worker uses this many threads, so
+divide the available cores among the workers instead of setting this to the number of cores.
 \item \code{num_interop_threads} :: \code{integer(1)}\cr
-The number of threads for intraop and interop pararallelization (if \code{device} is \code{"cpu"}).
-This value is initialized to 1.
-Note that this can only be set once during a session and changing the value within an R session will raise a warning.
+The number of threads for interop parallelization (if \code{device} is \code{"cpu"}).
+Note that this can only be set \strong{once} per session, so setting this for one learner also changes the
+behavior of other learners, and a later learner asking for a different value errors.
+\code{NULL} (default) uses whatever is set.
+In order to use different values for this parameter, use encapsulation to train the learners
+in separate R sessions.
 \item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
 The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
@@ -145,6 +152,9 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
+This parameter only seeds torch's random number generator, it does \strong{not} seed R's.
+Anything that is drawn from R's RNG is therefore unaffected by it, so to make those parts
+reproducible you need to seed R's RNG as well, e.g. via \code{\link[=set.seed]{set.seed()}}.
 \item \code{tensor_dataset} :: \code{logical(1)} | \code{"device"}\cr
 Whether to load all batches at once at the beginning of training and stack them.
 This is initialized to \code{FALSE}.
@@ -172,6 +182,8 @@ Note that the final model is always evaluated.
 \item \code{patience} :: \code{integer(1)}\cr
 This activates early stopping using the validation scores.
 If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
+Note that this counts \emph{evaluation steps}, not epochs: when \code{eval_freq} is greater than \code{1},
+\code{patience} evaluation steps correspond to \code{patience * eval_freq} epochs.
 Note that the final model is stored in the learner, not the best model.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
@@ -181,6 +193,13 @@ field of the learner.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
+\item \code{restore_best_weights} :: \code{logical(1)}\cr
+Whether to restore the weights of the best epoch when training ends, instead of keeping those
+of the last epoch that was trained. Is initialized to \code{FALSE}, i.e. the network of the last
+epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
+\verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
+memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
+network as training left it.
 }
 
 \strong{Dataloader}:
@@ -220,7 +239,7 @@ It is ignored when a \code{batch_sampler} is provided.
 The timeout value for collecting a batch from workers.
 Negative values mean no timeout and the default is \code{-1}.
 \item \code{worker_init_fn} :: \verb{function(id)}\cr
-A function that receives the worker id (in \verb{[1, num_workers]}) and is exectued after seeding
+A function that receives the worker id (in \verb{[1, num_workers]}) and is executed after seeding
 on the worker but before data loading.
 \item \code{worker_globals} :: \code{list()} | \code{character()}\cr
 When loading data in parallel, this allows to export globals to the workers.
@@ -230,13 +249,13 @@ are copied to the workers.
 Which packages to load on the workers.
 }
 
-Also see \code{torch::dataloder} for more information.
+Also see \code{torch::dataloader} for more information.
 }
 
 \section{Inheriting}{
 
-There are no seperate classes for classification and regression to inherit from.
-Instead, the \code{task_type} must be specified  as a construction argument.
+There are no separate classes for classification and regression to inherit from.
+Instead, the \code{task_type} must be specified as a construction argument.
 Any task type that is registered in
 \code{\link[mlr3:mlr_reflections]{mlr_reflections$task_types}} can be used.
 Support for a task type that \pkg{mlr3torch} does not know is added by implementing methods for
@@ -291,8 +310,8 @@ It is also possible to overwrite the private \code{.dataloader()} method.
 This must respect the dataloader parameters from the \code{\link[paradox:ParamSet]{ParamSet}}.
 \itemize{
 \item \code{.dataloader(dataset, param_vals)}\cr
-(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
-Create a dataloader from the task.
+(\code{\link[torch:dataset]{dataset}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
+Create a dataloader from the dataset.
 Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions will be incorrectly ordered).
 Use \code{get_batch_size(param_vals, "train")} to obtain the batch size for the respective phase,
 which takes the \code{batch_size_predict} parameter into account.
@@ -309,7 +328,8 @@ This method must take \code{self$predict_type} into account.
 
 While it is possible to add parameters by specifying the \code{param_set} construction argument, it is currently
 not possible to remove existing parameters, i.e. those listed in section \emph{Parameters}.
-None of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
+None of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \code{"opt."},
+or \code{"cb."}, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.
 
 To perform additional input checks on the task, the private \code{.check_train_task(task, param_vals)} and
@@ -469,7 +489,9 @@ To deviate from the defaults, it is necessary to overwrite the private \verb{$.e
 method, see section \emph{Inheriting}.}
       \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks to use for training.
-Defaults to an empty\code{ list()}, i.e. no callbacks.}
+Defaults to an empty\code{ list()}, i.e. no callbacks.
+Within a stage they are called in the order in which they are provided, unless a callback
+requests otherwise via its \verb{$weight}, see section \emph{Ordering} of \code{\link{CallbackSet}}.}
       \item{\code{jittable}}{(\code{logical(1)})\cr
 Whether the model can be jit-traced. Default is \code{FALSE}.}
     }

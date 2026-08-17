@@ -10,8 +10,8 @@ A callback set is a collection of functions that are executed at different stage
 They can be used to gain more control over the training process of a neural network without
 having to write everything from scratch.
 
-When used a in torch learner, the \code{CallbackSet} is wrapped in a \code{\link{TorchCallback}}.
-The latters parameter set represents the arguments of the \code{\link{CallbackSet}}'s \verb{$initialize()} method.
+When used in a torch learner, the \code{CallbackSet} is wrapped in a \code{\link{TorchCallback}}.
+The latter's parameter set represents the arguments of the \code{\link{CallbackSet}}'s \verb{$initialize()} method.
 }
 \section{Inheriting}{
 
@@ -19,7 +19,7 @@ For each available stage (see section \emph{Stages}) a public method \verb{$on_<
 The evaluation context (a \code{\link{ContextTorch}}) can be accessed via \code{self$ctx}, which contains
 the current state of the training loop.
 This context is assigned at the beginning of the training loop and removed afterwards.
-Different stages of a callback can communicate with each other by assigning values to \verb{$self}.
+Different stages of a callback can communicate with each other by assigning values to \code{self}.
 
 \emph{State}:
 To be able to store information in the \verb{$model} slot of a \code{\link{LearnerTorch}}, callbacks support a state API.
@@ -39,17 +39,30 @@ These functions perform checks such as that the stages are not accidentally miss
 
 \itemize{
 \item \code{begin} :: Run before the training loop begins.
-\item \code{epoch_begin} :: Run he beginning of each epoch.
+\item \code{epoch_begin} :: Run at the beginning of each epoch.
 \item \code{batch_begin} :: Run before the forward call.
 \item \code{after_backward} :: Run after the backward call.
 \item \code{batch_end} :: Run after the optimizer step.
+\item \code{before_valid} :: Run before the validation loop begins.
 \item \code{batch_valid_begin} :: Run before the forward call in the validation loop.
 \item \code{batch_valid_end} :: Run after the forward call in the validation loop.
 \item \code{valid_end} :: Run at the end of validation.
 \item \code{epoch_end} :: Run at the end of each epoch.
 \item \code{end} :: Run after last epoch.
-\item \code{exit} :: Run at last, using \code{on.exit()}.
+\item \code{exit} :: Run last, using \code{on.exit()}.
 }
+}
+
+\section{Ordering}{
+
+Within a stage, callbacks are called in the order in which they were passed to the learner.
+A callback can override this via its \verb{$weight} field: callbacks with a higher weight are called
+after those with a lower one, and callbacks with the same weight keep the order in which they
+were passed.
+The default weight is \code{0}.
+This matters for callbacks that observe what the others did, which is why
+\code{\link{CallbackSetCheckpoint}} has weight \code{Inf}: it always runs last and therefore saves the network
+and optimizer as the other callbacks left them at the end of the stage.
 }
 
 \section{Terminate Training}{
@@ -81,6 +94,9 @@ Other Callback:
     \item{\code{ctx}}{(\code{\link{ContextTorch}} or \code{NULL})\cr
 The evaluation context for the callback.
 This field should always be \code{NULL} except during the \verb{$train()} call of the torch learner.}
+
+    \item{\code{weight}}{(\code{numeric(1)})\cr
+Controls when this callback is called within a stage, see section \emph{Ordering}.}
   }
   \if{html}{\out{</div>}}
 }
@@ -125,7 +141,7 @@ Currently unused.}
 \if{html}{\out{<a id="method-CallbackSet-state_dict"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSet-state_dict}{}}}
 \subsection{\code{CallbackSet$state_dict()}}{
-  Returns information that is kept in the the \code{\link{LearnerTorch}}'s state after training.
+  Returns information that is kept in the \code{\link{LearnerTorch}}'s state after training.
 This information should be loadable into the callback using \verb{$load_state_dict()} to be able to continue training.
 This returns \code{NULL} by default.
   \subsection{Usage}{

@@ -7,11 +7,9 @@ make_ft_transformer = function(task_type, ...) {
      ffn_activation = nn_reglu,
      residual_dropout = 0.0,
      prenormalization = TRUE,
-     is_first_layer = TRUE,
      attention_initialization = "kaiming",
      ffn_normalization = nn_layer_norm,
      attention_normalization = nn_layer_norm,
-     query_idx = NULL,
      attention_bias = TRUE,
      ffn_bias_first = TRUE,
      ffn_bias_second = TRUE,
@@ -159,4 +157,32 @@ test_that("logical features work", {
   learner2 = learner$clone(deep = TRUE)
   learner2$train(mlr3::as_task_classif(d2, target = "y"))
   expect_prediction(learner2$predict(mlr3::as_task_classif(d2, target = "y")))
+})
+
+test_that("the learner trains with its default configuration", {
+  # `n_blocks`, `d_token` and the FFN width used to be de-facto mandatory although documented as
+  # defaulted; they now follow the reference implementation's default configuration.
+  learner = lrn("classif.ft_transformer", epochs = 1L, batch_size = 150L, device = "cpu")
+  expect_equal(learner$param_set$values$n_blocks, 3L)
+  expect_equal(learner$param_set$values$d_token, 192L)
+  expect_no_error(learner$train(tsk("iris")))
+})
+
+test_that("n_blocks = 0 leaves tokenizer, CLS and head", {
+  learner = lrn("classif.ft_transformer", epochs = 1L, batch_size = 150L, device = "cpu",
+    n_blocks = 0L, d_token = 8L)
+  expect_no_error(learner$train(tsk("iris")))
+  expect_class(learner$predict(tsk("iris")), "PredictionClassif")
+})
+
+test_that("d_token must be a multiple of attention_n_heads", {
+  base = list(epochs = 1L, batch_size = 150L, device = "cpu", n_blocks = 1L)
+  bad = invoke(lrn, .key = "classif.ft_transformer",
+    .args = c(base, list(d_token = 7L, attention_n_heads = 4L)))
+  expect_error(bad$train(tsk("iris")), "must be a multiple of")
+
+  # a single head is exempt, as in the reference implementation
+  ok = invoke(lrn, .key = "classif.ft_transformer",
+    .args = c(base, list(d_token = 7L, attention_n_heads = 1L)))
+  expect_no_error(ok$train(tsk("iris")))
 })

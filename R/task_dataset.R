@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Creates a torch [dataset][torch::dataset] from an mlr3 [`Task`][mlr3::Task].
-#' The resulting dataset's `$.get_batch()` method returns a list with elements `x`, `y` and `index`:
+#' The resulting dataset's `$.getbatch()` method returns a list with elements `x`, `y` and `.index`:
 #' * `x` is a list with tensors, whose content is defined by the parameter `feature_ingress_tokens`.
 #' * `y` is the target variable and its content is defined by the parameter `target_batchgetter`.
 #' * `.index` is the index of the batch in the task's data.
@@ -80,7 +80,7 @@ task_dataset = dataset("task_dataset",
     self$cache_lazy_tensors = auto_cache_lazy_tensors(data)
   },
   .getbatch = function(index) {
-    cache = if (self$cache_lazy_tensors) new.env()
+    cache = if (self$cache_lazy_tensors) hashtab()
 
     datapool = self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
     batch = self$batch_constructor(

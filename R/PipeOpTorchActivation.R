@@ -42,7 +42,7 @@ register_po("nn_elu", PipeOpTorchELU)
 #' @section nn_module: Calls [`torch::nn_hardshrink()`] when trained.
 #' @section Parameters:
 #' * `lambd` :: `numeric(1)`\cr
-#'   The lambda value for the Hardshrink formulation formulation. Default 0.5.
+#'   The lambda value for the Hardshrink formulation. Default 0.5.
 #' @templateVar id nn_hardshrink
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
@@ -226,11 +226,11 @@ register_po("nn_log_sigmoid", PipeOpTorchLogSigmoid)
 #' @inherit torch::nnf_prelu description
 #' @section nn_module: Calls [`torch::nn_prelu()`] when trained.
 #' @section Parameters:
-#' * `num_parameters` :: `integer(1)`:
-#'   Number of a to learn. Although it takes an int as input, there is only two values are legitimate: 1, or the
-#'   number of channels at input. Default: 1.
-#' * `init` :: `numeric(1)`\cr T
-#'   The initial value of a. Default: 0.25.
+#' * `num_parameters` :: `integer(1)`\cr
+#'   Number of `a` parameters to learn. Although it takes an integer as input, only two values are
+#'   legitimate: `1`, or the number of channels of the input. Default: 1.
+#' * `init` :: `numeric(1)`\cr
+#'   The initial value of `a`. Default: 0.25.
 #' @templateVar id nn_prelu
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
@@ -569,7 +569,7 @@ register_po("nn_softplus", PipeOpTorchSoftPlus)
 #' @inherit torch::nnf_softshrink description
 #' @section nn_module: Calls [`torch::nn_softshrink()`] when trained.
 #' @section Parameters:
-#' * `lamd` :: `numeric(1)`\cr
+#' * `lambd` :: `numeric(1)`\cr
 #'   The lambda (must be no less than zero) value for the Softshrink formulation. Default: 0.5
 #' @templateVar id nn_softshrink
 #' @template pipeop_torch_channels_default

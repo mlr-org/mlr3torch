@@ -76,6 +76,8 @@
 #'
 #' * `device`: Use a GPU if possible.
 #' * `num_threads`: Set this to the number of CPU cores available if training on CPU.
+#'   When resampling, benchmarking or tuning in parallel, each worker uses `num_threads` threads, so
+#'   divide the available cores among the workers instead to avoid oversubscribing the machine.
 #' * `tensor_dataset`: Set this to `TRUE` (or `"device"` if on a GPU) if the dataset fits into memory.
 #' * `batch_size`: Especially for very small models, choose a larger batch size.
 #'
@@ -112,6 +114,8 @@
 #' @param callbacks (`list()` of [`TorchCallback`]s)\cr
 #'   The callbacks to use for training.
 #'   Defaults to an empty` list()`, i.e. no callbacks.
+#'   Within a stage they are called in the order in which they are provided, unless a callback
+#'   requests otherwise via its `$weight`, see section *Ordering* of [`CallbackSet`].
 #' @param jittable (`logical(1)`)\cr
 #'   Whether the model can be jit-traced. Default is `FALSE`.
 #'
@@ -128,8 +132,8 @@
 #' @template paramset_torchlearner
 #'
 #' @section Inheriting:
-#' There are no seperate classes for classification and regression to inherit from.
-#' Instead, the `task_type` must be specified  as a construction argument.
+#' There are no separate classes for classification and regression to inherit from.
+#' Instead, the `task_type` must be specified as a construction argument.
 #' Any task type that is registered in
 #' [`mlr_reflections$task_types`][mlr3::mlr_reflections] can be used.
 #' Support for a task type that \pkg{mlr3torch} does not know is added by implementing methods for
@@ -181,8 +185,8 @@
 #' This must respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].
 #'
 #' * `.dataloader(dataset, param_vals)`\cr
-#'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataloader`]\cr
-#'   Create a dataloader from the task.
+#'   ([`dataset`][torch::dataset], `list()`) -> [`torch::dataloader`]\cr
+#'   Create a dataloader from the dataset.
 #'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions will be incorrectly ordered).
 #'   Use `get_batch_size(param_vals, "train")` to obtain the batch size for the respective phase,
 #'   which takes the `batch_size_predict` parameter into account.
@@ -197,7 +201,7 @@
 #'
 #' While it is possible to add parameters by specifying the `param_set` construction argument, it is currently
 #' not possible to remove existing parameters, i.e. those listed in section *Parameters*.
-#' None of the parameters provided in `param_set` can have an id that starts with `"loss."`, `"opt.",
+#' None of the parameters provided in `param_set` can have an id that starts with `"loss."`, `"opt."`,
 #' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 #' and the callbacks.
 #'
@@ -550,15 +554,6 @@ LearnerTorch = R6Class("LearnerTorch",
     },
     .predict = function(task) {
       param_vals = self$param_set$get_values(tags = "predict")
-      cols = c(task$feature_names, task$target_names)
-      ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
-      ci_train = self$model$task_col_info[get("id") %in% cols, c("id", "type", "levels")]
-      # permuted factor levels cause issues, because we are converting fct -> int
-      # FIXME: https://github.com/mlr-org/mlr3/issues/946
-      # This addresses the issues with the factor levels and is only a temporary fix
-      # Should be handled outside of mlr3torch
-      # Ideally we could rely on state$train_task, but there is this complication
-      # https://github.com/mlr-org/mlr3/issues/947
       param_vals$device = auto_device(param_vals$device)
       msg = private$.check_predict_task(task, param_vals)
       if (!isTRUE(msg)) {
@@ -682,6 +677,12 @@ LearnerTorch = R6Class("LearnerTorch",
           model = value$model
           value["model"] = list(NULL)
           value = super$deep_clone(name, value)
+          if (is_marshaled_model(model)) {
+            # a marshaled model contains no external pointers, so the regular deep clone above is
+            # already sufficient and the torch objects it would clone do not exist in this state
+            value$model = model
+            return(value)
+          }
           model$network = model$network$clone(deep = TRUE)
           model$loss_fn = clone_recurse(model$loss_fn)
           model$callbacks = map(model$callbacks, function(x) {
@@ -759,6 +760,14 @@ unmarshal_model.LearnerTorch = function(model, inplace = FALSE, ...) {
 
 #' @keywords internal
 #' @export
-hash_input.nn_module = function(x) {
-  data.table::address(x)
+hash_input.nn_module_generator = function(x) {
+  # A nn_module_generator is a function that holds an R6ClassGenerator as it's attribute.
+  # Our default hash_input.function does not respect this, so we need a specialized
+  # implementation for this.
+  # We also can't hash the generator directly, because digest() hashes the serialized object
+  # which depends on whether the generator's methods have been jit compiled, which changes
+  # after a module was used.
+  generator = attr(x, "module")
+  methods = if (inherits(generator, "R6ClassGenerator")) generator$public_methods
+  list(class(x), map(methods, hash_input))
 }
