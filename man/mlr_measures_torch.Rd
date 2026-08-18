@@ -28,8 +28,7 @@ measure
 }
 \seealso{
 Other Measure:
-\code{\link{mlr_measures_torch.default}},
-\code{\link{mlr_measures_torch_unsupervised}}
+\code{\link{mlr_measures_torch.default}}
 }
 \concept{Measure}
 \section{Super class}{

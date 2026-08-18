@@ -481,8 +481,8 @@ The loss to use for training.
 Defaults to MSE for regression and cross entropy for classification.
 For other task types there is no default and the loss has to be given, because which loss is
 appropriate depends on the learning problem.
-For the generic torch task types (see \code{\link{TaskTorch}}) any loss is accepted, since \code{mlr3torch}
-cannot know what the task represents.}
+For the task type \code{"torch"} (see \code{\link{TaskTorch}}) any loss is accepted, since \code{mlr3torch} cannot
+know what the task represents.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{predict_types}}{(\code{character()})\cr

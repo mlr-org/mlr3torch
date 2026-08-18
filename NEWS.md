@@ -24,11 +24,8 @@
   `mlr_reflections$task_types`, via the new generics `get_target_batchgetter()` and `encode_prediction()`.
 * New S3 generic `get_batch_constructor()`, which decides how a whole batch of a task is built,
   i.e. both the features `x` and the target `y`.
-* New task types `"torch_supervised"` and `"torch_unsupervised"` for problems that are neither
-  classification nor regression. `as_task_torch()` picks one by whether `target` columns are given.
-* Each type comes with its own classes -- `TaskTorch`, `PredictionTorch`, `MeasureTorch` and their
-  `*Unsupervised` counterparts -- as well as `lrn("torch_supervised.module")`,
-  `po("torch_model_supervised")` and `msr_torch()`, whose `task_type` argument picks the type.
+* New task type `"torch"` for problems that are neither classification nor regression, created with
+  `as_task_torch()`, along with `PredictionTorch`, `msr_torch()`, `lrn("torch.module")` and `po("torch_model")`.
 * The training loop no longer requires a target: a batch without a `y` element is passed to the loss
   as `loss(y_hat, NULL)`, which is what a task without target columns needs.
 * `LearnerTorchModule` gained a `target_batchgetter` construction argument, which overwrites the

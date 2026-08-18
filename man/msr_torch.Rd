@@ -11,8 +11,7 @@ msr_torch(
   range = c(-Inf, Inf),
   predict_type = "response",
   properties = character(),
-  label = NA_character_,
-  task_type = "torch_supervised"
+  label = NA_character_
 )
 }
 \arguments{
@@ -40,14 +39,9 @@ automatically when \code{fun} declares the corresponding argument.}
 
 \item{label}{(\code{character(1)})\cr
 The label of the measure.}
-
-\item{task_type}{(\code{character(1)})\cr
-The task type the measure is for, \code{"torch_supervised"} (default) or \code{"torch_unsupervised"}.
-An unsupervised prediction has no \code{truth}, so such a measure reads what it needs from the
-\code{task}.}
 }
 \value{
-\code{\link{MeasureTorch}} or \code{\link{MeasureTorchUnsupervised}}
+\code{\link{MeasureTorch}}
 }
 \description{
 Short form for constructing a \code{\link{MeasureTorch}}, the quick way to score the predictions of a
@@ -62,6 +56,6 @@ msr_torch("hamming", function(truth, response) mean(as.matrix(truth) != response
 msr_torch("reconstruction", function(task, prediction) {
   truth = as.matrix(task$data(rows = prediction$row_ids, cols = task$feature_names))
   mean((truth - prediction$response)^2)
-}, range = c(0, Inf), task_type = "torch_unsupervised")
+}, range = c(0, Inf))
 \dontshow{\}) # examplesIf}
 }

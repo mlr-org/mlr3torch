@@ -99,9 +99,7 @@ reference:
     contents:
       - as_task_torch
       - PredictionTorch
-      - PredictionTorchUnsupervised
       - MeasureTorch
-      - MeasureTorchUnsupervised
       - msr_torch
       - mlr_measures_torch.default
   - title: Network Building Blocks

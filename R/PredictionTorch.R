@@ -44,83 +44,13 @@ PredictionTorch = R6Class("PredictionTorch",
         pdata = check_prediction_data(pdata)
       }
 
-      self$task_type = "torch_supervised"
+      self$task_type = "torch"
       self$man = "mlr3torch::PredictionTorch"
       self$data = pdata
       self$predict_types = intersect(c("response", "prob"), names(pdata))
     }
   ),
   active = list(
-    #' @field response (any)\cr
-    #'   The predicted response.
-    response = function(rhs) {
-      assert_ro_binding(rhs)
-      self$data$response
-    },
-    #' @field prob (any)\cr
-    #'   The predicted probabilities.
-    prob = function(rhs) {
-      assert_ro_binding(rhs)
-      self$data$prob
-    }
-  )
-)
-
-#' @title Prediction Object for a Generic Unsupervised Torch Task
-#'
-#' @description
-#' The [`Prediction`][mlr3::Prediction] object returned by learners that were trained on a
-#' [`TaskTorchUnsupervised`].
-#' It is the counterpart of [`PredictionTorch`] for the unsupervised task type and differs from it
-#' only in that it has no `truth`: an unsupervised task has no ground truth to compare against, so
-#' its measures read whatever they need from the task, see [`msr_torch()`].
-#'
-#' As for [`PredictionTorch`], `response` and `prob` may be an atomic vector, a `matrix()` or a
-#' [`data.table`][data.table::data.table], whatever the task's prediction encoder produced.
-#'
-#' @param task ([`TaskTorchUnsupervised`])\cr
-#'   The task. Used to extract the default `row_ids`.
-#' @param row_ids (`integer()`)\cr
-#'   The row ids of the predicted observations.
-#' @param response (any)\cr
-#'   The predicted response.
-#' @param prob (any)\cr
-#'   The predicted probabilities.
-#' @param check (`logical(1)`)\cr
-#'   Whether to check the consistency of the prediction data.
-#'
-#' @family Prediction
-#' @export
-#' @examplesIf torch::torch_is_installed()
-#' d = data.frame(x1 = rnorm(10), x2 = rnorm(10))
-#' task = as_task_torch(d, output_dim = 2L)
-#' PredictionTorchUnsupervised$new(task, response = as.matrix(d))
-PredictionTorchUnsupervised = R6Class("PredictionTorchUnsupervised",
-  inherit = Prediction,
-  public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(task = NULL, row_ids = task$row_ids, response = NULL, prob = NULL,
-      check = TRUE) {
-      pdata = discard(list(row_ids = row_ids, response = response, prob = prob), is.null)
-      class(pdata) = c("PredictionDataTorchUnsupervised", "PredictionData")
-      if (check) {
-        pdata = check_prediction_data(pdata)
-      }
-
-      self$task_type = "torch_unsupervised"
-      self$man = "mlr3torch::PredictionTorchUnsupervised"
-      self$data = pdata
-      self$predict_types = intersect(c("response", "prob"), names(pdata))
-    }
-  ),
-  active = list(
-    #' @field truth (`NULL`)\cr
-    #'   An unsupervised task has no ground truth.
-    truth = function(rhs) {
-      assert_ro_binding(rhs)
-      NULL
-    },
     #' @field response (any)\cr
     #'   The predicted response.
     response = function(rhs) {
@@ -170,8 +100,10 @@ pt_bind_arrays = function(xs) {
     }
   })
   dim_out = c(sum(ns), d[-1L])
+  dn = dimnames(xs[[1L]])
+  # `c(list(NULL), NULL)` would be a length-1 list, which is not the same as having no dimnames
   out = array(vector(typeof(xs[[1L]]), prod(dim_out)), dim = dim_out,
-    dimnames = c(list(NULL), dimnames(xs[[1L]])[-1L]))
+    dimnames = if (!is.null(dn)) c(list(NULL), dn[-1L]))
   offset = 0L
   for (x in xs) {
     index = rep(list(bquote()), length(d))
@@ -227,17 +159,11 @@ pt_as_columns = function(x, prefix) {
   tab
 }
 
-# The prediction data methods below are the same for the two generic torch task types, apart from
-# the class they dispatch on and produce and the fact that an unsupervised prediction never carries
-# a `truth`. They therefore share these implementations.
-pt_elements = function(pdata) {
-  intersect(c("truth", "response", "prob"), names(pdata))
-}
-
-pt_check = function(pdata) {
+#' @export
+check_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
   n = length(assert_row_ids(pdata$row_ids))
   # deliberately lax: we only ensure that everything describes the same observations
-  for (nm in pt_elements(pdata)) {
+  for (nm in intersect(c("truth", "response", "prob"), names(pdata))) {
     n_nm = pt_nobs(pdata[[nm]])
     if (n_nm != n) {
       stopf("Element '%s' of the prediction data has %i observations, but %i row ids are given.", nm, n_nm, n) # nolint
@@ -246,20 +172,27 @@ pt_check = function(pdata) {
   pdata
 }
 
-pt_is_missing = function(pdata) {
+#' @export
+is_missing_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
   response = pdata$response
   if (is.null(response)) {
     return(pdata$row_ids[0L])
   }
-  miss = if (is.null(dim(response))) {
-    is.na(response)
-  } else {
+  miss = if (is.matrix(response) || is.data.frame(response)) {
     apply(response, 1L, anyNA)
+  } else {
+    is.na(response)
   }
   pdata$row_ids[miss]
 }
 
-pt_empty_pdata = function(task, learner, cls) {
+#' @export
+as_prediction.PredictionDataTorch = function(x, check = TRUE, ...) { # nolint
+  invoke(PredictionTorch$new, check = check, .args = x)
+}
+
+#' @export
+create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
   pdata = list(row_ids = integer())
 
   truth = task$truth(integer(0))
@@ -274,30 +207,34 @@ pt_empty_pdata = function(task, learner, cls) {
   # row ids and the truth alone.
   empty = try({
     encoded = encode_prediction(task, torch_zeros(0L, task$output_dim), learner$predict_type)
-    encoded[intersect(mlr_reflections$learner_predict_types[[task$task_type]][[learner$predict_type]],
+    encoded[intersect(mlr_reflections$learner_predict_types$torch[[learner$predict_type]],
       names(encoded))]
   }, silent = TRUE)
   if (!inherits(empty, "try-error")) {
     pdata = c(pdata, discard(empty, is.null))
   }
 
-  class(pdata) = c(cls, "PredictionData")
+  class(pdata) = c("PredictionDataTorch", "PredictionData")
   pdata
 }
 
-pt_combine_pdata = function(dots, keep_duplicates, cls) {
-  assert_list(dots, cls)
+#' @export
+c.PredictionDataTorch = function(..., keep_duplicates = TRUE) { # nolint
+  dots = list(...)
+  assert_list(dots, "PredictionDataTorch")
   assert_flag(keep_duplicates)
   if (length(dots) == 1L) {
     return(dots[[1L]])
   }
 
-  elements = pt_elements(dots[[1L]])
+  elements = intersect(c("truth", "response", "prob"), names(dots[[1L]]))
   # Taking the elements from the first input alone would silently drop a `prob` that only the
   # later ones carry, so all inputs have to describe the same things.
-  mismatch = map_lgl(dots, function(pdata) !setequal(pt_elements(pdata), elements))
+  mismatch = map_lgl(dots, function(pdata) {
+    !setequal(intersect(c("truth", "response", "prob"), names(pdata)), elements)
+  })
   if (any(mismatch)) {
-    stopf("Cannot combine prediction data with different predict types: %s vs %s.", str_collapse(elements), str_collapse(pt_elements(dots[[which(mismatch)[1L]]]))) # nolint
+    stopf("Cannot combine prediction data with different predict types: %s vs %s.", str_collapse(elements), str_collapse(intersect(c("truth", "response", "prob"), names(dots[[which(mismatch)[1L]]])))) # nolint
   }
 
   pdata = c(
@@ -311,96 +248,27 @@ pt_combine_pdata = function(dots, keep_duplicates, cls) {
     for (nm in elements) pdata[[nm]] = pt_subset(pdata[[nm]], keep)
   }
 
-  class(pdata) = c(cls, "PredictionData")
+  class(pdata) = c("PredictionDataTorch", "PredictionData")
   pdata
 }
 
-pt_filter = function(pdata, row_ids) {
+#' @export
+filter_prediction_data.PredictionDataTorch = function(pdata, row_ids, ...) { # nolint
   keep = pdata$row_ids %in% row_ids
   pdata$row_ids = pdata$row_ids[keep]
-  for (nm in pt_elements(pdata)) {
+  for (nm in intersect(c("truth", "response", "prob"), names(pdata))) {
     pdata[[nm]] = pt_subset(pdata[[nm]], keep)
   }
   pdata
 }
 
-pt_as_data_table = function(x) {
-  tabs = c(
-    list(data.table(row_ids = x$data$row_ids)),
-    lapply(pt_elements(x$data), function(nm) pt_as_columns(x$data[[nm]], nm))
-  )
-  do.call(cbind, tabs)
-}
-
-#' @export
-check_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
-  pt_check(pdata)
-}
-
-#' @export
-check_prediction_data.PredictionDataTorchUnsupervised = function(pdata, ...) { # nolint
-  if (!is.null(pdata$truth)) {
-    stopf("Prediction data of an unsupervised torch task must not carry a `truth`.")
-  }
-  pt_check(pdata)
-}
-
-#' @export
-is_missing_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
-  pt_is_missing(pdata)
-}
-
-#' @export
-is_missing_prediction_data.PredictionDataTorchUnsupervised = function(pdata, ...) { # nolint
-  pt_is_missing(pdata)
-}
-
-#' @export
-as_prediction.PredictionDataTorch = function(x, check = TRUE, ...) { # nolint
-  invoke(PredictionTorch$new, check = check, .args = x)
-}
-
-#' @export
-as_prediction.PredictionDataTorchUnsupervised = function(x, check = TRUE, ...) { # nolint
-  invoke(PredictionTorchUnsupervised$new, check = check, .args = x)
-}
-
-#' @export
-create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
-  pt_empty_pdata(task, learner, "PredictionDataTorch")
-}
-
-#' @export
-create_empty_prediction_data.TaskTorchUnsupervised = function(task, learner) { # nolint
-  pt_empty_pdata(task, learner, "PredictionDataTorchUnsupervised")
-}
-
-#' @export
-c.PredictionDataTorch = function(..., keep_duplicates = TRUE) { # nolint
-  pt_combine_pdata(list(...), keep_duplicates, "PredictionDataTorch")
-}
-
-#' @export
-c.PredictionDataTorchUnsupervised = function(..., keep_duplicates = TRUE) { # nolint
-  pt_combine_pdata(list(...), keep_duplicates, "PredictionDataTorchUnsupervised")
-}
-
-#' @export
-filter_prediction_data.PredictionDataTorch = function(pdata, row_ids, ...) { # nolint
-  pt_filter(pdata, row_ids)
-}
-
-#' @export
-filter_prediction_data.PredictionDataTorchUnsupervised = function(pdata, row_ids, ...) { # nolint
-  pt_filter(pdata, row_ids)
-}
-
 #' @export
 as.data.table.PredictionTorch = function(x, ...) { # nolint
-  pt_as_data_table(x)
-}
-
-#' @export
-as.data.table.PredictionTorchUnsupervised = function(x, ...) { # nolint
-  pt_as_data_table(x)
+  tabs = c(
+    list(data.table(row_ids = x$data$row_ids)),
+    lapply(intersect(c("truth", "response", "prob"), names(x$data)), function(nm) {
+      pt_as_columns(x$data[[nm]], nm)
+    })
+  )
+  do.call(cbind, tabs)
 }

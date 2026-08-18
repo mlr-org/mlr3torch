@@ -5,20 +5,24 @@
 \alias{TaskTorch}
 \title{Generic Torch Task}
 \description{
-A general-purpose \code{\link[mlr3:Task]{Task}} for supervised learning problems that are neither
-classification nor regression, such as multi-label classification or multi-output regression.
-It may have any number of target columns, and nothing beyond that is assumed about the structure
-of the problem.
-For a problem without target columns -- an autoencoder, a masked or contrastive objective --
-use \code{\link{TaskTorchUnsupervised}}, which is the same class without the targets.
+A general-purpose \code{\link[mlr3:Task]{Task}} for learning problems that are neither classification nor
+regression, such as multi-label classification, multi-output regression or autoencoders.
+It may have any number of target columns, including none at all, so it is supervised or
+unsupervised depending only on whether target columns were given.
+Nothing beyond that is assumed about the structure of the problem.
+
+It inherits from \code{\link[mlr3:TaskSupervised]{TaskSupervised}} even when it has no target columns,
+because that is what \code{mlr3} dispatches the ground truth of a prediction on: \code{as_prediction_data()}
+copies \code{task$truth()} into the prediction data only for a \code{TaskSupervised}.
+The one rule of that class which does not apply here, that there be at least one target column,
+is lifted in \code{task_check_col_roles.TaskTorch()} below.
 
 Adding a proper task type to \code{mlr3} requires a \code{Task} class, a \code{Prediction} class, a handful of
 \code{PredictionData} methods, a \code{Measure} and a number of entries in
 \code{\link[mlr3:mlr_reflections]{mlr_reflections}}; the \emph{Adding a Custom Task Type} vignette walks through
 this.
-\code{TaskTorch} is the quick alternative: the task type \code{"torch_supervised"} is registered once by
-\code{mlr3torch} and every custom problem is expressed as an \emph{instance} of \code{TaskTorch} rather than as
-a new class.
+\code{TaskTorch} is the quick alternative: the task type \code{"torch"} is registered once by \code{mlr3torch}
+and every custom problem is expressed as an \emph{instance} of \code{TaskTorch} rather than as a new class.
 What would otherwise be S3 methods dispatching on the task class are fields of the task instead,
 and they are inferred from the types of the target columns when they are not given.
 
@@ -42,6 +46,7 @@ All three are derived from the target columns:\tabular{lllll}{
    \code{d} \code{numeric} / \code{integer} \tab \code{float} \verb{(n, d)} \tab \code{d} \tab \code{matrix()}, \code{d} columns \tab -- \cr
    one \code{logical} \tab \code{float} \verb{(n, 1)} \tab 1 \tab \code{logical()} \tab \code{numeric()} \cr
    \code{d} \code{logical} \tab \code{float} \verb{(n, d)} \tab \code{d} \tab \code{matrix()}, \code{d} columns \tab \code{matrix()}, \code{d} columns \cr
+   none \tab -- (no \code{y} in the batch) \tab -- \tab -- \tab -- \cr
 }
 
 
@@ -54,16 +59,38 @@ Any of the three can be overwritten by passing \code{target_batchgetter}, \code{
 target columns that is not in the table above.
 
 What the task specifies is the \emph{default}, and a learner has the last word on two of the three:
-\code{\link{LearnerTorchModule}} (\code{lrn("torch_supervised.module")}) takes a \code{target_batchgetter} of its
-own, and any
+\code{\link{LearnerTorchModule}} (\code{lrn("torch.module")}) takes a \code{target_batchgetter} of its own, and any
 \code{\link{LearnerTorch}} can overwrite the private \verb{$.encode_prediction()} method.
 This matters when the network and the loss expect a different encoding than the task's default,
 e.g. when training on one-hot encoded class labels.
 }
 
+\section{Tasks without a Target}{
+ A task with no target columns is unsupervised, and there is
+nothing to infer from, so \code{output_dim} and \code{prediction_encoder} have to be given.
+Its batches have no \code{y} element, so the loss is called as \code{loss(y_hat, NULL)} and has to ignore
+its second argument.
+
+If the target of a batch is a function of its \emph{input} rather than of a column -- an autoencoder
+reconstructing its input, a denoising or masked objective, contrastive pretraining -- pass a
+\code{target_batchgetter} that declares an \code{x} argument, which receives the named list of feature
+tensors of the batch:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{as_task_torch(data, output_dim = ncol(data),
+  target_batchgetter = function(data, x) x[[1L]],
+  prediction_encoder = function(task, predict_tensor, predict_type) \{
+    list(response = as.matrix(predict_tensor$cpu()))
+  \})
+}\if{html}{\out{</div>}}
+
+Such a task has no \code{truth}, so its measures read the ground truth from the task, which
+\code{\link[=msr_torch]{msr_torch()}} arranges for any function that declares a \code{task} argument.
+}
+
 \section{Scoring}{
- \verb{$truth()} returns the target column itself if there is exactly one target and a
-\code{\link[data.table:data.table]{data.table}} with one column per target if there are several.
+ \verb{$truth()} returns the target column itself if there is exactly one target, a
+\code{\link[data.table:data.table]{data.table}} with one column per target if there are several, and
+\code{NULL} if the task has no target at all.
 \code{\link[=msr_torch]{msr_torch()}} turns a plain R function of \code{truth} and \code{response} into a \code{\link[mlr3:Measure]{Measure}}
 that scores such a prediction.
 
@@ -81,12 +108,6 @@ task = as_task_torch(d, target = c("a", "b"), id = "labels")
 task
 output_dim_for(task)
 \dontshow{\}) # examplesIf}
-}
-\seealso{
-\code{\link{TaskTorchUnsupervised}}
-
-Other Task:
-\code{\link{mlr_tasks_torch_unsupervised}}
 }
 \concept{Task}
 \section{Super classes}{
@@ -161,7 +182,7 @@ The number of output units the network needs, see section \emph{Inference}.}
     \preformatted{TaskTorch$new(
   id,
   backend,
-  target,
+  target = character(0),
   label = NA_character_,
   target_batchgetter = NULL,
   output_dim = NULL,
@@ -178,8 +199,7 @@ The id of the task.}
       \item{\code{backend}}{(\code{\link[mlr3:DataBackend]{DataBackend}} or \code{data.frame()})\cr
 The data.}
       \item{\code{target}}{(\code{character()})\cr
-The names of the target columns. At least one, see \code{\link{TaskTorchUnsupervised}} for a task
-without targets.}
+The names of the target columns. May be empty.}
       \item{\code{label}}{(\code{character(1)})\cr
 The label of the task.}
       \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr

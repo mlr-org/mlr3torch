@@ -22,10 +22,6 @@ task = as_task_torch(d, target = c("y1", "y2"))
 PredictionTorch$new(task, response = as.matrix(d[, c("y1", "y2")]))
 \dontshow{\}) # examplesIf}
 }
-\seealso{
-Other Prediction:
-\code{\link{PredictionTorchUnsupervised}}
-}
 \concept{Prediction}
 \section{Super class}{
 \code{\link[mlr3:Prediction]{mlr3::Prediction}} -> \code{PredictionTorch}

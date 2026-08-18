@@ -83,7 +83,7 @@ test_that("Printer works", {
 test_that("Converters are correctly implemented", {
   expect_permutation(
     as_torch_loss(torch::nn_mse_loss)$task_types,
-    c("regr", "classif", "torch_supervised", "torch_unsupervised")
+    c("regr", "classif", "torch")
   )
   expect_r6(as_torch_loss("l1"), "TorchLoss")
   loss = as_torch_loss(torch::nn_l1_loss, task_types = "regr")

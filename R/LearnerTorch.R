@@ -106,8 +106,8 @@
 #'   Defaults to MSE for regression and cross entropy for classification.
 #'   For other task types there is no default and the loss has to be given, because which loss is
 #'   appropriate depends on the learning problem.
-#'   For the generic torch task types (see [`TaskTorch`]) any loss is accepted, since `mlr3torch`
-#'   cannot know what the task represents.
+#'   For the task type `"torch"` (see [`TaskTorch`]) any loss is accepted, since `mlr3torch` cannot
+#'   know what the task represents.
 #' @param optimizer (`NULL` or [`TorchOptimizer`])\cr
 #'   The optimizer to use for training.
 #'   Defaults to adam.
@@ -384,9 +384,9 @@ LearnerTorch = R6Class("LearnerTorch",
       if (!missing(rhs)) {
         private$.param_set = NULL
         loss = as_torch_loss(rhs, clone = TRUE)
-        # the generic torch task types (see `TaskTorch`) express a learning problem that is only
-        # known to the user, so which losses are applicable to them cannot be checked here
-        if (self$task_type %nin% names(mlr3torch_task_types)) {
+        # "torch" is the general-purpose task type (see `TaskTorch`), whose learning problem is only
+        # known to the user, so which losses are applicable to it cannot be checked here
+        if (self$task_type != "torch") {
           assert_choice(self$task_type, loss$task_types)
         }
         private$.loss = loss
@@ -521,9 +521,11 @@ LearnerTorch = R6Class("LearnerTorch",
       }
     },
     .train = function(task) {
-      # mlr3's own type check does not reach a task type that it does not know, and training a
-      # learner for one of the two generic torch types on the other either fails deep inside torch
-      # or, when the task happens to provide everything the learner asks for, silently succeeds
+      # `mlr3::assert_task_learner()` accepts any learner that inherits the class which
+      # `mlr_reflections$task_types` names for the task type, and `LearnerTorch` -- the class
+      # registered for "torch" -- is also the base class of the classif and regr torch learners.
+      # A classif or regr learner on a `TaskTorch` therefore passes that check and only fails
+      # somewhere inside torch, so it is rejected here instead.
       if (task$task_type != self$task_type) {
         stopf("Learner '%s' is for task type '%s', but task '%s' has task type '%s'.", self$id, self$task_type, task$id, task$task_type) # nolint
       }

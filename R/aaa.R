@@ -9,8 +9,8 @@ register_learner = function(.name, .constructor, ...) {
     mlr3torch_learners[[.name]] = list(fn = .constructor, prototype_args = list(...))
     return(NULL)
   }
-  # learners are registered as "<task_type>.<key>", e.g. "classif.mlp" or "torch_supervised.module"
-  task_type = assert_choice(sub("\\..*$", "", .name), c("classif", "regr", names(mlr3torch_task_types)))
+  # learners are registered as "<task_type>.<key>", e.g. "classif.mlp" or "torch.module"
+  task_type = assert_choice(sub("\\..*$", "", .name), c("classif", "regr", "torch"))
   # What I am doing here:
   # The problem is that we wan't to set the task_type when creating the learner from the dictionary
   # The initial idea was to add functions function(...) LearnerClass$new(..., task_type = "<task-type>")
@@ -31,27 +31,6 @@ register_task = function(name, constructor) {
   if (name %in% names(mlr3torch_tasks)) stopf("task %s registered twice", name)
   mlr3torch_tasks[[name]] = constructor
 }
-
-# The general-purpose task types of mlr3torch and the classes that implement them, in the order in
-# which `mlr_reflections$task_types` expects them.
-# A learning problem that is neither classification nor regression is an *instance* of one of these
-# two rather than a task type of its own, see `TaskTorch` and `TaskTorchUnsupervised`.
-# `LearnerTorch` is shared, because a torch learner is parameterised by its task type rather than
-# specialised on it, which is also how it serves "classif" and "regr".
-mlr3torch_task_types = list(
-  torch_supervised = c(
-    task = "TaskTorch",
-    prediction = "PredictionTorch",
-    prediction_data = "PredictionDataTorch",
-    measure = "MeasureTorch"
-  ),
-  torch_unsupervised = c(
-    task = "TaskTorchUnsupervised",
-    prediction = "PredictionTorchUnsupervised",
-    prediction_data = "PredictionDataTorchUnsupervised",
-    measure = "MeasureTorchUnsupervised"
-  )
-)
 
 mlr3torch_pipeops = new.env()
 mlr3torch_learners = new.env()
