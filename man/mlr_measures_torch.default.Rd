@@ -3,14 +3,16 @@
 \name{mlr_measures_torch.default}
 \alias{mlr_measures_torch.default}
 \alias{MeasureTorchDefault}
+\alias{MeasureTorchDefaultUnsupervised}
 \title{Default Measure of a Generic Torch Task}
 \description{
 Delegates to the \verb{$measure} field of the \code{\link{TaskTorch}} or \code{\link{TaskTorchUnsupervised}} that is being
-scored.
-It is registered as \code{"torch_supervised.default"} and \code{"torch_unsupervised.default"}, the default
-measures of the two generic torch task types, i.e. what \verb{$score()} and \verb{$aggregate()} use when
-they are called without arguments.
-It errors if the task does not carry a measure.
+scored, one class per task type: \code{MeasureTorchDefault} is registered as
+\code{"torch_supervised.default"} and \code{MeasureTorchDefaultUnsupervised} as
+\code{"torch_unsupervised.default"}.
+These are the default measures of the two generic torch task types, i.e. what \verb{$score()} and
+\verb{$aggregate()} use when they are called without arguments.
+They error if the task does not carry a measure.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -22,7 +24,8 @@ msr("torch_supervised.default")
 }
 \seealso{
 Other Measure:
-\code{\link{mlr_measures_torch}}
+\code{\link{mlr_measures_torch}},
+\code{\link{mlr_measures_torch_unsupervised}}
 }
 \concept{Measure}
 \section{Super class}{
@@ -52,15 +55,7 @@ Other Measure:
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{MeasureTorchDefault$new(task_type = "torch_supervised")}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{task_type}}{(\code{character(1)})\cr
-The task type, one of \code{"torch_supervised"} or \code{"torch_unsupervised"}.}
-    }
+    \preformatted{MeasureTorchDefault$new()}
     \if{html}{\out{</div>}}
   }
 }
@@ -73,6 +68,58 @@ The task type, one of \code{"torch_supervised"} or \code{"torch_unsupervised"}.}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{MeasureTorchDefault$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
+
+}
+\section{Super class}{
+\code{\link[mlr3:Measure]{mlr3::Measure}} -> \code{MeasureTorchDefaultUnsupervised}
+}
+\section{Methods}{
+\subsection{Public methods}{
+  \itemize{
+    \item \href{#method-MeasureTorchDefaultUnsupervised-initialize}{\code{MeasureTorchDefaultUnsupervised$new()}}
+    \item \href{#method-MeasureTorchDefaultUnsupervised-clone}{\code{MeasureTorchDefaultUnsupervised$clone()}}
+  }
+}
+\if{html}{\out{<details><summary>Inherited methods</summary>
+<ul>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="aggregate"><a href='../../mlr3/html/Measure.html#method-Measure-aggregate'><code>mlr3::Measure$aggregate()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="format"><a href='../../mlr3/html/Measure.html#method-Measure-format'><code>mlr3::Measure$format()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="help"><a href='../../mlr3/html/Measure.html#method-Measure-help'><code>mlr3::Measure$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="obs_loss"><a href='../../mlr3/html/Measure.html#method-Measure-obs_loss'><code>mlr3::Measure$obs_loss()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="print"><a href='../../mlr3/html/Measure.html#method-Measure-print'><code>mlr3::Measure$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Measure" data-id="score"><a href='../../mlr3/html/Measure.html#method-Measure-score'><code>mlr3::Measure$score()</code></a></span></li>
+</ul>
+</details>}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-MeasureTorchDefaultUnsupervised-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-MeasureTorchDefaultUnsupervised-initialize}{}}}
+\subsection{\code{MeasureTorchDefaultUnsupervised$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MeasureTorchDefaultUnsupervised$new()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-MeasureTorchDefaultUnsupervised-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-MeasureTorchDefaultUnsupervised-clone}{}}}
+\subsection{\code{MeasureTorchDefaultUnsupervised$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{MeasureTorchDefaultUnsupervised$clone(deep = FALSE)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{

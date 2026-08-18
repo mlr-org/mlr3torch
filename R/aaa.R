@@ -32,10 +32,26 @@ register_task = function(name, constructor) {
   mlr3torch_tasks[[name]] = constructor
 }
 
-# The general-purpose task types of mlr3torch, mapped to the `Task` class that implements them.
+# The general-purpose task types of mlr3torch and the classes that implement them, in the order in
+# which `mlr_reflections$task_types` expects them.
 # A learning problem that is neither classification nor regression is an *instance* of one of these
 # two rather than a task type of its own, see `TaskTorch` and `TaskTorchUnsupervised`.
-mlr3torch_task_types = c(torch_supervised = "TaskTorch", torch_unsupervised = "TaskTorchUnsupervised")
+# `LearnerTorch` is shared, because a torch learner is parameterised by its task type rather than
+# specialised on it, which is also how it serves "classif" and "regr".
+mlr3torch_task_types = list(
+  torch_supervised = c(
+    task = "TaskTorch",
+    prediction = "PredictionTorch",
+    prediction_data = "PredictionDataTorch",
+    measure = "MeasureTorch"
+  ),
+  torch_unsupervised = c(
+    task = "TaskTorchUnsupervised",
+    prediction = "PredictionTorchUnsupervised",
+    prediction_data = "PredictionDataTorchUnsupervised",
+    measure = "MeasureTorchUnsupervised"
+  )
+)
 
 mlr3torch_pipeops = new.env()
 mlr3torch_learners = new.env()

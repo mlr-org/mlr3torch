@@ -45,9 +45,8 @@ register_mlr3 = function() {
   mlr_reflections$loaded_packages = c(mlr_reflections$loaded_packages, "mlr3torch")
 
   register_task_type_torch(mlr_reflections)
-  iwalk(mlr3torch_task_types, function(task_class, type) {
-    mlr3::mlr_measures$add(paste0(type, ".default"), MeasureTorchDefault, task_type = type)
-  })
+  mlr3::mlr_measures$add("torch_supervised.default", MeasureTorchDefault)
+  mlr3::mlr_measures$add("torch_unsupervised.default", MeasureTorchDefaultUnsupervised)
 
   mlr_reflections$torch = list(
     devices = c("auto", "cpu", "cuda", "mkldnn", "opengl", "opencl", "ideep", "hip", "fpga", "xla", "mps", "meta"),
@@ -75,13 +74,14 @@ register_mlr3 = function() {
 # happens once, when mlr3torch is loaded, so that a custom learning problem is an *instance* of one
 # of the two classes rather than a task type of its own.
 register_task_type_torch = function(mlr_reflections) { # nolint
-  iwalk(mlr3torch_task_types, function(task_class, type) {
+  iwalk(mlr3torch_task_types, function(classes, type) {
     if (type %chin% mlr_reflections$task_types$type) {
       return(NULL)
     }
     mlr_reflections$task_types = setkeyv(rbind(mlr_reflections$task_types, rowwise_table(
       ~type, ~package, ~task, ~learner, ~prediction, ~prediction_data, ~measure,
-      type, "mlr3torch", task_class, "LearnerTorch", "PredictionTorch", "PredictionDataTorch", "MeasureTorch"
+      type, "mlr3torch", classes[["task"]], "LearnerTorch", classes[["prediction"]],
+      classes[["prediction_data"]], classes[["measure"]]
     ), fill = TRUE), "type")
 
     # a generic torch task behaves like a regression task, except for its target columns

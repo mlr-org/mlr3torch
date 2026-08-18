@@ -9,9 +9,9 @@ tt_module = nn_module("tt_module",
   forward = function(x) self$net(x)
 )
 
-tt_learner = function(loss, ...) {
+tt_learner = function(loss, ..., task_type = "torch_supervised") {
   args = insert_named(list(epochs = 3L, batch_size = 16L), list(...))
-  invoke(lrn, "torch_supervised.module",
+  invoke(lrn, paste0(task_type, ".module"),
     module_generator = tt_module,
     ingress_tokens = list(x = ingress_num()),
     loss = loss,
@@ -278,7 +278,7 @@ test_that("a target that is a function of the input needs no special support", {
     target_batchgetter = get_target_batchgetter(task))$.getbatch(1:4)
   expect_equal(as.matrix(batch$y), as.matrix(batch$x$x))
 
-  learner = tt_learner(t_loss("mse"), epochs = 5L)
+  learner = tt_learner(t_loss("mse"), epochs = 5L, task_type = "torch_unsupervised")
   learner$train(task)
   pred = learner$predict(task)
 
@@ -290,7 +290,7 @@ test_that("a target that is a function of the input needs no special support", {
   measure = msr_torch("recon", function(task, prediction) {
     truth = as.matrix(task$data(rows = prediction$row_ids, cols = task$feature_names))
     mean((truth - prediction$response)^2)
-  }, range = c(0, Inf))
+  }, range = c(0, Inf), task_type = "torch_unsupervised")
   expect_number(pred$score(measure, task = task), lower = 0)
   expect_number(resample(task, learner, rsmp("cv", folds = 3L))$aggregate(measure), lower = 0)
 })
@@ -320,16 +320,19 @@ test_that("a task with no target at all is unsupervised", {
   loss = TorchLoss$new(nn_module("spread",
     initialize = function() NULL,
     forward = function(input, target) input$pow(2)$mean()), id = "spread")
-  learner = tt_learner(loss)
+  learner = tt_learner(loss, task_type = "torch_unsupervised")
   learner$train(task)
   pred = learner$predict(task)
 
+  expect_class(pred, "PredictionTorchUnsupervised")
+  expect_class(pred$data, "PredictionDataTorchUnsupervised")
   expect_matrix(pred$response, nrows = task$nrow, ncols = 2L)
   expect_false("truth" %chin% names(pred$data))
   expect_null(pred$truth)
 
   # a measure cannot read a truth, so it reads the prediction or the task
-  measure = msr_torch("spread", function(prediction) mean(prediction$response^2), range = c(0, Inf))
+  measure = msr_torch("spread", function(prediction) mean(prediction$response^2), range = c(0, Inf),
+    task_type = "torch_unsupervised")
   expect_number(pred$score(measure), lower = 0)
   expect_number(resample(task, learner, rsmp("cv", folds = 3L))$aggregate(measure), lower = 0)
 })
@@ -343,14 +346,16 @@ test_that("an unsupervised task works with validation and the tensor dataset", {
   loss = TorchLoss$new(nn_module("spread",
     initialize = function() NULL,
     forward = function(input, target) input$pow(2)$mean()), id = "spread")
-  measure = msr_torch("spread", function(prediction) mean(prediction$response^2), range = c(0, Inf))
+  measure = msr_torch("spread", function(prediction) mean(prediction$response^2), range = c(0, Inf),
+    task_type = "torch_unsupervised")
 
-  learner = tt_learner(loss, epochs = 10L, patience = 2L, measures_valid = measure)
+  learner = tt_learner(loss, epochs = 10L, patience = 2L, measures_valid = measure,
+    task_type = "torch_unsupervised")
   learner$validate = 0.3
   learner$train(task)
   expect_names(names(learner$internal_valid_scores), identical.to = "spread")
 
-  learner = tt_learner(loss, tensor_dataset = TRUE)
+  learner = tt_learner(loss, tensor_dataset = TRUE, task_type = "torch_unsupervised")
   learner$train(task)
   expect_matrix(learner$predict(task)$response, nrows = task$nrow, ncols = 2L)
 })
@@ -507,8 +512,8 @@ test_that("predicting on zero rows gives an empty prediction", {
 
   # an empty prediction must have the same storage as a non-empty one, so the two can be combined
   empty = create_empty_prediction_data(task, learner)
-  expect_names(names(empty), permutation.of = c("row_ids", "task_type", "truth", "response", "prob"))
-  expect_equal(empty$task_type, "torch_supervised")
+  expect_names(names(empty), permutation.of = c("row_ids", "truth", "response", "prob"))
+  expect_class(empty, "PredictionDataTorch")
   expect_matrix(empty$response, nrows = 0L, ncols = 2L)
 
   combined = c(empty, learner$predict(task)$data)

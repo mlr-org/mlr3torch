@@ -318,13 +318,13 @@ tsk_ae
 ```
 
 Such a task has no `truth`, so its measure reads the ground truth from the task.
-`msr_torch()` arranges that for any function that declares a `task` argument:
+`msr_torch()` arranges that for any function that declares a `task` argument, and `task_type` tells it which of the two task types the measure is for:
 
 ```{r custom_task_type-020}
 msr_recon = msr_torch("reconstruction", function(task, prediction) {
   truth = as.matrix(task$data(rows = prediction$row_ids, cols = task$feature_names))
   mean((truth - prediction$response)^2)
-}, range = c(0, Inf))
+}, range = c(0, Inf), task_type = "torch_unsupervised")
 ```
 
 The network is an ordinary autoencoder, and the loss compares its output to the target that the batchgetter produced:

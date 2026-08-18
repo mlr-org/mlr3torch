@@ -521,6 +521,12 @@ LearnerTorch = R6Class("LearnerTorch",
       }
     },
     .train = function(task) {
+      # mlr3's own type check does not reach a task type that it does not know, and training a
+      # learner for one of the two generic torch types on the other either fails deep inside torch
+      # or, when the task happens to provide everything the learner asks for, silently succeeds
+      if (task$task_type != self$task_type) {
+        stopf("Learner '%s' is for task type '%s', but task '%s' has task type '%s'.", self$id, self$task_type, task$id, task$task_type) # nolint
+      }
       param_vals = self$param_set$get_values(tags = "train")
       first_row = task$head(1)
       measures = c(normalize_to_list(param_vals$measures_train), normalize_to_list(param_vals$measures_valid))
