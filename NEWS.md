@@ -26,6 +26,8 @@
   i.e. both the features `x` and the target `y`.
 * A network can now return a `list()` of tensors in evaluation mode, which is passed to
   `encode_prediction()` as it is, so a prediction can consist of more than one quantity.
+* New function `pipeop_torch()` that simplifies the creation of `PipeOpTorch` classes.
+* New article *Writing your own PipeOpTorch*.
 * The `$model` of a `LearnerTorch` now has a printer.
 * Added more image learners from {torchvision}.
 * Most `LearnerTorchVision` are now `jittable`.
@@ -51,6 +53,8 @@
 
 ## Bug fixes
 
+* `lrn("classif.torch_model")` / `lrn("regr.torch_model")` no longer change their `$hash` when they
+  are trained.
 * Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 * `t_clbk("checkpoint")` no longer writes an epoch that was interrupted

@@ -20,12 +20,12 @@ running_on_mac = function() {
   Sys.info()["sysname"] == "Darwin"
 }
 
-inferps = function(fn, ignore = character(0), tags = "train") {
+inferps = function(fn, ignore = character(0), tags = "train", required = FALSE) {
   if (inherits(fn, "R6ClassGenerator")) {
     fn = get_init(fn)
-    if (is.null(fn)) {
-      return(ps())
-    }
+  }
+  if (is.null(fn)) {
+    return(ps())
   }
   assert_function(fn)
   assert_character(ignore, any.missing = FALSE)
@@ -33,7 +33,10 @@ inferps = function(fn, ignore = character(0), tags = "train") {
   frm = formals(fn)
   frm = frm[names(frm) %nin% ignore]
 
-  frm_domains = lapply(frm, function(formal) p_uty(tags = tags))
+  # an argument that has no default cannot be left unset, so it is tagged "required"
+  frm_domains = lapply(frm, function(formal) {
+    p_uty(tags = if (required && identical(formal, alist(x = )$x)) c(tags, "required") else tags)
+  })
 
   do.call(paradox::ps, frm_domains)
 }
@@ -62,9 +65,7 @@ assert_inherits_classname = function(class_generator, classname) {
 }
 
 get_init = function(x) {
-  cls = class_with_init(x)
-  if (is.null(cls)) return(NULL)
-  cls$public_methods$initialize
+  get_method(x, "initialize")
 }
 
 # jarl-ignore unused_function: called from man-roxygen/learner_example.R, which jarl does not scan
@@ -84,15 +85,11 @@ default_task_id = function(learner) {
 
 }
 
-class_with_init = function(x) {
-  if (is.null(x)) {
-    # This is the case where no initialize method is found
-    return(NULL)
-  } else if (is.null(x$public_methods) || exists("initialize", x$public_methods, inherits = FALSE)) {
-    return(x)
-  } else {
-    Recall(x$get_inherit())
-  }
+# the method of the generator itself or, failing that, of the class it inherits from
+get_method = function(x, name) {
+  if (is.null(x) || is.null(x$public_methods)) return(NULL)
+  if (exists(name, x$public_methods, inherits = FALSE)) return(x$public_methods[[name]])
+  Recall(x$get_inherit(), name)
 }
 
 sample_input_from_shapes = function(shapes, n = 1L) {
