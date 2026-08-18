@@ -11,7 +11,7 @@
 #' * `n_blocks` :: `integer(1)`\cr
 #'   How often to repeat the block.
 #' * `trafo` :: `function(i, param_vals, param_set) -> list()`\cr
-#'   A function that allows to transform the parameters vaues of each layer (`block`).
+#'   A function that allows to transform the parameter values of each layer (`block`).
 #'   Here,
 #'   * `i` :: `integer(1)`\cr
 #'       is the index of the layer, ranging from `1` to `n_blocks`.
@@ -104,9 +104,14 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
       Reduce(`%>>%`, graphs)
     },
     .shapes_out = function(shapes_in, param_vals, task)  {
-      if (is.null(task)) {
-        stopf("PipeOpTorchBlock '%s', requires a task to compute output shapes", self$id)
+      if (param_vals$n_blocks == 0L) {
+        return(shapes_in)
       }
+      if (is.null(task)) {
+        stopf("PipeOp '%s' requires a task to compute output shapes.", self$id)
+      }
+      # the block is applied to all inputs jointly, so they have to agree on the batch size
+      assert_same_batch_size(shapes_in, self$id)
       block = private$.block$clone(deep = TRUE)
       walk(block$pipeops, function(po) {
         # thereby we avoid initializing the nn modules (it is a little hacky)
@@ -125,7 +130,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
             TorchIngressToken(
               features = "placeholder",
               batchgetter = function(data, ...) NULL,
-              shape = shapes_in[[1]])),
+              shape = shapes_in[[i]])),
               paste0("nop.", i, ".input")
           ),
           task = task,

@@ -130,6 +130,22 @@ test_that("plateau works", {
   expect_class(mlp$network, c("nn_sequential", "nn_module"))
 })
 
+test_that("plateau does not step when an epoch has no validation scores", {
+  task = tsk("iris")
+  mlp = function(...) lrn("classif.mlp",
+    callbacks = t_clbk("lr_reduce_on_plateau"), epochs = 8, batch_size = 150, neurons = 10, ...)
+
+  without_valid = mlp()
+  expect_no_error(without_valid$train(task))
+  expect_equal(without_valid$model$callbacks$lr_reduce_on_plateau$last_epoch, 0)
+  expect_equal(without_valid$model$optimizer$param_groups[[1L]]$lr,
+    without_valid$param_set$values$opt.lr %??% formals(optim_ignite_adam)$lr)
+
+  every_fourth = mlp(validate = 0.2, measures_valid = msrs("classif.ce"), eval_freq = 4)
+  expect_no_error(every_fourth$train(task))
+  expect_equal(every_fourth$model$callbacks$lr_reduce_on_plateau$last_epoch, 2)
+})
+
 test_that("1cycle works", {
   cb = t_clbk("lr_one_cycle", max_lr = 0.01)
 
@@ -186,3 +202,63 @@ test_that("custom LR scheduler works", {
                mlp$model$optimizer$param_groups[[1]]$lr)
 })
 
+
+test_that("the scheduler state can be saved and restored", {
+  task = tsk("iris")
+  make = function(epochs, callbacks) {
+    learner = lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
+      callbacks = callbacks)
+    learner$param_set$set_values(opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
+    learner
+  }
+
+  # a single uninterrupted run of 4 epochs is the reference
+  reference = make(4L, t_clbk("lr_step"))
+  reference$train(task)
+
+  first = make(2L, t_clbk("lr_step"))
+  first$train(task)
+  state = first$model$callbacks$lr_step
+  expect_equal(state$last_epoch, 2)
+
+  # the state is applied right away when the scheduler already exists, and remembered until
+  # $on_begin() otherwise, so the order of the callbacks does not matter
+  walk(c(TRUE, FALSE), function(restore_first) {
+    restore = torch_callback("restore",
+      on_begin = function() self$ctx$callbacks$lr_step$load_state_dict(state))
+    cbs = if (restore_first) list(restore, t_clbk("lr_step")) else list(t_clbk("lr_step"), restore)
+
+    second = make(2L, cbs)
+    second$train(task)
+
+    # the schedule continued instead of starting over. The learning rate itself is a property of
+    # the optimizer, which this run does not carry over, so only the schedule is compared.
+    expect_equal(second$model$callbacks$lr_step$last_epoch,
+      reference$model$callbacks$lr_step$last_epoch)
+    expect_equal(second$model$callbacks$lr_step$.step_count,
+      reference$model$callbacks$lr_step$.step_count)
+  })
+})
+
+test_that("the scheduler state is NULL before the training loop begins", {
+  cb = t_clbk("lr_step", step_size = 1)$generate()
+  expect_null(cb$state_dict())
+})
+
+test_that("loading a one cycle state that was saved for a different schedule errors", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("lr_one_cycle", max_lr = 0.1))
+  learner$train(task)
+  state = learner$model$callbacks$lr_one_cycle
+
+  # the state was saved for a 2-epoch schedule, this run is configured for 4
+  restore = torch_callback("restore",
+    on_begin = function() self$ctx$callbacks$lr_one_cycle$load_state_dict(state))
+  other = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10,
+    callbacks = list(restore, t_clbk("lr_one_cycle", max_lr = 0.1)))
+
+  expect_error(other$train(task), "Cannot load the state of the one cycle")
+  # the error is raised before any epoch is trained
+  expect_null(other$model)
+})

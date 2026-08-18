@@ -143,7 +143,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-#' for each argument of the wrapped loss function, where the parametes are then of type `ParamUty`.
+#' for each argument of the wrapped callback, where the parameters are then of type `ParamUty`.
 #'
 #' @family Callback
 #' @family Torch Descriptor
@@ -194,9 +194,13 @@ TorchCallback = R6Class("TorchCallback",
     #' @template param_man
     #' @param additional_args (`any`)\cr
     #'  Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.
+    #' @param weight (`numeric(1)` or `NULL`)\cr
+    #'   Overwrites the `$weight` of the generated [`CallbackSet`], see its section *Ordering*.
+    #'   If `NULL` (default), the callback's own weight is kept.
     initialize = function(callback_generator, param_set = NULL, id = NULL,
-      label = NULL, packages = NULL, man = NULL, additional_args = NULL) {
+      label = NULL, packages = NULL, man = NULL, additional_args = NULL, weight = NULL) {
       assert_class(callback_generator, "R6ClassGenerator")
+      self$weight = weight
 
       param_set = assert_param_set(param_set %??% inferps(callback_generator))
       if ("ctx" %in% param_set$ids()) {
@@ -211,10 +215,26 @@ TorchCallback = R6Class("TorchCallback",
         man = man,
         additional_args = additional_args
       )
+    },
+    #' @description
+    #' Generates the [`CallbackSet`], applying `$weight` if it is set.
+    generate = function() {
+      cb = super$generate()
+      if (!is.null(self$weight)) cb$weight = assert_number(self$weight)
+      cb
+    }
+  ),
+  active = list(
+    #' @field weight (`numeric(1)` or `NULL`)\cr
+    #'   Overwrites the `$weight` of the generated [`CallbackSet`], see its section *Ordering*.
+    weight = function(rhs) {
+      if (!missing(rhs)) private$.weight = assert_number(rhs, null.ok = TRUE)
+      private$.weight
     }
   ),
   private = list(
-    .additional_phash_input = function() NULL
+    .weight = NULL,
+    .additional_phash_input = function() private$.weight
   )
 )
 
@@ -241,6 +261,7 @@ TorchCallback = R6Class("TorchCallback",
 #'   The default is `NULL`.
 #'
 #' @inheritSection mlr_callback_set Stages
+#' @inheritSection mlr_callback_set Ordering
 #'
 #' @section Internals:
 #' It first creates an `R6` class inheriting from [`CallbackSet`] (using [`callback_set()`]) and
@@ -295,6 +316,7 @@ torch_callback = function(
   load_state_dict = NULL,
   # other arguments
   initialize = NULL,
+  weight = NULL,
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackSet,
   lock_objects = FALSE
   ) {
@@ -318,6 +340,7 @@ torch_callback = function(
     # other arguments
     state_dict = state_dict, load_state_dict = load_state_dict,
     initialize = initialize,
+    weight = weight,
     public = public, private = private, active = active, parent_env = parent_env, inherit = inherit,
     lock_objects = lock_objects
   )

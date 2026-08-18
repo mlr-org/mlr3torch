@@ -23,6 +23,38 @@ Currently used to pass additional constructor arguments to \code{\link{TorchLoss
 \description{
 Converts an object to a \code{\link{TorchLoss}}.
 }
+\examples{
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
+# Define a custom loss, here the quantile (pinball) loss for quantile regression.
+# The class must contain "nn_loss", as this is what as_torch_loss() dispatches on.
+nn_quantile_loss = nn_module(c("nn_quantile_loss", "nn_loss"),
+  initialize = function(q = 0.5) {
+    self$q = q
+  },
+  forward = function(input, target) {
+    d = target - input
+    torch_mean(torch_max(self$q * d, other = (self$q - 1) * d))
+  }
+)
+
+# additional arguments are passed to the TorchLoss constructor
+quantile_loss = as_torch_loss(nn_quantile_loss, task_types = "regr")
+quantile_loss
+# the parameters are inferred from the loss' initialize method
+quantile_loss$param_set
+# and can be configured when using the loss in a learner
+lrn("regr.mlp", loss = quantile_loss, loss.q = 0.9)
+
+# predefined losses can be converted from their key,
+# this is the same as t_loss("mse")
+as_torch_loss("mse")
+
+# TorchLosses are returned as-is, unless clone is TRUE
+loss = t_loss("mse")
+identical(as_torch_loss(loss), loss)
+identical(as_torch_loss(loss, clone = TRUE), loss)
+\dontshow{\}) # examplesIf}
+}
 \seealso{
 Other Torch Descriptor:
 \code{\link{TorchCallback}},

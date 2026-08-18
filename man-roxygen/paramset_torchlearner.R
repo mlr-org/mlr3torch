@@ -12,12 +12,17 @@
 #'   The value is initialized to `"auto"`, which will select `"cuda"` if possible, then try `"mps"` and otherwise
 #'   fall back to `"cpu"`.
 #' * `num_threads` :: `integer(1)`\cr
-#'   The number of threads for intraop pararallelization (if `device` is `"cpu"`).
+#'   The number of threads for intraop parallelization (if `device` is `"cpu"`).
 #'   This value is initialized to 1.
+#'   When resampling, benchmarking or tuning in parallel, each worker uses this many threads, so
+#'   divide the available cores among the workers instead of setting this to the number of cores.
 #' * `num_interop_threads` :: `integer(1)`\cr
-#'   The number of threads for intraop and interop pararallelization (if `device` is `"cpu"`).
-#'   This value is initialized to 1.
-#'   Note that this can only be set once during a session and changing the value within an R session will raise a warning.
+#'   The number of threads for interop parallelization (if `device` is `"cpu"`).
+#'   Note that this can only be set **once** per session, so setting this for one learner also changes the
+#'   behavior of other learners, and a later learner asking for a different value errors.
+#'   `NULL` (default) uses whatever is set.
+#'   In order to use different values for this parameter, use encapsulation to train the learners
+#'   in separate R sessions.
 #' * `seed` :: `integer(1)` or `"random"` or `NULL`\cr
 #'   The torch seed that is used during training and prediction.
 #'   This value is initialized to `"random"`, which means that a random seed will be sampled at the beginning of the
@@ -26,6 +31,9 @@
 #'   Note that by setting the seed during the training phase this will mean that by default (i.e. when `seed` is
 #'   `"random"`), clones of the learner will use a different seed.
 #'   If set to `NULL`, no seeding will be done.
+#'   This parameter only seeds torch's random number generator, it does **not** seed R's.
+#'   Anything that is drawn from R's RNG is therefore unaffected by it, so to make those parts
+#'   reproducible you need to seed R's RNG as well, e.g. via [`set.seed()`].
 #' * `tensor_dataset` :: `logical(1)` | `"device"`\cr
 #'   Whether to load all batches at once at the beginning of training and stack them.
 #'   This is initialized to `FALSE`.
@@ -49,6 +57,8 @@
 #' * `patience` :: `integer(1)`\cr
 #'   This activates early stopping using the validation scores.
 #'   If the performance of a model does not improve for `patience` evaluation steps, training is ended.
+#'   Note that this counts *evaluation steps*, not epochs: when `eval_freq` is greater than `1`,
+#'   `patience` evaluation steps correspond to `patience * eval_freq` epochs.
 #'   Note that the final model is stored in the learner, not the best model.
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.
@@ -58,6 +68,13 @@
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold for early stopping.
 #'   Is initialized to 0.
+#' * `restore_best_weights` :: `logical(1)`\cr
+#'   Whether to restore the weights of the best epoch when training ends, instead of keeping those
+#'   of the last epoch that was trained. Is initialized to `FALSE`, i.e. the network of the last
+#'   epoch is stored. Setting this to `TRUE` makes the stored network the one of the epoch that
+#'   `$internal_tuned_values` reports, and costs one additional copy of the network's parameters in
+#'   memory. Checkpoints written by `t_clbk("checkpoint")` are unaffected: they always hold the
+#'   network as training left it.
 #'
 #' **Dataloader**:
 #' * `batch_size` :: `integer(1)`\cr
@@ -95,7 +112,7 @@
 #'   The timeout value for collecting a batch from workers.
 #'   Negative values mean no timeout and the default is `-1`.
 #' * `worker_init_fn` :: `function(id)`\cr
-#'   A function that receives the worker id (in `[1, num_workers]`) and is exectued after seeding
+#'   A function that receives the worker id (in `[1, num_workers]`) and is executed after seeding
 #'   on the worker but before data loading.
 #' * `worker_globals` :: `list()` | `character()`\cr
 #'   When loading data in parallel, this allows to export globals to the workers.
@@ -104,4 +121,4 @@
 #' * `worker_packages` :: `character()`\cr
 #'   Which packages to load on the workers.
 #'
-#' Also see `torch::dataloder` for more information.
+#' Also see `torch::dataloader` for more information.

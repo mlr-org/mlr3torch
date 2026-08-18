@@ -538,12 +538,13 @@ test_that("early stopping works", {
   # the first evaluation can do no comparison, i.e. the second eval with no improvement is the third epoch
   expect_equal(learner$internal_tuned_values, list(epochs = 3))
 
-  # in this scenario early stopping should definitely not trigger yet
   learner$param_set$set_values(
     min_delta = 0, patience = 5, opt.lr = 0.01, eval_freq = 1
   )
   learner$train(task)
-  expect_equal(learner$internal_tuned_values, list(epochs = 1))
+  history = learner$model$callbacks$history
+  expect_equal(learner$internal_tuned_values,
+    list(epochs = history$epoch[which.min(history$valid.classif.ce)]))
 })
 
 test_that("validation works", {
@@ -1213,4 +1214,88 @@ test_that("sampler and batch_sampler are checked", {
   )
   expect_error(learner$param_set$set_values(sampler = sampler(1)), "torch_sampler")
   learner$param_set$set_values(sampler = sampler)
+})
+
+test_that("the model has a printer", {
+  # the seed parameter only seeds torch, the internal validation split comes from R's RNG
+  withr::local_seed(1)
+  learner = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 5, device = "cpu",
+    validate = 0.3, measures_valid = msr("classif.ce"), callbacks = t_clbk("history"),
+    seed = 1)
+  learner$train(tsk("iris"))
+  expect_snapshot(learner$model)
+})
+
+test_that("resample() returns the learners in iteration order", {
+  # the hash of the MLP below was not stable previously, because the hash of a newly created
+  # module changes after it's jit compiled
+  activation = nn_module("my_activation",
+    initialize = function() NULL,
+    forward = function(input) torch_relu(input)
+  )
+  task = tsk("iris")
+  withr::local_seed(1)
+  rr = resample(task, lrn("classif.mlp", activation = activation, epochs = 1, batch_size = 32,
+    neurons = 5, device = "cpu", predict_type = "prob"), rsmp("cv", folds = 3), store_models = TRUE)
+
+  # the symptom: learner `i` must be the model that produced prediction `i`
+  for (i in 1:3) {
+    expect_equal(
+      rr$learners[[i]]$predict(task, rr$resampling$test_set(i))$prob,
+      rr$predictions()[[i]]$prob
+    )
+  }
+
+  # the invariant the symptom follows from, asserted directly: the sort above is a no-op only if
+  # every iteration recorded the same hash. Checking it here does not depend on the permutation that
+  # `order()` happens to produce for three drifting hashes.
+  fact = get_private(rr)$.data$data$fact
+  expect_equal(uniqueN(fact$learner_hash), 1L)
+})
+
+test_that("training does not change the hash of a learner holding an nn_module", {
+  # just like the test above, creating a module compiles the generator which used to change
+  # it's hash
+  fresh = nn_module("my_activation2", initialize = function() NULL, forward = function(input) torch_relu(input))
+  learners = list(
+    lrn("classif.mlp", activation = fresh, neurons = 3),
+    lrn("classif.mlp", activation = nn_relu, neurons = 3),
+    lrn("regr.mlp", activation = nn_tanh, neurons = 3),
+    lrn("classif.tabm", activation = nn_relu),
+    lrn("classif.tab_resnet", n_blocks = 1, d_block = 4, d_hidden = 4, dropout1 = 0, dropout2 = 0)
+  )
+  tasks = c("iris", "iris", "mtcars", "iris", "iris")
+
+  for (i in seq_along(learners)) {
+    learner = learners[[i]]
+    learner$param_set$set_values(epochs = 1, batch_size = 16, device = "cpu")
+    before = learner$hash
+    learner$train(tsk(tasks[[i]]))
+    expect_equal(before, learner$hash, info = learner$id)
+  }
+})
+
+test_that("learners holding a different module_generator as activation hash differently", {
+  expect_false(identical(
+    lrn("classif.mlp", activation = nn_relu, neurons = 3)$hash,
+    lrn("classif.mlp", activation = nn_tanh, neurons = 3)$hash
+  ))
+})
+
+test_that("hashes are reproducible across R sessions", {
+  skip_on_cran()
+  skip_if_not_installed("callr")
+  hash_in_session = function(train) {
+    callr::r(function(train) {
+      library(mlr3torch)
+      learner = lrn("classif.mlp", activation = nn_relu, neurons = 3, epochs = 1, batch_size = 16,
+        device = "cpu")
+      if (train) learner$train(tsk("iris"))
+      learner$hash
+    }, args = list(train = train), libpath = .libPaths())
+  }
+
+  expect_equal(hash_in_session(FALSE), hash_in_session(TRUE))
+  expect_equal(hash_in_session(FALSE), lrn("classif.mlp", activation = nn_relu, neurons = 3,
+    epochs = 1, batch_size = 16, device = "cpu")$hash)
 })

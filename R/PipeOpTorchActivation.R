@@ -42,7 +42,7 @@ register_po("nn_elu", PipeOpTorchELU)
 #' @section nn_module: Calls [`torch::nn_hardshrink()`] when trained.
 #' @section Parameters:
 #' * `lambd` :: `numeric(1)`\cr
-#'   The lambda value for the Hardshrink formulation formulation. Default 0.5.
+#'   The lambda value for the Hardshrink formulation. Default 0.5.
 #' @templateVar id nn_hardshrink
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
@@ -139,8 +139,7 @@ PipeOpTorchHardTanh = R6Class("PipeOpTorchHardTanh",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_hardtanh,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -180,8 +179,7 @@ PipeOpTorchLeakyReLU = R6Class("PipeOpTorchLeakyReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_leaky_relu,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -215,8 +213,7 @@ PipeOpTorchLogSigmoid = R6Class("PipeOpTorchLogSigmoid",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_log_sigmoid,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -229,11 +226,11 @@ register_po("nn_log_sigmoid", PipeOpTorchLogSigmoid)
 #' @inherit torch::nnf_prelu description
 #' @section nn_module: Calls [`torch::nn_prelu()`] when trained.
 #' @section Parameters:
-#' * `num_parameters` :: `integer(1)`:
-#'   Number of a to learn. Although it takes an int as input, there is only two values are legitimate: 1, or the
-#'   number of channels at input. Default: 1.
-#' * `init` :: `numeric(1)`\cr T
-#'   The initial value of a. Default: 0.25.
+#' * `num_parameters` :: `integer(1)`\cr
+#'   Number of `a` parameters to learn. Although it takes an integer as input, only two values are
+#'   legitimate: `1`, or the number of channels of the input. Default: 1.
+#' * `init` :: `numeric(1)`\cr
+#'   The initial value of `a`. Default: 0.25.
 #' @templateVar id nn_prelu
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
@@ -256,8 +253,7 @@ PipeOpTorchPReLU = R6Class("PipeOpTorchPReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_prelu,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -293,8 +289,7 @@ PipeOpTorchReLU = R6Class("PipeOpTorchReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_relu,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -330,8 +325,7 @@ PipeOpTorchReLU6 = R6Class("PipeOpTorchReLU6",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_relu6,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -374,8 +368,7 @@ PipeOpTorchRReLU = R6Class("PipeOpTorchRReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_rrelu,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -412,8 +405,7 @@ PipeOpTorchSELU = R6Class("PipeOpTorchSELU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_selu,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -453,8 +445,7 @@ PipeOpTorchCELU = R6Class("PipeOpTorchCELU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_celu,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -491,8 +482,7 @@ PipeOpTorchGELU = R6Class("PipeOpTorchGELU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_gelu,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -526,8 +516,7 @@ PipeOpTorchSigmoid = R6Class("PipeOpTorchSigmoid",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_sigmoid,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -566,8 +555,7 @@ PipeOpTorchSoftPlus = R6Class("PipeOpTorchSoftPlus",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_softplus,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -581,7 +569,7 @@ register_po("nn_softplus", PipeOpTorchSoftPlus)
 #' @inherit torch::nnf_softshrink description
 #' @section nn_module: Calls [`torch::nn_softshrink()`] when trained.
 #' @section Parameters:
-#' * `lamd` :: `numeric(1)`\cr
+#' * `lambd` :: `numeric(1)`\cr
 #'   The lambda (must be no less than zero) value for the Softshrink formulation. Default: 0.5
 #' @templateVar id nn_softshrink
 #' @template pipeop_torch_channels_default
@@ -597,15 +585,14 @@ PipeOpTorchSoftShrink = R6Class("PipeOpTorchSoftShrink",
     #' @template params_pipelines
     initialize = function(id = "nn_softshrink", param_vals = list()) {
       param_set = ps(
-        lambd = p_dbl(default = 0.5, upper = 1, tags = "train")
+        lambd = p_dbl(default = 0.5, lower = 0, tags = "train")
       )
       super$initialize(
         id = id,
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_softshrink,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -638,8 +625,7 @@ PipeOpTorchSoftSign = R6Class("PipeOpTorchSoftSign",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_softsign,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -673,8 +659,7 @@ PipeOpTorchTanh = R6Class("PipeOpTorchTanh",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_tanh,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -708,8 +693,7 @@ PipeOpTorchTanhShrink = R6Class("PipeOpTorchTanhShrink",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_tanhshrink,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -753,8 +737,7 @@ PipeOpTorchThreshold = R6Class("PipeOpTorchThreshold",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_threshold,
-        tags = "activation",
-        only_batch_unknown = FALSE
+        tags = "activation"
       )
     }
   )
@@ -783,7 +766,8 @@ PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
     #' @template params_pipelines
     initialize = function(id = "nn_glu", param_vals = list()) {
       param_set = ps(
-        dim = p_int(default = -1L, lower = 1L, tags = "train", special_vals = list(-1L))
+        # negative values count down from the last dimension, `.shapes_out()` checks the range
+        dim = p_int(default = -1L, tags = "train")
       )
       super$initialize(
         id = id,
@@ -797,17 +781,13 @@ PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
-      true_dim = param_vals$dim %??% -1
-      if (true_dim < 0) {
-        true_dim = 1 + length(shape) + true_dim
-      }
-      d_new = shape[true_dim] / 2
-      if (test_integerish(d_new)) {
-        shape[true_dim] = d_new
-      } else {
-        stopf("Dimension %i of input tensor must be divisible by 2.", true_dim)
-      }
-      list(shape)
+      dim = param_vals$dim %??% -1L
+      true_dim = resolve_dim(dim, shape)
+      # without this, `shape[true_dim] = d_new` would silently extend the shape with `NA`s and
+      # a graph would be built on a shape that no tensor can have
+      assert_dim_in_range(dim, true_dim, shape, self$id)
+      assert_not_batch_dim(true_dim, shape, self$id)
+      list(halve_dim(shape, true_dim, self$id))
     }
   )
 )
@@ -815,7 +795,10 @@ PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
 register_po("nn_glu", PipeOpTorchGLU)
 
 reglu = function(x) {
-  assert_true(last(x$shape, 1) %% 2 == 0)
+  d = last(x$shape, 1)
+  if (d %% 2 != 0) {
+    stopf("nn_reglu() splits the input in half along the last dimension, which must therefore be divisible by 2, but it is %i.", d) # nolint
+  }
   chunked = x$chunk(2, dim = -1)
   a = chunked[[1]]
   b = chunked[[2]]
@@ -874,13 +857,9 @@ PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
-      d_new = last(shape, 1) / 2
-      if (test_integerish(d_new)) {
-        shape[length(shape)] = d_new
-        list(shape)
-      } else {
-        stopf("Last dimension of input tensor must be divisible by 2.")
-      }
+      # for a rank-1 input the last dimension is the batch dimension
+      assert_not_batch_dim(length(shape), shape, self$id)
+      list(halve_dim(shape, length(shape), self$id))
     }
   )
 )
@@ -888,7 +867,10 @@ PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
 register_po("nn_reglu", PipeOpTorchReGLU)
 
 geglu = function(x) {
-  assert_true(last(x$shape, 1) %% 2 == 0)
+  d = last(x$shape, 1)
+  if (d %% 2 != 0) {
+    stopf("nn_geglu() splits the input in half along the last dimension, which must therefore be divisible by 2, but it is %i.", d) # nolint
+  }
   chunked = x$chunk(2, dim = -1)
   a = chunked[[1]]
   b = chunked[[2]]
@@ -947,13 +929,9 @@ PipeOpTorchGeGLU = R6Class("PipeOpTorchGeGLU",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
-      d_new = last(shape, 1) / 2
-      if (test_integerish(d_new)) {
-        shape[length(shape)] = d_new
-        list(shape)
-      } else {
-        stopf("Last dimension of input tensor must be divisible by 2.")
-      }
+      # for a rank-1 input the last dimension is the batch dimension
+      assert_not_batch_dim(length(shape), shape, self$id)
+      list(halve_dim(shape, length(shape), self$id))
     }
   )
 )

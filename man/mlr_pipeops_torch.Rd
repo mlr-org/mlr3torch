@@ -7,9 +7,19 @@
 \description{
 \code{PipeOpTorch} is the base class for all \code{\link[mlr3pipelines:PipeOp]{PipeOp}}s that represent
 neural network layers in a \code{\link[mlr3pipelines:Graph]{Graph}}.
+If you want to create your own \code{PipeOpTorch}, check out the \code{\link[=pipeop_torch]{pipeop_torch()}} helper function and the article
+\href{https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.html}{Writing your own PipeOpTorch}.
 During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps an \code{\link[torch:nn_module]{nn_module}} and attaches it
 to the architecture, which is also represented as a \code{\link[mlr3pipelines:Graph]{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
 an \code{\link[mlr3pipelines:PipeOpNOP]{PipeOpNOP}}s.
+
+The convenient way to construct such a \code{PipeOp} is the \code{\link[=nn]{nn()}} helper, which prefixes the given
+key with \code{"nn_"} to look it up in the \code{\link[mlr3pipelines:mlr_pipeops]{mlr_pipeops}} dictionary and
+uses the unprefixed key as the id of the resulting \code{PipeOp}:
+\code{nn("linear", out_features = 10)} is equivalent to
+\code{po("nn_linear", id = "linear", out_features = 10)}.
+Because ids must be unique within a \code{\link[mlr3pipelines:Graph]{Graph}}, repeated layers can be
+disambiguated with a \verb{_<n>} suffix, e.g. \code{nn("linear_1")} and \code{nn("linear_2")}.
 
 While the former \code{\link[mlr3pipelines:Graph]{Graph}} operates on \code{\link{ModelDescriptor}}s, the latter operates on \link[torch:torch_tensor]{tensors}.
 
@@ -37,7 +47,7 @@ When inheriting from this class, one should overload either the \code{private$.s
 \code{private$.shape_dependent_params()} methods, or overload \code{private$.make_module()}.
 \itemize{
 \item \code{.make_module(shapes_in, param_vals, task)}\cr
-(\code{list()}, \code{list()}) -> \code{nn_module}\cr
+(\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> \code{nn_module}\cr
 This private method is called to generate the \code{nn_module} that is passed as argument \code{module} to
 \code{\link{PipeOpModule}}. It must be overwritten, when no \code{module_generator} is provided.
 If left as is, it calls the provided \code{module_generator} with the arguments obtained by
@@ -46,16 +56,29 @@ the private method \code{.shape_dependent_params()}.
 (\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
 This private method gets a list of \code{integer} vectors (\code{shapes_in}), the parameter values (\code{param_vals}),
 as well as an (optional) \code{\link[mlr3:Task]{Task}}.
-The \code{shapes_in} can be assumed to be in the same order as the input names of the \code{PipeOp}.
+The \code{shapes_in} list indicates the shape of input tensors that will be fed to the module's \verb{$forward()} function.
+The list has one item per input tensor, typically only one.
+The function should return a list of shapes of tensors that are created by the module.
+The \code{shapes_in} are named after the input channels of the \code{PipeOp} and are in the same order.
 The output shapes must be in the same order as the output names of the \code{PipeOp}.
 In case the output shapes depends on the task (as is the case for \code{\link{PipeOpTorchHead}}), the function should return
-valid output shapes (possibly containing \code{NA}s) if the \code{task} argument is provided or not.
-It is important to properly handle the presence of \code{NA}s in the input shapes.
-By default (if construction argument \code{only_batch_unknown} is \code{TRUE}), only the batch dimension can be \code{NA}.
-If you set this to \code{FALSE}, you need to take other unknown dimensions into account.
-The method can also throw an error if the input shapes violate some assumptions.
+valid output shapes (possibly containing \code{NA}s) whether or not the \code{task} argument is provided.
+Any dimension of \code{shapes_in} can be \code{NA}, i.e. unknown, so this method must not assume that a
+dimension it reads is known.
+It has to assert the dimensions it actually needs and propagate the \code{NA}s it can live with.
+
+The inference should generally be \strong{permissive}. For example, applying a convolutional layer
+to an input of shape \code{c(NA, 3, NA, NA)} should assume that the last two dimensions are big
+enough for the given kernel size.
+This can sometimes lead to runtime errors but this is preferable over rejecting valid
+architectures.
+
+There are various assertion helpers for common input checks, such as \code{\link[=assert_known_dims]{assert_known_dims()}} and the
+"See also" links on its page.
+There are also \code{\link{shape_helpers}}, which provide the shape
+arithmetic (broadcasting, resolving negative dimension indices).
 \item \code{.shape_dependent_params(shapes_in, param_vals, task)}\cr
-(\code{list()}, \code{list()}) -> named \code{list()}\cr
+(\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
 This private method has the same inputs as \code{.shapes_out}.
 If \code{.make_module()} is not overwritten, it constructs the arguments passed to \code{module_generator}.
 Usually this means that it must infer the auxiliary parameters that can be inferred from the input shapes
@@ -67,6 +90,27 @@ and add it to the user-supplied parameter values (\code{param_vals}).
 
 During \emph{training}, all inputs and outputs are of class \code{\link{ModelDescriptor}}.
 During \emph{prediction}, all input and output channels are of class \code{\link[mlr3:Task]{Task}}.
+}
+
+\section{Shape Inference}{
+
+A network is assembled without any data flowing through it, so \pkg{mlr3torch} tracks the shape
+of the tensors instead: it starts from the shape the ingress announces and hands each \code{PipeOp}
+the shapes of its inputs, which is how auxiliary parameters such as \code{in_features} of
+\code{\link[torch:nn_linear]{nn_linear}} are filled in automatically.
+
+A shape is an \code{integer()} whose first entry is the batch dimension, e.g. \code{c(NA, 3, 32, 32)} for a
+batch of RGB images of 32 by 32 pixels. A dimension whose size is not known in advance is \code{NA},
+and any dimension can be \code{NA}, not only the batch dimension: the sequence length of a
+transformer or the height and width of an image may equally well vary.
+
+The public \verb{$shapes_out()} method answers the same question for a single \code{PipeOp}, without
+building a network around it, which is the quickest way to see what an operator makes of a given
+input shape. It is also what reports the problem when an operator needs a dimension that is
+unknown, naming the \code{PipeOp} and the shape it was given.
+
+Implementing a \code{PipeOp} that computes its own output shapes is described under \code{.shapes_out()} in
+the "Inheriting" section above.
 }
 
 \section{State}{
@@ -83,7 +127,7 @@ The channel names of this \code{\link{PipeOpModule}} are identical to the channe
 
 A \link[=model_descriptor_union]{model descriptor union} of all incoming \code{\link{ModelDescriptor}}s is then created.
 Note that this modifies the \code{\link[mlr3pipelines:Graph]{graph}} of the first \code{\link{ModelDescriptor}} \strong{in place} for efficiency.
-The \code{\link{PipeOpModule}} is added to the \code{\link[mlr3pipelines:Graph]{graph}} slot of this union and the the edges that connect the
+The \code{\link{PipeOpModule}} is added to the \code{\link[mlr3pipelines:Graph]{graph}} slot of this union and the edges that connect the
 sending \code{PipeOpModule}s to the input channel of this \code{PipeOpModule} are addeded to the graph.
 This is possible because every incoming \code{\link{ModelDescriptor}} contains the information about the
 \code{id} and the \code{channel} name of the sending \code{PipeOp} in the slot \code{pointer}.
@@ -99,142 +143,67 @@ For the output, a shallow copy of the \code{\link{ModelDescriptor}} is created a
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
-## Creating a neural network
-# In torch
-
+# A `PipeOpTorch` does not compute anything itself: it adds a module to the network that is
+# being assembled, and reports the shape of the tensors that module will produce.
 task = tsk("iris")
 
-network_generator = torch::nn_module(
-  initialize = function(task, d_hidden) {
-    d_in = length(task$feature_names)
-    self$linear = torch::nn_linear(d_in, d_hidden)
-    self$output = if (task$task_type == "regr") {
-      torch::nn_linear(d_hidden, 1)
-    } else if (task$task_type == "classif") {
-      torch::nn_linear(d_hidden, output_dim_for(task))
-    }
-  },
-  forward = function(x) {
-    x = self$linear(x)
-    x = torch::nnf_relu(x)
-    self$output(x)
-  }
-)
+po_linear = po("nn_linear", out_features = 10)
 
-network = network_generator(task, d_hidden = 50)
-x = torch::torch_tensor(as.matrix(task$data(1, task$feature_names)))
-y = torch::with_no_grad(network(x))
+# what the operator makes of an input shape, without building a network around it.
+# `NA` is an unknown dimension -- the batch size here -- and any dimension may be unknown.
+po_linear$shapes_out(list(c(NA, 4)))
 
+# a dimension the operator does need is reported, naming the PipeOp and the shape it was given
+try(po_linear$shapes_out(list(c(NA, NA))))
 
-# In mlr3torch
-network_generator = po("torch_ingress_num") \%>>\%
-  po("nn_linear", out_features = 50) \%>>\%
-  po("nn_head")
-md = network_generator$train(task)[[1L]]
+# the graph of `PipeOpTorch`s describes the network, `model_descriptor_to_module()` builds it.
+# `in_features` of the linear layer was inferred from the task, `out_features` of the head from
+# the number of classes.
+graph = po("torch_ingress_num") \%>>\% po_linear \%>>\% po("nn_relu") \%>>\% po("nn_head")
+md = graph$train(task)[[1L]]
 network = model_descriptor_to_module(md)
-y = torch::with_no_grad(network(torch_ingress_num.input = x))
+network
+
+x = torch_tensor(as.matrix(task$data(1:2, task$feature_names)))
+with_no_grad(network(torch_ingress_num.input = x))
 
 
+## What happens during training
 
-## Implementing a custom PipeOpTorch
-
-# defining a custom module
-nn_custom = nn_module("nn_custom",
-  initialize = function(d_in1, d_in2, d_out1, d_out2, bias = TRUE) {
-    self$linear1 = nn_linear(d_in1, d_out1, bias)
-    self$linear2 = nn_linear(d_in2, d_out2, bias)
-  },
-  forward = function(input1, input2) {
-    output1 = self$linear1(input1)
-    output2 = self$linear1(input2)
-
-    list(output1 = output1, output2 = output2)
-  }
-)
-
-# wrapping the module into a custom PipeOpTorch
-
-library(paradox)
-
-PipeOpTorchCustom = R6::R6Class("PipeOpTorchCustom",
-  inherit = PipeOpTorch,
-  public = list(
-    initialize = function(id = "nn_custom", param_vals = list()) {
-      param_set = ps(
-        d_out1 = p_int(lower = 1, tags = c("required", "train")),
-        d_out2 = p_int(lower = 1, tags = c("required", "train")),
-        bias = p_lgl(default = TRUE, tags = "train")
-      )
-      super$initialize(
-        id = id,
-        param_vals = param_vals,
-        param_set = param_set,
-        inname = c("input1", "input2"),
-        outname = c("output1", "output2"),
-        module_generator = nn_custom
-      )
-    }
-  ),
-  private = list(
-    .shape_dependent_params = function(shapes_in, param_vals, task) {
-      c(param_vals,
-        list(d_in1 = tail(shapes_in[["input1"]], 1)), d_in2 = tail(shapes_in[["input2"]], 1)
-      )
-    },
-    .shapes_out = function(shapes_in, param_vals, task) {
-      list(
-        input1 = c(head(shapes_in[["input1"]], -1), param_vals$d_out1),
-        input2 = c(head(shapes_in[["input2"]], -1), param_vals$d_out2)
-      )
-    }
-  )
-)
-
-## Training
-
-# generate input
-task = tsk("iris")
+# A `PipeOpTorch` operates on `ModelDescriptor`s, which we here build by hand: two networks that
+# each start from one half of the iris task.
 task1 = task$clone()$select(paste0("Sepal.", c("Length", "Width")))
 task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
-graph = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))
-mds_in = graph$train(list(task1, task2), single_input = FALSE)
+ingress = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))
+mds_in = ingress$train(list(task1, task2), single_input = FALSE)
 
 mds_in[[1L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 mds_in[[2L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 
-# creating the PipeOpTorch and training it
-po_torch = PipeOpTorchCustom$new()
-po_torch$param_set$values = list(d_out1 = 10, d_out2 = 20)
-train_input = list(input1 = mds_in[[1L]], input2 = mds_in[[2L]])
-mds_out = do.call(po_torch$train, args = list(input = train_input))
-po_torch$state
+# Training a `PipeOpTorch` on them creates the `PipeOpModule` that wraps the constructed
+# `nn_module`, adds it to the network and connects it to both ingress operators.
+po_merge = nn("merge_cat", innum = 2)
+md_out = po_merge$train(list(input1 = mds_in[[1L]], input2 = mds_in[[2L]]))[[1L]]
 
-# the new model descriptors
+# Note that, for efficiency, the graph of the first input is modified in-place.
+identical(md_out$graph, mds_in[[1L]]$graph)
+md_out$graph$edges
 
-# the resulting graphs are identical
-identical(mds_out[[1L]]$graph, mds_out[[2L]]$graph)
-# note that as a side-effect, also one of the input graphs is modified in-place for efficiency
-mds_in[[1L]]$graph$edges
+# The task is the feature union of the incoming tasks and `ingress` collects the ingress tokens
+# of all incoming `ModelDescriptor`s.
+md_out$task
+md_out$ingress
 
-# The new task has both Sepal and Petal features
-identical(mds_out[[1L]]$task, mds_out[[2L]]$task)
-mds_out[[2L]]$task
+# `pointer` and `pointer_shape` now refer to the output of the new module.
+md_out$pointer
+md_out$pointer_shape
 
-# The new ingress slot contains all ingressors
-identical(mds_out[[1L]]$ingress, mds_out[[2L]]$ingress)
-mds_out[[1L]]$ingress
+# During prediction, no network is built: the `PipeOpTorch` receives a `Task` in each channel
+# and outputs their feature union.
+po_merge$predict(list(input1 = task1, input2 = task2))[[1L]]
 
-# The pointer and pointer_shape slots are different
-mds_out[[1L]]$pointer
-mds_out[[2L]]$pointer
-
-mds_out[[1L]]$pointer_shape
-mds_out[[2L]]$pointer_shape
-
-## Prediction
-predict_input = list(input1 = task1, input2 = task2)
-tasks_out = do.call(po_torch$predict, args = list(input = predict_input))
-identical(tasks_out[[1L]], tasks_out[[2L]])
+# Writing an operator of your own is described in the article "Writing your own PipeOpTorch" on
+# the package website and in the section 'Inheriting' above.
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -250,7 +219,8 @@ Other Graph Network:
 \code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
 \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
 \code{\link[=model_descriptor_union]{model_descriptor_union()}},
-\code{\link[=nn_graph]{nn_graph()}}
+\code{\link[=nn_graph]{nn_graph()}},
+\code{\link[=pipeop_torch]{pipeop_torch()}}
 }
 \concept{Graph Network}
 \section{Super class}{
@@ -261,7 +231,7 @@ Other Graph Network:
   \describe{
     \item{\code{module_generator}}{(\code{nn_module_generator} or \code{NULL})\cr
 The module generator wrapped by this \code{PipeOpTorch}. If \code{NULL}, the private method
-\code{private$.make_module(shapes_in, param_vals)} must be overwritte, see section 'Inheriting'.
+\code{private$.make_module(shapes_in, param_vals)} must be overwritten, see section 'Inheriting'.
 Do not change this after construction.}
   }
   \if{html}{\out{</div>}}
@@ -297,8 +267,7 @@ Do not change this after construction.}
   inname = "input",
   outname = "output",
   packages = "torch",
-  tags = NULL,
-  only_batch_unknown = TRUE
+  tags = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -315,27 +284,22 @@ The parameter set.}
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
       \item{\code{inname}}{(\code{character()})\cr
-The names of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}'s input channels. These will be the input channels of the generated \code{\link{PipeOpModule}}.
-Unless the wrapped \code{module_generator}'s forward method (if present) has the argument \code{...}, \code{inname} must be
-identical to those argument names in order to avoid any ambiguity.\cr
-If the forward method has the argument \code{...}, the order of the input channels determines how the tensors
-will be passed to the wrapped \code{nn_module}.\cr
-If left as \code{NULL} (default), the argument \code{module_generator} must be given and the argument names of the
-\code{modue_generator}'s forward function are set as \code{inname}.}
+The names of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}'s input channels, \code{"input"} by default.
+These will be the input channels of the generated \code{\link{PipeOpModule}}.
+The tensors are passed to the wrapped \code{nn_module} by position, i.e. the order of the input channels
+determines which argument of the forward method they end up in.
+Unless the forward method has the argument \code{...}, naming the input channels after its arguments is
+therefore recommended, as it avoids any ambiguity.}
       \item{\code{outname}}{(\code{character()}) \cr
-The names of the output channels channels. These will be the ouput channels of the generated \code{\link{PipeOpModule}}
-and therefore also the names of the list returned by its \verb{$train()}.
+The names of the output channels, \code{"output"} by default. These will be the ouput channels of the
+generated \code{\link{PipeOpModule}} and therefore also the names of the list returned by its \verb{$train()}.
 In case there is more than one output channel, the \code{nn_module} that is constructed by this
-\code{\link[mlr3pipelines:PipeOp]{PipeOp}} during training must return a named \code{list()}, where the names of the list are the
-names out the output channels. The default is \code{"output"}.}
+\code{\link[mlr3pipelines:PipeOp]{PipeOp}} during training must return a \code{list()} whose elements are in the
+order of the output channels.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{tags}}{(\code{character()})\cr
 The tags of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}. The tags \code{"torch"} is always added.}
-      \item{\code{only_batch_unknown}}{(\code{logical(1)})\cr
-Whether only the batch dimension can be missing in the input shapes or whether other
-dimensions can also be unknown.
-Default is \code{TRUE}.}
     }
     \if{html}{\out{</div>}}
   }
@@ -355,7 +319,7 @@ Default is \code{TRUE}.}
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{shapes_in}}{(\code{list()} of \code{integer()})\cr
-The input input shapes, which must be in the same order as the input channel names of the \code{PipeOp}.}
+The input shapes, which must be in the same order as the input channel names of the \code{PipeOp}.}
       \item{\code{task}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
 The task, which is very rarely used (default is \code{NULL}). An exception is \code{\link{PipeOpTorchHead}}.}
     }

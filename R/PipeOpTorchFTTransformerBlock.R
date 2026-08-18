@@ -12,7 +12,7 @@
 #' @param attention_dropout (`numeric(1)`)\cr
 #'   Dropout probability in the attention mechanism.
 #' @param attention_initialization (`character(1)`)\cr
-#'   Initialization method for attention weights. Either "kaiming" or "xavier".
+#'   Initialization of the query, key and value projections, either `"kaiming"` or `"xavier"`.
 #' @param ffn_d_hidden (`integer(1)`)\cr
 #'   Hidden dimension of the feed-forward network. Multiplied by 2 if using ReGLU or GeGLU activation.
 #' @param ffn_d_hidden_multiplier (`numeric(1)`)\cr
@@ -20,28 +20,28 @@
 #' @param ffn_dropout (`numeric(1)`)\cr
 #'   Dropout probability in the feed-forward network.
 #' @param ffn_activation (`nn_module`)\cr
-#'   Activation function for the feed-forward network. Default value is `nn_reglu`.
+#'   Activation function for the feed-forward network.
 #' @param residual_dropout (`numeric(1)`)\cr
 #'   Dropout probability for residual connections.
 #' @param prenormalization (`logical(1)`)\cr
-#'   Whether to apply normalization before attention and FFN (`TRUE`) or after (`TRUE`).
+#'   Whether to apply normalization before attention and FFN (`TRUE`) or after (`FALSE`).
 #' @param is_first_layer (`logical(1)`)\cr
-#'   Whether this is the first layer in the transformer stack. Default value is `FALSE`.
+#'   Whether this is the first layer in the transformer stack.
 #' @param attention_normalization (`nn_module`)\cr
-#'   Normalization module to use for attention. Default value is `nn_layer_norm`.
+#'   Normalization module to use for attention.
 #' @param ffn_normalization (`nn_module`)\cr
-#'   Normalization module to use for the feed-forward network. Default value is `nn_layer_norm`.
+#'   Normalization module to use for the feed-forward network.
 #' @param query_idx (`integer()` or `NULL`)\cr
 #'   Indices of the tensor to apply attention to. Should not be set manually.
 #'   If NULL, then attention is applied to the entire tensor.
 #'   In the last block in a stack of transformers, this is set to `-1`
 #'   so that attention is applied only to the embedding of the CLS token.
 #' @param attention_bias (`logical(1)`)\cr
-#'   Whether attention has a bias. Default is `TRUE`
+#'   Whether attention has a bias.
 #' @param ffn_bias_first (`logical(1)`)\cr
-#'   Whether the first layer in the FFN has a bias. Default is `TRUE`
+#'   Whether the first layer in the FFN has a bias.
 #' @param ffn_bias_second (`logical(1)`)\cr
-#'   Whether the second layer in the FFN has a bias. Default is `TRUE`
+#'   Whether the second layer in the FFN has a bias.
 #'
 #' @references
 #' `r format_bib("devlin2018bert")`
@@ -77,6 +77,12 @@ nn_ft_transformer_block = nn_module(
 
     self$prenormalization = prenormalization
 
+    # the reference implementation asserts this too, and only for more than one head
+    if (attention_n_heads > 1L && d_token %% attention_n_heads != 0L) {
+      stopf("`d_token` (%i) must be a multiple of `attention_n_heads` (%i), but %i %% %i is %i.",
+        d_token, attention_n_heads, d_token, attention_n_heads, d_token %% attention_n_heads)
+    }
+
     self$attention = nn_multihead_attention(
       embed_dim = d_token,
       num_heads = attention_n_heads,
@@ -84,6 +90,17 @@ nn_ft_transformer_block = nn_module(
       bias = attention_bias,
       batch_first = TRUE
     )
+
+    init_projection = switch(attention_initialization,
+      kaiming = function(x) nn_init_kaiming_uniform_(x, a = sqrt(5)),
+      xavier = function(x) nn_init_xavier_uniform_(x, gain = 1 / sqrt(2))
+    )
+    with_no_grad({
+      self$attention$in_proj_weight$copy_(torch_cat(
+        map(seq_len(3L), function(i) init_projection(torch_empty(d_token, d_token))),
+        dim = 1L
+      ))
+    })
 
     if (is.null(ffn_d_hidden)) {
       assert_numeric(ffn_d_hidden_multiplier, lower = 0,
@@ -124,7 +141,7 @@ nn_ft_transformer_block = nn_module(
     x_residual = self[[paste0(stage, "_residual_dropout")]](x_residual)
     x = x + x_residual
     if (!self$prenormalization) {
-      x = layer[[paste0(stage, "_normalization")]](x)
+      x = self[[paste0(stage, "_normalization")]](x)
     }
     return(x)
   },
@@ -193,13 +210,27 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
+      assert_ndim(shapes_in$input, 3L, self$id)
+      assert_known_dims(shapes_in$input, 3L, "the token dimension (dimension 3)", self$id)
       if (is.null(param_vals$query_idx)) {
         return(shapes_in[1])
       }
 
       shapes_out = shapes_in$input
-      # to save computation, apply the last transformer block to only the CLS token
-      shapes_out[[2L]] = 1
+      # to save computation, the last transformer block is applied to only the queried tokens
+      # (usually just the CLS token, but `query_idx` may select several)
+      query_idx = param_vals[["query_idx"]]
+      n_tokens = shapes_out[[2L]]
+      if (!length(query_idx)) {
+        stopf("PipeOp '%s' requires 'query_idx' to select at least one token.", self$id)
+      }
+      # negative indices count from the last token, as elsewhere in torch
+      if (any(query_idx == 0L) || (!is.na(n_tokens) && any(abs(query_idx) > n_tokens))) {
+        stopf("PipeOp '%s' cannot use 'query_idx' %s for the input shape %s, which has %s tokens.",
+          self$id, paste0(query_idx, collapse = ", "), shape_to_str(shapes_in$input),
+          if (is.na(n_tokens)) "an unknown number of" else as.character(n_tokens))
+      }
+      shapes_out[[2L]] = length(query_idx)
       return(list(shapes_out))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {

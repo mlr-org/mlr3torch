@@ -4,7 +4,7 @@
 #' @import mlr3misc
 #' @importFrom R6 R6Class is.R6
 #' @importFrom methods formalArgs
-#' @importFrom utils getFromNamespace capture.output head tail
+#' @importFrom utils getFromNamespace capture.output head tail hashtab gethash sethash
 #' @import torch
 #' @import mlr3pipelines
 #' @import mlr3
@@ -21,7 +21,9 @@
 
 # to silence RCMD check
 utils::globalVariables(c("self", "private", "super", ".."))
+# jarl-ignore unreachable_code: never evaluated on purpose, it only makes the static checker see the reference
 if (FALSE) knitr::knit2pandoc
+# jarl-ignore unreachable_code: never evaluated on purpose, it only makes the static checker see the reference
 if (FALSE) withr::with_seed
 
 mlr3torch_task_generators = new.env()

@@ -50,6 +50,25 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
 
       frozen_weights_str = paste(trainable_weights, collapse = ", ")
       lg$info(sprintf("Training the following weights at the start: %s", paste0(trainable_weights, collapse = ", ")))
+
+      private$.restore_trainable()
+    },
+    #' @description
+    #' Returns the names of the weights that are currently trainable, so that a later run does not
+    #' freeze weights again that were already unfrozen.
+    state_dict = function() {
+      list(trainable = private$.trainable_weights())
+    },
+    #' @description
+    #' Marks the weights of the state dict as trainable.
+    #' @param state_dict (named `list()`)\cr
+    #'   The state dict as retrieved via `$state_dict()`.
+    load_state_dict = function(state_dict) {
+      # the network is frozen according to `starting_weights` in $on_begin(), so the weights that
+      # were already unfrozen can only be restored afterwards
+      private$.prev_state = state_dict
+      if (!is.null(self$ctx) && !is.null(self$ctx$network)) private$.restore_trainable()
+      invisible(NULL)
     },
     #' @description
     #' Unfreezes weights if the training is at the correct epoch
@@ -84,6 +103,23 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
           }
         }
       }
+    }
+  ),
+  private = list(
+    .batchwise = NULL,
+    .prev_state = NULL,
+    .trainable_weights = function() {
+      params = self$ctx$network$parameters
+      names(params)[map_lgl(params, function(param) param$requires_grad)]
+    },
+    # this is applied both when the state is loaded and at the end of $on_begin(), because the order
+    # the callbacks run in is up to the user (see `$weight` of CallbackSet): whichever of the two
+    # runs last must have the final say, otherwise $on_begin() freezes the weights again
+    .restore_trainable = function() {
+      if (is.null(private$.prev_state)) return(NULL)
+      weights = intersect(private$.prev_state$trainable, names(self$ctx$network$parameters))
+      walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
+      lg$info(sprintf("Restoring the following trainable weights: %s", paste0(weights, collapse = ", ")))
     }
   )
 )

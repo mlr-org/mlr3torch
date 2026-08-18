@@ -158,11 +158,13 @@ test_that("cross entropy", {
   tsk_binary = tsk("iris")$filter(1:100)$droplevels()
   tsk_multi = tsk("iris")
 
-  expect_class(fn <<- loss_binary$generate(tsk_binary), "nn_bce_with_logits_loss")
+  fn = loss_binary$generate(tsk_binary)
+  expect_class(fn, "nn_bce_with_logits_loss")
   expect_equal(fn, nn_bce_with_logits_loss())
 
   loss_binary$param_set$set_values(class_weight = torch_tensor(1))
-  expect_class(fn <<- loss_binary$generate(tsk_binary), "nn_bce_with_logits_loss")
+  fn = loss_binary$generate(tsk_binary)
+  expect_class(fn, "nn_bce_with_logits_loss")
   expect_equal(fn, nn_bce_with_logits_loss(pos_weight = 1))
 
   loss_binary$param_set$set_values(ignore_index = 1)
@@ -170,19 +172,22 @@ test_that("cross entropy", {
   loss_binary$param_set$set_values(ignore_index = NULL, reduction = "sum")
   expect_class(loss_binary$generate(tsk_binary), "nn_bce_with_logits_loss")
 
-  l_multi = loss_multi$generate(tsk_multi)
-  expect_class(fn <- l_multi, "nn_cross_entropy_loss")
+  fn = loss_multi$generate(tsk_multi)
+  expect_class(fn, "nn_cross_entropy_loss")
   expect_equal(fn, nn_cross_entropy_loss())
 
   loss_multi$param_set$set_values(class_weight = torch_tensor(1))
-  expect_class(fn <<- loss_multi$generate(tsk_multi), "nn_cross_entropy_loss")
+  fn = loss_multi$generate(tsk_multi)
+  expect_class(fn, "nn_cross_entropy_loss")
   expect_equal(fn, nn_cross_entropy_loss(weight = 1))
 
   loss_multi$param_set$set_values(ignore_index = 3)
-  expect_class(fn <- loss_multi$generate(tsk_multi), "nn_cross_entropy_loss")
+  fn = loss_multi$generate(tsk_multi)
+  expect_class(fn, "nn_cross_entropy_loss")
   expect_equal(fn, nn_cross_entropy_loss(ignore_index = 3))
 
   loss_multi$param_set$set_values(ignore_index = NULL, reduction = "sum")
-  expect_class(fn <- loss_multi$generate(tsk_multi), "nn_cross_entropy_loss")
+  fn = loss_multi$generate(tsk_multi)
+  expect_class(fn, "nn_cross_entropy_loss")
   expect_equal(fn, nn_cross_entropy_loss(reduction = "sum"))
 })

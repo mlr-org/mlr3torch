@@ -57,8 +57,11 @@ PipeOpTorchTokenizerNum = R6Class("PipeOpTorchTokenizerNum",
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       if (length(shapes_in[[1]]) != 2) {
-        stopf("Numeric tokenizer expects 2 input dimensions, but got %i", length(shapes_in))
+        stopf("PipeOp '%s' expects an input with 2 dimensions (batch, n_features), but got shape %s.",
+          self$id, shape_to_str(shapes_in[[1L]]))
       }
+      # the number of features is needed to build the module
+      assert_known_dims(shapes_in[[1L]], 2L, "the feature dimension (dimension 2)", self$id)
       list(c(shapes_in[[1]], param_vals$d_token))
     }
   )
@@ -209,7 +212,7 @@ PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg",
         d_token = p_int(lower = 1, tags = c("train", "required")),
         bias = p_lgl(init = TRUE, tags = "train"),
         initialization = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = "train"),
-        cardinalities = p_int(lower = 1, tags = "train")
+        cardinalities = p_uty(tags = "train", custom_check = crate(function(x) check_integerish(x, lower = 1, min.len = 1L, any.missing = FALSE, null.ok = TRUE))) # nolint
       )
       super$initialize(
         id = id,
@@ -230,13 +233,44 @@ PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg",
         }
         return(param_vals)
       }
+      # the user may have supplied them, in which case they must not be passed twice
+      if (!is.null(param_vals$cardinalities)) {
+        return(param_vals)
+      }
+      # `$shapes_out()` rejects this too, but the module can also be built directly
+      if (is.null(task)) {
+        stopf("PipeOp '%s' needs to know the number of categories, but got neither a task nor the 'cardinalities' parameter.", # nolint
+          self$id)
+      }
       c(param_vals, list(cardinalities = unname(categ_cardinalities(task))))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      if (length(shapes_in[[1]]) != 2) {
-        stopf("Numeric tokenizer expects 2 input dimensions, but got %i", length(shapes_in))
+      assert_ndim(shapes_in[[1L]], 2L, self$id)
+      # The number of output tokens is the number of categories the module is built for, which
+      # comes from `cardinalities` (or the task), not from the input: the embedding is indexed
+      # with the category offsets, so a size-1 input dimension broadcasts against them.
+      cardinalities = param_vals[["cardinalities"]]
+      # the number of tokens is never unknown: without either source the module cannot be built
+      # at all, so this is a configuration error rather than a shape that is merely not known yet
+      if (is.null(cardinalities) && is.null(task)) {
+        stopf("PipeOp '%s' needs to know the number of categories, but got neither a task nor the 'cardinalities' parameter.", # nolint
+          self$id)
       }
-      list(c(shapes_in[[1]], param_vals$d_token))
+      n_tokens = if (!is.null(cardinalities)) length(cardinalities) else length(categ_cardinalities(task))
+      if (n_tokens == 0L) {
+        stopf("PipeOp '%s' needs categorical features, but task '%s' has none. Either use a task with factor features or set the 'cardinalities' parameter.", # nolint
+          self$id, task$id)
+      }
+      # The module adds one offset per categorical feature to the input, i.e. `(batch, n_features)`
+      # is added to `(1, n_tokens)`. torch broadcasts that only if `n_features` is `n_tokens` (one
+      # code per feature) or 1 (the same code looked up in every feature's block of the embedding);
+      # any other width fails at runtime.
+      n_features = shapes_in[[1L]][[2L]]
+      if (!is.na(n_features) && n_features != 1L && n_features != n_tokens) {
+        stopf("PipeOp '%s' was given %i cardinalities, which does not match the %i features of the input shape %s.", # nolint
+          self$id, n_tokens, n_features, shape_to_str(shapes_in[[1L]]))
+      }
+      list(c(shapes_in[[1L]][[1L]], as.integer(n_tokens), param_vals[["d_token"]]))
     }
   )
 )

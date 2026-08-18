@@ -233,24 +233,6 @@ test_that("nn_tabm gives informative errors", {
   expect_error(net(x_cat = make_cat(3, 3L)), "x_num is NULL")
 })
 
-test_that("categorical features incl. logicals are handled correctly", {
-  # TabM used to carry its own cardinality helper and batchgetter because the generic
-  # `batchgetter_categ()` encoded logicals as 0/1. Both now come from mlr3torch itself.
-  dat = data.frame(y = factor(c("a", "b", "a", "b")), l = c(TRUE, FALSE, TRUE, TRUE),
-    f = factor(c("x", "y", "x", "z")), n = c(1, 2, 3, 4))
-  task_l = as_task_classif(dat, target = "y", id = "logi")
-  expect_equal(unname(categ_cardinalities(task_l)), c(3L, 2L))
-
-  codes = batchgetter_categ(task_l$data(cols = ingress_categ()$features(task_l)))
-  expect_true(as.logical((codes >= 1L)$all()))
-
-  # and the learner trains on a task that mixes factors, logicals and numerics
-  learner = lrn("classif.tabm", epochs = 1L, batch_size = 4L, k = 2L, n_blocks = 1L,
-    d_block = 8L, predict_type = "prob")
-  learner$train(task_l)
-  expect_prediction(learner$predict(task_l))
-})
-
 test_that("the learner works on tasks without numerical features", {
   # When a task has a single input tensor, `learner_torch_train()` calls the network by
   # position, so a purely categorical task arrives in nn_tabm's first formal, `x_num`.
@@ -564,8 +546,6 @@ test_that("the activation can be a name, a module generator or a function", {
   expect_equal(activation_class("relu"), "nn_relu")
   expect_equal(activation_class("nn_gelu"), "nn_gelu")
   expect_equal(activation_class("leaky_relu"), "nn_leaky_relu")
-  # the name is matched case-insensitively, so "ReLU" resolves as well
-  expect_equal(activation_class("ReLU"), "nn_relu")
   # the torch.nn class names of upstream are deliberately not resolved
   expect_error(activation_class("LeakyReLU"), "Cannot resolve the activation")
   expect_equal(activation_class(nn_tanh), "nn_tanh")

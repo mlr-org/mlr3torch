@@ -61,7 +61,11 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     initialize = function(network = NULL, ingress_tokens = NULL, task_type, properties = NULL, optimizer = NULL, loss = NULL,
       callbacks = list(), packages = character(0), feature_types = NULL) {
       # we need to serialize here as otherwise encapsulation and parallelization fails
-      if (!is.null(network)) private$.network_stored = torch_serialize(assert_class(network, "nn_module"))
+      if (!is.null(network)) {
+        private$.network_stored = torch_serialize(assert_class(network, "nn_module"))
+        # comute this once so hash does not change after training
+        private$.network_hash = calculate_hash(private$.network_stored)
+      }
       if (!is.null(ingress_tokens)) self$ingress_tokens = ingress_tokens
       if (is.null(feature_types)) {
         feature_types = unname(mlr_reflections$task_feature_types)
@@ -85,7 +89,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
         param_set = ps(),
         feature_types = feature_types,
         jittable = TRUE,
-        man = "mlr3torch::mlr_learners.torch_model"
+        man = "mlr3torch::mlr_learners_torch_model"
       )
     }
   ),
@@ -120,6 +124,15 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
         torch_load(private$.network_stored)
       }
       private$.network_stored = NULL
+      if (isTRUE(private$.reset_parameters_)) {
+        # `PipeOpTorch` operators build their modules while the *Graph* trains, which happens before
+        # `LearnerTorch$.train()` sets the torch seed, so the weights of a graph-built network are
+        # drawn outside the seeded region and such a learner is not reproducible from `seed` alone.
+        # `.network()` runs inside that region, so re-initializing here puts the initialization back
+        # under the seed. Only `PipeOpTorchModel` sets this; a network handed to `LearnerTorchModel`
+        # directly is left alone, as its weights may be the point (e.g. a pretrained model).
+        network$reset_parameters()
+      }
       network
     },
     .dataset = function(task, param_vals) {
@@ -134,8 +147,11 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       )
     },
     .network_stored = NULL,
+    .network_hash = NULL,
+    # set by `PipeOpTorchModel`, see `.network()` above
+    .reset_parameters_ = FALSE,
     .additional_phash_input = function() {
-      list(self$properties, self$feature_types, private$.network_stored, self$packages, private$.ingress_tokens_)
+      list(self$properties, self$feature_types, private$.network_hash, self$packages, private$.ingress_tokens_)
      }
   )
 )

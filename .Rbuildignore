@@ -7,7 +7,6 @@
 ^\.github$
 ^LICENSE\.md$
 ^LICENSE$
-^attic$
 ^man-roxygen$
 ^mlr3torch\.Rcheck$
 ^mlr3torch.*\.tar\.gz$
@@ -24,6 +23,7 @@
 ^\.git$
 ^\.editorconfig$
 ^\.lintr$
+^jarl\.toml$
 ^info$
 ^README_files$
 ^TODO\.md$
@@ -38,3 +38,4 @@ data-raw
 ^paper$
 ^cran-comments\.md$
 ^\.claude$
+^TODOS\.md$

@@ -28,104 +28,32 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Parameters}{
 
 \itemize{
-\item \code{kernel_size} :: (\code{integer()})\cr
+\item \code{kernel_size} :: \code{integer()}\cr
 The size of the window. Can be a single number or a vector.
 \item \code{stride} :: \code{integer()}\cr
 The stride of the window. Can be a single number or a vector. Default: \code{kernel_size}.
 \item \code{padding} :: \code{integer()}\cr
 Implicit zero paddings on both sides of the input. Can be a single number or a vector. Default: 0.
-\item \code{ceil_mode} :: \code{integer()}\cr
+\item \code{ceil_mode} :: \code{logical(1)}\cr
 When \code{TRUE}, will use ceil instead of floor to compute the output shape. Default: \code{FALSE}.
 \item \code{count_include_pad} :: \code{logical(1)}\cr
 When \code{TRUE}, will include the zero-padding in the averaging calculation. Default: \code{TRUE}.
-\item \code{divisor_override} :: \code{logical(1)}\cr
+\item \code{divisor_override} :: \code{numeric(1)}\cr
 If specified, it will be used as divisor, otherwise size of the pooling region will be used. Default: NULL.
-Only available for dimension greater than 1.
+Only available for \code{nn_avg_pool2d} and \code{nn_avg_pool3d}, i.e. this parameter does not exist for
+\code{nn_avg_pool1d}.
 }
 }
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Construct the PipeOp
-pipeop = po("nn_avg_pool3d")
+pipeop = nn("avg_pool3d")
 pipeop
 # The available parameters
 pipeop$param_set
 \dontshow{\}) # examplesIf}
 }
-\seealso{
-Other PipeOps:
-\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
-\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
-\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
-\code{\link{mlr_pipeops_nn_avg_pool1d}},
-\code{\link{mlr_pipeops_nn_avg_pool2d}},
-\code{\link{mlr_pipeops_nn_batch_norm1d}},
-\code{\link{mlr_pipeops_nn_batch_norm2d}},
-\code{\link{mlr_pipeops_nn_batch_norm3d}},
-\code{\link{mlr_pipeops_nn_block}},
-\code{\link{mlr_pipeops_nn_celu}},
-\code{\link{mlr_pipeops_nn_conv1d}},
-\code{\link{mlr_pipeops_nn_conv2d}},
-\code{\link{mlr_pipeops_nn_conv3d}},
-\code{\link{mlr_pipeops_nn_conv_transpose1d}},
-\code{\link{mlr_pipeops_nn_conv_transpose2d}},
-\code{\link{mlr_pipeops_nn_conv_transpose3d}},
-\code{\link{mlr_pipeops_nn_dropout}},
-\code{\link{mlr_pipeops_nn_elu}},
-\code{\link{mlr_pipeops_nn_flatten}},
-\code{\link{mlr_pipeops_nn_ft_cls}},
-\code{\link{mlr_pipeops_nn_ft_transformer_block}},
-\code{\link{mlr_pipeops_nn_geglu}},
-\code{\link{mlr_pipeops_nn_gelu}},
-\code{\link{mlr_pipeops_nn_glu}},
-\code{\link{mlr_pipeops_nn_hardshrink}},
-\code{\link{mlr_pipeops_nn_hardsigmoid}},
-\code{\link{mlr_pipeops_nn_hardtanh}},
-\code{\link{mlr_pipeops_nn_head}},
-\code{\link{mlr_pipeops_nn_identity}},
-\code{\link{mlr_pipeops_nn_layer_norm}},
-\code{\link{mlr_pipeops_nn_leaky_relu}},
-\code{\link{mlr_pipeops_nn_linear}},
-\code{\link{mlr_pipeops_nn_log_sigmoid}},
-\code{\link{mlr_pipeops_nn_max_pool1d}},
-\code{\link{mlr_pipeops_nn_max_pool2d}},
-\code{\link{mlr_pipeops_nn_max_pool3d}},
-\code{\link{mlr_pipeops_nn_merge}},
-\code{\link{mlr_pipeops_nn_merge_cat}},
-\code{\link{mlr_pipeops_nn_merge_prod}},
-\code{\link{mlr_pipeops_nn_merge_sum}},
-\code{\link{mlr_pipeops_nn_multihead_attention}},
-\code{\link{mlr_pipeops_nn_prelu}},
-\code{\link{mlr_pipeops_nn_reglu}},
-\code{\link{mlr_pipeops_nn_relu}},
-\code{\link{mlr_pipeops_nn_relu6}},
-\code{\link{mlr_pipeops_nn_reshape}},
-\code{\link{mlr_pipeops_nn_rrelu}},
-\code{\link{mlr_pipeops_nn_selu}},
-\code{\link{mlr_pipeops_nn_sigmoid}},
-\code{\link{mlr_pipeops_nn_softmax}},
-\code{\link{mlr_pipeops_nn_softplus}},
-\code{\link{mlr_pipeops_nn_softshrink}},
-\code{\link{mlr_pipeops_nn_softsign}},
-\code{\link{mlr_pipeops_nn_squeeze}},
-\code{\link{mlr_pipeops_nn_tanh}},
-\code{\link{mlr_pipeops_nn_tanhshrink}},
-\code{\link{mlr_pipeops_nn_threshold}},
-\code{\link{mlr_pipeops_nn_tokenizer_categ}},
-\code{\link{mlr_pipeops_nn_tokenizer_num}},
-\code{\link{mlr_pipeops_nn_unsqueeze}},
-\code{\link{mlr_pipeops_torch_ingress}},
-\code{\link{mlr_pipeops_torch_ingress_categ}},
-\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
-\code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{mlr_pipeops_torch_loss}},
-\code{\link{mlr_pipeops_torch_model}},
-\code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}},
-\code{\link{mlr_pipeops_torch_model_torch}}
-}
-\concept{PipeOps}
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{PipeOpTorch}} -> \code{PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool3D}
 }

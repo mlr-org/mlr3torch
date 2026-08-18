@@ -14,8 +14,8 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
   self$network$to(device = param_vals$device)
   self$network$eval()
   data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
-  predict_tensor = torch_network_predict(self$network, data_loader, device = param_vals$device)
-  private$.encode_prediction(predict_tensor = predict_tensor, task = task)
+  network_output = torch_network_predict(self$network, data_loader, device = param_vals$device)
+  private$.encode_prediction(network_output = network_output, task = task)
 }
 
 learner_torch_train = function(self, private, super, task, param_vals) {
@@ -50,7 +50,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   measures_valid = normalize_to_list(param_vals$measures_valid)
 
   if (length(measures_valid) && is.null(self$validate)) {
-    stopf("Learner '%s' has measures_valid set, but its validate field is NULL. If this is happening in an AutoTuner, you probably forgot to set epochs = to_tune(upper = <max_epochs>, internal = TRUE).", self$id) # nolint
+    stopf("Learner '%s' has measures_valid set, but its validate field is NULL. Configure validation data, e.g. via set_validate(learner, 0.3) or set_validate(learner, \"test\"). If this is happening in an AutoTuner, you may also have forgotten to set epochs = to_tune(upper = <max_epochs>, internal = TRUE).", self$id) # nolint
   }
   if (!length(measures_valid) && param_vals$patience != 0) {
     stopf("Learner '%s' has a non 0 patience parameter but has no measures_valid set.", self$id)
@@ -98,7 +98,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (param_vals$patience > 0L) {
     es = CallbackSetEarlyStopping$new(
       patience = param_vals$patience,
-      min_delta = param_vals$min_delta
+      min_delta = param_vals$min_delta,
+      restore_best_weights = param_vals$restore_best_weights
     )
     es$ctx = ctx
 
@@ -115,6 +116,19 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 
 
 train_loop = function(ctx, cbs) {
+  # callbacks are called in the order they were passed, unless they request otherwise via their
+  # weight. CallbackSetCheckpoint has weight Inf so that it saves the network and optimizer as the
+  # other callbacks left them at the end of the stage.
+  # order() breaks ties by the second argument, which keeps the order the callbacks were passed in.
+  weights = map_dbl(seq_along(cbs), function(i) {
+    assert_number(cbs[[i]]$weight, .var.name = sprintf("weight of callback '%s'", names(cbs)[[i]] %??% i))
+  })
+  cbs = cbs[order(weights, seq_along(cbs))]
+
+  # callbacks such as CallbackSetCheckpoint need access to the other callbacks to save their states,
+  # in the order they are called in
+  ctx$callbacks = cbs
+
   call = function(step_name) {
     lapply(cbs, function(x) {
       if (exists(step_name, x, inherits = FALSE)) {
@@ -131,13 +145,14 @@ train_loop = function(ctx, cbs) {
   }, add = TRUE)
 
 
+  # if we increment epoch at the end of the loop it has the wrong value
+  # during the final two callback stages
+  ctx$epoch = 0L
+
   call("on_begin")
 
   ctx$network$train()
 
-  # if we increment epoch at the end of the loop it has the wrong value
-  # during the final two callback stages
-  ctx$epoch = 0L
   while (ctx$epoch < ctx$total_epochs) {
     ctx$epoch = ctx$epoch + 1
     call("on_epoch_begin")
@@ -167,9 +182,10 @@ train_loop = function(ctx, cbs) {
       } else {
         do.call(ctx$network, ctx$batch$x)
       }
-      # A network with auxiliary classifiers returns one prediction per classifier, of which the
-      # first one is the primary prediction, see the section 'Network Head and Target Encoding'
-      # of `LearnerTorch`. `y_hat` is always that primary prediction, `y_hats` the complete output.
+      # A network can return more than one tensor, see the section 'Network Head and Target
+      # Encoding' of `LearnerTorch`. `y_hats` is that complete output, which the loss is applied
+      # to and which the predictions are encoded from; `y_hat` is its first element, which is
+      # offered to callbacks as a convenience.
       ctx$y_hat = if (is.list(ctx$y_hats)) ctx$y_hats[[1L]] else ctx$y_hats
 
       loss = ctx$loss_fn(ctx$y_hats, ctx$batch$y)
@@ -180,7 +196,14 @@ train_loop = function(ctx, cbs) {
 
       ctx$last_loss = loss$item()
       if (eval_train) {
-        predictions[[length(predictions) + 1]] = ctx$y_hat$detach()
+        # The complete output is kept, so `.encode_prediction()` sees the same structure that it
+        # sees when predicting. Networks whose extra tensors are training-only, such as auxiliary
+        # classifiers, have to reduce them in their `.encode_prediction()` method.
+        predictions[[length(predictions) + 1]] = if (is.list(ctx$y_hats)) {
+          lapply(ctx$y_hats, function(y_hat) y_hat$detach())
+        } else {
+          ctx$y_hats$detach()
+        }
         indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
       }
       ctx$optimizer$step()
@@ -190,7 +213,7 @@ train_loop = function(ctx, cbs) {
 
     ctx$last_scores_train = if (eval_train) {
       measure_prediction(
-        pred_tensor = torch_cat(predictions, dim = 1L),
+        network_output = cat_predictions(predictions),
         measures = ctx$measures_train,
         task = ctx$task_train,
         row_ids = ctx$task_train$row_ids[unlist(indices)],
@@ -201,9 +224,9 @@ train_loop = function(ctx, cbs) {
     call("on_before_valid")
     if (eval_valid_in_epoch(ctx)) {
       ctx$network$eval()
-      pred_tensor = torch_network_predict_valid(ctx, call)
+      network_output = torch_network_predict_valid(ctx, call)
       ctx$last_scores_valid = measure_prediction(
-        pred_tensor = pred_tensor,
+        network_output = network_output,
         measures = ctx$measures_valid,
         task = ctx$task_valid,
         row_ids = ctx$task_valid$row_ids,
@@ -270,7 +293,7 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
 
     callback_receiver("on_batch_valid_end")
   }
-  torch_cat(predictions, dim = 1L)
+  cat_predictions(predictions)
 }
 
 torch_network_predict = function(network, loader, device) {
@@ -292,7 +315,41 @@ torch_network_predict = function(network, loader, device) {
     }
 
   }
-  torch_cat(predictions, dim = 1L)
+  cat_predictions(predictions)
+}
+
+# The network's evaluation-mode output is what `encode_prediction()` receives: either a single
+# tensor or, for a network with more than one head, a `list()` of them. The batches are concatenated
+# head-wise, so the encoder sees the same structure it would see for a single batch.
+cat_predictions = function(predictions) {
+  first = predictions[[1L]]
+  if (!is.list(first)) {
+    return(torch_cat(predictions, dim = 1L))
+  }
+  if (!length(first)) {
+    stopf("The network returned an empty list, it must return a tensor or a non-empty list of tensors.")
+  }
+  ok = map_lgl(predictions, function(batch) is.list(batch) && length(batch) == length(first))
+  if (!all(ok)) {
+    stopf("The network returned %i tensors for the first batch but something else for batch %i, it must return the same number of tensors for every batch.", length(first), which(!ok)[[1L]]) # nolint
+  }
+  heads = lapply(seq_along(first), function(i) {
+    torch_cat(lapply(predictions, function(batch) batch[[i]]), dim = 1L)
+  })
+  names(heads) = names(first)
+  heads
+}
+
+# The built-in task types have a single network head, so a one-element list is unwrapped and
+# anything longer is an output that these encodings cannot interpret.
+assert_single_head = function(network_output, task) {
+  if (!is.list(network_output)) {
+    return(network_output)
+  }
+  if (length(network_output) != 1L) {
+    stopf("The network returned %i tensors, but the prediction encoding for task type '%s' expects a single one. Overwrite the learner's private `.encode_prediction()` method to combine them.", length(network_output), task$task_type) # nolint
+  }
+  network_output[[1L]]
 }
 
 #' @title Encode the Network Output as a Prediction
@@ -313,25 +370,29 @@ torch_network_predict = function(network, loader, device) {
 #'
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   The task to predict on.
-#' @param predict_tensor ([`torch_tensor`][torch::torch_tensor])\cr
-#'   The raw output of the network.
+#' @param network_output ([`torch_tensor`][torch::torch_tensor] or `list()` of them)\cr
+#'   The raw output of the network in evaluation mode.
+#'   A network with more than one head -- e.g. one predicting a mean and a standard deviation --
+#'   returns a `list()` of tensors, which is passed on unchanged.
+#'   The encodings of the built-in task types expect a single tensor.
 #' @param predict_type (`character(1)`)\cr
 #'   The predict type of the learner, e.g. `"response"` or `"prob"`.
 #' @param ... (any)\cr
 #'   Additional arguments. Not used yet.
 #' @return named `list()`
 #' @export
-encode_prediction = function(task, predict_tensor, predict_type, ...) {
+encode_prediction = function(task, network_output, predict_type, ...) {
   UseMethod("encode_prediction")
 }
 
 #' @export
-encode_prediction.default = function(task, predict_tensor, predict_type, ...) { # nolint
+encode_prediction.default = function(task, network_output, predict_type, ...) { # nolint
   stopf("No prediction encoding available for task type '%s', implement an `encode_prediction()` method for class '%s' or overwrite the learner's private `.encode_prediction()` method.", task$task_type, class(task)[[1L]]) # nolint
 }
 
 #' @export
-encode_prediction.TaskClassif = function(task, predict_tensor, predict_type, ...) { # nolint
+encode_prediction.TaskClassif = function(task, network_output, predict_type, ...) { # nolint
+  network_output = assert_single_head(network_output, task)
   # here we assume that the levels of the factors are never reordered!
   # This is important as otherwise all hell breaks loose
   # Currently this check is done in mlr3torch but should at some point be handled in mlr3 / mlr3pipelines
@@ -339,14 +400,14 @@ encode_prediction.TaskClassif = function(task, predict_tensor, predict_type, ...
   response = prob = NULL
   if ("multiclass" %in% task$properties) {
     if (predict_type == "prob") {
-      predict_tensor = with_no_grad(nnf_softmax(predict_tensor, dim = 2L))
+      network_output = with_no_grad(nnf_softmax(network_output, dim = 2L))
     }
     # We still execute the argmax on the device before converting to R
-    response = as.integer(with_no_grad(predict_tensor$argmax(dim = 2L))$to(device = "cpu"))
+    response = as.integer(with_no_grad(network_output$argmax(dim = 2L))$to(device = "cpu"))
 
-    predict_tensor = predict_tensor$to(device = "cpu")
+    network_output = network_output$to(device = "cpu")
     prob = if (predict_type == "prob") {
-      prob = as.matrix(predict_tensor)
+      prob = as.matrix(network_output)
       colnames(prob) = task$class_names
       prob
     }
@@ -357,14 +418,14 @@ encode_prediction.TaskClassif = function(task, predict_tensor, predict_type, ...
   } else {
     # binary:
     # (first factor level is positive class)
-    response = as.integer(with_no_grad(predict_tensor < 0)$to(device = "cpu") + 1)
+    response = as.integer(with_no_grad(network_output < 0)$to(device = "cpu") + 1)
     class(response) = "factor"
     levels(response) = task$class_names
 
     prob = if (predict_type == "prob") {
       # convert score to prob
-      predict_tensor = with_no_grad(nnf_sigmoid(predict_tensor))
-      prob = as.numeric(predict_tensor)
+      network_output = with_no_grad(nnf_sigmoid(network_output))
+      prob = as.numeric(network_output)
       prob = as.matrix(data.frame(prob, 1 - prob))
       colnames(prob) = task$class_names
       prob
@@ -375,20 +436,20 @@ encode_prediction.TaskClassif = function(task, predict_tensor, predict_type, ...
 }
 
 #' @export
-encode_prediction.TaskRegr = function(task, predict_tensor, predict_type, ...) { # nolint
+encode_prediction.TaskRegr = function(task, network_output, predict_type, ...) { # nolint
   if (predict_type != "response") {
     stopf("Invalid predict_type for task_type 'regr'.")
   }
-  list(response = as.numeric(predict_tensor))
+  list(response = as.numeric(assert_single_head(network_output, task)))
 }
 
 
-measure_prediction = function(pred_tensor, measures, task, row_ids, prediction_encoder) {
+measure_prediction = function(network_output, measures, task, row_ids, prediction_encoder) {
   if (!length(measures)) {
     return(structure(list(), names = character(0)))
   }
 
-  prediction = prediction_encoder(predict_tensor = pred_tensor, task = task)
+  prediction = prediction_encoder(network_output = network_output, task = task)
   prediction = as_prediction_data(prediction, task = task, check = FALSE, row_ids = row_ids)
   prediction = as_prediction(prediction, task = task, check = FALSE)
 
@@ -411,4 +472,25 @@ as_multi_tensor_dataset = function(dataset, param_vals) {
   } else {
     dataset
   }
+}
+
+#' @export
+print.learner_torch_model = function(x, ...) {
+  n_params = if (!is.null(x$network)) sum(map_dbl(x$network$parameters, function(p) prod(dim(p))))
+
+  catn(sprintf("<learner_torch_model> trained for %s epoch%s",
+    x$epochs %??% "?", if (isTRUE(x$epochs == 1)) "" else "s"))
+  catn(str_indent("* Network: ", if (is.null(x$network)) {
+    "- (the model is marshaled)"
+  } else {
+    sprintf("<%s> with %s parameters", class(x$network)[[1L]], format(n_params, big.mark = ","))
+  }))
+  catn(str_indent("* Callbacks: ", if (length(x$callbacks)) paste0(names(x$callbacks), collapse = ", ") else "-"))
+  if (length(x$internal_valid_scores)) {
+    scores = sprintf("%s = %s", names(x$internal_valid_scores),
+      format(unlist(x$internal_valid_scores), digits = 4L))
+    catn(str_indent("* Validation scores: ", paste0(scores, collapse = ", ")))
+  }
+  catn(str_indent("* Fields: ", paste0(names(x), collapse = ", ")))
+  invisible(x)
 }

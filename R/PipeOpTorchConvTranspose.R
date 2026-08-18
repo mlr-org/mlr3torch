@@ -12,7 +12,7 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
       check_vector = make_check_vector(d)
       param_set = ps(
         out_channels = p_int(lower = 1L, tags = c("required", "train")),
-        kernel_size = p_uty(custom_check = check_vector, tags = c("required", "train")),
+        kernel_size = p_uty(custom_check = make_check_vector(d, null_ok = FALSE), tags = c("required", "train")),
         stride = p_uty(default = 1L, custom_check = check_vector, tags = "train"),
         padding = p_uty(default = 0L, custom_check = check_vector, tags = "train"),
         output_padding = p_uty(default = 0L, custom_check = check_vector, tags = "train"),
@@ -39,16 +39,21 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
       list(private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      list(conv_transpose_output_shape(
+      # (batch, channel, spatial dims..)
+      assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
+      shape_out = conv_transpose_output_shape(
         shape_in = shapes_in[[1]],
         dim = private$.d,
-        padding = param_vals$padding %??% 0,
-        dilation = param_vals$dilation %??% 1,
-        stride = param_vals$stride %??% 1,
-        kernel_size = param_vals$kernel_size,
-        output_padding = param_vals$output_padding %??% 0,
-        out_channels = param_vals$out_channels
-      ))
+        padding = param_vals[["padding"]] %??% 0,
+        dilation = param_vals[["dilation"]] %??% 1,
+        stride = param_vals[["stride"]] %??% 1,
+        kernel_size = param_vals[["kernel_size"]],
+        output_padding = param_vals[["output_padding"]] %??% 0,
+        out_channels = param_vals[["out_channels"]],
+        id = self$id
+      )
+      assert_known_dims(shapes_in[[1L]], 2L, "the channel dimension (dimension 2)", self$id)
+      list(shape_out)
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       c(param_vals, in_channels = unname(shapes_in[[1L]][2L]))
@@ -71,9 +76,9 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #'   Size of the convolving kernel.
 #' * `stride` :: `integer()`\cr
 #'   Stride of the convolution. Default: 1.
-#' * `padding` :: ` `integer()`\cr
-#'  `dilation * (kernel_size - 1) - padding` zero-padding will be added to both sides of the input. Default: 0.
-#' * `output_padding` ::`integer()`\cr
+#' * `padding` :: `integer()`\cr
+#'   `dilation * (kernel_size - 1) - padding` zero-padding will be added to both sides of the input. Default: 0.
+#' * `output_padding` :: `integer()`\cr
 #'   Additional size added to one side of the output shape. Default: 0.
 #' * `groups` :: `integer()`\cr
 #'   Number of blocked connections from input channels to output channels. Default: 1
@@ -160,15 +165,9 @@ register_po("nn_conv_transpose2d", PipeOpTorchConvTranspose2D)
 register_po("nn_conv_transpose3d", PipeOpTorchConvTranspose3D)
 
 conv_transpose_output_shape = function(shape_in, dim, padding, dilation, stride, kernel_size, output_padding,
-  out_channels) {
-  assert_integerish(shape_in, min.len = dim + 1L)
-
-  if (length(shape_in) ==  dim + 1L) {
-    warningf("The input tensor has no batch dimension")
-    batch_dimension = integer(0)
-  } else {
-    batch_dimension = shape_in[1L]
-  }
+  out_channels, id = NULL) {
+  # the batch dimension is part of the contract, as in `conv_output_shape()`
+  assert_integerish(shape_in, len = dim + 2L)
 
   if (length(padding) == 1) padding = rep(padding, dim)
   if (length(dilation) == 1) dilation = rep(dilation, dim)
@@ -177,7 +176,7 @@ conv_transpose_output_shape = function(shape_in, dim, padding, dilation, stride,
   if (length(output_padding) == 1) output_padding = rep(output_padding, dim)
 
   shape_tail = utils::tail(shape_in, dim)
-  c(batch_dimension, out_channels,
-    (shape_tail - 1) * stride - 2 * padding + dilation * (kernel_size - 1) + output_padding + 1
-  )
+  spatial = (shape_tail - 1) * stride - 2 * padding + dilation * (kernel_size - 1) + output_padding + 1
+  assert_positive_extent(spatial, shape_in, id)
+  c(shape_in[1L], out_channels, spatial)
 }

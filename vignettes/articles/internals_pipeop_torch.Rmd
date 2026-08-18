@@ -175,7 +175,7 @@ The `$pointer` identifies the output of the `$graph` that `PipeOpTorch` will ext
 Piping this `ModelDescriptor` through `PipeOpTorchLinear`, for example, adds a `PipeOpModule` wrapping a `torch::nn_linear`.
 
 ```{r}
-po_torch_linear = po("nn_linear", out_features = 4)
+po_torch_linear = nn("linear", out_features = 4)
 md = po_torch_linear$train(list(md))[[1]]
 
 md$graph
@@ -227,10 +227,10 @@ The sequential NN from above can easily be implemented as follows:
 
 ```{r}
 graph_generator = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 4, id = "linear1") %>>%
-    po("nn_sigmoid") %>>%
-  po("nn_linear", out_features = 3, id = "linear2") %>>%
-  po("nn_softmax", dim = 2)
+  nn("linear", out_features = 4, id = "linear1") %>>%
+    nn("sigmoid") %>>%
+  nn("linear", out_features = 3, id = "linear2") %>>%
+  nn("softmax", dim = 2)
 ```
 
 Note how the second `nn_linear` does not need to be informed about the output dimension of the first `nn_linear`, since the `ModelDescriptor` that is passed along the `Graph` edges knows this info (in the `$pointer_shape` slot).
@@ -259,26 +259,26 @@ iris_sepal = tsk("iris")$select(c("Sepal.Length", "Sepal.Width"))
 
 ```{r, fig.show = 'hide'}
 graph_sepal = po("torch_ingress_num", id = "sepal.in") %>>%
-  po("nn_linear", out_features = 4, id = "linear1")
+  nn("linear", out_features = 4, id = "linear1")
 
 graph_petal = po("torch_ingress_num", id = "petal.in") %>>%
-  po("nn_linear", out_features = 3, id = "linear2") %>>%
-  po("nn_tanh") %>>%
-  po("nn_linear", out_features = 5, id = "linear3")
+  nn("linear", out_features = 3, id = "linear2") %>>%
+  nn("tanh") %>>%
+  nn("linear", out_features = 5, id = "linear3")
 
 graph_common = ppl("branch", graphs = list(
-    sigmoid = po("nn_sigmoid"),
-    relu = po("nn_relu")
+    sigmoid = nn("sigmoid"),
+    relu = nn("relu")
   )) %>>%
   gunion(list(
-    po("nn_linear", out_features = 1, id = "lin_out"),
-    po("nn_linear", out_features = 3, id = "cat_out") %>>%
-      po("nn_softmax", dim = 2)
+    nn("linear", out_features = 1, id = "lin_out"),
+    nn("linear", out_features = 3, id = "cat_out") %>>%
+      nn("softmax", dim = 2)
   ))
 
 
 graph_iris = gunion(list(graph_sepal, graph_petal)) %>>%
-  po("nn_merge_cat") %>>%
+  nn("merge_cat") %>>%
   graph_common
 
 graph_iris$plot(html = TRUE)
@@ -315,11 +315,11 @@ We make multiple observations here:
     graph_iris$pipeops$linear3$.result[[1]]$pointer_shape
     ```
 
-    `po("nn_merge_cat")` unites the two `ModelDescriptor`s and contains the common ingress. The `pointer_shape` now reflects the output of the "cat"-operation: the 2nd dimension is added up:
+    `nn("merge_cat")` unites the two `ModelDescriptor`s and contains the common ingress. The `pointer_shape` now reflects the output of the "cat"-operation: the 2nd dimension is added up:
 
     ```{r}
-    graph_iris$pipeops$nn_merge_cat$.result[[1]]$ingress
-    graph_iris$pipeops$nn_merge_cat$.result[[1]]$pointer_shape
+    graph_iris$pipeops$merge_cat$.result[[1]]$ingress
+    graph_iris$pipeops$merge_cat$.result[[1]]$pointer_shape
     ```
 1. Multiple `ModelDescriptor`s were created, since the `graph_iris` has multiple outpus.
    This makes it possible to create a neural network with multiple outputs.
@@ -371,10 +371,10 @@ We make multiple observations here:
     iris_module$graph$pipeops$linear1$.result
     iris_module$graph$pipeops$linear3$.result
     ```
-    We observe that the `po("nn_merge_cat")` concatenates these, as expected:
+    We observe that the `nn("merge_cat")` concatenates these, as expected:
 
     ```{r}
-    iris_module$graph$pipeops$nn_merge_cat$.result
+    iris_module$graph$pipeops$merge_cat$.result
     ```
 
 # Building Torch Learners
@@ -447,8 +447,8 @@ predictions = lr_sequential$predict_newdata(newdata)
 plot_predictions = function(predictions) {
   ggplot(cbind(newdata, Species = predictions$response),
       aes(x = Sepal.Length, y = Petal.Length, fill = Species)) +
-    geom_tile(alpha = .3) +
-    geom_tile(alpha = .3) +
+    geom_tile(alpha = 0.3) +
+    geom_tile(alpha = 0.3) +
     geom_point(data = iris,
       aes(x = Sepal.Length, y = Petal.Length, fill = Species),
       color = "black", pch = 21, size = 3) +
@@ -527,12 +527,12 @@ The following uses one more hidden layer than before:
 
 ```{r}
 graph_sequential_full = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 4, id = "linear1") %>>%
-    po("nn_sigmoid") %>>%
-    po("nn_linear", out_features = 3, id = "linear2") %>>%
-    po("nn_softmax", dim = 2, id = "softmax") %>>%
-    po("nn_linear", out_features = 3, id = "linear3") %>>%
-    po("nn_softmax", dim = 2, id = "softmax2") %>>%
+  nn("linear", out_features = 4, id = "linear1") %>>%
+    nn("sigmoid") %>>%
+    nn("linear", out_features = 3, id = "linear2") %>>%
+    nn("softmax", dim = 2, id = "softmax") %>>%
+    nn("linear", out_features = 3, id = "linear3") %>>%
+    nn("softmax", dim = 2, id = "softmax2") %>>%
     po("torch_optimizer", optimizer = adam) %>>%
     po("torch_loss", loss = xe) %>>%
     po("torch_callbacks", callbacks = history) %>>%
@@ -570,10 +570,10 @@ We are not just limited to `PipeOpTorch` in these kinds of `Graph`s, and we are 
 ```{r, fig.show = 'hide'}
 gr = po("select", selector = selector_name("Petal.Length")) %>>%
   po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 5, id = "linear1") %>>%
-  po("nn_relu") %>>%
-  po("nn_linear", out_features = 3, id = "linear2") %>>%
-  po("nn_softmax", dim = 2) %>>%
+  nn("linear", out_features = 5, id = "linear1") %>>%
+  nn("relu") %>>%
+  nn("linear", out_features = 3, id = "linear2") %>>%
+  nn("softmax", dim = 2) %>>%
   po("torch_optimizer", optimizer = adam) %>>%
   po("torch_loss", loss = xe) %>>%
   po("torch_model_classif", batch_size = 50, epochs = 50)
@@ -595,15 +595,15 @@ How about using `Petal.Length` and `Sepal.Length` separately at first?
 gr = gunion(list(
       po("select", selector = selector_name("Petal.Length"), id = "sel1") %>>%
         po("torch_ingress_num", id = "ingress.petal") %>>%
-        po("nn_linear", out_features = 3, id = "linear1"),
+        nn("linear", out_features = 3, id = "linear1"),
       po("select", selector = selector_name("Sepal.Length"), id = "sel2") %>>%
         po("torch_ingress_num", id = "ingress.sepal") %>>%
-        po("nn_linear", out_features = 3, id = "linear2")
+        nn("linear", out_features = 3, id = "linear2")
     )) %>>%
-    po("nn_merge_cat")  %>>%
-    po("nn_relu", id = "act1") %>>%
-    po("nn_linear", out_features = 3, id = "linear3") %>>%
-    po("nn_softmax", dim = 2, id = "act3") %>>%
+    nn("merge_cat")  %>>%
+    nn("relu", id = "act1") %>>%
+    nn("linear", out_features = 3, id = "linear3") %>>%
+    nn("softmax", dim = 2, id = "act3") %>>%
     po("torch_optimizer", optimizer = adam, lr = 0.1) %>>%
     po("torch_loss", loss = xe) %>>%
     po("torch_model_classif", batch_size = 50, epochs = 50)

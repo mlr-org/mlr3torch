@@ -6,7 +6,7 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
       module_generator = switch(d, nn_adaptive_avg_pool1d, nn_adaptive_avg_pool2d, nn_adaptive_avg_pool3d)
       check_vector = make_check_vector(private$.d)
       param_set = ps(
-        output_size = p_uty(custom_check = check_vector, tags = c("required", "train"))
+        output_size = p_uty(custom_check = make_check_vector(private$.d, null_ok = FALSE), tags = c("required", "train"))
       )
 
       super$initialize(
@@ -22,27 +22,26 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
       list(private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
+      # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`.
+      assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
       list(adaptive_avg_output_shape(
         shape_in = shapes_in[[1]],
         conv_dim = private$.d,
-        output_size = param_vals$output_size
+        output_size = param_vals[["output_size"]],
+        id = self$id
       ))
     },
     .d = NULL
   )
 )
 
-adaptive_avg_output_shape = function(shape_in, conv_dim, output_size) {
-  shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
+adaptive_avg_output_shape = function(shape_in, conv_dim, output_size, id = NULL) {
+  shape_in = assert_integerish(shape_in, len = conv_dim + 2L, coerce = TRUE)
 
   if (length(output_size) == 1) output_size = rep(output_size, conv_dim)
 
-  shape_head = utils::head(shape_in, -conv_dim)
-  if (length(shape_head) <= 1) warningf("Input tensor does not have batch dimension.")
-
-  shape_tail = output_size
-
-  c(shape_head, shape_tail)
+  assert_positive_extent(output_size, shape_in, id)
+  c(utils::head(shape_in, 2L), output_size)
 }
 
 #' @title 1D Adaptive Average Pooling

@@ -19,7 +19,6 @@
 #' The purpuse of this is to store the information on how to construct the torch dataloader from the task for this
 #' entry point of the network.
 #'
-#' @family PipeOps
 #' @family Graph Network
 #' @export
 PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
@@ -262,7 +261,6 @@ print.TorchIngressToken = function(x, ...) {
 #'
 #' @export
 #' @family Graph Network
-#' @family PipeOps
 #' @examplesIf torch::torch_is_installed()
 # We select the numeric features first
 #' graph = po("select", selector = selector_type(c("numeric", "integer"))) %>>%
@@ -310,7 +308,6 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 #'   with unsupported feature types.
 #' @section Internals:
 #' Uses [`batchgetter_categ()`].
-#' @family PipeOps
 #' @family Graph Network
 #' @export
 #' @examplesIf torch::torch_is_installed()
@@ -360,7 +357,6 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #'
 #' @section Internals:
 #' The returned batchgetter materializes the lazy tensor column to a tensor.
-#' @family PipeOps
 #' @family Graph Network
 #' @export
 #' @include utils.R shape.R

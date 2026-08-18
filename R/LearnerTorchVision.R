@@ -119,6 +119,19 @@ LearnerTorchVision = R6Class("LearnerTorchVision",
   )
 )
 
+# During training the network outputs an auxiliary prediction for the loss
+LearnerTorchInceptionV3 = R6Class("LearnerTorchInceptionV3",
+  inherit = LearnerTorchVision,
+  private = list(
+    .encode_prediction = function(network_output, task) {
+      if (is.list(network_output)) {
+        network_output = network_output[[1L]]
+      }
+      super$.encode_prediction(network_output = network_output, task = task)
+    }
+  )
+)
+
 #' @export
 replace_head.AlexNet = function(network, d_out) {
   network$classifier$`6` = torch::nn_linear(
@@ -166,7 +179,8 @@ replace_head.maxvit = function(network, d_out) {
 
 #' @export
 replace_head.mobilenet_v2 = function(network, d_out) {
-  network$classifier$`1` = nn_linear(1280, d_out)
+  # not hardcoded to 1280: `width_mult` above 1 widens the last channel, e.g. 1792 for 1.4
+  network$classifier$`1` = nn_linear(network$classifier$`1`$in_features, d_out)
   network
 }
 
@@ -185,7 +199,7 @@ replace_head.resnet = function(network, d_out) {
 
 #' @export
 replace_head.VGG = function(network, d_out) {
-  network$classifier$`6` = nn_linear(4096, d_out)
+  network$classifier$`6` = nn_linear(network$classifier$`6`$in_features, d_out)
   network
 }
 
@@ -195,12 +209,6 @@ replace_head.vit_model = function(network, d_out) {
   network
 }
 
-# Wraps a loss so that it can be applied to a network that returns more than one prediction. The
-# first prediction is the primary one, the remaining ones come from auxiliary classifiers and are
-# added with weight `aux_weight`.
-# This is only applied during training, where the auxiliary classifiers are active: the loss is
-# not evaluated when predicting, and the validation scores are calculated from the predictions of
-# the network, not from the loss.
 nn_aux_loss = nn_module("nn_aux_loss",
   initialize = function(base_loss, aux_weight = 0.4) {
     self$base_loss = assert_class(base_loss, "nn_module")
@@ -286,13 +294,8 @@ torchvision_models = local({
     tvm("convnext_small_22k", "model_convnext_small_22k", "ConvNeXt-S (ImageNet-22k)",
       "ConvNeXt", "liu2022convnet", "models-convnext.R",
       min_size = 32L),
-    # `classif.convnext_small_22k1k` is not registered, because `model_convnext_small_22k1k()`
-    # cannot load its own pretrained weights: the model is fine-tuned on ImageNet-1k and its
-    # weights have a 1000-class head, but torchvision builds it with `num_classes = 21841`, so
-    # loading the state dict fails with "The size of tensor a (21841) must match the size of
-    # tensor b (1000)". Passing `num_classes` does not help, because torchvision loads the state
-    # dict with `strict = FALSE`, which `load_state_dict()` of torch for R does not support.
-    # Re-enable this once torchvision has fixed the default.
+    # `classif.convnext_small_22k1k` has an upstream bug that is fixed in main:
+    # https://github.com/mlverse/torchvision/commit/299b8a8e2b0d87ee69fd35b109c0bd8b19e55961
     # tvm("convnext_small_22k1k", "model_convnext_small_22k1k",
     #   "ConvNeXt-S (ImageNet-22k, fine-tuned on ImageNet-1k)",
     #   "ConvNeXt", "liu2022convnet", "models-convnext.R",
@@ -432,6 +435,12 @@ torchvision_bib_keys = function(bib) {
 # Parameters that some of the networks have in addition to `pretrained`. `network_args` lists
 # those that are forwarded to the module generator, the remaining ones are interpreted by the
 # learner itself, see the `.network()` and `.loss_fn()` methods of `LearnerTorchVision`.
+# The learners that need more than `LearnerTorchVision` does; all others are registered with the
+# base class itself.
+torchvision_learner_classes = list(
+  inception_v3 = LearnerTorchInceptionV3
+)
+
 torchvision_extra_params = list(
   inception_v3 = function() {
     list(
@@ -455,10 +464,11 @@ local({
       label = torchvision_models$label[i]
       jittable = torchvision_models$jittable[i]
       extra_params = torchvision_extra_params[[id]]
+      learner_class = torchvision_learner_classes[[id]] %??% LearnerTorchVision
       register_learner(paste0("classif.", id),
         function(loss = NULL, optimizer = NULL, callbacks = list()) {
           extra = if (!is.null(extra_params)) extra_params()
-          LearnerTorchVision$new(id, torchvision_module_generator(generator), label,
+          learner_class$new(id, torchvision_module_generator(generator), label,
             loss = loss, optimizer = optimizer, callbacks = callbacks, jittable = jittable,
             extra_param_set = extra$param_set, network_args = extra$network_args %??% character(0))
         }

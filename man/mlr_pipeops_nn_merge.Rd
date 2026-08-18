@@ -26,88 +26,18 @@ For an explanation see \code{\link{PipeOpTorch}}.
 
 \section{Internals}{
 
-Per default, the \code{private$.shapes_out()} method outputs the broadcasted tensors. There are two things to be aware:
+Per default, the \code{private$.shapes_out()} method outputs the shape that the inputs broadcast to.
+There are two things to be aware of:
 \enumerate{
-\item \code{NA}s are assumed to batch (this should almost always be the batch size in the first dimension).
+\item Broadcasting is generalized to unknown (\code{NA}) sizes: per dimension a known size that is not 1
+wins, and the result is only unknown when every input is either unknown or 1, because an
+unknown size may turn out to be greater than 1 and would then determine the size.
 \item Tensors are expected to have the same number of dimensions, i.e. missing dimensions are not filled with 1s.
-The reason is again that the first dimension should be the batch dimension.
+The reason is that the first dimension should be the batch dimension.
 This private method can be overwritten by \code{\link{PipeOpTorch}}s inheriting from this class.
 }
 }
 
-\seealso{
-Other PipeOps:
-\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
-\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
-\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
-\code{\link{mlr_pipeops_nn_avg_pool1d}},
-\code{\link{mlr_pipeops_nn_avg_pool2d}},
-\code{\link{mlr_pipeops_nn_avg_pool3d}},
-\code{\link{mlr_pipeops_nn_batch_norm1d}},
-\code{\link{mlr_pipeops_nn_batch_norm2d}},
-\code{\link{mlr_pipeops_nn_batch_norm3d}},
-\code{\link{mlr_pipeops_nn_block}},
-\code{\link{mlr_pipeops_nn_celu}},
-\code{\link{mlr_pipeops_nn_conv1d}},
-\code{\link{mlr_pipeops_nn_conv2d}},
-\code{\link{mlr_pipeops_nn_conv3d}},
-\code{\link{mlr_pipeops_nn_conv_transpose1d}},
-\code{\link{mlr_pipeops_nn_conv_transpose2d}},
-\code{\link{mlr_pipeops_nn_conv_transpose3d}},
-\code{\link{mlr_pipeops_nn_dropout}},
-\code{\link{mlr_pipeops_nn_elu}},
-\code{\link{mlr_pipeops_nn_flatten}},
-\code{\link{mlr_pipeops_nn_ft_cls}},
-\code{\link{mlr_pipeops_nn_ft_transformer_block}},
-\code{\link{mlr_pipeops_nn_geglu}},
-\code{\link{mlr_pipeops_nn_gelu}},
-\code{\link{mlr_pipeops_nn_glu}},
-\code{\link{mlr_pipeops_nn_hardshrink}},
-\code{\link{mlr_pipeops_nn_hardsigmoid}},
-\code{\link{mlr_pipeops_nn_hardtanh}},
-\code{\link{mlr_pipeops_nn_head}},
-\code{\link{mlr_pipeops_nn_identity}},
-\code{\link{mlr_pipeops_nn_layer_norm}},
-\code{\link{mlr_pipeops_nn_leaky_relu}},
-\code{\link{mlr_pipeops_nn_linear}},
-\code{\link{mlr_pipeops_nn_log_sigmoid}},
-\code{\link{mlr_pipeops_nn_max_pool1d}},
-\code{\link{mlr_pipeops_nn_max_pool2d}},
-\code{\link{mlr_pipeops_nn_max_pool3d}},
-\code{\link{mlr_pipeops_nn_merge_cat}},
-\code{\link{mlr_pipeops_nn_merge_prod}},
-\code{\link{mlr_pipeops_nn_merge_sum}},
-\code{\link{mlr_pipeops_nn_multihead_attention}},
-\code{\link{mlr_pipeops_nn_prelu}},
-\code{\link{mlr_pipeops_nn_reglu}},
-\code{\link{mlr_pipeops_nn_relu}},
-\code{\link{mlr_pipeops_nn_relu6}},
-\code{\link{mlr_pipeops_nn_reshape}},
-\code{\link{mlr_pipeops_nn_rrelu}},
-\code{\link{mlr_pipeops_nn_selu}},
-\code{\link{mlr_pipeops_nn_sigmoid}},
-\code{\link{mlr_pipeops_nn_softmax}},
-\code{\link{mlr_pipeops_nn_softplus}},
-\code{\link{mlr_pipeops_nn_softshrink}},
-\code{\link{mlr_pipeops_nn_softsign}},
-\code{\link{mlr_pipeops_nn_squeeze}},
-\code{\link{mlr_pipeops_nn_tanh}},
-\code{\link{mlr_pipeops_nn_tanhshrink}},
-\code{\link{mlr_pipeops_nn_threshold}},
-\code{\link{mlr_pipeops_nn_tokenizer_categ}},
-\code{\link{mlr_pipeops_nn_tokenizer_num}},
-\code{\link{mlr_pipeops_nn_unsqueeze}},
-\code{\link{mlr_pipeops_torch_ingress}},
-\code{\link{mlr_pipeops_torch_ingress_categ}},
-\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
-\code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{mlr_pipeops_torch_loss}},
-\code{\link{mlr_pipeops_torch_model}},
-\code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}},
-\code{\link{mlr_pipeops_torch_model_torch}}
-}
-\concept{PipeOps}
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{PipeOpTorch}} -> \code{PipeOpTorchMerge}
 }

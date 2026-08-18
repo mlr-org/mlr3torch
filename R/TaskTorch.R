@@ -286,11 +286,15 @@ get_target_batchgetter.TaskTorch = function(task, ...) { # nolint
 }
 
 #' @export
-encode_prediction.TaskTorch = function(task, predict_tensor, predict_type, ...) { # nolint
+encode_prediction.TaskTorch = function(task, network_output, predict_type, ...) { # nolint
   if (!is.null(task$prediction_encoder)) {
-    return(task$prediction_encoder(task = task, predict_tensor = predict_tensor,
+    # the raw output is passed on, so a `prediction_encoder` is also how a network with more than
+    # one head is encoded
+    return(task$prediction_encoder(task = task, predict_tensor = network_output,
       predict_type = predict_type))
   }
+  # the inferred encodings below all expect a single tensor
+  predict_tensor = assert_single_head(network_output, task)
   spec = task_torch_spec(task)
   switch(spec$kind,
     factor = {

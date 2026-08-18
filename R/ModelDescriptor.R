@@ -27,7 +27,7 @@
 #' @param ingress (uniquely named `list` of `TorchIngressToken`)\cr
 #'   List of inputs that go into `graph`. Names of this must be a subset of `graph$input$name`.
 #' @param task ([`Task`][mlr3::Task])\cr
-#'   (Training)-Task for which the model is being built. May be necessary for for some aspects of what loss to use etc.
+#'   (Training)-Task for which the model is being built. May be necessary for some aspects of what loss to use etc.
 #' @param optimizer ([`TorchOptimizer`] | `NULL`)\cr
 #'   Additional info: what optimizer to use.
 #' @param loss ([`TorchLoss`] | `NULL`)\cr
@@ -66,7 +66,10 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
   callbacks = set_names(callbacks, assert_names(ids(callbacks), type = "unique"))
 
   if (!is.null(pointer)) {
-    pointer_shape = assert_shape(pointer_shape, null_ok = FALSE, unknown_batch = TRUE)
+    # the batch dimension is `NA` in every network built from an ingress, but it need not be: a
+    # caller that knows the batch size may say so, and the operators then get to check what they
+    # would otherwise have to assume, e.g. that a reshape does not move elements across it
+    pointer_shape = assert_shape(pointer_shape, null_ok = FALSE, unknown_batch = NULL)
     assert_choice(pointer[[1]], names(graph$pipeops))
     assert_choice(pointer[[2]], graph$pipeops[[pointer[[1]]]]$output$name)
   }

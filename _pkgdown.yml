@@ -79,6 +79,8 @@ navbar:
       - text: Internals
       - text: Networks as Graphs
         href: articles/internals_pipeop_torch.html
+      - text: Writing your own PipeOpTorch
+        href: articles/custom_pipeop_torch.html
 
 
 reference:
@@ -88,6 +90,7 @@ reference:
   - title: Learners
     contents:
       - starts_with("mlr_learners")
+      - replace_head
   - title: Tasks
     contents:
       - starts_with("mlr_tasks")
@@ -107,9 +110,9 @@ reference:
       - TorchIngressToken
       - starts_with("ingress")
       - mlr_pipeops_torch
+      - pipeop_torch
       - mlr_pipeops_torch_ingress
       - starts_with("mlr_pipeops_torch_model")
-      - starts_with("pipeop_torch_ingress")
       - starts_with("batchgetter")
       - starts_with("mlr_pipeops_torch_ingress")
       - mlr_pipeops_torch_loss
@@ -123,6 +126,8 @@ reference:
       - mlr_pipeops_preproc_torch
       - pipeop_preproc_torch
       - starts_with("PipeOpPreprocTorch")
+      - starts_with("mlr_pipeops_trafo")
+      - starts_with("mlr_pipeops_augment")
   - title: NN Modules
     contents:
       - starts_with("nn")
@@ -136,6 +141,7 @@ reference:
       - assert_lazy_tensor
       - is_lazy_tensor
       - materialize
+      - "`==.lazy_tensor`"
   - title: Loss
     contents:
       - t_loss
@@ -147,7 +153,7 @@ reference:
   - title: Optimizer
     contents:
       - t_opt
-      - TorchLoss
+      - TorchOptimizer
       - mlr_pipeops_torch_optimizer
       - as_torch_optimizer
       - mlr3torch_optimizers
@@ -175,8 +181,22 @@ reference:
       - Select
       - output_dim_for
       - get_target_batchgetter
+      - get_batch_constructor
       - encode_prediction
+  - title: Shape Inference
+    contents:
       - infer_shapes
+      - shape_helpers
+      - reshape_output_shape
+      - assert_shape
+      - assert_shapes
+      - assert_known_dims
+      - assert_ndim
+      - assert_same_ndim
+      - assert_same_batch_size
+      - assert_dim_in_range
+      - assert_not_batch_dim
+      - assert_positive_extent
 
 
 

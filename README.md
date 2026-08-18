@@ -41,7 +41,7 @@ More information about installing `torch` can be found
 `mlr3torch` is a deep learning framework for the
 [`mlr3`](https://mlr-org.com) ecosystem built on top of
 [`torch`](https://torch.mlverse.org/). It allows to easily build, train
-and evaluate deep learning models in a few lines of codes, without
+and evaluate deep learning models in a few lines of code, without
 needing to worry about low-level details. Off-the-shelf learners are
 readily available, but custom architectures can be defined by connecting
 `PipeOpTorch` operators in an `mlr3pipelines::Graph`.
@@ -85,9 +85,9 @@ the network. All subsequent pipeops define the neural network layers.
 
 ``` r
 architecture = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 20) %>>%
-  po("nn_relu") %>>%
-  po("nn_head")
+  nn("linear", out_features = 20) %>>%
+  nn("relu") %>>%
+  nn("head")
 ```
 
 To turn this into a learner, we configure the loss, optimizer, callbacks
@@ -154,24 +154,22 @@ block:
 ``` r
 layer = list(
   po("nop"),
-  po("nn_linear", out_features = 50L) %>>%
-    po("nn_dropout") %>>% po("nn_relu")
-) %>>% po("nn_merge_sum")
+  nn("linear", out_features = 50L) %>>%
+    nn("dropout") %>>% nn("relu")
+) %>>% nn("merge_sum")
 ```
 
 Next, we create a neural network that takes as input a `lazy_tensor`
 (`po("torch_ingress_ltnsr")`). It first applies a linear layer and then
 repeats the above layer using the special `PipeOpTorchBlock`, followed
 by the network’s head. After that, we configure the loss, optimizer and
-the training parameters. Note that `po("nn_linear_0")` is equivalent to
-`po("nn_linear", id = "nn_linear_0")` and we need this here to avoid ID
-clashes with the linear layer from `po("nn_block")`.
+the training parameters.
 
 ``` r
 deep_network = po("torch_ingress_ltnsr") %>>%
-  po("nn_linear", out_features = 50L) %>>%
-  po("nn_block", layer, n_blocks = 5L) %>>%
-  po("nn_head") %>>%
+  nn("linear", out_features = 50L) %>>%
+  nn("block", layer, n_blocks = 5L) %>>%
+  nn("head") %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%
   po("torch_optimizer", optimizer = t_opt("adam")) %>>%
   po("torch_model_classif",
@@ -224,6 +222,9 @@ deep_learner$train(mnist)
 ## Documentation
 
 - Start by reading one of the vignettes on the package website!
+- The paper [*mlr3torch: A Deep Learning Framework in R based on mlr3
+  and torch*](https://arxiv.org/abs/2604.18152) gives an overview of the
+  package.
 - There is a [course on
   `(mlr3)torch`](https://mlr-org.github.io/mlr3torch-course/).
 - You can check out our [presentation from UseR

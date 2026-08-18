@@ -1,0 +1,2 @@
+[lint]
+exclude = ["attic", "benchmarks", "data-raw"]

@@ -21,6 +21,7 @@ callback_set(
   state_dict = NULL,
   load_state_dict = NULL,
   initialize = NULL,
+  weight = NULL,
   public = NULL,
   private = NULL,
   active = NULL,
@@ -45,6 +46,10 @@ Function that loads a callback state.}
 
 \item{initialize}{(\verb{function()})\cr
 The initialization method of the callback.}
+
+\item{weight}{(\code{numeric(1)})\cr
+Controls when the callback is called within a stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.
+Defaults to \code{0}.}
 
 \item{public, private, active}{(\code{list()})\cr
 Additional public, private, and active fields to add to the callback.}

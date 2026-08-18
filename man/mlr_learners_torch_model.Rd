@@ -65,7 +65,8 @@ Other Graph Network:
 \code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
 \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
 \code{\link[=model_descriptor_union]{model_descriptor_union()}},
-\code{\link[=nn_graph]{nn_graph()}}
+\code{\link[=nn_graph]{nn_graph()}},
+\code{\link[=pipeop_torch]{pipeop_torch()}}
 }
 \concept{Graph Network}
 \concept{Learner}
@@ -145,7 +146,8 @@ The loss to use for training.}
       \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks used during training.
 Must have unique ids.
-They are executed in the order in which they are provided}
+They are executed in the order in which they are provided, unless a callback requests
+otherwise via its \verb{$weight}, see section \emph{Ordering} of \code{\link{CallbackSet}}.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{feature_types}}{(\code{NULL} or \code{character()})\cr

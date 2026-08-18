@@ -65,6 +65,7 @@ test_that("order_named_args works", {
   expect_error(order_named_args(function(..., x) NULL, list(2, 3, x = 1)), regexp = "`...` must")
   expect_error(order_named_args(function(y, ..., x) NULL, list(y = 4, 2, 3, x = 1)), regexp = "`...` must")
 })
+
 test_that("shape_to_str works", {
   expect_equal(shape_to_str(c(NA, NA)), "(NA,NA)")
   expect_equal(shape_to_str(1), "(1)")
@@ -78,3 +79,11 @@ test_that("shape_to_str works", {
   md = po("torch_ingress_ltnsr")$train(list(nano_imagenet()))[[1L]]
 })
 
+
+test_that("auto_device() rejects cuda when it is unavailable", {
+  skip_if(cuda_is_available(), "CUDA is available")
+  expect_error(auto_device("cuda"), "no CUDA device is available")
+  expect_equal(auto_device("auto"), "cpu")
+  expect_equal(auto_device("cpu"), "cpu")
+  expect_null(auto_device(NULL))
+})
