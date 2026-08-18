@@ -78,11 +78,18 @@
 <li>The construction argument <code>only_batch_unknown</code> of <code>PipeOpTorch</code> was removed, as shape inference functions are now expected to handle multiple unknown dimensions.</li>
 <li>The dropout probability <code>p</code> of <code>lrn("classif.mlp")</code> / <code>lrn("regr.mlp")</code> is now initialized to <code>0.1</code> instead of <code>0.5</code>. Set <code>p = 0.5</code> explicitly to keep the old behaviour.</li>
 <li>The <code>cache</code> argument of <code><a href="../reference/materialize.html">materialize()</a></code> is now a <code><a href="https://rdrr.io/r/utils/hashtab.html" class="external-link">utils::hashtab()</a></code> instead of an <code><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment()</a></code>, which avoids possible hash collisions and raises the R dependency to <code>&gt;= 4.2.0</code>.</li>
+<li>The first argument of the private <code>.encode_prediction()</code> method of <code>LearnerTorch</code> was renamed from <code>predict_tensor</code> to <code>network_output</code>, as it can also be a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors.</li>
+<li>
+<code>measures_train</code> is now calculated from the complete output of the network instead of only its first tensor, which is passed to <code>.encode_prediction()</code> unchanged.</li>
 <li>The <code>num_interop_threads</code> parameter of <code>LearnerTorch</code> is no longer initialized to <code>1</code>, so torch’s default is left in place unless the parameter is set. Setting it to a value that torch can no longer apply is now an error instead of a warning.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="features-development-version">Features<a class="anchor" aria-label="anchor" href="#features-development-version"></a></h3>
-<ul><li>New function <code><a href="../reference/pipeop_torch.html">pipeop_torch()</a></code> that simplifies the creation of <code>PipeOpTorch</code> classes.</li>
+<ul><li>
+<code>LearnerTorch</code> and <code>PipeOpTorchModel</code> now accept any task type registered in <code>mlr_reflections$task_types</code>, via the new generics <code><a href="../reference/get_target_batchgetter.html">get_target_batchgetter()</a></code> and <code><a href="../reference/encode_prediction.html">encode_prediction()</a></code>.</li>
+<li>New S3 generic <code><a href="../reference/get_batch_constructor.html">get_batch_constructor()</a></code>, which decides how a whole batch of a task is built, i.e. both the features <code>x</code> and the target <code>y</code>.</li>
+<li>A network can now return a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors in evaluation mode, which is passed to <code><a href="../reference/encode_prediction.html">encode_prediction()</a></code> as it is, so a prediction can consist of more than one quantity.</li>
+<li>New function <code><a href="../reference/pipeop_torch.html">pipeop_torch()</a></code> that simplifies the creation of <code>PipeOpTorch</code> classes.</li>
 <li>New article <em>Writing your own PipeOpTorch</em>.</li>
 <li>The <code>$model</code> of a <code>LearnerTorch</code> now has a printer.</li>
 <li>Added more image learners from {torchvision}.</li>
@@ -92,7 +99,7 @@
 <code>LearnerTorch</code> now has <code>.loss_fn(task, param_vals)</code> private method that allows to customize the construction of the loss function.</li>
 <li>
 <code>LearnerTorch</code> now has <code>restore_best_weights</code> parameter that can be used when early stopping is active.</li>
-<li>A network can now return more than one prediction during training as a list. The first is expected to be the primary prediction. In <code>ContextTorch</code>, <code>$y_hat</code> is the primary prediction and <code>$y_hats</code> contains the complete prediction.</li>
+<li>A network can now return a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors during training, which the loss is applied to. In <code>ContextTorch</code>, <code>$y_hats</code> is that complete output and <code>$y_hat</code> its first element.</li>
 <li>New parameter <code>batch_size_predict</code> for <code>LearnerTorch</code>, which overrides <code>batch_size</code> for prediction</li>
 <li>Added multihead attention and transformer encoder pipeops.</li>
 <li>Any dimension of an input shape can now be unknown (<code>NA</code>), not only the batch dimension.</li>

@@ -83,8 +83,9 @@ Other Callback:
 - `last_scores_train`:
 
   (named [`list()`](https://rdrr.io/r/base/list.html) or `NULL`)  
-  The scores from the last training batch. Names are the ids of the
-  training measures. If
+  The scores from the last evaluated epoch, calculated over all rows
+  that were trained on in that epoch. Names are the ids of the training
+  measures. If
   [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)
   sets `eval_freq` different from `1`, this is `NULL` in all epochs that
   don't evaluate the model.
@@ -92,8 +93,8 @@ Other Callback:
 - `last_scores_valid`:
 
   ([`list()`](https://rdrr.io/r/base/list.html))  
-  The scores from the last validation batch. Names are the ids of the
-  validation measures. If
+  The scores from the last evaluated epoch, calculated over the complete
+  validation task. Names are the ids of the validation measures. If
   [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)
   sets `eval_freq` different from `1`, this is `NULL` in all epochs that
   don't evaluate the model.
@@ -106,9 +107,10 @@ Other Callback:
 - `y_hat`:
 
   ([`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html))  
-  The model's primary prediction for the current batch. If the network
-  has auxiliary classifiers, this is the first of the predictions it
-  returns, i.e. the one that is scored and returned when predicting.
+  The network's output for the current batch, or its first element if
+  the network returns more than one tensor. Provided for the most common
+  case where a network returns a single tensor. For the full output, see
+  `y_hats`.
 
 - `y_hats`:
 
@@ -116,8 +118,8 @@ Other Callback:
   or [`list()`](https://rdrr.io/r/base/list.html))  
   The complete output of the network for the current batch, i.e. what
   the loss is applied to. This is a
-  [`list()`](https://rdrr.io/r/base/list.html) of predictions if the
-  network has auxiliary classifiers and identical to `y_hat` otherwise.
+  [`list()`](https://rdrr.io/r/base/list.html) if the network returns
+  more than one tensor and identical to `y_hat` otherwise.
 
 - `epoch`:
 

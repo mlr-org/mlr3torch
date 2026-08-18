@@ -17,8 +17,8 @@ We start by sampling some input tensor: 2 batches with 3 features:
 input = torch_randn(2, 3)
 input
 #> torch_tensor
-#> -0.8564  0.3685  0.2902
-#>  0.4801 -0.6320  0.7433
+#> -1.6093  1.0596  0.0325
+#> -0.0826 -0.3553 -0.8663
 #> [ CPUFloatType{2,3} ]
 ```
 
@@ -37,8 +37,8 @@ Applying this module gives a 2-batch of 4 units:
 output = module_1(input)
 output
 #> torch_tensor
-#> -0.1287  0.4539  0.2705 -0.7030
-#> -0.0449  0.2697  0.8704 -0.1356
+#> -0.1179  0.1444 -0.0259  0.8831
+#> -0.2784 -0.0241 -0.0791 -0.3508
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -62,8 +62,8 @@ output = module_2(output)
 output = softmax(output)
 output
 #> torch_tensor
-#>  0.4493  0.3217  0.2290
-#>  0.4234  0.3375  0.2391
+#>  0.3390  0.3097  0.3513
+#>  0.3564  0.3160  0.3275
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -106,8 +106,8 @@ We can use the generated `PipeOp` in the familiar way:
 output = po_module_1$train(list(input))[[1]]
 output
 #> torch_tensor
-#> -0.1287  0.4539  0.2705 -0.7030
-#> -0.0449  0.2697  0.8704 -0.1356
+#> -0.1179  0.1444 -0.0259  0.8831
+#> -0.2784 -0.0241 -0.0791 -0.3508
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -139,8 +139,8 @@ the whole `Graph`.
 output = module_graph$train(input)[[1]]
 output
 #> torch_tensor
-#>  0.4493  0.3217  0.2290
-#>  0.4234  0.3375  0.2391
+#>  0.3390  0.3097  0.3513
+#>  0.3564  0.3160  0.3275
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -198,8 +198,8 @@ And it can be used to transform tensors just as any other
 
 graph_module(input)
 #> torch_tensor
-#>  0.4493  0.3217  0.2290
-#>  0.4234  0.3375  0.2391
+#>  0.3390  0.3097  0.3513
+#>  0.3564  0.3160  0.3275
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -335,8 +335,8 @@ small_module = model_descriptor_to_module(md, list(md$pointer))
 
 small_module(input)
 #> torch_tensor
-#>  0.6291 -0.1418 -1.0545 -0.4086
-#>  0.8445  0.1013 -0.4159  0.0472
+#> -0.5245 -1.5535 -0.3201 -0.2636
+#>  0.0510  0.1215 -0.2956  0.1425
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -368,6 +368,7 @@ td
 #>     .getitem: function (index) 
 #>     .length: function () 
 #>     all_features: Petal.Length Sepal.Length Sepal.Width Species
+#>     batch_constructor: function (data, cache = NULL) 
 #>     cache_lazy_tensors: FALSE
 #>     clone: function (deep = FALSE) 
 #>     feature_ingress_tokens: list
@@ -406,9 +407,9 @@ batch
 
 small_module(batch$x[[1]])
 #> torch_tensor
-#>  0.8458 -1.4333 -2.7360  0.0943
-#>  0.6964 -1.3732 -2.5267 -0.0624
-#>  0.8096 -1.3242 -2.5549  0.0467
+#>  1.9994 -2.6208  2.1387  0.6915
+#>  1.9189 -2.3659  1.9608  0.6679
+#>  1.8636 -2.4223  1.9691  0.6548
 #> [ CPUFloatType{3,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -438,8 +439,8 @@ graph_module = model_descriptor_to_module(md_sequential, list(md_sequential$poin
 
 graph_module(input)
 #> torch_tensor
-#>  0.1736  0.4624  0.3639
-#>  0.2145  0.4165  0.3690
+#>  0.1440  0.6760  0.1799
+#>  0.1783  0.6207  0.2009
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -673,15 +674,14 @@ We make multiple observations here:
     )
     #> $lin_out.output
     #> torch_tensor
-    #> 0.01 *
-    #> -7.5987
-    #>  -7.5987
+    #> -0.3568
+    #> -0.3452
     #> [ CPUFloatType{2,1} ][ grad_fn = <AddmmBackward0> ]
     #> 
     #> $softmax.output
     #> torch_tensor
-    #>  0.4351  0.3079  0.2570
-    #>  0.4351  0.3079  0.2570
+    #>  0.4552  0.2953  0.2495
+    #>  0.4571  0.2938  0.2491
     #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
     ```
 
@@ -694,14 +694,14 @@ We make multiple observations here:
     iris_module$graph$pipeops$linear1$.result
     #> $output
     #> torch_tensor
-    #> -2.9972 -0.5435 -1.0795 -1.0751
-    #> -2.8360 -0.6172 -0.8314 -0.8988
+    #> -0.6062 -0.4044  1.2319  3.2146
+    #> -0.8414 -0.2715  1.1663  3.0699
     #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
     iris_module$graph$pipeops$linear3$.result
     #> $output
     #> torch_tensor
-    #>  0.1753 -0.2968 -0.2032 -0.7348  0.8152
-    #>  0.1753 -0.2968 -0.2032 -0.7348  0.8152
+    #>  0.4506 -0.3549  0.0568 -0.5230  0.3868
+    #>  0.4506 -0.3549  0.0568 -0.5230  0.3868
     #> [ CPUFloatType{2,5} ][ grad_fn = <AddmmBackward0> ]
     ```
 
@@ -713,8 +713,8 @@ We make multiple observations here:
     iris_module$graph$pipeops$merge_cat$.result
     #> $output
     #> torch_tensor
-    #> -2.9972 -0.5435 -1.0795 -1.0751  0.1753 -0.2968 -0.2032 -0.7348  0.8152
-    #> -2.8360 -0.6172 -0.8314 -0.8988  0.1753 -0.2968 -0.2032 -0.7348  0.8152
+    #> -0.6062 -0.4044  1.2319  3.2146  0.4506 -0.3549  0.0568 -0.5230  0.3868
+    #> -0.8414 -0.2715  1.1663  3.0699  0.4506 -0.3549  0.0568 -0.5230  0.3868
     #> [ CPUFloatType{2,9} ][ grad_fn = <CatBackward0> ]
     ```
 

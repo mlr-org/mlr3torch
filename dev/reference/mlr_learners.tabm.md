@@ -82,7 +82,9 @@ as well as:
   `"random-signs"` or `"normal"`. If unset, `"normal"` is used when
   `num_embeddings` is set and `"random-signs"` otherwise.
 
-Parameters of the embeddings for the numerical features:
+Parameters of the embeddings for the numerical features. The embedding
+types are those of Gorishniy (2022), see the *References* section for
+the paper that introduces and compares them:
 
 - `num_embeddings` :: `character(1)`  
   The type of the numerical feature embeddings, one of `"none"`
@@ -135,6 +137,11 @@ Wen Y, Tran D, Ba J (2020). “BatchEnsemble: An Alternative Approach to
 Efficient Ensemble and Lifelong Learning.” In *The Eighth International
 Conference on Learning Representations (ICLR)*. 2002.06715,
 <https://openreview.net/forum?id=Sklf1yrYDr>.
+
+Gorishniy Y, Rubachev I, Babenko A (2022). “On Embeddings for Numerical
+Features in Tabular Deep Learning.” In *Advances in Neural Information
+Processing Systems 35 (NeurIPS)*. 2203.05556,
+<https://arxiv.org/abs/2203.05556>.
 
 ## See also
 

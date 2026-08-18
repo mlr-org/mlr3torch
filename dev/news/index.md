@@ -19,6 +19,13 @@
   [`environment()`](https://rdrr.io/r/base/environment.html), which
   avoids possible hash collisions and raises the R dependency to
   `>= 4.2.0`.
+- The first argument of the private `.encode_prediction()` method of
+  `LearnerTorch` was renamed from `predict_tensor` to `network_output`,
+  as it can also be a [`list()`](https://rdrr.io/r/base/list.html) of
+  tensors.
+- `measures_train` is now calculated from the complete output of the
+  network instead of only its first tensor, which is passed to
+  `.encode_prediction()` unchanged.
 - The `num_interop_threads` parameter of `LearnerTorch` is no longer
   initialized to `1`, so torch’s default is left in place unless the
   parameter is set. Setting it to a value that torch can no longer apply
@@ -26,6 +33,20 @@
 
 ### Features
 
+- `LearnerTorch` and `PipeOpTorchModel` now accept any task type
+  registered in `mlr_reflections$task_types`, via the new generics
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md)
+  and
+  [`encode_prediction()`](https://mlr3torch.mlr-org.com/dev/reference/encode_prediction.md).
+- New S3 generic
+  [`get_batch_constructor()`](https://mlr3torch.mlr-org.com/dev/reference/get_batch_constructor.md),
+  which decides how a whole batch of a task is built, i.e. both the
+  features `x` and the target `y`.
+- A network can now return a
+  [`list()`](https://rdrr.io/r/base/list.html) of tensors in evaluation
+  mode, which is passed to
+  [`encode_prediction()`](https://mlr3torch.mlr-org.com/dev/reference/encode_prediction.md)
+  as it is, so a prediction can consist of more than one quantity.
 - New function
   [`pipeop_torch()`](https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.md)
   that simplifies the creation of `PipeOpTorch` classes.
@@ -38,10 +59,10 @@
   that allows to customize the construction of the loss function.
 - `LearnerTorch` now has `restore_best_weights` parameter that can be
   used when early stopping is active.
-- A network can now return more than one prediction during training as a
-  list. The first is expected to be the primary prediction. In
-  `ContextTorch`, `$y_hat` is the primary prediction and `$y_hats`
-  contains the complete prediction.
+- A network can now return a
+  [`list()`](https://rdrr.io/r/base/list.html) of tensors during
+  training, which the loss is applied to. In `ContextTorch`, `$y_hats`
+  is that complete output and `$y_hat` its first element.
 - New parameter `batch_size_predict` for `LearnerTorch`, which overrides
   `batch_size` for prediction
 - Added multihead attention and transformer encoder pipeops.

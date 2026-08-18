@@ -147,7 +147,9 @@ function returning an <code><a href="https://torch.mlverse.org/docs/reference/nn
 The initialization of the very first (non-shared) scaling, either <code>"random-signs"</code>
 or <code>"normal"</code>. If unset, <code>"normal"</code> is
 used when <code>num_embeddings</code> is set and <code>"random-signs"</code> otherwise.</p></li>
-</ul><p>Parameters of the embeddings for the numerical features:</p><ul><li><p><code>num_embeddings</code> :: <code>character(1)</code><br>
+</ul><p>Parameters of the embeddings for the numerical features.
+The embedding types are those of Gorishniy (2022), see the
+<em>References</em> section for the paper that introduces and compares them:</p><ul><li><p><code>num_embeddings</code> :: <code>character(1)</code><br>
 The type of the numerical feature embeddings, one of <code>"none"</code> (default),
 <code>"linear_relu"</code>, <code>"periodic"</code> or <code>"piecewise_linear"</code>.</p></li>
 <li><p><code>d_embedding</code> :: <code>integer(1)</code><br>
@@ -185,6 +187,10 @@ In <em>The Thirteenth International Conference on Learning Representations (ICLR
 “BatchEnsemble: An Alternative Approach to Efficient Ensemble and Lifelong Learning.”
 In <em>The Eighth International Conference on Learning Representations (ICLR)</em>.
 2002.06715, <a href="https://openreview.net/forum?id=Sklf1yrYDr" class="external-link">https://openreview.net/forum?id=Sklf1yrYDr</a>.</p>
+<p>Gorishniy Y, Rubachev I, Babenko A (2022).
+“On Embeddings for Numerical Features in Tabular Deep Learning.”
+In <em>Advances in Neural Information Processing Systems 35 (NeurIPS)</em>.
+2203.05556, <a href="https://arxiv.org/abs/2203.05556" class="external-link">https://arxiv.org/abs/2203.05556</a>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

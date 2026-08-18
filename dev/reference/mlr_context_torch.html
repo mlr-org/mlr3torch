@@ -157,14 +157,16 @@ The total number of epochs the learner is trained for.</p></dd>
 
     <dt><code>last_scores_train</code></dt>
 <dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> or <code>NULL</code>)<br>
-The scores from the last training batch. Names are the ids of the training measures.
+The scores from the last evaluated epoch, calculated over all rows that were trained on in
+that epoch. Names are the ids of the training measures.
 If <code><a href="mlr_learners_torch.html">LearnerTorch</a></code> sets <code>eval_freq</code> different from <code>1</code>, this is <code>NULL</code> in all epochs
 that don't evaluate the model.</p></dd>
 
 
     <dt><code>last_scores_valid</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
-The scores from the last validation batch. Names are the ids of the validation measures.
+The scores from the last evaluated epoch, calculated over the complete validation task.
+Names are the ids of the validation measures.
 If <code><a href="mlr_learners_torch.html">LearnerTorch</a></code> sets <code>eval_freq</code> different from <code>1</code>, this is <code>NULL</code> in all epochs
 that don't evaluate the model.</p></dd>
 
@@ -176,16 +178,16 @@ The loss from the last trainings batch.</p></dd>
 
     <dt><code>y_hat</code></dt>
 <dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>)<br>
-The model's primary prediction for the current batch.
-If the network has auxiliary classifiers, this is the first of the predictions it
-returns, i.e. the one that is scored and returned when predicting.</p></dd>
+The network's output for the current batch, or its first element if the network returns
+more than one tensor. Provided for the most common case where a network returns a single
+tensor.  For the full output, see <code>y_hats</code>.</p></dd>
 
 
     <dt><code>y_hats</code></dt>
 <dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
 The complete output of the network for the current batch, i.e. what the loss is applied
-to. This is a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of predictions if the network has auxiliary classifiers and
-identical to <code>y_hat</code> otherwise.</p></dd>
+to. This is a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> if the network returns more than one tensor and identical to
+<code>y_hat</code> otherwise.</p></dd>
 
 
     <dt><code>epoch</code></dt>

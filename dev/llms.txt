@@ -841,6 +841,12 @@ vision behind the project.
   : Selector Functions for Character Vectors
 - [`output_dim_for()`](https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.md)
   : Network Output Dimension
+- [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md)
+  : Target Batchgetter for a Task
+- [`get_batch_constructor()`](https://mlr3torch.mlr-org.com/dev/reference/get_batch_constructor.md)
+  : Batch Constructor for a Task
+- [`encode_prediction()`](https://mlr3torch.mlr-org.com/dev/reference/encode_prediction.md)
+  : Encode the Network Output as a Prediction
 
 ## Shape Inference
 
