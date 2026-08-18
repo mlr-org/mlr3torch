@@ -70,39 +70,12 @@ Note that the final model is always evaluated.
 \strong{Resuming}:
 \itemize{
 \item \code{path} :: \code{character(1)} or \code{TRUE}\cr
-Continues training from a checkpoint written by \code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}},
-also in a new R session.
-Either the path of the folder that the checkpoint callback wrote to -- the most recent
-checkpoint in it is used -- or \code{TRUE}, which takes the path from the checkpoint callback of
-this learner.
-The network, the optimizer and the states of the callbacks are restored, and training then
-continues until \code{epochs} is reached.
+Continues training from a checkpoint written by
+\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}}, either the folder it wrote to or \code{TRUE},
+which takes that folder from the checkpoint callback of this learner.
 Note that \code{epochs} is the \emph{total} number of epochs, i.e. it includes the epochs the checkpoint
 was already trained for: resuming a checkpoint from epoch 5 with \code{epochs = 8} trains 3 more
 epochs.
-If the folder contains no checkpoint, training starts from scratch, so that the same script can
-be used to start a run and to continue it after an interruption.
-This is unset by default, i.e. no resuming.
-
-The learning rate schedule, the training history and the other callback states are restored,
-but the state of the random number generator is not, so a resumed run does not reproduce the
-uninterrupted run it continues.
-
-A \code{path} is one run's folder, so it must not be shared by the iterations of a \code{resample()} or
-\code{benchmark()}: every iteration after the first would resume the first one's checkpoint, find it
-already at \code{epochs} and train nothing.
-Use \code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}} with a \code{path} function, which is
-called once per run, and set this parameter to \code{TRUE} to follow it.
-
-Callback states are matched to the callbacks of the resuming run \strong{by id and nothing else}.
-A state whose id is not among this run's callbacks is skipped with a warning, and a callback
-whose id is not in the checkpoint simply starts fresh -- adding a callback to a resumed run is
-allowed and is not reported.
-Giving two structurally different callbacks the same id in the two runs is therefore not
-detected: the state of one is fed into the other, which can restore a nonsensical state without
-any error or warning.
-Resume with the same callback ids the checkpoint was written with, or with different ones.
-What a callback restores is documented in the \emph{Resuming} section of its own help page.
 }
 
 \strong{Early Stopping}:
@@ -129,9 +102,9 @@ epoch is stored. Setting this to \code{TRUE} makes the stored network the one of
 memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
 network as training left it.
 
-When a run is resumed (see \emph{Resuming}), the best score, the epoch it was observed in and the
-number of evaluation steps without improvement are restored, so \code{patience} keeps counting
-across runs instead of starting over.
+When a run is resumed (see the section \emph{Resuming} of \code{\link{LearnerTorch}}), the best score, the
+epoch it was observed in and the number of evaluation steps without improvement are restored,
+so \code{patience} keeps counting across runs instead of starting over.
 The best epoch's weights are not part of a checkpoint, however -- they are a full copy of the
 network, which every checkpoint would otherwise carry.
 A resumed run with \code{restore_best_weights} that never beats the restored best score therefore

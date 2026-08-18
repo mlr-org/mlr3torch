@@ -8,11 +8,8 @@
 #' and the training measures are prefixed with `"train."`.
 #'
 #' @section Resuming:
-#' The history is restored and continued rather than started over: the epochs of the resumed run are
-#' appended to the restored ones, so the history covers both runs and stays ordered by epoch.
-#' A run that trains no epochs of its own returns the restored history unchanged.
-#' A measure that only one of the two runs recorded becomes a column that is `NA` for the epochs of
-#' the other.
+#' The history callback can be resumed.
+#' A measure that exists in only one of the two runs is filled with `NA`.
 #'
 #' @export
 #' @include CallbackSet.R
@@ -59,10 +56,8 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
       if (is.null(self$prev_state)) {
         state
       } else {
-        # the restored history comes first, the epochs of this run are appended to it, so that the
-        # history stays ordered by epoch.
-        # fill = TRUE because this run can have fewer columns than the previous one, e.g. when it
-        # trains no epochs at all because the checkpoint it resumed is already at `epochs`
+        # fill = TRUE because the two runs can have measured different things, so either history can
+        # have columns the other does not
         rbind(self$prev_state, state, fill = TRUE)
       }
     },

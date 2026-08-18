@@ -189,6 +189,7 @@ TorchCallback = R6Class("TorchCallback",
     #' @template param_id
     #' @param param_set (`ParamSet` or `NULL`)\cr
     #'   The parameter set. If `NULL` (default) it is inferred from `callback_generator`.
+    #'   This must not contain `weight` and `ctx`.
     #' @template param_label
     #' @template param_packages
     #' @template param_man
@@ -202,8 +203,13 @@ TorchCallback = R6Class("TorchCallback",
       assert_class(callback_generator, "R6ClassGenerator")
       self$weight = weight
 
-      param_set = assert_param_set(param_set %??% inferps(callback_generator, ignore = "weight"))
-      if ("ctx" %in% param_set$ids()) {
+      param_set = assert_param_set(param_set %||% inferps(callback_generator))
+      psids = param_set$ids()
+
+      if ("weight" %in% psids) {
+        stopf("The name 'weight' is reserved for the weight that determines when the callback is called within a stage and cannot be a construction argument. Set it via the 'weight' argument, see the section 'Ordering' of CallbackSet.") # nolint
+      }
+      if ("ctx" %in% psids) {
         stopf("The name 'ctx' is reserved for the ContextTorch and cannot be a construction argument.")
       }
       super$initialize(
@@ -250,6 +256,7 @@ TorchCallback = R6Class("TorchCallback",
 #'   The id for the torch callback.
 #' @param param_set (`ParamSet`)\cr
 #'   The parameter set, if not present it is inferred from the `$initialize()` method.
+#'   This must not contain `weight` or `ctx`.
 #' @param packages (`character()`)\cr`
 #'   The packages the callback depends on. Default is `NULL`.
 #' @param label (`character(1)`)\cr

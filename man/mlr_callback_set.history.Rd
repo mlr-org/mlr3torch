@@ -13,7 +13,6 @@ and the training measures are prefixed with \code{"train."}.
 
 The history is restored and continued rather than started over: the epochs of the resumed run are
 appended to the restored ones, so the history covers both runs and stays ordered by epoch.
-A run that trains no epochs of its own returns the restored history unchanged.
 A measure that only one of the two runs recorded becomes a column that is \code{NA} for the epochs of
 the other.
 }

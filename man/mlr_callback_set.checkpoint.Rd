@@ -5,10 +5,12 @@
 \alias{CallbackSetCheckpoint}
 \title{Checkpoint Callback}
 \description{
-Saves the optimizer and network states during training.
-The last epoch of a run that finished is always stored, whether or not \code{freq} falls on it.
-A run that failed in the middle of an epoch keeps only what \code{freq} wrote before that, because
-the network and optimizer are then at no epoch boundary.
+Saves the optimizer, weights, and callback states every \code{freq} epochs as well as the final state.
+This can be used to later continue a training run via the \code{path} parameter from \code{\link{LearnerTorch}}.
+
+A folder holds the checkpoints of a single run, which is continued from where it ended: training
+errors when \code{epochs} is not greater than the most recent checkpoint in \code{path}, and a run never
+writes over a checkpoint that is already there.
 
 Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, three files
 are created in \code{path}:
@@ -18,24 +20,10 @@ are created in \code{path}:
 \item \verb{state<n>.rds} :: The epoch, the version of \code{mlr3torch} that wrote the checkpoint, as well as
 the \verb{$state_dict()}s of the other callbacks of the training run, so that a later run can
 continue e.g. the training history or the learning rate schedule.
-Resuming from a checkpoint written by a different version of \code{mlr3torch} warns, because what a
-callback stores in its state dict is up to the callback and may change between releases.
+The class of each of those callbacks is recorded next to its state, which lets a resuming run
+notice that an id now stands for a different callback instead of restoring the state of one
+into the other.
 }
-
-A checkpoint counts as complete only if all three files are present, so a run that was killed
-while writing one of them falls back to the previous checkpoint rather than to a partial one.
-Reading a folder that holds such a partial checkpoint warns, as skipping it silently would look
-like the run simply got less far than it did.
-
-\code{path} may already contain checkpoints, which is what a run continuing an earlier one writes
-into: it writes epochs that folder does not have yet, so nothing of the earlier run is touched.
-A run that would write over a checkpoint of another run errors instead, so a folder is never
-silently left holding the epochs of two different trainings.
-An incomplete checkpoint is replaced rather than protected -- it cannot be resumed from anyway,
-and refusing would mean a run killed while writing could never be restarted into its own folder.
-
-Training can be continued from such a checkpoint -- also in a new R session -- via the \code{path}
-parameter of \code{\link{LearnerTorch}}, see the example below.
 }
 \details{
 Saving the learner itself in the callback with a trained model is impossible,
@@ -43,14 +31,14 @@ as the model slot is set \emph{after} the last callback step is executed.
 }
 \section{Resuming}{
 
-This callback keeps no state of its own: it stores nothing in the checkpoint it writes and
-restores nothing from the one a run resumes.
-What resuming changes is where it starts writing.
-A resumed run only writes the epochs it trains itself, so the checkpoints of the run it continues
-stay as they are, and a run that trains no epochs of its own -- because the checkpoint is already
-at \code{epochs} -- writes nothing.
-Pointing this callback's \code{path} and \code{\link{LearnerTorch}}'s \code{path} at the same folder hence continues a
-run in place, which is what setting the latter to \code{TRUE} does.
+This callback is special because it enables resuming a training run.
+It does not contain a state itself.
+}
+
+\section{Ordering}{
+
+This callback has weight \code{Inf} and therefore runs last, so it captures all the changes other
+callbacks made.
 }
 
 \examples{
@@ -91,6 +79,14 @@ Other Callback:
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetCheckpoint}
 }
+\section{Public fields}{
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{weight}}{(\code{numeric(1)})\cr
+Always \code{Inf}, see section \emph{Ordering}.}
+  }
+  \if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
   \itemize{
@@ -115,7 +111,7 @@ Other Callback:
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{CallbackSetCheckpoint$new(path, freq, weight = Inf)}
+    \preformatted{CallbackSetCheckpoint$new(path, freq)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -125,17 +121,11 @@ Other Callback:
 The path to a folder where the models are saved, or a function of no arguments returning it.
 The latter is especially useful to create unique directories during \code{resample()} or \code{benchmark()}
 per fit.
-The folder must be new, empty, or already contain checkpoints, so that a checkpoint never
-overwrites unrelated data.}
+The folder must be new, empty, or already contain checkpoints whose newest epoch is complete.
+A folder whose newest checkpoint is half-written -- what a run killed mid-write leaves behind --
+is refused, as that is the checkpoint a resuming run would continue from.}
       \item{\code{freq}}{(\code{integer(1)})\cr
 How often the model is saved, in epochs.}
-      \item{\code{weight}}{(\code{numeric(1)})\cr
-Controls when this callback is called within a stage, see section \emph{Ordering} of
-\code{\link{CallbackSet}}.
-Defaults to \code{Inf}, so that this callback runs after the other callbacks and hence saves the
-network and optimizer as they are at the end of the stage.
-The only exception is the restore of \code{restore_best_weights}, which happens afterwards, so
-a checkpoint always holds the network as training left it.}
     }
     \if{html}{\out{</div>}}
   }
@@ -145,7 +135,8 @@ a checkpoint always holds the network as training left it.}
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-on_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_begin}{}}}
 \subsection{\code{CallbackSetCheckpoint$on_begin()}}{
-  Refuses to start when this run would write over the checkpoint of another run.
+  Refuses to start when this run would not get past the checkpoint that is already in \code{path},
+or would write over the checkpoint of another run.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetCheckpoint$on_begin()}

@@ -43,7 +43,8 @@ The id for the torch callback.}
 The class name.}
 
 \item{param_set}{(\code{ParamSet})\cr
-The parameter set, if not present it is inferred from the \verb{$initialize()} method.}
+The parameter set, if not present it is inferred from the \verb{$initialize()} method.
+This must not contain \code{weight} or \code{ctx}.}
 
 \item{packages}{(\code{character()})\cr\verb{The packages the callback depends on. Default is}NULL`.}
 
@@ -71,7 +72,9 @@ The initialization method of the callback.}
 
 \item{weight}{(\code{numeric(1)})\cr
 Controls when the callback is called within a stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.
-Defaults to \code{0}.}
+Defaults to \code{0}.
+The name is reserved for this, so \code{initialize} must not take a \code{weight} argument: wrapping such
+a callback in a \code{\link{TorchCallback}} is an error.}
 
 \item{public, private, active}{(\code{list()})\cr
 Additional public, private, and active fields to add to the callback.}
@@ -127,8 +130,6 @@ A callback can override this via its \verb{$weight} field: callbacks with a high
 after those with a lower one, and callbacks with the same weight keep the order in which they
 were passed.
 The default weight is \code{0}.
-A callback that needs another default sets it in its \verb{$initialize()} method, so that it stays
-overwritable, e.g. via \verb{t_clbk("<id>", weight = <value>)}.
 This matters for callbacks that observe what the others did, which is why
 \code{\link{CallbackSetCheckpoint}} defaults to weight \code{Inf}: it runs last and therefore saves the network
 and optimizer as the other callbacks left them at the end of the stage.
@@ -139,16 +140,15 @@ stored an epoch behind, so training errors instead.
 
 \section{Resuming}{
 
-A checkpoint written by \code{\link{CallbackSetCheckpoint}} contains the \verb{$state_dict()} of every callback
-of the run, and a run that resumes from it hands those back to \verb{$load_state_dict()}, matched to
-this run's callbacks by id (see the \code{path} parameter of \code{\link{LearnerTorch}}).
-A callback that implements neither method therefore restores nothing and starts over, which for
-a stateless callback is the correct behaviour.
-Each of the predefined callbacks documents what it restores in a \emph{Resuming} section of its own.
-
-\verb{$load_state_dict()} is called \emph{before} the \code{begin} stage, so a callback that only creates the
-object its state belongs to in \verb{$on_begin()} -- as the learning rate schedulers do -- has to
-remember the state and apply it there.
+It is possible to resume the training of a \code{\link{LearnerTorch}} by providing it with a path to a
+checkpoint folder, which also containes the state dicts of the callbacks.
+In order to allow for a stateful callback to be resumed, it therefore needs to implement \verb{$state_dict()}
+and \verb{$load_state_dict()}, where the former defines what is saved in the checkpoint folder and
+the latter how that information is read into a freshly created callback when training is continued.
+Ideally, training for \code{n1} epochs and then continuing for an additional \code{n2} epochs behaves
+like training for \code{n1 + n2} epochs.
+This is not always possible and callbacks therefore have a section on their behavior when
+resuming a training run.
 }
 
 \examples{

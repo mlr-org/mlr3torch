@@ -36,26 +36,10 @@
 * Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
 * `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
   of the training run.
-* `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage.
-  A callback that needs a default other than `0` sets it in its `$initialize()`, so it can still be
-  overwritten via `t_clbk("<id>", weight = <value>)`.
-* Training errors when a callback that stores a state is ordered after `t_clbk("checkpoint")` within
-  an epoch, which would checkpoint the state it had one epoch earlier.
-* `t_clbk("progress")` now reports how long training took and carries that time across a resume, so
-  the total covers the runs the checkpoint came from as well.
-* `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
-* `t_clbk("checkpoint")` additionally writes a `state<n>.rds` next to `network<n>.pt` and
-  `optimizer<n>.pt`, holding the epoch, the `mlr3torch` version and the states of the other
-  callbacks. All three files are required for a checkpoint to count as complete.
-* `t_clbk("checkpoint")` accepts a `path` that already contains checkpoints, so a run continuing an
-  earlier one can keep writing into it. Writing over the checkpoint of another run is an error.
-* The learning rate scheduling and unfreezing callbacks implement `$state_dict()` and
-  `$load_state_dict()`, and early stopping additionally stores its best score and stagnation
-  counter, so the state of a training run can be carried over into another one.
-* New `LearnerTorch` parameter `path` to continue training from a checkpoint, also in a new R
-  session (#423). It is either the path of a folder written by `t_clbk("checkpoint")` or `TRUE`,
-  which takes the path from the checkpoint callback of the learner. `epochs` is the total number of
-  epochs, i.e. it includes those the checkpoint was already trained for.
+* Callbacks can now be ordered via a `weight` field.
+* A `LearnerTorch` can now be resumed from a checkpoint, which includes resuming the callbacks.
+* `t_clbk("checkpoint")` now also writes the callback states, as well as the class behind each
+  callback id, so a resumed run errors instead of restoring a state into a different callback.
 * The `path` of `t_clbk("checkpoint")` can now be a `function()` that is called at the beginning of
   each training run and returns that run's path.
 
@@ -63,18 +47,6 @@
 
 * Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
-* `t_clbk("checkpoint")` no longer writes a checkpoint when training fails in the middle of an
-  epoch, so `network<n>.pt` is now always the network at the *end* of epoch `n` rather than
-  sometimes a half-trained one. Reading a folder that holds an incomplete checkpoint warns.
-* `t_clbk("history")` no longer errors when a run adds no new scores to a history that was loaded
-  via `$load_state_dict()`, which happens when a resumed checkpoint is already at `epochs`.
-* `t_clbk("tb")` now logs the training loss under an explicit step and carries that step across a
-  resume, so a resumed run continues the curve instead of writing a second one starting at `0`.
-* Resuming with `restore_best_weights` now warns that the weights of the best epoch are not part of
-  a checkpoint, instead of silently ending with the network of the last epoch.
-* Resuming a learning rate schedule no longer rewinds the optimizer's learning rate to the one the
-  schedule started at. This was only visible for `t_clbk("lr_multiplicative")`, which computes the
-  next rate from the current one and therefore restarted its schedule instead of continuing it.
 * `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
     sometimes doubles like `NA`).

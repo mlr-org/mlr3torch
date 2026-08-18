@@ -27,6 +27,7 @@ You can overload the \verb{$state_dict()} public method to define what will be s
 after training finishes.
 This then also requires to implement a \verb{$load_state_dict(state_dict)} method that defines how to load a previously saved
 callback state into a different callback.
+This is necessary for being able to resume a training run, see section \emph{Resuming}.
 Note that the \verb{$state_dict()} should not include the parameter values that were used to initialize the callback.
 
 For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
@@ -60,8 +61,6 @@ A callback can override this via its \verb{$weight} field: callbacks with a high
 after those with a lower one, and callbacks with the same weight keep the order in which they
 were passed.
 The default weight is \code{0}.
-A callback that needs another default sets it in its \verb{$initialize()} method, so that it stays
-overwritable, e.g. via \verb{t_clbk("<id>", weight = <value>)}.
 This matters for callbacks that observe what the others did, which is why
 \code{\link{CallbackSetCheckpoint}} defaults to weight \code{Inf}: it runs last and therefore saves the network
 and optimizer as the other callbacks left them at the end of the stage.
@@ -72,16 +71,15 @@ stored an epoch behind, so training errors instead.
 
 \section{Resuming}{
 
-A checkpoint written by \code{\link{CallbackSetCheckpoint}} contains the \verb{$state_dict()} of every callback
-of the run, and a run that resumes from it hands those back to \verb{$load_state_dict()}, matched to
-this run's callbacks by id (see the \code{path} parameter of \code{\link{LearnerTorch}}).
-A callback that implements neither method therefore restores nothing and starts over, which for
-a stateless callback is the correct behaviour.
-Each of the predefined callbacks documents what it restores in a \emph{Resuming} section of its own.
-
-\verb{$load_state_dict()} is called \emph{before} the \code{begin} stage, so a callback that only creates the
-object its state belongs to in \verb{$on_begin()} -- as the learning rate schedulers do -- has to
-remember the state and apply it there.
+It is possible to resume the training of a \code{\link{LearnerTorch}} by providing it with a path to a
+checkpoint folder, which also containes the state dicts of the callbacks.
+In order to allow for a stateful callback to be resumed, it therefore needs to implement \verb{$state_dict()}
+and \verb{$load_state_dict()}, where the former defines what is saved in the checkpoint folder and
+the latter how that information is read into a freshly created callback when training is continued.
+Ideally, training for \code{n1} epochs and then continuing for an additional \code{n2} epochs behaves
+like training for \code{n1 + n2} epochs.
+This is not always possible and callbacks therefore have a section on their behavior when
+resuming a training run.
 }
 
 \section{Terminate Training}{

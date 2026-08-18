@@ -31,7 +31,6 @@
 #' To create a `CallbackSet` the convenience function [`callback_set()`] can be used.
 #' These functions perform checks such as that the stages are not accidentally misspelled.
 #'
-#'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
 #' * `epoch_begin` :: Run at the beginning of each epoch.
@@ -52,8 +51,6 @@
 #' after those with a lower one, and callbacks with the same weight keep the order in which they
 #' were passed.
 #' The default weight is `0`.
-#' A callback that needs another default sets it in its `$initialize()` method, so that it stays
-#' overwritable, e.g. via `t_clbk("<id>", weight = <value>)`.
 #' This matters for callbacks that observe what the others did, which is why
 #' [`CallbackSetCheckpoint`] defaults to weight `Inf`: it runs last and therefore saves the network
 #' and optimizer as the other callbacks left them at the end of the stage.
@@ -62,16 +59,15 @@
 #' stored an epoch behind, so training errors instead.
 #'
 #' @section Resuming:
-#' A checkpoint written by [`CallbackSetCheckpoint`] contains the `$state_dict()` of every callback
-#' of the run, and a run that resumes from it hands those back to `$load_state_dict()`, matched to
-#' this run's callbacks by id (see the `path` parameter of [`LearnerTorch`]).
-#' A callback that implements neither method therefore restores nothing and starts over, which for
-#' a stateless callback is the correct behaviour.
-#' Each of the predefined callbacks documents what it restores in a *Resuming* section of its own.
-#'
-#' `$load_state_dict()` is called *before* the `begin` stage, so a callback that only creates the
-#' object its state belongs to in `$on_begin()` -- as the learning rate schedulers do -- has to
-#' remember the state and apply it there.
+#' It is possible to resume the training of a [`LearnerTorch`] by providing it with a path to a
+#' checkpoint folder, which also containes the state dicts of the callbacks.
+#' In order to allow for a stateful callback to be resumed, it therefore needs to implement `$state_dict()`
+#' and `$load_state_dict()`, where the former defines what is saved in the checkpoint folder and
+#' the latter how that information is read into a newly created callback when training is continued.
+#' Ideally, training for `n1` epochs and then continuing for an additional `n2` epochs behaves
+#' like training for `n1 + n2` epochs.
+#' This is not always possible and callbacks therefore have a section on their behavior when
+#' resuming a training run.
 #'
 #' @section Terminate Training:
 #' If training is to be stopped, it is possible to set the field `$terminate` of [`ContextTorch`].

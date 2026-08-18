@@ -107,6 +107,13 @@ test_that("weight influences the phash", {
   expect_equal(light$phash, heavy$phash)
 })
 
+test_that("'weight' is reserved and cannot be a parameter", {
+  gen = callback_set("CallbackSetTestWeight", initialize = function(weight) NULL)
+  expect_error(TorchCallback$new(gen), "'weight' is reserved")
+  expect_error(TorchCallback$new(gen, param_set = ps(weight = p_dbl(tags = "train"))),
+    "'weight' is reserved")
+})
+
 test_that("weight reaches the hash of a learner using the callback", {
   # the order the callbacks run in changes what is trained, so two learners that differ only in it
   # must not be treated as the same learner by tuning, benchmarking or caching
@@ -199,16 +206,17 @@ test_that("early stopping may run after the checkpoint callback", {
   )
 })
 
-test_that("a callback's default weight is set in $initialize() and can be overwritten", {
-  # the default is not baked into the class as a public field, so both the constructor and
-  # `t_clbk()` can put the callback somewhere else in the order
-  expect_equal(CallbackSetCheckpoint$new(path = tempfile(), freq = 1, weight = 3)$weight, 3)
+test_that("a callback's default weight can be overwritten via the TorchCallback", {
+  # `weight` is reserved, so it is not a construction argument of the checkpoint callback ...
+  expect_equal(CallbackSetCheckpoint$new(path = tempfile(), freq = 1)$weight, Inf)
+  expect_error(CallbackSetCheckpoint$new(path = tempfile(), freq = 1, weight = 3), "unused argument")
+  # ... but `t_clbk()` can still put the callback somewhere else in the order
   expect_equal(t_clbk("checkpoint", freq = 1, path = tempfile(), weight = 3)$generate()$weight, 3)
+  expect_error(t_clbk("checkpoint", freq = 1, path = tempfile(), weight = "high"),
+    "Must be of type 'number'")
 
   expect_equal(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0)$weight, Inf)
   expect_equal(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0, weight = -1)$weight, -1)
-
-  expect_error(CallbackSetCheckpoint$new(path = tempfile(), freq = 1, weight = "high"), "weight")
 })
 
 test_that("weight is validated", {

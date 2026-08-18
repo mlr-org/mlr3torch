@@ -1225,7 +1225,6 @@ test_that("the model has a printer", {
   expect_snapshot(learner$model)
 })
 
-<<<<<<< HEAD
 # The `path` parameter, i.e. continuing training from a checkpoint written by t_clbk("checkpoint").
 
 make_checkpoint = function(epochs = 2L, freq = 1L, path = tempfile(), callbacks = list(), ...) {
@@ -1256,14 +1255,18 @@ test_that("resuming loads the checkpointed weights", {
   path = tempfile()
   first = make_checkpoint(epochs = 2L, path = path)
 
-  # nothing left to train, so the network must be exactly the one of the checkpoint
-  resumed = resumer(2L, path)
-  expect_warning(resumed$train(tsk("iris")), "No further epochs")
+  # the weights the resumed run starts from -- `on_begin` runs after the checkpoint was restored --
+  # are exactly the ones the checkpoint holds
+  restored = NULL
+  remember = function() {
+    restored <<- as.numeric(self$ctx$network$parameters[[1L]]$flatten())
+  }
+  record = torch_callback("record", on_begin = remember)
 
-  expect_equal(
-    as.numeric(resumed$network$parameters[[1L]]$flatten()),
-    as.numeric(first$network$parameters[[1L]]$flatten())
-  )
+  resumed = resumer(3L, path, callbacks = record)
+  resumed$train(tsk("iris"))
+
+  expect_equal(restored, as.numeric(first$network$parameters[[1L]]$flatten()))
 })
 
 test_that("training starts from scratch when there is no checkpoint yet", {
@@ -1328,16 +1331,14 @@ test_that("the history of the previous run is continued", {
   )
 })
 
-test_that("a checkpoint that is already at 'epochs' warns and trains nothing", {
+test_that("a checkpoint that is already at 'epochs' is an error", {
+  # 'epochs' is the total, so a run that has no epoch of its own to train is a misconfiguration and
+  # not a no-op: the user asked for fewer epochs than the checkpoint already has
   path = tempfile()
-  make_checkpoint(epochs = 3L, path = path, callbacks = list(t_clbk("history")),
-    measures_train = msrs("classif.acc"))
+  make_checkpoint(epochs = 3L, path = path)
 
-  resumed = resumer(3L, path, callbacks = t_clbk("history"), measures_train = msrs("classif.acc"))
-  expect_warning(resumed$train(tsk("iris")), "trained for 3 epochs, but 'epochs' is 3")
-  expect_equal(resumed$model$epochs, 3L)
-  # this run contributes no scores of its own, which must not break the history
-  expect_equal(resumed$model$callbacks$history[order(get("epoch"))]$epoch, 1:3)
+  expect_error(resumer(3L, path)$train(tsk("iris")), "trained for 3 epochs, but 'epochs' is 3")
+  expect_error(resumer(2L, path)$train(tsk("iris")), "trained for 3 epochs, but 'epochs' is 2")
 })
 
 test_that("the learning rate schedule is continued", {
@@ -1422,7 +1423,8 @@ test_that("path = TRUE takes the path from the checkpoint callback", {
 
 test_that("path = TRUE errors without a checkpoint callback", {
   learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, path = TRUE)
-  expect_error(learner$train(tsk("iris")), "no 'checkpoint' callback")
+  # a misconfiguration, so it must not be swallowed by a fallback learner
+  expect_error_config(learner$train(tsk("iris")), "no 'checkpoint' callback")
 })
 
 test_that("path is checked", {
@@ -1454,6 +1456,34 @@ test_that("states of callbacks that are not part of the run are skipped with a w
 
   resumed = resumer(2L, path)
   expect_warning(resumed$train(tsk("iris")), "'history'.*not part of this training run")
+})
+
+test_that("a state is not restored into a callback of another class", {
+  # ids alone cannot tell the callbacks apart, so the checkpoint records what was behind each one
+  path = tempfile()
+  make_checkpoint(epochs = 1L, path = path, callbacks = list(t_clbk("history")))
+
+  impostor = torch_callback("history", classname = "CallbackSetImpostor",
+    state_dict = function() list(), load_state_dict = function(state_dict) NULL)
+  resumed = resumer(2L, path, callbacks = impostor)
+  expect_error(resumed$train(tsk("iris")),
+    "'history' was a <CallbackSetHistory> and is a <CallbackSetImpostor>")
+
+  # the same class under the same id is restored as before
+  expect_no_error(resumer(2L, path, callbacks = t_clbk("history"))$train(tsk("iris")))
+})
+
+test_that("a checkpoint written before the classes were recorded is still resumed", {
+  # such a checkpoint cannot be checked, which must not stop it from being continued
+  path = tempfile()
+  make_checkpoint(epochs = 1L, path = path, callbacks = list(t_clbk("history")))
+  state = readRDS(file.path(path, "state1.rds"))
+  state$classes = NULL
+  saveRDS(state, file.path(path, "state1.rds"))
+
+  resumed = resumer(2L, path, callbacks = t_clbk("history"))
+  expect_no_error(resumed$train(tsk("iris")))
+  expect_equal(resumed$model$epochs, 2L)
 })
 
 test_that("stateless callbacks do not interfere with resuming", {
@@ -1512,9 +1542,9 @@ test_that("resuming a checkpoint written by another mlr3torch version warns", {
   expect_warning(resumed$train(tsk("iris")), "written by mlr3torch 0.0.1")
 })
 
-test_that("re-running a finished script is a no-op, whatever `freq` is", {
+test_that("re-running a finished script errors and leaves the checkpoint alone, whatever `freq` is", {
   # `epochs` is the total, so running the same script again resumes a checkpoint that is already
-  # there and trains nothing. It must not try to rewrite that checkpoint.
+  # there and has nothing left to train. It must say so instead of rewriting that checkpoint.
   task = tsk("iris")
   walk(c(1L, 2L, 3L), function(freq) {
     path = tempfile()
@@ -1525,9 +1555,7 @@ test_that("re-running a finished script is a no-op, whatever `freq` is", {
     make()$train(task)
     before = list.files(path)
 
-    again = make()
-    expect_warning(again$train(task), "No further epochs are trained")
-    expect_equal(again$model$epochs, 5L)
+    expect_error(make()$train(task), "trained for 5 epochs, but 'epochs' is 5")
     expect_set_equal(list.files(path), before)
   })
 })
@@ -1689,9 +1717,9 @@ test_that("the tensorboard callback does not interfere with a resume", {
   expect_equal(resumed$model$epochs, 4L)
 })
 
-test_that("an incomplete checkpoint does not make its folder unusable", {
-  # a checkpoint that is too incomplete to resume from must also be one that may be written over,
-  # otherwise the folder is stuck: every attempt resumes from an earlier epoch and then collides
+test_that("a folder is not written into again while its newest checkpoint is incomplete", {
+  # the newest checkpoint is where a resuming run picks the folder up, so a half-written one has to
+  # be cleaned up before the folder takes another run
   task = tsk("iris")
   path = tempfile()
   first = lrn("classif.mlp", epochs = 6L, batch_size = 50, neurons = 10,
@@ -1701,10 +1729,16 @@ test_that("an incomplete checkpoint does not make its folder unusable", {
 
   resumed = lrn("classif.mlp", epochs = 8L, batch_size = 50, neurons = 10, path = path,
     callbacks = t_clbk("checkpoint", freq = 1, path = path))
-  expect_warning(resumed$train(task), "Ignoring incomplete checkpoint\\(s\\) 6")
-  expect_equal(resumed$model$epochs, 8L)
-||||||| ce6e21fae
-=======
+  expect_error(resumed$train(task), "already exists")
+
+  # once the leftover is gone, epoch 5 is the newest one and the folder is usable again
+  file.remove(file.path(path, c("network6.pt", "state6.rds")))
+  again = lrn("classif.mlp", epochs = 8L, batch_size = 50, neurons = 10, path = path,
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  again$train(task)
+  expect_equal(again$model$epochs, 8L)
+})
+
 test_that("resample() returns the learners in iteration order", {
   # the hash of the MLP below was not stable previously, because the hash of a newly created
   # module changes after it's jit compiled
@@ -1777,5 +1811,4 @@ test_that("hashes are reproducible across R sessions", {
   expect_equal(hash_in_session(FALSE), hash_in_session(TRUE))
   expect_equal(hash_in_session(FALSE), lrn("classif.mlp", activation = nn_relu, neurons = 3,
     epochs = 1, batch_size = 16, device = "cpu")$hash)
->>>>>>> main
 })

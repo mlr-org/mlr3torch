@@ -114,6 +114,9 @@ test_that("the state file holds the epoch and the states of the other callbacks"
 
   # the checkpoint callback itself is stateless and therefore not part of the file
   expect_true("checkpoint" %nin% names(state$callbacks))
+
+  # the class behind each id, so that a resuming run can tell the callbacks apart
+  expect_equal(state$classes, c(history = "CallbackSetHistory"))
 })
 
 test_that("a failure writes nothing beyond what `freq` had already saved", {
@@ -210,18 +213,35 @@ test_that("the checkpoint of another run is never overwritten", {
   expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt", "state1.rds"))
 })
 
-test_that("an incomplete leftover checkpoint may be replaced", {
-  # what a run killed while writing leaves behind. It is unusable, and refusing to replace it would
-  # mean such a run could never be restarted into its own folder.
+test_that("a run that does not train past the latest checkpoint is refused", {
+  # a folder is resumed from its most recent checkpoint, so a run that stops at or before it would
+  # leave the folder holding two runs while still resuming into the earlier one
   task = tsk("iris")
+  path = tempfile()
+  first = lrn("classif.mlp", epochs = 3L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 3, path = path))
+  first$train(task)
+
+  # 'epochs' is the total number of epochs, so 3 leaves nothing to train and 2 even less
+  for (epochs in c(2L, 3L)) {
+    second = lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
+      callbacks = t_clbk("checkpoint", freq = 1, path = path))
+    expect_error(second$train(task), "would not get past it", info = epochs)
+  }
+
+  # refused before the first epoch, so the earlier run's checkpoint is the only thing in the folder
+  expect_set_equal(list.files(path), c("network3.pt", "optimizer3.pt", "state3.rds"))
+})
+
+test_that("a folder whose newest checkpoint is incomplete is refused", {
+  # what a run killed while writing leaves behind. The newest checkpoint is the one a resuming run
+  # continues from, so the folder is only handed to another run once it holds one that can be.
   path = tempfile()
   dir.create(path)
   file.create(file.path(path, c("network1.pt", "optimizer1.pt")))
 
-  learner = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
-    callbacks = t_clbk("checkpoint", freq = 1, path = path))
-  expect_no_error(learner$train(task))
-  expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt", "state1.rds"))
+  expect_error(t_clbk("checkpoint", freq = 1, path = path)$generate(), "already exists")
+  expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt"))
 })
 
 test_that("latest_checkpoint() finds the most recent complete checkpoint", {

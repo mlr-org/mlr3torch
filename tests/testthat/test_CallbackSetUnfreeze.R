@@ -104,3 +104,28 @@ test_that("the set of trainable weights can be saved and restored", {
     expect_true("3.weight" %nin% second$model$callbacks$unfreeze$trainable)
   })
 })
+
+
+test_that("restored trainable weights that the network does not have are ignored", {
+  # the resuming run builds its network from its own configuration, so a state can name weights
+  # that network does not have -- e.g. after a change of task or of `neurons`. Those must be
+  # skipped rather than stop the run from starting.
+  task = tsk("iris")
+  state = list(trainable = c("0.weight", "99.weight"))
+  restore = torch_callback("restore",
+    on_begin = function() self$ctx$callbacks$unfreeze$load_state_dict(state))
+
+  learner = lrn("classif.mlp", epochs = 1L, batch_size = 150, neurons = c(1, 1, 1),
+    callbacks = list(restore, t_clbk("unfreeze")),
+    cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight"))),
+    cb.unfreeze.unfreeze = data.table(epoch = 2, weights = list(select_name("0.weight")))
+  )
+  expect_no_error(learner$train(task))
+
+  trainable = learner$model$callbacks$unfreeze$trainable
+  # the weight the network does have was unfrozen, the one it does not have was passed over
+  expect_true("0.weight" %in% trainable)
+  expect_true("99.weight" %nin% trainable)
+  # and a weight the state did not name is still frozen
+  expect_true("3.weight" %nin% trainable)
+})

@@ -20,8 +20,9 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
 
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
-  if (isTRUE(param_vals$path) && !length(checkpoint_callbacks(self$callbacks))) {
-    stopf("Learner '%s' has 'path' set to TRUE, but no 'checkpoint' callback to take the path from. Either add one via t_clbk(\"checkpoint\") or set 'path' to a checkpoint folder.", self$id) # nolint
+  is_checkpoint = function(descriptor) identical(descriptor$generator, CallbackSetCheckpoint)
+  if (isTRUE(param_vals$path) && !some(self$callbacks, is_checkpoint)) {
+    error_config("Learner '%s' has 'path' set to TRUE, but no 'checkpoint' callback to take the path from. Either add one via t_clbk(\"checkpoint\") or set 'path' to a checkpoint folder.", self$id) # nolint
   }
   dataset_train = private$.dataset(task, param_vals)
   dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
@@ -153,8 +154,6 @@ train_loop = function(ctx, cbs, resume_path = NULL) {
   # during the final two callback stages
   ctx$epoch = 0L
 
-  # this happens before the 'begin' stage so that the callbacks see the restored state, e.g. the
-  # learning rate scheduler continues the schedule instead of creating a new one
   if (!is.null(resume_path)) resume_training(ctx, resume_path)
 
   call("on_begin")
@@ -254,10 +253,6 @@ train_loop = function(ctx, cbs, resume_path = NULL) {
   )
 }
 
-# Continues training from a checkpoint as written by CallbackSetCheckpoint, i.e. restores the
-# network, the optimizer and the states of the callbacks and continues at the checkpointed epoch.
-# `resume_path` is the path to a checkpoint folder or TRUE for the folder of the checkpoint
-# callback of this run. See the `path` parameter of LearnerTorch.
 resume_training = function(ctx, resume_path) {
   path = if (isTRUE(resume_path)) checkpoint_callback_path(ctx$callbacks) else resume_path
 
@@ -267,44 +262,22 @@ resume_training = function(ctx, resume_path) {
     lg$info("No checkpoint found in '%s', starting training from scratch.", path)
     return(invisible(NULL))
   }
+  epochs_trained = checkpoint$epoch
+  if (epochs_trained >= ctx$total_epochs) {
+    stopf("The checkpoint in '%s' was already trained for %i epochs, but 'epochs' is %i. Note that 'epochs' is the total number of epochs, including those of the checkpoint, so it must be greater than %i.", # nolint
+      path, epochs_trained, ctx$total_epochs, epochs_trained)
+  }
   lg$info("Resuming training from checkpoint '%s'.", checkpoint$network)
 
   ctx$network$load_state_dict(torch_load(checkpoint$network))
   ctx$optimizer$load_state_dict(torch_load(checkpoint$optimizer))
 
   state = read_checkpoint_state(checkpoint$state)
-  load_callback_states(ctx$callbacks, state$callbacks)
+  load_callback_states(ctx$callbacks, state$callbacks, state$classes)
 
-  epochs_trained = checkpoint$epoch
-  if (epochs_trained >= ctx$total_epochs) {
-    warningf("The checkpoint was trained for %i epochs, but 'epochs' is %i. No further epochs are trained. Note that 'epochs' is the total number of epochs, including those of the checkpoint.", # nolint
-      epochs_trained, ctx$total_epochs)
-  }
   ctx$epoch = epochs_trained
 
   invisible(NULL)
-}
-
-# Whether `cb` checkpoints. It is either a TorchCallback descriptor (as in `learner$callbacks`) or
-# the CallbackSet it generates (as in `ctx$callbacks`).
-is_checkpoint_callback = function(cb) {
-  if (inherits(cb, "TorchCallback")) {
-    identical(cb$generator, CallbackSetCheckpoint)
-  } else {
-    inherits(cb, "CallbackSetCheckpoint")
-  }
-}
-
-# The checkpoint callbacks among `cbs`.
-checkpoint_callbacks = function(cbs) {
-  keep(cbs, is_checkpoint_callback)
-}
-
-# Whether `cb` overrides `method` of the CallbackSet base class, which is how a callback signals
-# that it takes part in checkpointing. R6 binds methods to the object's environment, so only the
-# body can be compared.
-overrides_default = function(cb, method) {
-  !identical(body(cb[[method]]), body(CallbackSet$public_methods[[method]]))
 }
 
 # The checkpoint callback reads the states of the other callbacks when it writes them, i.e. in the
@@ -313,12 +286,16 @@ overrides_default = function(cb, method) {
 # The checkpoint's default weight of `Inf` puts it last, but a tie at `Inf` is broken by the order
 # the callbacks were passed in, so a state-losing order is still reachable.
 assert_checkpoint_writes_last = function(cbs) {
-  checkpoints = which(map_lgl(cbs, is_checkpoint_callback))
+  checkpoints = which(map_lgl(cbs, function(cb) inherits(cb, "CallbackSetCheckpoint")))
   if (!length(checkpoints)) {
     return(invisible(NULL))
   }
+  # A callback keeps a state when it implements `$state_dict()` rather than inheriting the one of
+  # CallbackSet, which returns NULL. R6 gives every object its own copy of each public method,
+  # rebound to that object's environment, so an inherited method is only recognisable by its body.
   stale = keep(cbs[-seq_len(max(checkpoints))], function(cb) {
-    overrides_default(cb, "state_dict") && any(c("on_epoch_end", "on_end") %in% cb$stages)
+    !identical(body(cb$state_dict), body(CallbackSet$public_methods$state_dict)) &&
+      any(c("on_epoch_end", "on_end") %in% cb$stages)
   })
   if (length(stale)) {
     stopf("Callback(s) %s update their state at the end of an epoch but run after the 'checkpoint' callback, which would store the state they had one epoch earlier. Give them a lower $weight than the checkpoint callback, see the section 'Ordering' of CallbackSet.", # nolint
@@ -329,7 +306,7 @@ assert_checkpoint_writes_last = function(cbs) {
 
 # The path that the checkpoint callback of this training run writes to.
 checkpoint_callback_path = function(cbs) {
-  cbs = checkpoint_callbacks(cbs)
+  cbs = keep(cbs, function(cb) inherits(cb, "CallbackSetCheckpoint"))
   # already asserted at the beginning of training, this only guards against internal misuse
   if (!length(cbs)) {
     stopf("'path' is TRUE, but there is no 'checkpoint' callback to take the path from.")
@@ -337,21 +314,34 @@ checkpoint_callback_path = function(cbs) {
   cbs[[1L]]$path
 }
 
-# Restores `states` into the callbacks `cbs` of this run, matching them by id and nothing else.
-# Giving two structurally different callbacks the same id in the two runs therefore feeds the state
-# of one into the other, which neither this function nor $load_state_dict() can detect -- see the
-# 'Resuming' section of LearnerTorch.
-load_callback_states = function(cbs, states) {
+# Restores `states` into the callbacks `cbs` of this run, matching them by id. `classes` are the
+# classes the callbacks had when the checkpoint was written, which is what makes a state that
+# belongs to a different callback detectable -- an id alone does not say what is behind it.
+# It is NULL for checkpoints written before the classes were recorded, which cannot be checked.
+load_callback_states = function(cbs, states, classes = NULL) {
   if (!length(states)) return(invisible(NULL))
   unknown = setdiff(names(states), names(cbs))
   if (length(unknown)) {
     warningf("The checkpoint contains states for callback(s) %s, which are not part of this training run. They are ignored.", # nolint
       paste0("'", unknown, "'", collapse = ", "))
   }
-  iwalk(states[intersect(names(states), names(cbs))], function(state, id) {
+  shared = intersect(names(states), names(cbs))
+  # checked for all of them before the first state is restored, so that a run resuming a checkpoint
+  # that is not its own fails without having half-restored it
+  mismatch = keep(shared, function(id) {
+    id %in% names(classes) && !identical(class(cbs[[id]])[[1L]], classes[[id]])
+  })
+  if (length(mismatch)) {
+    stopf("The callbacks of this run are not the ones the checkpoint stored a state for: %s. States are matched by id, so restoring would feed the state of one callback into another. Resume with the callbacks the checkpoint was written with, or give the new ones ids of their own.", # nolint
+      paste0(map_chr(mismatch, function(id) {
+        sprintf("'%s' was a <%s> and is a <%s>", id, classes[[id]], class(cbs[[id]])[[1L]])
+      }), collapse = ", "))
+  }
+  iwalk(states[shared], function(state, id) {
     cb = cbs[[id]]
-    # the default method only accepts NULL, i.e. the callback cannot restore anything
-    if (!overrides_default(cb, "load_state_dict")) {
+    # a callback that inherits `$load_state_dict()` cannot take a state back: the inherited one
+    # only accepts NULL, so handing it a state errors instead of restoring anything
+    if (identical(body(cb$load_state_dict), body(CallbackSet$public_methods$load_state_dict))) {
       warningf("Callback '%s' does not implement $load_state_dict(), its state is ignored.", id)
       return(NULL)
     }

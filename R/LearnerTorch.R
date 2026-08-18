@@ -29,6 +29,27 @@
 #' To do so, you just need to include `epochs = to_tune(upper = <upper>, internal = TRUE)` in the search space,
 #' where `<upper>` is the maximally allowed number of epochs, and configure the early stopping.
 #'
+#' @section Resuming:
+#' Training can be continued from a checkpoint written by
+#' [`t_clbk("checkpoint")`][mlr_callback_set.checkpoint] by setting the `path` parameter.
+#' This parameter can either be a path or `TRUE` which will use the path of the provided checkpoint
+#' callback.
+#' When the latest written checkpoint was for `n1` epochs, the learner needs to be configured
+#' to be trained for `n > n1` epochs and the training will run for `n2 = n - n1` epochs.
+#' Resuming will load the network weights, optimizer states and callback states.
+#' For some callbacks, training for `n1` and then `n2` epochs via resuming is not the same as
+#' training for `n` epochs from the start.
+#' This is for example the case for learning rate schedulers that depend on the total number of epochs
+#' to train for.
+#' The callbacks document their behavior under a corresponding
+#' *Resuming* section in their documentation.
+#' Furthermore, rng states are not restored, which constitutes another difference between a full
+#' and a resumed training run.
+#'
+#' Callback states are matched to the callbacks of the resuming run **by id**.
+#' A state whose id is not among this run's callbacks is skipped with a warning, and a callback
+#' whose id is not in the checkpoint simply starts fresh.
+#'
 #' @section Network Head and Target Encoding:
 #' Torch learners are expected to have the following output:
 #' * binary classification: `(batch_size, 1)`, representing the logits for the positive class.

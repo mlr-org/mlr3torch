@@ -3,10 +3,12 @@
 #' @name mlr_callback_set.checkpoint
 #'
 #' @description
-#' Saves the optimizer and network states during training.
-#' The last epoch of a run that finished is always stored, whether or not `freq` falls on it.
-#' A run that failed in the middle of an epoch keeps only what `freq` wrote before that, because
-#' the network and optimizer are then at no epoch boundary.
+#' Saves the optimizer, weights, and callback states every `freq` epochs as well as the final state.
+#' This can be used to later continue a training run via the `path` parameter from [`LearnerTorch`].
+#'
+#' A folder holds the checkpoints of a single run, which is continued from where it ended: training
+#' errors when `epochs` is not greater than the most recent checkpoint in `path`, and a run never
+#' writes over a checkpoint that is already there.
 #'
 #' Checkpoints are written at the end of an epoch. For one written after epoch `<n>`, three files
 #' are created in `path`:
@@ -15,33 +17,16 @@
 #' * `state<n>.rds` :: The epoch, the version of `mlr3torch` that wrote the checkpoint, as well as
 #'   the `$state_dict()`s of the other callbacks of the training run, so that a later run can
 #'   continue e.g. the training history or the learning rate schedule.
-#'   Resuming from a checkpoint written by a different version of `mlr3torch` warns, because what a
-#'   callback stores in its state dict is up to the callback and may change between releases.
-#'
-#' A checkpoint counts as complete only if all three files are present, so a run that was killed
-#' while writing one of them falls back to the previous checkpoint rather than to a partial one.
-#' Reading a folder that holds such a partial checkpoint warns, as skipping it silently would look
-#' like the run simply got less far than it did.
-#'
-#' `path` may already contain checkpoints, which is what a run continuing an earlier one writes
-#' into: it writes epochs that folder does not have yet, so nothing of the earlier run is touched.
-#' A run that would write over a checkpoint of another run errors instead, so a folder is never
-#' silently left holding the epochs of two different trainings.
-#' An incomplete checkpoint is replaced rather than protected -- it cannot be resumed from anyway,
-#' and refusing would mean a run killed while writing could never be restarted into its own folder.
-#'
-#' Training can be continued from such a checkpoint -- also in a new R session -- via the `path`
-#' parameter of [`LearnerTorch`], see the example below.
+#'   The class of each of those callbacks is recorded next to its state, which lets a resuming run
+#'   notice that an id now stands for a different callback instead of restoring the state of one
+#'   into the other.
 #'
 #' @section Resuming:
-#' This callback keeps no state of its own: it stores nothing in the checkpoint it writes and
-#' restores nothing from the one a run resumes.
-#' What resuming changes is where it starts writing.
-#' A resumed run only writes the epochs it trains itself, so the checkpoints of the run it continues
-#' stay as they are, and a run that trains no epochs of its own -- because the checkpoint is already
-#' at `epochs` -- writes nothing.
-#' Pointing this callback's `path` and [`LearnerTorch`]'s `path` at the same folder hence continues a
-#' run in place, which is what setting the latter to `TRUE` does.
+#' This callback is special because it enables resuming a training run.
+#' It does not contain a state itself.
+#' @section Ordering:
+#' This callback has weight `Inf` and therefore runs last, so it captures all the changes other
+#' callbacks made.
 #'
 #' @details
 #' Saving the learner itself in the callback with a trained model is impossible,
@@ -51,8 +36,9 @@
 #'   The path to a folder where the models are saved, or a function of no arguments returning it.
 #'   The latter is especially useful to create unique directories during `resample()` or `benchmark()`
 #'   per fit.
-#'   The folder must be new, empty, or already contain checkpoints, so that a checkpoint never
-#'   overwrites unrelated data.
+#'   The folder must be new, empty, or already contain checkpoints whose newest epoch is complete.
+#'   A folder whose newest checkpoint is half-written -- what a run killed mid-write leaves behind --
+#'   is refused, as that is the checkpoint a resuming run would continue from.
 #' @param freq (`integer(1)`)\cr
 #'   How often the model is saved, in epochs.
 #' @family Callback
@@ -80,17 +66,12 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   lock_objects = FALSE,
   # TODO: This should also save the learner itself
   public = list(
+    #' @field weight (`numeric(1)`)\cr
+    #'   Always `Inf`, see section *Ordering*.
+    weight = Inf,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param weight (`numeric(1)`)\cr
-    #'   Controls when this callback is called within a stage, see section *Ordering* of
-    #'   [`CallbackSet`].
-    #'   Defaults to `Inf`, so that this callback runs after the other callbacks and hence saves the
-    #'   network and optimizer as they are at the end of the stage.
-    #'   The only exception is the restore of `restore_best_weights`, which happens afterwards, so
-    #'   a checkpoint always holds the network as training left it.
-    initialize = function(path, freq, weight = Inf) {
-      self$weight = assert_number(weight)
+    initialize = function(path, freq) {
       self$freq = assert_int(freq, lower = 1L)
       # a function is evaluated once per training run, which is what makes resampling, benchmarking
       # and tuning possible: every iteration can compute a path of its own
@@ -104,16 +85,25 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
       }
     },
     #' @description
-    #' Refuses to start when this run would write over the checkpoint of another run.
+    #' Refuses to start when this run would not get past the checkpoint that is already in `path`,
+    #' or would write over the checkpoint of another run.
     on_begin = function() {
       # the epoch this run starts from: 0, or the epoch a resumed checkpoint left off at
       private$.start_epoch = self$ctx$epoch
+      complete = checkpoint_files(self$path)$complete
+      # The most recent checkpoint is where the run in this folder ended, which is also where a
+      # later resume picks it up again. A run that does not train past it therefore leaves the
+      # folder holding the epochs of two runs while still resuming into the earlier one.
+      if (length(complete) && self$ctx$total_epochs <= complete[1L]) {
+        stopf("The most recent checkpoint in '%s' is at epoch %i, but 'epochs' is %i, so this run would not get past it. A folder holds the checkpoints of one run, and a run continuing it has to train beyond its last epoch: use a fresh folder, or set 'epochs' to more than %i.", # nolint
+          self$path, complete[1L], self$ctx$total_epochs, complete[1L])
+      }
       # A run never writes the same epoch twice, so a complete checkpoint under an epoch this run
       # is going to write belongs to a different run and is not ours to destroy. A run continuing
       # an earlier one writes epochs that one does not have, so it does not collide. Checking here
       # rather than in $.save() means the folder is not half rewritten before this is noticed.
       planned = seq_len(self$ctx$total_epochs)
-      clash = intersect(planned[planned > private$.start_epoch], checkpoint_files(self$path)$complete)
+      clash = intersect(planned[planned > private$.start_epoch], complete)
       if (length(clash)) {
         stopf("Checkpoint(s) %s in '%s' were written by another run, and this one would write over them. Use a fresh folder, or continue that run instead of starting it over.", # nolint
           paste0(clash, collapse = ", "), self$path)
@@ -132,8 +122,8 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
     #' Saves the final network and optimizer, unless the last epoch was already saved.
     on_end = function() {
       # NOT on_exit, because we only write when the epoch ran successfully.
-      # Nothing to do when this run trained no epochs of its own -- the checkpoint it resumed is
-      # then the current one -- or when `freq` already saved the epoch it ended on.
+      # Nothing to do when this run trained no epochs of its own -- whatever it resumed is then the
+      # current checkpoint -- or when `freq` already saved the epoch it ended on.
       if (self$ctx$epoch == private$.start_epoch || self$ctx$epoch %% self$freq == 0) {
         return(NULL)
       }
@@ -145,15 +135,13 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
     .save = function(suffix) {
       torch_save(self$ctx$network$state_dict(), file.path(self$path, paste0("network", suffix, ".pt")))
       torch_save(self$ctx$optimizer$state_dict(), file.path(self$path, paste0("optimizer", suffix, ".pt")))
+      states = discard(map(self$ctx$callbacks, function(cb) cb$state_dict()), is.null)
       saveRDS(
         list(
-          # the epoch this checkpoint belongs to, i.e. the one that just ran to its end
           epoch = suffix,
-          # what wrote this checkpoint. What a callback state dict contains is up to the callback,
-          # so it can change between releases; recording the version lets a later run say so instead
-          # of failing somewhere inside `$load_state_dict()`.
           version = as.character(utils::packageVersion("mlr3torch")),
-          callbacks = discard(map(self$ctx$callbacks, function(cb) cb$state_dict()), is.null)
+          callbacks = states,
+          classes = map_chr(self$ctx$callbacks[names(states)], function(cb) class(cb)[[1L]])
         ),
         file.path(self$path, paste0("state", suffix, ".rds"))
       )
@@ -167,10 +155,17 @@ is_empty_dir = function(path) {
   dir.exists(path) && !length(list.files(path, all.files = TRUE, no.. = TRUE))
 }
 
-# Whether it is safe for a CallbackSetCheckpoint to write into the existing folder `path`.
+# Whether it is safe for a CallbackSetCheckpoint to write into the existing folder `path`, i.e.
+# whether it is empty or holds a checkpoint folder whose newest epoch is complete. A newest epoch
+# that is half-written is refused rather than replaced: it is what a resuming run would continue
+# from, so a folder is only ever handed to a new run in a state that can be resumed.
 can_checkpoint_into = function(path) {
-  is_empty_dir(path) ||
-    (dir.exists(path) && length(list.files(path, pattern = "^(network|optimizer)[0-9]+\\.pt$|^state[0-9]+\\.rds$")) > 0L) # nolint
+  if (is_empty_dir(path)) {
+    return(TRUE)
+  }
+  files = checkpoint_files(path)
+  # epochs start at 1, so the `0` floor stands for "no incomplete checkpoint at all"
+  length(files$complete) > 0L && max(files$complete) > max(0L, files$incomplete)
 }
 
 # The checkpoints in `path`, split into those that can be read and those that cannot. Both the
@@ -179,10 +174,14 @@ can_checkpoint_into = function(path) {
 checkpoint_files = function(path) {
   none = list(complete = integer(0), incomplete = integer(0))
   if (!dir.exists(path)) return(none)
-  suffixes = as.integer(gsub("^network|\\.pt$", "", list.files(path, pattern = "^network[0-9]+\\.pt$")))
+  # every epoch any of the three files exists for, so that a leftover is seen whichever of them the
+  # interrupted run had already written
+  files = list.files(path, pattern = "^(network|optimizer)[0-9]+\\.pt$|^state[0-9]+\\.rds$")
+  suffixes = unique(as.integer(gsub("^(network|optimizer|state)|\\.(pt|rds)$", "", files)))
   # paste0() recycles a zero-length suffix to "", which would look for 'optimizer.pt'
   if (!length(suffixes)) return(none)
-  complete = file.exists(file.path(path, paste0("optimizer", suffixes, ".pt"))) &
+  complete = file.exists(file.path(path, paste0("network", suffixes, ".pt"))) &
+    file.exists(file.path(path, paste0("optimizer", suffixes, ".pt"))) &
     file.exists(file.path(path, paste0("state", suffixes, ".rds")))
   list(
     complete = sort(suffixes[complete], decreasing = TRUE),
