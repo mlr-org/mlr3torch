@@ -8,8 +8,8 @@
 The unsupervised counterpart of \code{\link{TaskTorch}}: a general-purpose \code{\link[mlr3:Task]{Task}} without
 target columns, for learning problems such as autoencoders, denoising or masked objectives and
 contrastive pretraining.
-It shares the task type \code{"torch"} with \code{\link{TaskTorch}}, so the same learners, pipeops and measures
-work for both.
+It has its own task type \code{"torch_unsupervised"}, so that \code{mlr3} can tell it apart from the
+supervised \code{\link{TaskTorch}}; the learners, pipeops and measures of \code{mlr3torch} support both.
 
 Because there are no target columns, there is nothing to infer the learning problem from, and
 \code{output_dim} and \code{prediction_encoder} have to be given -- see section \emph{Inference} of

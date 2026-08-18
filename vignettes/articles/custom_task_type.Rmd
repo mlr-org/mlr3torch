@@ -29,7 +29,7 @@ In `mlr3`, each of these would ordinarily be a separate *task type*: a task type
 Adding one properly means writing a `Task` class, a `Prediction` class, half a dozen `PredictionData` methods, a `Measure`, and a batch of entries in `mlr_reflections` -- a few hundred lines before you train anything.
 
 `TaskTorch` is the shortcut.
-`mlr3torch` registers a single task type `"torch"` once, and every custom problem becomes an *instance* of `TaskTorch` rather than a new class.
+`mlr3torch` registers the task types `"torch_supervised"` and `"torch_unsupervised"` once, and every custom problem becomes an *instance* of `TaskTorch` or `TaskTorchUnsupervised` rather than a new class.
 What would otherwise be S3 methods dispatching on your task class are fields on the task, and they are inferred from your target columns when you do not supply them.
 The result is that the multi-label problem below takes about five lines to set up instead of a few hundred.
 
@@ -137,7 +137,7 @@ msr_logloss = msr_torch("multilabel.logloss",
 
 ## Training a Network {#sec-train}
 
-Networks are supplied to `lrn("torch.module")`, the counterpart of `lrn("classif.module")` and `lrn("regr.module")` for the new task type.
+Networks are supplied to `lrn("torch_supervised.module")`, the counterpart of `lrn("classif.module")` and `lrn("regr.module")` for the new task type.
 The module generator receives the `task`, so it can size its layers from the task itself -- in particular its output layer, through `output_dim_for()`:
 
 ```{r custom_task_type-009}
@@ -160,7 +160,7 @@ Since the network emits one logit per label, the matching loss is the binary cro
 ```{r custom_task_type-010}
 loss_bce = TorchLoss$new(nn_bce_with_logits_loss, id = "bce")
 
-lrn_weather = lrn("torch.module",
+lrn_weather = lrn("torch_supervised.module",
   module_generator = nn_mlp,
   ingress_tokens = list(input = ingress_num()),
   loss = loss_bce,
@@ -213,7 +213,7 @@ Custom measures can be used for validation and early stopping exactly like built
 Below we hold out 30% of the training data, score it after every epoch, and stop once the Hamming loss has not improved for five epochs:
 
 ```{r custom_task_type-015}
-lrn_early = lrn("torch.module",
+lrn_early = lrn("torch_supervised.module",
   module_generator = nn_mlp,
   ingress_tokens = list(input = ingress_num()),
   loss = loss_bce,
@@ -232,7 +232,7 @@ Training stopped well before the configured 100 epochs, and `$internal_tuned_val
 ## Building the Network as a Graph {#sec-graph}
 
 Everything in the [Defining an Architecture](pipeop_torch.html) article applies here as well.
-The terminal `PipeOp` for a `TaskTorch` is `po("torch_model")`, alongside the `po("torch_model_classif")` and `po("torch_model_regr")` you may already know:
+The terminal `PipeOp` for a `TaskTorch` is `po("torch_model_supervised")`, alongside the `po("torch_model_classif")` and `po("torch_model_regr")` you may already know:
 
 ```{r custom_task_type-016}
 architecture = po("torch_ingress_num") %>>%
@@ -274,7 +274,7 @@ get_target_batchgetter(tsk_iris)(tsk_iris$truth(1:3))
 ```
 
 ```{r custom_task_type-018}
-lrn_onehot = lrn("torch.module",
+lrn_onehot = lrn("torch_supervised.module",
   module_generator = nn_mlp,
   ingress_tokens = list(input = ingress_num()),
   loss = t_loss("mse"),
@@ -292,7 +292,7 @@ The task still decodes the network output into a `factor`, because `output_dim` 
 
 ## Tasks without a Target {#sec-unsupervised}
 
-A problem without target columns is a `TaskTorchUnsupervised`, which is the same task without the targets and shares the task type `"torch"` with `TaskTorch`, so the same learners and measures apply.
+A problem without target columns is a `TaskTorchUnsupervised`, which is the same task without the targets and has its own task type `"torch_unsupervised"`.
 `as_task_torch()` returns it whenever you do not pass `target`.
 
 Such a task has no target element in its batches at all, so the loss is called with `NULL` as its second argument and has to ignore it.
@@ -339,7 +339,7 @@ nn_ae = nn_module("nn_ae",
   forward = function(input) self$decoder(self$encoder(input))
 )
 
-lrn_ae = lrn("torch.module",
+lrn_ae = lrn("torch_unsupervised.module",
   module_generator = nn_ae,
   ingress_tokens = list(input = ingress_num()),
   loss = t_loss("mse"),
@@ -369,7 +369,7 @@ as.matrix(with_no_grad(network$encoder(x)))
 
 ## What You Give Up {#sec-limits}
 
-All of this convenience comes from one decision: every `TaskTorch` has the same task type, `"torch"`.
+All of this convenience comes from one decision: every `TaskTorch` has the same task type, `"torch_supervised"`, and every `TaskTorchUnsupervised` has `"torch_unsupervised"`.
 `mlr3` therefore cannot tell one custom problem from another.
 
 ```{r custom_task_type-024}
@@ -381,7 +381,7 @@ The consequences are worth being explicit about:
 
 * A learner built for one problem will accept a task from a completely different one. If the tensor shapes happen to line up, it trains, and you get a meaningless model rather than an error.
 * The same holds for measures: `mlr3` will not stop you scoring a multi-label prediction with a reconstruction error.
-* There is no dictionary entry for your problem. `lrn("torch.module")` and `po("torch_model")` are shared by everyone, so you cannot hand a colleague a learner id and have it mean your problem.
+* There is no dictionary entry for your problem. `lrn("torch_supervised.module")` and `po("torch_model_supervised")` are shared by everyone, so you cannot hand a colleague a learner id and have it mean your problem.
 
 > **When to write a real task type instead**
 >

@@ -22,6 +22,9 @@
 #'   The predicted response.
 #' @param prob (any)\cr
 #'   The predicted probabilities.
+#' @param task_type (`character(1)` or `NULL`)\cr
+#'   The task type, one of `"torch_supervised"` or `"torch_unsupervised"`.
+#'   Defaults to the type of `task`, or to `"torch_supervised"` if no task is given.
 #' @param check (`logical(1)`)\cr
 #'   Whether to check the consistency of the prediction data.
 #'
@@ -37,14 +40,20 @@ PredictionTorch = R6Class("PredictionTorch",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task = NULL, row_ids = task$row_ids,
-      truth = if (!is.null(task)) task$truth(row_ids), response = NULL, prob = NULL, check = TRUE) {
+      truth = if (!is.null(task)) task$truth(row_ids), response = NULL, prob = NULL,
+      task_type = task$task_type, check = TRUE) {
+      # both generic torch task types share this class, so the type travels with the prediction
+      # data instead of being implied by it
+      task_type = assert_choice(task_type, names(mlr3torch_task_types), null.ok = TRUE) %??%
+        "torch_supervised"
       pdata = discard(list(row_ids = row_ids, truth = truth, response = response, prob = prob), is.null)
+      pdata$task_type = task_type
       class(pdata) = c("PredictionDataTorch", "PredictionData")
       if (check) {
         pdata = check_prediction_data(pdata)
       }
 
-      self$task_type = "torch"
+      self$task_type = task_type
       self$man = "mlr3torch::PredictionTorch"
       self$data = pdata
       self$predict_types = intersect(c("response", "prob"), names(pdata))
@@ -116,7 +125,10 @@ pt_as_columns = function(x, prefix) {
 }
 
 #' @export
-check_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
+check_prediction_data.PredictionDataTorch = function(pdata, train_task = NULL, ...) { # nolint
+  # mlr3 builds the prediction data from the task, which is the only place where the task type of
+  # a prediction that was made by a learner is still known
+  pdata$task_type = pdata$task_type %??% train_task$task_type %??% "torch_supervised"
   n = length(assert_row_ids(pdata$row_ids))
   # deliberately lax: we only ensure that everything describes the same observations
   for (nm in intersect(c("truth", "response", "prob"), names(pdata))) {
@@ -154,7 +166,7 @@ create_empty_prediction_data.TaskTorchUnsupervised = function(task, learner) { #
 
 #' @export
 create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
-  pdata = list(row_ids = integer())
+  pdata = list(row_ids = integer(), task_type = task$task_type)
 
   truth = task$truth(integer(0))
   if (!is.null(truth)) {
@@ -168,7 +180,7 @@ create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
   # row ids and the truth alone.
   empty = try({
     encoded = encode_prediction(task, torch_zeros(0L, task$output_dim), learner$predict_type)
-    encoded[intersect(mlr_reflections$learner_predict_types$torch[[learner$predict_type]],
+    encoded[intersect(mlr_reflections$learner_predict_types[[task$task_type]][[learner$predict_type]],
       names(encoded))]
   }, silent = TRUE)
   if (!inherits(empty, "try-error")) {
@@ -188,6 +200,10 @@ c.PredictionDataTorch = function(..., keep_duplicates = TRUE) { # nolint
     return(dots[[1L]])
   }
 
+  task_types = unique(unlist(map(dots, "task_type")))
+  if (length(task_types) > 1L) {
+    stopf("Cannot combine prediction data of different task types: %s.", str_collapse(task_types))
+  }
   elements = intersect(c("truth", "response", "prob"), names(dots[[1L]]))
   # Taking the elements from the first input alone would silently drop a `prob` that only the
   # later ones carry, so all inputs have to describe the same things.
@@ -200,7 +216,8 @@ c.PredictionDataTorch = function(..., keep_duplicates = TRUE) { # nolint
 
   pdata = c(
     list(row_ids = do.call(c, map(dots, "row_ids"))),
-    set_names(lapply(elements, function(nm) pt_combine(map(dots, nm))), elements)
+    set_names(lapply(elements, function(nm) pt_combine(map(dots, nm))), elements),
+    list(task_type = task_types)
   )
 
   if (!keep_duplicates) {

@@ -11,7 +11,7 @@ tt_module = nn_module("tt_module",
 
 tt_learner = function(loss, ...) {
   args = insert_named(list(epochs = 3L, batch_size = 16L), list(...))
-  invoke(lrn, "torch.module",
+  invoke(lrn, "torch_supervised.module",
     module_generator = tt_module,
     ingress_tokens = list(x = ingress_num()),
     loss = loss,
@@ -25,14 +25,16 @@ tt_data = function(n = 40L) {
   ))
 }
 
-test_that("the task type is registered", {
-  expect_true("torch" %chin% mlr_reflections$task_types$type)
+test_that("the task types are registered", {
+  expect_true(all(c("torch_supervised", "torch_unsupervised") %chin% mlr_reflections$task_types$type))
   expect_equal(
-    mlr_reflections$task_types[list("torch"), "task", on = "type"][[1L]],
-    "TaskTorch"
+    mlr_reflections$task_types[list(c("torch_supervised", "torch_unsupervised")), "task", on = "type"][[1L]],
+    c("TaskTorch", "TaskTorchUnsupervised")
   )
-  expect_set_equal(names(mlr_reflections$learner_predict_types$torch), c("response", "prob"))
-  expect_equal(mlr_reflections$default_measures$torch, "torch.default")
+  for (type in c("torch_supervised", "torch_unsupervised")) {
+    expect_set_equal(names(mlr_reflections$learner_predict_types[[type]]), c("response", "prob"))
+    expect_equal(mlr_reflections$default_measures[[type]], paste0(type, ".default"))
+  }
 })
 
 test_that("as_task_torch constructs a TaskTorch", {
@@ -42,7 +44,7 @@ test_that("as_task_torch constructs a TaskTorch", {
 
   expect_class(task, "TaskTorch")
   expect_class(task, "TaskSupervised")
-  expect_equal(task$task_type, "torch")
+  expect_equal(task$task_type, "torch_supervised")
   expect_equal(task$id, "t")
   expect_set_equal(task$feature_names, c("x1", "x2", "x3"))
   expect_equal(task$target_names, "y")
@@ -54,8 +56,7 @@ test_that("as_task_torch constructs a TaskTorchUnsupervised when there is no tar
 
   expect_class(task, "TaskTorchUnsupervised")
   expect_class(task, "TaskUnsupervised")
-  # both classes share the task type, so the same learners and measures apply
-  expect_equal(task$task_type, "torch")
+  expect_equal(task$task_type, "torch_unsupervised")
   expect_equal(task$target_names, character(0))
 
   # a TaskTorch is supervised, so it insists on a target
@@ -410,7 +411,7 @@ test_that("the graph language works", {
     nn("head") %>>%
     po("torch_loss", t_loss("mse")) %>>%
     po("torch_optimizer", "adam") %>>%
-    po("torch_model", batch_size = 16L, epochs = 3L)
+    po("torch_model_supervised", batch_size = 16L, epochs = 3L)
 
   learner = as_learner(graph)
   learner$train(task)
@@ -421,7 +422,7 @@ test_that("the graph language works", {
 
 test_that("a learner for a torch task requires an explicit loss", {
   expect_error(
-    lrn("torch.module", module_generator = tt_module, ingress_tokens = list(x = ingress_num())),
+    lrn("torch_supervised.module", module_generator = tt_module, ingress_tokens = list(x = ingress_num())),
     "no default loss"
   )
   # any loss is accepted, because mlr3torch cannot know what the task represents
@@ -488,7 +489,7 @@ test_that("the hash of a measure covers its scoring function", {
     list(task(msr_torch("m", function(truth, response) 1)),
       task(msr_torch("m", function(truth, response) 999))),
     tt_learner(t_loss("mse")), rsmp("holdout")))
-  expect_equal(bmr$aggregate(msr("torch.default"))$torch.default, c(1, 999))
+  expect_equal(bmr$aggregate(msr("torch_supervised.default"))$torch_supervised.default, c(1, 999))
 })
 
 test_that("predicting on zero rows gives an empty prediction", {
@@ -506,7 +507,8 @@ test_that("predicting on zero rows gives an empty prediction", {
 
   # an empty prediction must have the same storage as a non-empty one, so the two can be combined
   empty = create_empty_prediction_data(task, learner)
-  expect_names(names(empty), permutation.of = c("row_ids", "truth", "response", "prob"))
+  expect_names(names(empty), permutation.of = c("row_ids", "task_type", "truth", "response", "prob"))
+  expect_equal(empty$task_type, "torch_supervised")
   expect_matrix(empty$response, nrows = 0L, ncols = 2L)
 
   combined = c(empty, learner$predict(task)$data)

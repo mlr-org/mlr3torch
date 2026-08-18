@@ -45,7 +45,9 @@ register_mlr3 = function() {
   mlr_reflections$loaded_packages = c(mlr_reflections$loaded_packages, "mlr3torch")
 
   register_task_type_torch(mlr_reflections)
-  mlr3::mlr_measures$add("torch.default", MeasureTorchDefault)
+  iwalk(mlr3torch_task_types, function(task_class, type) {
+    mlr3::mlr_measures$add(paste0(type, ".default"), MeasureTorchDefault, task_type = type)
+  })
 
   mlr_reflections$torch = list(
     devices = c("auto", "cpu", "cuda", "mkldnn", "opengl", "opencl", "ideep", "hip", "fpga", "xla", "mps", "meta"),
@@ -67,38 +69,45 @@ register_mlr3 = function() {
 
 }
 
-# Registers the general-purpose task type of mlr3torch, see `TaskTorch`.
-# Unlike a task type that is added by hand (see the *Adding a Custom Task Type* vignette), this
-# happens once, when mlr3torch is loaded, so that a custom learning problem is an *instance* of
-# `TaskTorch` rather than a new task type.
+# Registers the general-purpose task types of mlr3torch, see `TaskTorch` and
+# `TaskTorchUnsupervised`.
+# Unlike a task type that is added by hand (see the *Custom Learning Problems* article), this
+# happens once, when mlr3torch is loaded, so that a custom learning problem is an *instance* of one
+# of the two classes rather than a task type of its own.
 register_task_type_torch = function(mlr_reflections) { # nolint
-  if ("torch" %chin% mlr_reflections$task_types$type) {
-    return(invisible(NULL))
-  }
-  mlr_reflections$task_types = setkeyv(rbind(mlr_reflections$task_types, rowwise_table(
-    ~type, ~package, ~task, ~learner, ~prediction, ~prediction_data, ~measure,
-    "torch", "mlr3torch", "TaskTorch", "LearnerTorch", "PredictionTorch", "PredictionDataTorch", "MeasureTorch"
-  ), fill = TRUE), "type")
+  iwalk(mlr3torch_task_types, function(task_class, type) {
+    if (type %chin% mlr_reflections$task_types$type) {
+      return(NULL)
+    }
+    mlr_reflections$task_types = setkeyv(rbind(mlr_reflections$task_types, rowwise_table(
+      ~type, ~package, ~task, ~learner, ~prediction, ~prediction_data, ~measure,
+      type, "mlr3torch", task_class, "LearnerTorch", "PredictionTorch", "PredictionDataTorch", "MeasureTorch"
+    ), fill = TRUE), "type")
 
-  # a TaskTorch behaves like a regression task, except that it may have any number of targets
-  mlr_reflections$task_col_roles$torch = mlr_reflections$task_col_roles$regr
-  mlr_reflections$task_properties$torch = mlr_reflections$task_properties$regr
-  mlr_reflections$learner_properties$torch = mlr_reflections$learner_properties$regr
-  mlr_reflections$measure_properties$torch = mlr_reflections$measure_properties$regr
-  mlr_reflections$learner_predict_types$torch = list(
-    response = "response",
-    prob = c("response", "prob")
-  )
-  mlr_reflections$default_measures$torch = "torch.default"
+    # a generic torch task behaves like a regression task, except for its target columns
+    mlr_reflections$task_col_roles[[type]] = mlr_reflections$task_col_roles$regr
+    mlr_reflections$task_properties[[type]] = mlr_reflections$task_properties$regr
+    mlr_reflections$learner_properties[[type]] = mlr_reflections$learner_properties$regr
+    mlr_reflections$measure_properties[[type]] = mlr_reflections$measure_properties$regr
+    mlr_reflections$learner_predict_types[[type]] = list(
+      response = "response",
+      prob = c("response", "prob")
+    )
+    mlr_reflections$default_measures[[type]] = paste0(type, ".default")
+    NULL
+  })
 
   invisible(NULL)
 }
 
 unregister_task_type_torch = function(mlr_reflections) { # nolint
-  mlr_reflections$task_types = mlr_reflections$task_types[!list("torch"), on = "type"]
+  types = names(mlr3torch_task_types)
+  mlr_reflections$task_types = mlr_reflections$task_types[!list(types), on = "type"]
   for (registry in c("task_col_roles", "task_properties", "learner_properties", "measure_properties",
     "learner_predict_types", "default_measures")) {
-    mlr_reflections[[registry]][["torch"]] = NULL
+    for (type in types) {
+      mlr_reflections[[registry]][[type]] = NULL
+    }
   }
   invisible(NULL)
 }
@@ -135,7 +144,7 @@ register_mlr3pipelines = function() {
   walk(names(mlr3torch_learners), function(nm) mlr_learners$remove(nm))
   walk(names(mlr3torch_tasks), function(nm) mlr_tasks$remove(nm))
   walk(names(mlr3torch_pipeops), function(nm) mlr_pipeops$remove(nm))
-  mlr_measures$remove("torch.default")
+  walk(names(mlr3torch_task_types), function(type) mlr_measures$remove(paste0(type, ".default")))
   unregister_task_type_torch(mlr_reflections)
   mlr_reflections$pipeops$valid_tags = setdiff(mlr_reflections$pipeops$valid_tags, mlr3torch_pipeop_tags)
   mlr_reflections$learner_feature_types = setdiff(mlr_reflections$learner_feature_types, mlr3torch_feature_types)

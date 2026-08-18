@@ -16,8 +16,9 @@ Adding a proper task type to \code{mlr3} requires a \code{Task} class, a \code{P
 \code{PredictionData} methods, a \code{Measure} and a number of entries in
 \code{\link[mlr3:mlr_reflections]{mlr_reflections}}; the \emph{Adding a Custom Task Type} vignette walks through
 this.
-\code{TaskTorch} is the quick alternative: the task type \code{"torch"} is registered once by \code{mlr3torch}
-and every custom problem is expressed as an \emph{instance} of \code{TaskTorch} rather than as a new class.
+\code{TaskTorch} is the quick alternative: the task type \code{"torch_supervised"} is registered once by
+\code{mlr3torch} and every custom problem is expressed as an \emph{instance} of \code{TaskTorch} rather than as
+a new class.
 What would otherwise be S3 methods dispatching on the task class are fields of the task instead,
 and they are inferred from the types of the target columns when they are not given.
 
@@ -53,7 +54,8 @@ Any of the three can be overwritten by passing \code{target_batchgetter}, \code{
 target columns that is not in the table above.
 
 What the task specifies is the \emph{default}, and a learner has the last word on two of the three:
-\code{\link{LearnerTorchModule}} (\code{lrn("torch.module")}) takes a \code{target_batchgetter} of its own, and any
+\code{\link{LearnerTorchModule}} (\code{lrn("torch_supervised.module")}) takes a \code{target_batchgetter} of its
+own, and any
 \code{\link{LearnerTorch}} can overwrite the private \verb{$.encode_prediction()} method.
 This matters when the network and the loss expect a different encoding than the task's default,
 e.g. when training on one-hot encoded class labels.

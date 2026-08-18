@@ -157,7 +157,9 @@ nn_placeholder = nn_module("nn_placeholder",
 #' @include PipeOpTorchIngress.R task_dataset.R TorchLoss.R
 register_learner("classif.module", LearnerTorchModule, module_generator = nn_placeholder, ingress_tokens = list(x = ingress_num()))
 register_learner("regr.module", LearnerTorchModule, module_generator = nn_placeholder, ingress_tokens = list(x = ingress_num()))
-# There is no default loss for the task type "torch" (the learning problem is not known in advance),
-# so unlike for the other two, the prototype that the dictionary builds needs one.
-register_learner("torch.module", LearnerTorchModule, module_generator = nn_placeholder,
+# There is no default loss for the generic torch task types (the learning problem is not known in
+# advance), so unlike for the other two, the prototypes that the dictionary builds need one.
+register_learner("torch_supervised.module", LearnerTorchModule, module_generator = nn_placeholder,
+  ingress_tokens = list(x = ingress_num()), loss = TorchLoss$new(torch::nn_mse_loss, id = "mse"))
+register_learner("torch_unsupervised.module", LearnerTorchModule, module_generator = nn_placeholder,
   ingress_tokens = list(x = ingress_num()), loss = TorchLoss$new(torch::nn_mse_loss, id = "mse"))

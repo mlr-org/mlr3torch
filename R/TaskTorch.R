@@ -14,8 +14,9 @@
 #' `PredictionData` methods, a `Measure` and a number of entries in
 #' [`mlr_reflections`][mlr3::mlr_reflections]; the *Adding a Custom Task Type* vignette walks through
 #' this.
-#' `TaskTorch` is the quick alternative: the task type `"torch"` is registered once by `mlr3torch`
-#' and every custom problem is expressed as an *instance* of `TaskTorch` rather than as a new class.
+#' `TaskTorch` is the quick alternative: the task type `"torch_supervised"` is registered once by
+#' `mlr3torch` and every custom problem is expressed as an *instance* of `TaskTorch` rather than as
+#' a new class.
 #' What would otherwise be S3 methods dispatching on the task class are fields of the task instead,
 #' and they are inferred from the types of the target columns when they are not given.
 #'
@@ -50,7 +51,8 @@
 #'   target columns that is not in the table above.
 #'
 #'   What the task specifies is the *default*, and a learner has the last word on two of the three:
-#'   [`LearnerTorchModule`] (`lrn("torch.module")`) takes a `target_batchgetter` of its own, and any
+#'   [`LearnerTorchModule`] (`lrn("torch_supervised.module")`) takes a `target_batchgetter` of its
+#'   own, and any
 #'   [`LearnerTorch`] can overwrite the private `$.encode_prediction()` method.
 #'   This matters when the network and the loss expect a different encoding than the task's default,
 #'   e.g. when training on one-hot encoded class labels.
@@ -119,7 +121,8 @@ TaskTorch = R6Class("TaskTorch",
       if (!length(target)) {
         stopf("A TaskTorch is supervised and needs at least one target column, use TaskTorchUnsupervised for a task without one.") # nolint
       }
-      super$initialize(id = id, task_type = "torch", backend = backend, target = target, label = label)
+      super$initialize(id = id, task_type = "torch_supervised", backend = backend, target = target,
+        label = label)
       task_torch_init_fields(self, private, target_batchgetter, output_dim, prediction_encoder, measure)
     },
     #' @description
@@ -168,8 +171,8 @@ TaskTorch = R6Class("TaskTorch",
 #' The unsupervised counterpart of [`TaskTorch`]: a general-purpose [`Task`][mlr3::Task] without
 #' target columns, for learning problems such as autoencoders, denoising or masked objectives and
 #' contrastive pretraining.
-#' It shares the task type `"torch"` with [`TaskTorch`], so the same learners, pipeops and measures
-#' work for both.
+#' It has its own task type `"torch_unsupervised"`, so that `mlr3` can tell it apart from the
+#' supervised [`TaskTorch`]; the learners, pipeops and measures of `mlr3torch` support both.
 #'
 #' Because there are no target columns, there is nothing to infer the learning problem from, and
 #' `output_dim` and `prediction_encoder` have to be given -- see section *Inference* of
@@ -246,7 +249,7 @@ TaskTorchUnsupervised = R6Class("TaskTorchUnsupervised",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, backend, label = NA_character_, target_batchgetter = NULL,
       output_dim = NULL, prediction_encoder = NULL, measure = NULL) {
-      super$initialize(id = id, task_type = "torch", backend = backend, label = label)
+      super$initialize(id = id, task_type = "torch_unsupervised", backend = backend, label = label)
       task_torch_init_fields(self, private, target_batchgetter, output_dim, prediction_encoder, measure)
     },
     #' @description

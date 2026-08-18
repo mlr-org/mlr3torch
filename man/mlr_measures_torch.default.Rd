@@ -5,9 +5,11 @@
 \alias{MeasureTorchDefault}
 \title{Default Measure of a Generic Torch Task}
 \description{
-Delegates to the \verb{$measure} field of the \code{\link{TaskTorch}} that is being scored.
-This is the default measure of the task type \code{"torch"}, i.e. what \verb{$score()} and \verb{$aggregate()}
-use when they are called without arguments.
+Delegates to the \verb{$measure} field of the \code{\link{TaskTorch}} or \code{\link{TaskTorchUnsupervised}} that is being
+scored.
+It is registered as \code{"torch_supervised.default"} and \code{"torch_unsupervised.default"}, the default
+measures of the two generic torch task types, i.e. what \verb{$score()} and \verb{$aggregate()} use when
+they are called without arguments.
 It errors if the task does not carry a measure.
 }
 \examples{
@@ -15,7 +17,7 @@ It errors if the task does not carry a measure.
 d = data.frame(x = rnorm(10), y = rnorm(10))
 task = as_task_torch(d, target = "y",
   measure = msr_torch("mse", function(truth, response) mean((truth - response)^2)))
-msr("torch.default")
+msr("torch_supervised.default")
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -50,7 +52,15 @@ Other Measure:
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{MeasureTorchDefault$new()}
+    \preformatted{MeasureTorchDefault$new(task_type = "torch_supervised")}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task_type}}{(\code{character(1)})\cr
+The task type, one of \code{"torch_supervised"} or \code{"torch_unsupervised"}.}
+    }
     \if{html}{\out{</div>}}
   }
 }

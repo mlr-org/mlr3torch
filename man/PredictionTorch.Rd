@@ -67,6 +67,7 @@ The predicted probabilities.}
   truth = if (!is.null(task)) task$truth(row_ids),
   response = NULL,
   prob = NULL,
+  task_type = task$task_type,
   check = TRUE
 )}
     \if{html}{\out{</div>}}
@@ -84,6 +85,9 @@ The ground truth, i.e. what \code{task$truth()} returned.}
 The predicted response.}
       \item{\code{prob}}{(any)\cr
 The predicted probabilities.}
+      \item{\code{task_type}}{(\code{character(1)} or \code{NULL})\cr
+The task type, one of \code{"torch_supervised"} or \code{"torch_unsupervised"}.
+Defaults to the type of \code{task}, or to \code{"torch_supervised"} if no task is given.}
       \item{\code{check}}{(\code{logical(1)})\cr
 Whether to check the consistency of the prediction data.}
     }

@@ -55,7 +55,9 @@ MeasureTorch = R6Class("MeasureTorch",
       }
       super$initialize(
         id = assert_string(id),
-        task_type = "torch",
+        # the measure applies to both generic torch task types, since what it scores is decided by
+        # `fun` and not by whether the task has target columns
+        task_type = NA_character_,
         predict_type = assert_choice(predict_type, c("response", "prob")),
         properties = properties,
         range = assert_numeric(range, len = 2L, any.missing = FALSE),
@@ -134,9 +136,11 @@ msr_torch = function(id, fun, minimize = TRUE, range = c(-Inf, Inf), predict_typ
 #' @name mlr_measures_torch.default
 #'
 #' @description
-#' Delegates to the `$measure` field of the [`TaskTorch`] that is being scored.
-#' This is the default measure of the task type `"torch"`, i.e. what `$score()` and `$aggregate()`
-#' use when they are called without arguments.
+#' Delegates to the `$measure` field of the [`TaskTorch`] or [`TaskTorchUnsupervised`] that is being
+#' scored.
+#' It is registered as `"torch_supervised.default"` and `"torch_unsupervised.default"`, the default
+#' measures of the two generic torch task types, i.e. what `$score()` and `$aggregate()` use when
+#' they are called without arguments.
 #' It errors if the task does not carry a measure.
 #'
 #' @family Measure
@@ -145,16 +149,19 @@ msr_torch = function(id, fun, minimize = TRUE, range = c(-Inf, Inf), predict_typ
 #' d = data.frame(x = rnorm(10), y = rnorm(10))
 #' task = as_task_torch(d, target = "y",
 #'   measure = msr_torch("mse", function(truth, response) mean((truth - response)^2)))
-#' msr("torch.default")
+#' msr("torch_supervised.default")
 MeasureTorchDefault = R6Class("MeasureTorchDefault",
   inherit = Measure,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function() {
+    #' @param task_type (`character(1)`)\cr
+    #'   The task type, one of `"torch_supervised"` or `"torch_unsupervised"`.
+    initialize = function(task_type = "torch_supervised") {
+      assert_choice(task_type, names(mlr3torch_task_types))
       super$initialize(
-        id = "torch.default",
-        task_type = "torch",
+        id = paste0(task_type, ".default"),
+        task_type = task_type,
         predict_type = "response",
         properties = "requires_task",
         range = c(-Inf, Inf),

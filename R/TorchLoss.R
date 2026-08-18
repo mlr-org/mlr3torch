@@ -128,7 +128,8 @@ TorchLoss = R6::R6Class("TorchLoss",
     #'   Can have arguments `task` that will be provided when the loss is instantiated.
     #' @param task_types (`character()`)\cr
     #'   The task types supported by this loss.
-    #'   If `NULL` (default), the loss is applicable to `"classif"`, `"regr"` and `"torch"`.
+    #'   If `NULL` (default), the loss is applicable to `"classif"`, `"regr"` and the generic torch
+    #'   task types.
     #' @param param_set ([`ParamSet`][paradox::ParamSet] or `NULL`)\cr
     #'   The parameter set. If `NULL` (default) it is inferred from `torch_loss`.
     #' @template param_id
@@ -141,9 +142,9 @@ TorchLoss = R6::R6Class("TorchLoss",
       self$task_types = if (!is.null(task_types)) {
         assert_subset(task_types, mlr_reflections$task_types$type)
       } else {
-        # "torch" is the general-purpose task type of mlr3torch (see `TaskTorch`), whose learning
-        # problem is not known in advance, so any loss is applicable to it
-        c("classif", "regr", "torch")
+        # the generic torch task types of mlr3torch (see `TaskTorch`) express a learning problem
+        # that is not known in advance, so any loss is applicable to them
+        c("classif", "regr", names(mlr3torch_task_types))
       }
       assert(check_class(torch_loss, "nn_module_generator"), check_class(torch_loss, "function"))
 
@@ -323,7 +324,7 @@ mlr3torch_losses$add("cross_entropy", function() {
   TorchLoss$new(
     torch_loss = function(task, ...) {
       # a TaskTorch encodes a factor target the same way a multiclass TaskClassif does
-      if (task$task_type %nin% c("classif", "torch")) {
+      if (task$task_type %nin% c("classif", names(mlr3torch_task_types))) {
         stopf("Cross entropy loss is only defined for classification tasks, but task is of type '%s'", task$task_type)
       }
       # an explicitly passed `NULL` (as in `t_loss("cross_entropy", class_weight = NULL)`) is kept as a

@@ -106,8 +106,8 @@
 #'   Defaults to MSE for regression and cross entropy for classification.
 #'   For other task types there is no default and the loss has to be given, because which loss is
 #'   appropriate depends on the learning problem.
-#'   For the task type `"torch"` (see [`TaskTorch`]) any loss is accepted, since `mlr3torch` cannot
-#'   know what the task represents.
+#'   For the generic torch task types (see [`TaskTorch`]) any loss is accepted, since `mlr3torch`
+#'   cannot know what the task represents.
 #' @param optimizer (`NULL` or [`TorchOptimizer`])\cr
 #'   The optimizer to use for training.
 #'   Defaults to adam.
@@ -384,9 +384,9 @@ LearnerTorch = R6Class("LearnerTorch",
       if (!missing(rhs)) {
         private$.param_set = NULL
         loss = as_torch_loss(rhs, clone = TRUE)
-        # "torch" is the general-purpose task type (see `TaskTorch`), whose learning problem is only
-        # known to the user, so which losses are applicable to it cannot be checked here
-        if (self$task_type != "torch") {
+        # the generic torch task types (see `TaskTorch`) express a learning problem that is only
+        # known to the user, so which losses are applicable to them cannot be checked here
+        if (self$task_type %nin% names(mlr3torch_task_types)) {
           assert_choice(self$task_type, loss$task_types)
         }
         private$.loss = loss
