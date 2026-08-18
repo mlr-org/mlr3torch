@@ -15,12 +15,6 @@
 #' * [torch::lr_step()]
 #' * Custom schedulers defined with [torch::lr_scheduler()].
 #'
-#' Attaching more than one of these is possible but rarely what you want, as they are not
-#' independent: a schedule that sets the rate from the initial one ([torch::lr_lambda()]) overwrites
-#' what a schedule that scales the current one ([torch::lr_step()], [torch::lr_multiplicative()])
-#' did in the same epoch, so which one has an effect comes down to the order the callbacks were
-#' passed in (see the section *Ordering* of [`CallbackSet`]).
-#'
 #' @section Resuming:
 #' The state of the wrapped `torch` scheduler is stored and restored, so a resumed run continues the
 #' schedule instead of starting it over.
@@ -69,11 +63,6 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
-      # Creating a scheduler sets the optimizer's learning rate back to the `initial_lr` that the
-      # first scheduler recorded on it. When the optimizer was restored from a checkpoint that is
-      # the rate the schedule *started* at, not the one it had reached, so it is remembered here
-      # and put back in $.restore_scheduler_state().
-      lrs = map_dbl(self$ctx$optimizer$param_groups, function(group) group$lr)
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
       private$.restore_scheduler_state(lrs)
     },

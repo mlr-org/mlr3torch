@@ -52,22 +52,9 @@
 #' were passed.
 #' The default weight is `0`.
 #' This matters for callbacks that observe what the others did, which is why
-#' [`CallbackSetCheckpoint`] defaults to weight `Inf`: it runs last and therefore saves the network
+#' The weights of the predefined callbacks are listed by `as.data.table(mlr3torch_callbacks)`.
+#' [`CallbackSetCheckpoint`] has weight `Inf`: it always runs last and therefore saves the network
 #' and optimizer as the other callbacks left them at the end of the stage.
-#' Because it also writes the other callbacks' states, a callback that has a `$state_dict()` and
-#' updates it in the `epoch_end` or `end` stage may not be ordered after it -- its state would be
-#' stored an epoch behind, so training errors instead.
-#'
-#' @section Resuming:
-#' It is possible to resume the training of a [`LearnerTorch`] by providing it with a path to a
-#' checkpoint folder, which also containes the state dicts of the callbacks.
-#' In order to allow for a stateful callback to be resumed, it therefore needs to implement `$state_dict()`
-#' and `$load_state_dict()`, where the former defines what is saved in the checkpoint folder and
-#' the latter how that information is read into a newly created callback when training is continued.
-#' Ideally, training for `n1` epochs and then continuing for an additional `n2` epochs behaves
-#' like training for `n1 + n2` epochs.
-#' This is not always possible and callbacks therefore have a section on their behavior when
-#' resuming a training run.
 #'
 #' @section Terminate Training:
 #' If training is to be stopped, it is possible to set the field `$terminate` of [`ContextTorch`].

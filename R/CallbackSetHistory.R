@@ -7,10 +7,6 @@
 #' The history is saved as a data.table where the validation measures are prefixed with `"valid."`
 #' and the training measures are prefixed with `"train."`.
 #'
-#' @section Resuming:
-#' The history callback can be resumed.
-#' A measure that exists in only one of the two runs is filled with `NA`.
-#'
 #' @export
 #' @include CallbackSet.R
 #' @examplesIf torch::torch_is_installed()
@@ -56,9 +52,8 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
       if (is.null(self$prev_state)) {
         state
       } else {
-        # fill = TRUE because the two runs can have measured different things, so either history can
-        # have columns the other does not
-        rbind(self$prev_state, state, fill = TRUE)
+        # the restored history comes first, the epochs of this run are appended to it
+        rbind(self$prev_state, state)
       }
     },
     #' @description

@@ -171,6 +171,9 @@ train_loop = function(ctx, cbs, resume_path = NULL) {
     eval_train = eval_train_in_epoch(ctx)
     while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
+      # `step` counts within the epoch, this one within the run. `ctx$epoch` starts at the epoch a
+      # resumed checkpoint left off at, so a resumed run keeps counting instead of starting over.
+      ctx$batch_step = (ctx$epoch - 1L) * length(ctx$loader_train) + ctx$step
       ctx$batch = dataloader_next(train_iterator)
       if (is.null(ctx$batch)) {
         stop("dataloader_next() returned NULL, which means there are no more samples/batches. Typically this occurs when length of sampler/batch_sampler is greater than the number of samples/batches. Please modify .length() method to return the correct number (samples for sampler, batches for batch_sampler), which should be equal to the number of times that .iter() can be called before returning coro::exhausted()")

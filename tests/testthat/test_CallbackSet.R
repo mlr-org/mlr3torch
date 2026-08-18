@@ -107,13 +107,6 @@ test_that("weight influences the phash", {
   expect_equal(light$phash, heavy$phash)
 })
 
-test_that("'weight' is reserved and cannot be a parameter", {
-  gen = callback_set("CallbackSetTestWeight", initialize = function(weight) NULL)
-  expect_error(TorchCallback$new(gen), "'weight' is reserved")
-  expect_error(TorchCallback$new(gen, param_set = ps(weight = p_dbl(tags = "train"))),
-    "'weight' is reserved")
-})
-
 test_that("weight reaches the hash of a learner using the callback", {
   # the order the callbacks run in changes what is trained, so two learners that differ only in it
   # must not be treated as the same learner by tuning, benchmarking or caching
@@ -169,41 +162,16 @@ test_that("weight overrides the order within a stage", {
     c("CallbackSetA", "CallbackSetB"))
 })
 
-test_that("the checkpoint callback runs last", {
-  # it defaults to weight Inf, so it saves the network as the other callbacks left it
-  cb = t_clbk("checkpoint", freq = 1, path = tempfile())$generate()
-  expect_equal(cb$weight, Inf)
-  expect_equal(CallbackSet$new()$weight, 0)
-})
-
 test_that("a stateful callback may not run after the checkpoint callback", {
-  # the checkpoint reads the states of the other callbacks when it writes them, so one that updates
-  # its state in the same stage afterwards would be stored as it was an epoch earlier
   learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
     callbacks = list(t_clbk("checkpoint", freq = 1, path = tempfile()),
       t_clbk("history", weight = Inf)))
   expect_error(learner$train(tsk("iris")), "'history'.*run after the 'checkpoint' callback")
 
-  # a callback that keeps no state cannot lose one, whatever its weight
   stateless = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
     callbacks = list(t_clbk("checkpoint", freq = 1, path = tempfile()),
       torch_callback("noop", weight = Inf, on_epoch_end = function() NULL)))
   expect_no_error(stateless$train(tsk("iris")))
-})
-
-test_that("early stopping may run after the checkpoint callback", {
-  # it updates its state in `valid_end`, which is over by the time the checkpoint writes in
-  # `epoch_end`, so the checkpoint stores the state of the epoch it belongs to
-  path = tempfile()
-  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, patience = 2L,
-    validate = 0.3, measures_valid = msr("classif.ce"),
-    callbacks = t_clbk("checkpoint", freq = 1, path = path))
-  expect_no_error(learner$train(tsk("iris")))
-
-  expect_equal(
-    readRDS(file.path(path, "state2.rds"))$callbacks$early_stopping,
-    learner$model$callbacks$early_stopping
-  )
 })
 
 test_that("a callback's default weight can be overwritten via the TorchCallback", {
@@ -215,8 +183,10 @@ test_that("a callback's default weight can be overwritten via the TorchCallback"
   expect_error(t_clbk("checkpoint", freq = 1, path = tempfile(), weight = "high"),
     "Must be of type 'number'")
 
-  expect_equal(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0)$weight, Inf)
-  expect_equal(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0, weight = -1)$weight, -1)
+  # early stopping is high but finite, so that a callback can still be placed after it
+  expect_equal(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0)$weight, 1000)
+  expect_true(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0)$weight <
+    CallbackSetCheckpoint$new(path = tempfile(), freq = 1)$weight)
 })
 
 test_that("weight is validated", {

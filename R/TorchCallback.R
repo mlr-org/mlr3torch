@@ -189,7 +189,6 @@ TorchCallback = R6Class("TorchCallback",
     #' @template param_id
     #' @param param_set (`ParamSet` or `NULL`)\cr
     #'   The parameter set. If `NULL` (default) it is inferred from `callback_generator`.
-    #'   This must not contain `weight` and `ctx`.
     #' @template param_label
     #' @template param_packages
     #' @template param_man
@@ -203,13 +202,8 @@ TorchCallback = R6Class("TorchCallback",
       assert_class(callback_generator, "R6ClassGenerator")
       self$weight = weight
 
-      param_set = assert_param_set(param_set %||% inferps(callback_generator))
-      psids = param_set$ids()
-
-      if ("weight" %in% psids) {
-        stopf("The name 'weight' is reserved for the weight that determines when the callback is called within a stage and cannot be a construction argument. Set it via the 'weight' argument, see the section 'Ordering' of CallbackSet.") # nolint
-      }
-      if ("ctx" %in% psids) {
+      param_set = assert_param_set(param_set %??% inferps(callback_generator))
+      if ("ctx" %in% param_set$ids()) {
         stopf("The name 'ctx' is reserved for the ContextTorch and cannot be a construction argument.")
       }
       super$initialize(
@@ -256,7 +250,6 @@ TorchCallback = R6Class("TorchCallback",
 #'   The id for the torch callback.
 #' @param param_set (`ParamSet`)\cr
 #'   The parameter set, if not present it is inferred from the `$initialize()` method.
-#'   This must not contain `weight` or `ctx`.
 #' @param packages (`character()`)\cr`
 #'   The packages the callback depends on. Default is `NULL`.
 #' @param label (`character(1)`)\cr
@@ -269,7 +262,6 @@ TorchCallback = R6Class("TorchCallback",
 #'
 #' @inheritSection mlr_callback_set Stages
 #' @inheritSection mlr_callback_set Ordering
-#' @inheritSection mlr_callback_set Resuming
 #'
 #' @section Internals:
 #' It first creates an `R6` class inheriting from [`CallbackSet`] (using [`callback_set()`]) and
@@ -386,6 +378,18 @@ mlr3torch_callbacks = R6Class("DictionaryMlr3torchCallbacks",
 )$new()
 
 
+# The `$weight` that the callbacks of `generator` have, without generating one -- which is not
+# possible for a callback with required construction arguments. R6 does not merge inherited fields,
+# so the class hierarchy is walked until one declares a weight; `CallbackSet` itself always does.
+default_weight = function(generator) {
+  while (!is.null(generator)) {
+    weight = generator$public_fields$weight
+    if (!is.null(weight)) return(weight)
+    generator = generator$get_inherit()
+  }
+  0
+}
+
 #' @export
 as.data.table.DictionaryMlr3torchCallbacks = function(x, ...) { # nolint
   setkeyv(map_dtr(x$keys(), function(key) {
@@ -393,6 +397,7 @@ as.data.table.DictionaryMlr3torchCallbacks = function(x, ...) { # nolint
     list(
       key = key,
       label = cb$label,
+      weight = cb$weight %??% default_weight(cb$generator),
       packages = list(cb$packages)
     )
   }), "key")[]

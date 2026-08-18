@@ -93,16 +93,15 @@ test_that("the set of trainable weights can be saved and restored", {
   expect_true("3.weight" %nin% state$trainable)
 
   # epoch 2 is not reached again, so '0.weight' would be frozen again without the restored state.
-  # The state is restored regardless of whether it is loaded before or after $on_begin() of the
-  # unfreeze callback froze the network according to `starting_weights`.
+  # The state has to be there before $on_begin() freezes the network according to
+  # `starting_weights`, as that is where it is applied -- which is the case in a resumed run, where
+  # the callback states are loaded before the `begin` stage.
   restore = torch_callback("restore",
     on_begin = function() self$ctx$callbacks$unfreeze$load_state_dict(state))
-  walk(list(list(restore, t_clbk("unfreeze")), list(t_clbk("unfreeze"), restore)), function(cbs) {
-    second = make(1L, cbs)
-    second$train(task)
-    expect_true("0.weight" %in% second$model$callbacks$unfreeze$trainable)
-    expect_true("3.weight" %nin% second$model$callbacks$unfreeze$trainable)
-  })
+  second = make(1L, list(restore, t_clbk("unfreeze")))
+  second$train(task)
+  expect_true("0.weight" %in% second$model$callbacks$unfreeze$trainable)
+  expect_true("3.weight" %nin% second$model$callbacks$unfreeze$trainable)
 })
 
 

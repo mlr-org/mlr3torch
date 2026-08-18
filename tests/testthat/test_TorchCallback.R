@@ -47,8 +47,12 @@ test_that("Can retrieve predefined callback", {
 test_that("dictionary can be converted to a table", {
   tbl = as.data.table(mlr3torch_callbacks)
 
-  expect_data_table(tbl, ncols = 3, key = "key")
-  expect_equal(colnames(tbl), c("key", "label", "packages"))
+  expect_data_table(tbl, ncols = 4, key = "key")
+  expect_equal(colnames(tbl), c("key", "label", "weight", "packages"))
+  # the weight a generated callback has, without generating one -- 'checkpoint' cannot be
+  # generated without its required arguments
+  expect_equal(tbl[get("key") == "checkpoint"]$weight, Inf)
+  expect_equal(tbl[get("key") == "history"]$weight, 0)
 })
 
 test_that("torch_callback helper function works", {

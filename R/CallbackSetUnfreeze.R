@@ -5,13 +5,6 @@
 #' @description
 #' Unfreeze some weights (parameters of the network) after some number of steps or epochs.
 #'
-#' @section Resuming:
-#' Which weights were trainable at the end of a run is stored, and they are marked trainable again
-#' on resume, so weights an earlier run unfroze stay unfrozen.
-#' This is needed because `unfreeze` is a schedule over epoch or batch numbers, and a resumed run
-#' does not pass those of the run it continues again.
-#' Weights that the resuming network does not have are ignored.
-#'
 #' @param starting_weights (`Select`)\cr
 #'  A `Select` denoting the weights that are trainable from the start.
 #' @param unfreeze (`data.table`)\cr
@@ -58,7 +51,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       frozen_weights_str = paste(trainable_weights, collapse = ", ")
       lg$info(sprintf("Training the following weights at the start: %s", paste0(trainable_weights, collapse = ", ")))
 
-      private$.restore_trainable()
+      if (!is.null(private$.prev_state)) {
+        private$.restore_trainable()
+      }
     },
     #' @description
     #' Returns the names of the weights that are currently trainable, so that a later run does not
@@ -67,14 +62,13 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       list(trainable = private$.trainable_weights())
     },
     #' @description
-    #' Marks the weights of the state dict as trainable.
+    #' Remembers the weights of the state dict, which `$on_begin()` marks as trainable again.
     #' @param state_dict (named `list()`)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
-      # the network is frozen according to `starting_weights` in $on_begin(), so the weights that
-      # were already unfrozen can only be restored afterwards
+      # on_begin will ensure that the trainable weights have gradients enabled again.
+      # We can't do this here because generally ctx might not be available
       private$.prev_state = state_dict
-      if (!is.null(self$ctx) && !is.null(self$ctx$network)) private$.restore_trainable()
       invisible(NULL)
     },
     #' @description
@@ -98,7 +92,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' Unfreezes weights if the training is at the correct batch
     on_batch_begin = function() {
       if (private$.batchwise) {
-        batch_num = (self$ctx$epoch - 1) * length(self$ctx$loader_train) + self$ctx$step
+        batch_num = self$ctx$batch_step
         if (batch_num %in% self$unfreeze$batch) {
           weights = (self$unfreeze[get("batch") == batch_num]$weights)[[1]](names(self$ctx$network$parameters))
           if (!length(weights)) {
@@ -119,14 +113,8 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       params = self$ctx$network$parameters
       names(params)[map_lgl(params, function(param) param$requires_grad)]
     },
-    # $on_begin() freezes everything outside `starting_weights`, so the restore has to run after it
-    # -- which is why it is called at the end of that method. When resuming, `.prev_state` is
-    # already set by then, as the states are loaded before the `begin` stage. The call in
-    # $load_state_dict() covers a state that is loaded once the network already exists, and is
-    # deliberately not exclusive with the one above: `.prev_state` is kept, so whichever runs last
-    # has the final say.
     .restore_trainable = function() {
-      if (is.null(private$.prev_state)) return(NULL)
+      if (is.null(private$.prev_state)) stop("internal error")
       weights = intersect(private$.prev_state$trainable, names(self$ctx$network$parameters))
       walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
       lg$info(sprintf("Restoring the following trainable weights: %s", paste0(weights, collapse = ", ")))

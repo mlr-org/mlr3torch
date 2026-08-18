@@ -2,15 +2,17 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
   inherit = CallbackSet,
   lock_objects = FALSE,
   public = list(
-    # The default weight of `Inf` is deliberate: in `on_valid_end` it makes this callback run last,
-    # so it sees the change a user callback made to `ctx$last_scores_valid` -- overwriting that
-    # field is how a user callback influences early stopping.
-    # That the restore of the best weights comes after `CallbackSetCheckpoint` has written is not
-    # the weight's doing but the stage's: that callback writes in `on_epoch_end` / `on_end`, and
-    # both run before any `on_exit`. A checkpoint therefore holds the network as training left it,
-    # not the restored one.
-    initialize = function(patience, min_delta, restore_best_weights = FALSE, weight = Inf) {
-      self$weight = assert_number(weight)
+    # A high weight, so that `on_valid_end` runs after the user callbacks and this callback sees
+    # the change one of them made to `ctx$last_scores_valid` -- overwriting that field is how a
+    # user callback influences early stopping. It is deliberately finite, unlike the `Inf` of
+    # `CallbackSetCheckpoint`, which has to be last of all: a callback can still be placed between
+    # the two.
+    # That the restore of the best weights comes after the checkpoint has written is not the
+    # weight's doing but the stage's: that callback writes in `on_epoch_end` / `on_end`, and both
+    # run before any `on_exit`. A checkpoint therefore holds the network as training left it, not
+    # the restored one.
+    weight = 1000,
+    initialize = function(patience, min_delta, restore_best_weights = FALSE) {
       self$patience = assert_int(patience, lower = 1L)
       self$min_delta = assert_double(min_delta, lower = 0, len = 1L, any.missing = FALSE)
       self$restore_best_weights = assert_flag(restore_best_weights)
