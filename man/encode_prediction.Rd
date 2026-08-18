@@ -4,13 +4,13 @@
 \alias{encode_prediction}
 \title{Encode the Network Output as a Prediction}
 \usage{
-encode_prediction(task, predict_tensor, predict_type, ...)
+encode_prediction(task, network_output, predict_type, ...)
 }
 \arguments{
 \item{task}{(\code{\link[mlr3:Task]{Task}})\cr
 The task to predict on.}
 
-\item{predict_tensor}{(\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()} of them)\cr
+\item{network_output}{(\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()} of them)\cr
 The raw output of the network in evaluation mode.
 A network with more than one head -- e.g. one predicting a mean and a standard deviation --
 returns a \code{list()} of tensors, which is passed on unchanged.

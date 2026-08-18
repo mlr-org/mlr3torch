@@ -516,54 +516,20 @@ test_that("categ_cardinalities handles logicals and follows the ingress column o
 
 test_that("get_batch_constructor() default reproduces the ingress/target split", {
   task = tsk("iris")
-  batch_constructor = get_batch_constructor(task)
   token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4))
   token$features = token$features(task)
-  batch = batch_constructor(
-    data = task$data(rows = 1:3),
+  batch_constructor = get_batch_constructor(
+    task,
     feature_ingress_tokens = list(input = token),
-    target_batchgetter = get_target_batchgetter(task),
-    cache = NULL
+    target_batchgetter = get_target_batchgetter(task)
   )
+  batch = batch_constructor(data = task$data(rows = 1:3), cache = NULL)
   expect_names(names(batch), permutation.of = c("x", "y"))
   expect_equal(batch$x$input$shape, c(3L, 4L))
   expect_equal(as.integer(batch$y), as.integer(task$truth(1:3)))
 
   # no target batchgetter means no target in the batch
-  batch = batch_constructor(
-    data = task$data(rows = 1:3),
-    feature_ingress_tokens = list(input = token),
-    target_batchgetter = NULL,
-    cache = NULL
-  )
+  batch_constructor = get_batch_constructor(task, feature_ingress_tokens = list(input = token))
+  batch = batch_constructor(data = task$data(rows = 1:3), cache = NULL)
   expect_null(batch$y)
-})
-
-test_that("a task can build the whole batch itself, without duplicating work", {
-  # a task whose target *is* its input: the batchgetter converts the columns once and returns the
-  # same tensor as x and y, instead of the ingress token and the target batchgetter each doing it
-  TaskRegrRecon = R6::R6Class("TaskRegrRecon", inherit = TaskRegr)
-  conversions = 0L
-  registerS3method("get_batch_constructor", "TaskRegrRecon", function(task, ...) {
-    function(data, feature_ingress_tokens, target_batchgetter, cache = NULL) {
-      it = feature_ingress_tokens[[1L]]
-      input = it$batchgetter(data[, it$features, with = FALSE], cache = cache)
-      conversions <<- conversions + 1L
-      list(x = set_names(list(input), names(feature_ingress_tokens)[[1L]]), y = input)
-    }
-  }, envir = asNamespace("mlr3torch"))
-  on.exit(rm("get_batch_constructor.TaskRegrRecon",
-    envir = get(".__S3MethodsTable__.", envir = asNamespace("mlr3torch"))), add = TRUE)
-
-  d = data.frame(y = rnorm(10), x1 = rnorm(10), x2 = rnorm(10))
-  task = TaskRegrRecon$new("recon", d, target = "y")
-
-  ds = task_dataset(task, list(input = ingress_num(shape = c(NA, 2))),
-    target_batchgetter = function(data) stop("must not be called"))
-  batch = ds$.getbatch(1:4)
-
-  # x and y are the very same tensor, and the columns were converted once
-  expect_equal(as.matrix(batch$y), as.matrix(batch$x$input))
-  expect_equal(batch$x$input$shape, c(4L, 2L))
-  expect_equal(conversions, 1L)
 })

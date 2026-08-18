@@ -188,7 +188,8 @@ test_that("a network with two heads can be trained, scored and predicted", {
     public = list(
       initialize = function() {
         super$initialize(task_type = "regr", id = "regr.two_heads", label = "Two Heads",
-          param_set = ps(), feature_types = c("numeric", "integer"), man = "mlr3torch::two_heads")
+          param_set = ps(), feature_types = c("numeric", "integer"), man = "mlr3torch::two_heads",
+          callbacks = t_clbk("history"))
       }
     ),
     private = list(
@@ -203,8 +204,8 @@ test_that("a network with two heads can be trained, scored and predicted", {
           forward = function(input, target) self$loss(input$mu, target)
         )(super$.loss_fn(task, param_vals))
       },
-      .encode_prediction = function(predict_tensor, task) {
-        list(response = as.numeric(predict_tensor$mu + torch_exp(predict_tensor$log_sigma)))
+      .encode_prediction = function(network_output, task) {
+        list(response = as.numeric(network_output$mu + torch_exp(network_output$log_sigma)))
       }
     )
   )
@@ -212,13 +213,18 @@ test_that("a network with two heads can be trained, scored and predicted", {
   # the features are scaled, otherwise the exponentiated head overflows
   task = po("scale")$train(list(tsk("mtcars")))[[1L]]
   learner = LearnerTwoHeads$new()
-  learner$param_set$set_values(epochs = 1L, batch_size = 16L, measures_valid = msr("regr.mse"))
+  learner$param_set$set_values(epochs = 1L, batch_size = 16L, measures_valid = msr("regr.mse"),
+    measures_train = msr("regr.mse"))
   set_validate(learner, 0.3)
   learner$train(task)
 
   # the validation scores go through the same encoding as the prediction
   expect_list(learner$internal_valid_scores, types = "numeric", len = 1L)
   expect_false(is.na(learner$internal_valid_scores$regr.mse))
+
+  # and so do the training scores, i.e. the encoder sees both heads in either phase
+  history = learner$model$callbacks$history
+  expect_false(is.na(history$train.regr.mse))
 
   pred = learner$predict(task)
   expect_class(pred, "PredictionRegr")

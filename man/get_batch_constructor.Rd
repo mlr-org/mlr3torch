@@ -4,30 +4,42 @@
 \alias{get_batch_constructor}
 \title{Batch Constructor for a Task}
 \usage{
-get_batch_constructor(task, ...)
+get_batch_constructor(
+  task,
+  feature_ingress_tokens,
+  target_batchgetter = NULL,
+  ...
+)
 }
 \arguments{
 \item{task}{(\code{\link[mlr3:Task]{Task}})\cr
 The task.}
 
+\item{feature_ingress_tokens}{(named \code{list()} of \code{\link{TorchIngressToken}})\cr
+The ingress tokens that define \code{x}. Their features are already resolved, i.e. they are
+\code{character()} vectors and not \code{\link[mlr3pipelines:Selector]{Selector}}s.}
+
+\item{target_batchgetter}{(\verb{function(data)} or \code{NULL})\cr
+The function that defines \code{y}, or \code{NULL} if the dataset has no target.
+The default is to use \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.}
+
 \item{...}{(any)\cr
 Additional arguments. Not used yet.}
 }
 \value{
-\verb{function(data, feature_ingress_tokens, target_batchgetter, cache)}
+\verb{function(data, cache) -> list(x = list<torch_tensor>, y = torch_tensor | NULL)}
 }
 \description{
 Returns the function that builds a whole batch of a \code{task}, i.e. both the features \code{x} and the
 target \code{y}.
+This is how \code{\link{task_dataset}} loads its batches.
 
 The returned function takes the arguments
 \itemize{
 \item \code{data}, a \code{\link[data.table:data.table]{data.table}} with the feature \emph{and} target columns of the
-batch,
-\item \code{feature_ingress_tokens}, the named \code{list()} of \code{\link{TorchIngressToken}}s that defines \code{x},
-\item \code{target_batchgetter}, the \verb{function(data)} that defines \code{y}, or \code{NULL} if the dataset has no
-target, and
-\item \code{cache}, an \code{\link{environment}} used to cache \code{lazy_tensor} columns, or \code{NULL}.
+batch, and
+\item \code{cache}, a rather internal \code{\link{hashtab}} that can be used as a cache when loading multiple
+\code{\link{lazy_tensor}} columns.
 }
 
 It returns a \code{list()} with elements \code{x} (a named \code{list()} of
@@ -35,31 +47,20 @@ It returns a \code{list()} with elements \code{x} (a named \code{list()} of
 \code{NULL}).
 
 The default method applies the ingress tokens to obtain \code{x} and the target batchgetter to obtain
-\code{y}, which is what almost every task wants.
-Implement a method for your \code{\link[mlr3:Task]{Task}} class when the two cannot be built
-independently, or when building them separately would duplicate work: for a task whose target
-\emph{is} its input, such as an autoencoder, a method can compute the input tensor once and return it
-as both \code{x} and \code{y} instead of reading and converting the same columns twice.
-
-For the finer-grained hook that only decides how the target is encoded, see
-\code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
-Note that this is a different level from the \emph{batchgetters} of the individual ingress tokens
-(\code{\link[=batchgetter_num]{batchgetter_num()}}, \code{\link[=batchgetter_categ]{batchgetter_categ()}}), each of which converts one group of columns
-into one tensor; a batch constructor builds the whole batch from all of them.
+\code{y}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 task = tsk("iris")
-batch_constructor = get_batch_constructor(task)
 token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4))
 # the token's features are a `Selector`; `task_dataset()` resolves them for you
 token$features = token$features(task)
-batch = batch_constructor(
-  data = task$data(rows = 1:2),
+batch_constructor = get_batch_constructor(
+  task,
   feature_ingress_tokens = list(input = token),
-  target_batchgetter = get_target_batchgetter(task),
-  cache = NULL
+  target_batchgetter = get_target_batchgetter(task)
 )
+batch = batch_constructor(data = task$data(rows = 1:2))
 batch$x$input
 batch$y
 \dontshow{\}) # examplesIf}

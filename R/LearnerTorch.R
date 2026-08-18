@@ -35,31 +35,29 @@
 #' * multiclass classification: `(batch_size, n_classes)`, representing the logits for all classes.
 #' * regression: `(batch_size, 1)` representing the response prediction.
 #'
-#' A network may return more than one prediction during training, which is what networks with
-#' auxiliary classifiers such as [`Inception v3`][mlr_learners.torchvision] do.
-#' In this case the network returns a `list()` of tensors, each with the shape given above, and
-#' the following convention applies:
-#' * The **first** element is the primary prediction. It is the one that is scored by
-#'   `measures_train`.
-#' * The remaining elements are the predictions of the auxiliary classifiers. They only exist to
-#'   contribute to the loss during training and are never scored.
+#' A network may return more than one tensor, in which case it returns a `list()` of them.
+#' There are two typical reasons for this:
+#' * Networks with auxiliary classifiers such as [`Inception v3`][mlr_learners.torchvision] return
+#'   additional predictions that only exist to contribute to the loss during training. Here, every
+#'   element has the shape given above and the first one is the prediction of interest.
+#' * A prediction that consists of several quantities -- e.g. a mean and a standard deviation -- is
+#'   expressed by returning one tensor per quantity, which the prediction encoding combines.
 #'
-#' During training, [`ContextTorch`] makes both available: `ctx$y_hats` is the complete output of
-#' the network, i.e. what the loss is applied to, and `ctx$y_hat` is always the primary
-#' prediction. For a network that returns a single tensor the two are identical.
+#' In both cases the complete output is what the rest of the learner works with:
+#' * The loss is applied to it. Because the configured loss expects a single tensor, a learner
+#'   whose network returns a list has to wrap it by overloading `.loss_fn()`, see the list of
+#'   methods below. [`ContextTorch`] makes the output available as `ctx$y_hats`.
+#' * The prediction is encoded from it, both when predicting and when calculating the training and
+#'   validation scores, so `.encode_prediction()` always receives the complete network output. Such
+#'   a learner needs an [`encode_prediction()`] method for its task type, or has to overload the
+#'   private `.encode_prediction()` method, because the encodings of the built-in task types expect
+#'   a single tensor.
 #'
-#' Because the configured loss is applied to a single tensor, a learner whose network returns a
-#' list has to wrap it by overloading `.loss_fn()`, see the list of methods below.
-#'
-#' In **evaluation mode** -- i.e. when predicting and when calculating the validation scores -- the
-#' output of the network is passed to [`encode_prediction()`] as it is, so a network with more than
-#' one head can return a `list()` of tensors there as well. This is how a prediction that consists
-#' of several quantities is expressed, e.g. a mean and a standard deviation.
-#' Such a learner needs an [`encode_prediction()`] method for its task type, or has to overload the
-#' private `.encode_prediction()` method, because the encodings of the built-in task types expect a
-#' single tensor.
-#' Note that `measures_train` is calculated from `ctx$y_hat`, which is a single tensor, so it is the
-#' validation measures that a multi-head network is scored with.
+#' Note that the complete output is whatever the network returned in the mode it was called in, so a
+#' network whose extra tensors exist only during training -- as auxiliary classifiers do -- returns a
+#' different structure during training than during prediction, and `.encode_prediction()` has to
+#' handle both. `classif.inception_v3` does this by encoding only the prediction of the main
+#' classifier.
 #'
 #' Furthermore, the target encoding is expected to be as follows:
 #' * regression: The `numeric` target variable of a [`TaskRegr`][mlr3::TaskRegr] is encoded as a
@@ -149,7 +147,7 @@
 #'   Construct a [`torch::nn_module`] object for the given task and parameter values, i.e. the neural network that
 #'   is trained by the learner.
 #'   Note that a specific output shape is expected from the returned network, see section *Network Head and Target Encoding*.
-#'   That section also describes how a network can return more than one prediction during training.
+#'   That section also describes when a network can return more than one tensor.
 #'   You can use [`output_dim_for()`] to obtain the correct output dimension for a given task.
 #' * `.loss_fn(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`nn_module`][torch::nn_module]\cr
@@ -193,10 +191,12 @@
 #'
 #' To change the predict types, it is possible to overwrite the method below:
 #'
-#' * `.encode_prediction(predict_tensor, task)`\cr
-#'   ([`torch_tensor`][torch::torch_tensor], [`Task`][mlr3::Task]) -> `list()`\cr
-#'   Take in the raw predictions from `self$network` (`predict_tensor`) and encode them into a
+#' * `.encode_prediction(network_output, task)`\cr
+#'   ([`torch_tensor`][torch::torch_tensor] or `list()` of them, [`Task`][mlr3::Task]) -> `list()`\cr
+#'   Take in the raw predictions from `self$network` (`network_output`) and encode them into a
 #'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
+#'   It is a `list()` of tensors when the network returns more than one, see section
+#'   *Network Head and Target Encoding*.
 #'   This method must take `self$predict_type` into account.
 #'
 #' While it is possible to add parameters by specifying the `param_set` construction argument, it is currently
@@ -565,10 +565,10 @@ LearnerTorch = R6Class("LearnerTorch",
         learner_torch_predict(self, private, super, task, param_vals)
       })
     },
-    .encode_prediction = function(predict_tensor, task) {
+    .encode_prediction = function(network_output, task) {
       encode_prediction(
         task = task,
-        predict_tensor = predict_tensor,
+        network_output = network_output,
         predict_type = self$predict_type
       )
     },

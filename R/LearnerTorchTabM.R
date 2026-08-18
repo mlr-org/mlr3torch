@@ -1093,21 +1093,21 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
     # `encode_prediction()` expects scores, so the averaged probabilities are
     # mapped back to the score scale (log / logit); this roundtrip is exact up to
     # floating point accuracy because softmax(log(p)) == p and sigmoid(logit(p)) == p.
-    .encode_prediction = function(predict_tensor, task) {
+    .encode_prediction = function(network_output, task) {
       reduced = with_no_grad({
         if (task$task_type == "regr") {
-          predict_tensor$mean(dim = 2L)
+          network_output$mean(dim = 2L)
         } else if ("twoclass" %in% task$properties) {
-          p = torch_sigmoid(predict_tensor)$mean(dim = 2L)$clamp(min = 1e-7, max = 1 - 1e-7)
+          p = torch_sigmoid(network_output)$mean(dim = 2L)$clamp(min = 1e-7, max = 1 - 1e-7)
           torch_log(p) - torch_log1p(-p)
         } else {
-          p = nnf_softmax(predict_tensor, dim = 3L)$mean(dim = 2L)
+          p = nnf_softmax(network_output, dim = 3L)$mean(dim = 2L)
           torch_log(p$clamp(min = 1e-30))
         }
       })
       encode_prediction(
         task = task,
-        predict_tensor = reduced,
+        network_output = reduced,
         predict_type = self$predict_type
       )
     }

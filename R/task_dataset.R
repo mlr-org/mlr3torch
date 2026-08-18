@@ -62,7 +62,6 @@ task_dataset = dataset("task_dataset",
     self$all_features = unique(c(unlist(map(self$feature_ingress_tokens, "features")), task$target_names))
     assert_subset(self$all_features, c(task$target_names, task$feature_names))
     self$target_batchgetter = assert_function(target_batchgetter, args = "data", null.ok = TRUE)
-    self$batch_constructor = get_batch_constructor(self$task)
     lazy_tensor_features = self$task$feature_types[get("type") == "lazy_tensor"][[1L]]
 
     data = self$task$data(cols = lazy_tensor_features)
@@ -78,17 +77,20 @@ task_dataset = dataset("task_dataset",
     }
 
     self$cache_lazy_tensors = auto_cache_lazy_tensors(data)
+
+    # This comes last so the task a method receives is the final one, i.e. including the merged
+    # `lazy_tensor` columns from above.
+    self$batch_constructor = get_batch_constructor(
+      self$task,
+      feature_ingress_tokens = self$feature_ingress_tokens,
+      target_batchgetter = self$target_batchgetter
+    )
   },
   .getbatch = function(index) {
     cache = if (self$cache_lazy_tensors) hashtab()
 
     datapool = self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
-    batch = self$batch_constructor(
-      data = datapool,
-      feature_ingress_tokens = self$feature_ingress_tokens,
-      target_batchgetter = self$target_batchgetter,
-      cache = cache
-    )
+    batch = self$batch_constructor(data = datapool, cache = cache)
     out = list(x = batch$x, .index = torch_tensor(index, dtype = torch_long()))
     if (!is.null(batch$y)) out$y = batch$y
     return(out)
@@ -259,60 +261,53 @@ target_batchgetter_regr = function(data) {
 #' @description
 #' Returns the function that builds a whole batch of a `task`, i.e. both the features `x` and the
 #' target `y`.
+#' This is how [`task_dataset`] loads its batches.
 #'
 #' The returned function takes the arguments
 #' * `data`, a [`data.table`][data.table::data.table] with the feature *and* target columns of the
-#'   batch,
-#' * `feature_ingress_tokens`, the named `list()` of [`TorchIngressToken`]s that defines `x`,
-#' * `target_batchgetter`, the `function(data)` that defines `y`, or `NULL` if the dataset has no
-#'   target, and
-#' * `cache`, an [`environment`] used to cache `lazy_tensor` columns, or `NULL`.
+#'   batch, and
+#' * `cache`, a rather internal [`hashtab`] that can be used as a cache when loading multiple
+#'   [`lazy_tensor`] columns.
 #'
 #' It returns a `list()` with elements `x` (a named `list()` of
 #' [`torch_tensor`][torch::torch_tensor]s) and `y` (a [`torch_tensor`][torch::torch_tensor] or
 #' `NULL`).
 #'
 #' The default method applies the ingress tokens to obtain `x` and the target batchgetter to obtain
-#' `y`, which is what almost every task wants.
-#' Implement a method for your [`Task`][mlr3::Task] class when the two cannot be built
-#' independently, or when building them separately would duplicate work: for a task whose target
-#' *is* its input, such as an autoencoder, a method can compute the input tensor once and return it
-#' as both `x` and `y` instead of reading and converting the same columns twice.
-#'
-#' For the finer-grained hook that only decides how the target is encoded, see
-#' [`get_target_batchgetter()`].
-#' Note that this is a different level from the *batchgetters* of the individual ingress tokens
-#' ([`batchgetter_num()`], [`batchgetter_categ()`]), each of which converts one group of columns
-#' into one tensor; a batch constructor builds the whole batch from all of them.
-#'
+#' `y`.
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   The task.
+#' @param feature_ingress_tokens (named `list()` of [`TorchIngressToken`])\cr
+#'   The ingress tokens that define `x`. Their features are already resolved, i.e. they are
+#'   `character()` vectors and not [`Selector`][mlr3pipelines::Selector]s.
+#' @param target_batchgetter (`function(data)` or `NULL`)\cr
+#'   The function that defines `y`, or `NULL` if the dataset has no target.
+#'   The default is to use [`get_target_batchgetter()`].
 #' @param ... (any)\cr
 #'   Additional arguments. Not used yet.
-#' @return `function(data, feature_ingress_tokens, target_batchgetter, cache)`
+#' @return `function(data, cache) -> list(x = list<torch_tensor>, y = torch_tensor | NULL)`
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' task = tsk("iris")
-#' batch_constructor = get_batch_constructor(task)
 #' token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4))
 #' # the token's features are a `Selector`; `task_dataset()` resolves them for you
 #' token$features = token$features(task)
-#' batch = batch_constructor(
-#'   data = task$data(rows = 1:2),
+#' batch_constructor = get_batch_constructor(
+#'   task,
 #'   feature_ingress_tokens = list(input = token),
-#'   target_batchgetter = get_target_batchgetter(task),
-#'   cache = NULL
+#'   target_batchgetter = get_target_batchgetter(task)
 #' )
+#' batch = batch_constructor(data = task$data(rows = 1:2))
 #' batch$x$input
 #' batch$y
-get_batch_constructor = function(task, ...) {
+get_batch_constructor = function(task, feature_ingress_tokens, target_batchgetter = NULL, ...) {
   UseMethod("get_batch_constructor")
 }
 
 #' @export
-get_batch_constructor.default = function(task, ...) { # nolint
+get_batch_constructor.default = function(task, feature_ingress_tokens, target_batchgetter = NULL, ...) { # nolint
   target_names = task$target_names
-  function(data, feature_ingress_tokens, target_batchgetter, cache = NULL) {
+  function(data, cache = NULL) {
     x = lapply(feature_ingress_tokens, function(it) {
       it$batchgetter(data[, it$features, with = FALSE], cache = cache)
     })
@@ -327,15 +322,7 @@ get_batch_constructor.default = function(task, ...) { # nolint
 #'
 #' @description
 #' Returns the function that converts the target column(s) of a `task` into the target tensor
-#' `y` of a batch, i.e. the tensor that the loss is applied to.
-#' The returned function takes a single argument `data`, a [`data.table`][data.table::data.table]
-#' containing only the target column(s), and returns a [`torch_tensor`][torch::torch_tensor].
-#'
-#' For the target encodings of the built-in task types, see section
-#' *Network Head and Target Encoding* of [`LearnerTorch`].
-#'
-#' When adding support for a custom task type, implement a method for the corresponding
-#' [`Task`][mlr3::Task] class.
+#' `y` of a batch.
 #'
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   The task.
@@ -344,8 +331,9 @@ get_batch_constructor.default = function(task, ...) { # nolint
 #' @return `function(data)`
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' batchgetter = get_target_batchgetter(tsk("iris"))
-#' batchgetter(data.table::data.table(Species = factor(c("setosa", "virginica"))))
+#' task = tsk("iris")
+#' batchgetter = get_target_batchgetter(task)
+#' batchgetter(task$data(1:2, "Species")[[1L]])
 get_target_batchgetter = function(task, ...) {
   UseMethod("get_target_batchgetter")
 }
