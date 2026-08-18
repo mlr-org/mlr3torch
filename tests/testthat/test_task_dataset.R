@@ -513,3 +513,23 @@ test_that("categ_cardinalities handles logicals and follows the ingress column o
   # a task without categorical features yields an empty integer vector, not an error
   expect_equal(categ_cardinalities(mlr3::tsk("iris")), integer(0))
 })
+
+test_that("get_batch_constructor() default reproduces the ingress/target split", {
+  task = tsk("iris")
+  token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4))
+  token$features = token$features(task)
+  batch_constructor = get_batch_constructor(
+    task,
+    feature_ingress_tokens = list(input = token),
+    target_batchgetter = get_target_batchgetter(task)
+  )
+  batch = batch_constructor(data = task$data(rows = 1:3), cache = NULL)
+  expect_names(names(batch), permutation.of = c("x", "y"))
+  expect_equal(batch$x$input$shape, c(3L, 4L))
+  expect_equal(as.integer(batch$y), as.integer(task$truth(1:3)))
+
+  # no target batchgetter means no target in the batch
+  batch_constructor = get_batch_constructor(task, feature_ingress_tokens = list(input = token))
+  batch = batch_constructor(data = task$data(rows = 1:3), cache = NULL)
+  expect_null(batch$y)
+})

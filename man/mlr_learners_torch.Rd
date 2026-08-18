@@ -48,24 +48,33 @@ Torch learners are expected to have the following output:
 \item regression: \verb{(batch_size, 1)} representing the response prediction.
 }
 
-A network may return more than one prediction during training, which is what networks with
-auxiliary classifiers such as \code{\link[=mlr_learners.torchvision]{Inception v3}} do.
-In this case the network returns a \code{list()} of tensors, each with the shape given above, and
-the following convention applies:
+A network may return more than one tensor, in which case it returns a \code{list()} of them.
+There are two typical reasons for this:
 \itemize{
-\item The \strong{first} element is the primary prediction. It is the one that is scored by
-\code{measures_train} and the one that the network is expected to return when it is in evaluation
-mode, i.e. when predicting and when calculating the validation scores.
-\item The remaining elements are the predictions of the auxiliary classifiers. They only exist to
-contribute to the loss during training and are never scored.
+\item Networks with auxiliary classifiers such as \code{\link[=mlr_learners.torchvision]{Inception v3}} return
+additional predictions that only exist to contribute to the loss during training. Here, every
+element has the shape given above and the first one is the prediction of interest.
+\item A prediction that consists of several quantities -- e.g. a mean and a standard deviation -- is
+expressed by returning one tensor per quantity, which the prediction encoding combines.
 }
 
-During training, \code{\link{ContextTorch}} makes both available: \code{ctx$y_hats} is the complete output of
-the network, i.e. what the loss is applied to, and \code{ctx$y_hat} is always the primary
-prediction. For a network that returns a single tensor the two are identical.
+In both cases the complete output is what the rest of the learner works with:
+\itemize{
+\item The loss is applied to it. Because the configured loss expects a single tensor, a learner
+whose network returns a list has to wrap it by overloading \code{.loss_fn()}, see the list of
+methods below. \code{\link{ContextTorch}} makes the output available as \code{ctx$y_hats}.
+\item The prediction is encoded from it, both when predicting and when calculating the training and
+validation scores, so \code{.encode_prediction()} always receives the complete network output. Such
+a learner needs an \code{\link[=encode_prediction]{encode_prediction()}} method for its task type, or has to overload the
+private \code{.encode_prediction()} method, because the encodings of the built-in task types expect
+a single tensor.
+}
 
-Because the configured loss is applied to a single tensor, a learner whose network returns a
-list has to wrap it by overloading \code{.loss_fn()}, see the list of methods below.
+Note that the complete output is whatever the network returned in the mode it was called in, so a
+network whose extra tensors exist only during training -- as auxiliary classifiers do -- returns a
+different structure during training than during prediction, and \code{.encode_prediction()} has to
+handle both. \code{classif.inception_v3} does this by encoding only the prediction of the main
+classifier.
 
 Furthermore, the target encoding is expected to be as follows:
 \itemize{
@@ -247,7 +256,13 @@ Also see \code{torch::dataloader} for more information.
 
 There are no separate classes for classification and regression to inherit from.
 Instead, the \code{task_type} must be specified as a construction argument.
-Currently, only classification and regression are supported.
+Any task type that is registered in
+\code{\link[mlr3:mlr_reflections]{mlr_reflections$task_types}} can be used.
+Support for a task type that \pkg{mlr3torch} does not know is added by implementing methods for
+the three S3 generics that hold the task-type-specific behaviour: \code{\link[=output_dim_for]{output_dim_for()}} (how many
+output neurons the network needs), \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} (how the target is turned into a
+tensor) and \code{\link[=encode_prediction]{encode_prediction()}} (how the network's output is turned back into a prediction).
+Such a learner also has to be given a \code{loss} explicitly.
 
 When inheriting from this class, one should overload the following methods:
 \itemize{
@@ -256,7 +271,7 @@ When inheriting from this class, one should overload the following methods:
 Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
 Note that a specific output shape is expected from the returned network, see section \emph{Network Head and Target Encoding}.
-That section also describes how a network can return more than one prediction during training.
+That section also describes when a network can return more than one tensor.
 You can use \code{\link[=output_dim_for]{output_dim_for()}} to obtain the correct output dimension for a given task.
 \item \code{.loss_fn(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:nn_module]{nn_module}}\cr
@@ -304,10 +319,12 @@ which takes the \code{batch_size_predict} parameter into account.
 
 To change the predict types, it is possible to overwrite the method below:
 \itemize{
-\item \code{.encode_prediction(predict_tensor, task)}\cr
-(\code{\link[torch:torch_tensor]{torch_tensor}}, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr
-Take in the raw predictions from \code{self$network} (\code{predict_tensor}) and encode them into a
+\item \code{.encode_prediction(network_output, task)}\cr
+(\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()} of them, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr
+Take in the raw predictions from \code{self$network} (\code{network_output}) and encode them into a
 format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
+It is a \code{list()} of tensors when the network returns more than one, see section
+\emph{Network Head and Target Encoding}.
 This method must take \code{self$predict_type} into account.
 }
 
@@ -459,7 +476,9 @@ The optimizer to use for training.
 Defaults to adam.}
       \item{\code{loss}}{(\code{NULL} or \code{\link{TorchLoss}})\cr
 The loss to use for training.
-Defaults to MSE for regression and cross entropy for classification.}
+Defaults to MSE for regression and cross entropy for classification.
+For other task types there is no default and the loss has to be given, because which loss is
+appropriate depends on the learning problem.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{predict_types}}{(\code{character()})\cr
@@ -467,6 +486,7 @@ The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.
 For regression, the default is \code{"response"}.
 For classification, this defaults to \code{"response"} and \code{"prob"}.
+For other task types, it defaults to all predict types that are registered for the task type.
 To deviate from the defaults, it is necessary to overwrite the private \verb{$.encode_prediction()}
 method, see section \emph{Inheriting}.}
       \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
