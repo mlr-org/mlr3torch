@@ -11,21 +11,22 @@ as_task_torch(x, target = character(0), id = deparse(substitute(x))[1L], ...)
 The data.}
 
 \item{target}{(\code{character()})\cr
-The names of the target columns. May be empty.}
+The names of the target columns. If empty, a \code{\link{TaskTorchUnsupervised}} is created.}
 
 \item{id}{(\code{character(1)})\cr
 The id of the task.}
 
 \item{...}{(any)\cr
-Further arguments passed to \code{\link{TaskTorch}}\verb{$new()}, such as \code{target_batchgetter}, \code{output_dim},
+Further arguments passed to the task's \verb{$new()}, such as \code{target_batchgetter}, \code{output_dim},
 \code{prediction_encoder} or \code{measure}.}
 }
 \value{
-\code{\link{TaskTorch}}
+\code{\link{TaskTorch}} or \code{\link{TaskTorchUnsupervised}}
 }
 \description{
-Creates a \code{\link{TaskTorch}}, the general-purpose task type of \code{mlr3torch}, from a \code{data.frame()} or a
-\code{\link[mlr3:DataBackend]{DataBackend}}.
+Creates a task of the general-purpose task type of \code{mlr3torch} from a \code{data.frame()} or a
+\code{\link[mlr3:DataBackend]{DataBackend}}: a \code{\link{TaskTorch}} if \code{target} columns are given and a
+\code{\link{TaskTorchUnsupervised}} if they are not.
 See \code{\link{TaskTorch}} for what is inferred from the target columns and what the trade-offs are.
 }
 \examples{

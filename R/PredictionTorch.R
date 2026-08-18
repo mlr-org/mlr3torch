@@ -148,6 +148,11 @@ as_prediction.PredictionDataTorch = function(x, check = TRUE, ...) { # nolint
 }
 
 #' @export
+create_empty_prediction_data.TaskTorchUnsupervised = function(task, learner) { # nolint
+  create_empty_prediction_data.TaskTorch(task, learner)
+}
+
+#' @export
 create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
   pdata = list(row_ids = integer())
 

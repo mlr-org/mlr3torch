@@ -41,10 +41,26 @@ test_that("as_task_torch constructs a TaskTorch", {
   task = as_task_torch(d, target = "y", id = "t")
 
   expect_class(task, "TaskTorch")
+  expect_class(task, "TaskSupervised")
   expect_equal(task$task_type, "torch")
   expect_equal(task$id, "t")
   expect_set_equal(task$feature_names, c("x1", "x2", "x3"))
   expect_equal(task$target_names, "y")
+})
+
+test_that("as_task_torch constructs a TaskTorchUnsupervised when there is no target", {
+  d = tt_data()
+  task = as_task_torch(d, id = "t")
+
+  expect_class(task, "TaskTorchUnsupervised")
+  expect_class(task, "TaskUnsupervised")
+  # both classes share the task type, so the same learners and measures apply
+  expect_equal(task$task_type, "torch")
+  expect_equal(task$target_names, character(0))
+
+  # a TaskTorch is supervised, so it insists on a target
+  expect_error(TaskTorch$new(id = "t", backend = d, target = character(0)),
+    "needs at least one target column")
 })
 
 test_that("a single factor target is inferred as multiclass", {
@@ -282,6 +298,7 @@ test_that("a task with no target at all is unsupervised", {
   d = tt_data(60L)
   task = as_task_torch(d, id = "unsup")
 
+  expect_class(task, "TaskTorchUnsupervised")
   expect_equal(task$target_names, character(0))
   expect_null(task$truth())
   expect_null(get_target_batchgetter(task))

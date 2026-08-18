@@ -26,6 +26,8 @@
   i.e. both the features `x` and the target `y`.
 * New task type `"torch"` for problems that are neither classification nor regression, created with
   `as_task_torch()`, along with `PredictionTorch`, `msr_torch()`, `lrn("torch.module")` and `po("torch_model")`.
+  It has two classes: `TaskTorch` for a supervised problem and `TaskTorchUnsupervised` for one
+  without target columns.
 * The training loop no longer requires a target: a batch without a `y` element is passed to the loss
   as `loss(y_hat, NULL)`, which is what a task without target columns needs.
 * `LearnerTorchModule` gained a `target_batchgetter` construction argument, which overwrites the

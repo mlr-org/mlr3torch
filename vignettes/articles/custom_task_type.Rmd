@@ -94,7 +94,6 @@ The complete set of rules is the following, and it is also documented in the *In
 | `d` `numeric` | `float` `(n, d)` | `d` | `matrix()`, `d` columns | -- |
 | one `logical` | `float` `(n, 1)` | 1 | `logical()` | `numeric()` |
 | `d` `logical` | `float` `(n, d)` | `d` | `matrix()`, `d` columns | `matrix()`, `d` columns |
-| none | -- (no target in the batch) | -- | -- | -- |
 
 Note that a two-level `factor` target is *not* treated as binary classification: it gets two output units and a cross-entropy loss, like any other `factor` target.
 Encode the target as `logical` if you want the single-logit variant.
@@ -293,10 +292,10 @@ The task still decodes the network output into a `factor`, because `output_dim` 
 
 ## Tasks without a Target {#sec-unsupervised}
 
-A `TaskTorch` is supervised or unsupervised depending only on whether you gave it target columns.
-Nothing beyond that is assumed about the structure of the problem.
+A problem without target columns is a `TaskTorchUnsupervised`, which is the same task without the targets and shares the task type `"torch"` with `TaskTorch`, so the same learners and measures apply.
+`as_task_torch()` returns it whenever you do not pass `target`.
 
-A task with no targets has no target element in its batches at all, so the loss is called with `NULL` as its second argument and has to ignore it.
+Such a task has no target element in its batches at all, so the loss is called with `NULL` as its second argument and has to ignore it.
 There is also nothing to infer from, so `output_dim` and `prediction_encoder` have to be given.
 
 If the target of a batch is a function of its *input* -- an autoencoder reconstructing its input, a denoising or masked objective, contrastive pretraining -- then the `target_batchgetter` may declare an `x` argument, which receives the feature tensors of the batch.
@@ -396,7 +395,7 @@ The consequences are worth being explicit about:
 
 In this article we trained networks on two problems that `mlr3torch` has no built-in support for -- multi-label classification and an autoencoder -- without adding a task type to `mlr3`.
 
-`as_task_torch()` builds a task from any number of target columns, or none at all, and infers the target tensor, the output dimension and the prediction encoding from the target column types.
+`as_task_torch()` builds a `TaskTorch` from any number of target columns -- or a `TaskTorchUnsupervised` from none -- and infers the target tensor, the output dimension and the prediction encoding from the target column types.
 Each of the three can be overridden on the task, and the target encoding can additionally be overridden on the learner.
 `msr_torch()` turns a plain R function into a measure.
 Everything that is a modelling decision -- the loss and the measure -- you state yourself, because those do not follow from the data.
