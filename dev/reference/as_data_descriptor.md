@@ -44,7 +44,7 @@ as_data_descriptor(ds, list(x = c(NA, 4L)))
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,4)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.3c2534.x.output
+#> * pointer: nop.14cbf7.x.output
 #> * shape: [(NA,4)]
 
 # if the dataset has a .getbatch method, the shapes are inferred
@@ -57,6 +57,6 @@ as_data_descriptor(ds2)
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,4)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.6b4d72.x.output
+#> * pointer: nop.33906f.x.output
 #> * shape: [(NA,4)]
 ```

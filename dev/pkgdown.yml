@@ -16,7 +16,7 @@ articles:
   articles/tabular_learner_list: tabular_learner_list.html
   articles/task_list: task_list.html
   articles/vision_learner_list: vision_learner_list.html
-last_built: 2026-08-17T11:30Z
+last_built: 2026-08-18T05:50Z
 urls:
   reference: https://mlr3torch.mlr-org.com/reference
   article: https://mlr3torch.mlr-org.com/articles
