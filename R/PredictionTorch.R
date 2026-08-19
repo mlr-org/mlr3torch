@@ -5,10 +5,9 @@
 #' [`TaskTorch`].
 #'
 #' Because a [`TaskTorch`] can represent very different learning problems, this class does not
-#' prescribe how `truth`, `response` and `prob` are stored.
-#' Each of them may be an atomic vector, a `matrix()` or a [`data.table`][data.table::data.table],
-#' whatever the task's prediction encoder produced; see section *Inference* of [`TaskTorch`] for
-#' what the built-in encoders return.
+#' prescribe how `truth`, `response`, `prob` and `se` are stored.
+#' Each of them may be an atomic vector, a `matrix()`, a [`data.table`][data.table::data.table] or an
+#' array of any dimensionality -- whatever the task's `prediction_encoder` produced.
 #' The checks that `mlr3` performs are correspondingly weak: it is verified that all elements
 #' describe the same number of observations, but not what is in them.
 #'
@@ -22,6 +21,8 @@
 #'   The predicted response.
 #' @param prob (any)\cr
 #'   The predicted probabilities.
+#' @param se (any)\cr
+#'   The standard errors of the prediction.
 #' @param check (`logical(1)`)\cr
 #'   Whether to check the consistency of the prediction data.
 #'
@@ -37,8 +38,9 @@ PredictionTorch = R6Class("PredictionTorch",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task = NULL, row_ids = task$row_ids,
-      truth = if (!is.null(task)) task$truth(row_ids), response = NULL, prob = NULL, check = TRUE) {
-      pdata = discard(list(row_ids = row_ids, truth = truth, response = response, prob = prob), is.null)
+      truth = if (!is.null(task)) task$truth(row_ids), response = NULL, prob = NULL, se = NULL,
+      check = TRUE) {
+      pdata = discard(list(row_ids = row_ids, truth = truth, response = response, prob = prob, se = se), is.null)
       class(pdata) = c("PredictionDataTorch", "PredictionData")
       if (check) {
         pdata = check_prediction_data(pdata)
@@ -47,7 +49,7 @@ PredictionTorch = R6Class("PredictionTorch",
       self$task_type = "torch"
       self$man = "mlr3torch::PredictionTorch"
       self$data = pdata
-      self$predict_types = intersect(c("response", "prob"), names(pdata))
+      self$predict_types = intersect(pt_predict_types, names(pdata))
     }
   ),
   active = list(
@@ -62,9 +64,20 @@ PredictionTorch = R6Class("PredictionTorch",
     prob = function(rhs) {
       assert_ro_binding(rhs)
       self$data$prob
+    },
+    #' @field se (any)\cr
+    #'   The standard errors of the prediction.
+    se = function(rhs) {
+      assert_ro_binding(rhs)
+      self$data$se
     }
   )
 )
+
+# The elements a prediction of a generic torch task can carry. `truth` comes from the task, the
+# others are whatever the prediction encoder returned, filtered by the learner's predict type.
+pt_predict_types = c("response", "prob", "se")
+pt_elements = c("truth", pt_predict_types)
 
 # `truth`, `response` and `prob` of a PredictionDataTorch can be anything the task's prediction
 # encoder produced: a vector, a `data.table`, or an array of any dimensionality -- an autoencoder
@@ -166,7 +179,7 @@ pt_as_columns = function(x, prefix) {
 check_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
   n = length(assert_row_ids(pdata$row_ids))
   # deliberately lax: we only ensure that everything describes the same observations
-  for (nm in intersect(c("truth", "response", "prob"), names(pdata))) {
+  for (nm in intersect(pt_elements, names(pdata))) {
     n_nm = pt_nobs(pdata[[nm]])
     if (n_nm != n) {
       stopf("Element '%s' of the prediction data has %i observations, but %i row ids are given.", nm, n_nm, n) # nolint
@@ -203,17 +216,21 @@ create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
     pdata$truth = truth
   }
 
-  # What `response` and `prob` look like is decided by the task's prediction encoder, and an empty
-  # prediction has to have the same storage type as a non-empty one so that the two can be
-  # combined. Rather than guessing, we ask the encoder to encode an empty batch. A task that
-  # cannot do this (no `output_dim`, or an encoder that rejects empty input) falls back to the
-  # row ids and the truth alone.
+  # An empty prediction has to have the same storage as a non-empty one so that the two can be
+  # combined, and only the prediction encoder knows what that is, so we ask it to encode an empty
+  # batch. This goes through the learner rather than calling `encode_prediction()` directly,
+  # because a learner may encode predictions itself and then never consult the task.
   empty = try({
-    encoded = encode_prediction(task, torch_zeros(0L, task$output_dim), learner$predict_type)
+    encoded = get_private(learner)$.encode_prediction(
+      network_output = torch_zeros(0L, output_dim_for(task)), task = task)
     encoded[intersect(mlr_reflections$learner_predict_types$torch[[learner$predict_type]],
       names(encoded))]
   }, silent = TRUE)
-  if (!inherits(empty, "try-error")) {
+  if (inherits(empty, "try-error")) {
+    # Degrading silently would leave the empty prediction without a `response`, and the only symptom
+    # would be a `different predict types` error once it is combined with a real prediction.
+    warningf("Could not build an empty prediction for task '%s', so it carries only row ids and the truth: %s", task$id, trimws(conditionMessage(attr(empty, "condition")))) # nolint
+  } else {
     pdata = c(pdata, discard(empty, is.null))
   }
 
@@ -230,14 +247,14 @@ c.PredictionDataTorch = function(..., keep_duplicates = TRUE) { # nolint
     return(dots[[1L]])
   }
 
-  elements = intersect(c("truth", "response", "prob"), names(dots[[1L]]))
+  elements = intersect(pt_elements, names(dots[[1L]]))
   # Taking the elements from the first input alone would silently drop a `prob` that only the
   # later ones carry, so all inputs have to describe the same things.
   mismatch = map_lgl(dots, function(pdata) {
-    !setequal(intersect(c("truth", "response", "prob"), names(pdata)), elements)
+    !setequal(intersect(pt_elements, names(pdata)), elements)
   })
   if (any(mismatch)) {
-    stopf("Cannot combine prediction data with different predict types: %s vs %s.", str_collapse(elements), str_collapse(intersect(c("truth", "response", "prob"), names(dots[[which(mismatch)[1L]]])))) # nolint
+    stopf("Cannot combine prediction data with different predict types: %s vs %s.", str_collapse(elements), str_collapse(intersect(pt_elements, names(dots[[which(mismatch)[1L]]])))) # nolint
   }
 
   pdata = c(
@@ -262,7 +279,7 @@ c.PredictionDataTorch = function(..., keep_duplicates = TRUE) { # nolint
 filter_prediction_data.PredictionDataTorch = function(pdata, row_ids, ...) { # nolint
   keep = pdata$row_ids %in% row_ids
   pdata$row_ids = pdata$row_ids[keep]
-  for (nm in intersect(c("truth", "response", "prob"), names(pdata))) {
+  for (nm in intersect(pt_elements, names(pdata))) {
     pdata[[nm]] = pt_subset(pdata[[nm]], keep)
   }
   pdata
@@ -272,7 +289,7 @@ filter_prediction_data.PredictionDataTorch = function(pdata, row_ids, ...) { # n
 as.data.table.PredictionTorch = function(x, ...) { # nolint
   tabs = c(
     list(data.table(row_ids = x$data$row_ids)),
-    lapply(intersect(c("truth", "response", "prob"), names(x$data)), function(nm) {
+    lapply(intersect(pt_elements, names(x$data)), function(nm) {
       pt_as_columns(x$data[[nm]], nm)
     })
   )

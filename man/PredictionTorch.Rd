@@ -8,10 +8,9 @@ The \code{\link[mlr3:Prediction]{Prediction}} object returned by learners that w
 \code{\link{TaskTorch}}.
 
 Because a \code{\link{TaskTorch}} can represent very different learning problems, this class does not
-prescribe how \code{truth}, \code{response} and \code{prob} are stored.
-Each of them may be an atomic vector, a \code{matrix()} or a \code{\link[data.table:data.table]{data.table}},
-whatever the task's prediction encoder produced; see section \emph{Inference} of \code{\link{TaskTorch}} for
-what the built-in encoders return.
+prescribe how \code{truth}, \code{response}, \code{prob} and \code{se} are stored.
+Each of them may be an atomic vector, a \code{matrix()}, a \code{\link[data.table:data.table]{data.table}} or an
+array of any dimensionality -- whatever the task's \code{prediction_encoder} produced.
 The checks that \code{mlr3} performs are correspondingly weak: it is verified that all elements
 describe the same number of observations, but not what is in them.
 }
@@ -34,6 +33,9 @@ The predicted response.}
 
     \item{\code{prob}}{(any)\cr
 The predicted probabilities.}
+
+    \item{\code{se}}{(any)\cr
+The standard errors of the prediction.}
   }
   \if{html}{\out{</div>}}
 }
@@ -67,6 +69,7 @@ The predicted probabilities.}
   truth = if (!is.null(task)) task$truth(row_ids),
   response = NULL,
   prob = NULL,
+  se = NULL,
   check = TRUE
 )}
     \if{html}{\out{</div>}}
@@ -84,6 +87,8 @@ The ground truth, i.e. what \code{task$truth()} returned.}
 The predicted response.}
       \item{\code{prob}}{(any)\cr
 The predicted probabilities.}
+      \item{\code{se}}{(any)\cr
+The standard errors of the prediction.}
       \item{\code{check}}{(\code{logical(1)})\cr
 Whether to check the consistency of the prediction data.}
     }

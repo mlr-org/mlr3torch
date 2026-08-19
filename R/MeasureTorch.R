@@ -7,7 +7,7 @@
 #' [`TaskTorch`].
 #' Use [`msr_torch()`] to construct one.
 #'
-#' The function receives whichever of the arguments `truth`, `response`, `prob`, `prediction`,
+#' The function receives whichever of the arguments `truth`, `response`, `prob`, `se`, `prediction`,
 #' `task`, `learner` and `train_set` it declares, and returns a single number.
 #' What `truth`, `response` and `prob` look like depends on the task, see section *Inference* of
 #' [`TaskTorch`].
@@ -25,7 +25,7 @@
 #' @param range (`numeric(2)`)\cr
 #'   The range of possible scores.
 #' @param predict_type (`character(1)`)\cr
-#'   The predict type the measure requires, `"response"` (default) or `"prob"`.
+#'   The predict type the measure requires: `"response"` (default), `"prob"` or `"se"`.
 #' @param properties (`character()`)\cr
 #'   Properties of the measure, see [`Measure`][mlr3::Measure].
 #' @param label (`character(1)`)\cr
@@ -56,7 +56,7 @@ MeasureTorch = R6Class("MeasureTorch",
       super$initialize(
         id = assert_string(id),
         task_type = "torch",
-        predict_type = assert_choice(predict_type, c("response", "prob")),
+        predict_type = assert_choice(predict_type, pt_predict_types),
         properties = properties,
         range = assert_numeric(range, len = 2L, any.missing = FALSE),
         minimize = assert_flag(minimize),
@@ -80,7 +80,8 @@ MeasureTorch = R6Class("MeasureTorch",
   private = list(
     .fun = NULL,
     .score = function(prediction, task = NULL, learner = NULL, train_set = NULL, ...) {
-      args = list(truth = prediction$truth, response = prediction$response, prob = prediction$prob,
+      args = list(truth = prediction$truth, response = prediction$response,
+        prob = prediction$prob, se = prediction$se,
         task = task, learner = learner, train_set = train_set, prediction = prediction)
       args = args[intersect(names(formals(private$.fun)), names(args))]
       invoke(private$.fun, .args = args)
@@ -98,14 +99,14 @@ MeasureTorch = R6Class("MeasureTorch",
 #'   The id of the measure.
 #' @param fun (`function()`)\cr
 #'   The scoring function.
-#'   It receives whichever of the arguments `truth`, `response`, `prob`, `prediction`, `task`,
+#'   It receives whichever of the arguments `truth`, `response`, `prob`, `se`, `prediction`, `task`,
 #'   `learner` and `train_set` it declares, and returns a single number.
 #' @param minimize (`logical(1)`)\cr
 #'   Whether a smaller score is better.
 #' @param range (`numeric(2)`)\cr
 #'   The range of possible scores.
 #' @param predict_type (`character(1)`)\cr
-#'   The predict type the measure requires, `"response"` (default) or `"prob"`.
+#'   The predict type the measure requires: `"response"` (default), `"prob"` or `"se"`.
 #' @param properties (`character()`)\cr
 #'   Properties of the measure, see [`Measure`][mlr3::Measure].
 #'   The `"requires_task"`, `"requires_learner"` and `"requires_train_set"` properties are added

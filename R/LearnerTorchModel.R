@@ -16,6 +16,12 @@
 #' @template param_loss
 #' @template param_callbacks
 #' @template param_packages
+#' @param target_batchgetter (`function()` or `NULL`)\cr
+#'   Converts the target columns of a batch into the target tensor `y`.
+#'   Takes an argument `data`, a [`data.table`][data.table::data.table] with only the target columns,
+#'   and optionally an argument `x`, the named list of feature tensors of the batch.
+#'   If `NULL` (default), it is taken from the task via [`get_target_batchgetter()`], which the
+#'   built-in task types provide but a [`TaskTorch`] does not.
 #' @param feature_types (`NULL` or `character()`)\cr
 #'   The feature types. Defaults to all available feature types.
 #' @param properties (`NULL` or `character()`)\cr
@@ -59,7 +65,8 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(network = NULL, ingress_tokens = NULL, task_type, properties = NULL, optimizer = NULL, loss = NULL,
-      callbacks = list(), packages = character(0), feature_types = NULL) {
+      callbacks = list(), packages = character(0), feature_types = NULL, target_batchgetter = NULL) {
+      private$.target_batchgetter = assert_function(target_batchgetter, args = "data", null.ok = TRUE)
       # we need to serialize here as otherwise encapsulation and parallelization fails
       if (!is.null(network)) {
         private$.network_stored = torch_serialize(assert_class(network, "nn_module"))
@@ -143,9 +150,10 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       dataset = task_dataset(
         task,
         feature_ingress_tokens = ingress_tokens,
-        target_batchgetter = get_target_batchgetter(task)
+        target_batchgetter = private$.target_batchgetter %??% get_target_batchgetter(task)
       )
     },
+    .target_batchgetter = NULL,
     .network_stored = NULL,
     .network_hash = NULL,
     # set by `PipeOpTorchModel`, see `.network()` above

@@ -28,7 +28,11 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     #' @template params_pipelines
     #' @param task_type (`character(1)`)\cr
     #'   The task type of the model.
-    initialize = function(task_type, id = "torch_model", param_vals = list()) {
+    #' @param target_batchgetter (`function()` or `NULL`)\cr
+    #'   Passed to [`LearnerTorchModel`]. Needed for task types that do not provide a
+    #'   [`get_target_batchgetter()`] method of their own, such as [`TaskTorch`].
+    initialize = function(task_type, id = "torch_model", param_vals = list(),
+      target_batchgetter = NULL) {
       private$.task_type = assert_choice(task_type, mlr_reflections$task_types$type)
 
       # loss, optimizer and callbacks are set to special values, that cause
@@ -39,7 +43,8 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
         loss = LossNone(),
         optimizer = OptimizerNone(),
         callbacks = CallbacksNone(),
-        task_type = task_type
+        task_type = task_type,
+        target_batchgetter = target_batchgetter
       )
 
       super$initialize(
@@ -209,11 +214,14 @@ PipeOpTorchModelTorch = R6Class("PipeOpTorchModelTorch",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    initialize = function(id = "torch_model", param_vals = list()) {
+    #' @param target_batchgetter (`function()` or `NULL`)\cr
+    #'   Converts the target columns of a batch into the target tensor `y`, see [`TaskTorch`].
+    initialize = function(id = "torch_model", param_vals = list(), target_batchgetter = NULL) {
       super$initialize(
         id = id,
         param_vals = param_vals,
-        task_type = "torch"
+        task_type = "torch",
+        target_batchgetter = target_batchgetter
       )
     }
   )

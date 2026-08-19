@@ -20,7 +20,7 @@ The id of the measure.}
 
 \item{fun}{(\verb{function()})\cr
 The scoring function.
-It receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{prediction}, \code{task},
+It receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{prediction}, \code{task},
 \code{learner} and \code{train_set} it declares, and returns a single number.}
 
 \item{minimize}{(\code{logical(1)})\cr
@@ -30,7 +30,7 @@ Whether a smaller score is better.}
 The range of possible scores.}
 
 \item{predict_type}{(\code{character(1)})\cr
-The predict type the measure requires, \code{"response"} (default) or \code{"prob"}.}
+The predict type the measure requires: \code{"response"} (default), \code{"prob"} or \code{"se"}.}
 
 \item{properties}{(\code{character()})\cr
 Properties of the measure, see \code{\link[mlr3:Measure]{Measure}}.

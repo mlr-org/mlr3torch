@@ -34,53 +34,55 @@ concerned, and mixing them up produces an error somewhere in \code{torch} instea
 Use \code{TaskTorch} for experiments and one-off problems, and add a real task type when you package
 up a learning problem for others.
 }
-\section{Inference}{
- The three things \code{mlr3torch} needs to know about a task are the target tensor
-\code{y} of a batch (\code{\link[=get_target_batchgetter]{get_target_batchgetter()}}), the number of output units of the network
-(\code{\link[=output_dim_for]{output_dim_for()}}) and how a network output becomes a prediction
-(\code{\link[=encode_prediction]{encode_prediction()}}).
-All three are derived from the target columns:\tabular{lllll}{
-   target columns \tab \code{y} \tab \code{output_dim} \tab \code{response} \tab \code{prob} \cr
-   one \code{factor} / \code{ordered} with \code{k} levels \tab \code{long} codes \tab \code{k} \tab \code{factor()} \tab \code{matrix()}, \code{k} columns \cr
-   one \code{numeric} / \code{integer} \tab \code{float} \verb{(n, 1)} \tab 1 \tab \code{numeric()} \tab -- \cr
-   \code{d} \code{numeric} / \code{integer} \tab \code{float} \verb{(n, d)} \tab \code{d} \tab \code{matrix()}, \code{d} columns \tab -- \cr
-   one \code{logical} \tab \code{float} \verb{(n, 1)} \tab 1 \tab \code{logical()} \tab \code{numeric()} \cr
-   \code{d} \code{logical} \tab \code{float} \verb{(n, d)} \tab \code{d} \tab \code{matrix()}, \code{d} columns \tab \code{matrix()}, \code{d} columns \cr
-   none \tab -- (no \code{y} in the batch) \tab -- \tab -- \tab -- \cr
+\section{What you have to specify}{
+ \code{mlr3torch} needs to know three things about a learning
+problem, and a \code{TaskTorch} infers none of them, because the column types of a target say how it
+is stored, not how you want to model it. A two-level \code{factor} could be one logit or two; \code{d}
+numeric columns could be one head of width \code{d} or \code{d} separate heads. Guessing would be a
+modelling decision made on your behalf, so all three are stated explicitly:\tabular{lll}{
+   what \tab who provides it \tab how \cr
+   the target tensor \code{y} of a batch \tab the \strong{learner} \tab \code{target_batchgetter} of \code{\link{LearnerTorchModule}} / \code{\link{LearnerTorchModel}}, or \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} for your own subclass \cr
+   the number of output units \tab the \strong{task} \tab \code{output_dim}, read through \code{\link[=output_dim_for]{output_dim_for()}} \cr
+   how a network output becomes a prediction \tab the \strong{task} \tab \code{prediction_encoder}, read through \code{\link[=encode_prediction]{encode_prediction()}} \cr
 }
 
 
-Note that a two-level \code{factor} target is \emph{not} treated as binary classification: it gets two
-output units and is trained with a cross-entropy loss, like any other \code{factor} target.
-Encode the target as \code{logical} to get the single-logit variant.
+The split follows what each one is consumed by. What \code{y} has to look like is dictated by the
+loss, which belongs to the learner: cross entropy wants \code{long} class indices where mean squared
+error wants \code{float}, so the same task trained with two losses needs two different tensors.
+What a prediction looks like is what the task's measures are written against, so it belongs to
+the task.
 
-Any of the three can be overwritten by passing \code{target_batchgetter}, \code{output_dim} or
-\code{prediction_encoder} to the constructor, which is also the only way to use a combination of
-target columns that is not in the table above.
+The encoder is also where any consistency check between the network and the task belongs. A
+network trained on a task with three target levels emits three columns, and mapping those onto
+the levels of a task that has since been \verb{$droplevels()}ed would relabel every observation
+rather than fail, so an encoder that assigns levels should verify the width it was given.
 
-What the task specifies is the \emph{default}, and a learner has the last word on two of the three:
-\code{\link{LearnerTorchModule}} (\code{lrn("torch.module")}) takes a \code{target_batchgetter} of its own, and any
-\code{\link{LearnerTorch}} can overwrite the private \verb{$.encode_prediction()} method.
-This matters when the network and the loss expect a different encoding than the task's default,
-e.g. when training on one-hot encoded class labels.
+A learner always has the last word: \code{\link{LearnerTorch}} can overwrite the private
+\verb{$.encode_prediction()} method, which is how \code{\link{LearnerTorchVision}} drops an auxiliary head and
+\code{lrn("classif.tabm")} averages over its ensemble dimension.
+
+\code{output_dim} is a \verb{function(task)} rather than a number so that it still holds after the task
+is changed -- a different target column, a \verb{$droplevels()} -- and it is optional: a network
+that sizes its own output, such as one with several heads of different widths, never asks for
+it. \code{nn("head")} and any module calling \code{\link[=output_dim_for]{output_dim_for()}} do ask, and error if it is unset.
 }
 
 \section{Tasks without a Target}{
- A task with no target columns is unsupervised, and there is
-nothing to infer from, so \code{output_dim} and \code{prediction_encoder} have to be given.
-Its batches have no \code{y} element, so the loss is called as \code{loss(y_hat, NULL)} and has to ignore
-its second argument.
+ A task may have no target columns at all.
+Its batches have no \code{y} element, so the loss is called as \code{loss(y_hat)}, with no second
+argument at all.
 
 If the target of a batch is a function of its \emph{input} rather than of a column -- an autoencoder
-reconstructing its input, a denoising or masked objective, contrastive pretraining -- pass a
-\code{target_batchgetter} that declares an \code{x} argument, which receives the named list of feature
-tensors of the batch:
+reconstructing its input, a denoising or masked objective, contrastive pretraining -- give the
+learner a \code{target_batchgetter} that declares an \code{x} argument, which receives the named list of
+feature tensors of the batch:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{as_task_torch(data, output_dim = ncol(data),
-  target_batchgetter = function(data, x) x[[1L]],
+\if{html}{\out{<div class="sourceCode">}}\preformatted{task = as_task_torch(data, output_dim = function(task) ncol(data),
   prediction_encoder = function(task, predict_tensor, predict_type) \{
     list(response = as.matrix(predict_tensor$cpu()))
   \})
+lrn("torch.module", target_batchgetter = function(data, x) x[[1L]], ...)
 }\if{html}{\out{</div>}}
 
 Such a task has no \code{truth}, so its measures read the ground truth from the task, which
@@ -104,7 +106,13 @@ A measure that is passed as \code{measure} becomes the task's default measure, w
 d = data.frame(x1 = rnorm(50), x2 = rnorm(50))
 d$a = d$x1 > 0
 d$b = d$x2 > 0
-task = as_task_torch(d, target = c("a", "b"), id = "labels")
+task = as_task_torch(d, target = c("a", "b"), id = "labels",
+  output_dim = function(task) length(task$target_names),
+  prediction_encoder = function(task, predict_tensor, predict_type) {
+    prob = as.matrix(torch::nnf_sigmoid(predict_tensor)$cpu())
+    colnames(prob) = task$target_names
+    list(response = prob > 0.5, prob = if (predict_type == "prob") prob)
+  })
 task
 output_dim_for(task)
 \dontshow{\}) # examplesIf}
@@ -116,12 +124,6 @@ output_dim_for(task)
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
-    \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
-See the construction argument.}
-
-    \item{\code{prediction_encoder}}{(\verb{function()} or \code{NULL})\cr
-See the construction argument.}
-
     \item{\code{measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
 See the construction argument.}
   }
@@ -136,8 +138,9 @@ In addition to what \code{\link[mlr3:Task]{Task}} hashes, this covers the fields
 learning problem, so that two tasks over the same data but with different encodings do not
 collide.}
 
-    \item{\code{output_dim}}{(\code{integer(1)})\cr
-The number of output units the network needs, see section \emph{Inference}.}
+    \item{\code{output_dim}}{(\verb{function()} or \code{NULL})\cr
+See the construction argument.
+Use \code{\link[=output_dim_for]{output_dim_for()}} to evaluate it.}
   }
   \if{html}{\out{</div>}}
 }
@@ -184,7 +187,6 @@ The number of output units the network needs, see section \emph{Inference}.}
   backend,
   target = character(0),
   label = NA_character_,
-  target_batchgetter = NULL,
   output_dim = NULL,
   prediction_encoder = NULL,
   measure = NULL
@@ -202,19 +204,16 @@ The data.}
 The names of the target columns. May be empty.}
       \item{\code{label}}{(\code{character(1)})\cr
 The label of the task.}
-      \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
-Converts the target columns of a batch into the target tensor \code{y}.
-Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
-and optionally an argument \code{x}, the named list of feature tensors of the batch.
-If \code{NULL} (default), it is inferred from the target column types.}
-      \item{\code{output_dim}}{(\code{integer(1)} or \code{NULL})\cr
-The number of output units the network needs.
-If \code{NULL} (default), it is inferred from the target column types.}
+      \item{\code{output_dim}}{(\verb{function()} or \code{NULL})\cr
+Returns the number of output units the network needs.
+Takes an argument \code{task} and returns a single positive integer.
+May be \code{NULL} (default), in which case any caller of \code{\link[=output_dim_for]{output_dim_for()}} errors.}
       \item{\code{prediction_encoder}}{(\verb{function()} or \code{NULL})\cr
 Converts the network output into a prediction.
-Takes the arguments \code{task}, \code{predict_tensor} and \code{predict_type} and returns a named \code{list()}
-with elements \code{response} and, optionally, \code{prob}.
-If \code{NULL} (default), it is inferred from the target column types.}
+Takes the arguments \code{task}, \code{predict_tensor} -- the network's output, unchanged, so possibly a
+\code{list()} of tensors -- and \code{predict_type}, and returns a named \code{list()} with elements \code{response}
+and, optionally, \code{prob}.
+May be \code{NULL} (default) if the learner encodes predictions itself.}
       \item{\code{measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
 The default measure of the task, see section \emph{Scoring}.}
     }

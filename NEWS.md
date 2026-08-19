@@ -27,9 +27,11 @@
 * New task type `"torch"` for problems that are neither classification nor regression, created with
   `as_task_torch()`, along with `PredictionTorch`, `msr_torch()`, `lrn("torch.module")` and `po("torch_model")`.
 * The training loop no longer requires a target: a batch without a `y` element is passed to the loss
-  as `loss(y_hat, NULL)`, which is what a task without target columns needs.
-* `LearnerTorchModule` gained a `target_batchgetter` construction argument, which overwrites the
-  target encoding of the task.
+  as `loss(y_hat)`, with no second argument, which is what a task without target columns needs.
+* `LearnerTorchModule`, `LearnerTorchModel` and `po("torch_model")` gained a `target_batchgetter`
+  construction argument, which says how the target columns of a batch become the target tensor.
+* `nn("head")` now respects an explicitly given `out_features` instead of always taking the output
+  dimension from the task.
 * New article *Custom Learning Problems*.
 * A network can now return a `list()` of tensors in evaluation mode, which is passed to
   `encode_prediction()` as it is, so a prediction can consist of more than one quantity.

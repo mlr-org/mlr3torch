@@ -7,9 +7,6 @@
 \description{
 Builds a \code{\link[=mlr_learners_torch_model]{LearnerTorchModel}} for a \code{\link{TaskTorch}} from a
 \code{\link{ModelDescriptor}} and trains it.
-This is the terminal \code{\link[mlr3pipelines:PipeOp]{PipeOp}} of a torch graph for the general-purpose
-task type of \code{mlr3torch}, i.e. the counterpart of \code{po("torch_model_classif")} and
-\code{po("torch_model_regr")}.
 }
 \section{Parameters}{
  See \code{\link{LearnerTorch}}
@@ -61,7 +58,11 @@ its \verb{$train()} method is called on the \code{\link[mlr3:Task]{Task}} stored
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{PipeOpTorchModelTorch$new(id = "torch_model", param_vals = list())}
+    \preformatted{PipeOpTorchModelTorch$new(
+  id = "torch_model",
+  param_vals = list(),
+  target_batchgetter = NULL
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -72,6 +73,8 @@ Identifier of the resulting  object.}
       \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
+      \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
+Converts the target columns of a batch into the target tensor \code{y}, see \code{\link{TaskTorch}}.}
     }
     \if{html}{\out{</div>}}
   }

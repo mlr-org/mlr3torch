@@ -188,7 +188,11 @@ train_loop = function(ctx, cbs) {
       # offered to callbacks as a convenience.
       ctx$y_hat = if (is.list(ctx$y_hats)) ctx$y_hats[[1L]] else ctx$y_hats
 
-      loss = ctx$loss_fn(ctx$y_hats, ctx$batch$y)
+      loss = if (is.null(ctx$batch$y)) {
+        ctx$loss_fn(ctx$y_hats)
+      } else {
+        ctx$loss_fn(ctx$y_hats, ctx$batch$y)
+      }
 
       loss$backward()
 

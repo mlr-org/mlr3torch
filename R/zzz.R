@@ -87,7 +87,8 @@ register_task_type_torch = function(mlr_reflections) { # nolint
   mlr_reflections$measure_properties$torch = mlr_reflections$measure_properties$regr
   mlr_reflections$learner_predict_types$torch = list(
     response = "response",
-    prob = c("response", "prob")
+    prob = c("response", "prob"),
+    se = c("response", "se")
   )
   mlr_reflections$default_measures$torch = "torch.default"
 

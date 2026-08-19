@@ -9,8 +9,64 @@ tt_module = nn_module("tt_module",
   forward = function(x) self$net(x)
 )
 
+# A `TaskTorch` specifies none of this itself, so the tests state the encodings that the built-in
+# task types use. `tt_task()` and `tt_learner()` fill them in, the way a user would, which keeps the
+# tests below about the plumbing rather than about the encodings.
+tt_odim = function(task) {
+  target = task$target_names
+  first = task$data(rows = task$row_ids[1L], cols = target)[[1L]]
+  if (length(target) == 1L && is.factor(first)) nlevels(first) else length(target)
+}
+
+tt_enc = function(task, predict_tensor, predict_type) {
+  target = task$target_names
+  first = task$data(rows = task$row_ids[1L], cols = target)[[1L]]
+  if (length(target) == 1L && is.factor(first)) {
+    levs = levels(first)
+    response = factor(as.integer(with_no_grad(predict_tensor$argmax(dim = 2L))$to(device = "cpu")),
+      levels = seq_along(levs), labels = levs)
+    prob = if (predict_type == "prob") {
+      p = as.matrix(with_no_grad(nnf_softmax(predict_tensor, dim = 2L))$to(device = "cpu"))
+      colnames(p) = levs
+      p
+    }
+    return(list(response = response, prob = prob))
+  }
+  if (is.logical(first)) {
+    prob = as.matrix(with_no_grad(nnf_sigmoid(predict_tensor))$to(device = "cpu"))
+    colnames(prob) = target
+    response = prob > 0.5
+    if (length(target) == 1L) {
+      response = as.logical(response)
+      prob = as.numeric(prob)
+    }
+    return(list(response = response, prob = if (predict_type == "prob") prob))
+  }
+  predict_tensor = with_no_grad(predict_tensor)$to(device = "cpu")
+  if (length(target) == 1L) {
+    return(list(response = as.numeric(predict_tensor)))
+  }
+  response = as.matrix(predict_tensor)
+  colnames(response) = target
+  list(response = response)
+}
+
+tt_bg = function(data) {
+  if (ncol(data) == 1L && is.factor(data[[1L]])) {
+    return(torch_tensor(as.integer(data[[1L]]), dtype = torch_long()))
+  }
+  torch_tensor(1 * as.matrix(data), dtype = torch_float())
+}
+
+tt_task = function(x, target = character(0), id = "t", ...) {
+  args = list(...)
+  if (is.null(args$output_dim)) args$output_dim = tt_odim
+  if (is.null(args$prediction_encoder)) args$prediction_encoder = tt_enc
+  invoke(as_task_torch, x = x, target = target, id = id, .args = args)
+}
+
 tt_learner = function(loss, ...) {
-  args = insert_named(list(epochs = 3L, batch_size = 16L), list(...))
+  args = insert_named(list(epochs = 3L, batch_size = 16L, target_batchgetter = tt_bg), list(...))
   invoke(lrn, "torch.module",
     module_generator = tt_module,
     ingress_tokens = list(x = ingress_num()),
@@ -31,14 +87,14 @@ test_that("the task type is registered", {
     mlr_reflections$task_types[list("torch"), "task", on = "type"][[1L]],
     "TaskTorch"
   )
-  expect_set_equal(names(mlr_reflections$learner_predict_types$torch), c("response", "prob"))
+  expect_set_equal(names(mlr_reflections$learner_predict_types$torch), c("response", "prob", "se"))
   expect_equal(mlr_reflections$default_measures$torch, "torch.default")
 })
 
 test_that("as_task_torch constructs a TaskTorch", {
   d = tt_data()
   d$y = d$x1 + rnorm(nrow(d))
-  task = as_task_torch(d, target = "y", id = "t")
+  task = tt_task(d, target = "y", id = "t")
 
   expect_class(task, "TaskTorch")
   expect_equal(task$task_type, "torch")
@@ -47,83 +103,53 @@ test_that("as_task_torch constructs a TaskTorch", {
   expect_equal(task$target_names, "y")
 })
 
-test_that("a single factor target is inferred as multiclass", {
+test_that("nothing about the learning problem is inferred", {
   d = tt_data()
-  d$y = factor(rep(c("a", "b", "c"), length.out = nrow(d)))
-  task = as_task_torch(d, target = "y")
+  d$y = rnorm(nrow(d))
+  # a plain task specifies none of the three, and each caller says where to set it
+  bare = as_task_torch(d, target = "y", id = "bare")
 
-  expect_equal(output_dim_for(task), 3L)
-  expect_factor(task$truth(), levels = c("a", "b", "c"))
-
-  y = get_target_batchgetter(task)(data.table(y = task$truth(1:4)))
-  expect_equal(y$dtype, torch_long())
-  expect_equal(as.integer(y), as.integer(task$truth(1:4)))
-
-  # a two-level factor is *not* treated as binary classification
-  d$y2 = factor(rep(c("a", "b"), length.out = nrow(d)))
-  expect_equal(output_dim_for(as_task_torch(d[, c("x1", "y2")], target = "y2")), 2L)
+  expect_error(output_dim_for(bare), "has no `output_dim`")
+  expect_error(get_target_batchgetter(bare), "it is the learner that decides")
+  expect_error(encode_prediction(bare, torch_randn(2, 1), "response"), "has no `prediction_encoder`")
 })
 
-test_that("numeric targets are inferred", {
+test_that("output_dim is evaluated rather than stored", {
   d = tt_data()
   d$y1 = rnorm(nrow(d))
   d$y2 = rnorm(nrow(d))
-
-  single = as_task_torch(d[, c("x1", "y1")], target = "y1")
-  expect_equal(output_dim_for(single), 1L)
-  expect_numeric(single$truth())
-  expect_equal(get_target_batchgetter(single)(data.table(y1 = 1:3))$shape, c(3L, 1L))
-
-  multi = as_task_torch(d, target = c("y1", "y2"))
-  expect_equal(output_dim_for(multi), 2L)
-  expect_data_table(multi$truth(), ncols = 2L)
-  expect_equal(get_target_batchgetter(multi)(data.table(a = 1:3, b = 4:6))$shape, c(3L, 2L))
-})
-
-test_that("logical targets are inferred", {
-  d = tt_data()
-  d$a = d$x1 > 0
-  d$b = d$x2 > 0
-  task = as_task_torch(d, target = c("a", "b"))
+  task = as_task_torch(d, target = c("y1", "y2"), id = "t",
+    output_dim = function(task) length(task$target_names))
 
   expect_equal(output_dim_for(task), 2L)
-  y = get_target_batchgetter(task)(data.table(a = c(TRUE, FALSE), b = c(FALSE, FALSE)))
-  expect_equal(y$dtype, torch_float())
-  expect_equal(as.matrix(y), matrix(c(1, 0, 0, 0), nrow = 2L))
+  # a stored number would go stale here, which is why it has to be a function
+  task$col_roles$target = "y1"
+  expect_equal(output_dim_for(task), 1L)
+
+  expect_error(as_task_torch(d, target = "y1", output_dim = 1L), "Must be a function")
 })
 
-test_that("an unsupported combination of target types errors informatively", {
+test_that("encode_prediction dispatches to the task's encoder", {
   d = tt_data()
-  d$y1 = rnorm(nrow(d))
-  d$y2 = letters[seq_len(nrow(d))]
-  task = as_task_torch(d, target = c("y1", "y2"))
-
-  expect_error(output_dim_for(task), "pass `output_dim` explicitly")
-  expect_error(get_target_batchgetter(task), "pass `target_batchgetter` explicitly")
-  expect_error(encode_prediction(task, torch_randn(2, 2), "response"), "pass `prediction_encoder` explicitly")
-})
-
-test_that("the inferred fields can be overwritten", {
-  d = tt_data()
-  d$y1 = rnorm(nrow(d))
-  d$y2 = letters[seq_len(nrow(d))]
-
-  batchgetter = function(data) torch_tensor(matrix(0, nrow(data), 7L))
+  d$y = rnorm(nrow(d))
   encoder = function(task, predict_tensor, predict_type) list(response = rep(1, nrow(predict_tensor)))
-  task = as_task_torch(d, target = c("y1", "y2"), output_dim = 7L,
-    target_batchgetter = batchgetter, prediction_encoder = encoder)
+  task = as_task_torch(d, target = "y", id = "t", prediction_encoder = encoder)
 
-  expect_equal(output_dim_for(task), 7L)
-  expect_identical(get_target_batchgetter(task), batchgetter)
   expect_equal(encode_prediction(task, torch_randn(3, 7), "response")$response, rep(1, 3))
+  # the raw network output is handed over, so a multi-head network is the encoder's business
+  multi = as_task_torch(d, target = "y", id = "t",
+    prediction_encoder = function(task, predict_tensor, predict_type) {
+      list(response = as.numeric(predict_tensor[[2L]]$cpu()))
+    })
+  expect_equal(encode_prediction(multi, list(torch_randn(3, 1), torch_ones(3, 1)), "response")$response, rep(1, 3))
 })
 
-test_that("a learner can overwrite the target encoding of the task", {
+test_that("the learner decides how the target becomes a tensor", {
   d = tt_data(60L)
   d$y = factor(rep(c("a", "b", "c"), length.out = nrow(d)))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
 
-  # the task encodes the target as class indices, but we train on one-hot labels with MSE instead
+  # train on one-hot labels with MSE rather than on class indices
   onehot = function(data) {
     torch_tensor(1 * stats::model.matrix(~ 0 + data[[1L]]), dtype = torch_float())
   }
@@ -131,24 +157,21 @@ test_that("a learner can overwrite the target encoding of the task", {
   expect_class(learner$dataset(task)$.getbatch(1:4)$y, "torch_tensor")
   expect_equal(learner$dataset(task)$.getbatch(1:4)$y$shape, c(4L, 3L))
 
-  # the task's default is still the class indices
-  expect_equal(get_target_batchgetter(task)(data.table(y = task$truth(1:4)))$dtype, torch_long())
-
   learner$train(task)
   expect_factor(learner$predict(task)$response, levels = c("a", "b", "c"), len = task$nrow)
 
-  # the override is part of the learner's phash
+  # the batchgetter is part of the learner's phash
   expect_false(learner$phash == tt_learner(t_loss("mse"))$phash)
 })
 
 test_that("the hash covers the fields that define the learning problem", {
   d = tt_data()
   d$y = rnorm(nrow(d))
-  task = as_task_torch(d, target = "y", id = "t")
+  task = tt_task(d, target = "y", id = "t")
 
-  expect_equal(task$hash, as_task_torch(d, target = "y", id = "t")$hash)
-  expect_false(task$hash == as_task_torch(d, target = "y", id = "t", output_dim = 5L)$hash)
-  expect_false(task$hash == as_task_torch(d, target = "y", id = "t",
+  expect_equal(task$hash, tt_task(d, target = "y", id = "t")$hash)
+  expect_false(task$hash == tt_task(d, target = "y", id = "t", output_dim = function(task) 5L)$hash)
+  expect_false(task$hash == tt_task(d, target = "y", id = "t",
     prediction_encoder = function(task, predict_tensor, predict_type) list(response = 1))$hash)
   expect_equal(task$hash, task$clone(deep = TRUE)$hash)
 })
@@ -157,7 +180,7 @@ test_that("train, predict and score work for a multi-label task", {
   d = tt_data(60L)
   d$a = d$x1 > 0
   d$b = d$x2 > 0
-  task = as_task_torch(d, target = c("a", "b"), id = "labels")
+  task = tt_task(d, target = c("a", "b"), id = "labels")
 
   learner = tt_learner(TorchLoss$new(torch::nn_bce_with_logits_loss, id = "bce"))
   learner$predict_type = "prob"
@@ -180,7 +203,7 @@ test_that("train, predict and score work for a multi-label task", {
 test_that("train and predict work for a single factor target", {
   d = tt_data(60L)
   d$y = factor(rep(c("a", "b", "c"), length.out = nrow(d)))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
 
   learner = tt_learner(t_loss("cross_entropy"))
   learner$predict_type = "prob"
@@ -193,17 +216,10 @@ test_that("train and predict work for a single factor target", {
   expect_equal(unname(rowSums(pred$prob)), rep(1, task$nrow), tolerance = 1e-5)
 })
 
-test_that("asking for probabilities on a numeric target errors", {
-  d = tt_data(40L)
-  d$y = rnorm(nrow(d))
-  task = as_task_torch(d, target = "y")
-  expect_error(encode_prediction(task, torch_randn(4, 1), "prob"), "only predict_type 'response'")
-})
-
 test_that("train and predict work for a single numeric target", {
   d = tt_data(60L)
   d$y = d$x1 + rnorm(nrow(d))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
 
   learner = tt_learner(t_loss("mse"))
   learner$train(task)
@@ -216,7 +232,7 @@ test_that("train and predict work for a single numeric target", {
 test_that("resampling works", {
   d = tt_data(60L)
   d$y = d$x1 + rnorm(nrow(d))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
   measure = msr_torch("mse", function(truth, response) mean((truth - response)^2), range = c(0, Inf))
 
   rr = resample(task, tt_learner(t_loss("mse")), rsmp("cv", folds = 3L))
@@ -230,7 +246,7 @@ test_that("resampling works", {
 test_that("validation and early stopping work", {
   d = tt_data(60L)
   d$y = d$x1 + rnorm(nrow(d))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
   measure = msr_torch("mse", function(truth, response) mean((truth - response)^2), range = c(0, Inf))
 
   learner = tt_learner(t_loss("mse"), epochs = 20L, patience = 2L, measures_valid = measure)
@@ -244,8 +260,8 @@ test_that("validation and early stopping work", {
 test_that("a target that is a function of the input needs no special support", {
   # an autoencoder is a target-less task whose batchgetter reads the input tensor
   d = tt_data(60L)
-  task = as_task_torch(d, id = "ae", output_dim = 3L,
-    target_batchgetter = function(data, x) x[[1L]],
+  autoenc = function(data, x) x[[1L]]
+  task = tt_task(d, id = "ae", output_dim = function(task) 3L,
     prediction_encoder = function(task, predict_tensor, predict_type) {
       response = as.matrix(predict_tensor$cpu())
       colnames(response) = task$feature_names
@@ -258,10 +274,10 @@ test_that("a target that is a function of the input needs no special support", {
 
   # the batchgetter receives the feature tensors, so y is the input
   batch = task_dataset(task, list(x = ingress_num()),
-    target_batchgetter = get_target_batchgetter(task))$.getbatch(1:4)
+    target_batchgetter = autoenc)$.getbatch(1:4)
   expect_equal(as.matrix(batch$y), as.matrix(batch$x$x))
 
-  learner = tt_learner(t_loss("mse"), epochs = 5L)
+  learner = tt_learner(t_loss("mse"), epochs = 5L, target_batchgetter = autoenc)
   learner$train(task)
   pred = learner$predict(task)
 
@@ -284,12 +300,12 @@ test_that("a task with no target at all is unsupervised", {
 
   expect_equal(task$target_names, character(0))
   expect_null(task$truth())
-  expect_null(get_target_batchgetter(task))
-  # nothing can be inferred for such a task
-  expect_error(output_dim_for(task), "pass `output_dim` explicitly")
-  expect_error(encode_prediction(task, torch_randn(2, 2), "response"), "pass `prediction_encoder` explicitly")
+  # nothing about the problem is specified by such a task either
+  expect_error(get_target_batchgetter(task), "it is the learner that decides")
+  expect_error(output_dim_for(task), "has no `output_dim`")
+  expect_error(encode_prediction(task, torch_randn(2, 2), "response"), "has no `prediction_encoder`")
 
-  task = as_task_torch(d, id = "unsup", output_dim = 2L,
+  task = tt_task(d, id = "unsup", output_dim = function(task) 2L,
     prediction_encoder = function(task, predict_tensor, predict_type) {
       list(response = as.matrix(predict_tensor$cpu()))
     })
@@ -298,10 +314,10 @@ test_that("a task with no target at all is unsupervised", {
   expect_names(names(task_dataset(task, list(x = ingress_num()))$.getbatch(1:4)),
     permutation.of = c("x", ".index"))
 
-  # the loss must ignore its second argument
+  # the loss of a target-less task takes the network output alone
   loss = TorchLoss$new(nn_module("spread",
     initialize = function() NULL,
-    forward = function(input, target) input$pow(2)$mean()), id = "spread")
+    forward = function(input) input$pow(2)$mean()), id = "spread")
   learner = tt_learner(loss)
   learner$train(task)
   pred = learner$predict(task)
@@ -318,13 +334,13 @@ test_that("a task with no target at all is unsupervised", {
 
 test_that("an unsupervised task works with validation and the tensor dataset", {
   d = tt_data(60L)
-  task = as_task_torch(d, id = "unsup", output_dim = 2L,
+  task = tt_task(d, id = "unsup", output_dim = function(task) 2L,
     prediction_encoder = function(task, predict_tensor, predict_type) {
       list(response = as.matrix(predict_tensor$cpu()))
     })
   loss = TorchLoss$new(nn_module("spread",
     initialize = function() NULL,
-    forward = function(input, target) input$pow(2)$mean()), id = "spread")
+    forward = function(input) input$pow(2)$mean()), id = "spread")
   measure = msr_torch("spread", function(prediction) mean(prediction$response^2), range = c(0, Inf))
 
   learner = tt_learner(loss, epochs = 10L, patience = 2L, measures_valid = measure)
@@ -340,7 +356,7 @@ test_that("an unsupervised task works with validation and the tensor dataset", {
 test_that("a measure can read the task", {
   d = tt_data(40L)
   d$y = rnorm(nrow(d))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
   measure = msr_torch("n", function(task, prediction) length(prediction$row_ids) / task$nrow)
 
   expect_true("requires_task" %chin% measure$properties)
@@ -359,7 +375,7 @@ test_that("a measure declares what it asks for", {
   # the arguments actually arrive, which resample() is what provides them
   d = tt_data(40L)
   d$y = rnorm(nrow(d))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
   measure = msr_torch("seen", function(learner, train_set) {
     stopifnot(inherits(learner, "LearnerTorch"))
     length(train_set)
@@ -373,11 +389,11 @@ test_that("the default measure of a task is used by aggregate()", {
   d$y = rnorm(nrow(d))
   measure = msr_torch("mse", function(truth, response) mean((truth - response)^2), range = c(0, Inf))
 
-  without = as_task_torch(d, target = "y", id = "t")
+  without = tt_task(d, target = "y", id = "t")
   rr = resample(without, tt_learner(t_loss("mse")), rsmp("holdout"))
   expect_error(rr$aggregate(), "has no default measure")
 
-  with = as_task_torch(d, target = "y", id = "t", measure = measure)
+  with = tt_task(d, target = "y", id = "t", measure = measure)
   rr = resample(with, tt_learner(t_loss("mse")), rsmp("holdout"))
   expect_number(rr$aggregate(), lower = 0)
 })
@@ -385,7 +401,7 @@ test_that("the default measure of a task is used by aggregate()", {
 test_that("the graph language works", {
   d = tt_data(60L)
   d$y = d$x1 + rnorm(nrow(d))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
 
   graph = po("torch_ingress_num") %>>%
     nn("linear_1", out_features = 10L) %>>%
@@ -393,7 +409,7 @@ test_that("the graph language works", {
     nn("head") %>>%
     po("torch_loss", t_loss("mse")) %>>%
     po("torch_optimizer", "adam") %>>%
-    po("torch_model", batch_size = 16L, epochs = 3L)
+    po("torch_model", batch_size = 16L, epochs = 3L, target_batchgetter = tt_bg)
 
   learner = as_learner(graph)
   learner$train(task)
@@ -412,30 +428,10 @@ test_that("a learner for a torch task requires an explicit loss", {
   expect_class(tt_learner(t_loss("cross_entropy"))$loss, "TorchLoss")
 })
 
-test_that("a network output that does not match the target levels errors", {
-  d = tt_data(60L)
-  d$y = factor(rep(c("a", "b", "c"), length.out = nrow(d)))
-  task = as_task_torch(d, target = "y")
-
-  expect_error(encode_prediction(task, torch_randn(6, 5), "response"), "incompatible with the 3 levels")
-  expect_error(encode_prediction(task, torch_randn(6, 2), "response"), "incompatible with the 3 levels")
-  expect_error(encode_prediction(task, torch_randn(6), "response"), "incompatible with the 3 levels")
-  expect_factor(encode_prediction(task, torch_randn(6, 3), "response")$response,
-    levels = c("a", "b", "c"))
-
-  # the case that motivated the check: predicting on a task whose levels were dropped would
-  # otherwise relabel every observation silently
-  learner = tt_learner(t_loss("cross_entropy"))
-  learner$train(task)
-  dropped = task$clone(deep = TRUE)$filter(which(d$y != "a"))$droplevels()
-  expect_error(learner$predict(dropped), "Was the network trained on a task with different levels")
-  expect_factor(learner$predict(task)$response, levels = c("a", "b", "c"))
-})
-
 test_that("combining prediction data with different predict types errors", {
   d = tt_data(6L)
   d$a = d$x1 > 0
-  task = as_task_torch(d, target = "a", id = "t")
+  task = tt_task(d, target = "a", id = "t")
 
   without = PredictionTorch$new(task, row_ids = 1:3, truth = task$truth(1:3),
     response = c(TRUE, FALSE, TRUE))$data
@@ -462,7 +458,7 @@ test_that("the hash of a measure covers its scoring function", {
 
   d = tt_data(40L)
   d$y = rnorm(nrow(d))
-  task = function(measure) as_task_torch(d, target = "y", id = "same", measure = measure)
+  task = function(measure) tt_task(d, target = "y", id = "same", measure = measure)
   expect_false(task(msr_torch("m", function(truth, response) 1))$hash ==
     task(msr_torch("m", function(truth, response) 2))$hash)
 
@@ -478,7 +474,7 @@ test_that("predicting on zero rows gives an empty prediction", {
   d = tt_data(40L)
   d$a = d$x1 > 0
   d$b = d$x2 > 0
-  task = as_task_torch(d, target = c("a", "b"), id = "t")
+  task = tt_task(d, target = c("a", "b"), id = "t")
   learner = tt_learner(TorchLoss$new(torch::nn_bce_with_logits_loss, id = "bce"))
   learner$predict_type = "prob"
   learner$train(task)
@@ -501,7 +497,7 @@ test_that("predicting on zero rows gives an empty prediction", {
 test_that("prediction data can be combined and filtered", {
   d = tt_data(10L)
   d$y = rnorm(nrow(d))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
 
   p1 = PredictionTorch$new(task, row_ids = 1:5, truth = task$truth(1:5), response = rnorm(5))
   p2 = PredictionTorch$new(task, row_ids = 6:10, truth = task$truth(6:10), response = rnorm(5))
@@ -523,7 +519,7 @@ test_that("prediction data can be combined and filtered", {
 test_that("prediction data checks that everything describes the same observations", {
   d = tt_data(10L)
   d$y = rnorm(nrow(d))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
   expect_error(
     PredictionTorch$new(task, row_ids = 1:5, truth = task$truth(1:5), response = rnorm(4)),
     "has 4 observations"
@@ -534,7 +530,7 @@ test_that("matrix valued predictions survive a resample round trip", {
   d = tt_data(60L)
   d$y1 = rnorm(nrow(d))
   d$y2 = rnorm(nrow(d))
-  task = as_task_torch(d, target = c("y1", "y2"))
+  task = tt_task(d, target = c("y1", "y2"))
 
   rr = resample(task, tt_learner(t_loss("mse")), rsmp("cv", folds = 3L))
   pred = rr$prediction()
@@ -546,7 +542,7 @@ test_that("matrix valued predictions survive a resample round trip", {
 test_that("factor valued predictions survive a resample round trip", {
   d = tt_data(60L)
   d$y = factor(rep(c("a", "b", "c"), length.out = nrow(d)))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
 
   rr = resample(task, tt_learner(t_loss("cross_entropy")), rsmp("cv", folds = 3L))
   pred = rr$prediction()
@@ -559,7 +555,7 @@ test_that("array valued predictions survive a resample round trip", {
   for (nm in c("y1", "y2", "y3", "y4")) d[[nm]] = rnorm(nrow(d))
   # the prediction of an observation is a (2, 2) array rather than a vector, which is the shape an
   # autoencoder over images produces
-  task = as_task_torch(d, target = c("y1", "y2", "y3", "y4"),
+  task = tt_task(d, target = c("y1", "y2", "y3", "y4"),
     prediction_encoder = function(task, predict_tensor, predict_type) {
       x = as.array(predict_tensor$cpu())
       list(response = array(x, dim = c(nrow(x), 2L, 2L)))
@@ -580,7 +576,7 @@ test_that("array valued predictions survive a resample round trip", {
 test_that("a learner for a different task type is rejected", {
   d = tt_data()
   d$y = d$x1 + rnorm(nrow(d))
-  task = as_task_torch(d, target = "y")
+  task = tt_task(d, target = "y")
   # `mlr3` accepts any learner inheriting the class registered for the task type, and `LearnerTorch`
   # is registered for "torch", so this mismatch has to be caught by `LearnerTorch` itself
   expect_error(
@@ -592,14 +588,15 @@ test_that("a learner for a different task type is rejected", {
 test_that("a lazy_tensor target survives a resample round trip", {
   d = tt_data(32L)
   d$y = as_lazy_tensor(withr::with_seed(2L, torch_randn(nrow(d), 3L)))
-  task = as_task_torch(d, target = "y", id = "lt",
-    target_batchgetter = function(data) materialize(data[[1L]], rbind = TRUE)$to(dtype = torch_float()),
-    output_dim = 3L,
+  task = tt_task(d, target = "y", id = "lt",
+    output_dim = function(task) 3L,
     prediction_encoder = function(task, predict_tensor, predict_type) {
       list(response = as.matrix(predict_tensor$cpu()))
     })
+  learner = tt_learner(t_loss("mse"),
+    target_batchgetter = function(data) materialize(data[[1L]], rbind = TRUE)$to(dtype = torch_float()))
 
-  rr = resample(task, tt_learner(t_loss("mse")), rsmp("cv", folds = 2L))
+  rr = resample(task, learner, rsmp("cv", folds = 2L))
   pred = rr$prediction()
   # `unlist()` used to flatten the lazy_tensor into its internals, doubling its length
   expect_class(pred$truth, "lazy_tensor")
@@ -635,4 +632,34 @@ test_that("combining prediction data with inconsistent elements is an error", {
   broken = b
   broken$response = c(3, 4, 5)
   expect_error(c(a, broken), "has 5 observations, but 4 row ids")
+})
+
+test_that("a task can predict standard errors", {
+  d = tt_data(60L)
+  d$y = d$x1 + rnorm(nrow(d))
+  # a heteroscedastic network: one unit for the mean, one for the log standard deviation
+  task = tt_task(d, target = "y", id = "se", output_dim = function(task) 2L,
+    prediction_encoder = function(task, predict_tensor, predict_type) {
+      out = as.matrix(with_no_grad(predict_tensor)$cpu())
+      list(response = out[, 1L], se = if (predict_type == "se") exp(out[, 2L]))
+    })
+
+  expect_true("se" %chin% names(mlr_reflections$learner_predict_types$torch))
+  learner = tt_learner(t_loss("mse"), predict_type = "se")
+  learner$train(task)
+  pred = learner$predict(task)
+
+  expect_set_equal(pred$predict_types, c("response", "se"))
+  expect_numeric(pred$se, len = task$nrow, lower = 0)
+  expect_numeric(pred$response, len = task$nrow)
+
+  # a measure can ask for it, and it survives a resample round trip
+  measure = msr_torch("nll", predict_type = "se", range = c(-Inf, Inf),
+    function(truth, response, se) mean(log(se) + (truth - response)^2 / (2 * se^2)))
+  expect_number(pred$score(measure))
+  rr = resample(task, learner, rsmp("cv", folds = 2L))
+  expect_numeric(rr$prediction()$se, len = task$nrow, lower = 0)
+  expect_number(rr$aggregate(measure))
+
+  expect_true("se" %chin% names(as.data.table(pred)))
 })

@@ -17,8 +17,8 @@ The names of the target columns. May be empty.}
 The id of the task.}
 
 \item{...}{(any)\cr
-Further arguments passed to \code{\link{TaskTorch}}\verb{$new()}, such as \code{target_batchgetter}, \code{output_dim},
-\code{prediction_encoder} or \code{measure}.}
+Further arguments passed to \code{\link{TaskTorch}}\verb{$new()}, such as \code{output_dim}, \code{prediction_encoder}
+or \code{measure}.}
 }
 \value{
 \code{\link{TaskTorch}}
@@ -26,7 +26,8 @@ Further arguments passed to \code{\link{TaskTorch}}\verb{$new()}, such as \code{
 \description{
 Creates a \code{\link{TaskTorch}}, the general-purpose task type of \code{mlr3torch}, from a \code{data.frame()} or a
 \code{\link[mlr3:DataBackend]{DataBackend}}.
-See \code{\link{TaskTorch}} for what is inferred from the target columns and what the trade-offs are.
+See \code{\link{TaskTorch}} for what you have to specify about the learning problem and what the
+trade-offs are.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

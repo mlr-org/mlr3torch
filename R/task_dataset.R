@@ -311,6 +311,12 @@ get_batch_constructor.default = function(task, feature_ingress_tokens, target_ba
   # a target batchgetter that declares an `x` argument additionally receives the feature tensors of
   # the batch, which is what a target that is a function of the input needs (see `TaskTorch`)
   needs_x = !is.null(target_batchgetter) && "x" %in% formalArgs(target_batchgetter)
+  # A task without target columns has no `y`, whatever the learner was configured with -- the
+  # batchgetter would otherwise be handed a table with no columns. The exception is a batchgetter
+  # that builds the target from the input, which is the whole point of the `x` argument.
+  if (!length(target_names) && !needs_x) {
+    target_batchgetter = NULL
+  }
   function(data, cache = NULL) {
     x = lapply(feature_ingress_tokens, function(it) {
       it$batchgetter(data[, it$features, with = FALSE], cache = cache)

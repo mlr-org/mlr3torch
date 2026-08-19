@@ -9,7 +9,7 @@ Wraps a plain R function into a \code{\link[mlr3:Measure]{Measure}} that scores 
 \code{\link{TaskTorch}}.
 Use \code{\link[=msr_torch]{msr_torch()}} to construct one.
 
-The function receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{prediction},
+The function receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{prediction},
 \code{task}, \code{learner} and \code{train_set} it declares, and returns a single number.
 What \code{truth}, \code{response} and \code{prob} look like depends on the task, see section \emph{Inference} of
 \code{\link{TaskTorch}}.
@@ -93,7 +93,7 @@ Whether a smaller score is better.}
       \item{\code{range}}{(\code{numeric(2)})\cr
 The range of possible scores.}
       \item{\code{predict_type}}{(\code{character(1)})\cr
-The predict type the measure requires, \code{"response"} (default) or \code{"prob"}.}
+The predict type the measure requires: \code{"response"} (default), \code{"prob"} or \code{"se"}.}
       \item{\code{properties}}{(\code{character()})\cr
 Properties of the measure, see \code{\link[mlr3:Measure]{Measure}}.}
       \item{\code{label}}{(\code{character(1)})\cr

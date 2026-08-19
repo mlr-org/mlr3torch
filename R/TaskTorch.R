@@ -32,51 +32,53 @@
 #' Use `TaskTorch` for experiments and one-off problems, and add a real task type when you package
 #' up a learning problem for others.
 #'
-#' @section Inference: The three things `mlr3torch` needs to know about a task are the target tensor
-#'   `y` of a batch ([`get_target_batchgetter()`]), the number of output units of the network
-#'   ([`output_dim_for()`]) and how a network output becomes a prediction
-#'   ([`encode_prediction()`]).
-#'   All three are derived from the target columns:
+#' @section What you have to specify: `mlr3torch` needs to know three things about a learning
+#'   problem, and a `TaskTorch` infers none of them, because the column types of a target say how it
+#'   is stored, not how you want to model it. A two-level `factor` could be one logit or two; `d`
+#'   numeric columns could be one head of width `d` or `d` separate heads. Guessing would be a
+#'   modelling decision made on your behalf, so all three are stated explicitly:
 #'
-#'   | target columns | `y` | `output_dim` | `response` | `prob` |
-#'   | --- | --- | --- | --- | --- |
-#'   | one `factor` / `ordered` with `k` levels | `long` codes | `k` | `factor()` | `matrix()`, `k` columns |
-#'   | one `numeric` / `integer` | `float` `(n, 1)` | 1 | `numeric()` | -- |
-#'   | `d` `numeric` / `integer` | `float` `(n, d)` | `d` | `matrix()`, `d` columns | -- |
-#'   | one `logical` | `float` `(n, 1)` | 1 | `logical()` | `numeric()` |
-#'   | `d` `logical` | `float` `(n, d)` | `d` | `matrix()`, `d` columns | `matrix()`, `d` columns |
-#'   | none | -- (no `y` in the batch) | -- | -- | -- |
+#'   | what | who provides it | how |
+#'   | --- | --- | --- |
+#'   | the target tensor `y` of a batch | the **learner** | `target_batchgetter` of [`LearnerTorchModule`] / [`LearnerTorchModel`], or [`get_target_batchgetter()`] for your own subclass |
+#'   | the number of output units | the **task** | `output_dim`, read through [`output_dim_for()`] |
+#'   | how a network output becomes a prediction | the **task** | `prediction_encoder`, read through [`encode_prediction()`] |
 #'
-#'   Note that a two-level `factor` target is *not* treated as binary classification: it gets two
-#'   output units and is trained with a cross-entropy loss, like any other `factor` target.
-#'   Encode the target as `logical` to get the single-logit variant.
+#'   The split follows what each one is consumed by. What `y` has to look like is dictated by the
+#'   loss, which belongs to the learner: cross entropy wants `long` class indices where mean squared
+#'   error wants `float`, so the same task trained with two losses needs two different tensors.
+#'   What a prediction looks like is what the task's measures are written against, so it belongs to
+#'   the task.
 #'
-#'   Any of the three can be overwritten by passing `target_batchgetter`, `output_dim` or
-#'   `prediction_encoder` to the constructor, which is also the only way to use a combination of
-#'   target columns that is not in the table above.
+#'   The encoder is also where any consistency check between the network and the task belongs. A
+#'   network trained on a task with three target levels emits three columns, and mapping those onto
+#'   the levels of a task that has since been `$droplevels()`ed would relabel every observation
+#'   rather than fail, so an encoder that assigns levels should verify the width it was given.
 #'
-#'   What the task specifies is the *default*, and a learner has the last word on two of the three:
-#'   [`LearnerTorchModule`] (`lrn("torch.module")`) takes a `target_batchgetter` of its own, and any
-#'   [`LearnerTorch`] can overwrite the private `$.encode_prediction()` method.
-#'   This matters when the network and the loss expect a different encoding than the task's default,
-#'   e.g. when training on one-hot encoded class labels.
+#'   A learner always has the last word: [`LearnerTorch`] can overwrite the private
+#'   `$.encode_prediction()` method, which is how [`LearnerTorchVision`] drops an auxiliary head and
+#'   `lrn("classif.tabm")` averages over its ensemble dimension.
 #'
-#' @section Tasks without a Target: A task with no target columns is unsupervised, and there is
-#'   nothing to infer from, so `output_dim` and `prediction_encoder` have to be given.
-#'   Its batches have no `y` element, so the loss is called as `loss(y_hat, NULL)` and has to ignore
-#'   its second argument.
+#'   `output_dim` is a `function(task)` rather than a number so that it still holds after the task
+#'   is changed -- a different target column, a `$droplevels()` -- and it is optional: a network
+#'   that sizes its own output, such as one with several heads of different widths, never asks for
+#'   it. `nn("head")` and any module calling [`output_dim_for()`] do ask, and error if it is unset.
+#'
+#' @section Tasks without a Target: A task may have no target columns at all.
+#'   Its batches have no `y` element, so the loss is called as `loss(y_hat)`, with no second
+#'   argument at all.
 #'
 #'   If the target of a batch is a function of its *input* rather than of a column -- an autoencoder
-#'   reconstructing its input, a denoising or masked objective, contrastive pretraining -- pass a
-#'   `target_batchgetter` that declares an `x` argument, which receives the named list of feature
-#'   tensors of the batch:
+#'   reconstructing its input, a denoising or masked objective, contrastive pretraining -- give the
+#'   learner a `target_batchgetter` that declares an `x` argument, which receives the named list of
+#'   feature tensors of the batch:
 #'
 #'   ```
-#'   as_task_torch(data, output_dim = ncol(data),
-#'     target_batchgetter = function(data, x) x[[1L]],
+#'   task = as_task_torch(data, output_dim = function(task) ncol(data),
 #'     prediction_encoder = function(task, predict_tensor, predict_type) {
 #'       list(response = as.matrix(predict_tensor$cpu()))
 #'     })
+#'   lrn("torch.module", target_batchgetter = function(data, x) x[[1L]], ...)
 #'   ```
 #'
 #'   Such a task has no `truth`, so its measures read the ground truth from the task, which
@@ -99,19 +101,16 @@
 #'   The names of the target columns. May be empty.
 #' @param label (`character(1)`)\cr
 #'   The label of the task.
-#' @param target_batchgetter (`function()` or `NULL`)\cr
-#'   Converts the target columns of a batch into the target tensor `y`.
-#'   Takes an argument `data`, a [`data.table`][data.table::data.table] with only the target columns,
-#'   and optionally an argument `x`, the named list of feature tensors of the batch.
-#'   If `NULL` (default), it is inferred from the target column types.
-#' @param output_dim (`integer(1)` or `NULL`)\cr
-#'   The number of output units the network needs.
-#'   If `NULL` (default), it is inferred from the target column types.
+#' @param output_dim (`function()` or `NULL`)\cr
+#'   Returns the number of output units the network needs.
+#'   Takes an argument `task` and returns a single positive integer.
+#'   May be `NULL` (default), in which case any caller of [`output_dim_for()`] errors.
 #' @param prediction_encoder (`function()` or `NULL`)\cr
 #'   Converts the network output into a prediction.
-#'   Takes the arguments `task`, `predict_tensor` and `predict_type` and returns a named `list()`
-#'   with elements `response` and, optionally, `prob`.
-#'   If `NULL` (default), it is inferred from the target column types.
+#'   Takes the arguments `task`, `predict_tensor` -- the network's output, unchanged, so possibly a
+#'   `list()` of tensors -- and `predict_type`, and returns a named `list()` with elements `response`
+#'   and, optionally, `prob`.
+#'   May be `NULL` (default) if the learner encodes predictions itself.
 #' @param measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
 #'   The default measure of the task, see section *Scoring*.
 #'
@@ -122,17 +121,18 @@
 #' d = data.frame(x1 = rnorm(50), x2 = rnorm(50))
 #' d$a = d$x1 > 0
 #' d$b = d$x2 > 0
-#' task = as_task_torch(d, target = c("a", "b"), id = "labels")
+#' task = as_task_torch(d, target = c("a", "b"), id = "labels",
+#'   output_dim = function(task) length(task$target_names),
+#'   prediction_encoder = function(task, predict_tensor, predict_type) {
+#'     prob = as.matrix(torch::nnf_sigmoid(predict_tensor)$cpu())
+#'     colnames(prob) = task$target_names
+#'     list(response = prob > 0.5, prob = if (predict_type == "prob") prob)
+#'   })
 #' task
 #' output_dim_for(task)
 TaskTorch = R6Class("TaskTorch",
   inherit = TaskSupervised,
   public = list(
-    #' @field target_batchgetter (`function()` or `NULL`)\cr
-    #'   See the construction argument.
-    target_batchgetter = NULL,
-    #' @field prediction_encoder (`function()` or `NULL`)\cr
-    #'   See the construction argument.
     prediction_encoder = NULL,
     #' @field measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
     #'   See the construction argument.
@@ -140,15 +140,14 @@ TaskTorch = R6Class("TaskTorch",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, backend, target = character(0), label = NA_character_,
-      target_batchgetter = NULL, output_dim = NULL, prediction_encoder = NULL, measure = NULL) {
+      output_dim = NULL, prediction_encoder = NULL, measure = NULL) {
       target = assert_character(target, any.missing = FALSE, null.ok = TRUE) %??% character(0)
       super$initialize(id = id, task_type = "torch", backend = backend, target = target, label = label)
 
-      self$target_batchgetter = assert_function(target_batchgetter, args = "data", null.ok = TRUE)
+      self$output_dim = output_dim
       self$prediction_encoder = assert_function(prediction_encoder,
         args = c("task", "predict_tensor", "predict_type"), null.ok = TRUE)
       self$measure = assert_r6(measure, "Measure", null.ok = TRUE)
-      private$.output_dim = assert_int(output_dim, lower = 1L, null.ok = TRUE, coerce = TRUE)
     },
     #' @description
     #' The ground truth, see section *Scoring*.
@@ -171,26 +170,18 @@ TaskTorch = R6Class("TaskTorch",
     #'   collide.
     hash = function(rhs) {
       assert_ro_binding(rhs)
-      calculate_hash(super$hash, private$.output_dim, self$measure$hash,
-        hash_input(self$target_batchgetter), hash_input(self$prediction_encoder))
+      calculate_hash(super$hash, self$measure$hash,
+        hash_input(private$.output_dim), hash_input(self$prediction_encoder))
     },
-    #' @field output_dim (`integer(1)`)\cr
-    #'   The number of output units the network needs, see section *Inference*.
+    #' @field output_dim (`function()` or `NULL`)\cr
+    #'   See the construction argument.
+    #'   Use [`output_dim_for()`] to evaluate it.
     output_dim = function(rhs) {
-      if (!missing(rhs)) {
-        private$.output_dim = assert_int(rhs, lower = 1L, coerce = TRUE)
-        return(invisible(NULL))
-      }
-      if (!is.null(private$.output_dim)) {
+      if (missing(rhs)) {
         return(private$.output_dim)
       }
-      spec = task_torch_spec(self)
-      switch(spec$kind,
-        factor = length(spec$levels),
-        numeric = length(spec$cols),
-        logical = length(spec$cols),
-        stopf("Cannot infer the output dimension of task '%s' (%s), pass `output_dim` explicitly.", self$id, spec$why) # nolint
-      )
+      private$.output_dim = assert_function(rhs, args = "task", null.ok = TRUE)
+      invisible(NULL)
     }
   ),
   private = list(
@@ -206,7 +197,8 @@ TaskTorch = R6Class("TaskTorch",
 #' @description
 #' Creates a [`TaskTorch`], the general-purpose task type of `mlr3torch`, from a `data.frame()` or a
 #' [`DataBackend`][mlr3::DataBackend].
-#' See [`TaskTorch`] for what is inferred from the target columns and what the trade-offs are.
+#' See [`TaskTorch`] for what you have to specify about the learning problem and what the
+#' trade-offs are.
 #'
 #' @param x (`data.frame()` or [`DataBackend`][mlr3::DataBackend])\cr
 #'   The data.
@@ -215,8 +207,8 @@ TaskTorch = R6Class("TaskTorch",
 #' @param id (`character(1)`)\cr
 #'   The id of the task.
 #' @param ... (any)\cr
-#'   Further arguments passed to [`TaskTorch`]`$new()`, such as `target_batchgetter`, `output_dim`,
-#'   `prediction_encoder` or `measure`.
+#'   Further arguments passed to [`TaskTorch`]`$new()`, such as `output_dim`, `prediction_encoder`
+#'   or `measure`.
 #' @return [`TaskTorch`]
 #' @export
 #' @examplesIf torch::torch_is_installed()
@@ -230,29 +222,6 @@ TaskTorch = R6Class("TaskTorch",
 #' as_task_torch(data.frame(a = rnorm(50), b = rnorm(50)))
 as_task_torch = function(x, target = character(0), id = deparse(substitute(x))[1L], ...) {
   TaskTorch$new(id = assert_string(id), backend = x, target = target, ...)
-}
-
-# Describes what the target of a TaskTorch looks like. Everything that is inferred rather than
-# passed to the constructor is derived from this.
-task_torch_spec = function(task) {
-  target = task$target_names
-  if (!length(target)) {
-    return(list(kind = "none", cols = character(0), why = "the task has no target columns"))
-  }
-  types = task$col_info[list(target), "type", on = "id"][[1L]]
-
-  if (length(target) == 1L && types %in% c("factor", "ordered")) {
-    levels = task$col_info[list(target), "levels", on = "id"][[1L]][[1L]]
-    return(list(kind = "factor", cols = target, levels = levels))
-  }
-  if (all(types %in% c("numeric", "integer"))) {
-    return(list(kind = "numeric", cols = target))
-  }
-  if (all(types == "logical")) {
-    return(list(kind = "logical", cols = target))
-  }
-  list(kind = "unknown", cols = target,
-    why = sprintf("the target columns have types %s", paste0("'", unique(types), "'", collapse = ", ")))
 }
 
 #' @export
@@ -273,78 +242,25 @@ task_check_col_roles_base = function(task, new_roles, ...) {
 
 #' @export
 output_dim_for.TaskTorch = function(x, ...) { # nolint
-  x$output_dim
+  if (is.null(x$output_dim)) {
+    stopf("Task '%s' has no `output_dim`. Pass one to the task, or size the network's output yourself (e.g. `out_features` of `nn(\"head\")`).", x$id) # nolint
+  }
+  # evaluated rather than stored, because the number of output units follows from the target
+  # columns and those can change after the task was constructed
+  assert_int(x$output_dim(task = x), lower = 1L, coerce = TRUE)
 }
 
 #' @export
 get_target_batchgetter.TaskTorch = function(task, ...) { # nolint
-  if (!is.null(task$target_batchgetter)) {
-    return(task$target_batchgetter)
-  }
-  spec = task_torch_spec(task)
-  switch(spec$kind,
-    factor = function(data) torch_tensor(as.integer(data[[1L]]), dtype = torch_long()),
-    numeric = function(data) torch_tensor(as.matrix(data), dtype = torch_float()),
-    logical = function(data) torch_tensor(1 * as.matrix(data), dtype = torch_float()),
-    none = NULL,
-    stopf("Cannot infer the target batchgetter of task '%s' (%s), pass `target_batchgetter` explicitly.", task$id, spec$why) # nolint
-  )
+  stopf("Task '%s' does not define how its target becomes a tensor -- what `y` has to look like follows from the loss, so it is the learner that decides. Pass `target_batchgetter` to the learner (e.g. `lrn(\"torch.module\")`) or overwrite the method for your own `LearnerTorch` subclass.", task$id) # nolint
 }
 
 #' @export
 encode_prediction.TaskTorch = function(task, network_output, predict_type, ...) { # nolint
-  if (!is.null(task$prediction_encoder)) {
-    # the raw output is passed on, so a `prediction_encoder` is also how a network with more than
-    # one head is encoded
-    return(task$prediction_encoder(task = task, predict_tensor = network_output,
-      predict_type = predict_type))
+  if (is.null(task$prediction_encoder)) {
+    stopf("Task '%s' has no `prediction_encoder`, so there is no way to turn the network's output into a prediction. Pass one to the task, or overwrite the private `.encode_prediction()` method of the learner.", task$id) # nolint
   }
-  # the inferred encodings below all expect a single tensor
-  predict_tensor = assert_single_head(network_output, task)
-  spec = task_torch_spec(task)
-  switch(spec$kind,
-    factor = {
-      # The levels come from the task we are predicting on, while the width of `predict_tensor` was
-      # fixed when the network was built. If they disagree -- e.g. because the predict task was
-      # `$droplevels()`ed -- assigning the levels onto the argmax indices would silently relabel
-      # every observation, so this has to be an error.
-      shape = predict_tensor$shape
-      if (length(shape) != 2L || shape[2L] != length(spec$levels)) {
-        stopf("Network output of shape (%s) is incompatible with the %i levels of target '%s' of task '%s'. Was the network trained on a task with different levels?", paste(shape, collapse = ", "), length(spec$levels), spec$cols, task$id) # nolint
-      }
-      response = as.integer(with_no_grad(predict_tensor$argmax(dim = 2L))$to(device = "cpu"))
-      class(response) = "factor"
-      levels(response) = spec$levels
-      prob = if (predict_type == "prob") {
-        prob = as.matrix(with_no_grad(nnf_softmax(predict_tensor, dim = 2L))$to(device = "cpu"))
-        colnames(prob) = spec$levels
-        prob
-      }
-      list(response = response, prob = prob)
-    },
-    numeric = {
-      if (predict_type != "response") {
-        stopf("Task '%s' has numeric targets, for which only predict_type 'response' is available.", task$id) # nolint
-      }
-      predict_tensor = with_no_grad(predict_tensor)$to(device = "cpu")
-      # a network for a single target may emit either a (n, 1) or a (n) tensor
-      if (length(spec$cols) == 1L) {
-        return(list(response = as.numeric(predict_tensor)))
-      }
-      response = as.matrix(predict_tensor)
-      colnames(response) = spec$cols
-      list(response = response)
-    },
-    logical = {
-      prob = as.matrix(with_no_grad(nnf_sigmoid(predict_tensor))$to(device = "cpu"))
-      colnames(prob) = spec$cols
-      response = prob > 0.5
-      if (length(spec$cols) == 1L) {
-        response = as.logical(response)
-        prob = as.numeric(prob)
-      }
-      list(response = response, prob = if (predict_type == "prob") prob)
-    },
-    stopf("Cannot infer the prediction encoding of task '%s' (%s), pass `prediction_encoder` explicitly.", task$id, spec$why) # nolint
-  )
+  # the raw network output is passed on unchanged, so a `prediction_encoder` is also how the output
+  # of a network with more than one head is encoded
+  task$prediction_encoder(task = task, predict_tensor = network_output, predict_type = predict_type)
 }

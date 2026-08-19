@@ -258,13 +258,13 @@ There are no separate classes for classification and regression to inherit from.
 Instead, the \code{task_type} must be specified as a construction argument.
 Any task type that is registered in
 \code{\link[mlr3:mlr_reflections]{mlr_reflections$task_types}} can be used.
-Support for a task type that \pkg{mlr3torch} does not know is added by implementing methods for
+Support for a task type that \CRANpkg{mlr3torch} does not know is added by implementing methods for
 the three S3 generics that hold the task-type-specific behaviour: \code{\link[=output_dim_for]{output_dim_for()}} (how many
 output neurons the network needs), \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} (how the target is turned into a
 tensor) and \code{\link[=encode_prediction]{encode_prediction()}} (how the network's output is turned back into a prediction).
 Such a learner also has to be given a \code{loss} explicitly.
-The \emph{Custom Learning Problems} article walks through this, and \code{\link{TaskTorch}} is the alternative
-for a problem that does not need a task type of its own.
+This class can also be used for custom task types, see \code{\link{TaskTorch}} and the
+\emph{Custom Learning Problems} article for more information.
 
 When inheriting from this class, one should overload the following methods:
 \itemize{
@@ -480,9 +480,7 @@ Defaults to adam.}
 The loss to use for training.
 Defaults to MSE for regression and cross entropy for classification.
 For other task types there is no default and the loss has to be given, because which loss is
-appropriate depends on the learning problem.
-For the task type \code{"torch"} (see \code{\link{TaskTorch}}) any loss is accepted, since \code{mlr3torch} cannot
-know what the task represents.}
+appropriate depends on the learning problem.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{predict_types}}{(\code{character()})\cr
