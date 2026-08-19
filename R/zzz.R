@@ -67,10 +67,6 @@ register_mlr3 = function() {
 
 }
 
-# Registers the general-purpose task type of mlr3torch, see `TaskTorch`.
-# Unlike a task type that is added by hand (see the *Adding a Custom Task Type* vignette), this
-# happens once, when mlr3torch is loaded, so that a custom learning problem is an *instance* of
-# `TaskTorch` rather than a new task type.
 register_task_type_torch = function(mlr_reflections) { # nolint
   if ("torch" %chin% mlr_reflections$task_types$type) {
     return(invisible(NULL))
@@ -80,11 +76,20 @@ register_task_type_torch = function(mlr_reflections) { # nolint
     "torch", "mlr3torch", "TaskTorch", "LearnerTorch", "PredictionTorch", "PredictionDataTorch", "MeasureTorch"
   ), fill = TRUE), "type")
 
-  # a TaskTorch behaves like a regression task, except that it may have any number of targets
-  mlr_reflections$task_col_roles$torch = mlr_reflections$task_col_roles$regr
-  mlr_reflections$task_properties$torch = mlr_reflections$task_properties$regr
-  mlr_reflections$learner_properties$torch = mlr_reflections$learner_properties$regr
-  mlr_reflections$measure_properties$torch = mlr_reflections$measure_properties$regr
+  # Spelled out rather than copied from another task type: what a TaskTorch supports is everything
+  # that is not specific to a learning problem, and no existing entry means that. The classif ones
+  # additionally carry "twoclass" and "multiclass", which say nothing about a task that may have any
+  # number of targets of any type, or none.
+  mlr_reflections$task_col_roles$torch = c("feature", "target", "name", "order", "stratum", "group",
+    "offset", "weights_learner", "weights_measure")
+  mlr_reflections$task_properties$torch = c("strata", "groups", "offset", "weights_learner",
+    "weights_measure")
+  mlr_reflections$learner_properties$torch = c("featureless", "missings", "weights", "importance",
+    "selected_features", "oob_error", "hotstart_forward", "hotstart_backward", "validation",
+    "internal_tuning", "marshal", "offset", "new_levels")
+  mlr_reflections$measure_properties$torch = c("na_score", "requires_task", "requires_learner",
+    "requires_model", "requires_train_set", "weights", "primary_iters", "requires_no_prediction",
+    "obs_loss")
   mlr_reflections$learner_predict_types$torch = list(
     response = "response",
     prob = c("response", "prob"),
