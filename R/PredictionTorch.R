@@ -115,10 +115,7 @@ pt_bind_arrays = function(xs) {
     }
   })
   dim_out = c(sum(ns), d[-1L])
-  dn = dimnames(xs[[1L]])
-  # `c(list(NULL), NULL)` would be a length-1 list, which is not the same as having no dimnames
-  out = array(vector(typeof(xs[[1L]]), prod(dim_out)), dim = dim_out,
-    dimnames = if (!is.null(dn)) c(list(NULL), dn[-1L]))
+  out = array(vector(typeof(xs[[1L]]), prod(dim_out)), dim = dim_out)
   offset = 0L
   for (x in xs) {
     index = rep(list(bquote()), length(d))
