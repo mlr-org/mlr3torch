@@ -588,3 +588,51 @@ test_that("a learner for a different task type is rejected", {
     "is for task type 'regr'"
   )
 })
+
+test_that("a lazy_tensor target survives a resample round trip", {
+  d = tt_data(32L)
+  d$y = as_lazy_tensor(withr::with_seed(2L, torch_randn(nrow(d), 3L)))
+  task = as_task_torch(d, target = "y", id = "lt",
+    target_batchgetter = function(data) materialize(data[[1L]], rbind = TRUE)$to(dtype = torch_float()),
+    output_dim = 3L,
+    prediction_encoder = function(task, predict_tensor, predict_type) {
+      list(response = as.matrix(predict_tensor$cpu()))
+    })
+
+  rr = resample(task, tt_learner(t_loss("mse")), rsmp("cv", folds = 2L))
+  pred = rr$prediction()
+  # `unlist()` used to flatten the lazy_tensor into its internals, doubling its length
+  expect_class(pred$truth, "lazy_tensor")
+  expect_length(pred$truth, task$nrow)
+  expect_data_table(as.data.table(pred), nrows = task$nrow)
+  expect_equal(
+    as.matrix(materialize(pred$truth, rbind = TRUE)),
+    as.matrix(materialize(task$truth(pred$row_ids), rbind = TRUE))
+  )
+})
+
+test_that("combining prediction data keeps the storage of its elements", {
+  # the fallback of `pt_combine()` must not strip a class it does not know about
+  lt = as_lazy_tensor(withr::with_seed(3L, torch_randn(4L, 2L)))
+  combined = pt_combine(list(lt[1:2], lt[3:4]))
+  expect_class(combined, "lazy_tensor")
+  expect_length(combined, 4L)
+
+  dates = pt_combine(list(as.Date("2020-01-01"), as.Date("2020-01-02")))
+  expect_class(dates, "Date")
+  expect_equal(dates, as.Date(c("2020-01-01", "2020-01-02")))
+
+  expect_equal(pt_combine(list(list(1:2, 3:4), list(5:6))), list(1:2, 3:4, 5:6))
+})
+
+test_that("combining prediction data with inconsistent elements is an error", {
+  a = list(row_ids = 1:2, response = c(1, 2))
+  b = list(row_ids = 3:4, response = c(3, 4))
+  class(a) = class(b) = c("PredictionDataTorch", "PredictionData")
+  expect_equal(length(c(a, b)$row_ids), 4L)
+
+  # mlr3's own combine path does not check, so `c()` has to
+  broken = b
+  broken$response = c(3, 4, 5)
+  expect_error(c(a, broken), "has 5 observations, but 4 row ids")
+})

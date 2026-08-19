@@ -135,7 +135,10 @@ pt_combine = function(xs) {
     # unlist() would drop the levels and return the integer codes
     factor(unlist(lapply(xs, as.character), use.names = FALSE), levels = levels(x))
   } else {
-    unlist(xs, use.names = FALSE)
+    # `unlist()` here would strip the class of anything that is not a bare atomic vector: a
+    # `lazy_tensor` (a classed list) is flattened into its internals, a `Date` is demoted to the
+    # numbers underneath it. `c()` dispatches, so it keeps whatever the prediction encoder built.
+    unname(do.call(c, xs))
   }
 }
 
@@ -249,7 +252,10 @@ c.PredictionDataTorch = function(..., keep_duplicates = TRUE) { # nolint
   }
 
   class(pdata) = c("PredictionDataTorch", "PredictionData")
-  pdata
+  # `mlr3::c.Prediction()` ends in `as_prediction(pdata, check = FALSE)`, so an element that does
+  # not combine cleanly would otherwise travel on as a prediction whose parts have different
+  # lengths, and only surface much later as a nonsensical score.
+  check_prediction_data(pdata)
 }
 
 #' @export
@@ -270,5 +276,11 @@ as.data.table.PredictionTorch = function(x, ...) { # nolint
       pt_as_columns(x$data[[nm]], nm)
     })
   )
+  # `cbind()` recycles a shorter table instead of complaining, which would turn a malformed
+  # prediction into a table with duplicated observations rather than an error
+  nrows = map_int(tabs, nrow)
+  if (!all(nrows == nrows[1L])) {
+    stopf("Prediction has %i row ids, but its elements have %s observations.", nrows[1L], str_collapse(nrows[-1L])) # nolint
+  }
   do.call(cbind, tabs)
 }

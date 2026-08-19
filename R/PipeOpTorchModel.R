@@ -196,9 +196,6 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
 #' @description
 #' Builds a [`LearnerTorchModel`][mlr_learners_torch_model] for a [`TaskTorch`] from a
 #' [`ModelDescriptor`] and trains it.
-#' This is the terminal [`PipeOp`][mlr3pipelines::PipeOp] of a torch graph for the general-purpose
-#' task type of `mlr3torch`, i.e. the counterpart of `po("torch_model_classif")` and
-#' `po("torch_model_regr")`.
 #'
 #' @inheritSection mlr_pipeops_torch_model Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_model State

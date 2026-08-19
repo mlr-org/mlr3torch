@@ -106,8 +106,6 @@
 #'   Defaults to MSE for regression and cross entropy for classification.
 #'   For other task types there is no default and the loss has to be given, because which loss is
 #'   appropriate depends on the learning problem.
-#'   For the task type `"torch"` (see [`TaskTorch`]) any loss is accepted, since `mlr3torch` cannot
-#'   know what the task represents.
 #' @param optimizer (`NULL` or [`TorchOptimizer`])\cr
 #'   The optimizer to use for training.
 #'   Defaults to adam.
@@ -136,13 +134,13 @@
 #' Instead, the `task_type` must be specified as a construction argument.
 #' Any task type that is registered in
 #' [`mlr_reflections$task_types`][mlr3::mlr_reflections] can be used.
-#' Support for a task type that \pkg{mlr3torch} does not know is added by implementing methods for
+#' Support for a task type that \CRANpkg{mlr3torch} does not know is added by implementing methods for
 #' the three S3 generics that hold the task-type-specific behaviour: [`output_dim_for()`] (how many
 #' output neurons the network needs), [`get_target_batchgetter()`] (how the target is turned into a
 #' tensor) and [`encode_prediction()`] (how the network's output is turned back into a prediction).
 #' Such a learner also has to be given a `loss` explicitly.
-#' The *Custom Learning Problems* article walks through this, and [`TaskTorch`] is the alternative
-#' for a problem that does not need a task type of its own.
+#' This class can also be used for custom task types, see [`TaskTorch`] and the
+#' *Custom Learning Problems* article for more information.
 #'
 #' When inheriting from this class, one should overload the following methods:
 #'
