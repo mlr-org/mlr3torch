@@ -130,6 +130,32 @@ test_that("restored trainable weights that the network does not have are ignored
 })
 
 describe("resuming", {
+  it("a batch-wise schedule continues when the resumed run has another batch size", {
+    # the batch number comes from `ctx$global_step`, which the checkpoint carries, and not from the
+    # epoch times this run's batches per epoch -- which would renumber the schedule
+    task = tsk("iris")
+    path = tempfile()
+    args = list(
+      cb.unfreeze.starting_weights = select_invert(select_name("0.weight")),
+      # 150 rows in batches of 50 is 3 per epoch, so batch 7 is the first batch of epoch 3
+      cb.unfreeze.unfreeze = data.table(batch = 7, weights = list(select_name("0.weight")))
+    )
+    make = function(epochs, batch_size, ...) {
+      learner = lrn("classif.mlp", epochs = epochs, batch_size = batch_size, neurons = 10,
+        seed = 1, callbacks = c(list(t_clbk("unfreeze")), list(...)))
+      learner$param_set$set_values(.values = args)
+      learner
+    }
+    make(2L, 50, t_clbk("checkpoint", freq = 1, path = path))$train(task)
+
+    # one batch per epoch now: the run continues at global step 7 and unfreezes there
+    resumed = make(4L, 150)
+    resumed$param_set$set_values(resume = path)
+    resumed$train(task)
+    expect_true("0.weight" %in% resumed$model$callbacks$unfreeze$trainable)
+  })
+
+
   it("the unfreezing callback continues", {
     # $on_begin() freezes everything but `starting_weights`, so without a restored state a resumed
     # run would freeze what the first run had already unfrozen

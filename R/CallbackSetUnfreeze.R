@@ -5,6 +5,16 @@
 #' @description
 #' Unfreeze some weights (parameters of the network) after some number of steps or epochs.
 #'
+#' @section Resuming:
+#' Which weights are trainable is stored and restored, so a resumed run does not freeze again what
+#' the run it continues had already unfrozen: `starting_weights` is applied first, and the restored
+#' weights are unfrozen on top of it.
+#' The schedule itself continues rather than starting over, since an `epoch` schedule follows the
+#' restored epoch and a `batch` one the restored step count.
+#' A resumed run may therefore use another `batch_size`: the steps keep counting where the
+#' checkpoint left them, so the remaining points of a `batch` schedule are still reached -- but
+#' they fall after a different amount of data than they would have in the original run.
+#'
 #' @param starting_weights (`Select`)\cr
 #'  A `Select` denoting the weights that are trainable from the start.
 #' @param unfreeze (`data.table`)\cr
@@ -90,7 +100,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' Unfreezes weights if the training is at the correct batch
     on_batch_begin = function() {
       if (private$.batchwise) {
-        batch_num = (self$ctx$epoch - 1) * length(self$ctx$loader_train) + self$ctx$step
+        # the batch number within the whole run, which a resumed run continues counting -- deriving
+        # it from the epoch would renumber the schedule when the run continues at another batch size
+        batch_num = self$ctx$global_step
         if (batch_num %in% self$unfreeze$batch) {
           weights = (self$unfreeze[get("batch") == batch_num]$weights)[[1]](names(self$ctx$network$parameters))
           if (!length(weights)) {

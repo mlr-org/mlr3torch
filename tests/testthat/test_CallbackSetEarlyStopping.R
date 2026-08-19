@@ -8,7 +8,8 @@ test_that("the early stopping state can be saved and restored", {
   first = make(3L)
   first$train(task)
   state = first$model$callbacks$early_stopping
-  expect_names(names(state), permutation.of = c("best_epochs", "best_score", "stagnation"))
+  expect_names(names(state), permutation.of = c("best_epochs", "best_score", "stagnation", "measure"))
+  expect_equal(state$measure, "classif.acc")
 
   # a run that continues where the first one stopped keeps its best score and stagnation counter
   restored = NULL
@@ -110,19 +111,46 @@ describe("resuming", {
 
   it("warns with restore_best_weights that the best weights are not restored", {
     path = tempfile()
-    args = list(validate = 0.3, measures_valid = msrs("classif.acc"), patience = 5L, min_delta = 0)
-    invoke(make_checkpoint, epochs = 2L, path = path, .args = c(args, restore_best_weights = TRUE))
+    task = task_with_valid()
+    args = list(validate = "predefined", measures_valid = msrs("classif.acc"), patience = 5L, min_delta = 0)
+    invoke(make_checkpoint, epochs = 2L, path = path, task = task,
+      .args = c(args, restore_best_weights = TRUE))
 
     # a full copy of the network per checkpoint is not worth it, so the weights are not stored
     expect_named(readRDS(file.path(path, "state2.rds"))$callbacks$early_stopping,
-      c("best_epochs", "best_score", "stagnation"))
+      c("best_epochs", "best_score", "stagnation", "measure"))
 
     resumed = invoke(resumer, epochs = 4L, path = path, .args = c(args, restore_best_weights = TRUE))
-    expect_warning(resumed$train(tsk("iris")), "restore_best_weights")
+    expect_warning(resumed$train(task), "restore_best_weights")
 
     # without it there is nothing that could be lost, so nothing is reported
     quiet = invoke(resumer, epochs = 4L, path = path, .args = args)
-    expect_no_warning(quiet$train(tsk("iris")))
+    expect_no_warning(quiet$train(task))
+  })
+
+  it("refuses a checkpoint whose best score belongs to another validation measure", {
+    # `best_score` is a value of one measure on one scale. Comparing this run's scores against it
+    # would stop training -- or fail to -- on the difference between the two measures.
+    task = task_with_valid()
+    path = tempfile()
+    make = function(epochs, measures, ...) lrn("classif.mlp", epochs = epochs, batch_size = 50,
+      neurons = 10, seed = 1, validate = "predefined", measures_valid = measures, patience = 5L,
+      min_delta = 0, ...)
+
+    make(2L, msr("classif.acc"),
+      callbacks = t_clbk("checkpoint", freq = 1, path = path))$train(task)
+
+    other = make(4L, msr("classif.ce"), resume = path)
+    expect_error(other$train(task), "value of the validation measure 'classif.acc'")
+
+    # reordering is enough, since only the first measure is tracked
+    reordered = make(4L, msrs(c("classif.ce", "classif.acc")), resume = path)
+    expect_error(reordered$train(task), "but this run tracks 'classif.ce'")
+
+    # the same first measure continues, whatever follows it
+    same = make(4L, msrs(c("classif.acc", "classif.ce")), resume = path)
+    expect_no_error(same$train(task))
+    expect_equal(same$model$epochs, 4L)
   })
 
   it("early stopping still fires", {

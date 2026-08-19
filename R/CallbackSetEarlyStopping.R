@@ -71,10 +71,22 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         # `best_epochs` is what the learner reports as its internally tuned `epochs`
         best_epochs = self$epoch_at_best_score,
         best_score = self$best_score,
-        stagnation = self$stagnation
+        stagnation = self$stagnation,
+        # which measure `best_score` is a value of, so that a run continuing it can check that it
+        # tracks the same one, see $load_state_dict()
+        measure = self$ctx$measures_valid[[1L]]$id
       )
     },
     load_state_dict = function(state_dict) {
+      # Only the first validation measure is tracked, and `best_score` is a value of it: a run that
+      # tracks another one would compare two different scales -- with the new measure's `minimize`
+      # direction -- and stop on that difference rather than on a lack of improvement.
+      # A checkpoint written before this was recorded carries no measure and is not checked.
+      measure = self$ctx$measures_valid[[1L]]$id
+      if (!is.null(state_dict$measure) && !identical(state_dict$measure, measure)) {
+        stopf("The checkpoint's best score is a value of the validation measure '%s', but this run tracks '%s'. Early stopping compares the two, so set 'measures_valid' as the run that wrote the checkpoint had it -- its first measure is the one early stopping uses.", # nolint
+          state_dict$measure, measure)
+      }
       self$epoch_at_best_score = state_dict$best_epochs
       self$best_score = state_dict$best_score
       self$stagnation = state_dict$stagnation

@@ -1255,6 +1255,54 @@ describe("resuming from a checkpoint", {
     expect_equal(restored, as.numeric(first$network$parameters[[1L]]$flatten()))
   })
 
+  it("a checkpoint is refused for a different task", {
+    path = tempfile()
+    make_checkpoint(epochs = 2L, path = path)
+    expect_error(resumer(4L, path)$train(tsk("sonar")), "was written for task 'iris'")
+  })
+
+  it("a checkpoint is refused when the internal validation split differs", {
+    # `validate = <ratio>` draws a new split from R's RNG in every run, and a restored early
+    # stopping score was measured on the rows of the run that wrote it
+    path = tempfile()
+    make = function(epochs, ...) lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
+      validate = 0.3, measures_valid = msr("classif.ce"), ...)
+    make(2L, callbacks = t_clbk("checkpoint", freq = 1, path = path))$train(tsk("iris"))
+
+    resumed = make(4L)
+    resumed$param_set$set_values(resume = path)
+    expect_error(resumed$train(tsk("iris")), "different internal validation split")
+
+    # and a run that has no validation at all is refused just as well
+    plain = resumer(4L, path)
+    expect_error(plain$train(tsk("iris")), "written with an internal validation split")
+  })
+
+  it("a fixed internal validation task resumes", {
+    # the recommended configuration for a run that is meant to be continued
+    task = tsk("iris")
+    task$internal_valid_task = 1:30
+    path = tempfile()
+    make = function(epochs, ...) lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
+      validate = "predefined", measures_valid = msr("classif.ce"), ...)
+    make(2L, callbacks = t_clbk("checkpoint", freq = 1, path = path))$train(task)
+
+    resumed = make(4L)
+    resumed$param_set$set_values(resume = path)
+    expect_no_error(resumed$train(task))
+    expect_equal(resumed$model$epochs, 4L)
+  })
+
+  it("a checkpoint written before the task was recorded is still resumed", {
+    path = tempfile()
+    make_checkpoint(epochs = 1L, path = path)
+    file.remove(file.path(path, "run.rds"))
+
+    resumed = resumer(2L, path)
+    expect_no_error(resumed$train(tsk("iris")))
+    expect_equal(resumed$model$epochs, 2L)
+  })
+
   it("a folder that holds no checkpoint at all is an error", {
     # naming a folder to continue from and silently getting a run from scratch is not what the
     # caller asked for -- unlike an empty folder, which is the first run of a restartable script
@@ -1333,14 +1381,36 @@ describe("resuming from a checkpoint", {
   })
 
 
-  it("a checkpoint that is already at 'epochs' is an error", {
-    # 'epochs' is the total, so a run that has no epoch of its own to train is a misconfiguration and
-    # not a no-op: the user asked for fewer epochs than the checkpoint already has
+  it("a checkpoint that is already at 'epochs' is loaded instead of continued", {
+    # 'epochs' is the total, so such a run has no epoch of its own left to train: the run in the
+    # folder is finished and loading it gives back the model it produced
+    task = tsk("iris")
     path = tempfile()
-    make_checkpoint(epochs = 3L, path = path)
+    first = make_checkpoint(epochs = 3L, path = path)
 
-    expect_error(resumer(3L, path)$train(tsk("iris")), "trained for 3 epochs, but 'epochs' is 3")
-    expect_error(resumer(2L, path)$train(tsk("iris")), "trained for 3 epochs, but 'epochs' is 2")
+    reloaded = resumer(3L, path)
+    expect_no_error(reloaded$train(task))
+    expect_equal(reloaded$model$epochs, 3L)
+    expect_equal(
+      as.numeric(reloaded$network$parameters[[1L]]$flatten()),
+      as.numeric(first$network$parameters[[1L]]$flatten())
+    )
+    expect_equal(reloaded$predict(task)$response, first$predict(task)$response)
+
+    # asking for fewer epochs than the checkpoint has is still a misconfiguration
+    expect_error(resumer(2L, path)$train(task), "trained for 3 epochs, but 'epochs' is 2")
+  })
+
+  it("a finished run reports the validation scores of the checkpoint", {
+    # they are measured in an epoch, so a run that trains none has to take them from the checkpoint
+    task = task_with_valid()
+    path = tempfile()
+    args = list(validate = "predefined", measures_valid = msrs("classif.acc"))
+    first = invoke(make_checkpoint, epochs = 2L, path = path, task = task, .args = args)
+
+    reloaded = invoke(resumer, epochs = 2L, path = path, .args = args)
+    reloaded$train(task)
+    expect_equal(reloaded$internal_valid_scores, first$internal_valid_scores)
   })
 
 
@@ -1448,9 +1518,10 @@ describe("resuming from a checkpoint", {
     expect_warning(resumed$train(tsk("iris")), "written by mlr3torch 0.0.1")
   })
 
-  it("re-running a finished script errors and leaves the checkpoint alone, whatever `freq` is", {
-    # `epochs` is the total, so running the same script again resumes a checkpoint that is already
-    # there and has nothing left to train. It must say so instead of rewriting that checkpoint.
+  it("re-running a finished script returns its model and leaves the checkpoint alone, whatever `freq` is", { # nolint
+    # `epochs` is the total, so running the same script again resumes a checkpoint that has nothing
+    # left to train. It hands back the model of that run without rewriting the checkpoint, which is
+    # what makes a script that restarts itself safe to run once more after it succeeded.
     task = tsk("iris")
     walk(c(1L, 2L, 3L), function(freq) {
       path = tempfile()
@@ -1458,10 +1529,18 @@ describe("resuming from a checkpoint", {
         lrn("classif.mlp", epochs = 5L, batch_size = 50, neurons = 10, resume = TRUE,
           callbacks = t_clbk("checkpoint", freq = freq, path = path))
       }
-      make()$train(task)
+      first = make()
+      first$train(task)
       before = list.files(path)
 
-      expect_error(make()$train(task), "trained for 5 epochs, but 'epochs' is 5")
+      again = make()
+      expect_no_error(again$train(task))
+      expect_equal(again$model$epochs, 5L, info = freq)
+      expect_equal(
+        as.numeric(again$network$parameters[[1L]]$flatten()),
+        as.numeric(first$network$parameters[[1L]]$flatten()),
+        info = freq
+      )
       expect_set_equal(list.files(path), before)
     })
   })

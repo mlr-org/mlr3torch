@@ -52,6 +52,12 @@
   callback id, so a resumed run errors instead of restoring a state into a different callback.
 * The `path` of `t_clbk("checkpoint")` can now be a `function()` that is called at the beginning of
   each training run and returns that run's path.
+* `t_clbk("checkpoint")` now checks each file immediately before writing it, so two runs writing
+  into one folder error instead of mixing their checkpoints.
+* Resuming a checkpoint that is already at `epochs` now returns its model instead of erroring, so a
+  script that restarts itself can be run again after it succeeded.
+* `t_clbk("checkpoint")` now reports its folder in `learner$model$callbacks$<id>$path`, so the
+  folder a `path` function chose can be read off the trained learner.
 
 ## Bug fixes
 

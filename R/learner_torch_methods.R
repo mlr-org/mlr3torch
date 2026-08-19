@@ -282,21 +282,37 @@ resume_training = function(ctx, resume_path) {
     return(invisible(NULL))
   }
   epochs_trained = checkpoint$epoch
-  if (epochs_trained >= ctx$total_epochs) {
-    stopf("The checkpoint in '%s' was already trained for %i epochs, but 'epochs' is %i. Note that 'epochs' is the total number of epochs, including those of the checkpoint, so it must be greater than %i.", # nolint
+  if (epochs_trained > ctx$total_epochs) {
+    stopf("The checkpoint in '%s' was already trained for %i epochs, but 'epochs' is %i. Note that 'epochs' is the total number of epochs, including those of the checkpoint, so it cannot be less than %i.", # nolint
       path, epochs_trained, ctx$total_epochs, epochs_trained)
   }
-  lg$info("Resuming training from checkpoint '%s'.", checkpoint$network)
+  # everything the checkpoint is checked against is read before the first thing is restored, so a
+  # run that must not continue this checkpoint fails without having touched the network -- and says
+  # why, rather than failing later inside torch with a tensor shape mismatch
+  state = read_checkpoint_state(checkpoint$state)
+  assert_resumable_task(ctx, path)
+
+  if (epochs_trained == ctx$total_epochs) {
+    # The run in the folder is finished: restoring it and training nothing gives back the model it
+    # produced. Without this a script that restarts itself -- the reason this feature exists --
+    # would error once it succeeded, and the model of a run killed after its last epoch but before
+    # the script was done with it could not be recovered at all.
+    lg$info("The checkpoint in '%s' is at epoch %i, which is 'epochs', so this run trains nothing and returns the model of the checkpoint.", path, epochs_trained) # nolint
+  } else {
+    lg$info("Resuming training from the checkpoint in '%s', which is at epoch %i.", path, epochs_trained)
+  }
 
   ctx$network$load_state_dict(torch_load(checkpoint$network))
   ctx$optimizer$load_state_dict(torch_load(checkpoint$optimizer))
-
-  state = read_checkpoint_state(checkpoint$state)
-  load_callback_states(ctx$callbacks, state$callbacks, state$classes)
+  load_callback_states(ctx$callbacks, state)
 
   ctx$epoch = epochs_trained
   # checkpoints written before the step was recorded fall back to what it used to be derived from
   ctx$global_step = state$global_step %??% (epochs_trained * length(ctx$loader_train))
+  # what the model reports as its `internal_valid_scores`. A run that trains at least one epoch
+  # overwrites this with scores of its own, but one that continues a finished checkpoint has no
+  # epoch to measure in and would otherwise report none at all.
+  ctx$last_scores_valid = state$valid_scores
 
   invisible(NULL)
 }
@@ -335,11 +351,41 @@ checkpoint_callback_path = function(cbs) {
   cbs[[1L]]$path
 }
 
+# The checkpoint belongs to one task and one train/validation split of it. A run that continues it
+# with other data restores a network that has seen rows this run holds out, and an early stopping
+# score that was measured on rows it now trains on -- neither of which anything downstream can
+# notice, so both are checked before the first thing is restored.
+# Both live in the folder's `run.rds`, written once with the first checkpoint, so a folder from
+# before it was recorded has no such file and cannot be checked.
+assert_resumable_task = function(ctx, path) {
+  run_file = file.path(path, "run.rds")
+  if (!file.exists(run_file)) {
+    return(invisible(NULL))
+  }
+  state = readRDS(run_file)
+  if (!identical(state$task_id, ctx$task_train$id)) {
+    stopf("The checkpoint in '%s' was written for task '%s', but this run trains on '%s'. Resume with the task the checkpoint was written for.", # nolint
+      path, state$task_id, ctx$task_train$id)
+  }
+  valid_ids = if (!is.null(ctx$task_valid)) ctx$task_valid$row_ids
+  if (xor(is.null(state$valid_row_ids), is.null(valid_ids))) {
+    stopf("The checkpoint in '%s' was written %s an internal validation split, but this run has %s one. Resume with the validation configuration the checkpoint was written with.", # nolint
+      path, if (is.null(state$valid_row_ids)) "without" else "with",
+      if (is.null(valid_ids)) "no" else "such")
+  }
+  if (!identical(sort(state$valid_row_ids), sort(valid_ids))) {
+    stopf("The checkpoint in '%s' was written for a different internal validation split: %i of its %i validation rows are also validation rows of this run. Note that `validate = <ratio>` draws a new split from R's random number generator in every run, which the 'seed' parameter does not govern. Use validate = \"predefined\" with a fixed internal validation task, or seed R's generator identically before each run.", # nolint
+      path, length(intersect(state$valid_row_ids, valid_ids)), length(state$valid_row_ids))
+  }
+  invisible(NULL)
+}
+
 # Restores `states` into the callbacks `cbs` of this run, matching them by id. `classes` are the
 # classes the callbacks had when the checkpoint was written, which is what makes a state that
 # belongs to a different callback detectable -- an id alone does not say what is behind it.
 # It is NULL for checkpoints written before the classes were recorded, which cannot be checked.
-load_callback_states = function(cbs, states, classes = NULL) {
+load_callback_states = function(cbs, state) {
+  states = state$callbacks
   if (!length(states)) return(invisible(NULL))
   unknown = setdiff(names(states), names(cbs))
   if (length(unknown)) {
@@ -350,12 +396,12 @@ load_callback_states = function(cbs, states, classes = NULL) {
   # checked for all of them before the first state is restored, so that a run resuming a checkpoint
   # that is not its own fails without having half-restored it
   mismatch = keep(shared, function(id) {
-    id %in% names(classes) && !identical(class(cbs[[id]])[[1L]], classes[[id]])
+    id %in% names(state$classes) && !identical(class(cbs[[id]])[[1L]], state$classes[[id]])
   })
   if (length(mismatch)) {
     stopf("The callbacks of this run are not the ones the checkpoint stored a state for: %s. States are matched by id, so restoring would feed the state of one callback into another. Resume with the callbacks the checkpoint was written with, or give the new ones ids of their own.", # nolint
       paste0(map_chr(mismatch, function(id) {
-        sprintf("'%s' was a <%s> and is a <%s>", id, classes[[id]], class(cbs[[id]])[[1L]])
+        sprintf("'%s' was a <%s> and is a <%s>", id, state$classes[[id]], class(cbs[[id]])[[1L]])
       }), collapse = ", "))
   }
   iwalk(states[shared], function(state, id) {

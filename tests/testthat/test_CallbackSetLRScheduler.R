@@ -387,19 +387,20 @@ describe("resuming", {
     # what matters is that the best score it has seen is restored rather than reset
     path = tempfile()
     args = list(cb.lr_reduce_on_plateau.patience = 1L, cb.lr_reduce_on_plateau.factor = 0.5)
+    task = task_with_valid()
     make = function(...) {
       learner = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
-        validate = 0.3, measures_valid = msrs("classif.ce"),
+        validate = "predefined", measures_valid = msrs("classif.ce"),
         callbacks = t_clbk("lr_reduce_on_plateau"), ...)
       learner$param_set$set_values(.values = args)
       learner
     }
     crashing_run(path, epochs = 4L, fail_at = 3L, callback = t_clbk("lr_reduce_on_plateau"),
-      values = args, validate = 0.3, measures_valid = msrs("classif.ce"))
+      values = args, task = task, validate = "predefined", measures_valid = msrs("classif.ce"))
 
     first = readRDS(file.path(path, "state2.rds"))$callbacks$lr_reduce_on_plateau
     resumed = make(resume = path)
-    resumed$train(tsk("iris"))
+    resumed$train(task)
 
     state = resumed$model$callbacks$lr_reduce_on_plateau
     # a run that started its schedule over would be at 2, the number of epochs it trained itself

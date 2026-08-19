@@ -9,20 +9,31 @@ Saves the optimizer, weights, and callback states every \code{freq} epochs as we
 This can be used to later continue a training run via the \code{resume} parameter of \code{\link{LearnerTorch}}.
 
 A folder holds the checkpoints of a single run, which is continued from where it ended: training
-errors when \code{epochs} is not greater than the most recent checkpoint in \code{path}, and a run never
+errors when \code{epochs} is less than the most recent checkpoint in \code{path}, and a run never
 writes over a checkpoint that is already there.
+When \code{epochs} is exactly that checkpoint, the run in the folder is already finished: it is
+loaded and returned, and nothing is written.
+Each file is checked again immediately before it is written and an existing one is an error, so
+a second run writing into the same folder is also caught when it started after this run did --
+the check the folder gets before training cannot see it.
+The exception is a checkpoint that was already half-written when this run started, which is what
+a run killed mid-write leaves behind and which may be completed.
 
 Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, three files
 are created in \code{path}:
 \itemize{
 \item \verb{network<n>.pt} :: The \verb{$state_dict()} of the network.
 \item \verb{optimizer<n>.pt} :: The \verb{$state_dict()} of the optimizer.
+Next to them, written once with the first checkpoint, is \code{run.rds}: the task the folder's run
+trains on and the rows of its internal validation split, which a resuming run is checked against.
 \item \verb{state<n>.rds} :: The epoch, the version of \code{mlr3torch} that wrote the checkpoint, as well as
-the \verb{$state_dict()}s of the other callbacks of the training run, so that a later run can
+the \verb{$state_dict()}s of the training run's other callbacks, so that a later run can
 continue e.g. the training history or the learning rate schedule.
 The class of each of those callbacks is recorded next to its state, which lets a resuming run
-notice that an id now stands for a different callback instead of restoring the state of one
+notice that an id stands for a callback of another class instead of restoring the state of one
 into the other.
+Callbacks of the same class are indistinguishable to that check, and \code{\link[=torch_callback]{torch_callback()}} names
+the class after the id, so a custom callback under a builtin's id is not caught by it.
 }
 }
 \details{
@@ -32,7 +43,10 @@ as the model slot is set \emph{after} the last callback step is executed.
 \section{Resuming}{
 
 This callback is special because it enables resuming a training run.
-It does not contain a state itself.
+Its own state is the folder it writes to, which \verb{learner$model$callbacks$<id>$path} reports --
+the only way to learn where a \code{path} function sent a run, e.g. one fit of a \code{resample()}.
+That state is not part of a checkpoint and is not restored: a resuming run writes where its own
+\code{path} says.
 }
 
 \section{Ordering}{
@@ -91,6 +105,7 @@ Always \code{Inf}, see section \emph{Ordering}.}
 \subsection{Public methods}{
   \itemize{
     \item \href{#method-CallbackSetCheckpoint-initialize}{\code{CallbackSetCheckpoint$new()}}
+    \item \href{#method-CallbackSetCheckpoint-state_dict}{\code{CallbackSetCheckpoint$state_dict()}}
     \item \href{#method-CallbackSetCheckpoint-on_begin}{\code{CallbackSetCheckpoint$on_begin()}}
     \item \href{#method-CallbackSetCheckpoint-on_epoch_end}{\code{CallbackSetCheckpoint$on_epoch_end()}}
     \item \href{#method-CallbackSetCheckpoint-on_end}{\code{CallbackSetCheckpoint$on_end()}}
@@ -101,7 +116,6 @@ Always \code{Inf}, see section \emph{Ordering}.}
 <ul>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>CallbackSet$load_state_dict()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>CallbackSet$state_dict()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -127,6 +141,20 @@ since a resuming run continues from the newest complete one.}
       \item{\code{freq}}{(\code{integer(1)})\cr
 How often the model is saved, in epochs.}
     }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-state_dict}{}}}
+\subsection{\code{CallbackSetCheckpoint$state_dict()}}{
+  Returns the folder this callback writes to, so that \verb{learner$model$callbacks$<id>$path}
+names it. This is the only place it can be read off a trained learner when \code{path} is a
+\verb{function()}, which is called once per training run.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetCheckpoint$state_dict()}
     \if{html}{\out{</div>}}
   }
 }

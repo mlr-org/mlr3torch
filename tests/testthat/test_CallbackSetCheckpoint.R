@@ -15,7 +15,7 @@ test_that("manual", {
   learner$train(task)
 
   expect_set_equal(
-    c(paste0("network", 1:3, ".pt"), paste0("optimizer", 1:3, ".pt"), paste0("state", 1:3, ".rds")),
+    c("run.rds", paste0("network", 1:3, ".pt"), paste0("optimizer", 1:3, ".pt"), paste0("state", 1:3, ".rds")),
     list.files(pth0)
   )
 
@@ -26,7 +26,7 @@ test_that("manual", {
   learner$train(task)
 
   expect_set_equal(
-    c("network2.pt", "optimizer2.pt", "state2.rds", "network3.pt", "optimizer3.pt", "state3.rds"),
+    c("run.rds", "network2.pt", "optimizer2.pt", "state2.rds", "network3.pt", "optimizer3.pt", "state3.rds"),
     list.files(pth2)
   )
   pred = learner$predict(tsk("iris"))
@@ -54,7 +54,7 @@ test_that("an existing empty directory can be checkpointed into", {
     callbacks = t_clbk("checkpoint", freq = 1, path = path))
   expect_no_error(learner$train(task))
   expect_set_equal(list.files(path),
-    c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt"), paste0("state", 1:2, ".rds")))
+    c("run.rds", paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt"), paste0("state", 1:2, ".rds")))
 })
 
 test_that("path can be a function, which makes checkpointing work with resample()", {
@@ -62,15 +62,19 @@ test_that("path can be a function, which makes checkpointing work with resample(
   dir.create(root)
   learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
     callbacks = t_clbk("checkpoint", freq = 1, path = function() tempfile(tmpdir = root)))
-  rr = resample(tsk("iris"), learner, rsmp("cv", folds = 3))
+  rr = resample(tsk("iris"), learner, rsmp("cv", folds = 3), store_models = TRUE)
   expect_equal(nrow(rr$errors), 0L)
 
   # every iteration checkpointed into a directory of its own
   dirs = list.dirs(root, recursive = FALSE)
   expect_length(dirs, 3L)
+
+  # which fit wrote which of them is only recoverable from the learners, since `path` is a function
+  fit_paths = map_chr(rr$learners, function(l) l$model$callbacks$checkpoint$path)
+  expect_set_equal(normalizePath(fit_paths), normalizePath(dirs))
   for (d in dirs) {
     expect_set_equal(list.files(d),
-      c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt"), paste0("state", 1:2, ".rds")))
+      c("run.rds", paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt"), paste0("state", 1:2, ".rds")))
   }
 })
 
@@ -86,7 +90,7 @@ test_that("an epoch that failed is not saved under its own number", {
 
   # 'network<n>.pt' is the network at the end of epoch n, and epoch 3 never reached its end, so
   # only what `freq` wrote at the end of epoch 2 remains
-  expect_set_equal(list.files(path), c("network2.pt", "optimizer2.pt", "state2.rds"))
+  expect_set_equal(list.files(path), c("run.rds", "network2.pt", "optimizer2.pt", "state2.rds"))
 
   # the final epoch is still stored when training completes normally, also when `freq` skips it
   path2 = tempfile()
@@ -94,7 +98,7 @@ test_that("an epoch that failed is not saved under its own number", {
     callbacks = t_clbk("checkpoint", freq = 2, path = path2))
   done$train(task)
   expect_set_equal(list.files(path2),
-    c("network2.pt", "optimizer2.pt", "state2.rds", "network3.pt", "optimizer3.pt", "state3.rds"))
+    c("run.rds", "network2.pt", "optimizer2.pt", "state2.rds", "network3.pt", "optimizer3.pt", "state3.rds"))
 })
 
 test_that("the state file holds the epoch and the states of the other callbacks", {
@@ -112,8 +116,9 @@ test_that("the state file holds the epoch and the states of the other callbacks"
   expect_data_table(state$callbacks$history)
   expect_equal(state$callbacks$history, learner$model$callbacks$history)
 
-  # the checkpoint callback itself is stateless and therefore not part of the file
+  # the checkpoint's own state is the folder it writes to, which a resuming run does not take over
   expect_true("checkpoint" %nin% names(state$callbacks))
+  expect_equal(learner$model$callbacks$checkpoint$path, path)
 
   # the class behind each id, so that a resuming run can tell the callbacks apart
   expect_equal(state$classes, c(history = "CallbackSetHistory"))
@@ -165,7 +170,7 @@ test_that("ending a run early still saves the epoch that finished", {
     callbacks = list(t_clbk("checkpoint", freq = 5, path = path), stopper))
   learner$train(task)
 
-  expect_set_equal(list.files(path), c("network3.pt", "optimizer3.pt", "state3.rds"))
+  expect_set_equal(list.files(path), c("run.rds", "network3.pt", "optimizer3.pt", "state3.rds"))
   expect_equal(readRDS(file.path(path, "state3.rds"))$epoch, 3L)
 })
 
@@ -190,7 +195,7 @@ test_that("a folder that already contains checkpoints can be checkpointed into",
   expect_no_warning(second$train(task))
 
   expect_set_equal(list.files(path),
-    c(paste0("network", 1:4, ".pt"), paste0("optimizer", 1:4, ".pt"), paste0("state", 1:4, ".rds")))
+    c("run.rds", paste0("network", 1:4, ".pt"), paste0("optimizer", 1:4, ".pt"), paste0("state", 1:4, ".rds")))
   expect_equal(as.numeric(torch_load(file.path(path, "network2.pt"))[[1L]]$flatten()), kept)
 })
 
@@ -210,7 +215,7 @@ test_that("the checkpoint of another run is never overwritten", {
   # refused before the first epoch, so the earlier run's checkpoint is untouched
   after = as.numeric(torch_load(file.path(path, "network1.pt"))[[1L]]$flatten())
   expect_equal(after, before)
-  expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt", "state1.rds"))
+  expect_set_equal(list.files(path), c("run.rds", "network1.pt", "optimizer1.pt", "state1.rds"))
 })
 
 test_that("a run that does not train past the latest checkpoint is refused", {
@@ -230,7 +235,39 @@ test_that("a run that does not train past the latest checkpoint is refused", {
   }
 
   # refused before the first epoch, so the earlier run's checkpoint is the only thing in the folder
-  expect_set_equal(list.files(path), c("network3.pt", "optimizer3.pt", "state3.rds"))
+  expect_set_equal(list.files(path), c("run.rds", "network3.pt", "optimizer3.pt", "state3.rds"))
+})
+
+test_that("a file that appears while a run is training is not written over", {
+  # what a second run writing into the same folder looks like from here: the folder is checked
+  # before training, so a file that shows up afterwards can only be caught right before the write
+  task = tsk("iris")
+  path = tempfile()
+  plant = torch_callback("Plant",
+    on_epoch_end = function() if (self$ctx$epoch == 2L) file.create(file.path(path, "optimizer2.pt")))
+
+  learner = lrn("classif.mlp", epochs = 3L, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 1, path = path), plant))
+  expect_error(learner$train(task), "another run is writing into the same folder")
+
+  # the clashing epoch is not written at all, not even the two files that did not clash
+  expect_set_equal(list.files(path),
+    c("run.rds", "network1.pt", "optimizer1.pt", "state1.rds", "optimizer2.pt"))
+})
+
+test_that("two fits of a resample() cannot share a checkpoint folder", {
+  # a fixed path gives every fit the same folder, so the second one continues neither its own run
+  # nor the first fit's -- it is refused before it trains, and `path` has to be a function
+  path = tempfile()
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  # resample() warns about cancelling the remaining iterations, which is not what is tested here
+  expect_error(suppressWarnings(resample(tsk("iris"), learner, rsmp("cv", folds = 2))),
+    "would not get past it")
+
+  # the first fit's checkpoints are untouched by the second fit's refusal
+  expect_set_equal(list.files(path),
+    c("run.rds", paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt"), paste0("state", 1:2, ".rds")))
 })
 
 test_that("a folder whose newest checkpoint is incomplete can be checkpointed into", {
@@ -245,7 +282,7 @@ test_that("a folder whose newest checkpoint is incomplete can be checkpointed in
   learner = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
     callbacks = t_clbk("checkpoint", freq = 1, path = path))
   expect_no_error(learner$train(tsk("iris")))
-  expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt", "state1.rds"))
+  expect_set_equal(list.files(path), c("run.rds", "network1.pt", "optimizer1.pt", "state1.rds"))
 })
 
 test_that("latest_checkpoint() finds the most recent complete checkpoint", {
