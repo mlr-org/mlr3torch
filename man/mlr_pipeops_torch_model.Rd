@@ -212,7 +212,8 @@ List of hyperparameter settings, overwriting the hyperparameter settings that wo
 otherwise be set during construction.}
       \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
 Converts the target columns of a batch into the target tensor \code{y}, passed to
-\code{\link{LearnerTorchModel}}. Needed for task types that do not provide a
+\code{\link{LearnerTorchModel}}. Takes an argument \code{data} and optionally an argument \code{x}, see
+\code{\link[=get_target_batchgetter]{get_target_batchgetter()}}. Needed for task types that do not provide a
 \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} method of their own, such as \code{\link{TaskTorch}}.}
     }
     \if{html}{\out{</div>}}

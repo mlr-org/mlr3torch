@@ -35,7 +35,8 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     #'   The task type of the model. Defaults to `"torch"`.
     #' @param target_batchgetter (`function()` or `NULL`)\cr
     #'   Converts the target columns of a batch into the target tensor `y`, passed to
-    #'   [`LearnerTorchModel`]. Needed for task types that do not provide a
+    #'   [`LearnerTorchModel`]. Takes an argument `data` and optionally an argument `x`, see
+    #'   [`get_target_batchgetter()`]. Needed for task types that do not provide a
     #'   [`get_target_batchgetter()`] method of their own, such as [`TaskTorch`].
     initialize = function(task_type = "torch", id = "torch_model", param_vals = list(),
       target_batchgetter = NULL) {

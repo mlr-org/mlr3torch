@@ -14,13 +14,19 @@ The task.}
 Additional arguments. Not used yet.}
 }
 \value{
-\verb{function(data)}
+\verb{function(data)} or \verb{function(data, x)}
 }
 \description{
 Returns the function that converts the target column(s) of a \code{task} into the target tensor
 \code{y} of a batch, i.e. the tensor that the loss is applied to.
-The returned function takes a single argument \code{data}, a \code{\link[data.table:data.table]{data.table}}
+The returned function takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}}
 containing only the target column(s), and returns a \code{\link[torch:torch_tensor]{torch_tensor}}.
+
+It may additionally declare an \code{x} argument, in which case it also receives the named list of
+feature tensors of the batch -- \code{\link[=get_batch_constructor]{get_batch_constructor()}} decides by looking at its formals.
+This is what a target that is a function of the \emph{input} needs: the reconstruction target of an
+autoencoder, a denoising or masked objective, contrastive pretraining. The methods for the
+built-in task types do not use it, because their target is a column.
 
 For the target encodings of the built-in task types, see section
 \emph{Network Head and Target Encoding} of \code{\link{LearnerTorch}}.

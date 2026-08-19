@@ -13,9 +13,11 @@ The task for which to build the \link[torch:dataset]{dataset}.}
 \item{feature_ingress_tokens}{(named \code{list()} of \code{\link{TorchIngressToken}})\cr
 Each ingress token defines one item in the \verb{$x} value of a batch with corresponding names.}
 
-\item{target_batchgetter}{(\verb{function(data, device)})\cr
-A function taking in arguments \code{data}, which is a \code{data.table} containing only the target variable, and \code{device}.
-It must return the target as a torch \link[torch:torch_tensor]{tensor} on the selected device.}
+\item{target_batchgetter}{(\verb{function(data)} or \code{NULL})\cr
+A function taking in an argument \code{data}, a \code{data.table} containing only the target column(s),
+that returns the target as a torch \link[torch:torch_tensor]{tensor}.
+If it declares an \code{x} argument, it additionally receives the named list of feature tensors of
+the batch, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.}
 }
 \value{
 \code{\link[torch:dataset]{torch::dataset}}

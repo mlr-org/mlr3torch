@@ -13,9 +13,11 @@
 #'   The task for which to build the [dataset][torch::dataset].
 #' @param feature_ingress_tokens (named `list()` of [`TorchIngressToken`])\cr
 #'   Each ingress token defines one item in the `$x` value of a batch with corresponding names.
-#' @param target_batchgetter (`function(data, device)`)\cr
-#'   A function taking in arguments `data`, which is a `data.table` containing only the target variable, and `device`.
-#'   It must return the target as a torch [tensor][torch::torch_tensor] on the selected device.
+#' @param target_batchgetter (`function(data)` or `NULL`)\cr
+#'   A function taking in an argument `data`, a `data.table` containing only the target column(s),
+#'   that returns the target as a torch [tensor][torch::torch_tensor].
+#'   If it declares an `x` argument, it additionally receives the named list of feature tensors of
+#'   the batch, see [`get_target_batchgetter()`].
 #' @export
 #' @return [`torch::dataset`]
 #' @examplesIf torch::torch_is_installed()
@@ -334,8 +336,14 @@ get_batch_constructor.default = function(task, feature_ingress_tokens, target_ba
 #' @description
 #' Returns the function that converts the target column(s) of a `task` into the target tensor
 #' `y` of a batch, i.e. the tensor that the loss is applied to.
-#' The returned function takes a single argument `data`, a [`data.table`][data.table::data.table]
+#' The returned function takes an argument `data`, a [`data.table`][data.table::data.table]
 #' containing only the target column(s), and returns a [`torch_tensor`][torch::torch_tensor].
+#'
+#' It may additionally declare an `x` argument, in which case it also receives the named list of
+#' feature tensors of the batch -- [`get_batch_constructor()`] decides by looking at its formals.
+#' This is what a target that is a function of the *input* needs: the reconstruction target of an
+#' autoencoder, a denoising or masked objective, contrastive pretraining. The methods for the
+#' built-in task types do not use it, because their target is a column.
 #'
 #' For the target encodings of the built-in task types, see section
 #' *Network Head and Target Encoding* of [`LearnerTorch`].
@@ -347,7 +355,7 @@ get_batch_constructor.default = function(task, feature_ingress_tokens, target_ba
 #'   The task.
 #' @param ... (any)\cr
 #'   Additional arguments. Not used yet.
-#' @return `function(data)`
+#' @return `function(data)` or `function(data, x)`
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' batchgetter = get_target_batchgetter(tsk("iris"))
