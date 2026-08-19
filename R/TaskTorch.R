@@ -13,11 +13,11 @@
 #' unsupervised depending only on whether target columns were given.
 #' Nothing beyond that is assumed about the structure of the problem.
 #'
-#' It inherits from [`TaskSupervised`][mlr3::TaskSupervised] even when it has no target columns,
-#' because that is what `mlr3` dispatches the ground truth of a prediction on: `as_prediction_data()`
-#' copies `task$truth()` into the prediction data only for a `TaskSupervised`.
-#' The one rule of that class which does not apply here, that there be at least one target column,
-#' is lifted in `task_check_col_roles.TaskTorch()` below.
+#' It inherits from [`Task`][mlr3::Task] directly rather than from
+#' [`TaskSupervised`][mlr3::TaskSupervised], because it is neither: the number of targets is a
+#' property of the instance, not of the class.
+#' `mlr3` attaches the ground truth to a prediction only for a `TaskSupervised`, so
+#' [`LearnerTorch`] attaches it itself, see `as_prediction_data.prediction_torch()`.
 #'
 #' Adding a proper task type to `mlr3` requires a `Task` class, a `Prediction` class, a handful of
 #' `PredictionData` methods, a `Measure` and a number of entries in
@@ -35,6 +35,22 @@
 #' `mlr3`.
 #' Use `TaskTorch` for experiments and one-off problems, and add a real task type when you package
 #' up a learning problem for others.
+#'
+#' @section Compatibility with other PipeOps: Not every
+#'   [`PipeOp`][mlr3pipelines::PipeOp] accepts a `TaskTorch`.
+#'   An operator declares the task class it takes on its input channel, so one that asks for a
+#'   [`TaskClassif`][mlr3::TaskClassif], a [`TaskRegr`][mlr3::TaskRegr] or a
+#'   [`TaskSupervised`][mlr3::TaskSupervised] refuses a `TaskTorch` with a type mismatch.
+#'   This rules out the target encoders -- `po("encodeimpact")`, `po("encodelmer")` and
+#'   `po("vtreat")` -- as well as the class balancing operators such as `po("smote")`.
+#'
+#'   Operators declaring a plain [`Task`][mlr3::Task] do work, which covers the ones you are likely
+#'   to want in front of a network: `po("scale")`, `po("pca")`, `po("encode")`,
+#'   `po("removeconstants")`, and all of `mlr3torch`'s own
+#'   [`PipeOpTaskPreprocTorch`] operators.
+#'   Note that these see a `TaskTorch` as a task without a target, so a
+#'   [`PipeOpTaskPreproc`][mlr3pipelines::PipeOpTaskPreproc] subclass of your own whose
+#'   `.train_dt()` uses its `target` argument will not work on one.
 #'
 #' @section What you have to specify: `mlr3torch` needs to know three things about a learning
 #'   problem, and a `TaskTorch` infers none of them, because the column types of a target say how it
@@ -135,7 +151,7 @@
 #' task
 #' output_dim_for(task)
 TaskTorch = R6Class("TaskTorch",
-  inherit = TaskSupervised,
+  inherit = Task,
   public = list(
     prediction_encoder = NULL,
     #' @field default_measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
@@ -146,7 +162,11 @@ TaskTorch = R6Class("TaskTorch",
     initialize = function(id, backend, target = character(0), label = NA_character_,
       output_dim = NULL, prediction_encoder = NULL, default_measure = NULL) {
       target = assert_character(target, any.missing = FALSE, null.ok = TRUE) %??% character(0)
-      super$initialize(id = id, task_type = "torch", backend = backend, target = target, label = label)
+      super$initialize(id = id, task_type = "torch", backend = backend, label = label)
+      # what `TaskSupervised$initialize()` does, except that no target at all is allowed
+      assert_subset(target, self$col_roles$feature)
+      self$col_roles$target = target
+      self$col_roles$feature = setdiff(self$col_roles$feature, target)
 
       self$output_dim = output_dim
       self$prediction_encoder = assert_function(prediction_encoder,
@@ -228,21 +248,6 @@ as_task_torch = function(x, target = character(0), id = deparse(substitute(x))[1
   TaskTorch$new(id = assert_string(id), backend = x, target = target, ...)
 }
 
-#' @export
-task_check_col_roles.TaskTorch = function(task, new_roles, ...) { # nolint
-  if (length(new_roles$target)) {
-    return(NextMethod())
-  }
-  # Unlike other supervised tasks, a TaskTorch may have no target columns at all.
-  # We therefore skip the method of TaskSupervised, which insists on at least one target, and run
-  # the checks of the Task base class directly.
-  task_check_col_roles_base(task, new_roles, ...)
-}
-
-task_check_col_roles_base = function(task, new_roles, ...) {
-  fun = utils::getS3method("task_check_col_roles", "Task", envir = asNamespace("mlr3"))
-  fun(task, new_roles, ...)
-}
 
 #' @export
 output_dim_for.TaskTorch = function(x, ...) { # nolint

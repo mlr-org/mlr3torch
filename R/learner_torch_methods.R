@@ -454,7 +454,7 @@ measure_prediction = function(network_output, measures, task, row_ids, predictio
   }
 
   prediction = prediction_encoder(network_output = network_output, task = task)
-  prediction = as_prediction_data(prediction, task = task, check = FALSE, row_ids = row_ids)
+  prediction = as_prediction_data_torch(prediction, task = task, check = FALSE, row_ids = row_ids)
   prediction = as_prediction(prediction, task = task, check = FALSE)
 
   lapply(

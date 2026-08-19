@@ -574,10 +574,14 @@ LearnerTorch = R6Class("LearnerTorch",
         stopf("Prediction task '%s' is invalid for learner '%s': %s", task$id, self$id, msg)
       }
 
-      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
+      pdata = with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
         num_interop_threads = param_vals$num_interop_threads, expr = {
         learner_torch_predict(self, private, super, task, param_vals)
       })
+      # `mlr3` calls `as_prediction_data()` on this, and dispatches the ground truth on the class
+      # of the task, which a `TaskTorch` is not the right kind of -- see `?TaskTorch`
+      class(pdata) = c("prediction_torch", "list")
+      pdata
     },
     .encode_prediction = function(network_output, task) {
       encode_prediction(

@@ -15,11 +15,11 @@ It may have any number of target columns, including none at all, so it is superv
 unsupervised depending only on whether target columns were given.
 Nothing beyond that is assumed about the structure of the problem.
 
-It inherits from \code{\link[mlr3:TaskSupervised]{TaskSupervised}} even when it has no target columns,
-because that is what \code{mlr3} dispatches the ground truth of a prediction on: \code{as_prediction_data()}
-copies \code{task$truth()} into the prediction data only for a \code{TaskSupervised}.
-The one rule of that class which does not apply here, that there be at least one target column,
-is lifted in \code{task_check_col_roles.TaskTorch()} below.
+It inherits from \code{\link[mlr3:Task]{Task}} directly rather than from
+\code{\link[mlr3:TaskSupervised]{TaskSupervised}}, because it is neither: the number of targets is a
+property of the instance, not of the class.
+\code{mlr3} attaches the ground truth to a prediction only for a \code{TaskSupervised}, so
+\code{\link{LearnerTorch}} attaches it itself, see \code{as_prediction_data.prediction_torch()}.
 
 Adding a proper task type to \code{mlr3} requires a \code{Task} class, a \code{Prediction} class, a handful of
 \code{PredictionData} methods, a \code{Measure} and a number of entries in
@@ -38,6 +38,24 @@ concerned, and mixing them up produces an error somewhere in \code{torch} instea
 Use \code{TaskTorch} for experiments and one-off problems, and add a real task type when you package
 up a learning problem for others.
 }
+\section{Compatibility with other PipeOps}{
+ Not every
+\code{\link[mlr3pipelines:PipeOp]{PipeOp}} accepts a \code{TaskTorch}.
+An operator declares the task class it takes on its input channel, so one that asks for a
+\code{\link[mlr3:TaskClassif]{TaskClassif}}, a \code{\link[mlr3:TaskRegr]{TaskRegr}} or a
+\code{\link[mlr3:TaskSupervised]{TaskSupervised}} refuses a \code{TaskTorch} with a type mismatch.
+This rules out the target encoders -- \code{po("encodeimpact")}, \code{po("encodelmer")} and
+\code{po("vtreat")} -- as well as the class balancing operators such as \code{po("smote")}.
+
+Operators declaring a plain \code{\link[mlr3:Task]{Task}} do work, which covers the ones you are likely
+to want in front of a network: \code{po("scale")}, \code{po("pca")}, \code{po("encode")},
+\code{po("removeconstants")}, and all of \code{mlr3torch}'s own
+\code{\link{PipeOpTaskPreprocTorch}} operators.
+Note that these see a \code{TaskTorch} as a task without a target, so a
+\code{\link[mlr3pipelines:PipeOpTaskPreproc]{PipeOpTaskPreproc}} subclass of your own whose
+\code{.train_dt()} uses its \code{target} argument will not work on one.
+}
+
 \section{What you have to specify}{
  \code{mlr3torch} needs to know three things about a learning
 problem, and a \code{TaskTorch} infers none of them, because the column types of a target say how it
@@ -122,8 +140,8 @@ output_dim_for(task)
 \dontshow{\}) # examplesIf}
 }
 \concept{Task}
-\section{Super classes}{
-\code{\link[mlr3:Task]{mlr3::Task}} -> \code{\link[mlr3:TaskSupervised]{mlr3::TaskSupervised}} -> \code{TaskTorch}
+\section{Super class}{
+\code{\link[mlr3:Task]{mlr3::Task}} -> \code{TaskTorch}
 }
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}

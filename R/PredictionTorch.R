@@ -211,6 +211,47 @@ as_prediction.PredictionDataTorch = function(x, check = TRUE, ...) { # nolint
   invoke(PredictionTorch$new, check = check, .args = x)
 }
 
+#' @title Prediction Data of a Torch Learner
+#' @description
+#' `mlr3` copies `task$truth()` into the prediction data only for a
+#' [`TaskSupervised`][mlr3::TaskSupervised], and a [`TaskTorch`] is not one -- it may have any
+#' number of target columns, including none.
+#' The private `.predict()` method of [`LearnerTorch`] therefore gives what it returns this class,
+#' so that this method runs instead of the one for a plain `list()` and adds the ground truth.
+#' @param x (`prediction_torch`)\cr
+#'   What `.predict()` returned, i.e. a named `list()` of prediction types.
+#' @param task ([`Task`][mlr3::Task])\cr
+#'   The task that was predicted on.
+#' @param row_ids (`integer()`)\cr
+#'   The predicted rows.
+#' @param check (`logical(1)`)\cr
+#'   Whether to check the assembled prediction data.
+#' @param ... (any)\cr
+#'   Passed on.
+#' @return [`PredictionData`][mlr3::PredictionData]
+# Everything that turns a network output into prediction data goes through here, so that the
+# method below runs. Tagging at the point of use rather than in `.encode_prediction()`, which a
+# learner may overwrite -- an overwritten one would silently produce a prediction without a truth.
+as_prediction_data_torch = function(x, task, row_ids = task$row_ids, check = TRUE) {
+  class(x) = c("prediction_torch", "list")
+  as_prediction_data(x, task = task, row_ids = row_ids, check = check)
+}
+
+#' @export
+as_prediction_data.prediction_torch = function(x, task, row_ids = task$row_ids, check = TRUE, ...) { # nolint
+  class(x) = "list"
+  # the truth is not among the predict types, so it cannot be passed in and has to be set afterwards
+  pdata = as_prediction_data(x, task = task, row_ids = row_ids, check = FALSE, ...)
+  if (is.null(pdata$truth)) {
+    # `NULL` for a task without target columns, which removes the element rather than setting it
+    pdata$truth = task$truth(row_ids)
+  }
+  if (check) {
+    pdata = check_prediction_data(pdata)
+  }
+  pdata
+}
+
 #' @export
 create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
   pdata = list(row_ids = integer())

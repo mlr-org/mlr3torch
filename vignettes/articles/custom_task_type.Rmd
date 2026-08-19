@@ -399,6 +399,35 @@ The consequences are worth being explicit about:
 * A learner built for one problem will accept a task from a completely different one. If the tensor shapes happen to line up, it trains, and you get a meaningless model rather than an error.
 * The same holds for measures: `mlr3` will not stop you scoring a multi-label prediction with a reconstruction error.
 * There is no dictionary entry for your problem. `lrn("torch.module")` and `po("torch_model")` are shared by everyone, so you cannot hand a colleague a learner id and have it mean your problem.
+* Not every `PipeOp` accepts a `TaskTorch`, see below.
+
+### Which PipeOps You Can Use {#sec-pipeops}
+
+A `PipeOp` declares on its input channel which task class it takes, and a `TaskTorch` is a `Task` but neither a `TaskClassif`, a `TaskRegr` nor a `TaskSupervised`.
+Operators asking for one of those refuse it with a type mismatch rather than a confusing error later:
+
+```{r custom_task_type-024b, error = TRUE}
+po("encodeimpact")$train(list(tsk_weather))
+```
+
+That rules out the target encoders -- `po("encodeimpact")`, `po("encodelmer")`, `po("vtreat")` -- and the classification-specific operators such as `po("smote")` and `po("classbalancing")`.
+You can list them yourself:
+
+```{r custom_task_type-024c}
+keys = mlr3pipelines::mlr_pipeops$keys()
+Filter(function(key) {
+  types = tryCatch(unique(po(key)$input$train), error = function(e) character())
+  any(types %in% c("TaskClassif", "TaskRegr", "TaskSupervised"))
+}, keys)
+```
+
+Everything declaring a plain `Task` works, which covers what you usually want in front of a network -- `po("scale")`, `po("pca")`, `po("encode")`, `po("removeconstants")` -- and all of `mlr3torch`'s own preprocessing operators:
+
+```{r custom_task_type-024d}
+po("scale")$train(list(tsk_weather))[[1L]]
+```
+
+One caveat if you write your own preprocessing operator: `PipeOpTaskPreproc` passes the target to `.train_dt()` only for a `TaskSupervised`, so on a `TaskTorch` your `.train_dt()` is called without it.
 
 > **When to write a real task type instead**
 >
