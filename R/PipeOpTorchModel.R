@@ -41,6 +41,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     initialize = function(task_type = "torch", id = "torch_model", param_vals = list(),
       target_batchgetter = NULL) {
       private$.task_type = assert_choice(task_type, mlr_reflections$task_types$type)
+      private$.target_batchgetter = target_batchgetter
 
       # loss, optimizer and callbacks are set to special values, that cause
       # them to become fields instead of construction arguments, otherwise we
@@ -110,8 +111,12 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       super$.train(list(md$task))
     },
     .task_type = NULL,
+    .target_batchgetter = NULL,
     .additional_phash_input = function() {
-      private$.task_type
+      # The batchgetter decides what `y` is, so two of these that build different targets are
+      # different operators. `private$.learner$phash` would cover it, but the learner is mutated
+      # while it trains, and this hash has to stay put -- see the tests in test_LearnerTorchModel.R.
+      list(private$.task_type, private$.target_batchgetter)
     }
   )
 )

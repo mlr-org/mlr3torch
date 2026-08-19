@@ -92,7 +92,9 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     .fn = NULL,
     .shapes_out_fn = NULL,
     .additional_phash_input = function() {
-      private$.fn
+      # `shapes_out` is as much a part of what this operator does as `fn` is; the param set too,
+      # since it is inferred from `fn` unless one is passed
+      list(private$.fn, private$.shapes_out_fn, self$param_set$ids())
     }
   )
 )

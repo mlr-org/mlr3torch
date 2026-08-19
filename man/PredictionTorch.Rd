@@ -71,6 +71,7 @@ The standard errors of the prediction.}
   response = NULL,
   prob = NULL,
   se = NULL,
+  weights = NULL,
   check = TRUE
 )}
     \if{html}{\out{</div>}}
@@ -90,6 +91,9 @@ The predicted response.}
 The predicted probabilities.}
       \item{\code{se}}{(any)\cr
 The standard errors of the prediction.}
+      \item{\code{weights}}{(\code{numeric()} or \code{NULL})\cr
+The measure weights of the predicted observations, i.e. the \code{weights_measure} column of the
+task. \code{mlr3} fills this in, so it rarely has to be passed by hand.}
       \item{\code{check}}{(\code{logical(1)})\cr
 Whether to check the consistency of the prediction data.}
     }

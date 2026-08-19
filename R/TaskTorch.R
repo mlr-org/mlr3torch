@@ -153,15 +153,11 @@
 TaskTorch = R6Class("TaskTorch",
   inherit = Task,
   public = list(
-    prediction_encoder = NULL,
-    #' @field default_measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
-    #'   See the construction argument.
-    default_measure = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, backend, target = character(0), label = NA_character_,
       output_dim = NULL, prediction_encoder = NULL, default_measure = NULL) {
-      target = assert_character(target, any.missing = FALSE, null.ok = TRUE) %??% character(0)
+      target = assert_character(target, any.missing = FALSE, unique = TRUE, null.ok = TRUE) %??% character(0)
       super$initialize(id = id, task_type = "torch", backend = backend, label = label)
       # what `TaskSupervised$initialize()` does, except that no target at all is allowed
       assert_subset(target, self$col_roles$feature)
@@ -169,9 +165,9 @@ TaskTorch = R6Class("TaskTorch",
       self$col_roles$feature = setdiff(self$col_roles$feature, target)
 
       self$output_dim = output_dim
-      self$prediction_encoder = assert_function(prediction_encoder,
+      private$.prediction_encoder = assert_function(prediction_encoder,
         args = c("task", "predict_tensor", "predict_type"), null.ok = TRUE)
-      self$default_measure = assert_r6(default_measure, "Measure", null.ok = TRUE)
+      private$.default_measure = assert_r6(default_measure, "Measure", null.ok = TRUE)
     },
     #' @description
     #' The ground truth, see section *Scoring*.
@@ -198,6 +194,19 @@ TaskTorch = R6Class("TaskTorch",
       calculate_hash(super$hash, self$default_measure$hash,
         private$.output_dim, self$prediction_encoder)
     },
+    #' @field prediction_encoder (`function()` or `NULL`)\cr
+    #'   See the construction argument. Read-only: it is part of the task's `hash`, so a task that
+    #'   changed it would no longer be the task that a cached result was computed for.
+    prediction_encoder = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.prediction_encoder
+    },
+    #' @field default_measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
+    #'   See the construction argument. Read-only, for the same reason as `prediction_encoder`.
+    default_measure = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.default_measure
+    },
     #' @field output_dim (`function()` or `NULL`)\cr
     #'   See the construction argument.
     #'   Use [`output_dim_for()`] to evaluate it.
@@ -211,8 +220,10 @@ TaskTorch = R6Class("TaskTorch",
   ),
   private = list(
     .output_dim = NULL,
+    .prediction_encoder = NULL,
+    .default_measure = NULL,
     deep_clone = function(name, value) {
-      if (name == "default_measure" && !is.null(value)) value$clone(deep = TRUE) else super$deep_clone(name, value)
+      if (name == ".default_measure" && !is.null(value)) value$clone(deep = TRUE) else super$deep_clone(name, value)
     }
   )
 )
@@ -246,6 +257,9 @@ TaskTorch = R6Class("TaskTorch",
 #' # unsupervised: no target at all
 #' as_task_torch(data.frame(a = rnorm(50), b = rnorm(50)))
 as_task_torch = function(x, target = character(0), id = deparse(substitute(x))[1L], ...) {
+  if (inherits(x, "TaskTorch")) {
+    return(x)
+  }
   TaskTorch$new(id = assert_string(id), backend = x, target = target, ...)
 }
 

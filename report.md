@@ -4,7 +4,10 @@ Adversarial review of the `TaskTorch` machinery at `3d9e45104`, branch `vignette
 
 Four agents were run, one per mechanism: truth attachment, hashing, `TaskTorch` as a plain
 `Task`, and resample/benchmark/tuning. Every finding below was reproduced by an agent and then
-re-verified independently before being written down. **Nothing has been fixed yet.**
+re-verified independently before being written down.
+
+**Status.** Everything marked FIXED below is done and verified; see the git log. 2.4 is open and
+needs a decision, and the addendum items A.1-A.5 have not been triaged.
 
 Provenance column: **new** = introduced by this branch, **exposed** = pre-existing code that only
 becomes reachable through `TaskTorch`, **upstream** = mlr3/mlr3misc behaviour.
@@ -44,48 +47,12 @@ explicitly (`msr("torch.default", minimize = FALSE, range = c(0, 1))`) tunes cor
 `.score()` errors if the stated direction contradicts the task's measure. Scoring and
 `$aggregate()` are unaffected, since neither consults `minimize`.
 
-### 1.2 Factory-built closures collide, and `benchmark()` then scores a row with another row's task · exposed
+### 1.3 `as.character(body(x))` drops argument names · upstream · **FIXED IN mlr3misc DEV**
 
-`hash_input.function()` is `list(formals(x), as.character(body(x)))` — the closure environment is
-deliberately ignored. `TaskTorch` and `MeasureTorch` are the first surfaces that hash
-*user-supplied* closures, so this now has teeth.
+Closed upstream; no action here. (1.2, the related closure-environment collision, was triaged as
+won't-fix and removed from this report.)
 
-```r
-make_odim = function(k) function(task) k
-t1 = tt_task(d, target = "y", id = "t", output_dim = make_odim(1L))
-t2 = tt_task(d, target = "y", id = "t", output_dim = make_odim(3L))
-t1$hash == t2$hash        #> TRUE   (output_dim_for gives 1 vs 3)
-
-bmr = benchmark(benchmark_grid(list(t1, t2), learner, rsmp("holdout")))
-nrow(bmr$tasks)           #> 1
-bmr$score(m)$odim         #> 1, 1   <- second row should be 3
-```
-
-`resample(t2, ...)$aggregate(m)` alone gives the right answer; only `benchmark()` collapses them.
-Confirmed identically for `prediction_encoder`, `MeasureTorch`'s `fun` and its `obs_loss`,
-`LearnerTorchModule`'s `target_batchgetter`, and factory-built `nn_module` generators.
-
-**Fix.** Hash the closure itself (`digest` includes the environment and was verified session-stable
-even with a torch tensor or an R6 task captured), or require `crate()` and fold
-`as.list(environment(x))` into a local `hash_input` method.
-
-### 1.3 `as.character(body(x))` drops argument names · upstream
-
-A body that is a single call loses its argument *names*, which is the common shape for a
-`prediction_encoder` or `output_dim`.
-
-```r
-as.character(quote(f(a = 1, b = 2)))   #> "f" "1" "2"
-as.character(quote(f(b = 1, a = 2)))   #> "f" "1" "2"   <- identical
-```
-
-So an encoder returning `list(response = x, prob = NULL)` and one returning
-`list(prob = x, response = NULL)` share a hash while producing different predictions. A `{ }` body
-is safe; one-liners are not.
-
-**Fix.** Upstream: `deparse(body(x))` keeps the names. Locally, 1.2's fix also covers this.
-
-### 1.4 `target_batchgetter` is absent from `PipeOpTorchModel`'s phash · exposed
+### 1.4 `target_batchgetter` is absent from `PipeOpTorchModel`'s phash · exposed · **FIXED**
 
 `PipeOpTorchModel$.additional_phash_input()` returns only `private$.task_type`, discarding
 `PipeOpLearner`'s `private$.learner$phash`; `LearnerTorchModel` omits the batchgetter too.
@@ -103,7 +70,7 @@ wrong one. `LearnerTorchModule` *does* include it — the sibling classes disagr
 **Fix.** `list(private$.task_type, private$.learner$phash)` in `PipeOpTorchModel`, and add
 `private$.target_batchgetter` to `LearnerTorchModel`.
 
-### 1.5 `weights_measure` is registered but unsupported, and misaligns silently · new
+### 1.5 `weights_measure` is registered but unsupported, and misaligns silently · new · **FIXED**
 
 `task_properties$torch` includes `weights_measure` and `measure_properties$torch` includes
 `weights`, but `PredictionTorch$new()` has no `weights` argument and `pt_elements` omits it.
@@ -133,7 +100,7 @@ plain numeric, so `pt_subset`/`pt_combine` already handle it), or drop `weights_
 `weights` from the reflections so the configuration is rejected up front. The same asymmetry
 applies to `extra`/`raw`, which mlr3 permits and `PredictionTorch$new()` cannot take.
 
-### 1.6 Validation measures receive the validation rows as `train_set` · exposed
+### 1.6 Validation measures receive the validation rows as `train_set` · exposed · **FIXED**
 
 `measure_prediction()` uses `train_set = task$row_roles$use`, and for the validation call that task
 is `ctx$task_valid`.
@@ -155,7 +122,7 @@ request `train_set`, so it was unobservable until `msr_torch()` made it easy to 
 
 ## Severity 2 — wrong state that surfaces as an opaque error
 
-### 2.1 Duplicated target names are accepted · new
+### 2.1 Duplicated target names are accepted · new · **FIXED**
 
 `TaskTorch$initialize()` calls `assert_character(target, any.missing = FALSE, null.ok = TRUE)`
 without `unique = TRUE`. `TaskRegr`/`TaskClassif` cannot reach this state because their
@@ -177,7 +144,7 @@ the target.
 **Fix.** `unique = TRUE` in the assertion, plus the same check in a `task_check_col_roles.TaskTorch`
 so the role cannot be duplicated after construction.
 
-### 2.2 `prediction_encoder` and `default_measure` are unvalidated public fields · new
+### 2.2 `prediction_encoder` and `default_measure` are unvalidated public fields · new · **FIXED**
 
 `output_dim` is an active binding that asserts; its two siblings are plain fields assigned only at
 construction.
@@ -193,7 +160,7 @@ t$hash                     #> Error: $ operator is invalid for atomic vectors
 
 **Fix.** Make both active bindings that re-run the constructor's assertions.
 
-### 2.3 `PipeOpTorchFn` drops everything `PipeOpTorch` hashes · exposed
+### 2.3 `PipeOpTorchFn` drops everything `PipeOpTorch` hashes · exposed · **FIXED**
 
 `.additional_phash_input()` returns only `private$.fn`, overriding the `PipeOpTorch` version that
 includes `private$.shapes_out_fn`, channel names and `param_set$ids()`.
@@ -206,7 +173,7 @@ q1$phash == q2$phash   #> TRUE, while the inferred shapes are NA x 1 vs NA x 7
 
 **Fix.** `c(super$.additional_phash_input(), list(private$.fn))`.
 
-### 2.4 `weights_learner` is registered but no `LearnerTorch` can declare `"weights"` · new
+### 2.4 `weights_learner` is registered but no `LearnerTorch` can declare `"weights"` · new · **OPEN — needs a decision**
 
 `task_col_roles$torch` and `task_properties$torch` include `weights_learner`, but
 `learner_properties$torch` is `c("validation", "internal_tuning", "marshal")`, and `Learner$new()`
@@ -223,7 +190,7 @@ consume `task$weights_learner` in the training loop.
 
 ## Severity 3 — real but narrow
 
-### 3.1 `msr("torch.default")` never reports a per-observation loss · new
+### 3.1 `msr("torch.default")` never reports a per-observation loss · new · **FIXED**
 
 `MeasureTorchDefault` delegates `.score()` but declares no `"obs_loss"` property and no
 `.obs_loss()`, so the delegation stops at scoring.
@@ -241,7 +208,7 @@ Contradicts the `MeasureTorch` docs, which say `obs_loss` is what `$obs_loss()` 
 per-task, so this needs an active binding on `$properties` or an unconditional property with an
 `NA` fallback.
 
-### 3.2 Predict-type filtering is asymmetric between the empty and the real prediction · new
+### 3.2 Predict-type filtering is asymmetric between the empty and the real prediction · new · **FIXED**
 
 `create_empty_prediction_data.TaskTorch()` filters the encoder output to the learner's
 `predict_type`; `learner_torch_predict()` does not filter at all.
@@ -258,7 +225,7 @@ bites on the failed-fold path.
 
 **Fix.** Filter in both places or neither.
 
-### 3.3 Address-based phash breaks cross-session reproducibility · exposed
+### 3.3 Address-based phash breaks cross-session reproducibility · exposed · **WON'T FIX**
 
 `PipeOpTaskPreprocTorch` and `PipeOpModule` hash `address(environment(self$fn))` /
 `address(self$module)`, so a `GraphLearner` containing any lazy-tensor preprocessing gets a
@@ -273,7 +240,7 @@ calls directly into digest"* — is false: `PipeOp$phash` is
 `hash_input.nn_module_generator` handle it. That trades the reproducibility break for the lesser
 collision in 1.2.
 
-### 3.4 Same-id descriptors collide · exposed
+### 3.4 Same-id descriptors collide · exposed · **ACCEPTED**
 
 `TorchDescriptor$phash` uses `class(self$generator)`, which for callbacks is always
 `R6ClassGenerator`.
@@ -288,7 +255,7 @@ the phash "only heuristic", but the heuristic fails for exactly the case the doc
 
 **Fix.** Hash `self$generator` rather than `class(self$generator)`.
 
-### 3.5 `as_task_torch()` cannot coerce an existing `Task` · new
+### 3.5 `as_task_torch()` cannot coerce an existing `Task` · new · **FIXED**
 
 ```r
 as_task_regr(tsk("mtcars"))                            #> TaskRegr

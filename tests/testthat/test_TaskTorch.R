@@ -370,6 +370,88 @@ test_that("the default measure does not fix an optimization direction", {
   )
 })
 
+test_that("a task cannot be built or mutated into an inconsistent state", {
+  d = tt_data(20L)
+  d$y = rnorm(nrow(d))
+
+  # duplicated targets used to give a task whose `$ncol` and `output_dim` counted them twice, and
+  # only `$truth()` eventually failed, from inside the backend
+  expect_error(tt_task(d, target = c("y", "y")), "Contains duplicated values")
+
+  # the fields that define the learning problem are part of `$hash`, so a task that changed one
+  # would no longer be the task a cached result was computed for
+  task = tt_task(d, target = "y")
+  expect_error(task$prediction_encoder <- 42, "read-only")
+  expect_error(task$default_measure <- 42, "read-only")
+  expect_function(task$prediction_encoder)
+})
+
+test_that("as_task_torch is the identity on a TaskTorch", {
+  task = tt_task_labels(10L)
+  expect_identical(as_task_torch(task), task)
+})
+
+test_that("a measure can be scored with observation weights", {
+  d = tt_data(40L)
+  d$a = d$x1 > 0
+  d$b = d$x2 > 0
+  # only the second half counts, so a weighted score must differ from the unweighted one
+  d$w = c(rep(0, 20L), rep(2, 20L))
+  task = tt_task(d, target = c("a", "b"), id = "w")
+  task$set_col_roles("w", "weights_measure")
+
+  learner = tt_learner(tt_loss_bce())
+  learner$train(task)
+  pred = learner$predict(task)
+  expect_numeric(pred$data$weights, len = task$nrow)
+
+  # declaring a `weights` argument adds the property, which is what lets mlr3 score at all
+  weighted = msr_torch("wham",
+    function(truth, response, weights) weighted.mean(rowMeans(as.matrix(truth) != response), weights),
+    range = c(0, 1))
+  expect_true("weights" %chin% weighted$properties)
+  expect_number(pred$score(weighted, task = task), lower = 0, upper = 1)
+
+  # mlr3 refuses a measure that does not declare them rather than ignoring them silently
+  plain = msr_torch("ham", function(truth, response) mean(as.matrix(truth) != response),
+    range = c(0, 1))
+  expect_error(pred$score(plain, task = task), "does not support weights")
+
+  # they are subset and combined with the observations they belong to
+  pred$filter(task$row_ids[c(2L, 4L)])
+  expect_numeric(pred$data$weights, len = 2L)
+  rr = resample(task, learner, rsmp("cv", folds = 2L))
+  expect_numeric(rr$prediction()$data$weights, len = task$nrow)
+  expect_number(rr$aggregate(weighted), lower = 0, upper = 1)
+})
+
+test_that("a prediction never carries a predict type its learner does not have", {
+  d = tt_data(30L)
+  d$a = d$x1 > 0
+  d$b = d$x2 > 0
+  # an encoder that returns `prob` whatever it was asked for
+  task = tt_task(d, target = c("a", "b"), id = "pt", output_dim = function(task) 2L,
+    prediction_encoder = function(task, predict_tensor, predict_type) {
+      prob = as.matrix(with_no_grad(nnf_sigmoid(predict_tensor))$to(device = "cpu"))
+      colnames(prob) = task$target_names
+      list(response = prob > 0.5, prob = prob)
+    })
+
+  learner = tt_learner(tt_loss_bce())
+  learner$train(task)
+  expect_equal(learner$predict(task)$predict_types, "response")
+
+  # ... which is what lets it combine with the empty prediction of a failed fold
+  expect_data_table(
+    as.data.table(as_prediction(c(create_empty_prediction_data(task, learner),
+      learner$predict(task)$data))),
+    nrows = task$nrow
+  )
+
+  learner$predict_type = "prob"
+  expect_set_equal(learner$predict(task)$predict_types, c("response", "prob"))
+})
+
 test_that("the default measure of a task is used by aggregate()", {
   d = tt_data(40L)
   d$y = rnorm(nrow(d))

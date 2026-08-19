@@ -8,11 +8,13 @@
 #' Use [`msr_torch()`] to construct one.
 #'
 #' The function receives whichever of the arguments `truth`, `response`, `prob`, `se`, `prediction`,
-#' `task`, `learner` and `train_set` it declares, and returns a single number.
+#' `task`, `learner`, `train_set` and `weights` it declares, and returns a single number.
 #' What `truth`, `response` and `prob` look like depends on the task, see section *Inference* of
 #' [`TaskTorch`].
 #' Declaring a `task`, `learner` or `train_set` argument automatically adds the corresponding
-#' `"requires_*"` property, which is what makes `mlr3` pass it.
+#' `"requires_*"` property, which is what makes `mlr3` pass it, and declaring `weights` adds the
+#' `"weights"` property. `mlr3` refuses to score a task with a `weights_measure` column using a
+#' measure that does not declare them, rather than ignoring them silently.
 #' A task without target columns has no `truth`, so its measures read the ground truth from the
 #' `task` instead.
 #'
@@ -70,6 +72,9 @@ MeasureTorch = R6Class("MeasureTorch",
           properties = union(properties, paste0("requires_", arg))
         }
       }
+      if ("weights" %in% args) {
+        properties = union(properties, "weights")
+      }
       super$initialize(
         id = assert_string(id),
         task_type = "torch",
@@ -107,12 +112,14 @@ MeasureTorch = R6Class("MeasureTorch",
 )
 
 # what a `MeasureTorch` function may ask for; `train_set` is only available when scoring
-mt_arg_names = c("truth", "response", "prob", "se", "prediction", "task", "learner", "train_set")
+mt_arg_names = c("truth", "response", "prob", "se", "prediction", "task", "learner", "train_set",
+  "weights")
 
 mt_invoke = function(fun, prediction, task = NULL, learner = NULL, train_set = NULL) {
   args = list(truth = prediction$truth, response = prediction$response,
     prob = prediction$prob, se = prediction$se,
-    task = task, learner = learner, train_set = train_set, prediction = prediction)
+    task = task, learner = learner, train_set = train_set, prediction = prediction,
+    weights = prediction$weights)
   args = args[intersect(names(formals(fun)), names(args))]
   invoke(fun, .args = args)
 }
@@ -128,7 +135,7 @@ mt_invoke = function(fun, prediction, task = NULL, learner = NULL, train_set = N
 #' @param fun (`function()`)\cr
 #'   The scoring function.
 #'   It receives whichever of the arguments `truth`, `response`, `prob`, `se`, `prediction`, `task`,
-#'   `learner` and `train_set` it declares, and returns a single number.
+#'   `learner`, `train_set` and `weights` it declares, and returns a single number.
 #' @param minimize (`logical(1)`)\cr
 #'   Whether a smaller score is better.
 #' @param range (`numeric(2)`)\cr
@@ -137,8 +144,8 @@ mt_invoke = function(fun, prediction, task = NULL, learner = NULL, train_set = N
 #'   The predict type the measure requires: `"response"` (default), `"prob"` or `"se"`.
 #' @param properties (`character()`)\cr
 #'   Properties of the measure, see [`Measure`][mlr3::Measure].
-#'   The `"requires_task"`, `"requires_learner"` and `"requires_train_set"` properties are added
-#'   automatically when `fun` declares the corresponding argument.
+#'   The `"requires_task"`, `"requires_learner"`, `"requires_train_set"` and `"weights"` properties
+#'   are added automatically when `fun` declares the corresponding argument.
 #' @param label (`character(1)`)\cr
 #'   The label of the measure.
 #' @param obs_loss (`function()` or `NULL`)\cr
@@ -201,7 +208,10 @@ MeasureTorchDefault = R6Class("MeasureTorchDefault",
         id = "torch.default",
         task_type = "torch",
         predict_type = "response",
-        properties = "requires_task",
+        # `obs_loss` is declared so that `$obs_loss()` reaches the method below: without the
+        # property `Measure` returns NA before dispatching, and a per-observation loss that the
+        # task's measure does define would look like one that does not exist
+        properties = c("requires_task", "obs_loss"),
         range = assert_numeric(range, len = 2L, any.missing = FALSE),
         minimize = assert_flag(minimize, na.ok = TRUE),
         label = "Default Measure for a TaskTorch",
@@ -221,6 +231,9 @@ MeasureTorchDefault = R6Class("MeasureTorchDefault",
         stopf("Measure 'torch.default' was constructed with minimize = %s, but the default measure '%s' of task '%s' has minimize = %s.", self$minimize, measure$id, task$id, measure$minimize) # nolint
       }
       measure$score(prediction, task = task, learner = learner, train_set = train_set)
+    },
+    .obs_loss = function(prediction, task, learner = NULL, ...) {
+      stopf("Measure 'torch.default' does not delegate the per-observation loss, because whether the default measure of task '%s' has one is not known when this measure is constructed. Score with that measure directly.", task$id) # nolint
     }
   )
 )

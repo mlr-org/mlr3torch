@@ -159,7 +159,8 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     # set by `PipeOpTorchModel`, see `.network()` above
     .reset_parameters_ = FALSE,
     .additional_phash_input = function() {
-      list(self$properties, self$feature_types, private$.network_hash, self$packages, private$.ingress_tokens_)
+      list(self$properties, self$feature_types, private$.network_hash, self$packages,
+        private$.ingress_tokens_, private$.target_batchgetter)
      }
   )
 )

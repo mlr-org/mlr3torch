@@ -15,7 +15,19 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
   self$network$eval()
   data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
   network_output = torch_network_predict(self$network, data_loader, device = param_vals$device)
-  private$.encode_prediction(network_output = network_output, task = task)
+  encoded = private$.encode_prediction(network_output = network_output, task = task)
+  # An encoder may return more than the learner was asked for. Keeping it would make a prediction
+  # claim a type its learner does not have, and combining that with one built for the declared type
+  # -- an empty prediction, say -- is an error, which is how this used to surface.
+  filter_predict_types(encoded, self)
+}
+
+filter_predict_types = function(encoded, learner) {
+  keep = mlr_reflections$learner_predict_types[[learner$task_type]][[learner$predict_type]]
+  if (is.null(keep)) {
+    return(encoded)
+  }
+  encoded[intersect(names(encoded), keep)]
 }
 
 learner_torch_train = function(self, private, super, task, param_vals) {
@@ -234,7 +246,9 @@ train_loop = function(ctx, cbs) {
         measures = ctx$measures_valid,
         task = ctx$task_valid,
         row_ids = ctx$task_valid$row_ids,
-        prediction_encoder = ctx$prediction_encoder
+        prediction_encoder = ctx$prediction_encoder,
+        # scored on the validation task, but `train_set` means the rows the model was fitted on
+        train_set = ctx$task_train$row_roles$use
       )
       ctx$network$train()
       call("on_valid_end")
@@ -448,7 +462,8 @@ encode_prediction.TaskRegr = function(task, network_output, predict_type, ...) {
 }
 
 
-measure_prediction = function(network_output, measures, task, row_ids, prediction_encoder) {
+measure_prediction = function(network_output, measures, task, row_ids, prediction_encoder,
+  train_set = task$row_roles$use) {
   if (!length(measures)) {
     return(structure(list(), names = character(0)))
   }
@@ -461,7 +476,7 @@ measure_prediction = function(network_output, measures, task, row_ids, predictio
     measures,
     function(measure) {
       tryCatch(
-        measure$score(prediction, task = task, train_set = task$row_roles$use),
+        measure$score(prediction, task = task, train_set = train_set),
         error = function(e) NaN
       )
     }

@@ -24,6 +24,9 @@
 #'   The predicted probabilities.
 #' @param se (any)\cr
 #'   The standard errors of the prediction.
+#' @param weights (`numeric()` or `NULL`)\cr
+#'   The measure weights of the predicted observations, i.e. the `weights_measure` column of the
+#'   task. `mlr3` fills this in, so it rarely has to be passed by hand.
 #' @param check (`logical(1)`)\cr
 #'   Whether to check the consistency of the prediction data.
 #'
@@ -40,8 +43,9 @@ PredictionTorch = R6Class("PredictionTorch",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task = NULL, row_ids = task$row_ids,
       truth = if (!is.null(task)) task$truth(row_ids), response = NULL, prob = NULL, se = NULL,
-      check = TRUE) {
-      pdata = discard(list(row_ids = row_ids, truth = truth, response = response, prob = prob, se = se), is.null)
+      weights = NULL, check = TRUE) {
+      pdata = discard(list(row_ids = row_ids, truth = truth, response = response, prob = prob,
+        se = se, weights = weights), is.null)
       class(pdata) = c("PredictionDataTorch", "PredictionData")
       if (check) {
         pdata = check_prediction_data(pdata)
@@ -78,7 +82,9 @@ PredictionTorch = R6Class("PredictionTorch",
 # The elements a prediction of a generic torch task can carry. `truth` comes from the task, the
 # others are whatever the prediction encoder returned, filtered by the learner's predict type.
 pt_predict_types = c("response", "prob", "se")
-pt_elements = c("truth", pt_predict_types)
+# `weights` is not a predict type but is subset and combined like one; `mlr3` puts it there for a
+# task with a `weights_measure` column and `Measure$score()` reads it back out
+pt_elements = c("truth", pt_predict_types, "weights")
 
 # `truth`, `response` and `prob` of a PredictionDataTorch can be anything the task's prediction
 # encoder produced: a vector, a `data.table`, an array of any dimensionality -- an autoencoder over
@@ -260,6 +266,9 @@ create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
   if (!is.null(truth)) {
     pdata$truth = truth
   }
+  if ("weights_measure" %chin% task$properties) {
+    pdata$weights = numeric()
+  }
 
   # An empty prediction has to have the same storage as a non-empty one so that the two can be
   # combined, and only the prediction encoder knows what that is, so we ask it to encode an empty
@@ -334,7 +343,7 @@ filter_prediction_data.PredictionDataTorch = function(pdata, row_ids, ...) { # n
 as.data.table.PredictionTorch = function(x, ...) { # nolint
   tabs = c(
     list(data.table(row_ids = x$data$row_ids)),
-    lapply(intersect(pt_elements, names(x$data)), function(nm) {
+    lapply(intersect(c("truth", pt_predict_types), names(x$data)), function(nm) {
       pt_as_columns(x$data[[nm]], nm)
     })
   )

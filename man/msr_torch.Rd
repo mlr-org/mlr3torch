@@ -22,7 +22,7 @@ The id of the measure.}
 \item{fun}{(\verb{function()})\cr
 The scoring function.
 It receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{prediction}, \code{task},
-\code{learner} and \code{train_set} it declares, and returns a single number.}
+\code{learner}, \code{train_set} and \code{weights} it declares, and returns a single number.}
 
 \item{minimize}{(\code{logical(1)})\cr
 Whether a smaller score is better.}
@@ -35,8 +35,8 @@ The predict type the measure requires: \code{"response"} (default), \code{"prob"
 
 \item{properties}{(\code{character()})\cr
 Properties of the measure, see \code{\link[mlr3:Measure]{Measure}}.
-The \code{"requires_task"}, \code{"requires_learner"} and \code{"requires_train_set"} properties are added
-automatically when \code{fun} declares the corresponding argument.}
+The \code{"requires_task"}, \code{"requires_learner"}, \code{"requires_train_set"} and \code{"weights"} properties
+are added automatically when \code{fun} declares the corresponding argument.}
 
 \item{label}{(\code{character(1)})\cr
 The label of the measure.}

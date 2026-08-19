@@ -10,11 +10,13 @@ Wraps a plain R function into a \code{\link[mlr3:Measure]{Measure}} that scores 
 Use \code{\link[=msr_torch]{msr_torch()}} to construct one.
 
 The function receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{prediction},
-\code{task}, \code{learner} and \code{train_set} it declares, and returns a single number.
+\code{task}, \code{learner}, \code{train_set} and \code{weights} it declares, and returns a single number.
 What \code{truth}, \code{response} and \code{prob} look like depends on the task, see section \emph{Inference} of
 \code{\link{TaskTorch}}.
 Declaring a \code{task}, \code{learner} or \code{train_set} argument automatically adds the corresponding
-\code{"requires_*"} property, which is what makes \code{mlr3} pass it.
+\code{"requires_*"} property, which is what makes \code{mlr3} pass it, and declaring \code{weights} adds the
+\code{"weights"} property. \code{mlr3} refuses to score a task with a \code{weights_measure} column using a
+measure that does not declare them, rather than ignoring them silently.
 A task without target columns has no \code{truth}, so its measures read the ground truth from the
 \code{task} instead.
 

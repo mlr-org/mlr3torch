@@ -143,14 +143,6 @@ output_dim_for(task)
 \section{Super class}{
 \code{\link[mlr3:Task]{mlr3::Task}} -> \code{TaskTorch}
 }
-\section{Public fields}{
-  \if{html}{\out{<div class="r6-fields">}}
-  \describe{
-    \item{\code{default_measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
-See the construction argument.}
-  }
-  \if{html}{\out{</div>}}
-}
 \section{Active bindings}{
   \if{html}{\out{<div class="r6-active-bindings">}}
   \describe{
@@ -159,6 +151,13 @@ The hash of the task.
 In addition to what \code{\link[mlr3:Task]{Task}} hashes, this covers the fields that define the
 learning problem, so that two tasks over the same data but with different encodings do not
 collide.}
+
+    \item{\code{prediction_encoder}}{(\verb{function()} or \code{NULL})\cr
+See the construction argument. Read-only: it is part of the task's \code{hash}, so a task that
+changed it would no longer be the task that a cached result was computed for.}
+
+    \item{\code{default_measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
+See the construction argument. Read-only, for the same reason as \code{prediction_encoder}.}
 
     \item{\code{output_dim}}{(\verb{function()} or \code{NULL})\cr
 See the construction argument.
