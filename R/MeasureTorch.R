@@ -16,6 +16,11 @@
 #' A task without target columns has no `truth`, so its measures read the ground truth from the
 #' `task` instead.
 #'
+#' Passing `obs_loss` additionally gives the measure a per-observation loss, which is what
+#' `$obs_loss()` and `as.data.table(prediction)` of a [`ResampleResult`][mlr3::ResampleResult]
+#' report. It is declared the same way as `fun`, except that there is no `train_set` to ask for,
+#' and it returns one number per observation rather than one number.
+#'
 #' @param id (`character(1)`)\cr
 #'   The id of the measure.
 #' @param fun (`function()`)\cr
@@ -30,6 +35,10 @@
 #'   Properties of the measure, see [`Measure`][mlr3::Measure].
 #' @param label (`character(1)`)\cr
 #'   The label of the measure.
+#' @param obs_loss (`function()` or `NULL`)\cr
+#'   The per-observation loss, see above. If `NULL` (default), the measure has none and
+#'   `$obs_loss()` returns `NA`, which is what [`Measure`][mlr3::Measure] does without the
+#'   `"obs_loss"` property.
 #'
 #' @family Measure
 #' @export
@@ -44,9 +53,17 @@ MeasureTorch = R6Class("MeasureTorch",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, fun, minimize = TRUE, range = c(-Inf, Inf), predict_type = "response",
-      properties = character(), label = NA_character_) {
+      properties = character(), label = NA_character_, obs_loss = NULL) {
       private$.fun = assert_function(fun)
-      args = names(formals(fun))
+      private$.obs_loss_fun = assert_function(obs_loss, null.ok = TRUE)
+      if (!is.null(obs_loss)) {
+        # `Measure$obs_loss()` is not given a `train_set`, so a function asking for one could never
+        # be called -- rejected here rather than at the first scoring
+        assert_subset(names(formals(obs_loss)), setdiff(mt_arg_names, "train_set"),
+          .var.name = "arguments of `obs_loss`")
+        properties = union(properties, "obs_loss")
+      }
+      args = c(names(formals(fun)), if (!is.null(obs_loss)) names(formals(obs_loss)))
       # asking for one of these is what tells mlr3 to pass it to `$score()`
       for (arg in c("task", "learner", "train_set")) {
         if (arg %in% args) {
@@ -74,20 +91,31 @@ MeasureTorch = R6Class("MeasureTorch",
     #'   indistinguishable to everything that caches by hash.
     hash = function(rhs) {
       assert_ro_binding(rhs)
-      calculate_hash(super$hash, private$.fun)
+      calculate_hash(super$hash, private$.fun, private$.obs_loss_fun)
     }
   ),
   private = list(
     .fun = NULL,
+    .obs_loss_fun = NULL,
     .score = function(prediction, task = NULL, learner = NULL, train_set = NULL, ...) {
-      args = list(truth = prediction$truth, response = prediction$response,
-        prob = prediction$prob, se = prediction$se,
-        task = task, learner = learner, train_set = train_set, prediction = prediction)
-      args = args[intersect(names(formals(private$.fun)), names(args))]
-      invoke(private$.fun, .args = args)
+      mt_invoke(private$.fun, prediction, task = task, learner = learner, train_set = train_set)
+    },
+    .obs_loss = function(prediction, task = NULL, learner = NULL, ...) {
+      mt_invoke(private$.obs_loss_fun, prediction, task = task, learner = learner)
     }
   )
 )
+
+# what a `MeasureTorch` function may ask for; `train_set` is only available when scoring
+mt_arg_names = c("truth", "response", "prob", "se", "prediction", "task", "learner", "train_set")
+
+mt_invoke = function(fun, prediction, task = NULL, learner = NULL, train_set = NULL) {
+  args = list(truth = prediction$truth, response = prediction$response,
+    prob = prediction$prob, se = prediction$se,
+    task = task, learner = learner, train_set = train_set, prediction = prediction)
+  args = args[intersect(names(formals(fun)), names(args))]
+  invoke(fun, .args = args)
+}
 
 #' @title Create a Measure for a Generic Torch Task
 #'
@@ -113,15 +141,23 @@ MeasureTorch = R6Class("MeasureTorch",
 #'   automatically when `fun` declares the corresponding argument.
 #' @param label (`character(1)`)\cr
 #'   The label of the measure.
+#' @param obs_loss (`function()` or `NULL`)\cr
+#'   The per-observation loss. Declared like `fun`, except that there is no `train_set` to ask for,
+#'   and returns one number per observation. Adds the `"obs_loss"` property.
 #' @return [`MeasureTorch`]
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' m = msr_torch("hamming", function(truth, response) mean(as.matrix(truth) != response))
 #' m$properties
+#'
+#' # with a per-observation loss
+#' m = msr_torch("mse", function(truth, response) mean((truth - response)^2),
+#'   obs_loss = function(truth, response) (truth - response)^2)
+#' m$properties
 msr_torch = function(id, fun, minimize = TRUE, range = c(-Inf, Inf), predict_type = "response",
-  properties = character(), label = NA_character_) {
+  properties = character(), label = NA_character_, obs_loss = NULL) {
   MeasureTorch$new(id = id, fun = fun, minimize = minimize, range = range,
-    predict_type = predict_type, properties = properties, label = label)
+    predict_type = predict_type, properties = properties, label = label, obs_loss = obs_loss)
 }
 
 #' @title Default Measure of a Generic Torch Task

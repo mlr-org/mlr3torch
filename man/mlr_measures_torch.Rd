@@ -17,6 +17,11 @@ Declaring a \code{task}, \code{learner} or \code{train_set} argument automatical
 \code{"requires_*"} property, which is what makes \code{mlr3} pass it.
 A task without target columns has no \code{truth}, so its measures read the ground truth from the
 \code{task} instead.
+
+Passing \code{obs_loss} additionally gives the measure a per-observation loss, which is what
+\verb{$obs_loss()} and \code{as.data.table(prediction)} of a \code{\link[mlr3:ResampleResult]{ResampleResult}}
+report. It is declared the same way as \code{fun}, except that there is no \code{train_set} to ask for,
+and it returns one number per observation rather than one number.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -77,7 +82,8 @@ indistinguishable to everything that caches by hash.}
   range = c(-Inf, Inf),
   predict_type = "response",
   properties = character(),
-  label = NA_character_
+  label = NA_character_,
+  obs_loss = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -98,6 +104,10 @@ The predict type the measure requires: \code{"response"} (default), \code{"prob"
 Properties of the measure, see \code{\link[mlr3:Measure]{Measure}}.}
       \item{\code{label}}{(\code{character(1)})\cr
 The label of the measure.}
+      \item{\code{obs_loss}}{(\verb{function()} or \code{NULL})\cr
+The per-observation loss, see above. If \code{NULL} (default), the measure has none and
+\verb{$obs_loss()} returns \code{NA}, which is what \code{\link[mlr3:Measure]{Measure}} does without the
+\code{"obs_loss"} property.}
     }
     \if{html}{\out{</div>}}
   }

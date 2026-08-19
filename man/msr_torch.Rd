@@ -11,7 +11,8 @@ msr_torch(
   range = c(-Inf, Inf),
   predict_type = "response",
   properties = character(),
-  label = NA_character_
+  label = NA_character_,
+  obs_loss = NULL
 )
 }
 \arguments{
@@ -39,6 +40,10 @@ automatically when \code{fun} declares the corresponding argument.}
 
 \item{label}{(\code{character(1)})\cr
 The label of the measure.}
+
+\item{obs_loss}{(\verb{function()} or \code{NULL})\cr
+The per-observation loss. Declared like \code{fun}, except that there is no \code{train_set} to ask for,
+and returns one number per observation. Adds the \code{"obs_loss"} property.}
 }
 \value{
 \code{\link{MeasureTorch}}
@@ -50,6 +55,11 @@ Short form for constructing a \code{\link{MeasureTorch}}, the quick way to score
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 m = msr_torch("hamming", function(truth, response) mean(as.matrix(truth) != response))
+m$properties
+
+# with a per-observation loss
+m = msr_torch("mse", function(truth, response) mean((truth - response)^2),
+  obs_loss = function(truth, response) (truth - response)^2)
 m$properties
 \dontshow{\}) # examplesIf}
 }

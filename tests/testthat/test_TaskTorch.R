@@ -384,6 +384,53 @@ test_that("a measure declares what it asks for", {
   expect_equal(unname(rr$aggregate(measure)), 20)
 })
 
+test_that("a measure can report a per observation loss", {
+  d = tt_data(40L)
+  d$y = rnorm(nrow(d))
+  task = tt_task(d, target = "y")
+
+  measure = msr_torch("mse", function(truth, response) mean((truth - response)^2),
+    obs_loss = function(truth, response) (truth - response)^2, range = c(0, Inf))
+  expect_true("obs_loss" %chin% measure$properties)
+
+  learner = tt_learner(t_loss("mse"))
+  learner$train(task)
+  pred = learner$predict(task)
+  losses = measure$obs_loss(pred)
+  expect_numeric(losses, len = task$nrow, lower = 0, any.missing = FALSE)
+  expect_equal(mean(losses), unname(pred$score(measure)))
+
+  # `Measure` reports NA without the property, rather than erroring on the missing function
+  plain = msr_torch("plain", function(truth, response) mean((truth - response)^2))
+  expect_true("obs_loss" %nin% plain$properties)
+  expect_true(all(is.na(plain$obs_loss(pred))))
+
+  # ... and it reaches the place that reports it
+  rr = resample(task, learner, rsmp("cv", folds = 2L))
+  tab = rr$obs_loss(measure)
+  expect_data_table(tab, nrows = task$nrow)
+  expect_numeric(tab$mse, lower = 0, any.missing = FALSE)
+})
+
+test_that("an obs_loss declares what it asks for", {
+  # the same arguments as the scoring function, and they add the same properties
+  measure = msr_torch("a", function(truth, response) 1,
+    obs_loss = function(task, prediction) rep(1, length(prediction$row_ids)))
+  expect_set_equal(measure$properties, c("obs_loss", "requires_task"))
+
+  # `Measure$obs_loss()` is never given a train_set, so asking for one cannot work
+  expect_error(
+    msr_torch("b", function(truth, response) 1, obs_loss = function(truth, train_set) 1),
+    "arguments of `obs_loss`", fixed = TRUE
+  )
+
+  # two measures differing only in their obs_loss are not the same measure
+  expect_false(
+    msr_torch("c", function(truth, response) 1, obs_loss = function(truth) 1)$hash ==
+      msr_torch("c", function(truth, response) 1, obs_loss = function(truth) 2)$hash
+  )
+})
+
 test_that("the default measure of a task is used by aggregate()", {
   d = tt_data(40L)
   d$y = rnorm(nrow(d))

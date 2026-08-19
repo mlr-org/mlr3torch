@@ -81,15 +81,13 @@ register_task_type_torch = function(mlr_reflections) { # nolint
   # additionally carry "twoclass" and "multiclass", which say nothing about a task that may have any
   # number of targets of any type, or none.
   mlr_reflections$task_col_roles$torch = c("feature", "target", "name", "order", "stratum", "group",
-    "offset", "weights_learner", "weights_measure")
-  mlr_reflections$task_properties$torch = c("strata", "groups", "offset", "weights_learner",
+    "weights_learner", "weights_measure")
+  mlr_reflections$task_properties$torch = c("strata", "groups", "weights_learner",
     "weights_measure")
-  mlr_reflections$learner_properties$torch = c("featureless", "missings", "weights", "importance",
-    "selected_features", "oob_error", "hotstart_forward", "hotstart_backward", "validation",
-    "internal_tuning", "marshal", "offset", "new_levels")
+  # every `LearnerTorch` has these three and nothing else is claimed on its behalf
+  mlr_reflections$learner_properties$torch = c("validation", "internal_tuning", "marshal")
   mlr_reflections$measure_properties$torch = c("na_score", "requires_task", "requires_learner",
-    "requires_model", "requires_train_set", "weights", "primary_iters", "requires_no_prediction",
-    "obs_loss")
+    "requires_model", "requires_train_set", "weights", "requires_no_prediction", "obs_loss")
   mlr_reflections$learner_predict_types$torch = list(
     response = "response",
     prob = c("response", "prob"),
