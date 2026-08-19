@@ -53,6 +53,9 @@ test_that("dictionary can be converted to a table", {
   # generated without its required arguments
   expect_equal(tbl[get("key") == "checkpoint"]$weight, Inf)
   expect_equal(tbl[get("key") == "history"]$weight, 0)
+  # the dictionary annotates what the class declares, so the two must not drift apart
+  expect_equal(t_clbk("checkpoint", freq = 1, path = tempfile())$generate()$weight,
+    CallbackSetCheckpoint$new(path = tempfile(), freq = 1)$weight)
 })
 
 test_that("torch_callback helper function works", {

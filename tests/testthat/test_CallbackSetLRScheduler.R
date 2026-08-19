@@ -262,3 +262,151 @@ test_that("loading a one cycle state that was saved for a different schedule err
   # the error is raised before any epoch is trained
   expect_null(other$model)
 })
+
+describe("resuming", {
+  it("continues the momentum of a schedule that cycles it", {
+    # creating the scheduler resets everything it schedules, momentum included, and only the rate
+    # is recomputed from `base_lrs` on the next step
+    path = tempfile()
+    make = function(cbs) lrn("classif.mlp", epochs = 6L, batch_size = 50, neurons = 10, seed = 1,
+      callbacks = cbs, cb.lr_one_cycle.max_lr = 0.1)
+    crashing_run(path, epochs = 6L, fail_at = 3L, callback = t_clbk("lr_one_cycle"),
+      values = list(cb.lr_one_cycle.max_lr = 0.1))
+
+    seen = NULL
+    record = function() {
+      if (is.null(seen)) seen <<- self$ctx$optimizer$param_groups[[1L]]$betas[[1L]]
+    }
+    resumed = make(list(t_clbk("lr_one_cycle"), torch_callback("probe", on_batch_begin = record)))
+    resumed$param_set$set_values(resume = path)
+    resumed$train(tsk("iris"))
+
+    # what an uninterrupted run has at that same step, i.e. the first batch of epoch 3
+    reference = NULL
+    compare = function() {
+      if (self$ctx$global_step == 7L) reference <<- self$ctx$optimizer$param_groups[[1L]]$betas[[1L]]
+    }
+    make(list(t_clbk("lr_one_cycle"), torch_callback("probe2", on_batch_begin = compare)))$train(tsk("iris"))
+
+    expect_equal(seen, reference)
+  })
+
+  it("the learning rate schedule is continued", {
+    path = tempfile()
+    reference = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10,
+      callbacks = t_clbk("lr_step"))
+    reference$param_set$set_values(opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
+    reference$train(tsk("iris"))
+
+    first = make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("lr_step")),
+      opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
+
+    resumed = resumer(4L, path, callbacks = t_clbk("lr_step"),
+      opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
+    resumed$train(tsk("iris"))
+
+    # the schedule and the learning rate itself both continue: the schedule comes from the state
+    # file, the learning rate from the restored optimizer
+    expect_equal(resumed$model$callbacks$lr_step$last_epoch,
+      reference$model$callbacks$lr_step$last_epoch)
+    expect_equal(resumed$model$optimizer$param_groups[[1L]]$lr,
+      reference$model$optimizer$param_groups[[1L]]$lr)
+  })
+
+  it("every learning rate scheduler continues its schedule", {
+    # the schedulers share `$state_dict()`, but each is configured differently and one cycle
+    # additionally rejects a state that was saved for a schedule of a different length
+    args = list(
+      # T_max is deliberately longer than the run: with T_max = 4 the rate is annealed to `eta_min`
+      # by the last epoch in both runs, which every schedule would agree on
+      lr_cosine_annealing = list(cb.lr_cosine_annealing.T_max = 10L),
+      lr_lambda = list(cb.lr_lambda.lr_lambda = function(epoch) 0.9^epoch),
+      lr_multiplicative = list(cb.lr_multiplicative.lr_lambda = function(epoch) 0.9),
+      lr_one_cycle = list(cb.lr_one_cycle.max_lr = 0.1),
+      lr_step = list(cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
+    )
+
+    for (id in names(args)) {
+      path = tempfile()
+      # what the schedule looks like after four uninterrupted epochs
+      reference = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
+        callbacks = t_clbk(id))
+      reference$param_set$set_values(.values = args[[id]])
+      reference$train(tsk("iris"))
+
+      # the same run, but killed in epoch 3 and continued from the checkpoint of epoch 2
+      crashing_run(path, epochs = 4L, fail_at = 3L, callback = t_clbk(id), values = args[[id]])
+      resumed = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
+        resume = path, callbacks = t_clbk(id))
+      resumed$param_set$set_values(.values = args[[id]])
+      resumed$train(tsk("iris"))
+
+      # the schedule was continued rather than started over, so it is where four epochs leave it.
+      # These schedulers step on the epoch (or batch) count alone, so this does not depend on how
+      # the two runs happened to see their data.
+      state = resumed$model$callbacks[[id]]
+      expect_equal(state$last_epoch, reference$model$callbacks[[id]]$last_epoch, info = id)
+      expect_equal(state$.last_lr, reference$model$callbacks[[id]]$.last_lr, info = id)
+      # and the learning rate the optimizer actually uses came along with it
+      expect_equal(resumed$model$optimizer$param_groups[[1L]]$lr,
+        reference$model$optimizer$param_groups[[1L]]$lr, info = id)
+    }
+  })
+
+  it("does not rewind the optimizer's learning rate", {
+    # creating a scheduler puts the optimizer back to the `initial_lr` it recorded, which on a
+    # resumed run is where the schedule started rather than where it got to. A schedule that
+    # computes the next rate from the current one would silently start over from there.
+    path = tempfile()
+    seen = new.env()
+    # weight Inf, so this reads the learning rate after the scheduler callback created its scheduler
+    spy = torch_callback("spy", weight = Inf,
+      on_begin = function() seen$lr = self$ctx$optimizer$param_groups[[1L]]$lr)
+
+    # lr_multiplicative on purpose: only a scheduler whose constructor rewinds the rate can show
+    # this, and of those only a recursive schedule never recovers, because the others recompute the
+    # rate from `base_lrs` and `last_epoch` on their next step
+    values = list(cb.lr_multiplicative.lr_lambda = function(epoch) 0.9)
+    crashing_run(path, epochs = 4L, fail_at = 3L, callback = t_clbk("lr_multiplicative"),
+      values = values)
+    checkpointed = torch_load(file.path(path, "optimizer2.pt"))$param_groups[[1L]]$lr
+
+    resumed = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
+      resume = path, callbacks = list(t_clbk("lr_multiplicative"), spy))
+    resumed$param_set$set_values(.values = values)
+    resumed$train(tsk("iris"))
+
+    # the schedule had already taken two steps off the initial rate, and that is where the resumed
+    # run picks it up rather than at the `initial_lr` of 0.001
+    expect_equal(checkpointed, 0.001 * 0.9^2)
+    expect_equal(seen$lr, checkpointed)
+  })
+
+  it("the reduce-on-plateau schedule continues", {
+    # this one steps on the validation score, so only its epoch counter is comparable across runs;
+    # what matters is that the best score it has seen is restored rather than reset
+    path = tempfile()
+    args = list(cb.lr_reduce_on_plateau.patience = 1L, cb.lr_reduce_on_plateau.factor = 0.5)
+    make = function(...) {
+      learner = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
+        validate = 0.3, measures_valid = msrs("classif.ce"),
+        callbacks = t_clbk("lr_reduce_on_plateau"), ...)
+      learner$param_set$set_values(.values = args)
+      learner
+    }
+    crashing_run(path, epochs = 4L, fail_at = 3L, callback = t_clbk("lr_reduce_on_plateau"),
+      values = args, validate = 0.3, measures_valid = msrs("classif.ce"))
+
+    first = readRDS(file.path(path, "state2.rds"))$callbacks$lr_reduce_on_plateau
+    resumed = make(resume = path)
+    resumed$train(tsk("iris"))
+
+    state = resumed$model$callbacks$lr_reduce_on_plateau
+    # a run that started its schedule over would be at 2, the number of epochs it trained itself
+    expect_equal(state$last_epoch, 4)
+    # the first run's best score is still the one to beat, i.e. the plateau detection was not reset.
+    # `best` starts at `mode_worse` (Inf), so check the first run actually recorded one.
+    expect_true(is.finite(first$best))
+    expect_true(state$best <= first$best)
+  })
+})

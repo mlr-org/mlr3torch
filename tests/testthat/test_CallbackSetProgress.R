@@ -18,7 +18,7 @@ test_that("the training time is carried across a resume", {
 
   resumed = lrn("classif.mlp", epochs = 4, batch_size = 50, neurons = 10,
     callbacks = t_clbk("progress"))
-  resumed$param_set$set_values(path = path)
+  resumed$param_set$set_values(resume = path)
   stdout = suppressMessages(capture.output(resumed$train(tsk("iris"))))
 
   # the total covers both runs, so it is at least what the first one alone took
@@ -63,4 +63,28 @@ test_that("manual test", {
   # does not throw with different eval_freq
   learner$param_set$set_values(eval_freq = 2)
   expect_error(capture.output(learner$train(task)), regexp = NA)
+})
+
+describe("resuming", {
+  it("reports the time before this run and the time it took itself", {
+    path = tempfile()
+    make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("progress")))
+
+    resumed = resumer(4L, path, callbacks = t_clbk("progress"))
+    out = capture.output(resumed$train(tsk("iris")))
+    finished = out[grepl("^Finished training", out)]
+    expect_match(finished, "s total: .*s before this run, .*s in it")
+  })
+
+
+  it("the progress callback does not interfere", {
+    # it keeps no state, so the point is that resuming a run that has one works at all
+    path = tempfile()
+    make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("progress")))
+
+    # the callback prints via catn(), so the output is captured rather than suppressed
+    resumed = resumer(4L, path, callbacks = t_clbk("progress"))
+    expect_no_warning(capture.output(resumed$train(tsk("iris"))))
+    expect_equal(resumed$model$epochs, 4L)
+  })
 })

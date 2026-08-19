@@ -21,8 +21,8 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   is_checkpoint = function(descriptor) identical(descriptor$generator, CallbackSetCheckpoint)
-  if (isTRUE(param_vals$path) && !some(self$callbacks, is_checkpoint)) {
-    error_config("Learner '%s' has 'path' set to TRUE, but no 'checkpoint' callback to take the path from. Either add one via t_clbk(\"checkpoint\") or set 'path' to a checkpoint folder.", self$id) # nolint
+  if (isTRUE(param_vals$resume) && !some(self$callbacks, is_checkpoint)) {
+    error_config("Learner '%s' has 'resume' set to TRUE, but no 'checkpoint' callback to take the path from. Either add one via t_clbk(\"checkpoint\") or set 'resume' to a checkpoint folder.", self$id) # nolint
   }
   dataset_train = private$.dataset(task, param_vals)
   dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
@@ -110,7 +110,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     callbacks = c(callbacks, list(early_stopping = es))
   }
 
-  model = train_loop(ctx, callbacks, resume_path = param_vals$path)
+  model = train_loop(ctx, callbacks)
 
   # In case the seed was "random" initially we want to make the sampled seed available in the state.
   model$seed = param_vals$seed
@@ -119,7 +119,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 }
 
 
-train_loop = function(ctx, cbs, resume_path = NULL) {
+train_loop = function(ctx, cbs) {
   # callbacks are called in the order they were passed, unless they request otherwise via their
   # weight. CallbackSetCheckpoint has weight Inf so that it saves the network and optimizer as the
   # other callbacks left them at the end of the stage.
@@ -153,7 +153,11 @@ train_loop = function(ctx, cbs, resume_path = NULL) {
   # if we increment epoch at the end of the loop it has the wrong value
   # during the final two callback stages
   ctx$epoch = 0L
+  ctx$global_step = 0L
 
+  # this happens before the 'begin' stage so that the callbacks see the restored state, e.g. the
+  # learning rate scheduler continues the schedule instead of creating a new one
+  resume_path = ctx$learner$param_set$values$resume
   if (!is.null(resume_path)) resume_training(ctx, resume_path)
 
   call("on_begin")
@@ -171,9 +175,7 @@ train_loop = function(ctx, cbs, resume_path = NULL) {
     eval_train = eval_train_in_epoch(ctx)
     while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
-      # `step` counts within the epoch, this one within the run. `ctx$epoch` starts at the epoch a
-      # resumed checkpoint left off at, so a resumed run keeps counting instead of starting over.
-      ctx$batch_step = (ctx$epoch - 1L) * length(ctx$loader_train) + ctx$step
+      ctx$global_step = ctx$global_step + 1L
       ctx$batch = dataloader_next(train_iterator)
       if (is.null(ctx$batch)) {
         stop("dataloader_next() returned NULL, which means there are no more samples/batches. Typically this occurs when length of sampler/batch_sampler is greater than the number of samples/batches. Please modify .length() method to return the correct number (samples for sampler, batches for batch_sampler), which should be equal to the number of times that .iter() can be called before returning coro::exhausted()")
@@ -261,7 +263,13 @@ resume_training = function(ctx, resume_path) {
 
   checkpoint = latest_checkpoint(path)
   if (is.null(checkpoint)) {
-    # so that the same script can be used for the first run and for restarts
+    # A folder this feature could have written -- empty, or holding only checkpoints too incomplete
+    # to resume from -- is the first run of a script that also restarts itself, so it starts over.
+    # Anything else, a missing folder above all, means the caller named something that is not a
+    # checkpoint folder, and training from scratch would silently not be what they asked for.
+    if (!can_checkpoint_into(path)) {
+      stopf("No checkpoint to resume from in '%s': it does not exist or holds no checkpoint written by t_clbk(\"checkpoint\"). Point 'resume' at a folder that one wrote, or unset it to train from scratch.", path) # nolint
+    }
     lg$info("No checkpoint found in '%s', starting training from scratch.", path)
     return(invisible(NULL))
   }
@@ -279,6 +287,8 @@ resume_training = function(ctx, resume_path) {
   load_callback_states(ctx$callbacks, state$callbacks, state$classes)
 
   ctx$epoch = epochs_trained
+  # checkpoints written before the step was recorded fall back to what it used to be derived from
+  ctx$global_step = state$global_step %??% (epochs_trained * length(ctx$loader_train))
 
   invisible(NULL)
 }
@@ -312,7 +322,7 @@ checkpoint_callback_path = function(cbs) {
   cbs = keep(cbs, function(cb) inherits(cb, "CallbackSetCheckpoint"))
   # already asserted at the beginning of training, this only guards against internal misuse
   if (!length(cbs)) {
-    stopf("'path' is TRUE, but there is no 'checkpoint' callback to take the path from.")
+    error_config("'path' is TRUE, but there is no 'checkpoint' callback to take the path from.")
   }
   cbs[[1L]]$path
 }

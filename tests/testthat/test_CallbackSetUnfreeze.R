@@ -128,3 +128,28 @@ test_that("restored trainable weights that the network does not have are ignored
   # and a weight the state did not name is still frozen
   expect_true("3.weight" %nin% trainable)
 })
+
+describe("resuming", {
+  it("the unfreezing callback continues", {
+    # $on_begin() freezes everything but `starting_weights`, so without a restored state a resumed
+    # run would freeze what the first run had already unfrozen
+    path = tempfile()
+    frozen = c("0.weight", "3.weight")
+    args = list(
+      cb.unfreeze.starting_weights = select_invert(select_name(frozen)),
+      cb.unfreeze.unfreeze = data.table(epoch = 2, weights = list(select_name("0.weight")))
+    )
+    crashing_run(path, epochs = 4L, fail_at = 3L, callback = t_clbk("unfreeze"), values = args)
+
+    resumed = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
+      resume = path, callbacks = t_clbk("unfreeze"))
+    resumed$param_set$set_values(.values = args)
+    resumed$train(tsk("iris"))
+
+    # '0.weight' was unfrozen in epoch 2 of the first run and is still trainable in the resumed one,
+    # while '3.weight' -- which no entry unfreezes -- is still frozen
+    trainable = names(keep(resumed$network$parameters, function(p) p$requires_grad))
+    expect_true("0.weight" %in% trainable)
+    expect_false("3.weight" %in% trainable)
+  })
+})

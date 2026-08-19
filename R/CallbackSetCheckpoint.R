@@ -4,7 +4,7 @@
 #'
 #' @description
 #' Saves the optimizer, weights, and callback states every `freq` epochs as well as the final state.
-#' This can be used to later continue a training run via the `path` parameter from [`LearnerTorch`].
+#' This can be used to later continue a training run via the `resume` parameter of [`LearnerTorch`].
 #'
 #' A folder holds the checkpoints of a single run, which is continued from where it ended: training
 #' errors when `epochs` is not greater than the most recent checkpoint in `path`, and a run never
@@ -36,9 +36,9 @@
 #'   The path to a folder where the models are saved, or a function of no arguments returning it.
 #'   The latter is especially useful to create unique directories during `resample()` or `benchmark()`
 #'   per fit.
-#'   The folder must be new, empty, or already contain checkpoints whose newest epoch is complete.
-#'   A folder whose newest checkpoint is half-written -- what a run killed mid-write leaves behind --
-#'   is refused, as that is the checkpoint a resuming run would continue from.
+#'   The folder must be new, empty, or already contain checkpoints.
+#'   A half-written checkpoint -- what a run killed mid-write leaves behind -- may be written over,
+#'   since a resuming run continues from the newest complete one.
 #' @param freq (`integer(1)`)\cr
 #'   How often the model is saved, in epochs.
 #' @family Callback
@@ -58,7 +58,7 @@
 #' list.files(pth)
 #'
 #' # continue training for 3 more epochs, starting from the last checkpoint
-#' learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1, path = pth)
+#' learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1, resume = pth)
 #' learner_resumed$train(task)
 #' learner_resumed$model$epochs
 CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
@@ -139,6 +139,9 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
       saveRDS(
         list(
           epoch = suffix,
+          # counted up by the training loop rather than derived, so a resumed run can only continue
+          # the count if the checkpoint carries it
+          global_step = self$ctx$global_step,
           version = as.character(utils::packageVersion("mlr3torch")),
           callbacks = states,
           classes = map_chr(self$ctx$callbacks[names(states)], function(cb) class(cb)[[1L]])
@@ -160,12 +163,12 @@ is_empty_dir = function(path) {
 # that is half-written is refused rather than replaced: it is what a resuming run would continue
 # from, so a folder is only ever handed to a new run in a state that can be resumed.
 can_checkpoint_into = function(path) {
-  if (is_empty_dir(path)) {
-    return(TRUE)
-  }
-  files = checkpoint_files(path)
-  # epochs start at 1, so the `0` floor stands for "no incomplete checkpoint at all"
-  length(files$complete) > 0L && max(files$complete) > max(0L, files$incomplete)
+  # An incomplete checkpoint is written over rather than protected: a resuming run continues from
+  # the newest *complete* one, so a half-written epoch is not what anything reads, and refusing it
+  # would mean a run killed while writing could never be restarted into its own folder.
+  # $on_begin() still refuses to write over any complete checkpoint of another run.
+  is_empty_dir(path) ||
+    (dir.exists(path) && length(list.files(path, pattern = "^(network|optimizer)[0-9]+\\.pt$|^state[0-9]+\\.rds$")) > 0L) # nolint
 }
 
 # The checkpoints in `path`, split into those that can be read and those that cannot. Both the
@@ -243,6 +246,9 @@ mlr3torch_callbacks$add("checkpoint", function() {
     ),
     id = "checkpoint",
     label = "Checkpoint",
+    # the class declares the same weight, this makes it visible without generating the callback,
+    # which is not possible without values for the required `path` and `freq`
+    weight = Inf,
     man = "mlr3torch::mlr_callback_set.checkpoint"
   )
 })

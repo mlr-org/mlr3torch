@@ -11,10 +11,8 @@ and the training measures are prefixed with \code{"train."}.
 }
 \section{Resuming}{
 
-The history is restored and continued rather than started over: the epochs of the resumed run are
-appended to the restored ones, so the history covers both runs and stays ordered by epoch.
-A measure that only one of the two runs recorded becomes a column that is \code{NA} for the epochs of
-the other.
+The epochs of a resumed run are appended to the history of the run it continues.
+A measure that only one of the two runs recorded is \code{NA} for the epochs of the other.
 }
 
 \examples{

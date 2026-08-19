@@ -69,7 +69,7 @@ Note that the final model is always evaluated.
 
 \strong{Resuming}:
 \itemize{
-\item \code{path} :: \code{character(1)} or \code{TRUE}\cr
+\item \code{resume} :: \code{character(1)} or \code{TRUE}\cr
 Continues training from a checkpoint written by
 \code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}}, either the folder it wrote to or \code{TRUE},
 which takes that folder from the checkpoint callback of this learner.

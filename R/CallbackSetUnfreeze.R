@@ -51,9 +51,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       frozen_weights_str = paste(trainable_weights, collapse = ", ")
       lg$info(sprintf("Training the following weights at the start: %s", paste0(trainable_weights, collapse = ", ")))
 
-      if (!is.null(private$.prev_state)) {
-        private$.restore_trainable()
-      }
+      private$.restore_trainable()
     },
     #' @description
     #' Returns the names of the weights that are currently trainable, so that a later run does not
@@ -62,12 +60,12 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       list(trainable = private$.trainable_weights())
     },
     #' @description
-    #' Remembers the weights of the state dict, which `$on_begin()` marks as trainable again.
+    #' Marks the weights of the state dict as trainable.
     #' @param state_dict (named `list()`)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
-      # on_begin will ensure that the trainable weights have gradients enabled again.
-      # We can't do this here because generally ctx might not be available
+      # the network is frozen according to `starting_weights` in $on_begin(), so the weights that
+      # were already unfrozen can only be restored afterwards
       private$.prev_state = state_dict
       invisible(NULL)
     },
@@ -92,7 +90,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' Unfreezes weights if the training is at the correct batch
     on_batch_begin = function() {
       if (private$.batchwise) {
-        batch_num = self$ctx$batch_step
+        batch_num = (self$ctx$epoch - 1) * length(self$ctx$loader_train) + self$ctx$step
         if (batch_num %in% self$unfreeze$batch) {
           weights = (self$unfreeze[get("batch") == batch_num]$weights)[[1]](names(self$ctx$network$parameters))
           if (!length(weights)) {
@@ -114,7 +112,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       names(params)[map_lgl(params, function(param) param$requires_grad)]
     },
     .restore_trainable = function() {
-      if (is.null(private$.prev_state)) stop("internal error")
+      if (is.null(private$.prev_state)) return(NULL)
       weights = intersect(private$.prev_state$trainable, names(self$ctx$network$parameters))
       walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
       lg$info(sprintf("Restoring the following trainable weights: %s", paste0(weights, collapse = ", ")))

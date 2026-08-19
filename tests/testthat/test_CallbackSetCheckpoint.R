@@ -233,15 +233,19 @@ test_that("a run that does not train past the latest checkpoint is refused", {
   expect_set_equal(list.files(path), c("network3.pt", "optimizer3.pt", "state3.rds"))
 })
 
-test_that("a folder whose newest checkpoint is incomplete is refused", {
-  # what a run killed while writing leaves behind. The newest checkpoint is the one a resuming run
-  # continues from, so the folder is only handed to another run once it holds one that can be.
+test_that("a folder whose newest checkpoint is incomplete can be checkpointed into", {
+  # what a run killed while writing leaves behind. Only the checkpoint a run resumes from has to be
+  # complete, and that is the newest complete one -- the half-written epoch is written over.
   path = tempfile()
   dir.create(path)
   file.create(file.path(path, c("network1.pt", "optimizer1.pt")))
 
-  expect_error(t_clbk("checkpoint", freq = 1, path = path)$generate(), "already exists")
-  expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt"))
+  expect_no_error(t_clbk("checkpoint", freq = 1, path = path)$generate())
+
+  learner = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+    callbacks = t_clbk("checkpoint", freq = 1, path = path))
+  expect_no_error(learner$train(tsk("iris")))
+  expect_set_equal(list.files(path), c("network1.pt", "optimizer1.pt", "state1.rds"))
 })
 
 test_that("latest_checkpoint() finds the most recent complete checkpoint", {

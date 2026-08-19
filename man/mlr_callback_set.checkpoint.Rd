@@ -6,7 +6,7 @@
 \title{Checkpoint Callback}
 \description{
 Saves the optimizer, weights, and callback states every \code{freq} epochs as well as the final state.
-This can be used to later continue a training run via the \code{path} parameter from \code{\link{LearnerTorch}}.
+This can be used to later continue a training run via the \code{resume} parameter of \code{\link{LearnerTorch}}.
 
 A folder holds the checkpoints of a single run, which is continued from where it ended: training
 errors when \code{epochs} is not greater than the most recent checkpoint in \code{path}, and a run never
@@ -55,7 +55,7 @@ learner$train(task)
 list.files(pth)
 
 # continue training for 3 more epochs, starting from the last checkpoint
-learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1, path = pth)
+learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1, resume = pth)
 learner_resumed$train(task)
 learner_resumed$model$epochs
 \dontshow{\}) # examplesIf}
@@ -121,9 +121,9 @@ Always \code{Inf}, see section \emph{Ordering}.}
 The path to a folder where the models are saved, or a function of no arguments returning it.
 The latter is especially useful to create unique directories during \code{resample()} or \code{benchmark()}
 per fit.
-The folder must be new, empty, or already contain checkpoints whose newest epoch is complete.
-A folder whose newest checkpoint is half-written -- what a run killed mid-write leaves behind --
-is refused, as that is the checkpoint a resuming run would continue from.}
+The folder must be new, empty, or already contain checkpoints.
+A half-written checkpoint -- what a run killed mid-write leaves behind -- may be written over,
+since a resuming run continues from the newest complete one.}
       \item{\code{freq}}{(\code{integer(1)})\cr
 How often the model is saved, in epochs.}
     }

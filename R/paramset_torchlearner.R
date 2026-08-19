@@ -32,7 +32,7 @@ make_check_measures = function(task_type = NULL) {
 
 }
 
-check_resume_path = function(x) {
+check_resume = function(x) {
   if (is.null(x) || isTRUE(x)) {
     return(TRUE)
   }
@@ -103,7 +103,7 @@ paramset_torchlearner = function(task_type, jittable = FALSE) {
     # session, so an init would consume that one chance before the user can spend it
     num_interop_threads   = p_int(lower = 1L, tags = c("train", "predict")),
     seed                  = p_int(tags = c("train", "predict", "required"), special_vals = list("random", NULL), init = "random"),
-    path                  = p_uty(tags = "train", default = NULL, custom_check = check_resume_path),
+    resume                = p_uty(tags = "train", default = NULL, custom_check = check_resume),
     # evaluation
     eval_freq             = p_int(lower = 1L, tags = c("train", "required"), init = 1L),
     measures_train        = p_uty(tags = c("train", "required"), custom_check = check_measures, init = list()),

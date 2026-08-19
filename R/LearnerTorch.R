@@ -31,7 +31,7 @@
 #'
 #' @section Resuming:
 #' Training can be continued from a checkpoint written by
-#' [`t_clbk("checkpoint")`][mlr_callback_set.checkpoint] by setting the `path` parameter.
+#' [`t_clbk("checkpoint")`][mlr_callback_set.checkpoint] by setting the `resume` parameter.
 #' This parameter can either be a path or `TRUE` which will use the path of the provided checkpoint
 #' callback.
 #' When the latest written checkpoint was for `n1` epochs, the learner needs to be configured
@@ -45,6 +45,11 @@
 #' *Resuming* section in their documentation.
 #' Furthermore, rng states are not restored, which constitutes another difference between a full
 #' and a resumed training run.
+#'
+#' Configure the resuming learner like the one that wrote the checkpoint and change only `epochs`.
+#' What the checkpoint holds wins over what the resuming learner is configured with: the optimizer
+#' is restored from it, so a different `opt.lr` (or any other `opt.*` value) set on the resuming
+#' learner has no effect, and the same is true for the state of every callback that restores one.
 #'
 #' Callback states are matched to the callbacks of the resuming run **by id**.
 #' A state whose id is not among this run's callbacks is skipped with a warning, and a callback

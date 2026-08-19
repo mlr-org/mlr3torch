@@ -27,7 +27,6 @@ You can overload the \verb{$state_dict()} public method to define what will be s
 after training finishes.
 This then also requires to implement a \verb{$load_state_dict(state_dict)} method that defines how to load a previously saved
 callback state into a different callback.
-This is necessary for being able to resume a training run, see section \emph{Resuming}.
 Note that the \verb{$state_dict()} should not include the parameter values that were used to initialize the callback.
 
 For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
@@ -62,24 +61,8 @@ after those with a lower one, and callbacks with the same weight keep the order 
 were passed.
 The default weight is \code{0}.
 This matters for callbacks that observe what the others did, which is why
-\code{\link{CallbackSetCheckpoint}} defaults to weight \code{Inf}: it runs last and therefore saves the network
+\code{\link{CallbackSetCheckpoint}} has weight \code{Inf}: it always runs last and therefore saves the network
 and optimizer as the other callbacks left them at the end of the stage.
-Because it also writes the other callbacks' states, a callback that has a \verb{$state_dict()} and
-updates it in the \code{epoch_end} or \code{end} stage may not be ordered after it -- its state would be
-stored an epoch behind, so training errors instead.
-}
-
-\section{Resuming}{
-
-It is possible to resume the training of a \code{\link{LearnerTorch}} by providing it with a path to a
-checkpoint folder, which also containes the state dicts of the callbacks.
-In order to allow for a stateful callback to be resumed, it therefore needs to implement \verb{$state_dict()}
-and \verb{$load_state_dict()}, where the former defines what is saved in the checkpoint folder and
-the latter how that information is read into a freshly created callback when training is continued.
-Ideally, training for \code{n1} epochs and then continuing for an additional \code{n2} epochs behaves
-like training for \code{n1 + n2} epochs.
-This is not always possible and callbacks therefore have a section on their behavior when
-resuming a training run.
 }
 
 \section{Terminate Training}{

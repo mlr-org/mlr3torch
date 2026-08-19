@@ -78,3 +78,74 @@ test_that("restore_best_weights restores the weights of the best epoch", {
   expect_equal(saved, state_nums(last))
   expect_false(isTRUE(all.equal(saved, state_nums(checkpointed))))
 })
+
+describe("resuming", {
+  it("early stopping continues with the score and stagnation of the previous run", {
+    # a fixed validation task and `opt.lr = 0` make the score constant, so no epoch of the resumed
+    # run can beat the first run's best. Whatever the counters end up at was therefore carried over,
+    # not found again -- a run starting early stopping from scratch could only name an epoch of its
+    # own, i.e. 3, and would count its stagnation from zero.
+    task = tsk("iris")
+    task$internal_valid_task = 1:30
+    path = tempfile()
+    make = function(epochs, cbs) lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
+      seed = 1, validate = "predefined", measures_valid = msr("classif.ce"), patience = 10L,
+      min_delta = 0, opt.lr = 0, callbacks = cbs)
+
+    make(2L, t_clbk("checkpoint", freq = 1, path = path))$train(task)
+    checkpointed = readRDS(file.path(path, "state2.rds"))$callbacks$early_stopping
+
+    resumed = make(4L, list())
+    resumed$param_set$set_values(resume = path)
+    resumed$train(task)
+
+    state = resumed$model$callbacks$early_stopping
+    expect_equal(checkpointed$best_epochs, 1L)
+    expect_equal(state$best_epochs, checkpointed$best_epochs)
+    expect_equal(state$best_score, checkpointed$best_score)
+    # the two epochs of this run stagnated on top of the one the checkpoint had already counted
+    expect_equal(state$stagnation, checkpointed$stagnation + 2L)
+    expect_equal(resumed$model$epochs, 4L)
+  })
+
+  it("warns with restore_best_weights that the best weights are not restored", {
+    path = tempfile()
+    args = list(validate = 0.3, measures_valid = msrs("classif.acc"), patience = 5L, min_delta = 0)
+    invoke(make_checkpoint, epochs = 2L, path = path, .args = c(args, restore_best_weights = TRUE))
+
+    # a full copy of the network per checkpoint is not worth it, so the weights are not stored
+    expect_named(readRDS(file.path(path, "state2.rds"))$callbacks$early_stopping,
+      c("best_epochs", "best_score", "stagnation"))
+
+    resumed = invoke(resumer, epochs = 4L, path = path, .args = c(args, restore_best_weights = TRUE))
+    expect_warning(resumed$train(tsk("iris")), "restore_best_weights")
+
+    # without it there is nothing that could be lost, so nothing is reported
+    quiet = invoke(resumer, epochs = 4L, path = path, .args = args)
+    expect_no_warning(quiet$train(tsk("iris")))
+  })
+
+  it("early stopping still fires", {
+    # `stagnation` is restored, so it can start at or above `patience`. An equality test would step
+    # over the trigger and never match again, letting the resumed run use its whole epoch budget.
+    task = tsk("iris")
+    task$internal_valid_task = 1:30
+    path = tempfile()
+    make = function(epochs, ...) {
+      lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10, seed = 1,
+        patience = 2L, min_delta = 0, validate = "predefined", measures_valid = msr("classif.ce"),
+        opt.lr = 0, ...)
+    }
+
+    # opt.lr = 0 means the score can never improve, so the first run stops as soon as it can
+    first = make(20L, callbacks = t_clbk("checkpoint", freq = 1, path = path))
+    first$train(task)
+    expect_equal(first$model$epochs, 3L)
+    expect_equal(first$model$callbacks$early_stopping$stagnation, 2L)
+
+    resumed = make(20L, resume = path)
+    resumed$train(task)
+    # it cannot improve either, so it stops at its first validated epoch rather than running to 20
+    expect_equal(resumed$model$epochs, 4L)
+  })
+})

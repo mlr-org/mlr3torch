@@ -118,12 +118,12 @@ test_that("a resumed run continues the training loss at the step the previous on
   expect_equal(loss_steps(first_path), c(1, 2))
 
   # `path` must not exist yet, so a resumed run logs into a folder of its own -- what carries over
-  # is the step, which comes from `ctx$batch_step`, so that the curve continues instead of
+  # is the step, which comes from `ctx$global_step`, so that the curve continues instead of
   # starting over
   resumed_path = tempfile()
   resumed = lrn("classif.mlp", epochs = 4, batch_size = 150, neurons = 10, callbacks = t_clbk("tb"))
   resumed$param_set$set_values(cb.tb.path = resumed_path, cb.tb.log_train_loss = TRUE,
-    path = checkpoint_path)
+    resume = checkpoint_path)
   resumed$train(task)
 
   expect_equal(loss_steps(resumed_path), c(3, 4))
@@ -131,9 +131,38 @@ test_that("a resumed run continues the training loss at the step the previous on
   expect_null(resumed$model$callbacks$tb)
 })
 
-test_that("throws an error when using existing directory", {
+test_that("an existing directory is accepted only when it holds events", {
+  # a resumed run logs into the folder its predecessor wrote, so that one is allowed
   path = tempfile()
   dir.create(path)
-  cb = t_clbk("tb", path = path, log_train_loss = TRUE)
-  expect_error(cb$generate(), "already exists")
+  expect_no_error(t_clbk("tb", path = path, log_train_loss = TRUE)$generate())
+
+  file.create(file.path(path, "events.out.tfevents.1234567890.host"))
+  expect_no_error(t_clbk("tb", path = path, log_train_loss = TRUE)$generate())
+
+  # a folder holding anything else is not ours to write into
+  unrelated = tempfile()
+  dir.create(unrelated)
+  writeLines("not an event file", file.path(unrelated, "notes.txt"))
+  expect_error(t_clbk("tb", path = unrelated, log_train_loss = TRUE)$generate(), "already exists")
+})
+
+describe("resuming", {
+  it("the tensorboard callback logs into the folder of the run it continues", {
+    skip_if_not_installed("tfevents")
+    path = tempfile()
+    logdir = tempfile()
+    tb = t_clbk("tb", path = logdir, log_train_loss = TRUE)
+    make_checkpoint(epochs = 2L, path = path, callbacks = list(tb))
+
+    # the same `logdir`, which the first run created -- both halves belong to one TensorBoard run
+    resumed = resumer(4L, path, callbacks = tb)
+    expect_no_warning(resumed$train(tsk("iris")))
+    expect_equal(resumed$model$epochs, 4L)
+
+    events = tfevents::collect_events(logdir)
+    losses = events$step[map_lgl(map(events$summary, unlist), event_tag_is, tag_name = "train.loss")]
+    # 3 batches per epoch across the two runs, counted through rather than restarted
+    expect_equal(losses, 1:12)
+  })
 })

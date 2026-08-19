@@ -10,6 +10,7 @@
 #' the epoch after the checkpoint, not at epoch 1.
 #' The time training has taken is carried across runs, so the total this reports when training ends
 #' covers the runs the checkpoint came from as well and not only the last one.
+#' Such a run reports that total split into the time before it and the time it took itself.
 #'
 #' @family Callback
 #' @include CallbackSet.R
@@ -96,9 +97,18 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
     },
     #' @description
     #' Prints the time at the end of training, and how long training took in total.
+    #' A resumed run also reports how much of that total it contributed itself.
     on_end = function() {
-      catf("Finished training for %s epochs (%s, %.1fs total)", self$ctx$epoch, format(Sys.time()),
-        private$.total_elapsed())
+      total = private$.total_elapsed()
+      if (private$.elapsed == 0) {
+        catf("Finished training for %s epochs (%s, %.1fs total)", self$ctx$epoch,
+          format(Sys.time()), total)
+        return(invisible(NULL))
+      }
+      # a resumed run: the total covers the runs before it, which says little about what this one
+      # took, so both are reported
+      catf("Finished training for %s epochs (%s, %.1fs total: %.1fs before this run, %.1fs in it)",
+        self$ctx$epoch, format(Sys.time()), total, private$.elapsed, total - private$.elapsed)
     },
     #' @description
     #' Returns the seconds trained so far, so that a resumed run reports the time of all runs

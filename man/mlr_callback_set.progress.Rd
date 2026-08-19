@@ -13,6 +13,7 @@ A resumed run prints only the epochs it trains itself, numbered as what they are
 the epoch after the checkpoint, not at epoch 1.
 The time training has taken is carried across runs, so the total this reports when training ends
 covers the runs the checkpoint came from as well and not only the last one.
+Such a run reports that total split into the time before it and the time it took itself.
 }
 
 \examples{
@@ -166,6 +167,7 @@ The number of digits to print for the measures.}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_end}{}}}
 \subsection{\code{CallbackSetProgress$on_end()}}{
   Prints the time at the end of training, and how long training took in total.
+A resumed run also reports how much of that total it contributed itself.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetProgress$on_end()}

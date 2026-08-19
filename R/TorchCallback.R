@@ -189,6 +189,8 @@ TorchCallback = R6Class("TorchCallback",
     #' @template param_id
     #' @param param_set (`ParamSet` or `NULL`)\cr
     #'   The parameter set. If `NULL` (default) it is inferred from `callback_generator`.
+    #'   Whether inferred or given, it must not contain a `weight`: that is the callback's ordering
+    #'   weight, which is set via the `weight` argument.
     #' @template param_label
     #' @template param_packages
     #' @template param_man
@@ -203,7 +205,13 @@ TorchCallback = R6Class("TorchCallback",
       self$weight = weight
 
       param_set = assert_param_set(param_set %??% inferps(callback_generator))
-      if ("ctx" %in% param_set$ids()) {
+      psids = param_set$ids()
+      # $generate() applies the ordering weight after the parameters, so a parameter of that name
+      # would be overwritten by it without anything downstream noticing
+      if ("weight" %in% psids) {
+        stopf("The name 'weight' is reserved for the weight that determines when the callback is called within a stage and cannot be a construction argument. Set it via the 'weight' argument, see the section 'Ordering' of CallbackSet.") # nolint
+      }
+      if ("ctx" %in% psids) {
         stopf("The name 'ctx' is reserved for the ContextTorch and cannot be a construction argument.")
       }
       super$initialize(
@@ -378,18 +386,6 @@ mlr3torch_callbacks = R6Class("DictionaryMlr3torchCallbacks",
 )$new()
 
 
-# The `$weight` that the callbacks of `generator` have, without generating one -- which is not
-# possible for a callback with required construction arguments. R6 does not merge inherited fields,
-# so the class hierarchy is walked until one declares a weight; `CallbackSet` itself always does.
-default_weight = function(generator) {
-  while (!is.null(generator)) {
-    weight = generator$public_fields$weight
-    if (!is.null(weight)) return(weight)
-    generator = generator$get_inherit()
-  }
-  0
-}
-
 #' @export
 as.data.table.DictionaryMlr3torchCallbacks = function(x, ...) { # nolint
   setkeyv(map_dtr(x$keys(), function(key) {
@@ -397,7 +393,7 @@ as.data.table.DictionaryMlr3torchCallbacks = function(x, ...) { # nolint
     list(
       key = key,
       label = cb$label,
-      weight = cb$weight %??% default_weight(cb$generator),
+      weight = cb$weight %??% 0,
       packages = list(cb$packages)
     )
   }), "key")[]

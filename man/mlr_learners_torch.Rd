@@ -42,7 +42,7 @@ where \verb{<upper>} is the maximally allowed number of epochs, and configure th
 \section{Resuming}{
 
 Training can be continued from a checkpoint written by
-\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}} by setting the \code{path} parameter.
+\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}} by setting the \code{resume} parameter.
 This parameter can either be a path or \code{TRUE} which will use the path of the provided checkpoint
 callback.
 When the latest written checkpoint was for \code{n1} epochs, the learner needs to be configured
@@ -56,6 +56,11 @@ The callbacks document their behavior under a corresponding
 \emph{Resuming} section in their documentation.
 Furthermore, rng states are not restored, which constitutes another difference between a full
 and a resumed training run.
+
+Configure the resuming learner like the one that wrote the checkpoint and change only \code{epochs}.
+What the checkpoint holds wins over what the resuming learner is configured with: the optimizer
+is restored from it, so a different \code{opt.lr} (or any other \verb{opt.*} value) set on the resuming
+learner has no effect, and the same is true for the state of every callback that restores one.
 
 Callback states are matched to the callbacks of the resuming run \strong{by id}.
 A state whose id is not among this run's callbacks is skipped with a warning, and a callback
@@ -193,7 +198,7 @@ Note that the final model is always evaluated.
 
 \strong{Resuming}:
 \itemize{
-\item \code{path} :: \code{character(1)} or \code{TRUE}\cr
+\item \code{resume} :: \code{character(1)} or \code{TRUE}\cr
 Continues training from a checkpoint written by
 \code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}}, either the folder it wrote to or \code{TRUE},
 which takes that folder from the checkpoint callback of this learner.

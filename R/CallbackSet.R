@@ -52,7 +52,6 @@
 #' were passed.
 #' The default weight is `0`.
 #' This matters for callbacks that observe what the others did, which is why
-#' The weights of the predefined callbacks are listed by `as.data.table(mlr3torch_callbacks)`.
 #' [`CallbackSetCheckpoint`] has weight `Inf`: it always runs last and therefore saves the network
 #' and optimizer as the other callbacks left them at the end of the stage.
 #'
@@ -159,6 +158,8 @@ CallbackSet = R6Class("CallbackSet",
 #' @param weight (`numeric(1)`)\cr
 #'   Controls when the callback is called within a stage, see section *Ordering* of [`CallbackSet`].
 #'   Defaults to `0`.
+#'   The name is reserved for this, so `initialize` must not take a `weight` argument: wrapping such
+#'   a callback in a [`TorchCallback`] is an error.
 #' @param lock_objects (`logical(1)`)\cr
 #'  Whether to lock the objects of the resulting [`R6Class`][R6::R6Class].
 #'  If `FALSE` (default), values can be freely assigned to `self` without declaring them in the

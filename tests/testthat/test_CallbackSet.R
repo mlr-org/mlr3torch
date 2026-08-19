@@ -189,6 +189,17 @@ test_that("a callback's default weight can be overwritten via the TorchCallback"
     CallbackSetCheckpoint$new(path = tempfile(), freq = 1)$weight)
 })
 
+test_that("'weight' is reserved and cannot be a parameter", {
+  # $generate() applies the ordering weight after the parameters, so a parameter of the same name
+  # would be overwritten by it without anything downstream noticing
+  gen = callback_set("CallbackSetTestWeight", initialize = function(weight) NULL)
+  # whether the parameter set is inferred from $initialize() ...
+  expect_error(TorchCallback$new(gen), "'weight' is reserved")
+  # ... or passed in explicitly
+  expect_error(TorchCallback$new(gen, param_set = ps(weight = p_dbl(tags = "train"))),
+    "'weight' is reserved")
+})
+
 test_that("weight is validated", {
   expect_error(torch_callback("bad", weight = "high", on_begin = function() NULL), "weight")
   expect_error(torch_callback("bad", weight = NaN, on_begin = function() NULL), "weight")

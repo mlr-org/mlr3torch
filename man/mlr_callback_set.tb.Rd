@@ -13,14 +13,12 @@ Logs events at most every epoch.
 }
 \section{Resuming}{
 
-The measures are logged under the epoch they belong to, which a resumed run continues counting on
-its own. The training loss is logged per batch and has no epoch to be logged under, so the step it
-was last written at is stored in the checkpoint and restored, and a resumed run extends that curve
-rather than writing a second one over it starting at \code{0}.
-
-A resumed run always logs into a folder of its own, as \code{path} must not exist yet.
-Pointing TensorBoard at the folder that holds both then shows one continuous curve per measure
-instead of two that overlap from the start.
+This callback keeps no state of its own.
+The measures are logged under the epoch they belong to and the training loss under
+\code{\link{ContextTorch}}'s \code{global_step}, both of which a resumed run continues counting rather than
+restarting, so its curves extend those of the run it continues.
+Point the resumed run at the \code{path} its predecessor wrote and both halves end up in one
+TensorBoard run; a fresh \code{path} puts them in two.
 }
 
 \seealso{
@@ -46,15 +44,15 @@ Other Callback:
 \subsection{Public methods}{
   \itemize{
     \item \href{#method-CallbackSetTB-initialize}{\code{CallbackSetTB$new()}}
-    \item \href{#method-CallbackSetTB-state_dict}{\code{CallbackSetTB$state_dict()}}
-    \item \href{#method-CallbackSetTB-load_state_dict}{\code{CallbackSetTB$load_state_dict()}}
     \item \href{#method-CallbackSetTB-on_epoch_end}{\code{CallbackSetTB$on_epoch_end()}}
     \item \href{#method-CallbackSetTB-clone}{\code{CallbackSetTB$clone()}}
   }
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>CallbackSet$load_state_dict()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>CallbackSet$state_dict()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -72,43 +70,11 @@ Other Callback:
     \describe{
       \item{\code{path}}{(\code{character(1)})\cr
 The path to a folder where the events are logged.
-Point TensorBoard to this folder to view them.}
+Point TensorBoard to this folder to view them.
+The folder must be new, empty, or one that this callback already logged into, so that a
+resumed run can continue the log of the run it continues.}
       \item{\code{log_train_loss}}{(\code{logical(1)})\cr
 Whether we log the training loss.}
-    }
-    \if{html}{\out{</div>}}
-  }
-}
-
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetTB-state_dict"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetTB-state_dict}{}}}
-\subsection{\code{CallbackSetTB$state_dict()}}{
-  Returns the number of training losses logged so far, which is the step the next one is
-logged under.
-The measures do not need one, as they are logged under the epoch they belong to.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CallbackSetTB$state_dict()}
-    \if{html}{\out{</div>}}
-  }
-}
-
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetTB-load_state_dict"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetTB-load_state_dict}{}}}
-\subsection{\code{CallbackSetTB$load_state_dict()}}{
-  Loads the step that the training loss continues at.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CallbackSetTB$load_state_dict(state_dict)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{state_dict}}{(named \code{list()})\cr
-The state dict as retrieved via \verb{$state_dict()}.}
     }
     \if{html}{\out{</div>}}
   }

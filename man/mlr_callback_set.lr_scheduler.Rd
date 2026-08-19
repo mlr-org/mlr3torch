@@ -17,12 +17,6 @@ As of this writing, the following are available:
 \item \code{\link[torch:lr_step]{torch::lr_step()}}
 \item Custom schedulers defined with \code{\link[torch:lr_scheduler]{torch::lr_scheduler()}}.
 }
-
-Attaching more than one of these is possible but rarely what you want, as they are not
-independent: a schedule that sets the rate from the initial one (\code{\link[torch:lr_lambda]{torch::lr_lambda()}}) overwrites
-what a schedule that scales the current one (\code{\link[torch:lr_step]{torch::lr_step()}}, \code{\link[torch:lr_multiplicative]{torch::lr_multiplicative()}})
-did in the same epoch, so which one has an effect comes down to the order the callbacks were
-passed in (see the section \emph{Ordering} of \code{\link{CallbackSet}}).
 }
 \section{Resuming}{
 

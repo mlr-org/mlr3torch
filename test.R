@@ -1,0 +1,10 @@
+devtools::load_all()
+
+path = tempfile()
+task = tsk("iris")
+learner = lrn("classif.mlp", epochs = 5, batch_size = 16, callbacks = list(t_clbk("checkpoint", path = path, freq = 3), t_clbk("progress")), resume = TRUE)
+learner$train(task)
+print(list.files(path))
+learner$configure(epochs = 10)
+learner$train(task)
+print(list.files(path))

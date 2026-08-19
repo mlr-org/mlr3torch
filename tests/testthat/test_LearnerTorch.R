@@ -1226,21 +1226,6 @@ test_that("the model has a printer", {
 })
 
 describe("resuming from a checkpoint", {
-  # i.e. the `path` parameter of LearnerTorch, continuing what t_clbk("checkpoint") wrote
-  make_checkpoint = function(epochs = 2L, freq = 1L, path = tempfile(), callbacks = list(), ...) {
-    learner = lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
-      callbacks = c(list(t_clbk("checkpoint", freq = freq, path = path)), callbacks), ...)
-    learner$train(tsk("iris"))
-    learner
-  }
-
-  resumer = function(epochs, path, callbacks = list(), ...) {
-    learner = lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
-      callbacks = callbacks, ...)
-    learner$param_set$set_values(path = path)
-    learner
-  }
-
   it("continues from the checkpointed epoch", {
     path = tempfile()
     make_checkpoint(epochs = 2L, path = path)
@@ -1267,6 +1252,17 @@ describe("resuming from a checkpoint", {
     resumed$train(tsk("iris"))
 
     expect_equal(restored, as.numeric(first$network$parameters[[1L]]$flatten()))
+  })
+
+  it("a folder that holds no checkpoint at all is an error", {
+    # naming a folder to continue from and silently getting a run from scratch is not what the
+    # caller asked for -- unlike an empty folder, which is the first run of a restartable script
+    expect_error(resumer(2L, tempfile())$train(tsk("iris")), "does not exist or holds no checkpoint")
+
+    unrelated = tempfile()
+    dir.create(unrelated)
+    writeLines("not a checkpoint", file.path(unrelated, "notes.txt"))
+    expect_error(resumer(2L, unrelated)$train(tsk("iris")), "does not exist or holds no checkpoint")
   })
 
   it("training starts from scratch when there is no checkpoint yet", {
@@ -1313,23 +1309,28 @@ describe("resuming from a checkpoint", {
     expect_equal(scratch$model$epochs, 2L)
   })
 
-  it("the history of the previous run is continued", {
+  it("continues the global step across a change of batch size", {
+    # the step is counted up and stored in the checkpoint rather than derived from the epoch, so a
+    # run with another `batch_size` does not fall back onto steps the earlier run already used
     path = tempfile()
-    first = make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("history")),
-      measures_train = msrs("classif.acc"))
+    seen = NULL
+    record = function() {
+      seen <<- c(seen, self$ctx$global_step)
+    }
+    spy = torch_callback("spy", on_batch_end = record)
+    # 150 rows in batches of 50, i.e. 3 batches per epoch
+    make_checkpoint(epochs = 2L, path = path, callbacks = list(spy))
+    expect_equal(seen, 1:6)
+    expect_equal(readRDS(file.path(path, "state2.rds"))$global_step, 6)
 
-    resumed = resumer(4L, path, callbacks = t_clbk("history"),
-      measures_train = msrs("classif.acc"))
+    seen = NULL
+    resumed = lrn("classif.mlp", epochs = 3L, batch_size = 150, neurons = 10, callbacks = spy)
+    resumed$param_set$set_values(resume = path)
     resumed$train(tsk("iris"))
-
-    history = resumed$model$callbacks$history[order(get("epoch"))]
-    expect_equal(history$epoch, 1:4)
-    # the scores of the first run are the ones that were recorded back then
-    expect_equal(
-      history[get("epoch") <= 2][["train.classif.acc"]],
-      first$model$callbacks$history[order(get("epoch"))][["train.classif.acc"]]
-    )
+    # one batch per epoch now, and it continues at 7 rather than starting over
+    expect_equal(seen, 7L)
   })
+
 
   it("a checkpoint that is already at 'epochs' is an error", {
     # 'epochs' is the total, so a run that has no epoch of its own to train is a misconfiguration and
@@ -1341,79 +1342,15 @@ describe("resuming from a checkpoint", {
     expect_error(resumer(2L, path)$train(tsk("iris")), "trained for 3 epochs, but 'epochs' is 2")
   })
 
-  it("the learning rate schedule is continued", {
-    path = tempfile()
-    reference = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10,
-      callbacks = t_clbk("lr_step"))
-    reference$param_set$set_values(opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
-    reference$train(tsk("iris"))
 
-    first = make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("lr_step")),
-      opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
 
-    resumed = resumer(4L, path, callbacks = t_clbk("lr_step"),
-      opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
-    resumed$train(tsk("iris"))
 
-    # the schedule and the learning rate itself both continue: the schedule comes from the state
-    # file, the learning rate from the restored optimizer
-    expect_equal(resumed$model$callbacks$lr_step$last_epoch,
-      reference$model$callbacks$lr_step$last_epoch)
-    expect_equal(resumed$model$optimizer$param_groups[[1L]]$lr,
-      reference$model$optimizer$param_groups[[1L]]$lr)
-  })
-
-  it("early stopping continues with the score and stagnation of the previous run", {
-    # a fixed validation task and `opt.lr = 0` make the score constant, so no epoch of the resumed
-    # run can beat the first run's best. Whatever the counters end up at was therefore carried over,
-    # not found again -- a run starting early stopping from scratch could only name an epoch of its
-    # own, i.e. 3, and would count its stagnation from zero.
-    task = tsk("iris")
-    task$internal_valid_task = 1:30
-    path = tempfile()
-    make = function(epochs, cbs) lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
-      seed = 1, validate = "predefined", measures_valid = msr("classif.ce"), patience = 10L,
-      min_delta = 0, opt.lr = 0, callbacks = cbs)
-
-    make(2L, t_clbk("checkpoint", freq = 1, path = path))$train(task)
-    checkpointed = readRDS(file.path(path, "state2.rds"))$callbacks$early_stopping
-
-    resumed = make(4L, list())
-    resumed$param_set$set_values(path = path)
-    resumed$train(task)
-
-    state = resumed$model$callbacks$early_stopping
-    expect_equal(checkpointed$best_epochs, 1L)
-    expect_equal(state$best_epochs, checkpointed$best_epochs)
-    expect_equal(state$best_score, checkpointed$best_score)
-    # the two epochs of this run stagnated on top of the one the checkpoint had already counted
-    expect_equal(state$stagnation, checkpointed$stagnation + 2L)
-    expect_equal(resumed$model$epochs, 4L)
-  })
-
-  it("warns with restore_best_weights that the best weights are not restored", {
-    path = tempfile()
-    args = list(validate = 0.3, measures_valid = msrs("classif.acc"), patience = 5L, min_delta = 0)
-    invoke(make_checkpoint, epochs = 2L, path = path, .args = c(args, restore_best_weights = TRUE))
-
-    # a full copy of the network per checkpoint is not worth it, so the weights are not stored
-    expect_named(readRDS(file.path(path, "state2.rds"))$callbacks$early_stopping,
-      c("best_epochs", "best_score", "stagnation"))
-
-    resumed = invoke(resumer, epochs = 4L, path = path, .args = c(args, restore_best_weights = TRUE))
-    expect_warning(resumed$train(tsk("iris")), "restore_best_weights")
-
-    # without it there is nothing that could be lost, so nothing is reported
-    quiet = invoke(resumer, epochs = 4L, path = path, .args = args)
-    expect_no_warning(quiet$train(tsk("iris")))
-  })
-
-  it("path = TRUE takes the path from the checkpoint callback", {
+  it("resume = TRUE takes the path from the checkpoint callback", {
     path = tempfile()
     make_checkpoint(epochs = 2L, path = path)
 
     # the same learner definition serves the first run and every restart
-    resumed = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, path = TRUE,
+    resumed = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, resume = TRUE,
       callbacks = t_clbk("checkpoint", freq = 1, path = path))
     resumed$train(tsk("iris"))
 
@@ -1421,20 +1358,20 @@ describe("resuming from a checkpoint", {
     expect_true(file.exists(file.path(path, "network4.pt")))
   })
 
-  it("path = TRUE errors without a checkpoint callback", {
-    learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, path = TRUE)
+  it("resume = TRUE errors without a checkpoint callback", {
+    learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, resume = TRUE)
     # a misconfiguration, so it must not be swallowed by a fallback learner
     expect_error_config(learner$train(tsk("iris")), "no 'checkpoint' callback")
   })
 
-  it("path is checked", {
+  it("resume is checked", {
     learner = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10)
-    expect_error(learner$param_set$set_values(path = 1L), "path")
-    expect_error(learner$param_set$set_values(path = c("a", "b")), "path")
-    expect_error(learner$param_set$set_values(path = FALSE), "path")
-    expect_no_error(learner$param_set$set_values(path = NULL))
-    expect_no_error(learner$param_set$set_values(path = TRUE))
-    expect_no_error(learner$param_set$set_values(path = tempfile()))
+    expect_error(learner$param_set$set_values(resume = 1L), "resume")
+    expect_error(learner$param_set$set_values(resume = c("a", "b")), "resume")
+    expect_error(learner$param_set$set_values(resume = FALSE), "resume")
+    expect_no_error(learner$param_set$set_values(resume = NULL))
+    expect_no_error(learner$param_set$set_values(resume = TRUE))
+    expect_no_error(learner$param_set$set_values(resume = tempfile()))
   })
 
   it("callback states that cannot be restored are skipped with a warning", {
@@ -1496,39 +1433,7 @@ describe("resuming from a checkpoint", {
     expect_equal(resumed$model$epochs, 4L)
   })
 
-  it("early stopping still fires", {
-    # `stagnation` is restored, so it can start at or above `patience`. An equality test would step
-    # over the trigger and never match again, letting the resumed run use its whole epoch budget.
-    task = tsk("iris")
-    task$internal_valid_task = 1:30
-    path = tempfile()
-    make = function(epochs, ...) {
-      lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10, seed = 1,
-        patience = 2L, min_delta = 0, validate = "predefined", measures_valid = msr("classif.ce"),
-        opt.lr = 0, ...)
-    }
 
-    # opt.lr = 0 means the score can never improve, so the first run stops as soon as it can
-    first = make(20L, callbacks = t_clbk("checkpoint", freq = 1, path = path))
-    first$train(task)
-    expect_equal(first$model$epochs, 3L)
-    expect_equal(first$model$callbacks$early_stopping$stagnation, 2L)
-
-    resumed = make(20L, path = path)
-    resumed$train(task)
-    # it cannot improve either, so it stops at its first validated epoch rather than running to 20
-    expect_equal(resumed$model$epochs, 4L)
-  })
-
-  it("the history stays ordered by epoch across resumes", {
-    path = tempfile()
-    make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("history")),
-      measures_train = msrs("classif.acc"))
-
-    resumed = resumer(4L, path, callbacks = t_clbk("history"), measures_train = msrs("classif.acc"))
-    resumed$train(tsk("iris"))
-    expect_equal(resumed$model$callbacks$history$epoch, 1:4)
-  })
 
   it("warns when the checkpoint was written by another mlr3torch version", {
     path = tempfile()
@@ -1549,7 +1454,7 @@ describe("resuming from a checkpoint", {
     walk(c(1L, 2L, 3L), function(freq) {
       path = tempfile()
       make = function() {
-        lrn("classif.mlp", epochs = 5L, batch_size = 50, neurons = 10, path = TRUE,
+        lrn("classif.mlp", epochs = 5L, batch_size = 50, neurons = 10, resume = TRUE,
           callbacks = t_clbk("checkpoint", freq = freq, path = path))
       }
       make()$train(task)
@@ -1560,166 +1465,15 @@ describe("resuming from a checkpoint", {
     })
   })
 
-  # Checkpoints into `path` and then fails at the beginning of epoch `fail_at`, so that the epochs
-  # before it are written and there is something to resume from. `values` are learner parameter
-  # values, `...` is passed to lrn().
-  crashing_run = function(path, epochs, fail_at, callback, values = list(), ...) {
-    crash = torch_callback("crash",
-      on_epoch_begin = function() if (self$ctx$epoch == fail_at) stop("crash"))
-    learner = lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10, seed = 1,
-      callbacks = list(t_clbk("checkpoint", freq = 1, path = path), callback, crash), ...)
-    learner$param_set$set_values(.values = values)
-    expect_error(learner$train(tsk("iris")), "crash")
-    learner
-  }
 
-  it("every learning rate scheduler continues its schedule", {
-    # the schedulers share `$state_dict()`, but each is configured differently and one cycle
-    # additionally rejects a state that was saved for a schedule of a different length
-    args = list(
-      # T_max is deliberately longer than the run: with T_max = 4 the rate is annealed to `eta_min`
-      # by the last epoch in both runs, which every schedule would agree on
-      lr_cosine_annealing = list(cb.lr_cosine_annealing.T_max = 10L),
-      lr_lambda = list(cb.lr_lambda.lr_lambda = function(epoch) 0.9^epoch),
-      lr_multiplicative = list(cb.lr_multiplicative.lr_lambda = function(epoch) 0.9),
-      lr_one_cycle = list(cb.lr_one_cycle.max_lr = 0.1),
-      lr_step = list(cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
-    )
 
-    for (id in names(args)) {
-      path = tempfile()
-      # what the schedule looks like after four uninterrupted epochs
-      reference = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
-        callbacks = t_clbk(id))
-      reference$param_set$set_values(.values = args[[id]])
-      reference$train(tsk("iris"))
 
-      # the same run, but killed in epoch 3 and continued from the checkpoint of epoch 2
-      crashing_run(path, epochs = 4L, fail_at = 3L, callback = t_clbk(id), values = args[[id]])
-      resumed = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
-        path = path, callbacks = t_clbk(id))
-      resumed$param_set$set_values(.values = args[[id]])
-      resumed$train(tsk("iris"))
 
-      # the schedule was continued rather than started over, so it is where four epochs leave it.
-      # These schedulers step on the epoch (or batch) count alone, so this does not depend on how
-      # the two runs happened to see their data.
-      state = resumed$model$callbacks[[id]]
-      expect_equal(state$last_epoch, reference$model$callbacks[[id]]$last_epoch, info = id)
-      expect_equal(state$.last_lr, reference$model$callbacks[[id]]$.last_lr, info = id)
-      # and the learning rate the optimizer actually uses came along with it
-      expect_equal(resumed$model$optimizer$param_groups[[1L]]$lr,
-        reference$model$optimizer$param_groups[[1L]]$lr, info = id)
-    }
-  })
 
-  it("does not rewind the optimizer's learning rate", {
-    # creating a scheduler puts the optimizer back to the `initial_lr` it recorded, which on a
-    # resumed run is where the schedule started rather than where it got to. A schedule that
-    # computes the next rate from the current one would silently start over from there.
-    path = tempfile()
-    seen = new.env()
-    # weight Inf, so this reads the learning rate after the scheduler callback created its scheduler
-    spy = torch_callback("spy", weight = Inf,
-      on_begin = function() seen$lr = self$ctx$optimizer$param_groups[[1L]]$lr)
 
-    # lr_multiplicative on purpose: only a scheduler whose constructor rewinds the rate can show
-    # this, and of those only a recursive schedule never recovers, because the others recompute the
-    # rate from `base_lrs` and `last_epoch` on their next step
-    values = list(cb.lr_multiplicative.lr_lambda = function(epoch) 0.9)
-    crashing_run(path, epochs = 4L, fail_at = 3L, callback = t_clbk("lr_multiplicative"),
-      values = values)
-    checkpointed = torch_load(file.path(path, "optimizer2.pt"))$param_groups[[1L]]$lr
-
-    resumed = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
-      path = path, callbacks = list(t_clbk("lr_multiplicative"), spy))
-    resumed$param_set$set_values(.values = values)
-    resumed$train(tsk("iris"))
-
-    # the schedule had already taken two steps off the initial rate, and that is where the resumed
-    # run picks it up rather than at the `initial_lr` of 0.001
-    expect_equal(checkpointed, 0.001 * 0.9^2)
-    expect_equal(seen$lr, checkpointed)
-  })
-
-  it("the reduce-on-plateau schedule continues", {
-    # this one steps on the validation score, so only its epoch counter is comparable across runs;
-    # what matters is that the best score it has seen is restored rather than reset
-    path = tempfile()
-    args = list(cb.lr_reduce_on_plateau.patience = 1L, cb.lr_reduce_on_plateau.factor = 0.5)
-    make = function(...) {
-      learner = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
-        validate = 0.3, measures_valid = msrs("classif.ce"),
-        callbacks = t_clbk("lr_reduce_on_plateau"), ...)
-      learner$param_set$set_values(.values = args)
-      learner
-    }
-    crashing_run(path, epochs = 4L, fail_at = 3L, callback = t_clbk("lr_reduce_on_plateau"),
-      values = args, validate = 0.3, measures_valid = msrs("classif.ce"))
-
-    first = readRDS(file.path(path, "state2.rds"))$callbacks$lr_reduce_on_plateau
-    resumed = make(path = path)
-    resumed$train(tsk("iris"))
-
-    state = resumed$model$callbacks$lr_reduce_on_plateau
-    # a run that started its schedule over would be at 2, the number of epochs it trained itself
-    expect_equal(state$last_epoch, 4)
-    # the first run's best score is still the one to beat, i.e. the plateau detection was not reset.
-    # `best` starts at `mode_worse` (Inf), so check the first run actually recorded one.
-    expect_true(is.finite(first$best))
-    expect_true(state$best <= first$best)
-  })
-
-  it("the unfreezing callback continues", {
-    # $on_begin() freezes everything but `starting_weights`, so without a restored state a resumed
-    # run would freeze what the first run had already unfrozen
-    path = tempfile()
-    frozen = c("0.weight", "3.weight")
-    args = list(
-      cb.unfreeze.starting_weights = select_invert(select_name(frozen)),
-      cb.unfreeze.unfreeze = data.table(epoch = 2, weights = list(select_name("0.weight")))
-    )
-    crashing_run(path, epochs = 4L, fail_at = 3L, callback = t_clbk("unfreeze"), values = args)
-
-    resumed = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, seed = 1,
-      path = path, callbacks = t_clbk("unfreeze"))
-    resumed$param_set$set_values(.values = args)
-    resumed$train(tsk("iris"))
-
-    # '0.weight' was unfrozen in epoch 2 of the first run and is still trainable in the resumed one,
-    # while '3.weight' -- which no entry unfreezes -- is still frozen
-    trainable = names(keep(resumed$network$parameters, function(p) p$requires_grad))
-    expect_true("0.weight" %in% trainable)
-    expect_false("3.weight" %in% trainable)
-  })
-
-  it("the progress callback does not interfere", {
-    # it keeps no state, so the point is that resuming a run that has one works at all
-    path = tempfile()
-    make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("progress")))
-
-    # the callback prints via catn(), so the output is captured rather than suppressed
-    resumed = resumer(4L, path, callbacks = t_clbk("progress"))
-    expect_no_warning(capture.output(resumed$train(tsk("iris"))))
-    expect_equal(resumed$model$epochs, 4L)
-  })
-
-  it("the tensorboard callback does not interfere", {
-    skip_if_not_installed("tfevents")
-    # like progress, it keeps no state of its own
-    path = tempfile()
-    logdir = tempfile()
-    tb = t_clbk("tb", path = logdir, log_train_loss = TRUE)
-    make_checkpoint(epochs = 2L, path = path, callbacks = list(tb))
-
-    resumed = resumer(4L, path, callbacks = tb)
-    expect_no_warning(resumed$train(tsk("iris")))
-    expect_equal(resumed$model$epochs, 4L)
-  })
-
-  it("a folder is not written into again while its newest checkpoint is incomplete", {
-    # the newest checkpoint is where a resuming run picks the folder up, so a half-written one has to
-    # be cleaned up before the folder takes another run
+  it("an incomplete newest checkpoint does not make its folder unusable", {
+    # a run killed while writing a checkpoint must be able to restart into its own folder: the
+    # half-written epoch is not what a resume reads, so this one continues from 5 and rewrites 6
     task = tsk("iris")
     path = tempfile()
     first = lrn("classif.mlp", epochs = 6L, batch_size = 50, neurons = 10,
@@ -1727,16 +1481,11 @@ describe("resuming from a checkpoint", {
     first$train(task)
     file.remove(file.path(path, "optimizer6.pt"))
 
-    resumed = lrn("classif.mlp", epochs = 8L, batch_size = 50, neurons = 10, path = path,
+    resumed = lrn("classif.mlp", epochs = 8L, batch_size = 50, neurons = 10, resume = path,
       callbacks = t_clbk("checkpoint", freq = 1, path = path))
-    expect_error(resumed$train(task), "already exists")
-
-    # once the leftover is gone, epoch 5 is the newest one and the folder is usable again
-    file.remove(file.path(path, c("network6.pt", "state6.rds")))
-    again = lrn("classif.mlp", epochs = 8L, batch_size = 50, neurons = 10, path = path,
-      callbacks = t_clbk("checkpoint", freq = 1, path = path))
-    again$train(task)
-    expect_equal(again$model$epochs, 8L)
+    expect_warning(resumed$train(task), "Ignoring incomplete checkpoint\\(s\\) 6")
+    expect_equal(resumed$model$epochs, 8L)
+    expect_true(file.exists(file.path(path, "optimizer6.pt")))
   })
 })
 
