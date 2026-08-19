@@ -8,9 +8,9 @@
 Builds a Torch Learner from a \code{\link{ModelDescriptor}} and trains it with the given parameter specification.
 
 This is \code{po("torch_model")}, which works on the general-purpose task type of \code{mlr3torch}, see
-\code{\link{TaskTorch}}. \code{po("torch_model_classif")} and \code{po("torch_model_regr")} are the same operator
-with a different \code{task_type}; they exist as classes of their own only because the
-\code{\link[mlr3pipelines:PipeOp]{PipeOp}} dictionary constructs its entries without arguments.
+\code{\link{TaskTorch}}.
+For classification and regression see \code{\link{PipeOpTorchModelClassif}} and \code{\link{PipeOpTorchModelRegr}}
+respectively.
 }
 \section{Parameters}{
 
@@ -204,8 +204,7 @@ its \verb{$train()} method is called on the \code{\link[mlr3:Task]{Task}} stored
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{task_type}}{(\code{character(1)})\cr
-The task type of the model. Defaults to \code{"torch"}, the general-purpose task type of
-\code{mlr3torch}, see \code{\link{TaskTorch}}.}
+The task type of the model. Defaults to \code{"torch"}.}
       \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
       \item{\code{param_vals}}{(\code{list()})\cr

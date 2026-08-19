@@ -49,22 +49,13 @@ PipeOpTorchHead = R6Class("PipeOpTorchHead",
     .shapes_out = function(shapes_in, param_vals, task) {
       assert_ndim(shapes_in[[1L]], 2L, self$id)
       assert_known_dims(shapes_in[[1L]], 2L, "the feature dimension (dimension 2)", self$id)
-      d = if (!is.null(param_vals$out_features)) {
-        param_vals$out_features
-      } else if (is.null(task)) {
-        NA_integer_
-      } else {
-        output_dim_for(task)
-      }
+      d = if (is.null(task)) NA_integer_ else output_dim_for(task)
       list(c(shapes_in[[1]][[1]], d))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$in_features = shapes_in[[1L]][2L]
-      # an explicitly set width wins, so a network whose output the task cannot describe -- several
-      # heads of different sizes, say -- can still be built with `nn("head", out_features = ...)`
-      if (is.null(param_vals$out_features)) {
-        param_vals$out_features = output_dim_for(task)
-      }
+
+      param_vals$out_features = output_dim_for(task)
 
       param_vals
     }

@@ -6,9 +6,9 @@
 #' Builds a Torch Learner from a [`ModelDescriptor`] and trains it with the given parameter specification.
 #'
 #' This is `po("torch_model")`, which works on the general-purpose task type of `mlr3torch`, see
-#' [`TaskTorch`]. `po("torch_model_classif")` and `po("torch_model_regr")` are the same operator
-#' with a different `task_type`; they exist as classes of their own only because the
-#' [`PipeOp`][mlr3pipelines::PipeOp] dictionary constructs its entries without arguments.
+#' [`TaskTorch`].
+#' For classification and regression see [`PipeOpTorchModelClassif`] and [`PipeOpTorchModelRegr`]
+#' respectively.
 #' @template paramset_torchlearner
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` that takes in `ModelDescriptor` during traing and a `Task` of the specified
@@ -32,8 +32,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     #' @param task_type (`character(1)`)\cr
-    #'   The task type of the model. Defaults to `"torch"`, the general-purpose task type of
-    #'   `mlr3torch`, see [`TaskTorch`].
+    #'   The task type of the model. Defaults to `"torch"`.
     #' @param target_batchgetter (`function()` or `NULL`)\cr
     #'   Converts the target columns of a batch into the target tensor `y`, passed to
     #'   [`LearnerTorchModel`]. Needed for task types that do not provide a

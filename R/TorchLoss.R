@@ -141,8 +141,6 @@ TorchLoss = R6::R6Class("TorchLoss",
       self$task_types = if (!is.null(task_types)) {
         assert_subset(task_types, mlr_reflections$task_types$type)
       } else {
-        # "torch" is the general-purpose task type of mlr3torch (see `TaskTorch`), whose learning
-        # problem is not known in advance, so any loss is applicable to it
         c("classif", "regr", "torch")
       }
       assert(check_class(torch_loss, "nn_module_generator"), check_class(torch_loss, "function"))
@@ -286,7 +284,7 @@ mlr3torch_losses$add("mse", function() {
   p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
   TorchLoss$new(
     torch_loss = torch::nn_mse_loss,
-    task_types = "regr",
+    task_types = c("regr", "torch"),
     param_set = p,
     id = "mse",
     label = "Mean Squared Error",
@@ -299,7 +297,7 @@ mlr3torch_losses$add("l1", function() {
   p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
   TorchLoss$new(
     torch_loss = torch::nn_l1_loss,
-    task_types = "regr",
+    task_types = c("regr", "torch"),
     param_set = p,
     id = "l1",
     label = "Absolute Error",
@@ -346,7 +344,7 @@ mlr3torch_losses$add("cross_entropy", function() {
       }
       invoke(nn_cross_entropy_loss, .args = args)
     },
-    task_types = "classif",
+    task_types = c("classif", "torch"),
     param_set = p,
     id = "cross_entropy",
     label = "Cross Entropy",

@@ -243,7 +243,7 @@ task_check_col_roles_base = function(task, new_roles, ...) {
 #' @export
 output_dim_for.TaskTorch = function(x, ...) { # nolint
   if (is.null(x$output_dim)) {
-    stopf("Task '%s' has no `output_dim`. Pass one to the task, or size the network's output yourself (e.g. `out_features` of `nn(\"head\")`).", x$id) # nolint
+    stopf("Task '%s' has no `output_dim`. Pass one to the task, or size the network's output yourself with `nn(\"linear\")` instead of `nn(\"head\")`.", x$id) # nolint
   }
   # evaluated rather than stored, because the number of output units follows from the target
   # columns and those can change after the task was constructed
