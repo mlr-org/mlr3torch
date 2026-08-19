@@ -248,6 +248,7 @@ The default measure of the task, see section \emph{Scoring}.}
 \if{latex}{\out{\hypertarget{method-TaskTorch-truth}{}}}
 \subsection{\code{TaskTorch$truth()}}{
   The ground truth, see section \emph{Scoring}.
+Might return \code{NULL} for unsupervised problems.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{TaskTorch$truth(rows = NULL)}

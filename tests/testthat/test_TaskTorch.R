@@ -345,6 +345,31 @@ test_that("an obs_loss declares what it asks for", {
   )
 })
 
+test_that("the default measure does not fix an optimization direction", {
+  d = tt_data(40L)
+  d$y = rnorm(nrow(d))
+  # a measure to be MAXIMIZED, which is what the default measure of a task may well be
+  acc = msr_torch("acc", function(truth, response) mean(abs(truth - response) < 1),
+    minimize = FALSE, range = c(0, 1))
+  task = tt_task(d, target = "y", id = "t", default_measure = acc)
+
+  # the direction belongs to the task's measure, which is not known when this one is constructed,
+  # so it says so rather than guessing -- mlr3 refuses to tune with an NA direction
+  expect_true(is.na(msr("torch.default")$minimize))
+  expect_equal(msr("torch.default", minimize = FALSE, range = c(0, 1))$minimize, FALSE)
+
+  # scoring works whatever the direction, because scoring does not consult it
+  learner = tt_learner(t_loss("mse"))
+  learner$train(task)
+  expect_number(learner$predict(task)$score(msr("torch.default"), task = task), lower = 0, upper = 1)
+
+  # ... but a stated direction that contradicts the task is an error, not a flipped ranking
+  expect_error(
+    learner$predict(task)$score(msr("torch.default", minimize = TRUE), task = task),
+    "minimize = TRUE, but the default measure 'acc'"
+  )
+})
+
 test_that("the default measure of a task is used by aggregate()", {
   d = tt_data(40L)
   d$y = rnorm(nrow(d))

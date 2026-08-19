@@ -170,6 +170,17 @@ msr_torch = function(id, fun, minimize = TRUE, range = c(-Inf, Inf), predict_typ
 #' use when they are called without arguments.
 #' It errors if the task does not carry a measure.
 #'
+#' Whether a smaller score is better is a property of the task's measure, and this one is
+#' constructed before any task is in sight, so `minimize` is `NA` -- unknown -- unless you say
+#' otherwise. `mlr3` refuses to tune with an `NA` direction, which is the point: guessing it would
+#' mean silently optimizing the wrong way. Pass `minimize` (and `range`) to tune against the
+#' default measure of a task, and scoring a task whose measure disagrees is then an error.
+#'
+#' @param minimize (`logical(1)`)\cr
+#'   Whether a smaller score is better, see above. Default is `NA`.
+#' @param range (`numeric(2)`)\cr
+#'   The range of possible scores. Defaults to the unbounded range, for the same reason.
+#'
 #' @family Measure
 #' @export
 #' @examplesIf torch::torch_is_installed()
@@ -177,19 +188,22 @@ msr_torch = function(id, fun, minimize = TRUE, range = c(-Inf, Inf), predict_typ
 #' task = as_task_torch(d, target = "y",
 #'   default_measure = msr_torch("mse", function(truth, response) mean((truth - response)^2)))
 #' msr("torch.default")
+#'
+#' # to tune against it, state the direction of the task's measure
+#' msr("torch.default", minimize = TRUE)
 MeasureTorchDefault = R6Class("MeasureTorchDefault",
   inherit = Measure,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function() {
+    initialize = function(minimize = NA, range = c(-Inf, Inf)) {
       super$initialize(
         id = "torch.default",
         task_type = "torch",
         predict_type = "response",
         properties = "requires_task",
-        range = c(-Inf, Inf),
-        minimize = TRUE,
+        range = assert_numeric(range, len = 2L, any.missing = FALSE),
+        minimize = assert_flag(minimize, na.ok = TRUE),
         label = "Default Measure for a TaskTorch",
         man = "mlr3torch::mlr_measures_torch.default"
       )
@@ -200,6 +214,11 @@ MeasureTorchDefault = R6Class("MeasureTorchDefault",
       measure = task$default_measure
       if (is.null(measure)) {
         stopf("Task '%s' has no default measure, pass a measure explicitly or construct the task with the `default_measure` argument.", task$id) # nolint
+      }
+      # A tuner reads `minimize` long before it scores anything, so a disagreement here means it
+      # has been ranking the archive in the wrong direction.
+      if (!is.na(self$minimize) && !isTRUE(self$minimize == measure$minimize)) {
+        stopf("Measure 'torch.default' was constructed with minimize = %s, but the default measure '%s' of task '%s' has minimize = %s.", self$minimize, measure$id, task$id, measure$minimize) # nolint
       }
       measure$score(prediction, task = task, learner = learner, train_set = train_set)
     }
