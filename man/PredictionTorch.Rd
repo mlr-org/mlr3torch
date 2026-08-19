@@ -9,8 +9,9 @@ The \code{\link[mlr3:Prediction]{Prediction}} object returned by learners that w
 
 Because a \code{\link{TaskTorch}} can represent very different learning problems, this class does not
 prescribe how \code{truth}, \code{response}, \code{prob} and \code{se} are stored.
-Each of them may be an atomic vector, a \code{matrix()}, a \code{\link[data.table:data.table]{data.table}} or an
-array of any dimensionality -- whatever the task's \code{prediction_encoder} produced.
+Each of them may be an atomic vector, a \code{matrix()}, a \code{\link[data.table:data.table]{data.table}}, an
+array of any dimensionality, or a \code{list()} with one element per observation -- whatever the
+task's \code{prediction_encoder} produced.
 The checks that \code{mlr3} performs are correspondingly weak: it is verified that all elements
 describe the same number of observations, but not what is in them.
 }

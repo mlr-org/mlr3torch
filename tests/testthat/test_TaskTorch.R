@@ -573,6 +573,44 @@ test_that("array valued predictions survive a resample round trip", {
   expect_equal(sum(startsWith(names(tab), "response")), 4L)
 })
 
+test_that("list valued predictions survive a resample round trip", {
+  d = tt_data(60L)
+  d$y = d$x1 + rnorm(nrow(d))
+  task = tt_task(d, target = "y",
+    prediction_encoder = function(task, predict_tensor, predict_type) {
+      v = as.numeric(predict_tensor$cpu())
+      # the predictions of two observations do not have the same length, so the only thing that can
+      # hold them is a list
+      list(response = lapply(seq_along(v), function(i) rep(v[i], 1L + i %% 2L)))
+    })
+
+  rr = resample(task, tt_learner(t_loss("mse")), rsmp("cv", folds = 3L))
+  pred = rr$prediction()
+  expect_list(pred$response, types = "numeric", len = task$nrow)
+  expect_set_equal(lengths(pred$response), c(1L, 2L))
+
+  # a list is one column of the table, not one column per observation
+  tab = as.data.table(pred)
+  expect_data_table(tab, nrows = task$nrow)
+  expect_true(is.list(tab$response))
+})
+
+test_that("missing predictions are found whatever their storage", {
+  pdata = function(response) {
+    structure(list(row_ids = 1:3, response = response),
+      class = c("PredictionDataTorch", "PredictionData"))
+  }
+  a = array(1, dim = c(3L, 2L, 2L))
+  a[2L, 2L, 1L] = NA
+  # `is.na()` of an array is an array of the same shape, so indexing the row ids with it used to
+  # pick the wrong observation, or none at all
+  expect_equal(is_missing_prediction_data(pdata(a)), 2L)
+  expect_equal(is_missing_prediction_data(pdata(list(1, c(NA, 2), 3))), 2L)
+  expect_equal(is_missing_prediction_data(pdata(matrix(c(1, NA, 3, 4, 5, 6), nrow = 3L))), 2L)
+  expect_equal(is_missing_prediction_data(pdata(c(1, NA, 3))), 2L)
+  expect_equal(is_missing_prediction_data(pdata(as_lazy_tensor(torch_randn(3L, 2L)))), integer(0))
+})
+
 test_that("a learner for a different task type is rejected", {
   d = tt_data()
   d$y = d$x1 + rnorm(nrow(d))
@@ -645,7 +683,18 @@ test_that("a task can predict standard errors", {
     })
 
   expect_true("se" %chin% names(mlr_reflections$learner_predict_types$torch))
-  learner = tt_learner(t_loss("mse"), predict_type = "se")
+  # the two units mean different things, so the loss is a Gaussian negative log likelihood over
+  # both of them rather than a distance to the target
+  nll = nn_module("nn_test_gaussian_nll",
+    initialize = function() NULL,
+    forward = function(input, target) {
+      mu = input[, 1L]
+      log_sd = input[, 2L]
+      torch_mean(log_sd + (target$squeeze(2L) - mu)^2 / (2 * torch_exp(2 * log_sd)))
+    }
+  )
+  learner = tt_learner(TorchLoss$new(nll, task_types = "torch", id = "gaussian_nll"),
+    predict_type = "se")
   learner$train(task)
   pred = learner$predict(task)
 

@@ -6,8 +6,9 @@
 #'
 #' Because a [`TaskTorch`] can represent very different learning problems, this class does not
 #' prescribe how `truth`, `response`, `prob` and `se` are stored.
-#' Each of them may be an atomic vector, a `matrix()`, a [`data.table`][data.table::data.table] or an
-#' array of any dimensionality -- whatever the task's `prediction_encoder` produced.
+#' Each of them may be an atomic vector, a `matrix()`, a [`data.table`][data.table::data.table], an
+#' array of any dimensionality, or a `list()` with one element per observation -- whatever the
+#' task's `prediction_encoder` produced.
 #' The checks that `mlr3` performs are correspondingly weak: it is verified that all elements
 #' describe the same number of observations, but not what is in them.
 #'
@@ -80,8 +81,9 @@ pt_predict_types = c("response", "prob", "se")
 pt_elements = c("truth", pt_predict_types)
 
 # `truth`, `response` and `prob` of a PredictionDataTorch can be anything the task's prediction
-# encoder produced: a vector, a `data.table`, or an array of any dimensionality -- an autoencoder
-# over images predicts an `(n, channels, height, width)` array, for instance.
+# encoder produced: a vector, a `data.table`, an array of any dimensionality -- an autoencoder over
+# images predicts an `(n, channels, height, width)` array, for instance -- or a list, which is what
+# is left when the observations do not share a shape at all, as for a `lazy_tensor`.
 # The only thing assumed about them is that their *first* dimension indexes the observations, so
 # the prediction data methods below go through these helpers instead of indexing directly.
 pt_nobs = function(x) {
@@ -194,8 +196,13 @@ is_missing_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
   if (is.null(response)) {
     return(pdata$row_ids[0L])
   }
-  miss = if (is.matrix(response) || is.data.frame(response)) {
+  miss = if (is.array(response) || is.data.frame(response)) {
+    # `is.na()` on an array is an array of the same shape, so an observation is asked about along
+    # its first margin instead -- for a matrix this is the usual row-wise question
     apply(response, 1L, anyNA)
+  } else if (is.list(response)) {
+    # a list stores one arbitrary object per observation, so only that object can be asked
+    map_lgl(response, anyNA)
   } else {
     is.na(response)
   }
