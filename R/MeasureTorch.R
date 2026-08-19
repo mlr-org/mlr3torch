@@ -74,7 +74,7 @@ MeasureTorch = R6Class("MeasureTorch",
     #'   indistinguishable to everything that caches by hash.
     hash = function(rhs) {
       assert_ro_binding(rhs)
-      calculate_hash(super$hash, hash_input(private$.fun))
+      calculate_hash(super$hash, private$.fun)
     }
   ),
   private = list(
@@ -116,14 +116,8 @@ MeasureTorch = R6Class("MeasureTorch",
 #' @return [`MeasureTorch`]
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' # multi-label hamming loss, where truth and response are logical matrices
-#' msr_torch("hamming", function(truth, response) mean(as.matrix(truth) != response))
-#'
-#' # a measure that reads the ground truth from the task, which is what a task without a target needs
-#' msr_torch("reconstruction", function(task, prediction) {
-#'   truth = as.matrix(task$data(rows = prediction$row_ids, cols = task$feature_names))
-#'   mean((truth - prediction$response)^2)
-#' }, range = c(0, Inf))
+#' m = msr_torch("hamming", function(truth, response) mean(as.matrix(truth) != response))
+#' m$properties
 msr_torch = function(id, fun, minimize = TRUE, range = c(-Inf, Inf), predict_type = "response",
   properties = character(), label = NA_character_) {
   MeasureTorch$new(id = id, fun = fun, minimize = minimize, range = range,
@@ -135,7 +129,7 @@ msr_torch = function(id, fun, minimize = TRUE, range = c(-Inf, Inf), predict_typ
 #' @name mlr_measures_torch.default
 #'
 #' @description
-#' Delegates to the `$measure` field of the [`TaskTorch`] that is being scored.
+#' Delegates to the `$default_measure` field of the [`TaskTorch`] that is being scored.
 #' This is the default measure of the task type `"torch"`, i.e. what `$score()` and `$aggregate()`
 #' use when they are called without arguments.
 #' It errors if the task does not carry a measure.
@@ -145,7 +139,7 @@ msr_torch = function(id, fun, minimize = TRUE, range = c(-Inf, Inf), predict_typ
 #' @examplesIf torch::torch_is_installed()
 #' d = data.frame(x = rnorm(10), y = rnorm(10))
 #' task = as_task_torch(d, target = "y",
-#'   measure = msr_torch("mse", function(truth, response) mean((truth - response)^2)))
+#'   default_measure = msr_torch("mse", function(truth, response) mean((truth - response)^2)))
 #' msr("torch.default")
 MeasureTorchDefault = R6Class("MeasureTorchDefault",
   inherit = Measure,
@@ -160,16 +154,16 @@ MeasureTorchDefault = R6Class("MeasureTorchDefault",
         properties = "requires_task",
         range = c(-Inf, Inf),
         minimize = TRUE,
-        label = "Default Measure of the Task",
+        label = "Default Measure for a TaskTorch",
         man = "mlr3torch::mlr_measures_torch.default"
       )
     }
   ),
   private = list(
     .score = function(prediction, task, learner = NULL, train_set = NULL, ...) {
-      measure = task$measure
+      measure = task$default_measure
       if (is.null(measure)) {
-        stopf("Task '%s' has no default measure, pass a measure explicitly or construct the task with the `measure` argument.", task$id) # nolint
+        stopf("Task '%s' has no default measure, pass a measure explicitly or construct the task with the `default_measure` argument.", task$id) # nolint
       }
       measure$score(prediction, task = task, learner = learner, train_set = train_set)
     }

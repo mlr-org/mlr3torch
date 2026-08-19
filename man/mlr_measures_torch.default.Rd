@@ -5,7 +5,7 @@
 \alias{MeasureTorchDefault}
 \title{Default Measure of a Generic Torch Task}
 \description{
-Delegates to the \verb{$measure} field of the \code{\link{TaskTorch}} that is being scored.
+Delegates to the \verb{$default_measure} field of the \code{\link{TaskTorch}} that is being scored.
 This is the default measure of the task type \code{"torch"}, i.e. what \verb{$score()} and \verb{$aggregate()}
 use when they are called without arguments.
 It errors if the task does not carry a measure.
@@ -14,7 +14,7 @@ It errors if the task does not carry a measure.
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 d = data.frame(x = rnorm(10), y = rnorm(10))
 task = as_task_torch(d, target = "y",
-  measure = msr_torch("mse", function(truth, response) mean((truth - response)^2)))
+  default_measure = msr_torch("mse", function(truth, response) mean((truth - response)^2)))
 msr("torch.default")
 \dontshow{\}) # examplesIf}
 }

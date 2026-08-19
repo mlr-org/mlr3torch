@@ -90,7 +90,7 @@
 #'   [`msr_torch()`] turns a plain R function of `truth` and `response` into a [`Measure`][mlr3::Measure]
 #'   that scores such a prediction.
 #'
-#'   A measure that is passed as `measure` becomes the task's default measure, which is what
+#'   A measure that is passed as `default_measure` becomes the task's default measure, which is what
 #'   `$score()` and `$aggregate()` use when they are called without arguments.
 #'
 #' @param id (`character(1)`)\cr
@@ -111,7 +111,7 @@
 #'   `list()` of tensors -- and `predict_type`, and returns a named `list()` with elements `response`
 #'   and, optionally, `prob`.
 #'   May be `NULL` (default) if the learner encodes predictions itself.
-#' @param measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
+#' @param default_measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
 #'   The default measure of the task, see section *Scoring*.
 #'
 #' @family Task
@@ -134,20 +134,20 @@ TaskTorch = R6Class("TaskTorch",
   inherit = TaskSupervised,
   public = list(
     prediction_encoder = NULL,
-    #' @field measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
+    #' @field default_measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
     #'   See the construction argument.
-    measure = NULL,
+    default_measure = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, backend, target = character(0), label = NA_character_,
-      output_dim = NULL, prediction_encoder = NULL, measure = NULL) {
+      output_dim = NULL, prediction_encoder = NULL, default_measure = NULL) {
       target = assert_character(target, any.missing = FALSE, null.ok = TRUE) %??% character(0)
       super$initialize(id = id, task_type = "torch", backend = backend, target = target, label = label)
 
       self$output_dim = output_dim
       self$prediction_encoder = assert_function(prediction_encoder,
         args = c("task", "predict_tensor", "predict_type"), null.ok = TRUE)
-      self$measure = assert_r6(measure, "Measure", null.ok = TRUE)
+      self$default_measure = assert_r6(default_measure, "Measure", null.ok = TRUE)
     },
     #' @description
     #' The ground truth, see section *Scoring*.
@@ -170,7 +170,7 @@ TaskTorch = R6Class("TaskTorch",
     #'   collide.
     hash = function(rhs) {
       assert_ro_binding(rhs)
-      calculate_hash(super$hash, self$measure$hash,
+      calculate_hash(super$hash, self$default_measure$hash,
         hash_input(private$.output_dim), hash_input(self$prediction_encoder))
     },
     #' @field output_dim (`function()` or `NULL`)\cr
@@ -187,7 +187,7 @@ TaskTorch = R6Class("TaskTorch",
   private = list(
     .output_dim = NULL,
     deep_clone = function(name, value) {
-      if (name == "measure" && !is.null(value)) value$clone(deep = TRUE) else super$deep_clone(name, value)
+      if (name == "default_measure" && !is.null(value)) value$clone(deep = TRUE) else super$deep_clone(name, value)
     }
   )
 )
@@ -208,7 +208,7 @@ TaskTorch = R6Class("TaskTorch",
 #'   The id of the task.
 #' @param ... (any)\cr
 #'   Further arguments passed to [`TaskTorch`]`$new()`, such as `output_dim`, `prediction_encoder`
-#'   or `measure`.
+#'   or `default_measure`.
 #' @return [`TaskTorch`]
 #' @export
 #' @examplesIf torch::torch_is_installed()

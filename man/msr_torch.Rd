@@ -49,13 +49,7 @@ Short form for constructing a \code{\link{MeasureTorch}}, the quick way to score
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
-# multi-label hamming loss, where truth and response are logical matrices
-msr_torch("hamming", function(truth, response) mean(as.matrix(truth) != response))
-
-# a measure that reads the ground truth from the task, which is what a task without a target needs
-msr_torch("reconstruction", function(task, prediction) {
-  truth = as.matrix(task$data(rows = prediction$row_ids, cols = task$feature_names))
-  mean((truth - prediction$response)^2)
-}, range = c(0, Inf))
+m = msr_torch("hamming", function(truth, response) mean(as.matrix(truth) != response))
+m$properties
 \dontshow{\}) # examplesIf}
 }

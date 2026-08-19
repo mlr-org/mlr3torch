@@ -393,7 +393,7 @@ test_that("the default measure of a task is used by aggregate()", {
   rr = resample(without, tt_learner(t_loss("mse")), rsmp("holdout"))
   expect_error(rr$aggregate(), "has no default measure")
 
-  with = tt_task(d, target = "y", id = "t", measure = measure)
+  with = tt_task(d, target = "y", id = "t", default_measure = measure)
   rr = resample(with, tt_learner(t_loss("mse")), rsmp("holdout"))
   expect_number(rr$aggregate(), lower = 0)
 })
@@ -458,7 +458,7 @@ test_that("the hash of a measure covers its scoring function", {
 
   d = tt_data(40L)
   d$y = rnorm(nrow(d))
-  task = function(measure) tt_task(d, target = "y", id = "same", measure = measure)
+  task = function(measure) tt_task(d, target = "y", id = "same", default_measure = measure)
   expect_false(task(msr_torch("m", function(truth, response) 1))$hash ==
     task(msr_torch("m", function(truth, response) 2))$hash)
 

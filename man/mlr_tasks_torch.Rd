@@ -96,7 +96,7 @@ Such a task has no \code{truth}, so its measures read the ground truth from the 
 \code{\link[=msr_torch]{msr_torch()}} turns a plain R function of \code{truth} and \code{response} into a \code{\link[mlr3:Measure]{Measure}}
 that scores such a prediction.
 
-A measure that is passed as \code{measure} becomes the task's default measure, which is what
+A measure that is passed as \code{default_measure} becomes the task's default measure, which is what
 \verb{$score()} and \verb{$aggregate()} use when they are called without arguments.
 }
 
@@ -124,7 +124,7 @@ output_dim_for(task)
 \section{Public fields}{
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
-    \item{\code{measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
+    \item{\code{default_measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
 See the construction argument.}
   }
   \if{html}{\out{</div>}}
@@ -189,7 +189,7 @@ Use \code{\link[=output_dim_for]{output_dim_for()}} to evaluate it.}
   label = NA_character_,
   output_dim = NULL,
   prediction_encoder = NULL,
-  measure = NULL
+  default_measure = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -214,7 +214,7 @@ Takes the arguments \code{task}, \code{predict_tensor} -- the network's output, 
 \code{list()} of tensors -- and \code{predict_type}, and returns a named \code{list()} with elements \code{response}
 and, optionally, \code{prob}.
 May be \code{NULL} (default) if the learner encodes predictions itself.}
-      \item{\code{measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
+      \item{\code{default_measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
 The default measure of the task, see section \emph{Scoring}.}
     }
     \if{html}{\out{</div>}}

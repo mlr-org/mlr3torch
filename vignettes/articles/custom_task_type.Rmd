@@ -215,7 +215,7 @@ You can attach one to the task, in which case `$score()` and `$aggregate()` work
 tsk_weather_m = as_task_torch(dat, target = c("sunny", "warm", "windy"), id = "weather",
   output_dim = function(task) length(task$target_names),
   prediction_encoder = weather_encoder,
-  measure = msr_hamming)
+  default_measure = msr_hamming)
 
 resample(tsk_weather_m, lrn_weather, rsmp("holdout"))$aggregate()
 ```

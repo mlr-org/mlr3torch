@@ -18,7 +18,7 @@ The id of the task.}
 
 \item{...}{(any)\cr
 Further arguments passed to \code{\link{TaskTorch}}\verb{$new()}, such as \code{output_dim}, \code{prediction_encoder}
-or \code{measure}.}
+or \code{default_measure}.}
 }
 \value{
 \code{\link{TaskTorch}}
