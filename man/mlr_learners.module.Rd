@@ -161,9 +161,7 @@ Converts the target columns of a batch into the target tensor \code{y} that the 
 Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
 and optionally an argument \code{x}, the named list of feature tensors of the batch.
 If \code{NULL} (default), the target encoding of the task is used, i.e.
-\code{\link[=get_target_batchgetter]{get_target_batchgetter()}}\code{(task)}.
-Set it when the network and loss expect a different encoding than the task's default, e.g. to
-train on one-hot encoded class labels.}
+\code{\link[=get_target_batchgetter]{get_target_batchgetter()}}\code{(task)}.}
     }
     \if{html}{\out{</div>}}
   }

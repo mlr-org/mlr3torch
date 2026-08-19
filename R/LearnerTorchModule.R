@@ -27,8 +27,6 @@
 #'   and optionally an argument `x`, the named list of feature tensors of the batch.
 #'   If `NULL` (default), the target encoding of the task is used, i.e.
 #'   [`get_target_batchgetter()`]`(task)`.
-#'   Set it when the network and loss expect a different encoding than the task's default, e.g. to
-#'   train on one-hot encoded class labels.
 #' @template param_packages
 #' @param feature_types (`NULL` or `character()`)\cr
 #'   The feature types. Defaults to all available feature types.
@@ -157,7 +155,5 @@ nn_placeholder = nn_module("nn_placeholder",
 #' @include PipeOpTorchIngress.R task_dataset.R TorchLoss.R
 register_learner("classif.module", LearnerTorchModule, module_generator = nn_placeholder, ingress_tokens = list(x = ingress_num()))
 register_learner("regr.module", LearnerTorchModule, module_generator = nn_placeholder, ingress_tokens = list(x = ingress_num()))
-# There is no default loss for the task type "torch" (the learning problem is not known in advance),
-# so unlike for the other two, the prototype that the dictionary builds needs one.
 register_learner("torch.module", LearnerTorchModule, module_generator = nn_placeholder,
-  ingress_tokens = list(x = ingress_num()), loss = TorchLoss$new(torch::nn_mse_loss, id = "mse"))
+  ingress_tokens = list(x = ingress_num()), loss = loss_placeholder())

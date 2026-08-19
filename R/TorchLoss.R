@@ -383,3 +383,11 @@ mlr3torch_losses$add("cross_entropy", function() {
 #' binary_ce = loss$generate(tsk("sonar"))
 #' binary_ce
 NULL
+
+# The task type "torch" has no default loss, because the learning problem is not known in advance,
+# so the prototypes that the learner dictionary builds need one before the user has chosen theirs.
+# Which loss it is does not matter and it is never trained with -- the id says so, rather than
+# naming a loss that the dictionary would then appear to recommend.
+loss_placeholder = function() {
+  TorchLoss$new(torch::nn_mse_loss, id = "placeholder", label = "Placeholder Loss")
+}

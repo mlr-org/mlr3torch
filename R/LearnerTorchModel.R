@@ -164,6 +164,8 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
   )
 )
 
-#' @include PipeOpTorchIngress.R task_dataset.R
+#' @include PipeOpTorchIngress.R task_dataset.R TorchLoss.R
 register_learner("classif.torch_model", LearnerTorchModel)
 register_learner("regr.torch_model", LearnerTorchModel)
+# see `loss_placeholder()` for why the task type "torch" needs one and the other two do not
+register_learner("torch.torch_model", LearnerTorchModel, loss = loss_placeholder())
