@@ -76,18 +76,16 @@ register_task_type_torch = function(mlr_reflections) { # nolint
     "torch", "mlr3torch", "TaskTorch", "LearnerTorch", "PredictionTorch", "PredictionDataTorch", "MeasureTorch"
   ), fill = TRUE), "type")
 
-  # Spelled out rather than copied from another task type: what a TaskTorch supports is everything
-  # that is not specific to a learning problem, and no existing entry means that. The classif ones
-  # additionally carry "twoclass" and "multiclass", which say nothing about a task that may have any
-  # number of targets of any type, or none.
   mlr_reflections$task_col_roles$torch = c("feature", "target", "name", "order", "stratum", "group",
     "weights_learner", "weights_measure")
   mlr_reflections$task_properties$torch = c("strata", "groups", "weights_learner",
     "weights_measure")
-  # every `LearnerTorch` has these three and nothing else is claimed on its behalf
   mlr_reflections$learner_properties$torch = c("validation", "internal_tuning", "marshal")
   mlr_reflections$measure_properties$torch = c("na_score", "requires_task", "requires_learner",
     "requires_model", "requires_train_set", "weights", "requires_no_prediction", "obs_loss")
+
+  # Just give some common options. Users can anyway customize the content of 'response' to basically
+  # encode anything.
   mlr_reflections$learner_predict_types$torch = list(
     response = "response",
     prob = c("response", "prob"),

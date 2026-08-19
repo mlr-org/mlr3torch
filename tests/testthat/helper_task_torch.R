@@ -89,3 +89,19 @@ tt_data = function(n = 40L) {
     x1 = rnorm(n), x2 = rnorm(n), x3 = rnorm(n)
   ))
 }
+
+# Multi-label classification: one logical target column per label, one output unit each. This is the
+# example the tests use of a problem that is neither classification nor regression, so it is what a
+# `TaskTorch` exists for.
+tt_task_labels = function(n = 60L, labels = c("a", "b"), id = "labels") {
+  d = tt_data(n)
+  for (i in seq_along(labels)) {
+    d[[labels[i]]] = d[[paste0("x", i)]] > 0
+  }
+  tt_task(d, target = labels, id = id)
+}
+
+# the target of a multi-label task is a matrix of zeros and ones, one column per label
+tt_loss_bce = function() {
+  TorchLoss$new(torch::nn_bce_with_logits_loss, id = "bce")
+}

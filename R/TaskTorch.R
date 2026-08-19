@@ -3,7 +3,11 @@
 #' @name mlr_tasks_torch
 #'
 #' @description
-#' A general-purpose [`Task`][mlr3::Task] for learning problems that are neither classification nor
+#' A general-purpose [`Task`][mlr3::Task] that can be used for modeling arbitrary problems, including
+#' supervised and unsupervised problems.
+#' With this flexibility comes the loss of compatability checks.
+#' `"torch"` can b
+#' for learning problems that are neither classification nor
 #' regression, such as multi-label classification, multi-output regression or autoencoders.
 #' It may have any number of target columns, including none at all, so it is supervised or
 #' unsupervised depending only on whether target columns were given.
@@ -22,7 +26,7 @@
 #' `TaskTorch` is the quick alternative: the task type `"torch"` is registered once by `mlr3torch`
 #' and every custom problem is expressed as an *instance* of `TaskTorch` rather than as a new class.
 #' What would otherwise be S3 methods dispatching on the task class are fields of the task instead,
-#' and they are inferred from the types of the target columns when they are not given.
+#' which you fill in yourself -- nothing about the learning problem is inferred from the data.
 #'
 #' The price is that all `TaskTorch` instances share a single task type, so `mlr3` cannot tell a
 #' multi-label task apart from a multi-output regression task.

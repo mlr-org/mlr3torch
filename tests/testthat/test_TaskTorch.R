@@ -94,12 +94,9 @@ test_that("the hash covers the fields that define the learning problem", {
 })
 
 test_that("train, predict and score work for a multi-label task", {
-  d = tt_data(60L)
-  d$a = d$x1 > 0
-  d$b = d$x2 > 0
-  task = tt_task(d, target = c("a", "b"), id = "labels")
+  task = tt_task_labels(60L)
 
-  learner = tt_learner(TorchLoss$new(torch::nn_bce_with_logits_loss, id = "bce"))
+  learner = tt_learner(tt_loss_bce())
   learner$predict_type = "prob"
   learner$train(task)
   pred = learner$predict(task)
@@ -435,11 +432,8 @@ test_that("the hash of a measure covers its scoring function", {
 })
 
 test_that("predicting on zero rows gives an empty prediction", {
-  d = tt_data(40L)
-  d$a = d$x1 > 0
-  d$b = d$x2 > 0
-  task = tt_task(d, target = c("a", "b"), id = "t")
-  learner = tt_learner(TorchLoss$new(torch::nn_bce_with_logits_loss, id = "bce"))
+  task = tt_task_labels(40L, id = "t")
+  learner = tt_learner(tt_loss_bce())
   learner$predict_type = "prob"
   learner$train(task)
 

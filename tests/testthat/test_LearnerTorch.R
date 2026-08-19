@@ -1299,3 +1299,60 @@ test_that("hashes are reproducible across R sessions", {
   expect_equal(hash_in_session(FALSE), lrn("classif.mlp", activation = nn_relu, neurons = 3,
     epochs = 1, batch_size = 16, device = "cpu")$hash)
 })
+
+test_that("the machinery of LearnerTorch works on a generic torch task", {
+  task = tt_task_labels(40L)
+  learner = tt_learner(tt_loss_bce(), epochs = 2L)
+
+  expect_equal(learner$task_type, "torch")
+  # the task type claims no more than every LearnerTorch has, see `register_task_type_torch()`
+  expect_set_equal(learner$properties, c("marshal", "validation", "internal_tuning"))
+  expect_set_equal(learner$predict_types, c("response", "prob", "se"))
+
+  learner$train(task)
+  expect_class(learner$network, "nn_module")
+  expect_permutation(
+    names(learner$model),
+    c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks", "epochs",
+      "internal_valid_scores")
+  )
+
+  pred = learner$predict(task)
+  expect_class(pred, "PredictionTorch")
+  expect_matrix(pred$response, mode = "logical", nrows = task$nrow, ncols = 2L)
+
+  # marshaling does not know about task types, but the round trip has to leave a usable model
+  expect_false(learner$marshaled)
+  learner$marshal()
+  expect_true(learner$marshaled)
+  learner$unmarshal()
+  expect_matrix(learner$predict(task)$response, mode = "logical", nrows = task$nrow, ncols = 2L)
+})
+
+test_that("validation and early stopping work on a generic torch task", {
+  task = tt_task_labels(40L)
+  task$internal_valid_task = task$clone(deep = TRUE)
+
+  measure = msr_torch("hamming", function(truth, response) mean(as.matrix(truth) != response),
+    range = c(0, 1))
+  learner = tt_learner(tt_loss_bce(), epochs = 6L, eval_freq = 2L,
+    measures_valid = measure, validate = "predefined")
+
+  learner$train(task)
+  expect_list(learner$internal_valid_scores, "numeric", len = 1L)
+  expect_equal(names(learner$internal_valid_scores), "hamming")
+  expect_number(learner$internal_valid_scores[[1L]], lower = 0, upper = 1)
+
+  # early stopping tunes `epochs`, which is what the "internal_tuning" property promises
+  learner$param_set$set_values(patience = 1L)
+  learner$train(task)
+  expect_number(learner$internal_tuned_values$epochs, lower = 1, upper = 6)
+})
+
+test_that("a learner for a different task type is rejected by LearnerTorch itself", {
+  task = tt_task_labels(20L)
+  # `mlr3::assert_task_learner()` accepts any learner inheriting the class registered for the task
+  # type, and `LearnerTorch` is the one registered for "torch", so it passes that check
+  expect_error(lrn("classif.mlp", epochs = 1L, batch_size = 16L)$train(task),
+    "is for task type 'classif'")
+})

@@ -5,7 +5,11 @@
 \alias{TaskTorch}
 \title{Generic Torch Task}
 \description{
-A general-purpose \code{\link[mlr3:Task]{Task}} for learning problems that are neither classification nor
+A general-purpose \code{\link[mlr3:Task]{Task}} that can be used for modeling arbitrary problems, including
+supervised and unsupervised problems.
+With this flexibility comes the loss of compatability checks.
+\code{"torch"} can b
+for learning problems that are neither classification nor
 regression, such as multi-label classification, multi-output regression or autoencoders.
 It may have any number of target columns, including none at all, so it is supervised or
 unsupervised depending only on whether target columns were given.
@@ -24,7 +28,7 @@ this.
 \code{TaskTorch} is the quick alternative: the task type \code{"torch"} is registered once by \code{mlr3torch}
 and every custom problem is expressed as an \emph{instance} of \code{TaskTorch} rather than as a new class.
 What would otherwise be S3 methods dispatching on the task class are fields of the task instead,
-and they are inferred from the types of the target columns when they are not given.
+which you fill in yourself -- nothing about the learning problem is inferred from the data.
 
 The price is that all \code{TaskTorch} instances share a single task type, so \code{mlr3} cannot tell a
 multi-label task apart from a multi-output regression task.
