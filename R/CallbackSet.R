@@ -26,6 +26,19 @@
 #' callback state into a different callback.
 #' Note that the `$state_dict()` should not include the parameter values that were used to initialize the callback.
 #'
+#' A callback that ends training by setting `ctx$terminate` should set it again in
+#' `$load_state_dict()` when its restored state says the run was over -- as
+#' [early stopping][mlr_learners_torch] does when the restored stagnation has reached `patience`.
+#' The training loop consults `ctx$terminate` before each epoch, so a run continuing such a
+#' checkpoint then trains nothing instead of one more epoch.
+#'
+#' A state must survive [`saveRDS()`][base::readRDS], which is how [`t_clbk("checkpoint")`][mlr_callback_set.checkpoint]
+#' writes it and how a learner is serialized.
+#' `torch` tensors and modules do not: they are external pointers, and one that was written and read
+#' back errors with `external pointer is not valid` when it is used.
+#' Convert them, e.g. with [`as.array()`][base::array] or [`torch::torch_serialize()`], and convert
+#' them back in `$load_state_dict()`.
+#'
 #' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
 #' `CallbackSet` and then wraps it in a [`TorchCallback`].
 #' To create a `CallbackSet` the convenience function [`callback_set()`] can be used.
@@ -153,6 +166,8 @@ CallbackSet = R6Class("CallbackSet",
 #' @param state_dict (`function()`)\cr
 #'   The function that retrieves the state dict from the callback.
 #'   This is what will be available in the learner after training.
+#'   It must return something that survives [`saveRDS()`][base::readRDS], so no `torch` tensors or
+#'   modules, see section *Inheriting* of [`CallbackSet`].
 #' @param load_state_dict (`function(state_dict)`)\cr
 #'   Function that loads a callback state.
 #' @param weight (`numeric(1)`)\cr

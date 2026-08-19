@@ -1226,6 +1226,15 @@ test_that("the model has a printer", {
   expect_snapshot(learner$model)
 })
 
+test_that("a callback can end training before its first epoch", {
+  # `terminate` is checked before an epoch rather than after it, which is what lets a run that is
+  # already over -- see the resuming tests of CallbackSetEarlyStopping -- train nothing at all
+  stop_now = torch_callback("stop_now", on_begin = function() self$ctx$terminate = TRUE)
+  learner = lrn("classif.mlp", epochs = 5L, batch_size = 50, neurons = 10, callbacks = stop_now)
+  learner$train(tsk("iris"))
+  expect_equal(learner$model$epochs, 0L)
+})
+
 describe("resuming from a checkpoint", {
   it("continues from the checkpointed epoch", {
     path = tempfile()

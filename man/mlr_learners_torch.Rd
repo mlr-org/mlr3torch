@@ -83,6 +83,11 @@ learner has no effect, and the same is true for the state of every callback that
 Early stopping is checked rather than silently continued: the checkpoint records which
 validation measure its best score belongs to -- the first of \code{measures_valid}, which is the one
 early stopping tracks -- and a run tracking another measure is refused.
+A run that early stopping \emph{ended} is finished, whatever \code{epochs} says: resuming it warns, trains
+no epoch and returns the model of the checkpoint, so that a script restarting itself converges
+instead of training one epoch further on every attempt.
+The same holds for a callback of your own that ends a run through \code{ctx$terminate}, provided it
+sets that flag again when its state is restored, see the \emph{State} section of \code{\link{CallbackSet}}.
 
 Callback states are matched to the callbacks of the resuming run \strong{by id}.
 A state whose id is not among this run's callbacks is skipped with a warning, and a callback

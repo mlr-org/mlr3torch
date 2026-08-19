@@ -164,7 +164,10 @@ train_loop = function(ctx, cbs) {
 
   ctx$network$train()
 
-  while (ctx$epoch < ctx$total_epochs) {
+  # `terminate` is checked before an epoch rather than after it, so that a run which is already
+  # over -- one continuing a checkpoint whose callback stopped it, or one a callback ends in the
+  # `begin` stage -- trains nothing instead of one more epoch
+  while (!isTRUE(ctx$terminate) && ctx$epoch < ctx$total_epochs) {
     ctx$epoch = ctx$epoch + 1
     call("on_epoch_begin")
 
@@ -247,8 +250,6 @@ train_loop = function(ctx, cbs) {
       ctx$last_scores_valid = NULL
     }
     call("on_epoch_end")
-
-    if (isTRUE(ctx$terminate)) break
   }
 
   call("on_end")

@@ -34,6 +34,9 @@ notice that an id stands for a callback of another class instead of restoring th
 into the other.
 Callbacks of the same class are indistinguishable to that check, and \code{\link[=torch_callback]{torch_callback()}} names
 the class after the id, so a custom callback under a builtin's id is not caught by it.
+This file is written with \code{\link[base:readRDS]{saveRDS()}}, so a callback state containing a
+\code{torch} tensor or module is written as an invalid pointer and errors when a resuming run uses
+it -- see section \emph{Inheriting} of \code{\link{CallbackSet}}.
 }
 }
 \details{

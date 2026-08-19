@@ -31,6 +31,9 @@
 #'   into the other.
 #'   Callbacks of the same class are indistinguishable to that check, and [`torch_callback()`] names
 #'   the class after the id, so a custom callback under a builtin's id is not caught by it.
+#'   This file is written with [`saveRDS()`][base::readRDS], so a callback state containing a
+#'   `torch` tensor or module is written as an invalid pointer and errors when a resuming run uses
+#'   it -- see section *Inheriting* of [`CallbackSet`].
 #'
 #' @section Resuming:
 #' This callback is special because it enables resuming a training run.

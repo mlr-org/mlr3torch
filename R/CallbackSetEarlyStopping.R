@@ -90,6 +90,15 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       self$epoch_at_best_score = state_dict$best_epochs
       self$best_score = state_dict$best_score
       self$stagnation = state_dict$stagnation
+      if (self$stagnation >= self$patience) {
+        # This checkpoint is where early stopping ended the run it belongs to, so that run is
+        # finished and there is nothing to continue. Without this the resumed run would train an
+        # epoch before the loop consults `terminate` again -- and if that epoch improves, the
+        # counter resets and the run carries on to its full epoch budget.
+        warningf("Early stopping had already ended the run this checkpoint belongs to (stagnation %i, patience %i), so this run trains no epoch and returns the model of the checkpoint, even though 'epochs' is greater. A run that early stopping ended is finished; start a new run to train further.", # nolint
+          self$stagnation, self$patience)
+        self$ctx$terminate = TRUE
+      }
       if (self$restore_best_weights) {
         # `best_state_dict` stays NULL until this run improves on the restored score, and $on_exit()
         # then restores nothing. Without this the run would report an epoch it does not hold.

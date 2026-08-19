@@ -58,6 +58,8 @@
   script that restarts itself can be run again after it succeeded.
 * `t_clbk("checkpoint")` now reports its folder in `learner$model$callbacks$<id>$path`, so the
   folder a `path` function chose can be read off the trained learner.
+* Resuming a run that early stopping had ended now warns and returns its model instead of training
+  further, and `ctx$terminate` is checked before an epoch rather than after it.
 
 ## Bug fixes
 

@@ -153,27 +153,57 @@ describe("resuming", {
     expect_equal(same$model$epochs, 4L)
   })
 
-  it("early stopping still fires", {
-    # `stagnation` is restored, so it can start at or above `patience`. An equality test would step
-    # over the trigger and never match again, letting the resumed run use its whole epoch budget.
+  it("a run that early stopping ended is finished", {
+    # `stagnation` is restored at or above `patience`, and the loop consults `terminate` before an
+    # epoch rather than after it, so such a run trains nothing at all and hands back the model of
+    # the checkpoint -- otherwise a script restarting itself would creep one epoch per attempt
     task = tsk("iris")
     task$internal_valid_task = 1:30
     path = tempfile()
-    make = function(epochs, ...) {
-      lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10, seed = 1,
+    make = function(...) {
+      lrn("classif.mlp", epochs = 20L, batch_size = 50, neurons = 10, seed = 1,
         patience = 2L, min_delta = 0, validate = "predefined", measures_valid = msr("classif.ce"),
         opt.lr = 0, ...)
     }
 
     # opt.lr = 0 means the score can never improve, so the first run stops as soon as it can
-    first = make(20L, callbacks = t_clbk("checkpoint", freq = 1, path = path))
+    first = make(callbacks = t_clbk("checkpoint", freq = 1, path = path))
     first$train(task)
     expect_equal(first$model$epochs, 3L)
     expect_equal(first$model$callbacks$early_stopping$stagnation, 2L)
+    written = list.files(path)
 
-    resumed = make(20L, resume = path)
-    resumed$train(task)
-    # it cannot improve either, so it stops at its first validated epoch rather than running to 20
-    expect_equal(resumed$model$epochs, 4L)
+    resumed = make(resume = path)
+    expect_warning(resumed$train(task), "already ended the run this checkpoint belongs to")
+    expect_equal(resumed$model$epochs, 3L)
+    expect_equal(
+      as.numeric(resumed$network$parameters[[1L]]$flatten()),
+      as.numeric(first$network$parameters[[1L]]$flatten())
+    )
+    expect_equal(resumed$internal_tuned_values$epochs, first$internal_tuned_values$epochs)
+    # a run that trains nothing writes nothing
+    expect_set_equal(list.files(path), written)
+  })
+
+  it("a resumed run does not train past the epoch early stopping chose", {
+    # the same with a learning rate that can still improve the score: an epoch trained before the
+    # loop looks at `terminate` would reset `stagnation` and let the run continue to all 20 epochs
+    task = tsk("iris")
+    task$internal_valid_task = seq(5, 150, by = 5)
+    path = tempfile()
+    make = function(...) {
+      lrn("classif.mlp", epochs = 20L, batch_size = 50, neurons = c(20, 20), seed = 1,
+        shuffle = FALSE, p = 0, opt.lr = 0.05, predict_type = "prob", patience = 2L,
+        min_delta = 0.005, validate = "predefined", measures_valid = msr("classif.logloss"), ...)
+    }
+
+    first = make(callbacks = t_clbk("checkpoint", freq = 1, path = path))
+    first$train(task)
+    expect_lt(first$model$epochs, 20L)
+
+    resumed = make(resume = path)
+    expect_warning(resumed$train(task), "already ended the run this checkpoint belongs to")
+    expect_equal(resumed$model$epochs, first$model$epochs)
+    expect_equal(resumed$internal_tuned_values$epochs, first$internal_tuned_values$epochs)
   })
 })
