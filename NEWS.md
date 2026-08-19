@@ -10,12 +10,24 @@
   `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
 * The `cache` argument of `materialize()` is now a `utils::hashtab()` instead of an `environment()`,
   which avoids possible hash collisions and raises the R dependency to `>= 4.2.0`.
+* The first argument of the private `.encode_prediction()` method of `LearnerTorch` was renamed
+  from `predict_tensor` to `network_output`, as it can also be a `list()` of tensors.
+* `measures_train` is now calculated from the complete output of the network instead of only its
+  first tensor, which is passed to `.encode_prediction()` unchanged.
 * The `num_interop_threads` parameter of `LearnerTorch` is no longer initialized to `1`, so torch's
   default is left in place unless the parameter is set. Setting it to a value that torch can no
   longer apply is now an error instead of a warning.
 
 ## Features
 
+* `LearnerTorch` and `PipeOpTorchModel` now accept any task type registered in
+  `mlr_reflections$task_types`, via the new generics `get_target_batchgetter()` and `encode_prediction()`.
+* New S3 generic `get_batch_constructor()`, which decides how a whole batch of a task is built,
+  i.e. both the features `x` and the target `y`.
+* A network can now return a `list()` of tensors in evaluation mode, which is passed to
+  `encode_prediction()` as it is, so a prediction can consist of more than one quantity.
+* New function `pipeop_torch()` that simplifies the creation of `PipeOpTorch` classes.
+* New article *Writing your own PipeOpTorch*.
 * The `$model` of a `LearnerTorch` now has a printer.
 * Added more image learners from {torchvision}.
 * Most `LearnerTorchVision` are now `jittable`.
@@ -24,10 +36,8 @@
   to customize the construction of the loss function.
 * `LearnerTorch` now has `restore_best_weights` parameter that can be used when
    early stopping is active.
-* A network can now return more than one prediction during training as a list.
-  The first is expected to be the primary prediction.
-  In `ContextTorch`, `$y_hat` is the primary prediction and `$y_hats` contains
-  the complete prediction.
+* A network can now return a `list()` of tensors during training, which the loss is applied to.
+  In `ContextTorch`, `$y_hats` is that complete output and `$y_hat` its first element.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
 * Added multihead attention and transformer encoder pipeops.
 * Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
@@ -45,6 +55,8 @@
 
 ## Bug fixes
 
+* `lrn("classif.torch_model")` / `lrn("regr.torch_model")` no longer change their `$hash` when they
+  are trained.
 * Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 * `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.

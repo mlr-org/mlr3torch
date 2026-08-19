@@ -77,6 +77,8 @@ navbar:
       - text: Internals
       - text: Networks as Graphs
         href: articles/internals_pipeop_torch.html
+      - text: Writing your own PipeOpTorch
+        href: articles/custom_pipeop_torch.html
 
 
 reference:
@@ -99,6 +101,7 @@ reference:
       - TorchIngressToken
       - starts_with("ingress")
       - mlr_pipeops_torch
+      - pipeop_torch
       - mlr_pipeops_torch_ingress
       - starts_with("mlr_pipeops_torch_model")
       - starts_with("batchgetter")
@@ -168,6 +171,9 @@ reference:
       - task_dataset
       - Select
       - output_dim_for
+      - get_target_batchgetter
+      - get_batch_constructor
+      - encode_prediction
   - title: Shape Inference
     contents:
       - infer_shapes
