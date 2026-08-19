@@ -4,7 +4,11 @@
 #'
 #' @description
 #' Builds a Torch Learner from a [`ModelDescriptor`] and trains it with the given parameter specification.
-#' The task type must be specified during construction.
+#'
+#' This is `po("torch_model")`, which works on the general-purpose task type of `mlr3torch`, see
+#' [`TaskTorch`]. `po("torch_model_classif")` and `po("torch_model_regr")` are the same operator
+#' with a different `task_type`; they exist as classes of their own only because the
+#' [`PipeOp`][mlr3pipelines::PipeOp] dictionary constructs its entries without arguments.
 #' @template paramset_torchlearner
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` that takes in `ModelDescriptor` during traing and a `Task` of the specified
@@ -20,6 +24,7 @@
 #' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and
 #' its `$train()` method is called on the [`Task`][mlr3::Task] stored in the [`ModelDescriptor`].
 #'
+#' @family PipeOps
 #' @export
 PipeOpTorchModel = R6Class("PipeOpTorchModel",
   inherit = PipeOpLearner,
@@ -27,11 +32,13 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     #' @param task_type (`character(1)`)\cr
-    #'   The task type of the model.
+    #'   The task type of the model. Defaults to `"torch"`, the general-purpose task type of
+    #'   `mlr3torch`, see [`TaskTorch`].
     #' @param target_batchgetter (`function()` or `NULL`)\cr
-    #'   Passed to [`LearnerTorchModel`]. Needed for task types that do not provide a
+    #'   Converts the target columns of a batch into the target tensor `y`, passed to
+    #'   [`LearnerTorchModel`]. Needed for task types that do not provide a
     #'   [`get_target_batchgetter()`] method of their own, such as [`TaskTorch`].
-    initialize = function(task_type, id = "torch_model", param_vals = list(),
+    initialize = function(task_type = "torch", id = "torch_model", param_vals = list(),
       target_batchgetter = NULL) {
       private$.task_type = assert_choice(task_type, mlr_reflections$task_types$type)
 
@@ -195,39 +202,7 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
   )
 )
 
-#' @title Torch Model for a Generic Torch Task
-#' @name mlr_pipeops_torch_model_torch
-#'
-#' @description
-#' Builds a [`LearnerTorchModel`][mlr_learners_torch_model] for a [`TaskTorch`] from a
-#' [`ModelDescriptor`] and trains it.
-#'
-#' @inheritSection mlr_pipeops_torch_model Input and Output Channels
-#' @inheritSection mlr_pipeops_torch_model State
-#' @section Parameters: See [`LearnerTorch`]
-#' @inheritSection mlr_pipeops_torch_model Internals
-#' @family PipeOps
-#' @export
-PipeOpTorchModelTorch = R6Class("PipeOpTorchModelTorch",
-  inherit = PipeOpTorchModel,
-  public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @template params_pipelines
-    #' @param target_batchgetter (`function()` or `NULL`)\cr
-    #'   Converts the target columns of a batch into the target tensor `y`, see [`TaskTorch`].
-    initialize = function(id = "torch_model", param_vals = list(), target_batchgetter = NULL) {
-      super$initialize(
-        id = id,
-        param_vals = param_vals,
-        task_type = "torch",
-        target_batchgetter = target_batchgetter
-      )
-    }
-  )
-)
-
 #' @include aaa.R
 register_po("torch_model_regr", PipeOpTorchModelRegr)
 register_po("torch_model_classif", PipeOpTorchModelClassif)
-register_po("torch_model", PipeOpTorchModelTorch)
+register_po("torch_model", PipeOpTorchModel)
