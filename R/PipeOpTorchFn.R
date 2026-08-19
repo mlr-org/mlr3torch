@@ -92,7 +92,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     .fn = NULL,
     .shapes_out_fn = NULL,
     .additional_phash_input = function() {
-      hash_input(private$.fn)
+      private$.fn
     }
   )
 )

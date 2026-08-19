@@ -139,8 +139,8 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
     },
 
     .additional_phash_input = function() {
-      list(self$properties, self$feature_types, hash_input(private$.module_generator), self$packages,
-        lapply(private$.ingress_tokens_, hash_input), hash_input(private$.target_batchgetter))
+      list(self$properties, self$feature_types, private$.module_generator, self$packages,
+        private$.ingress_tokens_, private$.target_batchgetter)
     }
   )
 )

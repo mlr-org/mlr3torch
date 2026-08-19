@@ -175,6 +175,7 @@ TaskTorch = R6Class("TaskTorch",
     },
     #' @description
     #' The ground truth, see section *Scoring*.
+    #' Might return `NULL` for unsupervised problems.
     #' @param rows (`integer()`)\cr
     #'   The rows to return the truth for. All rows if `NULL`.
     truth = function(rows = NULL) {
@@ -195,7 +196,7 @@ TaskTorch = R6Class("TaskTorch",
     hash = function(rhs) {
       assert_ro_binding(rhs)
       calculate_hash(super$hash, self$default_measure$hash,
-        hash_input(private$.output_dim), hash_input(self$prediction_encoder))
+        private$.output_dim, self$prediction_encoder)
     },
     #' @field output_dim (`function()` or `NULL`)\cr
     #'   See the construction argument.
