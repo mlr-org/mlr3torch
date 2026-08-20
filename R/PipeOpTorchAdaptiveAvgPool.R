@@ -24,7 +24,7 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
     .shapes_out = function(shapes_in, param_vals, task) {
       # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`.
       assert_ndim(shapes_in[[1L]], private$.d + 2L, self$id)
-      list(adaptive_avg_output_shape(
+      list(adaptive_output_shape(
         shape_in = shapes_in[[1]],
         conv_dim = private$.d,
         output_size = param_vals[["output_size"]],
@@ -35,7 +35,9 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
   )
 )
 
-adaptive_avg_output_shape = function(shape_in, conv_dim, output_size, id = NULL) {
+# An adaptive pooling operator produces the size it was asked for, whatever the input size is, so
+# average and maximum pooling share this.
+adaptive_output_shape = function(shape_in, conv_dim, output_size, id = NULL) {
   shape_in = assert_integerish(shape_in, len = conv_dim + 2L, coerce = TRUE)
 
   if (length(output_size) == 1) output_size = rep(output_size, conv_dim)

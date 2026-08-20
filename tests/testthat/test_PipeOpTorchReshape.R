@@ -58,6 +58,44 @@ test_that("PipeOpTorchFlatten", {
   expect_paramtest(res)
 })
 
+test_that("PipeOpTorchUnflatten autotest", {
+  obj = po("nn_unflatten", dim = 2, unflattened_size = c(2, 2))
+  task = tsk("iris")
+  graph = po("torch_ingress_num") %>>% obj
+  expect_pipeop_torch(graph, "nn_unflatten", task)
+})
+
+test_that("PipeOpTorchUnflatten paramtest", {
+  res = expect_paramset(po("nn_unflatten"), nn_unflatten)
+  expect_paramtest(res)
+})
+
+test_that("nn_unflatten rejects sizes that cannot exist", {
+  unflatten = function(size, shape_in, dim = 2) {
+    po("nn_unflatten", dim = dim, unflattened_size = size)$shapes_out(list(shape_in))[[1L]]
+  }
+  expect_error(unflatten(c(-5, -7), c(NA, 24L)), "every size must be at least 1", fixed = TRUE)
+  expect_error(unflatten(c(0, 24), c(NA, 24L)), "every size must be at least 1", fixed = TRUE)
+  expect_error(unflatten(c(-1, -1), c(NA, 24L)), "at most one size can be inferred", fixed = TRUE)
+  expect_error(unflatten(c(2, 5), c(NA, 24L)), "does not multiply out to 24", fixed = TRUE)
+  expect_error(unflatten(c(-1, 5), c(NA, 24L)), "does not multiply out to 24", fixed = TRUE)
+  # splitting the batch dimension would silently change the number of observations
+  expect_error(unflatten(c(2, 2), c(4L, 6L), dim = 1), "which is the batch dimension", fixed = TRUE)
+  expect_error(unflatten(c(2, 2), c(NA, 24L), dim = 9L), "cannot use 'dim' 9", fixed = TRUE)
+})
+
+test_that("nn_unflatten resolves an unknown size from the dimension it unflattens", {
+  unflatten = function(size, shape_in, dim = 2) {
+    po("nn_unflatten", dim = dim, unflattened_size = size)$shapes_out(list(shape_in))[[1L]]
+  }
+  expect_equal(unflatten(c(-1, 6), c(NA, 24L, 5L)), c(NA, 4L, 6L, 5L))
+  expect_equal(unflatten(c(4, -1), c(NA, 24L, 5L)), c(NA, 4L, 6L, 5L))
+  # ... and keeps it unknown when the dimension itself is
+  expect_equal(unflatten(c(-1, 6), c(NA, NA, 5L)), c(NA, NA, 6L, 5L))
+  # a negative `dim` counts down from the last dimension, as it does in torch
+  expect_equal(unflatten(c(2, 3), c(NA, 5L, 6L), dim = -1L), c(NA, 5L, 2L, 3L))
+})
+
 test_that("nn_unsqueeze interprets negative dim like torch", {
   x = torch_randn(3L, 4L, 6L)
   for (d in c(-1L, -2L, -3L, -4L)) {
@@ -79,6 +117,8 @@ test_that("nn_squeeze removes the same dimensions as the inferred shape for nega
 
 test_that("shape inference matches the operator", {
   expect_shape_inference("nn_flatten", list(start_dim = 2, end_dim = 3), c(2, 4, 6, 8))
+  expect_shape_inference("nn_unflatten", list(dim = 2, unflattened_size = c(2, 2)), c(2, 4, 6))
+  expect_shape_inference("nn_unflatten", list(dim = -1, unflattened_size = c(-1, 3)), c(2, 4, 6))
   expect_shape_inference("nn_reshape", list(shape = c(-1, 24)), c(2, 4, 6))
   expect_shape_inference("nn_unsqueeze", list(dim = 2), c(2, 4, 6))
   expect_shape_inference("nn_unsqueeze", list(dim = -1), c(2, 4, 6))
@@ -141,6 +181,9 @@ test_that("shape inference agrees with the module for random shapes and paramete
   # and the inputs that reshape to 24 features are listed instead
   expect_shape_inference("nn_reshape", list(shape = c(-1L, 24L)),
     shapes = list(c(3L, 4L, 6L), c(2L, 8L, 3L), c(5L, 2L, 3L, 4L), c(7L, 24L)))
+  # the drawn shapes have an even second dimension, so the sizes always multiply out to it
+  expect_shape_inference("nn_unflatten", list(dim = 2L, unflattened_size = c(2L, -1L)),
+    generators = gen_shape(3L))
 })
 
 test_that("nn_squeeze requires 'dim' and can squeeze the batch dimension", {

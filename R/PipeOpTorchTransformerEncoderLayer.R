@@ -36,6 +36,141 @@ nn_encoder_layer = nn_module(
   }
 )
 
+nn_encoder = nn_module(
+  "nn_encoder",
+  initialize = function(d_model, nhead, num_layers, norm = FALSE, dim_feedforward = 2048,
+    dropout = 0.1, activation = "relu", layer_norm_eps = 1e-5, batch_first = FALSE,
+    norm_first = FALSE, bias = TRUE, is_causal = FALSE, mask_inputs = character(0)) {
+    self$is_causal = assert_flag(is_causal)
+    self$mask_inputs = assert_subset(mask_inputs, c("src_mask", "src_key_padding_mask"))
+    layer = torch::nn_transformer_encoder_layer(
+      d_model = d_model,
+      nhead = nhead,
+      dim_feedforward = dim_feedforward,
+      dropout = dropout,
+      activation = activation,
+      layer_norm_eps = layer_norm_eps,
+      batch_first = batch_first,
+      norm_first = norm_first,
+      bias = bias
+    )
+    final_norm = if (assert_flag(norm)) torch::nn_layer_norm(d_model, eps = layer_norm_eps)
+    # torch deep-copies the layer once per position, so the layers have independent weights; they
+    # do start from the same values, as they are copies of one initialized layer
+    self$encoder = torch::nn_transformer_encoder(
+      encoder_layer = layer,
+      num_layers = num_layers,
+      norm = final_norm
+    )
+  },
+  forward = function(...) {
+    inputs = list(...)
+    # the encoder calls the attention mask `mask`, whereas the single layer calls it `src_mask`
+    argnames = c(src_mask = "mask", src_key_padding_mask = "src_key_padding_mask")
+    args = list(src = inputs[[1L]])
+    for (i in seq_along(self$mask_inputs)) {
+      args[[argnames[[self$mask_inputs[[i]]]]]] = inputs[[i + 1L]]
+    }
+    if (self$is_causal) {
+      # see `nn_encoder_layer()` for why the mask is built here rather than passed as `is_causal`
+      len = args$src$shape[[2L]]
+      args$mask = torch_ones(c(len, len), dtype = torch_bool(),
+        device = args$src$device)$triu(diagonal = 1)
+    }
+    do.call(self$encoder, args)
+  }
+)
+
+# Base class for the transformer encoder operators. They agree on the mask input channels and on
+# how the layer is sized, and differ in whether one layer or a stack of them is built.
+PipeOpTorchTransformerEncoderBase = R6Class("PipeOpTorchTransformerEncoderBase",
+  inherit = PipeOpTorch,
+  public = list(
+    # @description Creates a new instance of this [R6][R6::R6Class] class.
+    # @template params_pipelines
+    # @template param_module_generator
+    # @template param_param_set
+    # @param src_mask (`logical(1)`) Whether to add the `"src_mask"` input channel.
+    # @param src_key_padding_mask (`logical(1)`) Whether to add the `"src_key_padding_mask"` channel.
+    initialize = function(id, module_generator, param_set, src_mask = FALSE,
+      src_key_padding_mask = FALSE, param_vals = list()) {
+      private$.src_mask = assert_flag(src_mask)
+      private$.src_key_padding_mask = assert_flag(src_key_padding_mask)
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = module_generator,
+        inname = c("input", private$.mask_channels()),
+        tags = "abstract"
+      )
+    }
+  ),
+  private = list(
+    .src_mask = NULL,
+    .src_key_padding_mask = NULL,
+    # the optional input channels, in the order in which they are declared
+    .mask_channels = function() {
+      c(if (private$.src_mask) "src_mask", if (private$.src_key_padding_mask) "src_key_padding_mask")
+    },
+    .additional_phash_input = function() {
+      list(private$.src_mask, private$.src_key_padding_mask)
+    },
+    .shapes_out = function(shapes_in, param_vals, task) {
+      shape = shapes_in[[1L]]
+      assert_ndim(shape, 3L, id = self$id)
+      # the last dimension becomes d_model, which the module needs to size its weights, whereas the
+      # sequence length is only needed at runtime and may stay unknown
+      assert_known_dims(shape, 3L, "the last dimension (the embedding dimension 'd_model')", self$id)
+      d_model = shape[[3L]]
+      if (d_model %% param_vals$nhead != 0) {
+        stopf("PipeOp '%s': the embedding dimension (%i) must be divisible by 'nhead' (%i).",
+          self$id, d_model, param_vals$nhead)
+      }
+      if (isTRUE(param_vals$is_causal) && private$.src_mask) {
+        stopf("PipeOp '%s': 'is_causal' cannot be combined with the 'src_mask' input channel, as they both set the attention mask. Use one or the other.", self$id) # nolint
+      }
+      # the masks say which positions are attended to, so they leave the shape alone; only their own
+      # number of dimensions is checked, as the sizes may legitimately be unknown
+      walk(private$.mask_channels(), function(channel) {
+        # `$shapes_out()` names the shapes after the input channels
+        mask_shape = shapes_in[[channel]]
+        ndim = if (channel == "src_mask") c(2L, 3L) else 2L
+        if (length(mask_shape) %nin% ndim) {
+          stopf("PipeOp '%s': the input channel '%s' expects a shape with %s dimensions, but got %s, which has %i.", # nolint
+            self$id, channel, paste0(ndim, collapse = " or "), shape_to_str(mask_shape), length(mask_shape)) # nolint
+        }
+      })
+      # the encoder is shape-preserving
+      shapes_in["input"]
+    },
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
+      param_vals$batch_first = TRUE
+      param_vals$d_model = shapes_in[[1L]][[3L]]
+      param_vals$mask_inputs = private$.mask_channels()
+      param_vals
+    }
+  )
+)
+
+# The parameters of a single transformer encoder layer, which the encoder stack shares.
+paramset_encoder_layer = function() {
+  check_activation = crate(function(x) {
+    if (is.function(x)) return(TRUE)
+    check_choice(x, c("relu", "gelu"))
+  })
+  ps(
+    nhead           = p_int(lower = 1L, tags = c("train", "required")),
+    dim_feedforward = p_int(lower = 1L, default = 2048L, tags = "train"),
+    dropout         = p_dbl(lower = 0, upper = 1, default = 0.1, tags = "train"),
+    activation      = p_uty(default = "relu", custom_check = check_activation, tags = "train"),
+    layer_norm_eps  = p_dbl(lower = 0, default = 1e-5, tags = "train"),
+    norm_first      = p_lgl(default = FALSE, tags = "train"),
+    bias            = p_lgl(default = TRUE, tags = "train"),
+    is_causal       = p_lgl(default = FALSE, tags = "train")
+  )
+}
+
 #' @title Transformer Encoder Layer
 #'
 #' @description
@@ -120,7 +255,7 @@ nn_encoder_layer = nn_module(
 #'
 #' @export
 PipeOpTorchTransformerEncoderLayer = R6Class("PipeOpTorchTransformerEncoderLayer",
-  inherit = PipeOpTorch,
+  inherit = PipeOpTorchTransformerEncoderBase,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
@@ -139,77 +274,95 @@ PipeOpTorchTransformerEncoderLayer = R6Class("PipeOpTorchTransformerEncoderLayer
     #'   See section *Input and Output Channels* for more information.
     initialize = function(id = "nn_transformer_encoder_layer", src_mask = FALSE,
       src_key_padding_mask = FALSE, param_vals = list()) {
-      private$.src_mask = assert_flag(src_mask)
-      private$.src_key_padding_mask = assert_flag(src_key_padding_mask)
-      check_activation = crate(function(x) {
-        if (is.function(x)) return(TRUE)
-        check_choice(x, c("relu", "gelu"))
-      })
-      param_set = ps(
-        nhead           = p_int(lower = 1L, tags = c("train", "required")),
-        dim_feedforward = p_int(lower = 1L, default = 2048L, tags = "train"),
-        dropout         = p_dbl(lower = 0, upper = 1, default = 0.1, tags = "train"),
-        activation      = p_uty(default = "relu", custom_check = check_activation, tags = "train"),
-        layer_norm_eps  = p_dbl(lower = 0, default = 1e-5, tags = "train"),
-        norm_first      = p_lgl(default = FALSE, tags = "train"),
-        bias            = p_lgl(default = TRUE, tags = "train"),
-        is_causal       = p_lgl(default = FALSE, tags = "train")
-      )
       super$initialize(
         id = id,
-        param_set = param_set,
-        param_vals = param_vals,
         module_generator = nn_encoder_layer,
-        inname = c("input", private$.mask_channels())
+        param_set = paramset_encoder_layer(),
+        src_mask = src_mask,
+        src_key_padding_mask = src_key_padding_mask,
+        param_vals = param_vals
       )
     }
-  ),
-  private = list(
-    .src_mask = NULL,
-    .src_key_padding_mask = NULL,
-    # the optional input channels, in the order in which they are declared
-    .mask_channels = function() {
-      c(if (private$.src_mask) "src_mask", if (private$.src_key_padding_mask) "src_key_padding_mask")
-    },
-    .additional_phash_input = function() {
-      list(private$.src_mask, private$.src_key_padding_mask)
-    },
-    .shapes_out = function(shapes_in, param_vals, task) {
-      shape = shapes_in[[1L]]
-      assert_ndim(shape, 3L, id = self$id)
-      # the last dimension becomes d_model, which the module needs to size its weights, whereas the
-      # sequence length is only needed at runtime and may stay unknown
-      assert_known_dims(shape, 3L, "the last dimension (the embedding dimension 'd_model')", self$id)
-      d_model = shape[[3L]]
-      if (d_model %% param_vals$nhead != 0) {
-        stopf("PipeOp '%s': the embedding dimension (%i) must be divisible by 'nhead' (%i).",
-          self$id, d_model, param_vals$nhead)
-      }
-      if (isTRUE(param_vals$is_causal) && private$.src_mask) {
-        stopf("PipeOp '%s': 'is_causal' cannot be combined with the 'src_mask' input channel, as they both set the attention mask. Use one or the other.", self$id) # nolint
-      }
-      # the masks say which positions are attended to, so they leave the shape alone; only their own
-      # number of dimensions is checked, as the sizes may legitimately be unknown
-      walk(private$.mask_channels(), function(channel) {
-        # `$shapes_out()` names the shapes after the input channels
-        mask_shape = shapes_in[[channel]]
-        ndim = if (channel == "src_mask") c(2L, 3L) else 2L
-        if (length(mask_shape) %nin% ndim) {
-          stopf("PipeOp '%s': the input channel '%s' expects a shape with %s dimensions, but got %s, which has %i.", # nolint
-            self$id, channel, paste0(ndim, collapse = " or "), shape_to_str(mask_shape), length(mask_shape)) # nolint
-        }
-      })
-      # the layer is shape-preserving
-      shapes_in["input"]
-    },
-    .shape_dependent_params = function(shapes_in, param_vals, task) {
-      param_vals$batch_first = TRUE
-      param_vals$d_model = shapes_in[[1L]][[3L]]
-      param_vals$mask_inputs = private$.mask_channels()
-      param_vals
+  )
+)
+
+#' @title Transformer Encoder
+#'
+#' @description
+#' A stack of `num_layers` transformer encoder layers as described in *Attention Is All You Need*,
+#' see [`nn("transformer_encoder_layer")`][mlr_pipeops_nn_transformer_encoder_layer] for a single
+#' one of them.
+#'
+#' This is a thin wrapper around [`torch::nn_transformer_encoder()`] that makes it usable as a
+#' building block of a [`Graph`][mlr3pipelines::Graph] of tensor operations.
+#'
+#' @inheritSection mlr_pipeops_nn_transformer_encoder_layer Tensor Layout
+#'
+#' @section nn_module:
+#' Calls [`torch::nn_transformer_encoder()`] when trained, where the encoder layer is built with
+#' [`torch::nn_transformer_encoder_layer()`], the parameter `d_model` is inferred as the last
+#' dimension of the input tensor and `batch_first` is always `TRUE`, see section *Tensor Layout*.
+#'
+#' `torch` copies the encoder layer once per position of the stack, so the layers have independent
+#' weights, but they all start from the values of the one layer that was initialized.
+#'
+#' @section Parameters:
+#' The parameters are those of
+#' [`nn("transformer_encoder_layer")`][mlr_pipeops_nn_transformer_encoder_layer], which apply to
+#' every layer of the stack, and additionally:
+#' * `num_layers` :: `integer(1)`\cr
+#'   The number of encoder layers in the stack.
+#' * `norm` :: `logical(1)`\cr
+#'   Whether to apply a layer normalization to the output of the stack, which is what a pre-norm
+#'   stack (`norm_first = TRUE`) usually ends with. Default is `FALSE`.
+#'
+#' @inheritSection mlr_pipeops_nn_transformer_encoder_layer Input and Output Channels
+#'
+#' @references
+#' `r format_bib("vaswani2017attention")`
+#'
+#' @templateVar id nn_transformer_encoder
+#' @templateVar param_vals nhead = 4, num_layers = 2
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
+#' @export
+PipeOpTorchTransformerEncoder = R6Class("PipeOpTorchTransformerEncoder",
+  inherit = PipeOpTorchTransformerEncoderBase,
+  public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    #' @param src_mask (`logical(1)`)\cr
+    #'   Whether the attention mask is provided as an additional input channel `"src_mask"`.
+    #'   This is a *construction* argument (and not a hyperparameter), because it determines the
+    #'   structure of the [`Graph`][mlr3pipelines::Graph].
+    #'   The default is `FALSE`, i.e. every layer attends over the full sequence.
+    #'   See section *Input and Output Channels* for more information.
+    #' @param src_key_padding_mask (`logical(1)`)\cr
+    #'   Whether the padding mask is provided as an additional input channel
+    #'   `"src_key_padding_mask"`.
+    #'   This is a *construction* argument (and not a hyperparameter), because it determines the
+    #'   structure of the [`Graph`][mlr3pipelines::Graph].
+    #'   The default is `FALSE`, i.e. no position is treated as padding.
+    #'   See section *Input and Output Channels* for more information.
+    initialize = function(id = "nn_transformer_encoder", src_mask = FALSE,
+      src_key_padding_mask = FALSE, param_vals = list()) {
+      param_set = c(paramset_encoder_layer(), ps(
+        num_layers = p_int(lower = 1L, tags = c("train", "required")),
+        norm = p_lgl(default = FALSE, tags = "train")
+      ))
+      super$initialize(
+        id = id,
+        module_generator = nn_encoder,
+        param_set = param_set,
+        src_mask = src_mask,
+        src_key_padding_mask = src_key_padding_mask,
+        param_vals = param_vals
+      )
     }
   )
 )
 
 #' @include aaa.R
 register_po("nn_transformer_encoder_layer", PipeOpTorchTransformerEncoderLayer)
+register_po("nn_transformer_encoder", PipeOpTorchTransformerEncoder)

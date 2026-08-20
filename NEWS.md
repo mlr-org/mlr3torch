@@ -27,6 +27,15 @@
   the complete prediction.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
 * Added multihead attention and transformer encoder pipeops.
+* New layers: `nn("silu")`, `nn("softmin")`, `nn("log_softmax")`, `nn("softmax2d")`,
+  `nn("dropout2d")`, `nn("dropout3d")`, `nn("group_norm")`, `nn("unflatten")` and
+  `nn("adaptive_max_pool1d")` / `nn("adaptive_max_pool2d")` / `nn("adaptive_max_pool3d")`.
+* Added the recurrent layers `nn("rnn")`, `nn("lstm")` and `nn("gru")`, whose construction argument
+  `return_state` adds output channels for the final hidden (and cell) state.
+* Added `nn("embedding")` and `nn("embedding_bag")`, whose `num_embeddings` is inferred from the
+  task's categorical features.
+* Added `nn("transformer_encoder")`, which stacks `num_layers` transformer encoder layers.
+* Added `nn("upsample")` and `nn("bilinear")`.
 * Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
 * Improved error messages during `PipeOpTorch`'s shape inference.
 * The `shape` parameter of `nn("reshape")` can now be a `function(shape)` of the input shape.

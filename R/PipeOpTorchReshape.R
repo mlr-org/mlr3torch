@@ -212,6 +212,96 @@ PipeOpTorchFlatten = R6Class("PipeOpTorchFlatten",
   )
 )
 
+#' @title Unflattens a Tensor
+#' @inherit torch::nn_unflatten description
+#' @section nn_module:
+#' Calls [`torch::nn_unflatten()`] when trained.
+#' @section Parameters:
+#' * `dim` :: `integer(1)`\cr
+#'   The dimension to unflatten. Negative values are interpreted downwards from the last dimension.
+#' * `unflattened_size` :: `integer()`\cr
+#'   The sizes that replace that dimension. One of them at most can be `-1`, which torch infers
+#'   from the size of the dimension being unflattened.
+#'
+#' @templateVar id nn_unflatten
+#' @templateVar param_vals dim = 2, unflattened_size = c(2, 2)
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
+#' @export
+PipeOpTorchUnflatten = R6Class("PipeOpTorchUnflatten",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_unflatten", param_vals = list()) {
+      param_set = ps(
+        # negative values count down from the last dimension, `.shapes_out()` checks the range
+        dim = p_int(tags = c("train", "required")),
+        unflattened_size = p_uty(tags = c("train", "required"), custom_check = crate(function(x) {
+          check_integerish(x, min.len = 1L, any.missing = FALSE)
+        }))
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_unflatten
+      )
+    }
+  ),
+  private = list(
+    .shapes_out = function(shapes_in, param_vals, task) {
+      shape = shapes_in[[1L]]
+      dim = param_vals[["dim"]]
+      true_dim = resolve_dim(dim, shape)
+      assert_dim_in_range(dim, true_dim, shape, self$id)
+      # splitting the batch dimension would silently change the number of observations
+      assert_not_batch_dim(true_dim, shape, self$id)
+      size = unflatten_output_size(shape[[true_dim]], as.integer(param_vals[["unflattened_size"]]),
+        self$id)
+      list(as.integer(c(shape[seq_len(true_dim - 1L)], size,
+        shape[seq_len(length(shape) - true_dim) + true_dim])))
+    }
+  )
+)
+
+# The sizes that replace the unflattened dimension. `-1` marks the one that torch infers from the
+# size of that dimension, which stays unknown as long as that size is.
+# @param size_in (`integer(1)`) The size of the dimension being unflattened, possibly `NA`.
+# @param target (`integer()`) The `unflattened_size` parameter.
+# @param id (`character(1)`) The PipeOp's id, for the error messages.
+unflatten_output_size = function(size_in, target, id) {
+  # `-1` marks the inferred size, every other entry is a size in its own right
+  if (any(target != -1L & target < 1L)) {
+    stopf("PipeOp '%s': 'unflattened_size' %s is invalid: every size must be at least 1, only -1 marks the size that is inferred.", # nolint
+      id, shape_to_str(target))
+  }
+  inferred = which(target == -1L)
+  # torch can only infer one size, so more than one is invalid whatever the input shape is
+  if (length(inferred) > 1L) {
+    stopf("PipeOp '%s': 'unflattened_size' %s is invalid: at most one size can be inferred.",
+      id, shape_to_str(target))
+  }
+  out = target
+  out[inferred] = NA_integer_
+  if (is.na(size_in)) {
+    return(out)
+  }
+  # note that `out[-integer(0)]` is empty, so the inferred size cannot be dropped by negative index
+  known = prod(out[setdiff(seq_along(out), inferred)])
+  # with an inferred size the known ones must divide the dimension, without one they must multiply
+  # out to exactly its size
+  ok = if (length(inferred)) size_in %% known == 0 else size_in == known
+  if (!ok) {
+    stopf("PipeOp '%s': 'unflattened_size' %s does not multiply out to %i, the size of the dimension it unflattens.", # nolint
+      id, shape_to_str(target), size_in)
+  }
+  if (length(inferred)) out[inferred] = size_in / known
+  as.integer(out)
+}
+
 #' @title Reshape
 #'
 #' @description Reshape a tensor to the given shape.
@@ -273,3 +363,4 @@ register_po("nn_reshape", PipeOpTorchReshape)
 register_po("nn_unsqueeze", PipeOpTorchUnsqueeze)
 register_po("nn_squeeze", PipeOpTorchSqueeze)
 register_po("nn_flatten", PipeOpTorchFlatten)
+register_po("nn_unflatten", PipeOpTorchUnflatten)
