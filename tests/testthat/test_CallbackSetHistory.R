@@ -24,20 +24,6 @@ test_that("CallbackSetHistory works", {
   expect_data_table(learner$model$callbacks$history, nrows = 3)
 })
 
-test_that("a restored history is continued and not prepended", {
-  state = data.table(epoch = c(7, 8), train.regr.mse = c(100, 90))
-  loader = torch_callback("loader",
-    on_begin = function() self$ctx$callbacks$history$load_state_dict(state)
-  )
-  learner = lrn("regr.torch_featureless", epochs = 2, batch_size = 50,
-    callbacks = list(t_clbk("history"), loader), measures_train = msrs("regr.mse"))
-  learner$train(tsk("mtcars"))
-
-  history = learner$model$callbacks$history
-  expect_equal(history$epoch, c(7, 8, 1, 2))
-  expect_equal(history$train.regr.mse[1:2], c(100, 90))
-})
-
 test_that("history works with eval_freq", {
   learner = lrn("regr.torch_featureless", epochs = 10, batch_size = 50, eval_freq = 4, callbacks = "history",
     measures_train = msrs("regr.mse"))
@@ -51,6 +37,20 @@ test_that("history works with eval_freq", {
 })
 
 describe("resuming", {
+  it("a restored history is continued and not prepended", {
+    state = data.table(epoch = c(7, 8), train.regr.mse = c(100, 90))
+    loader = torch_callback("loader",
+      on_begin = function() self$ctx$callbacks$history$load_state_dict(state)
+    )
+    learner = lrn("regr.torch_featureless", epochs = 2, batch_size = 50,
+      callbacks = list(t_clbk("history"), loader), measures_train = msrs("regr.mse"))
+    learner$train(tsk("mtcars"))
+
+    history = learner$model$callbacks$history
+    expect_equal(history$epoch, c(7, 8, 1, 2))
+    expect_equal(history$train.regr.mse[1:2], c(100, 90))
+  })
+
   it("an epoch that evaluated nothing does not break the appended history", {
     # with eval_freq > 1 such an epoch contributes only the `epoch` column, and the checkpoint asks
     # for the state of every epoch it writes -- which used to error in the middle of writing
@@ -77,22 +77,13 @@ describe("resuming", {
       measures_train = msrs("classif.acc"))
     resumed$train(tsk("iris"))
 
-    history = resumed$model$callbacks$history[order(get("epoch"))]
+    history = resumed$model$callbacks$history
+    # already in epoch order, i.e. this run's epochs were appended and not prepended
     expect_equal(history$epoch, 1:4)
     # the scores of the first run are the ones that were recorded back then
     expect_equal(
       history[get("epoch") <= 2][["train.classif.acc"]],
       first$model$callbacks$history[order(get("epoch"))][["train.classif.acc"]]
     )
-  })
-
-  it("the history stays ordered by epoch across resumes", {
-    path = tempfile()
-    make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("history")),
-      measures_train = msrs("classif.acc"))
-
-    resumed = resumer(4L, path, callbacks = t_clbk("history"), measures_train = msrs("classif.acc"))
-    resumed$train(tsk("iris"))
-    expect_equal(resumed$model$callbacks$history$epoch, 1:4)
   })
 })

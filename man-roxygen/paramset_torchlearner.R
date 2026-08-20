@@ -85,15 +85,6 @@
 #'   memory. Checkpoints written by `t_clbk("checkpoint")` are unaffected: they always hold the
 #'   network as training left it.
 #'
-#'   When a run is resumed (see the section *Resuming* of [`LearnerTorch`]), the best score, the
-#'   epoch it was observed in and the number of evaluation steps without improvement are restored,
-#'   so `patience` keeps counting across runs instead of starting over.
-#'   The best epoch's weights are not part of a checkpoint, however -- they are a full copy of the
-#'   network, which every checkpoint would otherwise carry.
-#'   A resumed run with `restore_best_weights` that never beats the restored best score therefore
-#'   ends with the weights of its last epoch while `$internal_tuned_values` still reports the
-#'   earlier best epoch, which is warned about when the state is restored.
-#'
 #' **Dataloader**:
 #' * `batch_size` :: `integer(1)`\cr
 #'   The batch size used by the training and prediction dataloader.

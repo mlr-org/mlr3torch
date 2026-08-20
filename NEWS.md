@@ -60,6 +60,8 @@
   folder a `path` function chose can be read off the trained learner.
 * Resuming a run that early stopping had ended now warns and returns its model instead of training
   further, and `ctx$terminate` is checked before an epoch rather than after it.
+* `t_clbk("progress")` now prints the epoch as `Epoch <n>/<epochs>`, so a resumed run shows how much
+  of it is left.
 
 ## Bug fixes
 

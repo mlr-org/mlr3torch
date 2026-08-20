@@ -7,12 +7,7 @@
 #' To view them, use TensorBoard with `tensorflow::tensorboard()` (requires `tensorflow`) or the CLI.
 #'
 #' @section Resuming:
-#' This callback keeps no state of its own.
-#' The measures are logged under the epoch they belong to and the training loss under
-#' [`ContextTorch`]'s `global_step`, both of which a resumed run continues counting rather than
-#' restarting, so its curves extend those of the run it continues.
-#' Point the resumed run at the `path` its predecessor wrote and both halves end up in one
-#' TensorBoard run; a fresh `path` puts them in two.
+#' This callback keeps no state of its own so it can trivially be resumed.
 #'
 #' @details
 #' Logs events at most every epoch.
@@ -34,9 +29,6 @@ CallbackSetTB = R6Class("CallbackSetTB",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(path, log_train_loss) {
-      # A folder that already holds events is accepted so that a resumed run can log into the one
-      # the run it continues wrote, which is what keeps both halves in a single TensorBoard run.
-      # A folder holding anything else is still refused, so no unrelated data is written into.
       self$path = if (is_empty_dir(path) || length(list.files(path, pattern = "^events\\.out\\.tfevents\\."))) {
         path
       } else {

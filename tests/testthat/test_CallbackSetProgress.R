@@ -3,29 +3,6 @@ test_that("autotest", {
   expect_torch_callback(cb)
 })
 
-test_that("the training time is carried across a resume", {
-  path = tempfile()
-  first = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 10,
-    callbacks = list(t_clbk("checkpoint", freq = 1, path = path), t_clbk("progress")))
-  suppressMessages(capture.output(first$train(tsk("iris"))))
-
-  elapsed = first$model$callbacks$progress$elapsed
-  expect_number(elapsed, lower = 0)
-
-  # the checkpoint of epoch 1 was written before the run finished, so it holds less time than the
-  # completed run does
-  expect_lte(readRDS(file.path(path, "state1.rds"))$callbacks$progress$elapsed, elapsed)
-
-  resumed = lrn("classif.mlp", epochs = 4, batch_size = 50, neurons = 10,
-    callbacks = t_clbk("progress"))
-  resumed$param_set$set_values(resume = path)
-  stdout = suppressMessages(capture.output(resumed$train(tsk("iris"))))
-
-  # the total covers both runs, so it is at least what the first one alone took
-  expect_gte(resumed$model$callbacks$progress$elapsed, elapsed)
-  expect_match(stdout[length(stdout)], "Finished training for 4 epochs .*s total")
-})
-
 test_that("manual test", {
   learner = lrn("classif.mlp", epochs = 1, batch_size = 1,
     measures_train = msr("classif.acc"), measures_valid = msr("classif.ce"), callbacks = t_clbk("progress"),
@@ -44,7 +21,7 @@ test_that("manual test", {
   stdout = suppressMessages(capture.output(learner$train(task)))
 
   expected = c(
-    "Epoch 1 started",
+    "Epoch 1/1 started",
     "Validation for epoch 1 started",
     "",
     "[Summary epoch 1]",
@@ -66,25 +43,27 @@ test_that("manual test", {
 })
 
 describe("resuming", {
-  it("reports the time before this run and the time it took itself", {
+  it("continues the run the checkpoint came from", {
     path = tempfile()
-    make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("progress")))
+    first = make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("progress")))
 
+    elapsed = first$model$callbacks$progress$elapsed
+    expect_number(elapsed, lower = 0)
+    # the checkpoint of epoch 1 was written before the run finished, so it holds less time than the
+    # completed run does
+    expect_lte(readRDS(file.path(path, "state1.rds"))$callbacks$progress$elapsed, elapsed)
+
+    # the callback keeps no state of its own, so resuming a run that has one has to work at all
     resumed = resumer(4L, path, callbacks = t_clbk("progress"))
-    out = capture.output(resumed$train(tsk("iris")))
-    finished = out[grepl("^Finished training", out)]
-    expect_match(finished, "s total: .*s before this run, .*s in it")
-  })
-
-
-  it("the progress callback does not interfere", {
-    # it keeps no state, so the point is that resuming a run that has one works at all
-    path = tempfile()
-    make_checkpoint(epochs = 2L, path = path, callbacks = list(t_clbk("progress")))
-
     # the callback prints via catn(), so the output is captured rather than suppressed
-    resumed = resumer(4L, path, callbacks = t_clbk("progress"))
-    expect_no_warning(capture.output(resumed$train(tsk("iris"))))
+    out = capture.output(expect_no_warning(resumed$train(tsk("iris"))))
     expect_equal(resumed$model$epochs, 4L)
+
+    # the total covers both runs, so it is at least what the first one alone took
+    expect_gte(resumed$model$callbacks$progress$elapsed, elapsed)
+    expect_match(out[grepl("^Finished training", out)],
+      "^Finished training for 4 epochs .*s total: .*s before this run, .*s in it")
+    # only the epochs this run trains itself, numbered as what they are
+    expect_match(out[grepl("^Epoch ", out)], "^Epoch [34]/4 started")
   })
 })

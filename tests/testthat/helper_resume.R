@@ -1,6 +1,4 @@
 # Helpers for the tests that resume a training run from a checkpoint.
-
-# i.e. the `path` parameter of LearnerTorch, continuing what t_clbk("checkpoint") wrote
 make_checkpoint = function(epochs = 2L, freq = 1L, path = tempfile(), callbacks = list(),
   task = tsk("iris"), ...) {
   learner = lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
@@ -9,8 +7,6 @@ make_checkpoint = function(epochs = 2L, freq = 1L, path = tempfile(), callbacks 
   learner
 }
 
-# A task whose internal validation split is fixed, which is what a run that is meant to be resumed
-# needs: `validate = <ratio>` draws a new split from R's RNG in every run and is refused on resume.
 task_with_valid = function(ids = 1:30) {
   task = tsk("iris")
   task$internal_valid_task = ids
@@ -24,9 +20,6 @@ resumer = function(epochs, path, callbacks = list(), ...) {
   learner
 }
 
-# Checkpoints into `path` and then fails at the beginning of epoch `fail_at`, so that the epochs
-# before it are written and there is something to resume from. `values` are learner parameter
-# values, `...` is passed to lrn().
 crashing_run = function(path, epochs, fail_at, callback, values = list(), task = tsk("iris"), ...) {
   crash = torch_callback("crash",
     on_epoch_begin = function() if (self$ctx$epoch == fail_at) stop("crash"))

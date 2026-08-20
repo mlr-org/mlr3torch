@@ -6,11 +6,7 @@
 #' Prints a progress bar and the metrics for training and validation.
 #'
 #' @section Resuming:
-#' A resumed run prints only the epochs it trains itself, numbered as what they are: it starts at
-#' the epoch after the checkpoint, not at epoch 1.
-#' The time training has taken is carried across runs, so the total this reports when training ends
-#' covers the runs the checkpoint came from as well and not only the last one.
-#' Such a run reports that total split into the time before it and the time it took itself.
+#' This callback can be resumed without any problems.
 #'
 #' @family Callback
 #' @include CallbackSet.R
@@ -45,7 +41,7 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
     #' @description
     #' Initializes the progress bar for training.
     on_epoch_begin = function() {
-      catf("Epoch %s started (%s)", self$ctx$epoch, format(Sys.time()))
+      catf("Epoch %s/%s started (%s)", self$ctx$epoch, self$ctx$total_epochs, format(Sys.time()))
       self$pb_train = progress::progress_bar$new(
         total = length(self$ctx$loader_train),
         format = "Training [:bar]"
@@ -105,8 +101,6 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
           format(Sys.time()), total)
         return(invisible(NULL))
       }
-      # a resumed run: the total covers the runs before it, which says little about what this one
-      # took, so both are reported
       catf("Finished training for %s epochs (%s, %.1fs total: %.1fs before this run, %.1fs in it)",
         self$ctx$epoch, format(Sys.time()), total, private$.elapsed, total - private$.elapsed)
     },

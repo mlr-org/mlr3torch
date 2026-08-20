@@ -101,27 +101,55 @@ test_that("an epoch that failed is not saved under its own number", {
     c("run.rds", "network2.pt", "optimizer2.pt", "state2.rds", "network3.pt", "optimizer3.pt", "state3.rds"))
 })
 
-test_that("the state file holds the epoch and the states of the other callbacks", {
+test_that("the state file holds the epoch, the version and the states of the other callbacks", {
   task = tsk("iris")
   path = tempfile()
+  # the checkpoint callback is passed first, i.e. before the scheduler has stepped for the epoch
   learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
     measures_train = msrs("classif.acc"),
-    callbacks = list(t_clbk("checkpoint", freq = 1, path = path), t_clbk("history")))
+    callbacks = list(t_clbk("checkpoint", freq = 1, path = path), t_clbk("history"), t_clbk("lr_step")))
+  learner$param_set$set_values(opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
   learner$train(task)
 
   state = readRDS(file.path(path, "state2.rds"))
   expect_equal(state$epoch, 2L)
+  expect_equal(state$version, as.character(packageVersion("mlr3torch")))
   expect_names(names(state$callbacks), must.include = "history")
   # saveRDS() rather than torch_save(), which would strip the data.table class off the history
   expect_data_table(state$callbacks$history)
   expect_equal(state$callbacks$history, learner$model$callbacks$history)
+
+  # the schedule of the last checkpoint is the one the model ends up with, not one step behind it
+  expect_equal(state$callbacks$lr_step$last_epoch, 2)
+  expect_equal(state$callbacks$lr_step, learner$model$callbacks$lr_step)
 
   # the checkpoint's own state is the folder it writes to, which a resuming run does not take over
   expect_true("checkpoint" %nin% names(state$callbacks))
   expect_equal(learner$model$callbacks$checkpoint$path, path)
 
   # the class behind each id, so that a resuming run can tell the callbacks apart
-  expect_equal(state$classes, c(history = "CallbackSetHistory"))
+  expect_names(names(state$callback_classes), permutation.of = c("history", "lr_step"))
+  expect_equal(state$callback_classes[["history"]], "CallbackSetHistory")
+
+  # a state written by this version is read back without a word, one by another version warns, and
+  # both hand the state over -- a mismatch does not stop a resume
+  file = file.path(path, "state2.rds")
+  expect_silent({
+    read_back = read_checkpoint_state(file)
+  })
+  expect_equal(read_back$epoch, 2L)
+
+  written_by_other = readRDS(file)
+  written_by_other$version = "0.0.1"
+  saveRDS(written_by_other, file)
+  expect_warning(read_checkpoint_state(file), "written by mlr3torch 0.0.1")
+
+  # checkpoints from before the version was recorded
+  written_by_old = readRDS(file)
+  written_by_old$version = NULL
+  saveRDS(written_by_old, file)
+  expect_warning(read_checkpoint_state(file), "before checkpoints recorded one")
+  expect_equal(suppressWarnings(read_checkpoint_state(file))$epoch, 2L)
 })
 
 test_that("a failure writes nothing beyond what `freq` had already saved", {
@@ -319,55 +347,3 @@ test_that("latest_checkpoint() finds the most recent complete checkpoint", {
   expect_null(suppressWarnings(latest_checkpoint(path)))
 })
 
-test_that("the saved callback states belong to the epoch of the checkpoint", {
-  task = tsk("iris")
-  path = tempfile()
-  # the checkpoint callback is passed first, i.e. before the scheduler has stepped for the epoch
-  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
-    callbacks = list(t_clbk("checkpoint", freq = 1, path = path), t_clbk("lr_step")))
-  learner$param_set$set_values(opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
-  learner$train(task)
-
-  # the schedule of the last checkpoint is the one the model ends up with, not one step behind it
-  state = readRDS(file.path(path, "state2.rds"))
-  expect_equal(state$callbacks$lr_step$last_epoch, 2)
-  expect_equal(state$callbacks$lr_step, learner$model$callbacks$lr_step)
-})
-
-test_that("the state file records the mlr3torch version", {
-  path = tempfile()
-  learner = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 5,
-    callbacks = t_clbk("checkpoint", path = path, freq = 1))
-  learner$train(tsk("iris"))
-
-  state = readRDS(file.path(path, "state2.rds"))
-  expect_equal(state$version, as.character(packageVersion("mlr3torch")))
-})
-
-test_that("reading a checkpoint state warns on a version mismatch", {
-  path = tempfile()
-  learner = lrn("classif.mlp", epochs = 1, batch_size = 50, neurons = 5,
-    callbacks = t_clbk("checkpoint", path = path, freq = 1))
-  learner$train(tsk("iris"))
-  file = file.path(path, "state1.rds")
-
-  # the version that wrote it is the one that is running
-  expect_silent({
-    state = read_checkpoint_state(file)
-  })
-  expect_equal(state$epoch, 1L)
-
-  written_by_other = readRDS(file)
-  written_by_other$version = "0.0.1"
-  saveRDS(written_by_other, file)
-  expect_warning(read_checkpoint_state(file), "written by mlr3torch 0.0.1")
-
-  # checkpoints from before the version was recorded
-  written_by_old = readRDS(file)
-  written_by_old$version = NULL
-  saveRDS(written_by_old, file)
-  expect_warning(read_checkpoint_state(file), "before checkpoints recorded one")
-
-  # the state is returned either way, so a mismatch does not stop a resume
-  expect_equal(suppressWarnings(read_checkpoint_state(file))$epoch, 1L)
-})

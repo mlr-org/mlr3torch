@@ -26,18 +26,9 @@
 #' callback state into a different callback.
 #' Note that the `$state_dict()` should not include the parameter values that were used to initialize the callback.
 #'
-#' A callback that ends training by setting `ctx$terminate` should set it again in
-#' `$load_state_dict()` when its restored state says the run was over -- as
-#' [early stopping][mlr_learners_torch] does when the restored stagnation has reached `patience`.
-#' The training loop consults `ctx$terminate` before each epoch, so a run continuing such a
-#' checkpoint then trains nothing instead of one more epoch.
-#'
-#' A state must survive [`saveRDS()`][base::readRDS], which is how [`t_clbk("checkpoint")`][mlr_callback_set.checkpoint]
-#' writes it and how a learner is serialized.
-#' `torch` tensors and modules do not: they are external pointers, and one that was written and read
-#' back errors with `external pointer is not valid` when it is used.
-#' Convert them, e.g. with [`as.array()`][base::array] or [`torch::torch_serialize()`], and convert
-#' them back in `$load_state_dict()`.
+#' In order to be able to resume a callback, it needs to work with `saveRDS`, so it cannot contain
+#' external pointers such as [`torch_tensor`][torch::torch_tensor]s.
+#' Convert them to R data, e.g. via `as.array()`.
 #'
 #' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
 #' `CallbackSet` and then wraps it in a [`TorchCallback`].
@@ -102,12 +93,16 @@ CallbackSet = R6Class("CallbackSet",
     },
     #' @description
     #' Loads the state dict into the callback to continue training.
+    #' A callback that keeps no state inherits this, which has nothing to load and therefore only
+    #' warns when it is handed a state anyway -- a callback that implements `$state_dict()` but not
+    #' this method, so that a resuming run cannot give its state back.
     #' @param state_dict (any)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
-      assert_true(is.null(state_dict),
-        .var.name = "state_dict method not implemented and state_dict must hence not be provided")
-      NULL
+      if (!is.null(state_dict)) {
+        warningf("Callback of class <%s> does not implement $load_state_dict(), its state is ignored.", class(self)[[1L]])
+      }
+      invisible(NULL)
     }
   ),
   active = list(
@@ -166,8 +161,6 @@ CallbackSet = R6Class("CallbackSet",
 #' @param state_dict (`function()`)\cr
 #'   The function that retrieves the state dict from the callback.
 #'   This is what will be available in the learner after training.
-#'   It must return something that survives [`saveRDS()`][base::readRDS], so no `torch` tensors or
-#'   modules, see section *Inheriting* of [`CallbackSet`].
 #' @param load_state_dict (`function(state_dict)`)\cr
 #'   Function that loads a callback state.
 #' @param weight (`numeric(1)`)\cr

@@ -99,38 +99,6 @@ test_that("we can disable training loss tracking", {
   expect_equal(n_train_loss_events, 0)
 })
 
-test_that("a resumed run continues the training loss at the step the previous one stopped at", {
-  skip_if_not_installed("tibble")
-  task = tsk("iris")
-  checkpoint_path = tempfile()
-  first_path = tempfile()
-
-  first = lrn("classif.mlp", epochs = 2, batch_size = 150, neurons = 10,
-    callbacks = list(t_clbk("checkpoint", freq = 1, path = checkpoint_path), t_clbk("tb")))
-  first$param_set$set_values(cb.tb.path = first_path, cb.tb.log_train_loss = TRUE)
-  first$train(task)
-
-  loss_steps = function(path) {
-    events = tfevents::collect_events(path)
-    events$step[map_lgl(map(events$summary, unlist), event_tag_is, tag_name = "train.loss")]
-  }
-  # one batch per epoch, so the two epochs were logged under the run's batch steps 1 and 2
-  expect_equal(loss_steps(first_path), c(1, 2))
-
-  # `path` must not exist yet, so a resumed run logs into a folder of its own -- what carries over
-  # is the step, which comes from `ctx$global_step`, so that the curve continues instead of
-  # starting over
-  resumed_path = tempfile()
-  resumed = lrn("classif.mlp", epochs = 4, batch_size = 150, neurons = 10, callbacks = t_clbk("tb"))
-  resumed$param_set$set_values(cb.tb.path = resumed_path, cb.tb.log_train_loss = TRUE,
-    resume = checkpoint_path)
-  resumed$train(task)
-
-  expect_equal(loss_steps(resumed_path), c(3, 4))
-  # the callback has no state of its own, the step comes from the context
-  expect_null(resumed$model$callbacks$tb)
-})
-
 test_that("an existing directory is accepted only when it holds events", {
   # a resumed run logs into the folder its predecessor wrote, so that one is allowed
   path = tempfile()
@@ -148,6 +116,38 @@ test_that("an existing directory is accepted only when it holds events", {
 })
 
 describe("resuming", {
+  it("a resumed run continues the training loss at the step the previous one stopped at", {
+    skip_if_not_installed("tibble")
+    task = tsk("iris")
+    checkpoint_path = tempfile()
+    first_path = tempfile()
+
+    first = lrn("classif.mlp", epochs = 2, batch_size = 150, neurons = 10,
+      callbacks = list(t_clbk("checkpoint", freq = 1, path = checkpoint_path), t_clbk("tb")))
+    first$param_set$set_values(cb.tb.path = first_path, cb.tb.log_train_loss = TRUE)
+    first$train(task)
+
+    loss_steps = function(path) {
+      events = tfevents::collect_events(path)
+      events$step[map_lgl(map(events$summary, unlist), event_tag_is, tag_name = "train.loss")]
+    }
+    # one batch per epoch, so the two epochs were logged under the run's batch steps 1 and 2
+    expect_equal(loss_steps(first_path), c(1, 2))
+
+    # `path` must not exist yet, so a resumed run logs into a folder of its own -- what carries over
+    # is the step, which comes from `ctx$global_step`, so that the curve continues instead of
+    # starting over
+    resumed_path = tempfile()
+    resumed = lrn("classif.mlp", epochs = 4, batch_size = 150, neurons = 10, callbacks = t_clbk("tb"))
+    resumed$param_set$set_values(cb.tb.path = resumed_path, cb.tb.log_train_loss = TRUE,
+      resume = checkpoint_path)
+    resumed$train(task)
+
+    expect_equal(loss_steps(resumed_path), c(3, 4))
+    # the callback has no state of its own, the step comes from the context
+    expect_null(resumed$model$callbacks$tb)
+  })
+
   it("the tensorboard callback logs into the folder of the run it continues", {
     skip_if_not_installed("tfevents")
     path = tempfile()

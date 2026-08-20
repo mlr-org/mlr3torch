@@ -56,9 +56,7 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
       if (is.null(self$prev_state)) {
         state
       } else {
-        # the restored history comes first, the epochs of this run are appended to it. `fill`
-        # because the two can have different columns: the runs may have measured different things,
-        # and an epoch in which nothing was evaluated -- `eval_freq > 1` -- contributes only `epoch`.
+        # We fill in case the measures differ between the runs
         rbind(self$prev_state, state, fill = TRUE)
       }
     },

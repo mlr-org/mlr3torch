@@ -23,9 +23,8 @@
 #'
 #' That state contains the scheduler's configuration as well as its progress, and restoring it
 #' overwrites what the resuming run was configured with.
-#' Resuming with different scheduler arguments -- or a different `opt.lr`, which the schedule's base
-#' rates are derived from -- therefore silently continues the schedule of the checkpointed run.
-#' Configure both runs the same way; a schedule cannot be changed halfway through.
+#' Resuming with different scheduler arguments, or a different `opt.lr`, which the schedule's base
+#' rates are derived from, therefore silently continues the schedule of the checkpointed run.
 #'
 #' @param .scheduler (`lr_scheduler_generator`)\cr
 #'   The `torch` scheduler generator (e.g. `torch::lr_step`).
@@ -63,15 +62,14 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
-      # Creating a scheduler sets the values it schedules back to where the schedule starts: the
-      # `initial_lr` the first scheduler recorded, and for `lr_one_cycle` also the momentum. When
-      # the optimizer was restored from a checkpoint those are where the schedule *started*, not
-      # where it had got to, so the parameter groups are remembered here and put back in
-      # $.restore_scheduler_state(). Everything but the parameters themselves is kept, as which
-      # entries a schedule touches is up to the schedule.
       groups = lapply(self$ctx$optimizer$param_groups, function(group) group[names(group) != "params"])
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
-      private$.restore_scheduler_state(groups)
+      # initializing a scheduler also modifies the optimizer's param_group values to certain values
+      # (the ones from the beginning of the schedule); Here, we basically forward the state of the 
+      # param groups to where they were when the checkpoint which we are resuming was written.
+      if (!is.null(private$.prev_state)) {
+        private$.restore_scheduler_state(groups)
+      }
     },
     #' @description
     #' Returns the state of the wrapped `torch` scheduler, so that a later run can continue the
@@ -95,19 +93,12 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   private = list(
     .scheduler_args = NULL,
     .prev_state = NULL,
-    # `lrs` are the learning rates the optimizer had before the scheduler was created, or NULL when
-    # the state is restored while the scheduler already exists.
     .restore_scheduler_state = function(groups = NULL) {
-      if (is.null(private$.prev_state)) return(NULL)
+      if (is.null(private$.prev_state)) stop("internal error")
       # the state dict of the freshly created scheduler describes the schedule this run is
       # configured for, which is not necessarily the one the state was saved for
       private$.assert_compatible_state(self$scheduler$state_dict(), private$.prev_state)
       self$scheduler$load_state_dict(private$.prev_state)
-      # `$load_state_dict()` only restores the scheduler, so the optimizer is still where the
-      # constructor put it back to. Most schedules recompute the rate from `base_lrs` and
-      # `last_epoch` on their next step and so repair themselves, but one that computes it from the
-      # current rate -- `lr_multiplicative` -- would start over from there, and a momentum that is
-      # cycled alongside the rate -- `lr_one_cycle` -- is not recomputed at all.
       if (!is.null(groups)) {
         walk(seq_along(groups), function(i) {
           walk(names(groups[[i]]), function(nm) {

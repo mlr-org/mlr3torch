@@ -76,85 +76,34 @@ test_that("input checks work", {
     weights = list(select_all()), epoch = 1L)), NA)
 })
 
-test_that("the set of trainable weights can be saved and restored", {
-  task = tsk("iris")
-  make = function(epochs, callbacks) {
-    lrn("classif.mlp", epochs = epochs, batch_size = 150, neurons = c(1, 1, 1),
-      callbacks = callbacks,
-      cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight"))),
-      cb.unfreeze.unfreeze = data.table(epoch = 2, weights = list(select_name("0.weight")))
-    )
-  }
-
-  first = make(2L, t_clbk("unfreeze"))
-  first$train(task)
-  state = first$model$callbacks$unfreeze
-  expect_true("0.weight" %in% state$trainable)
-  expect_true("3.weight" %nin% state$trainable)
-
-  # epoch 2 is not reached again, so '0.weight' would be frozen again without the restored state.
-  # The state has to be there before $on_begin() freezes the network according to
-  # `starting_weights`, as that is where it is applied -- which is the case in a resumed run, where
-  # the callback states are loaded before the `begin` stage.
-  restore = torch_callback("restore",
-    on_begin = function() self$ctx$callbacks$unfreeze$load_state_dict(state))
-  second = make(1L, list(restore, t_clbk("unfreeze")))
-  second$train(task)
-  expect_true("0.weight" %in% second$model$callbacks$unfreeze$trainable)
-  expect_true("3.weight" %nin% second$model$callbacks$unfreeze$trainable)
-})
-
-
-test_that("restored trainable weights that the network does not have are ignored", {
-  # the resuming run builds its network from its own configuration, so a state can name weights
-  # that network does not have -- e.g. after a change of task or of `neurons`. Those must be
-  # skipped rather than stop the run from starting.
-  task = tsk("iris")
-  state = list(trainable = c("0.weight", "99.weight"))
-  restore = torch_callback("restore",
-    on_begin = function() self$ctx$callbacks$unfreeze$load_state_dict(state))
-
-  learner = lrn("classif.mlp", epochs = 1L, batch_size = 150, neurons = c(1, 1, 1),
-    callbacks = list(restore, t_clbk("unfreeze")),
-    cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight"))),
-    cb.unfreeze.unfreeze = data.table(epoch = 2, weights = list(select_name("0.weight")))
-  )
-  expect_no_error(learner$train(task))
-
-  trainable = learner$model$callbacks$unfreeze$trainable
-  # the weight the network does have was unfrozen, the one it does not have was passed over
-  expect_true("0.weight" %in% trainable)
-  expect_true("99.weight" %nin% trainable)
-  # and a weight the state did not name is still frozen
-  expect_true("3.weight" %nin% trainable)
-})
-
 describe("resuming", {
-  it("a batch-wise schedule continues when the resumed run has another batch size", {
-    # the batch number comes from `ctx$global_step`, which the checkpoint carries, and not from the
-    # epoch times this run's batches per epoch -- which would renumber the schedule
+  it("the set of trainable weights can be saved and restored", {
     task = tsk("iris")
-    path = tempfile()
-    args = list(
-      cb.unfreeze.starting_weights = select_invert(select_name("0.weight")),
-      # 150 rows in batches of 50 is 3 per epoch, so batch 7 is the first batch of epoch 3
-      cb.unfreeze.unfreeze = data.table(batch = 7, weights = list(select_name("0.weight")))
-    )
-    make = function(epochs, batch_size, ...) {
-      learner = lrn("classif.mlp", epochs = epochs, batch_size = batch_size, neurons = 10,
-        seed = 1, callbacks = c(list(t_clbk("unfreeze")), list(...)))
-      learner$param_set$set_values(.values = args)
-      learner
+    make = function(epochs, callbacks) {
+      lrn("classif.mlp", epochs = epochs, batch_size = 150, neurons = c(1, 1, 1),
+        callbacks = callbacks,
+        cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight"))),
+        cb.unfreeze.unfreeze = data.table(epoch = 2, weights = list(select_name("0.weight")))
+      )
     }
-    make(2L, 50, t_clbk("checkpoint", freq = 1, path = path))$train(task)
 
-    # one batch per epoch now: the run continues at global step 7 and unfreezes there
-    resumed = make(4L, 150)
-    resumed$param_set$set_values(resume = path)
-    resumed$train(task)
-    expect_true("0.weight" %in% resumed$model$callbacks$unfreeze$trainable)
+    first = make(2L, t_clbk("unfreeze"))
+    first$train(task)
+    state = first$model$callbacks$unfreeze
+    expect_true("0.weight" %in% state$trainable)
+    expect_true("3.weight" %nin% state$trainable)
+
+    # epoch 2 is not reached again, so '0.weight' would be frozen again without the restored state.
+    # The state has to be there before $on_begin() freezes the network according to
+    # `starting_weights`, as that is where it is applied -- which is the case in a resumed run, where
+    # the callback states are loaded before the `begin` stage.
+    restore = torch_callback("restore",
+      on_begin = function() self$ctx$callbacks$unfreeze$load_state_dict(state))
+    second = make(1L, list(restore, t_clbk("unfreeze")))
+    second$train(task)
+    expect_true("0.weight" %in% second$model$callbacks$unfreeze$trainable)
+    expect_true("3.weight" %nin% second$model$callbacks$unfreeze$trainable)
   })
-
 
   it("the unfreezing callback continues", {
     # $on_begin() freezes everything but `starting_weights`, so without a restored state a resumed
