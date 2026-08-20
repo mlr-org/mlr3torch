@@ -187,6 +187,8 @@ test_that("a callback's default weight can be overwritten via the TorchCallback"
 })
 
 test_that("'weight' is reserved and cannot be a parameter", {
+  gen = R6::R6Class("CallbackSetWeight", inherit = CallbackSet,
+    public = list(initialize = function(weight = 1) NULL))
   # whether the parameter set is inferred from $initialize() ...
   expect_error(TorchCallback$new(gen), "'weight' is reserved")
   expect_error(TorchCallback$new(gen, param_set = ps(weight = p_dbl(tags = "train"))),
