@@ -8,12 +8,14 @@ The \code{\link[mlr3:Prediction]{Prediction}} object returned by learners that w
 \code{\link{TaskTorch}}.
 
 Because a \code{\link{TaskTorch}} can represent very different learning problems, this class does not
-prescribe how \code{truth}, \code{response}, \code{prob} and \code{se} are stored.
+prescribe much about how \code{truth}, \code{response}, \code{prob} and \code{se} are stored.
 Each of them may be an atomic vector, a \code{matrix()}, a \code{\link[data.table:data.table]{data.table}}, an
-array of any dimensionality, or a \code{list()} with one element per observation -- whatever the
-task's \code{prediction_encoder} produced.
-The checks that \code{mlr3} performs are correspondingly weak: it is verified that all elements
-describe the same number of observations, but not what is in them.
+array of any dimensionality, or a \code{\link{lazy_tensor}} -- anything whose \emph{first} dimension indexes the
+observations.
+A bare \code{list()} is not allowed, even though it would satisfy that: it is what an encoder returns
+when it did not manage to build one of the above, and everything downstream -- combining folds,
+scoring, \code{as.data.table()} -- then works observation by observation. Use a
+\code{\link{lazy_tensor}} for a prediction that is one tensor per observation.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -37,6 +39,9 @@ The predicted probabilities.}
 
     \item{\code{se}}{(any)\cr
 The standard errors of the prediction.}
+
+    \item{\code{lazy_tensor}}{(\code{\link{lazy_tensor}})\cr
+The output of the network, for the predict type \code{"lazy_tensor"}.}
   }
   \if{html}{\out{</div>}}
 }
@@ -71,6 +76,7 @@ The standard errors of the prediction.}
   response = NULL,
   prob = NULL,
   se = NULL,
+  lazy_tensor = NULL,
   weights = NULL,
   check = TRUE
 )}
@@ -80,7 +86,7 @@ The standard errors of the prediction.}
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{task}}{(\code{\link{TaskTorch}})\cr
-The task. Used to extract the default \code{row_ids} and \code{truth}.}
+The task that was predicted on. Used to extract the default \code{row_ids} and the \code{truth}.}
       \item{\code{row_ids}}{(\code{integer()})\cr
 The row ids of the predicted observations.}
       \item{\code{truth}}{(any)\cr
@@ -91,6 +97,8 @@ The predicted response.}
 The predicted probabilities.}
       \item{\code{se}}{(any)\cr
 The standard errors of the prediction.}
+      \item{\code{lazy_tensor}}{(\code{\link{lazy_tensor}})\cr
+The output of the network, see the predict type \code{"lazy_tensor"} of \code{\link{LearnerTorch}}.}
       \item{\code{weights}}{(\code{numeric()} or \code{NULL})\cr
 The measure weights of the predicted observations, i.e. the \code{weights_measure} column of the
 task. \code{mlr3} fills this in, so it rarely has to be passed by hand.}

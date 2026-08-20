@@ -7,121 +7,12 @@
 \description{
 A general-purpose \code{\link[mlr3:Task]{Task}} that can be used for modeling arbitrary problems, including
 supervised and unsupervised problems.
-With this flexibility comes the loss of compatability checks.
-\code{"torch"} can b
-for learning problems that are neither classification nor
-regression, such as multi-label classification, multi-output regression or autoencoders.
-It may have any number of target columns, including none at all, so it is supervised or
-unsupervised depending only on whether target columns were given.
-Nothing beyond that is assumed about the structure of the problem.
+The article on \emph{Custom Learning Problems} covers all of this in more detail.
 
-It inherits from \code{\link[mlr3:Task]{Task}} directly rather than from
-\code{\link[mlr3:TaskSupervised]{TaskSupervised}}, because it is neither: the number of targets is a
-property of the instance, not of the class.
-\code{mlr3} attaches the ground truth to a prediction only for a \code{TaskSupervised}, so
-\code{\link{LearnerTorch}} attaches it itself, see \code{as_prediction_data.prediction_torch()}.
-
-Adding a proper task type to \code{mlr3} requires a \code{Task} class, a \code{Prediction} class, a handful of
-\code{PredictionData} methods, a \code{Measure} and a number of entries in
-\code{\link[mlr3:mlr_reflections]{mlr_reflections}}; the \emph{Adding a Custom Task Type} vignette walks through
-this.
-\code{TaskTorch} is the quick alternative: the task type \code{"torch"} is registered once by \code{mlr3torch}
-and every custom problem is expressed as an \emph{instance} of \code{TaskTorch} rather than as a new class.
-What would otherwise be S3 methods dispatching on the task class are fields of the task instead,
-which you fill in yourself -- nothing about the learning problem is inferred from the data.
-
-The price is that all \code{TaskTorch} instances share a single task type, so \code{mlr3} cannot tell a
-multi-label task apart from a multi-output regression task.
-Learners and measures for different problems are therefore interchangeable as far as \code{mlr3} is
-concerned, and mixing them up produces an error somewhere in \code{torch} instead of an error from
-\code{mlr3}.
-Use \code{TaskTorch} for experiments and one-off problems, and add a real task type when you package
-up a learning problem for others.
+The problem this generic task solves is that it is rather complicated to register new task
+types with \code{mlr3}, so this class makes this easier.
+The price of this flexibility is the loss of some compatibility checks.
 }
-\section{Compatibility with other PipeOps}{
- Not every
-\code{\link[mlr3pipelines:PipeOp]{PipeOp}} accepts a \code{TaskTorch}.
-An operator declares the task class it takes on its input channel, so one that asks for a
-\code{\link[mlr3:TaskClassif]{TaskClassif}}, a \code{\link[mlr3:TaskRegr]{TaskRegr}} or a
-\code{\link[mlr3:TaskSupervised]{TaskSupervised}} refuses a \code{TaskTorch} with a type mismatch.
-This rules out the target encoders -- \code{po("encodeimpact")}, \code{po("encodelmer")} and
-\code{po("vtreat")} -- as well as the class balancing operators such as \code{po("smote")}.
-
-Operators declaring a plain \code{\link[mlr3:Task]{Task}} do work, which covers the ones you are likely
-to want in front of a network: \code{po("scale")}, \code{po("pca")}, \code{po("encode")},
-\code{po("removeconstants")}, and all of \code{mlr3torch}'s own
-\code{\link{PipeOpTaskPreprocTorch}} operators.
-Note that these see a \code{TaskTorch} as a task without a target, so a
-\code{\link[mlr3pipelines:PipeOpTaskPreproc]{PipeOpTaskPreproc}} subclass of your own whose
-\code{.train_dt()} uses its \code{target} argument will not work on one.
-}
-
-\section{What you have to specify}{
- \code{mlr3torch} needs to know three things about a learning
-problem, and a \code{TaskTorch} infers none of them, because the column types of a target say how it
-is stored, not how you want to model it. A two-level \code{factor} could be one logit or two; \code{d}
-numeric columns could be one head of width \code{d} or \code{d} separate heads. Guessing would be a
-modelling decision made on your behalf, so all three are stated explicitly:\tabular{lll}{
-   what \tab who provides it \tab how \cr
-   the target tensor \code{y} of a batch \tab the \strong{learner} \tab \code{target_batchgetter} of \code{\link{LearnerTorchModule}} / \code{\link{LearnerTorchModel}}, or \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} for your own subclass \cr
-   the number of output units \tab the \strong{task} \tab \code{output_dim}, read through \code{\link[=output_dim_for]{output_dim_for()}} \cr
-   how a network output becomes a prediction \tab the \strong{task} \tab \code{prediction_encoder}, read through \code{\link[=encode_prediction]{encode_prediction()}} \cr
-}
-
-
-The split follows what each one is consumed by. What \code{y} has to look like is dictated by the
-loss, which belongs to the learner: cross entropy wants \code{long} class indices where mean squared
-error wants \code{float}, so the same task trained with two losses needs two different tensors.
-What a prediction looks like is what the task's measures are written against, so it belongs to
-the task.
-
-The encoder is also where any consistency check between the network and the task belongs. A
-network trained on a task with three target levels emits three columns, and mapping those onto
-the levels of a task that has since been \verb{$droplevels()}ed would relabel every observation
-rather than fail, so an encoder that assigns levels should verify the width it was given.
-
-A learner always has the last word: \code{\link{LearnerTorch}} can overwrite the private
-\verb{$.encode_prediction()} method, which is how \code{\link{LearnerTorchVision}} drops an auxiliary head and
-\code{lrn("classif.tabm")} averages over its ensemble dimension.
-
-\code{output_dim} is a \verb{function(task)} rather than a number so that it still holds after the task
-is changed -- a different target column, a \verb{$droplevels()} -- and it is optional: a network
-that sizes its own output, such as one with several heads of different widths, never asks for
-it. \code{nn("head")} and any module calling \code{\link[=output_dim_for]{output_dim_for()}} do ask, and error if it is unset.
-}
-
-\section{Tasks without a Target}{
- A task may have no target columns at all.
-Its batches have no \code{y} element, so the loss is called as \code{loss(y_hat)}, with no second
-argument at all.
-
-If the target of a batch is a function of its \emph{input} rather than of a column -- an autoencoder
-reconstructing its input, a denoising or masked objective, contrastive pretraining -- give the
-learner a \code{target_batchgetter} that declares an \code{x} argument, which receives the named list of
-feature tensors of the batch:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{task = as_task_torch(data, output_dim = function(task) ncol(data),
-  prediction_encoder = function(task, predict_tensor, predict_type) \{
-    list(response = as.matrix(predict_tensor$cpu()))
-  \})
-lrn("torch.module", target_batchgetter = function(data, x) x[[1L]], ...)
-}\if{html}{\out{</div>}}
-
-Such a task has no \code{truth}, so its measures read the ground truth from the task, which
-\code{\link[=msr_torch]{msr_torch()}} arranges for any function that declares a \code{task} argument.
-}
-
-\section{Scoring}{
- \verb{$truth()} returns the target column itself if there is exactly one target, a
-\code{\link[data.table:data.table]{data.table}} with one column per target if there are several, and
-\code{NULL} if the task has no target at all.
-\code{\link[=msr_torch]{msr_torch()}} turns a plain R function of \code{truth} and \code{response} into a \code{\link[mlr3:Measure]{Measure}}
-that scores such a prediction.
-
-A measure that is passed as \code{default_measure} becomes the task's default measure, which is what
-\verb{$score()} and \verb{$aggregate()} use when they are called without arguments.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # multi-label classification: one logical column per label
@@ -130,8 +21,8 @@ d$a = d$x1 > 0
 d$b = d$x2 > 0
 task = as_task_torch(d, target = c("a", "b"), id = "labels",
   output_dim = function(task) length(task$target_names),
-  prediction_encoder = function(task, predict_tensor, predict_type) {
-    prob = as.matrix(torch::nnf_sigmoid(predict_tensor)$cpu())
+  default_encoder = function(task, network_output, predict_type) {
+    prob = as.matrix(torch::nnf_sigmoid(network_output)$cpu())
     colnames(prob) = task$target_names
     list(response = prob > 0.5, prob = if (predict_type == "prob") prob)
   })
@@ -147,21 +38,17 @@ output_dim_for(task)
   \if{html}{\out{<div class="r6-active-bindings">}}
   \describe{
     \item{\code{hash}}{(\code{character(1)})\cr
-The hash of the task.
-In addition to what \code{\link[mlr3:Task]{Task}} hashes, this covers the fields that define the
-learning problem, so that two tasks over the same data but with different encodings do not
-collide.}
+The hash of the task.}
 
-    \item{\code{prediction_encoder}}{(\verb{function()} or \code{NULL})\cr
-See the construction argument. Read-only: it is part of the task's \code{hash}, so a task that
-changed it would no longer be the task that a cached result was computed for.}
+    \item{\code{default_encoder}}{(\verb{function()} or \code{NULL})\cr
+The default prediction encoder. Read-only.}
 
     \item{\code{default_measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
-See the construction argument. Read-only, for the same reason as \code{prediction_encoder}.}
+See the construction argument. Read-only, for the same reason as \code{default_encoder}.}
 
     \item{\code{output_dim}}{(\verb{function()} or \code{NULL})\cr
 See the construction argument.
-Use \code{\link[=output_dim_for]{output_dim_for()}} to evaluate it.}
+Called by \code{\link[=output_dim_for]{output_dim_for()}}.}
   }
   \if{html}{\out{</div>}}
 }
@@ -206,10 +93,10 @@ Use \code{\link[=output_dim_for]{output_dim_for()}} to evaluate it.}
     \preformatted{TaskTorch$new(
   id,
   backend,
-  target = character(0),
+  target = NULL,
   label = NA_character_,
   output_dim = NULL,
-  prediction_encoder = NULL,
+  default_encoder = NULL,
   default_measure = NULL
 )}
     \if{html}{\out{</div>}}
@@ -221,22 +108,22 @@ Use \code{\link[=output_dim_for]{output_dim_for()}} to evaluate it.}
 The id of the task.}
       \item{\code{backend}}{(\code{\link[mlr3:DataBackend]{DataBackend}} or \code{data.frame()})\cr
 The data.}
-      \item{\code{target}}{(\code{character()})\cr
-The names of the target columns. May be empty.}
+      \item{\code{target}}{(\code{character()} or \code{NULL})\cr
+The names of the target columns.
+\code{NULL} (default) for a task without a target, see section \emph{Tasks without a Target} of
+\code{\link{TaskTorch}}.}
       \item{\code{label}}{(\code{character(1)})\cr
 The label of the task.}
       \item{\code{output_dim}}{(\verb{function()} or \code{NULL})\cr
 Returns the number of output units the network needs.
 Takes an argument \code{task} and returns a single positive integer.
 May be \code{NULL} (default), in which case any caller of \code{\link[=output_dim_for]{output_dim_for()}} errors.}
-      \item{\code{prediction_encoder}}{(\verb{function()} or \code{NULL})\cr
-Converts the network output into a prediction.
-Takes the arguments \code{task}, \code{predict_tensor} -- the network's output, unchanged, so possibly a
-\code{list()} of tensors -- and \code{predict_type}, and returns a named \code{list()} with elements \code{response}
-and, optionally, \code{prob}.
-May be \code{NULL} (default) if the learner encodes predictions itself.}
+      \item{\code{default_encoder}}{(\verb{function()} or \code{NULL})\cr
+The default prediction encoder for the task. This can be overwritten by a learner's
+private \verb{$.encode_prediction} method.
+See \code{\link{LearnerTorch}} for more information.}
       \item{\code{default_measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
-The default measure of the task, see section \emph{Scoring}.}
+The default measure of the task, which is e.g. used in \code{prediction$score()}.}
     }
     \if{html}{\out{</div>}}
   }

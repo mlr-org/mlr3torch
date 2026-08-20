@@ -105,15 +105,6 @@ epoch is stored. Setting this to \code{TRUE} makes the stored network the one of
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
 memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
 network as training left it.
-
-When a run is resumed (see the section \emph{Resuming} of \code{\link{LearnerTorch}}), the best score, the
-epoch it was observed in and the number of evaluation steps without improvement are restored,
-so \code{patience} keeps counting across runs instead of starting over.
-The best epoch's weights are not part of a checkpoint, however -- they are a full copy of the
-network, which every checkpoint would otherwise carry.
-A resumed run with \code{restore_best_weights} that never beats the restored best score therefore
-ends with the weights of its last epoch while \verb{$internal_tuned_values} still reports the
-earlier best epoch, which is warned about when the state is restored.
 }
 
 \strong{Dataloader}:
@@ -216,7 +207,8 @@ its \verb{$train()} method is called on the \code{\link[mlr3:Task]{Task}} stored
   task_type = "torch",
   id = "torch_model",
   param_vals = list(),
-  target_batchgetter = NULL
+  target_batchgetter = NULL,
+  predict_types = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -231,10 +223,14 @@ Identifier of the resulting  object.}
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
       \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
-Converts the target columns of a batch into the target tensor \code{y}, passed to
-\code{\link{LearnerTorchModel}}. Takes an argument \code{data} and optionally an argument \code{x}, see
-\code{\link[=get_target_batchgetter]{get_target_batchgetter()}}. Needed for task types that do not provide a
-\code{\link[=get_target_batchgetter]{get_target_batchgetter()}} method of their own, such as \code{\link{TaskTorch}}.}
+Converts the target columns of a batch into the target tensor \code{y} that the loss is applied to.
+Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
+and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
+target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
+If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide but a \code{\link{TaskTorch}} does not.}
+      \item{\code{predict_types}}{(\code{character()})\cr
+The predict types.
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
     }
     \if{html}{\out{</div>}}
   }

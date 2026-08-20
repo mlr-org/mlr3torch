@@ -13,11 +13,8 @@
 #'   The task for which to build the [dataset][torch::dataset].
 #' @param feature_ingress_tokens (named `list()` of [`TorchIngressToken`])\cr
 #'   Each ingress token defines one item in the `$x` value of a batch with corresponding names.
-#' @param target_batchgetter (`function(data)` or `NULL`)\cr
-#'   A function taking in an argument `data`, a `data.table` containing only the target column(s),
-#'   that returns the target as a torch [tensor][torch::torch_tensor].
-#'   If it declares an `x` argument, it additionally receives the named list of feature tensors of
-#'   the batch, see [`get_target_batchgetter()`].
+#' @templateVar target_batchgetter_null If `NULL` (default), the batches have no `y` element.
+#' @template param_target_batchgetter
 #' @export
 #' @return [`torch::dataset`]
 #' @examplesIf torch::torch_is_installed()
@@ -282,10 +279,8 @@ target_batchgetter_regr = function(data) {
 #' @param feature_ingress_tokens (named `list()` of [`TorchIngressToken`])\cr
 #'   The ingress tokens that define `x`. Their features are already resolved, i.e. they are
 #'   `character()` vectors and not [`Selector`][mlr3pipelines::Selector]s.
-#' @param target_batchgetter (`function(data)` or `NULL`)\cr
-#'   The function that defines `y`, or `NULL` if the dataset has no target.
-#'   If it declares an `x` argument, it additionally receives the feature tensors of the batch.
-#'   The default is to use [`get_target_batchgetter()`].
+#' @templateVar target_batchgetter_null If `NULL` (default), the batches have no `y` element.
+#' @template param_target_batchgetter
 #' @param ... (any)\cr
 #'   Additional arguments. Not used yet.
 #' @return `function(data, cache) -> list(x = list<torch_tensor>, y = torch_tensor | NULL)`
@@ -310,12 +305,7 @@ get_batch_constructor = function(task, feature_ingress_tokens, target_batchgette
 #' @export
 get_batch_constructor.default = function(task, feature_ingress_tokens, target_batchgetter = NULL, ...) { # nolint
   target_names = task$target_names
-  # a target batchgetter that declares an `x` argument additionally receives the feature tensors of
-  # the batch, which is what a target that is a function of the input needs (see `TaskTorch`)
   needs_x = !is.null(target_batchgetter) && "x" %in% formalArgs(target_batchgetter)
-  # A task without target columns has no `y`, whatever the learner was configured with -- the
-  # batchgetter would otherwise be handed a table with no columns. The exception is a batchgetter
-  # that builds the target from the input, which is the whole point of the `x` argument.
   if (!length(target_names) && !needs_x) {
     target_batchgetter = NULL
   }
@@ -338,12 +328,6 @@ get_batch_constructor.default = function(task, feature_ingress_tokens, target_ba
 #' `y` of a batch, i.e. the tensor that the loss is applied to.
 #' The returned function takes an argument `data`, a [`data.table`][data.table::data.table]
 #' containing only the target column(s), and returns a [`torch_tensor`][torch::torch_tensor].
-#'
-#' It may additionally declare an `x` argument, in which case it also receives the named list of
-#' feature tensors of the batch -- [`get_batch_constructor()`] decides by looking at its formals.
-#' This is what a target that is a function of the *input* needs: the reconstruction target of an
-#' autoencoder, a denoising or masked objective, contrastive pretraining. The methods for the
-#' built-in task types do not use it, because their target is a column.
 #'
 #' For the target encodings of the built-in task types, see section
 #' *Network Head and Target Encoding* of [`LearnerTorch`].

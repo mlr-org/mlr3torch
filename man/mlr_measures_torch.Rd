@@ -8,22 +8,7 @@
 Wraps a plain R function into a \code{\link[mlr3:Measure]{Measure}} that scores the predictions of a
 \code{\link{TaskTorch}}.
 Use \code{\link[=msr_torch]{msr_torch()}} to construct one.
-
-The function receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{prediction},
-\code{task}, \code{learner}, \code{train_set} and \code{weights} it declares, and returns a single number.
-What \code{truth}, \code{response} and \code{prob} look like depends on the task, see section \emph{Inference} of
-\code{\link{TaskTorch}}.
-Declaring a \code{task}, \code{learner} or \code{train_set} argument automatically adds the corresponding
-\code{"requires_*"} property, which is what makes \code{mlr3} pass it, and declaring \code{weights} adds the
-\code{"weights"} property. \code{mlr3} refuses to score a task with a \code{weights_measure} column using a
-measure that does not declare them, rather than ignoring them silently.
-A task without target columns has no \code{truth}, so its measures read the ground truth from the
-\code{task} instead.
-
-Passing \code{obs_loss} additionally gives the measure a per-observation loss, which is what
-\verb{$obs_loss()} and \code{as.data.table(prediction)} of a \code{\link[mlr3:ResampleResult]{ResampleResult}}
-report. It is declared the same way as \code{fun}, except that there is no \code{train_set} to ask for,
-and it returns one number per observation rather than one number.
+See the \emph{Custom Learning Problems} article for how to create and use such measures.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -45,11 +30,7 @@ Other Measure:
   \if{html}{\out{<div class="r6-active-bindings">}}
   \describe{
     \item{\code{hash}}{(\code{character(1)})\cr
-The hash of the measure.
-\code{\link[mlr3:Measure]{Measure}} hashes the private \verb{$.score()} method, which is the same for
-every \code{MeasureTorch}, so the scoring function is folded in here.
-Without this, two measures with the same \code{id} but different functions would be
-indistinguishable to everything that caches by hash.}
+The hash of the measure.}
   }
   \if{html}{\out{</div>}}
 }
@@ -80,7 +61,7 @@ indistinguishable to everything that caches by hash.}
     \preformatted{MeasureTorch$new(
   id,
   fun,
-  minimize = TRUE,
+  minimize = NA,
   range = c(-Inf, Inf),
   predict_type = "response",
   properties = character(),
@@ -95,21 +76,24 @@ indistinguishable to everything that caches by hash.}
       \item{\code{id}}{(\code{character(1)})\cr
 The id of the measure.}
       \item{\code{fun}}{(\verb{function()})\cr
-The scoring function, see above.}
+The scoring function.
+It receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{prediction}, \code{task},
+\code{learner}, \code{train_set} and \code{weights} it declares, and must return a single number.R}
       \item{\code{minimize}}{(\code{logical(1)})\cr
-Whether a smaller score is better.}
+Whether a smaller score is better.
+\code{NA} (default) means the direction is unknown.}
       \item{\code{range}}{(\code{numeric(2)})\cr
 The range of possible scores.}
       \item{\code{predict_type}}{(\code{character(1)})\cr
 The predict type the measure requires: \code{"response"} (default), \code{"prob"} or \code{"se"}.}
       \item{\code{properties}}{(\code{character()})\cr
-Properties of the measure, see \code{\link[mlr3:Measure]{Measure}}.}
+Properties of the measure, see \code{\link[mlr3:Measure]{Measure}}.
+The \code{"requires_task"}, \code{"requires_learner"}, \code{"requires_train_set"} and \code{"weights"} properties
+are added automatically when \code{fun} declares the corresponding argument.}
       \item{\code{label}}{(\code{character(1)})\cr
 The label of the measure.}
       \item{\code{obs_loss}}{(\verb{function()} or \code{NULL})\cr
-The per-observation loss, see above. If \code{NULL} (default), the measure has none and
-\verb{$obs_loss()} returns \code{NA}, which is what \code{\link[mlr3:Measure]{Measure}} does without the
-\code{"obs_loss"} property.}
+The per-observation loss. Declared like \code{fun} and if specified adds the \code{"obs_loss"} property.}
     }
     \if{html}{\out{</div>}}
   }

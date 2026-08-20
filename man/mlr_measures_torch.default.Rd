@@ -5,16 +5,8 @@
 \alias{MeasureTorchDefault}
 \title{Default Measure of a Generic Torch Task}
 \description{
-Delegates to the \verb{$default_measure} field of the \code{\link{TaskTorch}} that is being scored.
-This is the default measure of the task type \code{"torch"}, i.e. what \verb{$score()} and \verb{$aggregate()}
-use when they are called without arguments.
-It errors if the task does not carry a measure.
-
-Whether a smaller score is better is a property of the task's measure, and this one is
-constructed before any task is in sight, so \code{minimize} is \code{NA} -- unknown -- unless you say
-otherwise. \code{mlr3} refuses to tune with an \code{NA} direction, which is the point: guessing it would
-mean silently optimizing the wrong way. Pass \code{minimize} (and \code{range}) to tune against the
-default measure of a task, and scoring a task whose measure disagrees is then an error.
+This is a simple placeholder measure and extracts the actual value from the \verb{$default_measure}
+of a \code{\link{TaskTorch}}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -22,9 +14,6 @@ d = data.frame(x = rnorm(10), y = rnorm(10))
 task = as_task_torch(d, target = "y",
   default_measure = msr_torch("mse", function(truth, response) mean((truth - response)^2)))
 msr("torch.default")
-
-# to tune against it, state the direction of the task's measure
-msr("torch.default", minimize = TRUE)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -59,17 +48,7 @@ Other Measure:
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{MeasureTorchDefault$new(minimize = NA, range = c(-Inf, Inf))}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{minimize}}{(\code{logical(1)})\cr
-Whether a smaller score is better, see above. Default is \code{NA}.}
-      \item{\code{range}}{(\code{numeric(2)})\cr
-The range of possible scores. Defaults to the unbounded range, for the same reason.}
-    }
+    \preformatted{MeasureTorchDefault$new()}
     \if{html}{\out{</div>}}
   }
 }

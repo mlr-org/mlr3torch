@@ -9,25 +9,27 @@ normalize_to_list = function(x) {
   x
 }
 
-learner_torch_predict = function(self, private, super, task, param_vals) {
+# Runs the network over a task and returns its raw output, i.e. what `.encode_prediction()` is
+# handed: a tensor, or a `list()` of them for a network with more than one head. Shared with
+# `LearnerTorch$predict_tensor()`, so that asking for the tensors runs the same path as predicting
+# does -- evaluation mode, device, batching and `with_no_grad()` included.
+learner_torch_network_output = function(self, private, task, param_vals) {
   # parameter like device "auto" already resolved
   self$network$to(device = param_vals$device)
   self$network$eval()
   data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
-  network_output = torch_network_predict(self$network, data_loader, device = param_vals$device)
-  encoded = private$.encode_prediction(network_output = network_output, task = task)
-  # An encoder may return more than the learner was asked for. Keeping it would make a prediction
-  # claim a type its learner does not have, and combining that with one built for the declared type
-  # -- an empty prediction, say -- is an error, which is how this used to surface.
-  filter_predict_types(encoded, self)
+  torch_network_predict(self$network, data_loader, device = param_vals$device)
 }
 
-filter_predict_types = function(encoded, learner) {
-  keep = mlr_reflections$learner_predict_types[[learner$task_type]][[learner$predict_type]]
-  if (is.null(keep)) {
-    return(encoded)
+learner_torch_predict = function(self, private, super, task, param_vals) {
+  network_output = learner_torch_network_output(self, private, task, param_vals)
+  if (self$predict_type == "lazy_tensor") {
+    if (!inherits(network_output, "torch_tensor")) {
+      stopf("Learner '%s' predicts a `lazy_tensor`, but its network returned a `list()` of %i tensors, which cannot be one. Predict a `response` and let the task's `default_encoder` combine the heads instead.", self$id, length(network_output)) # nolint
+    }
+    return(list(lazy_tensor = as_lazy_tensor(network_output)))
   }
-  encoded[intersect(names(encoded), keep)]
+  private$.encode_prediction(network_output = network_output, task = task)
 }
 
 learner_torch_train = function(self, private, super, task, param_vals) {
@@ -257,7 +259,6 @@ train_loop = function(ctx, cbs) {
         task = ctx$task_valid,
         row_ids = ctx$task_valid$row_ids,
         prediction_encoder = ctx$prediction_encoder,
-        # scored on the validation task, but `train_set` means the rows the model was fitted on
         train_set = ctx$task_train$row_roles$use
       )
       ctx$network$train()
@@ -578,7 +579,10 @@ measure_prediction = function(network_output, measures, task, row_ids, predictio
   }
 
   prediction = prediction_encoder(network_output = network_output, task = task)
-  prediction = as_prediction_data_torch(prediction, task = task, check = FALSE, row_ids = row_ids)
+  # tagged at the point of use rather than in `.encode_prediction()`, which a learner may overwrite
+  # -- an overwritten one would silently produce a prediction without a truth
+  class(prediction) = c("prediction_torch", "list")
+  prediction = as_prediction_data(prediction, task = task, row_ids = row_ids, check = FALSE)
   prediction = as_prediction(prediction, task = task, check = FALSE)
 
   lapply(
@@ -586,7 +590,15 @@ measure_prediction = function(network_output, measures, task, row_ids, predictio
     function(measure) {
       tryCatch(
         measure$score(prediction, task = task, train_set = train_set),
-        error = function(e) NaN
+        # Scoring must not end a training run -- a network that diverges into NaN makes most
+        # measures assert, and the run may still recover -- but swallowing the condition left the
+        # NaN with no hint of where it came from, and a measure that can never score this task
+        # (a missing default measure, a bug in the scoring function) looked the same as one epoch
+        # of bad predictions.
+        error = function(e) {
+          warningf("Measure '%s' could not be computed and is reported as NaN: %s", measure$id, conditionMessage(e)) # nolint
+          NaN
+        }
       )
     }
   )

@@ -19,10 +19,12 @@ The task.}
 The ingress tokens that define \code{x}. Their features are already resolved, i.e. they are
 \code{character()} vectors and not \code{\link[mlr3pipelines:Selector]{Selector}}s.}
 
-\item{target_batchgetter}{(\verb{function(data)} or \code{NULL})\cr
-The function that defines \code{y}, or \code{NULL} if the dataset has no target.
-If it declares an \code{x} argument, it additionally receives the feature tensors of the batch.
-The default is to use \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.}
+\item{target_batchgetter}{(\verb{function()} or \code{NULL})\cr
+Converts the target columns of a batch into the target tensor \code{y} that the loss is applied to.
+Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
+and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
+target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
+If \code{NULL} (default), the batches have no \code{y} element.}
 
 \item{...}{(any)\cr
 Additional arguments. Not used yet.}

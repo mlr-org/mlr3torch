@@ -7,7 +7,7 @@
 msr_torch(
   id,
   fun,
-  minimize = TRUE,
+  minimize = NA,
   range = c(-Inf, Inf),
   predict_type = "response",
   properties = character(),
@@ -22,10 +22,11 @@ The id of the measure.}
 \item{fun}{(\verb{function()})\cr
 The scoring function.
 It receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{prediction}, \code{task},
-\code{learner}, \code{train_set} and \code{weights} it declares, and returns a single number.}
+\code{learner}, \code{train_set} and \code{weights} it declares, and must return a single number.R}
 
 \item{minimize}{(\code{logical(1)})\cr
-Whether a smaller score is better.}
+Whether a smaller score is better.
+\code{NA} (default) means the direction is unknown.}
 
 \item{range}{(\code{numeric(2)})\cr
 The range of possible scores.}
@@ -42,15 +43,14 @@ are added automatically when \code{fun} declares the corresponding argument.}
 The label of the measure.}
 
 \item{obs_loss}{(\verb{function()} or \code{NULL})\cr
-The per-observation loss. Declared like \code{fun}, except that there is no \code{train_set} to ask for,
-and returns one number per observation. Adds the \code{"obs_loss"} property.}
+The per-observation loss. Declared like \code{fun} and if specified adds the \code{"obs_loss"} property.}
 }
 \value{
 \code{\link{MeasureTorch}}
 }
 \description{
-Short form for constructing a \code{\link{MeasureTorch}}, the quick way to score the predictions of a
-\code{\link{TaskTorch}} with a plain R function.
+Short form for constructing a \code{\link{MeasureTorch}}.
+See the \emph{Custom Learning Problems} article for how to create and use such measures.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

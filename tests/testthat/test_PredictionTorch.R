@@ -1,5 +1,5 @@
 # A `PredictionTorch` does not prescribe how its elements are stored, so what `mlr3` does with a
-# prediction has to keep working for whatever the task's `prediction_encoder` produced. The tests
+# prediction has to keep working for whatever the task's `default_encoder` produced. The tests
 # below run the operations that `mlr3` performs on any prediction, see `?mlr3::Prediction`.
 
 # a regression-shaped task and a trained learner, the plainest thing a `TaskTorch` can be
@@ -141,11 +141,13 @@ test_that("probabilities and standard errors are carried along", {
   expect_matrix(pred$prob, nrows = 4L, ncols = 2L)
   expect_numeric(pred$se, len = 4L)
 
-  # and they reach the table, the `prob` matrix as one column per column
+  # and they reach the table, the `prob` matrix as one column per class -- which is what `mlr3`
+  # does for a classification prediction, and the one element that is tabled that way
   tab = as.data.table(pred)
   expect_data_table(tab, nrows = 4L)
   expect_true("se" %chin% names(tab))
   expect_equal(sum(startsWith(names(tab), "prob")), 2L)
+  expect_false(inherits(tab$prob.V1, "pt_arrays"))
 })
 
 test_that("predictions with different predict types do not combine", {
@@ -164,4 +166,499 @@ test_that("the fields of a prediction are read only", {
   expect_error(fitted$prediction$response <- 1, "read-only")
   expect_error(fitted$prediction$prob <- 1, "read-only")
   expect_error(fitted$prediction$se <- 1, "read-only")
+})
+
+test_that("combining prediction data with different predict types errors", {
+  d = tt_data(6L)
+  d$a = d$x1 > 0
+  task = tt_task(d, target = "a", id = "t")
+
+  without = PredictionTorch$new(task, row_ids = 1:3, truth = task$truth(1:3),
+    response = c(TRUE, FALSE, TRUE))$data
+  with = PredictionTorch$new(task, row_ids = 4:6, truth = task$truth(4:6),
+    response = c(TRUE, FALSE, TRUE), prob = c(0.9, 0.1, 0.8))$data
+
+  # would previously have dropped `prob` without a word
+  expect_error(c(without, with), "different predict types")
+  expect_error(c(with, without), "different predict types")
+
+  expect_equal(length(c(without, without)$row_ids), 6L)
+  expect_equal(length(c(with, with)$prob), 6L)
+  expect_equal(length(c(without)$row_ids), 3L)
+})
+
+test_that("predicting on zero rows gives an empty prediction", {
+  task = tt_task_labels(40L, id = "t")
+  learner = tt_learner(tt_loss_bce(), predict_types = c("response", "prob"))
+  learner$predict_type = "prob"
+  learner$train(task)
+
+  pred = learner$predict(task$clone(deep = TRUE)$filter(integer(0)))
+  expect_class(pred, "PredictionTorch")
+  expect_equal(length(pred$row_ids), 0L)
+  # the prediction still says what it is: degrading to row ids and truth alone only shows up much
+  # later, as a `different predict types` error when it is combined with a real one
+  expect_set_equal(pred$predict_types, c("response", "prob"))
+  expect_matrix(pred$response, nrows = 0L, ncols = 2L)
+
+  # an empty prediction must have the same storage as a non-empty one, so the two can be combined
+  empty = create_empty_prediction_data(task, learner)
+  expect_names(names(empty), permutation.of = c("row_ids", "truth", "response", "prob"))
+  expect_matrix(empty$response, nrows = 0L, ncols = 2L)
+
+  combined = c(empty, learner$predict(task)$data)
+  expect_matrix(combined$response, nrows = task$nrow, ncols = 2L)
+  expect_matrix(combined$prob, nrows = task$nrow, ncols = 2L)
+  expect_equal(combined$row_ids, task$row_ids)
+})
+
+test_that("an encoder that cannot build an empty prediction errors here", {
+  # degrading to row ids and truth alone would only surface much later, as a `different predict
+  # types` error the moment the empty prediction meets a real one
+  d = tt_data(20L)
+  d$y = rnorm(nrow(d))
+  task = tt_task(d, target = "y", id = "e",
+    default_encoder = function(task, network_output, predict_type) {
+      if (!nrow(as.matrix(network_output$cpu()))) stopf("no empty batches here")
+      list(response = as.numeric(as.matrix(network_output$cpu())))
+    })
+  learner = tt_learner(t_loss("mse"))
+  learner$train(task)
+
+  expect_error(create_empty_prediction_data(task, learner), "no empty batches here")
+  # ... and so does a task that cannot say how wide the network's output is (`tt_task()` fills one
+  # in, so this one is built directly)
+  no_dim = as_task_torch(d, target = "y", id = "n", default_encoder = tt_enc)
+  expect_error(create_empty_prediction_data(no_dim, learner), "has no `output_dim`")
+})
+
+test_that("prediction data can be combined and filtered", {
+  d = tt_data(10L)
+  d$y = rnorm(nrow(d))
+  task = tt_task(d, target = "y")
+
+  p1 = PredictionTorch$new(task, row_ids = 1:5, truth = task$truth(1:5), response = rnorm(5))
+  p2 = PredictionTorch$new(task, row_ids = 6:10, truth = task$truth(6:10), response = rnorm(5))
+
+  combined = c(p1$data, p2$data)
+  expect_class(combined, "PredictionDataTorch")
+  expect_equal(combined$row_ids, 1:10)
+  expect_numeric(combined$response, len = 10L)
+
+  filtered = filter_prediction_data(combined, 3:6)
+  expect_equal(filtered$row_ids, 3:6)
+  expect_numeric(filtered$response, len = 4L)
+
+  tab = as.data.table(as_prediction(combined))
+  expect_data_table(tab, nrows = 10L)
+  expect_names(names(tab), identical.to = c("row_ids", "truth", "response"))
+})
+
+test_that("prediction data checks that everything describes the same observations", {
+  d = tt_data(10L)
+  d$y = rnorm(nrow(d))
+  task = tt_task(d, target = "y")
+  expect_error(
+    PredictionTorch$new(task, row_ids = 1:5, truth = task$truth(1:5), response = rnorm(4)),
+    "has 4 observations"
+  )
+})
+
+test_that("matrix valued predictions survive a resample round trip", {
+  d = tt_data(60L)
+  d$y1 = rnorm(nrow(d))
+  d$y2 = rnorm(nrow(d))
+  task = tt_task(d, target = c("y1", "y2"))
+
+  rr = resample(task, tt_learner(t_loss("mse")), rsmp("cv", folds = 3L))
+  pred = rr$prediction()
+  expect_matrix(pred$response, nrows = task$nrow, ncols = 2L)
+  expect_equal(colnames(pred$response), c("y1", "y2"))
+  expect_data_table(pred$truth, nrows = task$nrow, ncols = 2L)
+
+  # a matrix response is one cell per observation, like an array of any other dimensionality: only
+  # `prob` becomes one column per class, because only there does a column mean something fixed
+  tab = as.data.table(pred)
+  expect_class(tab$response, "pt_arrays")
+  expect_equal(format(tab$response)[1L], "<array[2]>")
+  # the cell is a one-dimensional array, so compare the values it holds
+  expect_equal(as.numeric(tab$response[[1L]]), unname(pred$response[1L, ]))
+  expect_false(any(startsWith(names(tab), "response.")))
+})
+
+test_that("factor valued predictions survive a resample round trip", {
+  d = tt_data(60L)
+  d$y = factor(rep(c("a", "b", "c"), length.out = nrow(d)))
+  task = tt_task(d, target = "y")
+
+  rr = resample(task, tt_learner(t_loss("cross_entropy")), rsmp("cv", folds = 3L))
+  pred = rr$prediction()
+  expect_factor(pred$response, levels = c("a", "b", "c"), len = task$nrow)
+  expect_factor(pred$truth, levels = c("a", "b", "c"), len = task$nrow)
+})
+
+test_that("array valued predictions survive a resample round trip", {
+  d = tt_data(60L)
+  for (nm in c("y1", "y2", "y3", "y4")) d[[nm]] = rnorm(nrow(d))
+  # the prediction of an observation is a (2, 2) array rather than a vector, which is the shape an
+  # autoencoder over images produces
+  task = tt_task(d, target = c("y1", "y2", "y3", "y4"),
+    default_encoder = function(task, network_output, predict_type) {
+      x = as.array(network_output$cpu())
+      list(response = array(x, dim = c(nrow(x), 2L, 2L)))
+    })
+
+  rr = resample(task, tt_learner(t_loss("mse")), rsmp("cv", folds = 3L))
+  pred = rr$prediction()
+  expect_array(pred$response, mode = "numeric", d = 3L)
+  expect_equal(dim(pred$response), c(task$nrow, 2L, 2L))
+  expect_data_table(pred$truth, nrows = task$nrow, ncols = 4L)
+
+  # one row per observation, each holding its own array: flattening the cells into columns would
+  # scale with the size of the array, and an autoencoder over images has 150528 of them
+  tab = as.data.table(pred)
+  # row_ids, one column per target of the truth, and one for the response
+  expect_data_table(tab, nrows = task$nrow, ncols = 6L)
+  expect_class(tab$response, "pt_arrays")
+  expect_equal(dim(tab$response[[1L]]), c(2L, 2L))
+  expect_equal(tab$response[[1L]], pred$response[1L, , ])
+
+  # ... and it prints as the shape rather than as every value of every observation
+  expect_match(format(tab$response)[1L], "<array[2x2]>", fixed = TRUE)
+  expect_true(sum(nchar(capture.output(print(pred)))) < 1000L)
+})
+
+test_that("a bare list is not a storage a prediction may use", {
+  d = tt_data(20L)
+  d$y = d$x1 + rnorm(nrow(d))
+  # an encoder that returns one value per observation, but in a list rather than a vector
+  task = tt_task(d, target = "y",
+    default_encoder = function(task, network_output, predict_type) {
+      list(response = as.list(as.numeric(network_output$cpu())))
+    })
+  learner = tt_learner(t_loss("mse"))
+  learner$train(task)
+
+  expect_error(learner$predict(task), "bare `list()`", fixed = TRUE)
+
+  # the two list-shaped storages that are allowed are not caught by it
+  pdata = list(row_ids = 1:3, response = as_lazy_tensor(torch_randn(3L, 2L)),
+    truth = data.table(a = 1:3, b = 4:6))
+  class(pdata) = c("PredictionDataTorch", "PredictionData")
+  expect_no_error(check_prediction_data(pdata))
+})
+
+test_that("only a response with one value per observation reports missing predictions", {
+  pdata = function(response) {
+    structure(list(row_ids = 1:3, response = response),
+      class = c("PredictionDataTorch", "PredictionData"))
+  }
+
+  # one value per observation: an NA is an observation that was not predicted
+  expect_equal(is_missing_prediction_data(pdata(c(1, NA, 3))), 2L)
+  expect_equal(is_missing_prediction_data(pdata(factor(c("a", NA, "c")))), 2L)
+  expect_equal(is_missing_prediction_data(pdata(c(1, 2, 3))), integer(0))
+
+  # anything wider does not: what a partially missing observation means is the encoder's business,
+  # and a `lazy_tensor` could only answer by materialising the whole prediction
+  a = array(1, dim = c(3L, 2L, 2L))
+  a[2L, 2L, 1L] = NA
+  expect_equal(is_missing_prediction_data(pdata(a)), integer(0))
+  expect_equal(is_missing_prediction_data(pdata(matrix(c(1, NA, 3, 4, 5, 6), nrow = 3L))), integer(0))
+  expect_equal(is_missing_prediction_data(pdata(data.table(a = c(1, NA, 3)))), integer(0))
+  expect_equal(is_missing_prediction_data(pdata(as_lazy_tensor(torch_randn(3L, 2L)))), integer(0))
+
+  # a prediction without a response has nothing that could be missing
+  expect_equal(is_missing_prediction_data(pdata(NULL)), integer(0))
+})
+
+test_that("a lazy_tensor target survives a resample round trip", {
+  d = tt_data(32L)
+  d$y = as_lazy_tensor(withr::with_seed(2L, torch_randn(nrow(d), 3L)))
+  task = tt_task(d, target = "y", id = "lt",
+    output_dim = function(task) 3L,
+    default_encoder = function(task, network_output, predict_type) {
+      list(response = as.matrix(network_output$cpu()))
+    })
+  learner = tt_learner(t_loss("mse"),
+    target_batchgetter = function(data) materialize(data[[1L]], rbind = TRUE)$to(dtype = torch_float()))
+
+  rr = resample(task, learner, rsmp("cv", folds = 2L))
+  pred = rr$prediction()
+  # `unlist()` used to flatten the lazy_tensor into its internals, doubling its length
+  expect_class(pred$truth, "lazy_tensor")
+  expect_length(pred$truth, task$nrow)
+  expect_data_table(as.data.table(pred), nrows = task$nrow)
+  expect_equal(
+    as.matrix(materialize(pred$truth, rbind = TRUE)),
+    as.matrix(materialize(task$truth(pred$row_ids), rbind = TRUE))
+  )
+})
+
+test_that("combining prediction data keeps the storage of its elements", {
+  # the fallback of `pt_combine()` must not strip a class it does not know about
+  lt = as_lazy_tensor(withr::with_seed(3L, torch_randn(4L, 2L)))
+  combined = pt_combine(list(lt[1:2], lt[3:4]))
+  expect_class(combined, "lazy_tensor")
+  expect_length(combined, 4L)
+
+  dates = pt_combine(list(as.Date("2020-01-01"), as.Date("2020-01-02")))
+  expect_class(dates, "Date")
+  expect_equal(dates, as.Date(c("2020-01-01", "2020-01-02")))
+
+  expect_equal(pt_combine(list(list(1:2, 3:4), list(5:6))), list(1:2, 3:4, 5:6))
+})
+
+test_that("combining prediction data unions the levels of a factor", {
+  # a resampling fold need not see every class, and its prediction then carries fewer levels than
+  # the others; going by the levels of the first element would silently turn the rest into NA
+  a = factor(c("a", "b", "a"), levels = c("a", "b"))
+  b = factor(c("c", "b", "c"), levels = c("b", "c"))
+  expect_equal(pt_combine(list(a, b)), factor(c("a", "b", "a", "c", "b", "c"), levels = c("a", "b", "c")))
+  expect_equal(pt_combine(list(b, a)), factor(c("c", "b", "c", "a", "b", "a"), levels = c("b", "c", "a")))
+
+  # the same, through the operation that a `resample()` over such folds performs
+  pa = list(row_ids = 1:3, response = a)
+  pb = list(row_ids = 4:6, response = b)
+  class(pa) = class(pb) = c("PredictionDataTorch", "PredictionData")
+  expect_equal(as.character(c(pa, pb)$response), c("a", "b", "a", "c", "b", "c"))
+
+  # an ordered factor stays ordered, as long as the elements agree on the order
+  oa = ordered(c("lo", "mid"), levels = c("lo", "mid", "hi"))
+  ob = ordered("hi", levels = c("mid", "hi"))
+  expect_equal(pt_combine(list(oa, ob)), ordered(c("lo", "mid", "hi"), levels = c("lo", "mid", "hi")))
+  # ... and elements that disagree about the order are demoted to a plain factor, loudly, which is
+  # `rbindlist()`'s answer to an ambiguity it cannot resolve
+  expect_warning(
+    demoted <- pt_combine(list(oa, ordered("hi", levels = c("hi", "mid")))),
+    "ambiguity"
+  )
+  expect_false(is.ordered(demoted))
+  expect_equal(as.character(demoted), c("lo", "mid", "hi"))
+  expect_set_equal(levels(demoted), c("lo", "mid", "hi"))
+})
+
+test_that("combining prediction data with inconsistent elements is an error", {
+  a = list(row_ids = 1:2, response = c(1, 2))
+  b = list(row_ids = 3:4, response = c(3, 4))
+  class(a) = class(b) = c("PredictionDataTorch", "PredictionData")
+  expect_equal(length(c(a, b)$row_ids), 4L)
+
+  # mlr3's own combine path does not check, so `c()` has to
+  broken = b
+  broken$response = c(3, 4, 5)
+  expect_error(c(a, broken), "has 5 observations, but 4 row ids")
+})
+
+test_that("as.data.table refuses a prediction whose elements disagree", {
+  # `cbind()` recycles a shorter table instead of complaining, which would turn a malformed
+  # prediction into a table with duplicated observations rather than an error
+  fitted = tt_fitted(10L)
+  pred = fitted$prediction
+  pred$data$response = pred$data$response[1:5]
+
+  expect_error(as.data.table(pred), "has 10 row ids, but its elements have")
+})
+
+test_that("an array column prints as its shape rather than its contents", {
+  cells = pt_arrays(array(seq_len(2L * 3L * 4L), c(2L, 3L, 4L)))
+
+  expect_class(cells, "pt_arrays")
+  expect_length(cells, 2L)
+  expect_equal(dim(cells[[1L]]), c(3L, 4L))
+  expect_equal(format(cells), rep("<array[3x4]>", 2L))
+
+  # `data.table` pastes the contents of a list column unless its class has a `format_col()` method,
+  # which for a batch of images is megabytes of numbers per printed prediction
+  tab = data.table(x = cells)
+  expect_match(capture.output(print(tab))[3L], "<array[3x4]>", fixed = TRUE)
+
+  # an empty prediction has no cells to format
+  expect_length(pt_arrays(array(numeric(0), c(0L, 3L, 4L))), 0L)
+  expect_equal(format(pt_arrays(array(numeric(0), c(0L, 3L, 4L)))), character(0))
+})
+
+test_that("measure weights are subset and combined with their observations", {
+  d = tt_data(40L)
+  d$a = d$x1 > 0
+  d$b = d$x2 > 0
+  d$w = seq_len(nrow(d)) * 1.0
+  task = tt_task(d, target = c("a", "b"), id = "w")
+  task$set_col_roles("w", "weights_measure")
+
+  learner = tt_learner(tt_loss_bce())
+  learner$train(task)
+  pred = learner$predict(task)
+  expect_equal(pred$data$weights, d$w)
+
+  # `weights` is not a predict type, but it describes the observations and has to travel with them
+  keep = task$row_ids[c(2L, 4L, 6L)]
+  filtered = filter_prediction_data(pred$data, row_ids = keep)
+  expect_equal(filtered$weights, d$w[keep])
+
+  combined = c(pred$data, pred$data, keep_duplicates = FALSE)
+  expect_equal(combined$weights, d$w)
+
+  # ... and an empty prediction carries the element, so that it can be combined with a real one
+  empty = create_empty_prediction_data(task, learner)
+  expect_equal(empty$weights, numeric(0))
+  expect_length(c(empty, pred$data)$weights, task$nrow)
+})
+
+test_that("prediction data without a response has no missing predictions", {
+  # a task can be scored by a measure that reads the truth from the task, so an encoder need not
+  # produce a `response` at all -- there is then nothing that could be missing
+  pdata = list(row_ids = 1:3, truth = c(1, 2, 3))
+  class(pdata) = c("PredictionDataTorch", "PredictionData")
+
+  expect_equal(is_missing_prediction_data(pdata), integer(0))
+  expect_equal(check_prediction_data(pdata), pdata)
+  expect_equal(c(pdata, pdata)$row_ids, c(1:3, 1:3))
+})
+
+test_that("combining degenerate collections of prediction data", {
+  fitted = tt_fitted(10L)
+  pdata = fitted$prediction$data
+  empty = create_empty_prediction_data(fitted$task, fitted$learner)
+
+  # a single element comes back as it is
+  expect_equal(pt_combine(list(1:3)), 1:3)
+  expect_equal(c(pdata)$row_ids, pdata$row_ids)
+
+  # elements without observations carry no information about the storage, so they are dropped --
+  # unless there is nothing else, in which case the result is still empty and still typed
+  expect_equal(pt_combine(list(numeric(0), c(1, 2))), c(1, 2))
+  expect_equal(pt_combine(list(numeric(0), numeric(0))), numeric(0))
+  expect_equal(NROW(c(empty, empty)$response), 0L)
+  expect_equal(class(c(empty, empty)$response), class(pdata$response))
+
+  # `NULL` elements are dropped before anything looks at the storage
+  expect_equal(pt_combine(list(NULL, c(1, 2), NULL)), c(1, 2))
+})
+
+test_that("filtering prediction data to nothing keeps every element", {
+  fitted = tt_fitted(10L)
+  pdata = fitted$prediction$data
+
+  gone = filter_prediction_data(pdata, row_ids = integer(0))
+  expect_set_equal(names(gone), names(pdata))
+  expect_equal(gone$row_ids, integer(0))
+  expect_equal(NROW(gone$response), 0L)
+
+  # row ids that are not in the prediction are not an error, they simply match nothing
+  expect_equal(filter_prediction_data(pdata, row_ids = 1000L)$row_ids, integer(0))
+
+  # ... and the emptied prediction still combines with a real one
+  expect_equal(NROW(c(gone, pdata)$response), NROW(pdata$response))
+})
+
+test_that("every storage an element can have is subset by observation", {
+  # `pt_subset()` is what filtering and dropping duplicates go through, and the elements of a
+  # `PredictionTorch` may be stored in any of these ways
+  expect_equal(pt_subset(c(10, 20, 30), c(1L, 3L)), c(10, 30))
+  expect_equal(pt_subset(matrix(1:6, nrow = 3L), c(1L, 3L)), matrix(c(1L, 3L, 4L, 6L), nrow = 2L))
+  expect_equal(pt_subset(data.table(a = 1:3, b = 4:6), 2L), data.table(a = 2L, b = 5L))
+  expect_equal(pt_subset(factor(c("a", "b", "c")), 2L), factor("b", levels = c("a", "b", "c")))
+
+  a = array(1:24, c(3L, 2L, 4L))
+  expect_equal(dim(pt_subset(a, c(1L, 2L))), c(2L, 2L, 4L))
+  expect_equal(pt_subset(a, 2L)[1L, , ], a[2L, , ])
+
+  # a matrix keeps its column names, which for a `prob` element are the class labels
+  m = matrix(1:6, nrow = 3L, dimnames = list(NULL, c("a", "b")))
+  expect_equal(colnames(pt_subset(m, 1L)), c("a", "b"))
+})
+
+test_that("the lazy_tensor predict type hands back the network output", {
+  d = tt_data(20L)
+  d$y = rnorm(nrow(d))
+  # no `default_encoder`: this predict type never asks the task how to encode anything
+  task = as_task_torch(d, target = "y", id = "raw", output_dim = function(task) 1L)
+  learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
+
+  # it is opt-in, like every predict type of this task type
+  plain = tt_learner(t_loss("mse"))
+  expect_error({plain$predict_type = "lazy_tensor"}, "does not support predict type")
+
+  learner$predict_type = "lazy_tensor"
+  learner$train(task)
+  pred = learner$predict(task)
+
+  expect_equal(pred$predict_types, "lazy_tensor")
+  expect_class(pred$lazy_tensor, "lazy_tensor")
+  expect_length(pred$lazy_tensor, task$nrow)
+  expect_null(pred$response)
+  expect_equal(materialize(pred$lazy_tensor, rbind = TRUE)$shape, c(task$nrow, 1L))
+
+  # it is what the network produced, not something the task derived
+  expect_equal(
+    as.numeric(as.matrix(materialize(pred$lazy_tensor, rbind = TRUE)$cpu())),
+    as.numeric(as.matrix(learner$predict_tensor(task)$cpu()))
+  )
+
+  # ... and it travels through the machinery like any other element
+  expect_true("lazy_tensor" %chin% names(as.data.table(pred)))
+  expect_match(capture.output(print(pred))[4L], "<tnsr[1]>", fixed = TRUE)
+  pred$filter(task$row_ids[1:5])
+  expect_length(pred$lazy_tensor, 5L)
+})
+
+test_that("lazy_tensor predictions of different folds are combined", {
+  d = tt_data(20L)
+  d$y = rnorm(nrow(d))
+  task = as_task_torch(d, target = "y", id = "raw", output_dim = function(task) 1L)
+  learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
+  learner$predict_type = "lazy_tensor"
+
+  # every fold wraps its own network output, so the folds share no data descriptor and
+  # `c.lazy_tensor()` alone would refuse them
+  rr = resample(task, learner, rsmp("cv", folds = 2L))
+  pred = rr$prediction()
+  expect_length(pred$lazy_tensor, task$nrow)
+  expect_equal(materialize(pred$lazy_tensor, rbind = TRUE)$shape, c(task$nrow, 1L))
+
+  # each fold's rows keep the values that fold predicted
+  first = rr$predictions()[[1L]]
+  combined = as.numeric(as.matrix(materialize(pred$lazy_tensor, rbind = TRUE)$cpu()))
+  expect_equal(
+    combined[match(first$row_ids, pred$row_ids)],
+    as.numeric(as.matrix(materialize(first$lazy_tensor, rbind = TRUE)$cpu()))
+  )
+
+  # only lazy tensors that already hold their data are combined this way: materialising ones that
+  # read on demand would pull whole datasets into memory, so they are refused
+  on_demand = as_lazy_tensor(
+    torch::dataset("on_demand",
+      initialize = function() NULL,
+      .getbatch = function(ids) list(x = torch_randn(length(ids), 1L)),
+      .length = function() 5L
+    )(),
+    dataset_shapes = list(x = c(NA, 1L))
+  )
+  expect_false(inherits(dd(on_demand)$dataset, "in_memory_tensor_dataset"))
+  expect_error(pt_combine(list(on_demand, pred$lazy_tensor)), "reads its data on demand")
+
+  # an empty prediction is an empty lazy tensor, because one cannot be encoded from zero rows
+  empty = create_empty_prediction_data(task, learner)
+  expect_class(empty$lazy_tensor, "lazy_tensor")
+  expect_length(empty$lazy_tensor, 0L)
+  expect_length(c(empty, pred$data)$lazy_tensor, task$nrow)
+})
+
+test_that("a lazy_tensor prediction does not survive saveRDS", {
+  # documented in the *Predicting Tensors* section of `?LearnerTorch`: saving succeeds and the
+  # tensors are dangling pointers afterwards, so this pins the behaviour we tell users about
+  d = tt_data(20L)
+  d$y = rnorm(nrow(d))
+  task = as_task_torch(d, target = "y", id = "raw", output_dim = function(task) 1L)
+  learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
+  learner$predict_type = "lazy_tensor"
+  rr = resample(task, learner, rsmp("holdout"))
+
+  path = tempfile()
+  expect_no_error(saveRDS(rr, path))
+  back = readRDS(path)
+  # the row ids survive, the tensors do not
+  expect_length(back$prediction()$row_ids, length(rr$prediction()$row_ids))
+  expect_error(materialize(back$prediction()$lazy_tensor, rbind = TRUE), "external pointer")
 })

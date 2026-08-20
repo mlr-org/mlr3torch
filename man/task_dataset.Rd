@@ -13,11 +13,12 @@ The task for which to build the \link[torch:dataset]{dataset}.}
 \item{feature_ingress_tokens}{(named \code{list()} of \code{\link{TorchIngressToken}})\cr
 Each ingress token defines one item in the \verb{$x} value of a batch with corresponding names.}
 
-\item{target_batchgetter}{(\verb{function(data)} or \code{NULL})\cr
-A function taking in an argument \code{data}, a \code{data.table} containing only the target column(s),
-that returns the target as a torch \link[torch:torch_tensor]{tensor}.
-If it declares an \code{x} argument, it additionally receives the named list of feature tensors of
-the batch, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.}
+\item{target_batchgetter}{(\verb{function()} or \code{NULL})\cr
+Converts the target columns of a batch into the target tensor \code{y} that the loss is applied to.
+Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
+and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
+target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
+If \code{NULL} (default), the batches have no \code{y} element.}
 }
 \value{
 \code{\link[torch:dataset]{torch::dataset}}

@@ -4,20 +4,22 @@
 \alias{as_task_torch}
 \title{Create a Generic Torch Task}
 \usage{
-as_task_torch(x, target = character(0), id = deparse(substitute(x))[1L], ...)
+as_task_torch(x, target = NULL, id = deparse(substitute(x))[1L], ...)
 }
 \arguments{
 \item{x}{(\code{data.frame()} or \code{\link[mlr3:DataBackend]{DataBackend}})\cr
 The data.}
 
-\item{target}{(\code{character()})\cr
-The names of the target columns. May be empty.}
+\item{target}{(\code{character()} or \code{NULL})\cr
+The names of the target columns.
+\code{NULL} (default) for a task without a target, see section \emph{Tasks without a Target} of
+\code{\link{TaskTorch}}.}
 
 \item{id}{(\code{character(1)})\cr
 The id of the task.}
 
 \item{...}{(any)\cr
-Further arguments passed to \code{\link{TaskTorch}}\verb{$new()}, such as \code{output_dim}, \code{prediction_encoder}
+Further arguments passed to \code{\link{TaskTorch}}\verb{$new()}, such as \code{output_dim}, \code{default_encoder}
 or \code{default_measure}.}
 }
 \value{
@@ -26,8 +28,7 @@ or \code{default_measure}.}
 \description{
 Creates a \code{\link{TaskTorch}}, the general-purpose task type of \code{mlr3torch}, from a \code{data.frame()} or a
 \code{\link[mlr3:DataBackend]{DataBackend}}.
-See \code{\link{TaskTorch}} for what you have to specify about the learning problem and what the
-trade-offs are.
+See the \emph{Custom Learning Problems} article for more information.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

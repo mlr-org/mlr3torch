@@ -39,3 +39,4 @@ data-raw
 ^cran-comments\.md$
 ^\.claude$
 ^TODOS\.md$
+^example\.R$

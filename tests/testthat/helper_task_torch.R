@@ -27,22 +27,22 @@ tt_odim = function(task) {
   if (length(target) == 1L && info$type == "factor") length(info$levels[[1L]]) else length(target)
 }
 
-tt_enc = function(task, predict_tensor, predict_type) {
+tt_enc = function(task, network_output, predict_type) {
   target = task$target_names
   info = tt_target_info(task)
   if (length(target) == 1L && info$type == "factor") {
     levs = info$levels[[1L]]
-    response = factor(as.integer(with_no_grad(predict_tensor$argmax(dim = 2L))$to(device = "cpu")),
+    response = factor(as.integer(with_no_grad(network_output$argmax(dim = 2L))$to(device = "cpu")),
       levels = seq_along(levs), labels = levs)
     prob = if (predict_type == "prob") {
-      p = as.matrix(with_no_grad(nnf_softmax(predict_tensor, dim = 2L))$to(device = "cpu"))
+      p = as.matrix(with_no_grad(nnf_softmax(network_output, dim = 2L))$to(device = "cpu"))
       colnames(p) = levs
       p
     }
     return(list(response = response, prob = prob))
   }
   if (info$type == "logical") {
-    prob = as.matrix(with_no_grad(nnf_sigmoid(predict_tensor))$to(device = "cpu"))
+    prob = as.matrix(with_no_grad(nnf_sigmoid(network_output))$to(device = "cpu"))
     colnames(prob) = target
     response = prob > 0.5
     if (length(target) == 1L) {
@@ -51,11 +51,11 @@ tt_enc = function(task, predict_tensor, predict_type) {
     }
     return(list(response = response, prob = if (predict_type == "prob") prob))
   }
-  predict_tensor = with_no_grad(predict_tensor)$to(device = "cpu")
+  network_output = with_no_grad(network_output)$to(device = "cpu")
   if (length(target) == 1L) {
-    return(list(response = as.numeric(predict_tensor)))
+    return(list(response = as.numeric(network_output)))
   }
-  response = as.matrix(predict_tensor)
+  response = as.matrix(network_output)
   colnames(response) = target
   list(response = response)
 }
@@ -67,10 +67,10 @@ tt_bg = function(data) {
   torch_tensor(1 * as.matrix(data), dtype = torch_float())
 }
 
-tt_task = function(x, target = character(0), id = "t", ...) {
+tt_task = function(x, target = NULL, id = "t", ...) {
   args = list(...)
   if (is.null(args$output_dim)) args$output_dim = tt_odim
-  if (is.null(args$prediction_encoder)) args$prediction_encoder = tt_enc
+  if (is.null(args$default_encoder)) args$default_encoder = tt_enc
   invoke(as_task_torch, x = x, target = target, id = id, .args = args)
 }
 

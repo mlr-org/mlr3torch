@@ -5,17 +5,12 @@
 #' [`TaskTorch`].
 #'
 #' Because a [`TaskTorch`] can represent very different learning problems, this class does not
-#' prescribe how `truth`, `response`, `prob` and `se` are stored.
+#' prescribe much about how `truth`, `response`, `prob` and `se` are stored.
 #' Each of them may be an atomic vector, a `matrix()`, a [`data.table`][data.table::data.table], an
-#' array of any dimensionality, or a `list()` with one element per observation -- whatever the
-#' task's `prediction_encoder` produced.
-#' The checks that `mlr3` performs are correspondingly weak: it is verified that all elements
-#' describe the same number of observations, but not what is in them.
+#' array of any dimensionality, or a [`lazy_tensor`], i.e., anything whose *first* dimension indexes the
+#' observations.
 #'
-#' @param task ([`TaskTorch`])\cr
-#'   The task. Used to extract the default `row_ids` and `truth`.
-#' @param row_ids (`integer()`)\cr
-#'   The row ids of the predicted observations.
+#' @template params_prediction_torch
 #' @param truth (any)\cr
 #'   The ground truth, i.e. what `task$truth()` returned.
 #' @param response (any)\cr
@@ -24,11 +19,11 @@
 #'   The predicted probabilities.
 #' @param se (any)\cr
 #'   The standard errors of the prediction.
+#' @param lazy_tensor ([`lazy_tensor`])\cr
+#'   The output of the network, see the predict type `"lazy_tensor"` of [`LearnerTorch`].
 #' @param weights (`numeric()` or `NULL`)\cr
 #'   The measure weights of the predicted observations, i.e. the `weights_measure` column of the
 #'   task. `mlr3` fills this in, so it rarely has to be passed by hand.
-#' @param check (`logical(1)`)\cr
-#'   Whether to check the consistency of the prediction data.
 #'
 #' @family Prediction
 #' @export
@@ -43,9 +38,9 @@ PredictionTorch = R6Class("PredictionTorch",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task = NULL, row_ids = task$row_ids,
       truth = if (!is.null(task)) task$truth(row_ids), response = NULL, prob = NULL, se = NULL,
-      weights = NULL, check = TRUE) {
+      lazy_tensor = NULL, weights = NULL, check = TRUE) {
       pdata = discard(list(row_ids = row_ids, truth = truth, response = response, prob = prob,
-        se = se, weights = weights), is.null)
+        se = se, lazy_tensor = lazy_tensor, weights = weights), is.null)
       class(pdata) = c("PredictionDataTorch", "PredictionData")
       if (check) {
         pdata = check_prediction_data(pdata)
@@ -75,25 +70,36 @@ PredictionTorch = R6Class("PredictionTorch",
     se = function(rhs) {
       assert_ro_binding(rhs)
       self$data$se
+    },
+    #' @field lazy_tensor ([`lazy_tensor`])\cr
+    #'   The output of the network, for the predict type `"lazy_tensor"`.
+    lazy_tensor = function(rhs) {
+      assert_ro_binding(rhs)
+      self$data$lazy_tensor
     }
   )
 )
 
-# The elements a prediction of a generic torch task can carry. `truth` comes from the task, the
-# others are whatever the prediction encoder returned, filtered by the learner's predict type.
-pt_predict_types = c("response", "prob", "se")
-# `weights` is not a predict type but is subset and combined like one; `mlr3` puts it there for a
-# task with a `weights_measure` column and `Measure$score()` reads it back out
+pt_predict_types = c("response", "prob", "se", "lazy_tensor")
 pt_elements = c("truth", pt_predict_types, "weights")
 
-# `truth`, `response` and `prob` of a PredictionDataTorch can be anything the task's prediction
-# encoder produced: a vector, a `data.table`, an array of any dimensionality -- an autoencoder over
-# images predicts an `(n, channels, height, width)` array, for instance -- or a list, which is what
-# is left when the observations do not share a shape at all, as for a `lazy_tensor`.
-# The only thing assumed about them is that their *first* dimension indexes the observations, so
-# the prediction data methods below go through these helpers instead of indexing directly.
-pt_nobs = function(x) {
-  NROW(x)
+# One cell per observation, each holding that observation's own array. The class is only a hook for
+# printing: `as.data.table()` on a prediction exists mostly to print it, and a `data.table` pastes
+# the contents of a list column -- megabytes of numbers for a batch of images -- unless the column's
+# class has a `format_col()` method. `lazy_tensor` hooks into the same generic.
+pt_arrays = function(x) {
+  cells = lapply(seq_len(NROW(x)), function(i) array(pt_subset(x, i), dim = dim(x)[-1L]))
+  structure(cells, class = c("pt_arrays", "list"))
+}
+
+#' @export
+format.pt_arrays = function(x, ...) { # nolint
+  map_chr(x, function(el) sprintf("<array[%s]>", paste0(dim(el), collapse = "x")))
+}
+
+#' @exportS3Method data.table::format_col
+format_col.pt_arrays = function(x, ...) { # nolint
+  format(x, ...)
 }
 
 pt_subset = function(x, i) {
@@ -110,35 +116,9 @@ pt_subset = function(x, i) {
   do.call("[", c(list(x), index, list(drop = FALSE)))
 }
 
-# binds arrays of more than two dimensions along their first dimension, which is what `rbind()`
-# does for matrices and what `c()` does for vectors
-pt_bind_arrays = function(xs) {
-  d = dim(xs[[1L]])
-  ns = map_int(xs, function(x) dim(x)[1L])
-  walk(xs, function(x) {
-    if (!identical(dim(x)[-1L], d[-1L])) {
-      stopf("Cannot combine arrays of dimensions (%s) and (%s), they differ beyond the first dimension.", paste(d, collapse = ", "), paste(dim(x), collapse = ", ")) # nolint
-    }
-  })
-  dim_out = c(sum(ns), d[-1L])
-  out = array(vector(typeof(xs[[1L]]), prod(dim_out)), dim = dim_out)
-  offset = 0L
-  for (x in xs) {
-    index = rep(list(bquote()), length(d))
-    index[[1L]] = offset + seq_len(dim(x)[1L])
-    out = do.call("[<-", c(list(out), index, list(value = x)))
-    offset = offset + dim(x)[1L]
-  }
-  out
-}
-
 pt_combine = function(xs) {
   xs = xs[!map_lgl(xs, is.null)]
-  # An element without observations contributes no rows, and its storage type carries no
-  # information: an empty prediction (see `create_empty_prediction_data()`) may well be a bare
-  # vector where the others are matrices. Drop them, so that the representative below is an
-  # element that actually describes the storage.
-  nonempty = map_int(xs, pt_nobs) > 0L
+  nonempty = map_int(xs, NROW) > 0L
   if (any(nonempty)) {
     xs = xs[nonempty]
   }
@@ -146,48 +126,45 @@ pt_combine = function(xs) {
   if (is.matrix(x)) {
     do.call(rbind, xs)
   } else if (is.array(x)) {
-    pt_bind_arrays(xs)
+    # `rbind()` only understands two dimensions -- it would flatten the rest into columns
+    rbind_arrays(xs)
   } else if (is.data.frame(x)) {
     rbindlist(xs, use.names = TRUE)
+  } else if (inherits(x, "lazy_tensor")) {
+    # FIXME: general concatenation of lazy tensors is not allowed (only when they have teh same DataDescriptor),
+    # so we have a special case here
+    if (!length(x)) {
+      lazy_tensor()
+    } else if (length(unique(map_chr(xs, function(xi) dd(xi)$hash))) == 1L) {
+      do.call(c, xs)
+    } else {
+      walk(xs, function(xi) {
+        if (!inherits(dd(xi)$dataset, "in_memory_tensor_dataset")) {
+          stopf("Cannot combine lazy tensors that were built from different datasets unless each already holds its tensors in memory, because combining them materialises them -- and materialising a lazy tensor that reads its data on demand would read all of it. Combine the parts yourself if that is what you want.") # nolint
+        }
+      })
+      as_lazy_tensor(torch_cat(lapply(xs, materialize, rbind = TRUE), dim = 1L))
+    }
   } else if (is.factor(x)) {
-    # unlist() would drop the levels and return the integer codes
-    factor(unlist(lapply(xs, as.character), use.names = FALSE), levels = levels(x))
+    rbindlist(lapply(xs, function(xi) data.table(x = xi)))$x
   } else {
-    # `unlist()` here would strip the class of anything that is not a bare atomic vector: a
-    # `lazy_tensor` (a classed list) is flattened into its internals, a `Date` is demoted to the
-    # numbers underneath it. `c()` dispatches, so it keeps whatever the prediction encoder built.
     unname(do.call(c, xs))
   }
-}
-
-# turns one element of the prediction data into columns of `as.data.table(prediction)`
-pt_as_columns = function(x, prefix) {
-  # an observation of an array with more than two dimensions becomes one flat row of columns
-  if (is.array(x) && length(dim(x)) > 2L) {
-    x = matrix(x, nrow = NROW(x))
-  }
-  tab = if (is.matrix(x)) {
-    as.data.table(x)
-  } else if (is.data.frame(x)) {
-    # copy(), because setnames() below renames by reference and `x` belongs to the prediction
-    copy(as.data.table(x))
-  } else {
-    setnames(data.table(x), prefix)
-  }
-  if (ncol(tab) > 1L || !identical(names(tab), prefix)) {
-    setnames(tab, paste0(prefix, ".", names(tab)))
-  }
-  tab
 }
 
 #' @export
 check_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
   n = length(assert_row_ids(pdata$row_ids))
-  # deliberately lax: we only ensure that everything describes the same observations
   for (nm in intersect(pt_elements, names(pdata))) {
-    n_nm = pt_nobs(pdata[[nm]])
+    el = pdata[[nm]]
+    n_nm = NROW(el)
     if (n_nm != n) {
       stopf("Element '%s' of the prediction data has %i observations, but %i row ids are given.", nm, n_nm, n) # nolint
+    }
+    # a `lazy_tensor` and a `data.table` are lists too, and both are fine: it is the bare one that
+    # is refused, see the class description
+    if (is.list(el) && !is.data.frame(el) && !inherits(el, "lazy_tensor")) {
+      stopf("Element '%s' of the prediction data is a bare `list()`. Store a prediction that is one value per observation in an atomic vector, a matrix or an array, and one that is a tensor per observation in a `lazy_tensor`.", nm) # nolint
     }
   }
   pdata
@@ -196,20 +173,14 @@ check_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
 #' @export
 is_missing_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
   response = pdata$response
-  if (is.null(response)) {
+  # Only a response with one value per observation can say that an observation was not predicted.
+  # Anything wider -- a matrix, an array, a `data.table`, a `lazy_tensor` -- would first have to
+  # decide what a partially missing observation is, and a `lazy_tensor` could not answer at all
+  # without materialising the whole prediction, so none of them report missing predictions.
+  if (is.null(response) || !is.atomic(response) || !is.null(dim(response))) {
     return(pdata$row_ids[0L])
   }
-  miss = if (is.array(response) || is.data.frame(response)) {
-    # `is.na()` on an array is an array of the same shape, so an observation is asked about along
-    # its first margin instead -- for a matrix this is the usual row-wise question
-    apply(response, 1L, anyNA)
-  } else if (is.list(response)) {
-    # a list stores one arbitrary object per observation, so only that object can be asked
-    map_lgl(response, anyNA)
-  } else {
-    is.na(response)
-  }
-  pdata$row_ids[miss]
+  pdata$row_ids[is.na(response)]
 }
 
 #' @export
@@ -217,39 +188,11 @@ as_prediction.PredictionDataTorch = function(x, check = TRUE, ...) { # nolint
   invoke(PredictionTorch$new, check = check, .args = x)
 }
 
-#' @title Prediction Data of a Torch Learner
-#' @description
-#' `mlr3` copies `task$truth()` into the prediction data only for a
-#' [`TaskSupervised`][mlr3::TaskSupervised], and a [`TaskTorch`] is not one -- it may have any
-#' number of target columns, including none.
-#' The private `.predict()` method of [`LearnerTorch`] therefore gives what it returns this class,
-#' so that this method runs instead of the one for a plain `list()` and adds the ground truth.
-#' @param x (`prediction_torch`)\cr
-#'   What `.predict()` returned, i.e. a named `list()` of prediction types.
-#' @param task ([`Task`][mlr3::Task])\cr
-#'   The task that was predicted on.
-#' @param row_ids (`integer()`)\cr
-#'   The predicted rows.
-#' @param check (`logical(1)`)\cr
-#'   Whether to check the assembled prediction data.
-#' @param ... (any)\cr
-#'   Passed on.
-#' @return [`PredictionData`][mlr3::PredictionData]
-# Everything that turns a network output into prediction data goes through here, so that the
-# method below runs. Tagging at the point of use rather than in `.encode_prediction()`, which a
-# learner may overwrite -- an overwritten one would silently produce a prediction without a truth.
-as_prediction_data_torch = function(x, task, row_ids = task$row_ids, check = TRUE) {
-  class(x) = c("prediction_torch", "list")
-  as_prediction_data(x, task = task, row_ids = row_ids, check = check)
-}
-
 #' @export
 as_prediction_data.prediction_torch = function(x, task, row_ids = task$row_ids, check = TRUE, ...) { # nolint
   class(x) = "list"
-  # the truth is not among the predict types, so it cannot be passed in and has to be set afterwards
   pdata = as_prediction_data(x, task = task, row_ids = row_ids, check = FALSE, ...)
   if (is.null(pdata$truth)) {
-    # `NULL` for a task without target columns, which removes the element rather than setting it
     pdata$truth = task$truth(row_ids)
   }
   if (check) {
@@ -270,21 +213,13 @@ create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
     pdata$weights = numeric()
   }
 
-  # An empty prediction has to have the same storage as a non-empty one so that the two can be
-  # combined, and only the prediction encoder knows what that is, so we ask it to encode an empty
-  # batch. This goes through the learner rather than calling `encode_prediction()` directly,
-  # because a learner may encode predictions itself and then never consult the task.
-  empty = try({
-    encoded = get_private(learner)$.encode_prediction(
-      network_output = torch_zeros(0L, output_dim_for(task)), task = task)
-    encoded[intersect(mlr_reflections$learner_predict_types$torch[[learner$predict_type]],
-      names(encoded))]
-  }, silent = TRUE)
-  if (inherits(empty, "try-error")) {
-    # Degrading silently would leave the empty prediction without a `response`, and the only symptom
-    # would be a `different predict types` error once it is combined with a real prediction.
-    warningf("Could not build an empty prediction for task '%s', so it carries only row ids and the truth: %s", task$id, trimws(conditionMessage(attr(empty, "condition")))) # nolint
+  if (learner$predict_type == "lazy_tensor") {
+    # `as_lazy_tensor()` cannot build one from a tensor without rows, and there is nothing to ask
+    # the encoder about: this predict type never consults it
+    pdata$lazy_tensor = lazy_tensor()
   } else {
+    empty = get_private(learner)$.encode_prediction(
+      network_output = torch_zeros(0L, output_dim_for(task)), task = task)
     pdata = c(pdata, discard(empty, is.null))
   }
 
@@ -344,7 +279,27 @@ as.data.table.PredictionTorch = function(x, ...) { # nolint
   tabs = c(
     list(data.table(row_ids = x$data$row_ids)),
     lapply(intersect(c("truth", pt_predict_types), names(x$data)), function(nm) {
-      pt_as_columns(x$data[[nm]], nm)
+      el = x$data[[nm]]
+      # `prob` becomes one column per class, the way `mlr3` tables a classification prediction.
+      # Every other array becomes one cell per observation, holding that observation's own array:
+      # its width is a property of the prediction rather than of the problem, and the
+      # (n, 3, 224, 224) reconstruction of an autoencoder over images would be 150528 columns, a
+      # table that cannot even be printed.
+      if (is.array(el) && nm != "prob") {
+        el = pt_arrays(el)
+      }
+      tab = if (is.matrix(el)) {
+        as.data.table(el)
+      } else if (is.data.frame(el)) {
+        # copy(), because setnames() below renames by reference and `el` belongs to the prediction
+        copy(as.data.table(el))
+      } else {
+        setnames(data.table(el), nm)
+      }
+      if (ncol(tab) > 1L || !identical(names(tab), nm)) {
+        setnames(tab, paste0(nm, ".", names(tab)))
+      }
+      tab
     })
   )
   # `cbind()` recycles a shorter table instead of complaining, which would turn a malformed

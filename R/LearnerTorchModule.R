@@ -21,12 +21,7 @@
 #'   The names must correspond to the arguments of the network's forward method.
 #'   For numeric, categorical, and lazy tensor features, you can use [`ingress_num()`],
 #'   [`ingress_categ()`], and [`ingress_ltnsr()`] to create them.
-#' @param target_batchgetter (`function()` or `NULL`)\cr
-#'   Converts the target columns of a batch into the target tensor `y` that the loss is applied to.
-#'   Takes an argument `data`, a [`data.table`][data.table::data.table] with only the target columns,
-#'   and optionally an argument `x`, the named list of feature tensors of the batch.
-#'   If `NULL` (default), the target encoding of the task is used, i.e.
-#'   [`get_target_batchgetter()`]`(task)`.
+#' @template param_target_batchgetter
 #' @template param_packages
 #' @param feature_types (`NULL` or `character()`)\cr
 #'   The feature types. Defaults to all available feature types.
@@ -90,7 +85,8 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
       }
 
       if (is.null(properties)) {
-        properties = mlr_reflections$learner_properties[[task_type]]
+        # "weights" is opt-in
+        properties = setdiff(mlr_reflections$learner_properties[[task_type]], "weights")
       } else {
         properties = assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
       }

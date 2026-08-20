@@ -92,6 +92,7 @@ Other Learner:
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="dataset"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-dataset'><code>LearnerTorch$dataset()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="format"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-format'><code>LearnerTorch$format()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="marshal"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-marshal'><code>LearnerTorch$marshal()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="predict_tensor"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-predict_tensor'><code>LearnerTorch$predict_tensor()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="print"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-print'><code>LearnerTorch$print()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="unmarshal"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-unmarshal'><code>LearnerTorch$unmarshal()</code></a></span></li>
 </ul>
@@ -159,9 +160,9 @@ See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} fo
       \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
 Converts the target columns of a batch into the target tensor \code{y} that the loss is applied to.
 Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
-and optionally an argument \code{x}, the named list of feature tensors of the batch.
-If \code{NULL} (default), the target encoding of the task is used, i.e.
-\code{\link[=get_target_batchgetter]{get_target_batchgetter()}}\code{(task)}.}
+and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
+target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
+If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide but a \code{\link{TaskTorch}} does not.}
     }
     \if{html}{\out{</div>}}
   }

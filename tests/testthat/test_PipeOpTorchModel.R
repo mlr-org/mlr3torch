@@ -193,7 +193,6 @@ test_that("a network passed to LearnerTorchModel directly is not re-initialized"
 
 test_that("Basic properties: generic torch task", {
   expect_pipeop_class(PipeOpTorchModel, constargs = list(task_type = "torch"))
-  # "torch" is the default, so `po("torch_model")` is the class itself and not a subclass of it
   expect_pipeop(PipeOpTorchModel$new())
   expect_equal(class(po("torch_model"))[1L], "PipeOpTorchModel")
 })
@@ -231,7 +230,8 @@ test_that("a graph learner on a generic torch task", {
       nn("head") %>>%
       po("torch_loss", tt_loss_bce()) %>>%
       po("torch_optimizer", "adam") %>>%
-      po("torch_model", batch_size = 16, epochs = 1, target_batchgetter = tt_bg)
+      po("torch_model", batch_size = 16, epochs = 1, target_batchgetter = tt_bg,
+        predict_types = c("response", "prob"))
   )
   expect_equal(glrn$task_type, "torch")
 

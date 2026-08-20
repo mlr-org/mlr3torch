@@ -318,3 +318,24 @@ categ_cardinalities = function(task) {
   cardinalities[types == "logical"] = 2L
   set_names(as.integer(cardinalities), features)
 }
+
+# `rbind()` for arrays of any dimensionality: binds along the first dimension, which for a matrix
+# is what `rbind()` itself does and for a vector what `c()` does, but neither generalises further.
+# Binding along the *last* dimension would be plain concatenation, because R stores arrays in
+# column-major order, so we rotate the first dimension to the back, concatenate, and rotate back.
+# Note that dimnames are dropped, unlike in `rbind()`.
+rbind_arrays = function(xs) {
+  d = dim(xs[[1L]])
+  k = length(d)
+  walk(xs, function(x) {
+    if (!identical(dim(x)[-1L], d[-1L])) {
+      stopf("Cannot combine arrays of dimensions (%s) and (%s), they differ beyond the first dimension.", paste(d, collapse = ", "), paste(dim(x), collapse = ", ")) # nolint
+    }
+  })
+  if (k == 1L) {
+    return(array(do.call(c, xs), dim = sum(map_int(xs, function(x) dim(x)[1L]))))
+  }
+  rotated = do.call(c, lapply(xs, function(x) aperm(x, c(2:k, 1L))))
+  nrows = sum(map_int(xs, function(x) dim(x)[1L]))
+  aperm(array(rotated, dim = c(d[-1L], nrows)), c(k, seq_len(k - 1L)))
+}

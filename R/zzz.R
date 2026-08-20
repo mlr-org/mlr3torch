@@ -80,16 +80,21 @@ register_task_type_torch = function(mlr_reflections) { # nolint
     "weights_learner", "weights_measure")
   mlr_reflections$task_properties$torch = c("strata", "groups", "weights_learner",
     "weights_measure")
-  mlr_reflections$learner_properties$torch = c("validation", "internal_tuning", "marshal")
+  # "weights" is what lets a learner declare that it uses the `weights_learner` column role above;
+  # without it in this registry `Learner$new()` rejects the property, so the role would be one that
+  # no learner for this task type could ever consume
+  mlr_reflections$learner_properties$torch = c("validation", "internal_tuning", "marshal", "weights")
   mlr_reflections$measure_properties$torch = c("na_score", "requires_task", "requires_learner",
     "requires_model", "requires_train_set", "weights", "requires_no_prediction", "obs_loss")
 
   # Just give some common options. Users can anyway customize the content of 'response' to basically
-  # encode anything.
+  # encode anything
   mlr_reflections$learner_predict_types$torch = list(
     response = "response",
     prob = c("response", "prob"),
-    se = c("response", "se")
+    se = c("response", "se"),
+    # hands back what the network produced, without asking the task how to encode it
+    lazy_tensor = "lazy_tensor"
   )
   mlr_reflections$default_measures$torch = "torch.default"
 

@@ -33,15 +33,13 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     #' @template params_pipelines
     #' @param task_type (`character(1)`)\cr
     #'   The task type of the model. Defaults to `"torch"`.
-    #' @param target_batchgetter (`function()` or `NULL`)\cr
-    #'   Converts the target columns of a batch into the target tensor `y`, passed to
-    #'   [`LearnerTorchModel`]. Takes an argument `data` and optionally an argument `x`, see
-    #'   [`get_target_batchgetter()`]. Needed for task types that do not provide a
-    #'   [`get_target_batchgetter()`] method of their own, such as [`TaskTorch`].
+    #' @template param_target_batchgetter
+    #' @template param_predict_types
     initialize = function(task_type = "torch", id = "torch_model", param_vals = list(),
-      target_batchgetter = NULL) {
+      target_batchgetter = NULL, predict_types = NULL) {
       private$.task_type = assert_choice(task_type, mlr_reflections$task_types$type)
       private$.target_batchgetter = target_batchgetter
+      private$.predict_types = predict_types
 
       # loss, optimizer and callbacks are set to special values, that cause
       # them to become fields instead of construction arguments, otherwise we
@@ -52,7 +50,8 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
         optimizer = OptimizerNone(),
         callbacks = CallbacksNone(),
         task_type = task_type,
-        target_batchgetter = target_batchgetter
+        target_batchgetter = target_batchgetter,
+        predict_types = predict_types
       )
 
       super$initialize(
@@ -112,11 +111,9 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     },
     .task_type = NULL,
     .target_batchgetter = NULL,
+    .predict_types = NULL,
     .additional_phash_input = function() {
-      # The batchgetter decides what `y` is, so two of these that build different targets are
-      # different operators. `private$.learner$phash` would cover it, but the learner is mutated
-      # while it trains, and this hash has to stay put -- see the tests in test_LearnerTorchModel.R.
-      list(private$.task_type, private$.target_batchgetter)
+      list(private$.task_type, private$.target_batchgetter, private$.predict_types)
     }
   )
 )
