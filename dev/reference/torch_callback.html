@@ -159,7 +159,9 @@ Function to execute at the given stage, see section <em>Stages</em>.</p></dd>
 <dt id="arg-state-dict">state_dict<a class="anchor" aria-label="anchor" href="#arg-state-dict"></a></dt>
 <dd><p>(<code>function()</code>)<br>
 The function that retrieves the state dict from the callback.
-This is what will be available in the learner after training.</p></dd>
+This is what will be available in the learner after training.
+It must return something that survives <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>, so no <code>torch</code> tensors or
+modules, see section <em>Inheriting</em> of <code><a href="mlr_callback_set.html">CallbackSet</a></code>.</p></dd>
 
 
 <dt id="arg-load-state-dict">load_state_dict<a class="anchor" aria-label="anchor" href="#arg-load-state-dict"></a></dt>
@@ -175,7 +177,9 @@ The initialization method of the callback.</p></dd>
 <dt id="arg-weight">weight<a class="anchor" aria-label="anchor" href="#arg-weight"></a></dt>
 <dd><p>(<code>numeric(1)</code>)<br>
 Controls when the callback is called within a stage, see section <em>Ordering</em> of <code><a href="mlr_callback_set.html">CallbackSet</a></code>.
-Defaults to <code>0</code>.</p></dd>
+Defaults to <code>0</code>.
+The name is reserved for this, so <code>initialize</code> must not take a <code>weight</code> argument: wrapping such
+a callback in a <code><a href="TorchCallback.html">TorchCallback</a></code> is an error.</p></dd>
 
 
 <dt id="arg-public-private-active">public, private, active<a class="anchor" aria-label="anchor" href="#arg-public-private-active"></a></dt>

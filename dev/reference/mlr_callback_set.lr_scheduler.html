@@ -104,6 +104,20 @@ Custom schedulers defined with torch::lr_scheduler().
 
 
     <div class="section level2">
+    <h2 id="resuming">Resuming<a class="anchor" aria-label="anchor" href="#resuming"></a></h2>
+
+
+<p>The state of the wrapped <code>torch</code> scheduler is stored and restored, so a resumed run continues the
+schedule instead of starting it over.
+Creating a scheduler resets the optimizer's learning rate to the one the schedule started at, so
+the rate the restored schedule had reached is put back afterwards.</p>
+<p>That state contains the scheduler's configuration as well as its progress, and restoring it
+overwrites what the resuming run was configured with.
+Resuming with different scheduler arguments – or a different <code>opt.lr</code>, which the schedule's base
+rates are derived from – therefore silently continues the schedule of the checkpointed run.
+Configure both runs the same way; a schedule cannot be changed halfway through.</p>
+    </div>
+    <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
     <p><code><a href="mlr_callback_set.html">CallbackSet</a></code> -&gt; <code>CallbackSetLRScheduler</code></p>
     </div>

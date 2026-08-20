@@ -296,7 +296,7 @@ The parameters of the network.</p></dd>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, optimizer <span class="op">=</span> <span class="fu"><a href="t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"sgd"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The parameters of the optimizer are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(39)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(40)&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       id    class lower upper nlevels        default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1:               epochs ParamInt     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
@@ -304,40 +304,41 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  3:          num_threads ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  4:  num_interop_threads ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  5:                 seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:            eval_freq ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:       measures_train ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:       measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:             patience ParamInt     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:            min_delta ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11: restore_best_weights ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:           batch_size ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:   batch_size_predict ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:              shuffle ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:              sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:        batch_sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:          num_workers ParamInt     0   Inf     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:           collate_fn ParamUty    NA    NA     Inf         [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:           pin_memory ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:            drop_last ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21:              timeout ParamDbl  -Inf   Inf     Inf             -1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22:       worker_init_fn ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23:       worker_globals ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24:      worker_packages ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25:       tensor_dataset ParamFct    NA    NA       1 &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26:            jit_trace ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:              neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:                    p ParamDbl     0     1     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29:             n_layers ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30:           activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31:      activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32:                shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33:               opt.lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34:         opt.momentum ParamDbl     0     1     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35:        opt.dampening ParamDbl     0     1     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 36:     opt.weight_decay ParamDbl     0   Inf     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37:         opt.nesterov ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 38:     opt.param_groups ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 39:       loss.reduction ParamFct    NA    NA       2           mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:               resume ParamUty    NA    NA     Inf         [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:            eval_freq ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:       measures_train ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:       measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:             patience ParamInt     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:            min_delta ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12: restore_best_weights ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:           batch_size ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:   batch_size_predict ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:              shuffle ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:              sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:        batch_sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:          num_workers ParamInt     0   Inf     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:           collate_fn ParamUty    NA    NA     Inf         [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:           pin_memory ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21:            drop_last ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22:              timeout ParamDbl  -Inf   Inf     Inf             -1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23:       worker_init_fn ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24:       worker_globals ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:      worker_packages ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:       tensor_dataset ParamFct    NA    NA       1 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:            jit_trace ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:              neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29:                    p ParamDbl     0     1     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30:             n_layers ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31:           activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32:      activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33:                shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34:               opt.lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35:         opt.momentum ParamDbl     0     1     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36:        opt.dampening ParamDbl     0     1     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37:     opt.weight_decay ParamDbl     0   Inf     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38:         opt.nesterov ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39:     opt.param_groups ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40:       loss.reduction ParamFct    NA    NA       2           mean</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                       id    class lower upper nlevels        default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
@@ -347,16 +348,16 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  3:            1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  4:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  5:       random</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:            1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  8:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:    &lt;list[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10:            0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:        FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 13:       [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:         TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:         TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 16:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 17:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 18:       [NULL]</span>
@@ -366,14 +367,14 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 22:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 23:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 24:       [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25:        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 26:        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:          0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29:       [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30: &lt;nn_relu[1]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29:          0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31: &lt;nn_relu[1]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32:    &lt;list[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 33:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 34:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 35:       [NULL]</span>
@@ -381,6 +382,7 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 37:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 38:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 39:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
 </code></pre></div>

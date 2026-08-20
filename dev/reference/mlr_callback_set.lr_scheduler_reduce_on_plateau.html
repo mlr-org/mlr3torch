@@ -80,6 +80,14 @@ Wraps <code><a href="https://torch.mlverse.org/docs/reference/lr_reduce_on_plate
 
 
     <div class="section level2">
+    <h2 id="resuming">Resuming<a class="anchor" aria-label="anchor" href="#resuming"></a></h2>
+
+
+<p>As for <code><a href="mlr_callback_set.lr_scheduler.html">CallbackSetLRScheduler</a></code>. For this schedule the restored state includes the best score
+seen so far and how long it has been stagnating, so <code>patience</code> keeps counting across runs instead
+of starting over.</p>
+    </div>
+    <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
     <p><code><a href="mlr_callback_set.html">CallbackSet</a></code> -&gt; <code><a href="mlr_callback_set.lr_scheduler.html">CallbackSetLRScheduler</a></code> -&gt; <code>CallbackSetLRSchedulerReduceOnPlateau</code></p>
     </div>

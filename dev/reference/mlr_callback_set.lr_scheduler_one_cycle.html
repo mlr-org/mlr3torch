@@ -80,6 +80,16 @@ Wraps torch::lr_one_cycle(), where the default values for epochs and steps_per_e
 
 
     <div class="section level2">
+    <h2 id="resuming">Resuming<a class="anchor" aria-label="anchor" href="#resuming"></a></h2>
+
+
+<p>As for <code><a href="mlr_callback_set.lr_scheduler.html">CallbackSetLRScheduler</a></code>, with one additional restriction: the 1cycle policy is defined
+over the total number of steps of the run, so a resumed run must be configured for the same
+number of steps as the one that wrote the checkpoint, i.e. the same <code>epochs</code> and the same number
+of batches per epoch.
+A run that is not errors before its first epoch rather than somewhere in the middle.</p>
+    </div>
+    <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
     <p><code><a href="mlr_callback_set.html">CallbackSet</a></code> -&gt; <code><a href="mlr_callback_set.lr_scheduler.html">CallbackSetLRScheduler</a></code> -&gt; <code>CallbackSetLRSchedulerOneCycle</code></p>
     </div>

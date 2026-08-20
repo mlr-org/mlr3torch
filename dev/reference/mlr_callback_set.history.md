@@ -4,6 +4,12 @@ Saves the training and validation history during training. The history
 is saved as a data.table where the validation measures are prefixed with
 `"valid."` and the training measures are prefixed with `"train."`.
 
+## Resuming
+
+The epochs of a resumed run are appended to the history of the run it
+continues. A measure that only one of the two runs recorded is `NA` for
+the epochs of the other.
+
 ## Super class
 
 [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
@@ -122,7 +128,7 @@ print(learner$model$callbacks$history)
 #> Key: <epoch>
 #>    epoch train.classif.acc train.classif.ce valid.classif.ce
 #>    <num>             <num>            <num>            <num>
-#> 1:     1         0.3047619        0.6952381        0.6222222
-#> 2:     2         0.3142857        0.6857143        0.7333333
-#> 3:     3         0.3523810        0.6476190        0.5111111
+#> 1:     1         0.6285714        0.3714286        0.3333333
+#> 2:     2         0.6666667        0.3333333        0.3333333
+#> 3:     3         0.6666667        0.3333333        0.3333333
 ```

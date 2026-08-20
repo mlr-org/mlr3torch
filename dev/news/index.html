@@ -108,12 +108,19 @@
 <li>Exported various helpers useful for implementing shape inference for custom <code>PipeOpTorch</code> classes.</li>
 <li>
 <code>ContextTorch</code> has a new field <code>$callbacks</code>, which gives a callback access to the other callbacks of the training run.</li>
+<li>Callbacks can now be ordered via a <code>weight</code> field.</li>
+<li>A <code>LearnerTorch</code> can now be resumed from a checkpoint, which includes resuming the callbacks.</li>
 <li>
-<code>CallbackSet</code> has a new field <code>$weight</code> that controls when a callback is called within a stage.</li>
-<li>
-<code>t_clbk("checkpoint")</code> now accepts an existing empty directory as its <code>path</code>
-</li>
+<code>t_clbk("checkpoint")</code> now also writes the callback states, as well as the class behind each callback id, so a resumed run errors instead of restoring a state into a different callback.</li>
 <li>The <code>path</code> of <code>t_clbk("checkpoint")</code> can now be a <code>function()</code> that is called at the beginning of each training run and returns that run’s path.</li>
+<li>
+<code>t_clbk("checkpoint")</code> now checks each file immediately before writing it, so two runs writing into one folder error instead of mixing their checkpoints.</li>
+<li>Resuming a checkpoint that is already at <code>epochs</code> now returns its model instead of erroring, so a script that restarts itself can be run again after it succeeded.</li>
+<li>
+<code>t_clbk("checkpoint")</code> now reports its folder in <code>learner$model$callbacks$&lt;id&gt;$path</code>, so the folder a <code>path</code> function chose can be read off the trained learner.</li>
+<li>Resuming a run that early stopping had ended now warns and returns its model instead of training further, and <code>ctx$terminate</code> is checked before an epoch rather than after it.</li>
+<li>
+<code>t_clbk("progress")</code> now prints the epoch as <code>Epoch &lt;n&gt;/&lt;epochs&gt;</code>, so a resumed run shows how much of it is left.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
@@ -122,8 +129,6 @@
 <li>Fixed some hashing bugs related to R jit compilation.</li>
 <li>
 <code>ContextTorch$epoch</code> is now <code>0</code> during the <code>on_begin</code> stage instead of <code>NULL</code>.</li>
-<li>
-<code>t_clbk("checkpoint")</code> no longer writes an epoch that was interrupted under that epoch’s own number, so <code>network&lt;n&gt;.pt</code> is now always the network at the <em>end</em> of epoch <code>n</code> rather than sometimes a half-trained one.</li>
 <li>
 <code><a href="../reference/replace_head.html">replace_head()</a></code> for <code>mobilenet_v2</code> and <code>VGG</code> works for <code>width_mult</code> above 1.</li>
 <li>

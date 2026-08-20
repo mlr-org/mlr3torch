@@ -22,6 +22,22 @@ As of this writing, the following are available:
 - Custom schedulers defined with
   [`torch::lr_scheduler()`](https://torch.mlverse.org/docs/reference/lr_scheduler.html).
 
+## Resuming
+
+The state of the wrapped `torch` scheduler is stored and restored, so a
+resumed run continues the schedule instead of starting it over. Creating
+a scheduler resets the optimizer's learning rate to the one the schedule
+started at, so the rate the restored schedule had reached is put back
+afterwards.
+
+That state contains the scheduler's configuration as well as its
+progress, and restoring it overwrites what the resuming run was
+configured with. Resuming with different scheduler arguments – or a
+different `opt.lr`, which the schedule's base rates are derived from –
+therefore silently continues the schedule of the checkpointed run.
+Configure both runs the same way; a schedule cannot be changed halfway
+through.
+
 ## Super class
 
 [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)

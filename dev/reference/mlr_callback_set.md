@@ -31,6 +31,25 @@ defines how to load a previously saved callback state into a different
 callback. Note that the `$state_dict()` should not include the parameter
 values that were used to initialize the callback.
 
+A callback that ends training by setting `ctx$terminate` should set it
+again in `$load_state_dict()` when its restored state says the run was
+over – as [early
+stopping](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)
+does when the restored stagnation has reached `patience`. The training
+loop consults `ctx$terminate` before each epoch, so a run continuing
+such a checkpoint then trains nothing instead of one more epoch.
+
+A state must survive [`saveRDS()`](https://rdrr.io/r/base/readRDS.html),
+which is how
+[`t_clbk("checkpoint")`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.checkpoint.md)
+writes it and how a learner is serialized. `torch` tensors and modules
+do not: they are external pointers, and one that was written and read
+back errors with `external pointer is not valid` when it is used.
+Convert them, e.g. with
+[`as.array()`](https://rdrr.io/r/base/array.html) or
+[`torch::torch_serialize()`](https://torch.mlverse.org/docs/reference/torch_serialize.html),
+and convert them back in `$load_state_dict()`.
+
 For creating custom callbacks, the function
 [`torch_callback()`](https://mlr3torch.mlr-org.com/dev/reference/torch_callback.md)
 is recommended, which creates a `CallbackSet` and then wraps it in a

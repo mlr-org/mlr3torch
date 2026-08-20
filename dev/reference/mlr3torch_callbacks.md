@@ -52,19 +52,19 @@ t_clbk("checkpoint")
 # convert to a data.table
 as.data.table(mlr3torch_callbacks)
 #> Key: <key>
-#>                      key                                   label
-#>                   <char>                                  <char>
-#>  1:           checkpoint                              Checkpoint
-#>  2:              history                                 History
-#>  3:  lr_cosine_annealing           Cosine Annealing LR Scheduler
-#>  4:            lr_lambda Multiplication by Function LR Scheduler
-#>  5:    lr_multiplicative   Multiplication by Factor LR Scheduler
-#>  6:         lr_one_cycle                     1cycle LR Scheduler
-#>  7: lr_reduce_on_plateau          Reduce on Plateau LR Scheduler
-#>  8:              lr_step                 Step Decay LR Scheduler
-#>  9:             progress                                Progress
-#> 10:                   tb                             TensorBoard
-#> 11:             unfreeze                                Unfreeze
+#>                      key                                   label weight
+#>                   <char>                                  <char>  <num>
+#>  1:           checkpoint                              Checkpoint    Inf
+#>  2:              history                                 History      0
+#>  3:  lr_cosine_annealing           Cosine Annealing LR Scheduler      0
+#>  4:            lr_lambda Multiplication by Function LR Scheduler      0
+#>  5:    lr_multiplicative   Multiplication by Factor LR Scheduler      0
+#>  6:         lr_one_cycle                     1cycle LR Scheduler      0
+#>  7: lr_reduce_on_plateau          Reduce on Plateau LR Scheduler      0
+#>  8:              lr_step                 Step Decay LR Scheduler      0
+#>  9:             progress                                Progress      0
+#> 10:                   tb                             TensorBoard      0
+#> 11:             unfreeze                                Unfreeze      0
 #>                     packages
 #>                       <list>
 #>  1:          mlr3torch,torch

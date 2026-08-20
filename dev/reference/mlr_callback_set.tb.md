@@ -8,6 +8,16 @@ events. To view them, use TensorBoard with `tensorflow::tensorboard()`
 
 Logs events at most every epoch.
 
+## Resuming
+
+This callback keeps no state of its own. The measures are logged under
+the epoch they belong to and the training loss under
+[`ContextTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_context_torch.md)'s
+`global_step`, both of which a resumed run continues counting rather
+than restarting, so its curves extend those of the run it continues.
+Point the resumed run at the `path` its predecessor wrote and both
+halves end up in one TensorBoard run; a fresh `path` puts them in two.
+
 ## See also
 
 Other Callback:
@@ -62,7 +72,9 @@ Creates a new instance of this
 
   (`character(1)`)  
   The path to a folder where the events are logged. Point TensorBoard to
-  this folder to view them.
+  this folder to view them. The folder must be new, empty, or one that
+  this callback already logged into, so that a resumed run can continue
+  the log of the run it continues.
 
 - `log_train_loss`:
 

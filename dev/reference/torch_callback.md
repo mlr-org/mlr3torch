@@ -90,7 +90,11 @@ torch_callback(
 
   (`function()`)  
   The function that retrieves the state dict from the callback. This is
-  what will be available in the learner after training.
+  what will be available in the learner after training. It must return
+  something that survives
+  [`saveRDS()`](https://rdrr.io/r/base/readRDS.html), so no `torch`
+  tensors or modules, see section *Inheriting* of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md).
 
 - load_state_dict:
 
@@ -108,7 +112,10 @@ torch_callback(
   Controls when the callback is called within a stage, see section
   *Ordering* of
   [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md).
-  Defaults to `0`.
+  Defaults to `0`. The name is reserved for this, so `initialize` must
+  not take a `weight` argument: wrapping such a callback in a
+  [`TorchCallback`](https://mlr3torch.mlr-org.com/dev/reference/TorchCallback.md)
+  is an error.
 
 - public, private, active:
 

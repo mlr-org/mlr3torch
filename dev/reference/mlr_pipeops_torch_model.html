@@ -131,6 +131,13 @@ Measures to be evaluated during validation.</p></li>
 How often the train / validation predictions are evaluated using <code>measures_train</code> / <code>measures_valid</code>.
 This is initialized to <code>1</code>.
 Note that the final model is always evaluated.</p></li>
+</ul><p><strong>Resuming</strong>:</p><ul><li><p><code>resume</code> :: <code>character(1)</code> or <code>TRUE</code><br>
+Continues training from a checkpoint written by
+<code><a href="mlr_callback_set.checkpoint.html">t_clbk("checkpoint")</a></code>, either the folder it wrote to or <code>TRUE</code>,
+which takes that folder from the checkpoint callback of this learner.
+Note that <code>epochs</code> is the <em>total</em> number of epochs, i.e. it includes the epochs the checkpoint
+was already trained for: resuming a checkpoint from epoch 5 with <code>epochs = 8</code> trains 3 more
+epochs.</p></li>
 </ul><p><strong>Early Stopping</strong>:</p><ul><li><p><code>patience</code> :: <code>integer(1)</code><br>
 This activates early stopping using the validation scores.
 If the performance of a model does not improve for <code>patience</code> evaluation steps, training is ended.
@@ -151,7 +158,15 @@ of the last epoch that was trained. Is initialized to <code>FALSE</code>, i.e. t
 epoch is stored. Setting this to <code>TRUE</code> makes the stored network the one of the epoch that
 <code>$internal_tuned_values</code> reports, and costs one additional copy of the network's parameters in
 memory. Checkpoints written by <code>t_clbk("checkpoint")</code> are unaffected: they always hold the
-network as training left it.</p></li>
+network as training left it.</p>
+<p>When a run is resumed (see the section <em>Resuming</em> of <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>), the best score, the
+epoch it was observed in and the number of evaluation steps without improvement are restored,
+so <code>patience</code> keeps counting across runs instead of starting over.
+The best epoch's weights are not part of a checkpoint, however – they are a full copy of the
+network, which every checkpoint would otherwise carry.
+A resumed run with <code>restore_best_weights</code> that never beats the restored best score therefore
+ends with the weights of its last epoch while <code>$internal_tuned_values</code> still reports the
+earlier best epoch, which is warned about when the state is restored.</p></li>
 </ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
 The batch size used by the training and prediction dataloader.
 It is required for training (unless a <code>batch_sampler</code> is provided, which already determines the

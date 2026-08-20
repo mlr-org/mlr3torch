@@ -267,5 +267,5 @@ predictions = learner$predict(task, row_ids = ids$test)
 # Score the predictions
 predictions$score()
 #> classif.ce 
-#>        0.6 
+#>       0.66 
 ```

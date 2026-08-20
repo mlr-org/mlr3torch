@@ -4,6 +4,14 @@ Reduces the learning rate when the first validation metric stops
 improving for `patience` epochs. Wraps
 [`torch::lr_reduce_on_plateau()`](https://torch.mlverse.org/docs/reference/lr_reduce_on_plateau.html)
 
+## Resuming
+
+As for
+[`CallbackSetLRScheduler`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.lr_scheduler.md).
+For this schedule the restored state includes the best score seen so far
+and how long it has been stagnating, so `patience` keeps counting across
+runs instead of starting over.
+
 ## Super classes
 
 [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)

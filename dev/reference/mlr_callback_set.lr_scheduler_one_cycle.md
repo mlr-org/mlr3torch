@@ -7,6 +7,17 @@ Wraps
 where the default values for `epochs` and `steps_per_epoch` are the
 number of training epochs and the number of batches per epoch.
 
+## Resuming
+
+As for
+[`CallbackSetLRScheduler`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.lr_scheduler.md),
+with one additional restriction: the 1cycle policy is defined over the
+total number of steps of the run, so a resumed run must be configured
+for the same number of steps as the one that wrote the checkpoint, i.e.
+the same `epochs` and the same number of batches per epoch. A run that
+is not errors before its first epoch rather than somewhere in the
+middle.
+
 ## Super classes
 
 [`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)

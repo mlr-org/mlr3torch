@@ -81,6 +81,17 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   `measures_train` / `measures_valid`. This is initialized to `1`. Note
   that the final model is always evaluated.
 
+**Resuming**:
+
+- `resume` :: `character(1)` or `TRUE`  
+  Continues training from a checkpoint written by
+  [`t_clbk("checkpoint")`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.checkpoint.md),
+  either the folder it wrote to or `TRUE`, which takes that folder from
+  the checkpoint callback of this learner. Note that `epochs` is the
+  *total* number of epochs, i.e. it includes the epochs the checkpoint
+  was already trained for: resuming a checkpoint from epoch 5 with
+  `epochs = 8` trains 3 more epochs.
+
 **Early Stopping**:
 
 - `patience` :: `integer(1)`  
@@ -110,6 +121,18 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   of the network's parameters in memory. Checkpoints written by
   `t_clbk("checkpoint")` are unaffected: they always hold the network as
   training left it.
+
+  When a run is resumed (see the section *Resuming* of
+  [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)),
+  the best score, the epoch it was observed in and the number of
+  evaluation steps without improvement are restored, so `patience` keeps
+  counting across runs instead of starting over. The best epoch's
+  weights are not part of a checkpoint, however – they are a full copy
+  of the network, which every checkpoint would otherwise carry. A
+  resumed run with `restore_best_weights` that never beats the restored
+  best score therefore ends with the weights of its last epoch while
+  `$internal_tuned_values` still reports the earlier best epoch, which
+  is warned about when the state is restored.
 
 **Dataloader**:
 

@@ -84,6 +84,17 @@ To view them, use TensorBoard with <code>tensorflow::tensorboard()</code> (requi
     <p>Logs events at most every epoch.</p>
     </div>
     <div class="section level2">
+    <h2 id="resuming">Resuming<a class="anchor" aria-label="anchor" href="#resuming"></a></h2>
+
+
+<p>This callback keeps no state of its own.
+The measures are logged under the epoch they belong to and the training loss under
+<code><a href="mlr_context_torch.html">ContextTorch</a></code>'s <code>global_step</code>, both of which a resumed run continues counting rather than
+restarting, so its curves extend those of the run it continues.
+Point the resumed run at the <code>path</code> its predecessor wrote and both halves end up in one
+TensorBoard run; a fresh <code>path</code> puts them in two.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Callback:
 <code><a href="TorchCallback.html">TorchCallback</a></code>,
@@ -124,7 +135,9 @@ To view them, use TensorBoard with <code>tensorflow::tensorboard()</code> (requi
 <p></p><div class="arguments"><dl><dt><code>path</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 The path to a folder where the events are logged.
-Point TensorBoard to this folder to view them.</p></dd>
+Point TensorBoard to this folder to view them.
+The folder must be new, empty, or one that this callback already logged into, so that a
+resumed run can continue the log of the run it continues.</p></dd>
 
       <dt><code>log_train_loss</code></dt>
 <dd><p>(<code>logical(1)</code>)<br>
