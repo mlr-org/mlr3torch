@@ -11,6 +11,16 @@ To view them, use TensorBoard with \code{tensorflow::tensorboard()} (requires \c
 \details{
 Logs events at most every epoch.
 }
+\section{Resuming}{
+
+This callback keeps no state of its own.
+The measures are logged under the epoch they belong to and the training loss under
+\code{\link{ContextTorch}}'s \code{global_step}, both of which a resumed run continues counting rather than
+restarting, so its curves extend those of the run it continues.
+Point the resumed run at the \code{path} its predecessor wrote and both halves end up in one
+TensorBoard run; a fresh \code{path} puts them in two.
+}
+
 \seealso{
 Other Callback:
 \code{\link{TorchCallback}},
@@ -60,7 +70,9 @@ Other Callback:
     \describe{
       \item{\code{path}}{(\code{character(1)})\cr
 The path to a folder where the events are logged.
-Point TensorBoard to this folder to view them.}
+Point TensorBoard to this folder to view them.
+The folder must be new, empty, or one that this callback already logged into, so that a
+resumed run can continue the log of the run it continues.}
       \item{\code{log_train_loss}}{(\code{logical(1)})\cr
 Whether we log the training loss.}
     }

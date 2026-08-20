@@ -46,10 +46,22 @@
 * Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
 * `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
   of the training run.
-* `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage.
-* `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
+* Callbacks can now be ordered via a `weight` field.
+* A `LearnerTorch` can now be resumed from a checkpoint, which includes resuming the callbacks.
+* `t_clbk("checkpoint")` now also writes the callback states, as well as the class behind each
+  callback id, so a resumed run errors instead of restoring a state into a different callback.
 * The `path` of `t_clbk("checkpoint")` can now be a `function()` that is called at the beginning of
   each training run and returns that run's path.
+* `t_clbk("checkpoint")` now checks each file immediately before writing it, so two runs writing
+  into one folder error instead of mixing their checkpoints.
+* Resuming a checkpoint that is already at `epochs` now returns its model instead of erroring, so a
+  script that restarts itself can be run again after it succeeded.
+* `t_clbk("checkpoint")` now reports its folder in `learner$model$callbacks$<id>$path`, so the
+  folder a `path` function chose can be read off the trained learner.
+* Resuming a run that early stopping had ended now warns and returns its model instead of training
+  further, and `ctx$terminate` is checked before an epoch rather than after it.
+* `t_clbk("progress")` now prints the epoch as `Epoch <n>/<epochs>`, so a resumed run shows how much
+  of it is left.
 
 ## Bug fixes
 
@@ -57,9 +69,6 @@
   are trained.
 * Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
-* `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
-  under that epoch's own number, so `network<n>.pt` is now always the
-  network at the *end* of epoch `n` rather than sometimes a half-trained one.
 * `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
     sometimes doubles like `NA`).

@@ -20,6 +20,10 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
 
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
+  is_checkpoint = function(descriptor) identical(descriptor$generator, CallbackSetCheckpoint)
+  if (isTRUE(param_vals$resume) && !some(self$callbacks, is_checkpoint)) {
+    error_config("Learner '%s' has 'resume' set to TRUE, but no 'checkpoint' callback to take the path from. Either add one via t_clbk(\"checkpoint\") or set 'resume' to a checkpoint folder.", self$id) # nolint
+  }
   dataset_train = private$.dataset(task, param_vals)
   dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
   loader_train = private$.dataloader(dataset_train, param_vals)
@@ -124,6 +128,7 @@ train_loop = function(ctx, cbs) {
     assert_number(cbs[[i]]$weight, .var.name = sprintf("weight of callback '%s'", names(cbs)[[i]] %??% i))
   })
   cbs = cbs[order(weights, seq_along(cbs))]
+  assert_checkpoint_writes_last(cbs)
 
   # callbacks such as CallbackSetCheckpoint need access to the other callbacks to save their states,
   # in the order they are called in
@@ -148,12 +153,16 @@ train_loop = function(ctx, cbs) {
   # if we increment epoch at the end of the loop it has the wrong value
   # during the final two callback stages
   ctx$epoch = 0L
+  ctx$global_step = 0L
+
+  resume_path = ctx$learner$param_set$values$resume
+  if (!is.null(resume_path)) resume_training(ctx, resume_path)
 
   call("on_begin")
 
   ctx$network$train()
 
-  while (ctx$epoch < ctx$total_epochs) {
+  while (!isTRUE(ctx$terminate) && ctx$epoch < ctx$total_epochs) {
     ctx$epoch = ctx$epoch + 1
     call("on_epoch_begin")
 
@@ -164,6 +173,7 @@ train_loop = function(ctx, cbs) {
     eval_train = eval_train_in_epoch(ctx)
     while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
+      ctx$global_step = ctx$global_step + 1L
       ctx$batch = dataloader_next(train_iterator)
       if (is.null(ctx$batch)) {
         stop("dataloader_next() returned NULL, which means there are no more samples/batches. Typically this occurs when length of sampler/batch_sampler is greater than the number of samples/batches. Please modify .length() method to return the correct number (samples for sampler, batches for batch_sampler), which should be equal to the number of times that .iter() can be called before returning coro::exhausted()")
@@ -235,8 +245,6 @@ train_loop = function(ctx, cbs) {
       ctx$last_scores_valid = NULL
     }
     call("on_epoch_end")
-
-    if (isTRUE(ctx$terminate)) break
   }
 
   call("on_end")
@@ -252,6 +260,107 @@ train_loop = function(ctx, cbs) {
     epochs                = ctx$epoch,
     callbacks             = callback_states
   )
+}
+
+resume_training = function(ctx, resume_path) {
+  path = if (isTRUE(resume_path)) checkpoint_callback_path(ctx$callbacks) else resume_path
+
+  checkpoint = latest_checkpoint(path)
+  if (is.null(checkpoint)) {
+    if (!can_checkpoint_into(path)) {
+      stopf("No checkpoint to resume from in '%s': it does not exist or holds no checkpoint written by t_clbk(\"checkpoint\"). Point 'resume' at a folder that one wrote, or unset it to train from scratch.", path) # nolint
+    }
+    lg$info("No checkpoint found in '%s', starting training from scratch.", path)
+    return(invisible(NULL))
+  }
+  epochs_trained = checkpoint$epoch
+  if (epochs_trained > ctx$total_epochs) {
+    stopf("The checkpoint in '%s' was already trained for %i epochs, but 'epochs' is %i. Note that 'epochs' is the total number of epochs, including those of the checkpoint, so it cannot be less than %i.", # nolint
+      path, epochs_trained, ctx$total_epochs, epochs_trained)
+  }
+  state = read_checkpoint_state(checkpoint$state)
+  assert_resumable_task(ctx, path)
+
+  if (epochs_trained == ctx$total_epochs) {
+    lg$info("The checkpoint in '%s' is at epoch %i, which is 'epochs', so this run trains nothing and returns the model of the checkpoint.", path, epochs_trained) # nolint
+  } else {
+    lg$info("Resuming training from the checkpoint in '%s', which is at epoch %i.", path, epochs_trained)
+  }
+
+  ctx$network$load_state_dict(torch_load(checkpoint$network))
+  ctx$optimizer$load_state_dict(torch_load(checkpoint$optimizer))
+  load_callback_states(ctx$callbacks, state)
+
+  ctx$epoch = epochs_trained
+  ctx$global_step = state$global_step
+  ctx$last_scores_valid = state$valid_scores
+
+  invisible(NULL)
+}
+
+assert_checkpoint_writes_last = function(cbs) {
+  checkpoints = which(map_lgl(cbs, function(cb) inherits(cb, "CallbackSetCheckpoint")))
+  if (!length(checkpoints)) {
+    return(invisible(NULL))
+  }
+  stale = keep(cbs[-seq_len(max(checkpoints))], function(cb) {
+    !identical(body(cb$state_dict), body(CallbackSet$public_methods$state_dict)) &&
+      any(c("on_epoch_end", "on_end") %in% cb$stages)
+  })
+  if (length(stale)) {
+    stopf("Callback(s) %s update their state at the end of an epoch but run after the 'checkpoint' callback, which would store the state they had one epoch earlier. Give them a lower $weight than the checkpoint callback, see the section 'Ordering' of CallbackSet.", # nolint
+      paste0("'", names(stale), "'", collapse = ", "))
+  }
+  invisible(NULL)
+}
+
+checkpoint_callback_path = function(cbs) {
+  cbs = keep(cbs, function(cb) inherits(cb, "CallbackSetCheckpoint"))
+  if (!length(cbs)) {
+    error_config("'path' is TRUE, but there is no 'checkpoint' callback to take the path from.")
+  }
+  cbs[[1L]]$path
+}
+
+assert_resumable_task = function(ctx, path) {
+  state = readRDS(file.path(path, "run.rds"))
+  if (!identical(state$task_id, ctx$task_train$id)) {
+    stopf("The checkpoint in '%s' was written for task '%s', but this run trains on '%s'. Resume with the task the checkpoint was written for.", # nolint
+      path, state$task_id, ctx$task_train$id)
+  }
+  valid_ids = if (!is.null(ctx$task_valid)) ctx$task_valid$row_ids
+  if (xor(is.null(state$valid_row_ids), is.null(valid_ids))) {
+    stopf("The checkpoint in '%s' was written %s an internal validation split, but this run has %s one. Resume with the validation configuration the checkpoint was written with.", # nolint
+      path, if (is.null(state$valid_row_ids)) "without" else "with",
+      if (is.null(valid_ids)) "no" else "such")
+  }
+  if (!test_permutation(state$valid_row_ids, valid_ids)) {
+    stopf("The checkpoint in '%s' was written for a different internal validation split: %i of its %i validation rows are also validation rows of this run. Note that `validate = <ratio>` draws a new split from R's random number generator in every run, which the 'seed' parameter does not govern. Use validate = \"predefined\" with a fixed internal validation task, or seed R's generator identically before each run.", # nolint
+      path, length(intersect(state$valid_row_ids, valid_ids)), length(state$valid_row_ids))
+  }
+  invisible(NULL)
+}
+
+load_callback_states = function(cbs, state) {
+  states = state$callbacks
+  if (!length(states)) return(invisible(NULL))
+  unknown = setdiff(names(states), names(cbs))
+  if (length(unknown)) {
+    warningf("The checkpoint contains states for callback(s) %s, which are not part of this training run. They are ignored.", # nolint
+      paste0("'", unknown, "'", collapse = ", "))
+  }
+  shared = intersect(names(states), names(cbs))
+  mismatch = keep(shared, function(id) {
+    id %in% names(state$callback_classes) && !identical(class(cbs[[id]])[[1L]], state$callback_classes[[id]])
+  })
+  if (length(mismatch)) {
+    stopf("The callbacks of this run are not the ones the checkpoint stored a state for: %s. States are matched by id, so restoring would feed the state of one callback into another. Resume with the callbacks the checkpoint was written with, or give the new ones ids of their own.", # nolint
+      paste0(map_chr(mismatch, function(id) {
+        sprintf("'%s' was a <%s> and is a <%s>", id, state$callback_classes[[id]], class(cbs[[id]])[[1L]])
+      }), collapse = ", "))
+  }
+  iwalk(states[shared], function(state, id) cbs[[id]]$load_state_dict(state))
+  invisible(NULL)
 }
 
 eval_train_in_epoch = function(ctx) {

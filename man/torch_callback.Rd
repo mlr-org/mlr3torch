@@ -61,7 +61,9 @@ Function to execute at the given stage, see section \emph{Stages}.}
 
 \item{state_dict}{(\verb{function()})\cr
 The function that retrieves the state dict from the callback.
-This is what will be available in the learner after training.}
+This is what will be available in the learner after training.
+It must return something that survives \code{\link[base:readRDS]{saveRDS()}}, so no \code{torch} tensors or
+modules, see section \emph{Inheriting} of \code{\link{CallbackSet}}.}
 
 \item{load_state_dict}{(\verb{function(state_dict)})\cr
 Function that loads a callback state.}
@@ -71,7 +73,9 @@ The initialization method of the callback.}
 
 \item{weight}{(\code{numeric(1)})\cr
 Controls when the callback is called within a stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.
-Defaults to \code{0}.}
+Defaults to \code{0}.
+The name is reserved for this, so \code{initialize} must not take a \code{weight} argument: wrapping such
+a callback in a \code{\link{TorchCallback}} is an error.}
 
 \item{public, private, active}{(\code{list()})\cr
 Additional public, private, and active fields to add to the callback.}

@@ -29,6 +29,32 @@
 #' To do so, you just need to include `epochs = to_tune(upper = <upper>, internal = TRUE)` in the search space,
 #' where `<upper>` is the maximally allowed number of epochs, and configure the early stopping.
 #'
+#' @section Checkpointing and Resuming:
+#' It is possible to save intermediate results from a run via the 
+#' [`t_clbk("checkpoint")`][mlr_callback_set.checkpoint] callback.
+#' It is then possible to train for more epochs by setting the `resume` parameter of the `LearnerTorch`.
+#' This parameter can either be a path or `TRUE` which will use the path of the provided checkpoint
+#' callback.
+#' Only the number of epochs should be changed between resumed runs, other parameter changes
+#' are considered undefined behavior.
+#' Also, make sure to use the same train-validation split.
+#' When the latest written checkpoint was for `n1` epochs, the learner needs to be configured
+#' to be trained for `n >= n1` epochs and the training will run for `n2 = n - n1` epochs.
+#' With `n = n1` the checkpointed run is already finished, so nothing is trained and the model of
+#' the checkpoint is returned -- which is what lets a script that restarts itself be run again
+#' after it succeeded, and what recovers the model of a run that was killed after its last epoch.
+#' Configuring `n < n1` is an error.
+#' Resuming will load the network weights, optimizer states and callback states.
+#' For some callbacks, training for `n1` and then `n2` epochs via resuming is not the same as
+#' training for `n` epochs from the start.
+#' This is for example the case for learning rate schedulers that depend on the total number of epochs
+#' to train for.
+#' The callbacks document their behavior under a corresponding
+#' *Resuming* section in their documentation.
+#' Furthermore, rng states are not restored, which constitutes another difference between a full
+#' and a resumed training run.
+#'
+#'
 #' @section Network Head and Target Encoding:
 #' Torch learners are expected to have the following output:
 #' * binary classification: `(batch_size, 1)`, representing the logits for the positive class.
