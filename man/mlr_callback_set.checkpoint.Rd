@@ -5,23 +5,59 @@
 \alias{CallbackSetCheckpoint}
 \title{Checkpoint Callback}
 \description{
-Saves the optimizer and network states during training.
-The final network and optimizer are always stored.
+Saves the optimizer, weights, and callback states every \code{freq} epochs as well as the final state.
+This can be used to later continue a training run via the \code{resume} parameter of \code{\link{LearnerTorch}}.
 
-Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, two files
+A folder holds the checkpoints of a single run, which is continued from where it ended: training
+errors when \code{epochs} is less than the most recent checkpoint in \code{path}, and a run never
+writes over a checkpoint that is already there.
+When \code{epochs} is exactly that checkpoint, the run in the folder is already finished: it is
+loaded and returned, and nothing is written.
+Each file is checked again immediately before it is written and an existing one is an error, so
+a second run writing into the same folder is also caught when it started after this run did --
+the check the folder gets before training cannot see it.
+The exception is a checkpoint that was already half-written when this run started, which is what
+a run killed mid-write leaves behind and which may be completed.
+
+Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, three files
 are created in \code{path}:
 \itemize{
 \item \verb{network<n>.pt} :: The \verb{$state_dict()} of the network.
 \item \verb{optimizer<n>.pt} :: The \verb{$state_dict()} of the optimizer.
+Next to them, written once with the first checkpoint, is \code{run.rds}: the task the folder's run
+trains on and the rows of its internal validation split, which a resuming run is checked against.
+\item \verb{state<n>.rds} :: The epoch, the version of \code{mlr3torch} that wrote the checkpoint, as well as
+the \verb{$state_dict()}s of the training run's other callbacks, so that a later run can
+continue e.g. the training history or the learning rate schedule.
+The class of each of those callbacks is recorded next to its state, which lets a resuming run
+notice that an id stands for a callback of another class instead of restoring the state of one
+into the other.
+Callbacks of the same class are indistinguishable to that check, and \code{\link[=torch_callback]{torch_callback()}} names
+the class after the id, so a custom callback under a builtin's id is not caught by it.
+This file is written with \code{\link[base:readRDS]{saveRDS()}}, so a callback state containing a
+\code{torch} tensor or module is written as an invalid pointer and errors when a resuming run uses
+it -- see section \emph{Inheriting} of \code{\link{CallbackSet}}.
 }
-
-An epoch that was interrupted -- because training failed or was stopped -- is not written under
-its own number, so \verb{network<n>.pt} is always the network at the \emph{end} of epoch \code{n}.
 }
 \details{
 Saving the learner itself in the callback with a trained model is impossible,
 as the model slot is set \emph{after} the last callback step is executed.
 }
+\section{Resuming}{
+
+This callback is special because it enables resuming a training run.
+Its own state is the folder it writes to, which \verb{learner$model$callbacks$<id>$path} reports --
+the only way to learn where a \code{path} function sent a run, e.g. one fit of a \code{resample()}.
+That state is not part of a checkpoint and is not restored: a resuming run writes where its own
+\code{path} says.
+}
+
+\section{Ordering}{
+
+This callback has weight \code{Inf} and therefore runs last, so it captures all the changes other
+callbacks made.
+}
+
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 cb = t_clbk("checkpoint", freq = 1)
@@ -34,6 +70,11 @@ learner$param_set$set_values(cb.checkpoint.path = pth)
 learner$train(task)
 
 list.files(pth)
+
+# continue training for 3 more epochs, starting from the last checkpoint
+learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1, resume = pth)
+learner_resumed$train(task)
+learner_resumed$model$epochs
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -59,10 +100,7 @@ Other Callback:
   \if{html}{\out{<div class="r6-fields">}}
   \describe{
     \item{\code{weight}}{(\code{numeric(1)})\cr
-\code{Inf}, so that this callback runs after the other callbacks and hence saves the network and
-optimizer as they are at the end of the stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.
-The only exception is the restore of \code{restore_best_weights}, which happens afterwards, so
-a checkpoint always holds the network as training left it.}
+Always \code{Inf}, see section \emph{Ordering}.}
   }
   \if{html}{\out{</div>}}
 }
@@ -70,8 +108,10 @@ a checkpoint always holds the network as training left it.}
 \subsection{Public methods}{
   \itemize{
     \item \href{#method-CallbackSetCheckpoint-initialize}{\code{CallbackSetCheckpoint$new()}}
+    \item \href{#method-CallbackSetCheckpoint-state_dict}{\code{CallbackSetCheckpoint$state_dict()}}
+    \item \href{#method-CallbackSetCheckpoint-on_begin}{\code{CallbackSetCheckpoint$on_begin()}}
     \item \href{#method-CallbackSetCheckpoint-on_epoch_end}{\code{CallbackSetCheckpoint$on_epoch_end()}}
-    \item \href{#method-CallbackSetCheckpoint-on_exit}{\code{CallbackSetCheckpoint$on_exit()}}
+    \item \href{#method-CallbackSetCheckpoint-on_end}{\code{CallbackSetCheckpoint$on_end()}}
     \item \href{#method-CallbackSetCheckpoint-clone}{\code{CallbackSetCheckpoint$clone()}}
   }
 }
@@ -79,7 +119,6 @@ a checkpoint always holds the network as training left it.}
 <ul>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>CallbackSet$load_state_dict()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>CallbackSet$state_dict()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -99,10 +138,39 @@ a checkpoint always holds the network as training left it.}
 The path to a folder where the models are saved, or a function of no arguments returning it.
 The latter is especially useful to create unique directories during \code{resample()} or \code{benchmark()}
 per fit.
-The folder must be new or empty, so that a checkpoint never overwrites unrelated data.}
+The folder must be new, empty, or already contain checkpoints.
+A half-written checkpoint -- what a run killed mid-write leaves behind -- may be written over,
+since a resuming run continues from the newest complete one.}
       \item{\code{freq}}{(\code{integer(1)})\cr
 How often the model is saved, in epochs.}
     }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-state_dict}{}}}
+\subsection{\code{CallbackSetCheckpoint$state_dict()}}{
+  Returns the folder this callback writes to, so that \verb{learner$model$callbacks$<id>$path}
+names it. This is the only place it can be read off a trained learner when \code{path} is a
+\verb{function()}, which is called once per training run.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetCheckpoint$state_dict()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_begin"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_begin}{}}}
+\subsection{\code{CallbackSetCheckpoint$on_begin()}}{
+  Refuses to start when this run would not get past the checkpoint that is already in \code{path},
+or would write over the checkpoint of another run.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetCheckpoint$on_begin()}
     \if{html}{\out{</div>}}
   }
 }
@@ -121,13 +189,13 @@ Does nothing if \code{freq} is not met.
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_exit"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_exit}{}}}
-\subsection{\code{CallbackSetCheckpoint$on_exit()}}{
-  Saves the final network and optimizer, unless the last complete epoch was already saved.
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_end}{}}}
+\subsection{\code{CallbackSetCheckpoint$on_end()}}{
+  Saves the final network and optimizer, unless the last epoch was already saved.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{CallbackSetCheckpoint$on_exit()}
+    \preformatted{CallbackSetCheckpoint$on_end()}
     \if{html}{\out{</div>}}
   }
 }

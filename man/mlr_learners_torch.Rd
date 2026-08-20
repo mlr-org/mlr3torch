@@ -39,6 +39,61 @@ To do so, you just need to include \verb{epochs = to_tune(upper = <upper>, inter
 where \verb{<upper>} is the maximally allowed number of epochs, and configure the early stopping.
 }
 
+\section{Resuming}{
+
+Training can be continued from a checkpoint written by
+\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}} by setting the \code{resume} parameter.
+This parameter can either be a path or \code{TRUE} which will use the path of the provided checkpoint
+callback.
+When the latest written checkpoint was for \code{n1} epochs, the learner needs to be configured
+to be trained for \code{n >= n1} epochs and the training will run for \code{n2 = n - n1} epochs.
+With \code{n = n1} the checkpointed run is already finished, so nothing is trained and the model of
+the checkpoint is returned -- which is what lets a script that restarts itself be run again
+after it succeeded, and what recovers the model of a run that was killed after its last epoch.
+Configuring \code{n < n1} is an error.
+Resuming will load the network weights, optimizer states and callback states.
+For some callbacks, training for \code{n1} and then \code{n2} epochs via resuming is not the same as
+training for \code{n} epochs from the start.
+This is for example the case for learning rate schedulers that depend on the total number of epochs
+to train for.
+The callbacks document their behavior under a corresponding
+\emph{Resuming} section in their documentation.
+Furthermore, rng states are not restored, which constitutes another difference between a full
+and a resumed training run.
+With a fixed \code{seed} this means that a resumed run repeats the random draws of the run it
+continues: torch's generator is seeded at the start of every training run, so the resumed epochs
+see the same shuffling and the same dropout masks as the first epochs of the original run did.
+A run that is restarted often -- e.g. one checkpointing every epoch on a preemptible machine --
+therefore trains on the same batch order over and over.
+Use the default \code{seed = "random"} when this matters more than reproducing a run exactly.
+
+The checkpoint records the task it was written for and the rows of the internal validation
+split, and a run whose task id or split differs is refused: the restored network has seen rows
+such a run holds out, and a restored early stopping score was measured on other rows.
+Because \verb{validate = <ratio>} draws a new split from \strong{R's} random number generator on every run
+-- which the \code{seed} parameter does not govern, as it only seeds torch -- a run to be resumed
+should use \code{validate = "predefined"} with a fixed \code{internal_valid_task}, or seed R's generator
+identically before each run.
+
+Configure the resuming learner like the one that wrote the checkpoint and change only \code{epochs}.
+What the checkpoint holds wins over what the resuming learner is configured with: the optimizer
+is restored from it, so a different \code{opt.lr} (or any other \verb{opt.*} value) set on the resuming
+learner has no effect, and the same is true for the state of every callback that restores one.
+
+Early stopping is checked rather than silently continued: the checkpoint records which
+validation measure its best score belongs to -- the first of \code{measures_valid}, which is the one
+early stopping tracks -- and a run tracking another measure is refused.
+A run that early stopping \emph{ended} is finished, whatever \code{epochs} says: resuming it warns, trains
+no epoch and returns the model of the checkpoint, so that a script restarting itself converges
+instead of training one epoch further on every attempt.
+The same holds for a callback of your own that ends a run through \code{ctx$terminate}, provided it
+sets that flag again when its state is restored, see the \emph{State} section of \code{\link{CallbackSet}}.
+
+Callback states are matched to the callbacks of the resuming run \strong{by id}.
+A state whose id is not among this run's callbacks is skipped with a warning, and a callback
+whose id is not in the checkpoint simply starts fresh.
+}
+
 \section{Network Head and Target Encoding}{
 
 Torch learners are expected to have the following output:
@@ -177,6 +232,17 @@ This is initialized to \code{1}.
 Note that the final model is always evaluated.
 }
 
+\strong{Resuming}:
+\itemize{
+\item \code{resume} :: \code{character(1)} or \code{TRUE}\cr
+Continues training from a checkpoint written by
+\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}}, either the folder it wrote to or \code{TRUE},
+which takes that folder from the checkpoint callback of this learner.
+Note that \code{epochs} is the \emph{total} number of epochs, i.e. it includes the epochs the checkpoint
+was already trained for: resuming a checkpoint from epoch 5 with \code{epochs = 8} trains 3 more
+epochs.
+}
+
 \strong{Early Stopping}:
 \itemize{
 \item \code{patience} :: \code{integer(1)}\cr
@@ -200,6 +266,15 @@ epoch is stored. Setting this to \code{TRUE} makes the stored network the one of
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
 memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
 network as training left it.
+
+When a run is resumed (see the section \emph{Resuming} of \code{\link{LearnerTorch}}), the best score, the
+epoch it was observed in and the number of evaluation steps without improvement are restored,
+so \code{patience} keeps counting across runs instead of starting over.
+The best epoch's weights are not part of a checkpoint, however -- they are a full copy of the
+network, which every checkpoint would otherwise carry.
+A resumed run with \code{restore_best_weights} that never beats the restored best score therefore
+ends with the weights of its last epoch while \verb{$internal_tuned_values} still reports the
+earlier best epoch, which is warned about when the state is restored.
 }
 
 \strong{Dataloader}:

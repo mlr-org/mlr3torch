@@ -71,6 +71,17 @@ This is initialized to \code{1}.
 Note that the final model is always evaluated.
 }
 
+\strong{Resuming}:
+\itemize{
+\item \code{resume} :: \code{character(1)} or \code{TRUE}\cr
+Continues training from a checkpoint written by
+\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}}, either the folder it wrote to or \code{TRUE},
+which takes that folder from the checkpoint callback of this learner.
+Note that \code{epochs} is the \emph{total} number of epochs, i.e. it includes the epochs the checkpoint
+was already trained for: resuming a checkpoint from epoch 5 with \code{epochs = 8} trains 3 more
+epochs.
+}
+
 \strong{Early Stopping}:
 \itemize{
 \item \code{patience} :: \code{integer(1)}\cr
@@ -94,6 +105,15 @@ epoch is stored. Setting this to \code{TRUE} makes the stored network the one of
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
 memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
 network as training left it.
+
+When a run is resumed (see the section \emph{Resuming} of \code{\link{LearnerTorch}}), the best score, the
+epoch it was observed in and the number of evaluation steps without improvement are restored,
+so \code{patience} keeps counting across runs instead of starting over.
+The best epoch's weights are not part of a checkpoint, however -- they are a full copy of the
+network, which every checkpoint would otherwise carry.
+A resumed run with \code{restore_best_weights} that never beats the restored best score therefore
+ends with the weights of its last epoch while \verb{$internal_tuned_values} still reports the
+earlier best epoch, which is warned about when the state is restored.
 }
 
 \strong{Dataloader}:
