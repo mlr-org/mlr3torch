@@ -175,27 +175,20 @@ test_that("a stateful callback may not run after the checkpoint callback", {
 })
 
 test_that("a callback's default weight can be overwritten via the TorchCallback", {
-  # `weight` is reserved, so it is not a construction argument of the checkpoint callback ...
   expect_equal(CallbackSetCheckpoint$new(path = tempfile(), freq = 1)$weight, Inf)
   expect_error(CallbackSetCheckpoint$new(path = tempfile(), freq = 1, weight = 3), "unused argument")
-  # ... but `t_clbk()` can still put the callback somewhere else in the order
   expect_equal(t_clbk("checkpoint", freq = 1, path = tempfile(), weight = 3)$generate()$weight, 3)
   expect_error(t_clbk("checkpoint", freq = 1, path = tempfile(), weight = "high"),
     "Must be of type 'number'")
 
-  # early stopping is high but finite, so that a callback can still be placed after it
   expect_equal(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0)$weight, 1000)
   expect_true(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0)$weight <
     CallbackSetCheckpoint$new(path = tempfile(), freq = 1)$weight)
 })
 
 test_that("'weight' is reserved and cannot be a parameter", {
-  # $generate() applies the ordering weight after the parameters, so a parameter of the same name
-  # would be overwritten by it without anything downstream noticing
-  gen = callback_set("CallbackSetTestWeight", initialize = function(weight) NULL)
   # whether the parameter set is inferred from $initialize() ...
   expect_error(TorchCallback$new(gen), "'weight' is reserved")
-  # ... or passed in explicitly
   expect_error(TorchCallback$new(gen, param_set = ps(weight = p_dbl(tags = "train"))),
     "'weight' is reserved")
 })
