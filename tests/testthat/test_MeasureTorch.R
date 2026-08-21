@@ -29,6 +29,26 @@ test_that("a measure declares what it asks for", {
   expect_equal(unname(rr$aggregate(measure)), 20)
 })
 
+test_that("an argument the prediction does not have keeps its default", {
+  d = tt_data(40L)
+  d$y = rnorm(nrow(d))
+  task = tt_task(d, target = "y")
+  learner = tt_learner(t_loss("mse"))
+  learner$train(task)
+  pred = learner$predict(task)
+
+  # the task has no `weights_measure` column, so `weights` is NULL here; passing it on explicitly
+  # would override the default and score `sum(... * NULL) / n`, i.e. a perfect 0
+  expect_null(pred$weights)
+  weighted = msr_torch("wmse", function(truth, response, weights = rep(1, length(truth))) {
+    sum((truth - response)^2 * weights) / length(truth)
+  }, range = c(0, Inf))
+  expect_equal(unname(pred$score(weighted)), mean((pred$truth - pred$response)^2))
+
+  # ... while an argument without a default still arrives, as NULL
+  expect_equal(unname(pred$score(msr_torch("se_null", function(truth, se) 1 * is.null(se)))), 1)
+})
+
 test_that("a measure can report a per observation loss", {
   d = tt_data(40L)
   d$y = rnorm(nrow(d))
@@ -57,8 +77,81 @@ test_that("a measure can report a per observation loss", {
   expect_numeric(tab$mse, lower = 0, any.missing = FALSE)
 })
 
+test_that("an obs_loss has to return one value per observation", {
+  d = tt_data(40L)
+  d$y1 = rnorm(nrow(d))
+  d$y2 = rnorm(nrow(d))
+  task = tt_task(d, target = c("y1", "y2"))
+  learner = tt_learner(t_loss("mse"))
+  learner$train(task)
+  pred = learner$predict(task)
+
+  # `mean()` where `rowMeans()` was meant: `data.table::set()` would recycle the one number over
+  # every observation, which looks exactly like a per-observation loss
+  reduced = msr_torch("reduced", function(truth, response) 1,
+    obs_loss = function(truth, response) mean((as.matrix(truth) - response)^2))
+  expect_error(pred$obs_loss(reduced), "returned 1 values for 40 observations")
+
+  # ... and it is not a number at all
+  wrong_type = msr_torch("chr", function(truth, response) 1,
+    obs_loss = function(truth, response) rep("a", nrow(response)))
+  expect_error(pred$obs_loss(wrong_type), "value of the `obs_loss` of measure 'chr'")
+
+  ok = msr_torch("rowwise", function(truth, response) 1,
+    obs_loss = function(truth, response) rowMeans((as.matrix(truth) - response)^2))
+  expect_numeric(pred$obs_loss(ok)$rowwise, len = task$nrow, any.missing = FALSE)
+})
+
 test_that("the default measure does not fix an optimization direction", {
   expect_true(is.na(msr("torch.default")$minimize))
+})
+
+test_that("a measure rejects arguments it could never be given", {
+  # the typo would otherwise surface at score time as `argument "respones" is missing`, and inside
+  # a training run as `Measure 'x' could not be computed and is reported as NaN`
+  expect_error(msr_torch("t", function(truth, respones) 1), "arguments of `fun`")
+  expect_error(msr_torch("t", function(truth, response) 1, obs_loss = function(truth, respones) 1),
+    "arguments of `obs_loss`")
+  # `train_set` is one of the supported arguments, but `Measure$obs_loss()` is not given one
+  expect_error(msr_torch("t", function(truth) 1, obs_loss = function(truth, train_set) 1),
+    "arguments of `obs_loss`")
+})
+
+test_that("a measure can read the predicted tensors", {
+  d = tt_data(20L)
+  d$y = rnorm(nrow(d))
+  task = tt_task(d, target = "y")
+  learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
+  learner$predict_type = "lazy_tensor"
+  learner$train(task)
+  pred = learner$predict(task)
+
+  measure = msr_torch("norm", function(lazy_tensor) {
+    as.numeric(materialize(lazy_tensor, rbind = TRUE)$pow(2)$mean()$cpu())
+  }, predict_type = "lazy_tensor", range = c(0, Inf))
+  expect_number(pred$score(measure), lower = 0)
+})
+
+test_that("the default measure delegates the per observation loss", {
+  d = tt_data(20L)
+  d$y = rnorm(nrow(d))
+  learner = tt_learner(t_loss("mse"))
+  default = msr("torch.default")
+
+  with_obs_loss = tt_task(d, target = "y", id = "t", default_measure = msr_torch("mse",
+    function(truth, response) mean((truth - response)^2),
+    obs_loss = function(truth, response) (truth - response)^2, range = c(0, Inf)))
+  learner$train(with_obs_loss)
+  pred = learner$predict(with_obs_loss)
+  expect_equal(
+    default$obs_loss(pred, task = with_obs_loss),
+    (pred$truth - pred$response)^2
+  )
+
+  # a task whose measure has none behaves like any other measure without one, i.e. reports NA
+  without = tt_task(d, target = "y", id = "t",
+    default_measure = msr_torch("mse", function(truth, response) mean((truth - response)^2)))
+  expect_true(all(is.na(default$obs_loss(learner$predict(without), task = without))))
 })
 
 test_that("a measure can be scored with observation weights", {

@@ -161,6 +161,11 @@ output_dim_for.TaskTorch = function(x, ...) { # nolint
 
 #' @export
 get_target_batchgetter.TaskTorch = function(task, ...) { # nolint
+  # A task with no target has no `y`: the loss is called as `loss(y_hat)` and there is nothing for a
+  # batchgetter to build, so the learner does not have to pass one.
+  if (!length(task$target_names)) {
+    return(NULL)
+  }
   stopf("Task '%s' does not define how its target becomes a tensor -- what `y` has to look like follows from the loss, so it is the learner that decides. Pass `target_batchgetter` to the learner (e.g. `lrn(\"torch.module\")`) or overwrite the method for your own `LearnerTorch` subclass.", task$id) # nolint
 }
 

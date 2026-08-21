@@ -40,7 +40,7 @@ The predicted probabilities.}
     \item{\code{se}}{(any)\cr
 The standard errors of the prediction.}
 
-    \item{\code{lazy_tensor}}{(\code{\link{lazy_tensor}})\cr
+    \item{\code{lazy_tensor}}{(\code{\link{lazy_tensor}} or \code{\link[data.table:data.table]{data.table}} of them)\cr
 The output of the network, for the predict type \code{"lazy_tensor"}.}
   }
   \if{html}{\out{</div>}}
@@ -97,8 +97,9 @@ The predicted response.}
 The predicted probabilities.}
       \item{\code{se}}{(any)\cr
 The standard errors of the prediction.}
-      \item{\code{lazy_tensor}}{(\code{\link{lazy_tensor}})\cr
-The output of the network, see the predict type \code{"lazy_tensor"} of \code{\link{LearnerTorch}}.}
+      \item{\code{lazy_tensor}}{(\code{\link{lazy_tensor}} or \code{\link[data.table:data.table]{data.table}} of them)\cr
+The output of the network, see the predict type \code{"lazy_tensor"} of \code{\link{LearnerTorch}}.
+A network with more than one head produces one column per head.}
       \item{\code{weights}}{(\code{numeric()} or \code{NULL})\cr
 The measure weights of the predicted observations, i.e. the \code{weights_measure} column of the
 task. \code{mlr3} fills this in, so it rarely has to be passed by hand.}

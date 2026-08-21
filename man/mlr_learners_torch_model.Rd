@@ -160,7 +160,7 @@ Converts the target columns of a batch into the target tensor \code{y} that the 
 Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
 and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
 target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
-If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide but a \code{\link{TaskTorch}} does not.}
+If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide, but a \code{\link{TaskTorch}} only if it has no target at all, in which case the batches have no \code{y} element.}
       \item{\code{predict_types}}{(\code{character()})\cr
 The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}

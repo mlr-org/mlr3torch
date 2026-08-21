@@ -226,10 +226,56 @@ test_that("an encoder that cannot build an empty prediction errors here", {
   learner$train(task)
 
   expect_error(create_empty_prediction_data(task, learner), "no empty batches here")
-  # ... and so does a task that cannot say how wide the network's output is (`tt_task()` fills one
-  # in, so this one is built directly)
+
+  # ... but a task that does not say how wide the network's output is is fine: the network is run
+  # on zero rows, so nothing has to be derived from `output_dim` (`tt_task()` fills one in, so this
+  # task is built directly)
   no_dim = as_task_torch(d, target = "y", id = "n", default_encoder = tt_enc)
-  expect_error(create_empty_prediction_data(no_dim, learner), "has no `output_dim`")
+  expect_null(no_dim$output_dim)
+  empty = create_empty_prediction_data(no_dim, learner)
+  expect_numeric(empty$response, len = 0L)
+
+  # without a model there is no network to ask, and then `output_dim` is what is left
+  untrained = tt_learner(t_loss("mse"))
+  expect_error(create_empty_prediction_data(no_dim, untrained), "has no `output_dim`")
+  expect_numeric(create_empty_prediction_data(tt_task(d, target = "y"), untrained)$response, len = 0L)
+})
+
+test_that("an empty prediction is encoded from what the network really returns", {
+  task = tt_task_2head()
+  learner = tt_learner(tt_loss_2head(), module_generator = tt_module_2head,
+    predict_types = c("response", "se"), predict_type = "se")
+  learner$train(task)
+
+  # the encoder is handed the `list()` of tensors it is promised, the same as for a real prediction
+  empty = create_empty_prediction_data(task, learner)
+  expect_names(names(empty), permutation.of = c("row_ids", "truth", "response", "se"))
+  expect_numeric(empty$response, len = 0L)
+  expect_numeric(empty$se, len = 0L)
+
+  # ... so the two combine, which is what an empty resampling fold does
+  expect_length(c(empty, learner$predict(task)$data)$response, task$nrow)
+  rr = resample(task, learner, rsmp("custom")$instantiate(task,
+    list(task$row_ids, task$row_ids), list(task$row_ids, integer(0))))
+  expect_length(rr$prediction()$row_ids, task$nrow)
+})
+
+test_that("an encoder that does not return a named list errors here", {
+  d = tt_data(10L)
+  d$y = rnorm(nrow(d))
+  encoders = list(
+    tensor = function(task, network_output, predict_type) network_output,
+    null = function(task, network_output, predict_type) NULL,
+    unnamed = function(task, network_output, predict_type) list(1, 2)
+  )
+  for (nm in names(encoders)) {
+    task = tt_task(d, target = "y", id = "bad", default_encoder = encoders[[nm]])
+    learner = tt_learner(t_loss("mse"))
+    learner$train(task)
+    # the message names the task and the encoder, which the downstream `cannot coerce type
+    # 'externalptr'` and `attempt to set an attribute on NULL` did not
+    expect_error(learner$predict(task), "prediction encoding of task 'bad'", info = nm)
+  }
 })
 
 test_that("prediction data can be combined and filtered", {
@@ -643,6 +689,50 @@ test_that("lazy_tensor predictions of different folds are combined", {
   expect_class(empty$lazy_tensor, "lazy_tensor")
   expect_length(empty$lazy_tensor, 0L)
   expect_length(c(empty, pred$data)$lazy_tensor, task$nrow)
+})
+
+test_that("a lazy_tensor prediction of a two-head network is one column per head", {
+  task = tt_task_2head()
+  learner = tt_learner(tt_loss_2head(), module_generator = tt_module_2head,
+    predict_types = c("response", "lazy_tensor"))
+  learner$predict_type = "lazy_tensor"
+  learner$train(task)
+  pred = learner$predict(task)
+
+  # one `lazy_tensor` per head, so that the prediction is still one row per observation
+  expect_data_table(pred$lazy_tensor, nrows = task$nrow, ncols = 2L)
+  expect_names(names(pred$lazy_tensor), identical.to = c("m", "s"))
+  expect_class(pred$lazy_tensor$m, "lazy_tensor")
+
+  # it is what the network produced, head by head
+  tensors = learner$predict_tensor(task)
+  for (head in c("m", "s")) {
+    expect_equal(
+      as.numeric(as.matrix(materialize(pred$lazy_tensor[[head]], rbind = TRUE)$cpu())),
+      as.numeric(as.matrix(tensors[[head]]$cpu()))
+    )
+  }
+
+  # ... and `as.data.table()` spreads it, the way a `data.table` truth spreads
+  expect_names(names(as.data.table(pred)),
+    must.include = c("lazy_tensor.m", "lazy_tensor.s"))
+
+  # combining keeps every row with the values of its own fold, head-wise
+  parts = c(learner$predict(task, row_ids = 11:20)$data, learner$predict(task, row_ids = 1:10)$data)
+  expect_data_table(parts$lazy_tensor, nrows = task$nrow, ncols = 2L)
+  ord = match(task$row_ids, parts$row_ids)
+  expect_equal(
+    as.numeric(as.matrix(materialize(parts$lazy_tensor$m[ord], rbind = TRUE)$cpu())),
+    as.numeric(as.matrix(materialize(pred$lazy_tensor$m, rbind = TRUE)$cpu()))
+  )
+
+  # an empty prediction agrees on the heads, so it combines with a real one
+  empty = create_empty_prediction_data(task, learner)
+  expect_data_table(empty$lazy_tensor, nrows = 0L, ncols = 2L)
+  expect_length(c(empty, pred$data)$row_ids, task$nrow)
+
+  pred$filter(task$row_ids[1:5])
+  expect_data_table(pred$lazy_tensor, nrows = 5L, ncols = 2L)
 })
 
 test_that("a lazy_tensor prediction does not survive saveRDS", {

@@ -19,8 +19,9 @@
 #'   The predicted probabilities.
 #' @param se (any)\cr
 #'   The standard errors of the prediction.
-#' @param lazy_tensor ([`lazy_tensor`])\cr
+#' @param lazy_tensor ([`lazy_tensor`] or [`data.table`][data.table::data.table] of them)\cr
 #'   The output of the network, see the predict type `"lazy_tensor"` of [`LearnerTorch`].
+#'   A network with more than one head produces one column per head.
 #' @param weights (`numeric()` or `NULL`)\cr
 #'   The measure weights of the predicted observations, i.e. the `weights_measure` column of the
 #'   task. `mlr3` fills this in, so it rarely has to be passed by hand.
@@ -71,7 +72,7 @@ PredictionTorch = R6Class("PredictionTorch",
       assert_ro_binding(rhs)
       self$data$se
     },
-    #' @field lazy_tensor ([`lazy_tensor`])\cr
+    #' @field lazy_tensor ([`lazy_tensor`] or [`data.table`][data.table::data.table] of them)\cr
     #'   The output of the network, for the predict type `"lazy_tensor"`.
     lazy_tensor = function(rhs) {
       assert_ro_binding(rhs)
@@ -129,6 +130,14 @@ pt_combine = function(xs) {
     # `rbind()` only understands two dimensions -- it would flatten the rest into columns
     rbind_arrays(xs)
   } else if (is.data.frame(x)) {
+    # a `data.table` of `lazy_tensor` columns -- what a multi-head network predicts for the
+    # `"lazy_tensor"` predict type -- cannot go through `rbindlist()`, which would paste their
+    # indices together and keep the first descriptor, see the branch below
+    if (some(x, function(column) inherits(column, "lazy_tensor"))) {
+      return(as.data.table(set_names(lapply(names(x), function(nm) {
+        pt_combine(lapply(xs, function(xi) xi[[nm]]))
+      }), names(x))))
+    }
     rbindlist(xs, use.names = TRUE)
   } else if (inherits(x, "lazy_tensor")) {
     # FIXME: general concatenation of lazy tensors is not allowed (only when they have teh same DataDescriptor),
@@ -213,13 +222,26 @@ create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
     pdata$weights = numeric()
   }
 
+  # what the network really returns for zero rows, so that the encoder sees the structure it is
+  # promised -- a `list()` for a network with more than one head -- and nothing has to be guessed
+  # from the task's `output_dim`
+  network_output = zero_row_network_output(learner, task)
+
   if (learner$predict_type == "lazy_tensor") {
-    # `as_lazy_tensor()` cannot build one from a tensor without rows, and there is nothing to ask
-    # the encoder about: this predict type never consults it
-    pdata$lazy_tensor = lazy_tensor()
+    # `as_lazy_tensor()` cannot build one from a tensor without rows, but the heads of the network
+    # are what an empty prediction has to agree on with the non-empty ones it is combined with
+    pdata$lazy_tensor = if (is.list(network_output)) {
+      as.data.table(set_names(rep(list(lazy_tensor()), length(network_output)),
+        head_names(network_output)))
+    } else {
+      lazy_tensor()
+    }
   } else {
-    empty = get_private(learner)$.encode_prediction(
-      network_output = torch_zeros(0L, output_dim_for(task)), task = task)
+    if (is.null(network_output)) {
+      network_output = torch_zeros(0L, output_dim_for(task))
+    }
+    empty = check_encoded_prediction(
+      get_private(learner)$.encode_prediction(network_output = network_output, task = task), task)
     pdata = c(pdata, discard(empty, is.null))
   }
 

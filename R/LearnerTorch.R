@@ -102,6 +102,9 @@
 #' task predicted this way needs no encoder at all.
 #' Like every predict type of this task type it is opt-in:
 #' `lrn("torch.module", predict_types = c("response", "lazy_tensor"))`.
+#' A network with more than one head hands back one [`lazy_tensor`] per head, held in a
+#' [`data.table`][data.table::data.table] with one column per head so that the prediction is still
+#' one row per observation; `as.data.table()` spreads it into `lazy_tensor.<head>` columns.
 #'
 #' Two things to know before using it:
 #' * **Such a prediction does not survive [`saveRDS()`][base::saveRDS].** It holds `torch` tensors,

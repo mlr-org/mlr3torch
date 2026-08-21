@@ -124,6 +124,9 @@ It is how to get at the logits of a classifier or the reconstruction of an autoe
 task predicted this way needs no encoder at all.
 Like every predict type of this task type it is opt-in:
 \code{lrn("torch.module", predict_types = c("response", "lazy_tensor"))}.
+A network with more than one head hands back one \code{\link{lazy_tensor}} per head, held in a
+\code{\link[data.table:data.table]{data.table}} with one column per head so that the prediction is still
+one row per observation; \code{as.data.table()} spreads it into \verb{lazy_tensor.<head>} columns.
 
 Two things to know before using it:
 \itemize{

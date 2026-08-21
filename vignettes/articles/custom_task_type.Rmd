@@ -77,7 +77,7 @@ They do not all live in the same place:
 | --- | --- | --- |
 | the target tensor `y` of a batch | the **learner** | `target_batchgetter` |
 | the number of output units | the **task** | `output_dim`, read through `output_dim_for()` |
-| how a network output becomes a prediction | the **task** | `default_encoder`, read through `encode_prediction()` |
+| how a network output becomes a prediction | the **task** | `default_encoder`, read through `encode_prediction()`, unless the learner overrides it |
 
 The split follows what each one is consumed by.
 What `y` has to look like is dictated by the loss, which belongs to the learner -- cross entropy wants `long` class indices where mean squared error wants `float`, so the same task trained with two losses needs two different target tensors.
@@ -94,6 +94,11 @@ It is optional: a network that sizes its own output, such as one with several he
 
 The prediction encoder receives the network's output unchanged, so a network with more than one head is its business too.
 It is also where any consistency check between network and task belongs: a network trained on three target levels emits three columns, and mapping those onto the levels of a task that has since been `$droplevels()`ed would relabel every observation rather than fail.
+
+It is called `default_encoder` because it is a *default*, in the same sense as `default_measure`: it is what a learner uses when it has no idea of its own.
+A `LearnerTorch` subclass may overwrite the private `$.encode_prediction()` method, and then the task's encoder is not consulted at all -- `lrn("classif.tabm")` averages over its ensemble dimension that way, and the `torchvision` learners strip the auxiliary head of an Inception network before handing what is left to the task.
+The predict type `"lazy_tensor"` (@sec-raw-predictions) skips both and gives you the network's output as it is.
+For everything that does not say otherwise -- which is most learners, including `lrn("torch.module")` -- the task decides.
 
 The target tensor is the learner's, and we come to it in @sec-network.
 
@@ -131,6 +136,10 @@ msr_logloss = msr_torch("multilabel.logloss",
   predict_type = "prob", range = c(0, Inf), minimize = TRUE
 )
 ```
+
+Declaring a `learner` argument gets you the learner object, which for a torch measure usually means the network.
+Note that this only adds the `"requires_learner"` property, and `mlr3` also passes a learner whose model was thrown away -- after a `resample()` with `store_models = FALSE`, `learner$network` is `NULL` and the measure quietly scores an empty model.
+A measure that reaches for the network should therefore ask for the model too, with `properties = "requires_model"`, so that scoring without one is an error.
 
 ## Training a Network {#sec-train}
 
@@ -182,7 +191,7 @@ prediction = lrn_weather$predict(tsk_weather, row_ids = splits$test)
 prediction
 ```
 
-The `truth.*` columns are the ground truth taken from the task and the `response.*` columns are what the network predicted.
+The `truth.*` columns are the ground truth taken from the task, `response` holds what the network predicted, and the `prob.*` columns hold the probabilities we asked for.
 Both of our measures work on it:
 
 ```{r custom_task_type-012}
@@ -196,6 +205,29 @@ This is the point at which a hand-written task type would already have needed it
 rr = resample(tsk_weather, lrn_weather, rsmp("cv", folds = 3))
 rr$aggregate(msr_hamming)
 ```
+
+### What a Prediction Can Hold {#sec-prediction-storage}
+
+A `PredictionTorch` is deliberately vague about how its parts are stored, because the encoder decides and the encoder is yours.
+The one rule is that the **first dimension indexes the observations**.
+Within that, an element may be an atomic vector, a `matrix()`, an `array()` of any dimensionality, a `data.table` or a `lazy_tensor`:
+
+```{r custom_task_type-013b}
+vapply(as.data.table(prediction), function(x) class(x)[1L], character(1))
+```
+
+`truth` is whatever `tsk_weather$truth()` returns -- a vector for one target, a `data.table` for several, a `lazy_tensor` for a lazy tensor column, and nothing at all for a task without a target.
+`response`, `prob` and `se` are whatever the encoder built.
+The one thing that is refused is a bare `list()`: it is what an encoder produces when it did not manage to build any of the above, and from there on everything -- combining folds, scoring, tabling -- would work observation by observation.
+A prediction that is one tensor per observation belongs in a `lazy_tensor`.
+
+The table above shows the two ways an element reaches `as.data.table()`.
+`prob` becomes one column per label, as it would for a classification prediction.
+Everything else that is wider than one value per observation becomes one cell holding that observation's own array, printed as its shape:
+our `response` is a logical matrix, so each cell is `<array[3]>`.
+That asymmetry is deliberate -- a `prob` column means one fixed thing, whereas the width of a response is a property of the prediction, and flattening the `(n, 3, 224, 224)` reconstruction of an autoencoder over images would give a table with 150528 columns.
+
+One consequence worth knowing: only a response with a single value per observation can report a *missing* prediction, so `prediction$missing` is empty for our matrix response even if the network emitted an `NaN`.
 
 ### A Default Measure for the Task {#sec-default-measure}
 
@@ -382,6 +414,7 @@ pred_raw
 ```
 
 One element per observation, holding that observation's reconstruction.
+A network with more than one head gives you one such column per head, named after the heads.
 `materialize()` turns them back into a tensor:
 
 ```{r custom_task_type-022c}

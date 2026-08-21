@@ -22,7 +22,10 @@ The id of the measure.}
 \item{fun}{(\verb{function()})\cr
 The scoring function.
 It receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{prediction}, \code{task},
-\code{learner}, \code{train_set} and \code{weights} it declares, and must return a single number.R}
+\code{learner}, \code{train_set} and \code{weights} it declares, and must return a single number.
+An argument that the prediction does not have -- \code{weights} on a task without a
+\code{weights_measure} column, or \code{prob} on a response-only prediction -- is not passed at all, so a
+default declared for it is what the function sees.}
 
 \item{minimize}{(\code{logical(1)})\cr
 Whether a smaller score is better.
@@ -32,18 +35,28 @@ Whether a smaller score is better.
 The range of possible scores.}
 
 \item{predict_type}{(\code{character(1)})\cr
-The predict type the measure requires: \code{"response"} (default), \code{"prob"} or \code{"se"}.}
+The predict type the measure requires: \code{"response"} (default), \code{"prob"}, \code{"se"} or
+\code{"lazy_tensor"}.
+A measure asking for one it did not declare here still receives it, if the prediction has it.}
 
 \item{properties}{(\code{character()})\cr
 Properties of the measure, see \code{\link[mlr3:Measure]{Measure}}.
 The \code{"requires_task"}, \code{"requires_learner"}, \code{"requires_train_set"} and \code{"weights"} properties
-are added automatically when \code{fun} declares the corresponding argument.}
+are added automatically when \code{fun} declares the corresponding argument.
+\code{"requires_model"} is not: a \code{learner} argument only says that the learner object is needed,
+and \code{mlr3} hands that over even when the model was not stored -- after a \code{resample()} with
+\code{store_models = FALSE}, \code{learner$network} is then \code{NULL} and a measure reading it scores
+whatever an empty model gives. Pass \code{properties = "requires_model"} yourself whenever the
+measure reaches for the trained network, so that \code{mlr3} refuses to score instead.}
 
 \item{label}{(\code{character(1)})\cr
 The label of the measure.}
 
 \item{obs_loss}{(\verb{function()} or \code{NULL})\cr
-The per-observation loss. Declared like \code{fun} and if specified adds the \code{"obs_loss"} property.}
+The per-observation loss. Declared like \code{fun} and if specified adds the \code{"obs_loss"} property.
+It must return one number per observation: a multi-target loss reduces over the targets
+(\code{rowMeans()}), not over the observations (\code{mean()}), and returning a single number is an error
+rather than a column of that number repeated.}
 }
 \value{
 \code{\link{MeasureTorch}}

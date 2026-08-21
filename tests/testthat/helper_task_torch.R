@@ -75,13 +75,39 @@ tt_task = function(x, target = NULL, id = "t", ...) {
 }
 
 tt_learner = function(loss, ...) {
-  args = insert_named(list(epochs = 3L, batch_size = 16L, target_batchgetter = tt_bg), list(...))
-  invoke(lrn, "torch.module",
-    module_generator = tt_module,
-    ingress_tokens = list(x = ingress_num()),
-    loss = loss,
-    .args = args
-  )
+  args = insert_named(list(epochs = 3L, batch_size = 16L, target_batchgetter = tt_bg,
+    module_generator = tt_module, ingress_tokens = list(x = ingress_num())), list(...))
+  invoke(lrn, "torch.module", loss = loss, .args = args)
+}
+
+# A network with two heads, i.e. an output that is a `list()` of tensors instead of one tensor. Only
+# a `TaskTorch` can be predicted this way, so the prediction encoding, the empty prediction and the
+# `"lazy_tensor"` predict type all have to cope with it.
+tt_module_2head = nn_module("tt_module_2head",
+  initialize = function(task) {
+    self$m = nn_linear(length(task$feature_names), 1L)
+    self$s = nn_linear(length(task$feature_names), 1L)
+  },
+  forward = function(x) list(m = self$m(x), s = self$s(x))
+)
+
+# the loss of a two-head network is applied to the whole output, so it picks the head it trains
+tt_loss_2head = function() {
+  TorchLoss$new(nn_module("mse_first",
+    initialize = function() NULL,
+    forward = function(input, target) nnf_mse_loss(input$m, target)), id = "mse_first")
+}
+
+# The encoder insists on the `list()` it is promised, and the task states no `output_dim`: how wide
+# a two-head network is, is a question only the network can answer.
+tt_task_2head = function(n = 20L, id = "twohead") {
+  d = tt_data(n)
+  d$y = rnorm(nrow(d))
+  as_task_torch(d, target = "y", id = id,
+    default_encoder = function(task, network_output, predict_type) {
+      stopifnot(is.list(network_output))
+      list(response = as.numeric(network_output$m$cpu()), se = as.numeric(network_output$s$cpu()))
+    })
 }
 
 tt_data = function(n = 40L) {

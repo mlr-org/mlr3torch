@@ -265,8 +265,10 @@ test_that("a task with no target at all is unsupervised", {
 
   expect_equal(task$target_names, character(0))
   expect_null(task$truth())
-  # nothing about the problem is specified by such a task either
-  expect_error(get_target_batchgetter(task), "it is the learner that decides")
+  # with no target there is no `y` to build, so the learner does not have to pass a batchgetter
+  expect_null(get_target_batchgetter(task))
+  expect_error(get_target_batchgetter(tt_task(d, target = "x1")), "it is the learner that decides")
+  # nothing else about the problem is specified by such a task either
   expect_error(output_dim_for(task), "has no `output_dim`")
   expect_error(encode_prediction(task, torch_randn(2, 2), "response"), "has no `default_encoder`")
 
@@ -295,6 +297,12 @@ test_that("a task with no target at all is unsupervised", {
   measure = msr_torch("spread", function(prediction) mean(prediction$response^2), range = c(0, Inf))
   expect_number(pred$score(measure), lower = 0)
   expect_number(resample(task, learner, rsmp("cv", folds = 3L))$aggregate(measure), lower = 0)
+
+  # ... and none of this needs a `target_batchgetter` on the learner, which would have nothing to do
+  bare = tt_learner(loss, target_batchgetter = NULL)
+  bare$train(task)
+  expect_matrix(bare$predict(task)$response, nrows = task$nrow, ncols = 2L)
+  expect_number(resample(task, bare, rsmp("cv", folds = 2L))$aggregate(measure), lower = 0)
 })
 
 test_that("an unsupervised task works with validation and the tensor dataset", {
