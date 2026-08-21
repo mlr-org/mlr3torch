@@ -20,6 +20,8 @@
 
 ## Features
 
+* New function `as_learner_torch()`, which converts a `Graph` of `PipeOpTorch` operators into a
+  `LearnerTorch` instead of the `GraphLearner` that `as_learner()` returns.
 * `LearnerTorch` and `PipeOpTorchModel` now accept any task type registered in
   `mlr_reflections$task_types`, via the new generics `get_target_batchgetter()` and `encode_prediction()`.
 * New S3 generic `get_batch_constructor()`, which decides how a whole batch of a task is built,

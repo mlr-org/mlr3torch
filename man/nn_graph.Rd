@@ -65,6 +65,7 @@ network(module_1.input = x)
 Other Graph Network:
 \code{\link[=ModelDescriptor]{ModelDescriptor()}},
 \code{\link[=TorchIngressToken]{TorchIngressToken()}},
+\code{\link[=as_learner_torch]{as_learner_torch()}},
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch}},

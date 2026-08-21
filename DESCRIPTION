@@ -150,6 +150,7 @@ Collate:
     'TaskClassif_tiny_imagenet.R'
     'TorchDescriptor.R'
     'TorchOptimizer.R'
+    'as_learner_torch.R'
     'bibentries.R'
     'cache.R'
     'lazy_tensor.R'
