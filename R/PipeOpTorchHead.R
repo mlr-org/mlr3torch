@@ -15,10 +15,10 @@
 #'
 #' @section Supporting Other Task Types:
 #' The output dimension is not hard-coded here: `PipeOpTorchHead` asks the generic
-#' [`output_dim_for()`] how many output neurons the task needs, and \pkg{mlr3torch} implements methods
+#' [`output_dim_for()`] how many output neurons the task needs, and \CRANpkg{mlr3torch} implements methods
 #' for [`TaskClassif`][mlr3::TaskClassif] and [`TaskRegr`][mlr3::TaskRegr].
 #' You can add support to your custom task type by implementing a method for your class.
-#' 
+#'
 #' @details
 #' When the method `$shapes_out()` does not have access to the task, it returns `c(NA, NA)`.
 #' When this [`PipeOp`][mlr3pipelines::PipeOp] is trained however, the model descriptor has the correct output shape.

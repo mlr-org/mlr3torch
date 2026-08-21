@@ -1,5 +1,7 @@
 #' @title Convert to TorchLoss
 #'
+#' @include TorchDescriptor.R
+#'
 #' @description
 #' Converts an object to a [`TorchLoss`].
 #'
@@ -126,6 +128,7 @@ TorchLoss = R6::R6Class("TorchLoss",
     #'   Can have arguments `task` that will be provided when the loss is instantiated.
     #' @param task_types (`character()`)\cr
     #'   The task types supported by this loss.
+    #'   If `NULL` (default), the loss is applicable to `"classif"`, `"regr"` and `"torch"`.
     #' @param param_set ([`ParamSet`][paradox::ParamSet] or `NULL`)\cr
     #'   The parameter set. If `NULL` (default) it is inferred from `torch_loss`.
     #' @template param_id
@@ -138,7 +141,7 @@ TorchLoss = R6::R6Class("TorchLoss",
       self$task_types = if (!is.null(task_types)) {
         assert_subset(task_types, mlr_reflections$task_types$type)
       } else {
-        c("classif", "regr")
+        c("classif", "regr", "torch")
       }
       assert(check_class(torch_loss, "nn_module_generator"), check_class(torch_loss, "function"))
 
@@ -281,7 +284,7 @@ mlr3torch_losses$add("mse", function() {
   p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
   TorchLoss$new(
     torch_loss = torch::nn_mse_loss,
-    task_types = "regr",
+    task_types = c("regr", "torch"),
     param_set = p,
     id = "mse",
     label = "Mean Squared Error",
@@ -294,7 +297,7 @@ mlr3torch_losses$add("l1", function() {
   p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
   TorchLoss$new(
     torch_loss = torch::nn_l1_loss,
-    task_types = "regr",
+    task_types = c("regr", "torch"),
     param_set = p,
     id = "l1",
     label = "Absolute Error",
@@ -317,7 +320,8 @@ mlr3torch_losses$add("cross_entropy", function() {
   )
   TorchLoss$new(
     torch_loss = function(task, ...) {
-      if (task$task_type != "classif") {
+      # a TaskTorch encodes a factor target the same way a multiclass TaskClassif does
+      if (task$task_type %nin% c("classif", "torch")) {
         stopf("Cross entropy loss is only defined for classification tasks, but task is of type '%s'", task$task_type)
       }
       # an explicitly passed `NULL` (as in `t_loss("cross_entropy", class_weight = NULL)`) is kept as a
@@ -340,7 +344,7 @@ mlr3torch_losses$add("cross_entropy", function() {
       }
       invoke(nn_cross_entropy_loss, .args = args)
     },
-    task_types = "classif",
+    task_types = c("classif", "torch"),
     param_set = p,
     id = "cross_entropy",
     label = "Cross Entropy",
@@ -377,3 +381,7 @@ mlr3torch_losses$add("cross_entropy", function() {
 #' binary_ce = loss$generate(tsk("sonar"))
 #' binary_ce
 NULL
+
+loss_placeholder = function() {
+  TorchLoss$new(torch::nn_mse_loss, id = "placeholder", label = "Placeholder Loss")
+}

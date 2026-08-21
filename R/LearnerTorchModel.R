@@ -16,6 +16,8 @@
 #' @template param_loss
 #' @template param_callbacks
 #' @template param_packages
+#' @template param_predict_types
+#' @template param_target_batchgetter
 #' @param feature_types (`NULL` or `character()`)\cr
 #'   The feature types. Defaults to all available feature types.
 #' @param properties (`NULL` or `character()`)\cr
@@ -59,7 +61,9 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(network = NULL, ingress_tokens = NULL, task_type, properties = NULL, optimizer = NULL, loss = NULL,
-      callbacks = list(), packages = character(0), feature_types = NULL) {
+      callbacks = list(), packages = character(0), feature_types = NULL, target_batchgetter = NULL,
+      predict_types = NULL) {
+      private$.target_batchgetter = assert_function(target_batchgetter, args = "data", null.ok = TRUE)
       # we need to serialize here as otherwise encapsulation and parallelization fails
       if (!is.null(network)) {
         private$.network_stored = torch_serialize(assert_class(network, "nn_module"))
@@ -73,7 +77,8 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
         assert_subset(feature_types, mlr_reflections$task_feature_types)
       }
       if (is.null(properties)) {
-        properties = mlr_reflections$learner_properties[[task_type]]
+        # "weights" is opt-in
+        properties = setdiff(mlr_reflections$learner_properties[[task_type]], "weights")
       } else {
         properties = assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
       }
@@ -87,6 +92,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
         properties = properties,
         packages = packages,
         param_set = ps(),
+        predict_types = predict_types,
         feature_types = feature_types,
         jittable = TRUE,
         man = "mlr3torch::mlr_learners_torch_model"
@@ -143,19 +149,22 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       dataset = task_dataset(
         task,
         feature_ingress_tokens = ingress_tokens,
-        target_batchgetter = get_target_batchgetter(task)
+        target_batchgetter = private$.target_batchgetter %??% get_target_batchgetter(task)
       )
     },
+    .target_batchgetter = NULL,
     .network_stored = NULL,
     .network_hash = NULL,
     # set by `PipeOpTorchModel`, see `.network()` above
     .reset_parameters_ = FALSE,
     .additional_phash_input = function() {
-      list(self$properties, self$feature_types, private$.network_hash, self$packages, private$.ingress_tokens_)
+      list(self$properties, self$feature_types, self$predict_types, private$.network_hash,
+        self$packages, private$.ingress_tokens_, private$.target_batchgetter)
      }
   )
 )
 
-#' @include PipeOpTorchIngress.R task_dataset.R
+#' @include PipeOpTorchIngress.R task_dataset.R TorchLoss.R
 register_learner("classif.torch_model", LearnerTorchModel)
 register_learner("regr.torch_model", LearnerTorchModel)
+register_learner("torch.torch_model", LearnerTorchModel, loss = loss_placeholder())

@@ -20,10 +20,17 @@
 
 ## Features
 
+* The task type `"torch"` gained the predict type `"lazy_tensor"`, which hands back the raw output
+  of the network instead of encoding it into a response. Such a prediction does not survive
+  `saveRDS()`, see the *Predicting Tensors* section of `?LearnerTorch`.
+* New method `LearnerTorch$predict_tensor()`, which returns the network's output on a task as a
+  `torch_tensor` rather than as a `Prediction`.
 * `LearnerTorch` and `PipeOpTorchModel` now accept any task type registered in
   `mlr_reflections$task_types`, via the new generics `get_target_batchgetter()` and `encode_prediction()`.
 * New S3 generic `get_batch_constructor()`, which decides how a whole batch of a task is built,
   i.e. both the features `x` and the target `y`.
+* Added support for `TaskTorch` to easily go beyond the regression and classification setting,
+  see the *Custom Learning Problems* article for more information.
 * A network can now return a `list()` of tensors in evaluation mode, which is passed to
   `encode_prediction()` as it is, so a prediction can consist of more than one quantity.
 * New function `pipeop_torch()` that simplifies the creation of `PipeOpTorch` classes.

@@ -4,7 +4,11 @@
 #'
 #' @description
 #' Builds a Torch Learner from a [`ModelDescriptor`] and trains it with the given parameter specification.
-#' The task type must be specified during construction.
+#'
+#' This is `po("torch_model")`, which works on the general-purpose task type of `mlr3torch`, see
+#' [`TaskTorch`].
+#' For classification and regression see [`PipeOpTorchModelClassif`] and [`PipeOpTorchModelRegr`]
+#' respectively.
 #' @template paramset_torchlearner
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` that takes in `ModelDescriptor` during traing and a `Task` of the specified
@@ -20,6 +24,7 @@
 #' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and
 #' its `$train()` method is called on the [`Task`][mlr3::Task] stored in the [`ModelDescriptor`].
 #'
+#' @family PipeOps
 #' @export
 PipeOpTorchModel = R6Class("PipeOpTorchModel",
   inherit = PipeOpLearner,
@@ -27,9 +32,14 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     #' @param task_type (`character(1)`)\cr
-    #'   The task type of the model.
-    initialize = function(task_type, id = "torch_model", param_vals = list()) {
+    #'   The task type of the model. Defaults to `"torch"`.
+    #' @template param_target_batchgetter
+    #' @template param_predict_types
+    initialize = function(task_type = "torch", id = "torch_model", param_vals = list(),
+      target_batchgetter = NULL, predict_types = NULL) {
       private$.task_type = assert_choice(task_type, mlr_reflections$task_types$type)
+      private$.target_batchgetter = target_batchgetter
+      private$.predict_types = predict_types
 
       # loss, optimizer and callbacks are set to special values, that cause
       # them to become fields instead of construction arguments, otherwise we
@@ -39,7 +49,9 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
         loss = LossNone(),
         optimizer = OptimizerNone(),
         callbacks = CallbacksNone(),
-        task_type = task_type
+        task_type = task_type,
+        target_batchgetter = target_batchgetter,
+        predict_types = predict_types
       )
 
       super$initialize(
@@ -98,8 +110,10 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       super$.train(list(md$task))
     },
     .task_type = NULL,
+    .target_batchgetter = NULL,
+    .predict_types = NULL,
     .additional_phash_input = function() {
-      private$.task_type
+      list(private$.task_type, private$.target_batchgetter, private$.predict_types)
     }
   )
 )
@@ -193,3 +207,4 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
 #' @include aaa.R
 register_po("torch_model_regr", PipeOpTorchModelRegr)
 register_po("torch_model_classif", PipeOpTorchModelClassif)
+register_po("torch_model", PipeOpTorchModel)

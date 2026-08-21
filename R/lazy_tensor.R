@@ -192,7 +192,10 @@ as_lazy_tensor.numeric = function(x, ...) { # nolint
 
 #' @export
 as_lazy_tensor.torch_tensor = function(x, ...) { # nolint
+  # named, so that a lazy tensor built from a tensor can be told apart from one that reads its data
+  # on demand: the former is already in memory and may be materialised freely, see `pt_combine()`
   ds = dataset(
+    "in_memory_tensor_dataset",
     initialize = function(x) {
       self$x = x
     },

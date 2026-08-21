@@ -18,14 +18,15 @@ Additional arguments. Not used yet.}
 }
 \description{
 Calculates the output dimension of a neural network for a given task that is expected by
-\pkg{mlr3torch}.
+\CRANpkg{mlr3torch}.
 For classification, this is the number of classes (unless it is a binary classification task,
 where it is 1). For regression, it is 1.
 
-This is an S3 generic and the single place where \pkg{mlr3torch} decides how many output neurons
+This is an S3 generic and the single place where \CRANpkg{mlr3torch} decides how many output neurons
 a task needs: it is what \code{\link{PipeOpTorchHead}} and the \code{\link{LearnerTorch}}s that build their own head
-ask. Adding a method for a new task type is therefore the way to support it, see the
-"Supporting Other Task Types" section of \code{\link{PipeOpTorchHead}}.
+ask, and what an empty prediction of a \code{\link{TaskTorch}} falls back to when the network cannot be run
+on a batch of zero rows. Adding a method for a new task type is therefore the way to support it,
+see the "Supporting Other Task Types" section of \code{\link{PipeOpTorchHead}}.
 }
 \seealso{
 \code{\link{PipeOpTorchHead}}

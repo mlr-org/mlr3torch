@@ -94,6 +94,29 @@
 #' * multi-class classification: The `factor` target variable of a [`TaskClassif`][mlr3::TaskClassif] is a label-encoded
 #'   [`torch_long`][torch::torch_long] with shape `(batch_size)` where the label-encoding goes from `1` to `n_classes`.
 #'
+#' @section Predicting Tensors:
+#' The predict type `"lazy_tensor"`, available for the task type `"torch"`, hands back what the
+#' network produced -- a [`lazy_tensor`] with one element per observation -- instead of asking the
+#' task's `default_encoder` to turn it into a response.
+#' It is how to get at the logits of a classifier or the reconstruction of an autoencoder, and a
+#' task predicted this way needs no encoder at all.
+#' Like every predict type of this task type it is opt-in:
+#' `lrn("torch.module", predict_types = c("response", "lazy_tensor"))`.
+#' It needs a network that returns a single tensor: one element per observation is one tensor per
+#' observation, so a network with more than one head is refused. Predict a `response` and let the
+#' task's `default_encoder` combine the heads instead.
+#'
+#' Two things to know before using it:
+#' * **Such a prediction does not survive [`saveRDS()`][base::saveRDS].** It holds `torch` tensors,
+#'   which are external pointers: saving *succeeds*, and the object then fails with
+#'   *external pointer is not valid* the next time the tensors are touched, in this session or in
+#'   another. This applies to a [`ResampleResult`][mlr3::ResampleResult] holding one as well -- its
+#'   row ids and scores survive, its tensors do not.
+#' * Nothing about it is lazy. A [`lazy_tensor`] built from a tensor holds that tensor, so a
+#'   prediction of this type is the network's output in memory, and `resample()` holds every fold's
+#'   -- combining the folds concatenates them, since lazy tensors from different networks share no
+#'   data descriptor and cannot be concatenated lazily.
+#'
 #' @section Important Runtime Considerations:
 #' There are a few hyperparameters settings that can have a considerable impact on the runtime of the learner.
 #' These include:
@@ -124,6 +147,7 @@
 #'   See [`mlr_reflections$learner_predict_types`][mlr3::mlr_reflections] for available values.
 #'   For regression, the default is `"response"`.
 #'   For classification, this defaults to `"response"` and `"prob"`.
+#'   For the task type `"torch"`, it defaults to `"response"`.
 #'   For other task types, it defaults to all predict types that are registered for the task type.
 #'   To deviate from the defaults, it is necessary to overwrite the private `$.encode_prediction()`
 #'   method, see section *Inheriting*.
@@ -160,11 +184,13 @@
 #' Instead, the `task_type` must be specified as a construction argument.
 #' Any task type that is registered in
 #' [`mlr_reflections$task_types`][mlr3::mlr_reflections] can be used.
-#' Support for a task type that \pkg{mlr3torch} does not know is added by implementing methods for
+#' Support for a task type that \CRANpkg{mlr3torch} does not know is added by implementing methods for
 #' the three S3 generics that hold the task-type-specific behaviour: [`output_dim_for()`] (how many
 #' output neurons the network needs), [`get_target_batchgetter()`] (how the target is turned into a
 #' tensor) and [`encode_prediction()`] (how the network's output is turned back into a prediction).
 #' Such a learner also has to be given a `loss` explicitly.
+#' This class can also be used for custom task types, see [`TaskTorch`] and the
+#' *Custom Learning Problems* article for more information.
 #'
 #' When inheriting from this class, one should overload the following methods:
 #'
@@ -252,6 +278,7 @@ LearnerTorch = R6Class("LearnerTorch",
       predict_types = predict_types %??% switch(task_type,
         regr = "response",
         classif = c("response", "prob"),
+        torch = "response",
         names(mlr_reflections$learner_predict_types[[task_type]])
       )
 
@@ -387,6 +414,35 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals$device = auto_device(param_vals$device)
 
       private$.dataset(task, param_vals)
+    },
+    #' @description
+    #' The raw output of the trained network on a `task`, i.e. what the private
+    #' `$.encode_prediction()` method is handed before it turns it into a
+    #' [`Prediction`][mlr3::Prediction]: the logits of a classifier, the reconstruction of an
+    #' autoencoder, or whatever else the network returns.
+    #' This runs the same path as `$predict()` -- evaluation mode, device placement, batching and
+    #' [`with_no_grad()`][torch::with_no_grad] -- so it is not the same as calling `$network`
+    #' yourself, which leaves all four to you.
+    #' @param task ([`Task`][mlr3::Task])\cr
+    #'   The task to predict on.
+    #' @param row_ids (`integer()` or `NULL`)\cr
+    #'   The rows to predict on. All rows if `NULL` (default).
+    #' @return [`torch_tensor`][torch::torch_tensor], or a `list()` of them for a network that
+    #'   returns more than one, see section *Network Head and Target Encoding*.
+    predict_tensor = function(task, row_ids = NULL) {
+      assert_task(task)
+      if (is.null(self$model)) {
+        stopf("Learner '%s' has not been trained yet, so it has no network to predict with.", self$id)
+      }
+      if (!is.null(row_ids)) {
+        task = task$clone(deep = TRUE)$filter(assert_row_ids(row_ids))
+      }
+      param_vals = self$param_set$get_values(tags = "predict")
+      param_vals$device = auto_device(param_vals$device)
+      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
+        num_interop_threads = param_vals$num_interop_threads, expr = {
+        learner_torch_network_output(self, private, task, param_vals)
+      })
     }
   ),
   active = list(
@@ -406,7 +462,9 @@ LearnerTorch = R6Class("LearnerTorch",
       if (!missing(rhs)) {
         private$.param_set = NULL
         loss = as_torch_loss(rhs, clone = TRUE)
-        assert_choice(self$task_type, loss$task_types)
+        if (self$task_type != "torch") {
+          assert_choice(self$task_type, loss$task_types)
+        }
         private$.loss = loss
         self$packages = unique(c(self$packages, private$.loss$packages))
       }
@@ -539,6 +597,12 @@ LearnerTorch = R6Class("LearnerTorch",
       }
     },
     .train = function(task) {
+      # $train() compares task types but also checks inheritance and any torch learner inherits from
+      # LearnerTorch and LearnerTorch is registered as lerner class for task type "torch" so we need
+      # this additional check here
+      if (task$task_type != self$task_type) {
+        stopf("Learner '%s' is for task type '%s', but task '%s' has task type '%s'.", self$id, self$task_type, task$id, task$task_type) # nolint
+      }
       param_vals = self$param_set$get_values(tags = "train")
       first_row = task$head(1)
       measures = c(normalize_to_list(param_vals$measures_train), normalize_to_list(param_vals$measures_valid))
@@ -586,10 +650,14 @@ LearnerTorch = R6Class("LearnerTorch",
         stopf("Prediction task '%s' is invalid for learner '%s': %s", task$id, self$id, msg)
       }
 
-      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
+      pdata = with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
         num_interop_threads = param_vals$num_interop_threads, expr = {
         learner_torch_predict(self, private, super, task, param_vals)
       })
+      # `mlr3` calls `as_prediction_data()` on this, and dispatches the ground truth on the class
+      # of the task, which a `TaskTorch` is not the right kind of -- see `?TaskTorch`
+      class(pdata) = c("prediction_torch", "list")
+      pdata
     },
     .encode_prediction = function(network_output, task) {
       encode_prediction(
