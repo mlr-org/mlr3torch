@@ -18,15 +18,17 @@ knitr::opts_chunk$set(
 lgr::get_logger("mlr3")$set_threshold("warn")
 ```
 
-This article will show how to use {mlr3torch} for tasks that go beyond the out-of-the-box classification and regression tasks.
+This article will show how to use {mlr3torch} for tasks that go beyond the classification and regression tasks that are supported out of the box.
 This is possible via the generic `TaskTorch`, which allows you to use mlr3torch with arbitrary modeling problems.
-The price of this flexibility are less compatibility checks.
-In 
+The price of this flexibility is fewer compatibility checks and thus more responsibility on the user, see @sec-drawbacks for more information.
+In this article we will first show how to use `TaskTorch` in a multi-label classification problem and then how it can be used for an unsupervised autoencoder.
+
+## Multi-label Classification
 
 As an example, we will train a learner on a multi-label classification problem which consists of $k$ binary prediction problems where multiple labels can be true.
-Below, we generate some synthetic data.
+Below, we generate some synthetic data for it.
 
-```{r custom_task_type-003}
+```{r custom_task_type-002}
 library(mlr3torch)
 library(data.table)
 
@@ -41,80 +43,24 @@ dat[, `:=`(
 ```
 
 Next, we create a `TaskTorch` from the data using `as_task_torch()`.
-Because {mlr3torch} does 
+We also provide a default prediction encoder that describes how the raw torch predictions of learners are converted into a prediction object.
+For our problem, we want to accept both response (class) predictions and probability predictions, and we assume that the network outputs per-class logits.
+Any learner that we create for this task can also deviate from this default encoding.
 
-
-`as_task_torch()` turns this into a task, in the same way that `as_task_classif()` and `as_task_regr()` do for the built-in types.
-The only thing it needs beyond the data is which columns are the target:
-
-```{r custom_task_type-004}
+```{r custom_task_type-003}
 weather_encoder = function(task, network_output, predict_type) {
   prob = as.matrix(nnf_sigmoid(network_output)$cpu())
   colnames(prob) = task$target_names
   list(response = prob > 0.5, prob = if (predict_type == "prob") prob)
 }
-
-tsk_weather = as_task_torch(dat, target = c("sunny", "warm", "windy"), id = "weather",
-  output_dim = function(task) length(task$target_names),
-  default_encoder = weather_encoder
-)
-tsk_weather
 ```
 
-That is the whole task.
-It behaves like any other `mlr3` task -- it has features, targets, row and column roles, and it can be filtered, subset and resampled.
+For more information on what a prediction may hold and how it is tabled, see `?PredictionTorch`.
 
-### What You Have to Specify {#sec-inference}
+The task also carries the measure that `mlr3` falls back to when none is named, because `mlr3torch` cannot know what a sensible default is for a problem it knows nothing about.
+Ours is the *Hamming loss*, the fraction of individual label decisions that are wrong, written as a plain R function and wrapped with `msr_torch()`:
 
-Before `mlr3torch` can train a network on a task it has to know three things: how the target of a batch becomes a tensor, how many output units the network needs, and how the raw output of the network becomes a prediction.
-A `TaskTorch` infers **none** of them.
-
-That is deliberate. The column types of a target say how it is *stored*, not how you want to *model* it: a two-level `factor` could be one logit or two, and `d` numeric columns could be one head of width `d` or `d` separate heads. Guessing would be a modelling decision made on your behalf, so you state all three yourself.
-
-They do not all live in the same place:
-
-| what | who provides it | how |
-| --- | --- | --- |
-| the target tensor `y` of a batch | the **learner** | `target_batchgetter` |
-| the number of output units | the **task** | `output_dim`, read through `output_dim_for()` |
-| how a network output becomes a prediction | the **task** | `default_encoder`, read through `encode_prediction()`, unless the learner overrides it |
-
-The split follows what each one is consumed by.
-What `y` has to look like is dictated by the loss, which belongs to the learner -- cross entropy wants `long` class indices where mean squared error wants `float`, so the same task trained with two losses needs two different target tensors.
-What a prediction looks like is what the task's measures are written against, so it belongs to the task.
-
-Our three `logical` columns are three independent binary decisions, so the network gets three output units:
-
-```{r custom_task_type-005}
-output_dim_for(tsk_weather)
-```
-
-`output_dim` is a `function(task)` rather than a number so that it still holds after the task changes -- a different target column, a `$droplevels()`.
-It is optional: a network that sizes its own output, such as one with several heads of different widths, never asks for it, and only `nn("head")` and modules calling `output_dim_for()` do.
-
-The prediction encoder receives the network's output unchanged, so a network with more than one head is its business too.
-It is also where any consistency check between network and task belongs: a network trained on three target levels emits three columns, and mapping those onto the levels of a task that has since been `$droplevels()`ed would relabel every observation rather than fail.
-
-It is called `default_encoder` because it is a *default*, in the same sense as `default_measure`: it is what a learner uses when it has no idea of its own.
-A `LearnerTorch` subclass may overwrite the private `$.encode_prediction()` method, and then the task's encoder is not consulted at all -- `lrn("classif.tabm")` averages over its ensemble dimension that way, and the `torchvision` learners strip the auxiliary head of an Inception network before handing what is left to the task.
-The predict type `"lazy_tensor"` (@sec-raw-predictions) skips both and gives you the network's output as it is.
-For everything that does not say otherwise -- which is most learners, including `lrn("torch.module")` -- the task decides.
-
-The target tensor is the learner's, and we come to it in @sec-network.
-
-> **Nothing is inferred, including the loss and the measure**
->
-> There is no default loss and no default measure for a `TaskTorch` either: which ones are right depends on what your problem means, so you always state them yourself.
-
-## Scoring {#sec-measure}
-
-A measure for a `TaskTorch` is a plain R function wrapped by `msr_torch()`.
-The function receives whichever of the arguments `truth`, `response`, `prob`, `prediction`, `task`, `learner` and `train_set` it declares, and returns a single number.
-
-What `truth` and `response` look like is the last two columns of the table above.
-For our task `truth` is a `data.table` with one logical column per label and `response` is a logical matrix, so the classic multi-label metric -- the *Hamming loss*, the fraction of individual label decisions that are wrong -- is a one-liner:
-
-```{r custom_task_type-007}
+```{r custom_task_type-004}
 msr_hamming = msr_torch("multilabel.hamming",
   function(truth, response) mean(as.matrix(truth) != response),
   range = c(0, 1), minimize = TRUE
@@ -122,10 +68,105 @@ msr_hamming = msr_torch("multilabel.hamming",
 msr_hamming
 ```
 
+Below, we also specify the output dimension that the head of a network for this task has.
+Note that the output dimension describes a single tensor: a network with more than one head sizes them itself, and a task for such a network simply does not set `output_dim`.
+
+```{r custom_task_type-005}
+tsk_weather = as_task_torch(dat, target = c("sunny", "warm", "windy"), id = "weather",
+  output_dim = function(task) length(task$target_names),
+  default_encoder = weather_encoder,
+  default_measure = msr_hamming
+)
+tsk_weather
+
+tsk_weather$truth(1:5)
+tsk_weather$target_names
+tsk_weather$feature_names
+```
+
+The output dimension for a task can be retrieved as follows:
+
+```{r custom_task_type-006}
+output_dim_for(tsk_weather)
+```
+
+Next, we will create a learner for the task.
+Below, we define the architecture where the output dimension is obtained using `output_dim_for()`.
+
+```{r custom_task_type-007}
+nn_mlp = nn_module("nn_mlp",
+  initialize = function(task, latent) {
+    self$net = nn_sequential(
+      nn_linear(length(task$feature_names), latent), nn_relu(),
+      nn_linear(latent, latent), nn_relu(),
+      nn_linear(latent, output_dim_for(task))
+    )
+  },
+  # the argument name matches the name of the ingress token below
+  forward = function(input) self$net(input)
+)
+```
+
+To turn this into a learner, we additionally need a loss and a way to construct the batches.
+For the features, we use a standard numeric encoder via `ingress_num()`, so we only specify the `target_batchgetter` to also encode the targets numerically.
+The data argument of the batchgetter is `task$data(batch_ids, task$target_names)` and it must return a torch tensor.
+For the loss, we use the binary cross entropy, built from the corresponding torch loss:
+
+```{r custom_task_type-008}
+loss_bce = as_torch_loss(nn_bce_with_logits_loss, id = "bce")
+
+# the loss wants a float tensor of zeros and ones, so that is what the learner builds
+weather_batchgetter = function(data) torch_tensor(1 * as.matrix(data), dtype = torch_float())
+
+lrn_weather = lrn("torch.module",
+  module_generator = nn_mlp,
+  ingress_tokens = list(input = ingress_num()),
+  loss = loss_bce,
+  target_batchgetter = weather_batchgetter,
+  predict_types = c("response", "prob", "lazy_tensor"),
+  # `latent` is an argument of `nn_mlp()`, which makes it a hyperparameter of the learner
+  latent = 32,
+  epochs = 5, batch_size = 32, opt.lr = 0.01
+)
+lrn_weather$predict_type = "prob"
+```
+
+Next, we train the learner on two thirds of the data and make predictions on the remaining observations:
+
+```{r custom_task_type-009}
+split = partition(tsk_weather)
+lrn_weather$train(tsk_weather, split$train)
+pred = lrn_weather$predict(tsk_weather, split$test)
+pred
+```
+
+The prediction is scored like any other.
+Note that a `mlr3::Measure` differs from a `TorchLoss`: it is computed from the encoded prediction, whereas the torch loss operates on the raw network output and the tensor-encoded target.
+
+```{r custom_task_type-010}
+pred$score(msr_hamming)
+```
+
+Of course, we can also resample the learner. Since the task carries a default measure, `$aggregate()` needs no argument:
+
+```{r custom_task_type-011}
+rr = resample(tsk_weather, lrn_weather, rsmp("cv", folds = 3))
+rr$aggregate()
+```
+
+## Scoring {#sec-measure}
+
+A measure for a `TaskTorch` is a plain R function wrapped by `msr_torch()`.
+The function receives whichever of the arguments `truth`, `response`, `prob`, `se`, `lazy_tensor`, `prediction`, `task`, `learner`, `train_set` and `weights` it declares, and returns a single number.
+Asking for anything else is an error, and an argument that this prediction does not have -- `prob` when only a response was predicted, `weights` on a task without a `weights_measure` column -- is not passed at all, so a default you declare for it is what your function sees.
+
+What `truth` and `response` look like is decided by the task and its encoder, not by this class.
+For our task `truth` is a `data.table` with one logical column per label and `response` is a logical matrix, which is why `msr_hamming` above compares them with `as.matrix(truth) != response`.
+
 A measure that consumes probabilities instead only has to say so with `predict_type = "prob"` and declare a `prob` argument.
 The mean binary log-loss over all labels is one example:
 
-```{r custom_task_type-008}
+```{r custom_task_type-012}
 msr_logloss = msr_torch("multilabel.logloss",
   function(truth, prob) {
     eps = 1e-7
@@ -144,47 +185,13 @@ A measure that reaches for the network should therefore ask for the model too, w
 ## Training a Network {#sec-train}
 
 Networks are supplied to `lrn("torch.module")`, the counterpart of `lrn("classif.module")` and `lrn("regr.module")` for the new task type.
-The module generator receives the `task`, so it can size its layers from the task itself -- in particular its output layer, through `output_dim_for()`:
-
-```{r custom_task_type-009}
-nn_mlp = nn_module("nn_mlp",
-  initialize = function(task) {
-    self$net = nn_sequential(
-      nn_linear(length(task$feature_names), 20), nn_relu(),
-      nn_linear(20, 20), nn_relu(),
-      nn_linear(20, output_dim_for(task))
-    )
-  },
-  # the argument name matches the name of the ingress token below
-  forward = function(input) self$net(input)
-)
-```
-
+The module generator receives the `task`, so it can size its layers from the task itself -- in particular its output layer, through `output_dim_for()`.
 The `ingress_tokens` argument says how the *features* enter the network; `ingress_num()` collects all numeric features into one tensor.
-Since the network emits one logit per label, the matching loss is the binary cross entropy, which we have to pass explicitly:
-
-```{r custom_task_type-010}
-loss_bce = TorchLoss$new(nn_bce_with_logits_loss, id = "bce")
-
-# the loss wants a float tensor of zeros and ones, so that is what the learner builds
-weather_batchgetter = function(data) torch_tensor(1 * as.matrix(data), dtype = torch_float())
-
-lrn_weather = lrn("torch.module",
-  module_generator = nn_mlp,
-  ingress_tokens = list(input = ingress_num()),
-  loss = loss_bce,
-  target_batchgetter = weather_batchgetter,
-  # only the task's encoder knows whether probabilities exist, so a `"torch"` learner promises
-  # `"response"` and nothing else until you say otherwise
-  predict_types = c("response", "prob"),
-  epochs = 50, batch_size = 32, opt.lr = 0.01
-)
-lrn_weather$predict_type = "prob"
-```
+Since the network emits one logit per label, the matching loss is the binary cross entropy, which we have to pass explicitly.
 
 From here the learner behaves like any other `mlr3` learner:
 
-```{r custom_task_type-011}
+```{r custom_task_type-013}
 splits = partition(tsk_weather)
 lrn_weather$train(tsk_weather, row_ids = splits$train)
 prediction = lrn_weather$predict(tsk_weather, row_ids = splits$test)
@@ -194,86 +201,35 @@ prediction
 The `truth.*` columns are the ground truth taken from the task, `response` holds what the network predicted, and the `prob.*` columns hold the probabilities we asked for.
 Both of our measures work on it:
 
-```{r custom_task_type-012}
+```{r custom_task_type-014}
 prediction$score(c(msr_hamming, msr_logloss))
 ```
+
+The encoder can also be skipped entirely.
+The predict type `"lazy_tensor"` hands back what the network produced -- here the three logits per observation, before anything turned them into labels or probabilities -- which is why `lrn_weather` was constructed with it among its `predict_types`:
+
+```{r custom_task_type-015}
+lrn_logits = lrn_weather$clone(deep = TRUE)
+lrn_logits$predict_type = "lazy_tensor"
+
+pred_logits = lrn_logits$predict(tsk_weather, row_ids = splits$test)
+pred_logits
+materialize(pred_logits$lazy_tensor, rbind = TRUE)[1:3, ]
+```
+
+@sec-raw-predictions comes back to this predict type and to what you give up by using it.
 
 Resampling works too.
 This is the point at which a hand-written task type would already have needed its `PredictionData` methods, because the predictions of the individual folds have to be combined and subset again:
 
-```{r custom_task_type-013}
+```{r custom_task_type-016}
 rr = resample(tsk_weather, lrn_weather, rsmp("cv", folds = 3))
 rr$aggregate(msr_hamming)
 ```
 
-### What a Prediction Can Hold {#sec-prediction-storage}
+The network does not have to be a module generator: everything in the [Defining an Architecture](pipeop_torch.html) article applies here as well, with `po("torch_model")` as the terminal `PipeOp` for a `TaskTorch`, alongside the `po("torch_model_classif")` and `po("torch_model_regr")` you may already know.
 
-A `PredictionTorch` is deliberately vague about how its parts are stored, because the encoder decides and the encoder is yours.
-The one rule is that the **first dimension indexes the observations**.
-Within that, an element may be an atomic vector, a `matrix()`, an `array()` of any dimensionality, a `data.table` or a `lazy_tensor`:
-
-```{r custom_task_type-013b}
-vapply(as.data.table(prediction), function(x) class(x)[1L], character(1))
-```
-
-`truth` is whatever `tsk_weather$truth()` returns -- a vector for one target, a `data.table` for several, a `lazy_tensor` for a lazy tensor column, and nothing at all for a task without a target.
-`response`, `prob` and `se` are whatever the encoder built.
-The one thing that is refused is a bare `list()`: it is what an encoder produces when it did not manage to build any of the above, and from there on everything -- combining folds, scoring, tabling -- would work observation by observation.
-A prediction that is one tensor per observation belongs in a `lazy_tensor`.
-
-The table above shows the two ways an element reaches `as.data.table()`.
-`prob` becomes one column per label, as it would for a classification prediction.
-Everything else that is wider than one value per observation becomes one cell holding that observation's own array, printed as its shape:
-our `response` is a logical matrix, so each cell is `<array[3]>`.
-That asymmetry is deliberate -- a `prob` column means one fixed thing, whereas the width of a response is a property of the prediction, and flattening the `(n, 3, 224, 224)` reconstruction of an autoencoder over images would give a table with 150528 columns.
-
-One consequence worth knowing: only a response with a single value per observation can report a *missing* prediction, so `prediction$missing` is empty for our matrix response even if the network emitted an `NaN`.
-
-### A Default Measure for the Task {#sec-default-measure}
-
-`rr$aggregate()` without an argument falls back to the default measure of the task type, and `mlr3torch` cannot know what that should be for your problem.
-You can attach one to the task, in which case `$score()` and `$aggregate()` work with no arguments at all:
-
-```{r custom_task_type-014}
-tsk_weather_m = as_task_torch(dat, target = c("sunny", "warm", "windy"), id = "weather",
-  output_dim = function(task) length(task$target_names),
-  default_encoder = weather_encoder,
-  default_measure = msr_hamming)
-
-resample(tsk_weather_m, lrn_weather, rsmp("holdout"))$aggregate()
-```
-
-Without it you get an error telling you to pass a measure explicitly.
-
-### Validation and Early Stopping {#sec-validation}
-
-Custom measures can be used for validation and early stopping exactly like built-in ones.
-Below we hold out 30% of the training data, score it after every epoch, and stop once the Hamming loss has not improved for five epochs:
-
-```{r custom_task_type-015}
-lrn_early = lrn("torch.module",
-  module_generator = nn_mlp,
-  ingress_tokens = list(input = ingress_num()),
-  loss = loss_bce,
-  target_batchgetter = weather_batchgetter,
-  epochs = 100, batch_size = 32, opt.lr = 0.01,
-  patience = 5, measures_valid = msr_hamming
-)
-lrn_early$validate = 0.3
-
-lrn_early$train(tsk_weather)
-lrn_early$internal_valid_scores
-lrn_early$internal_tuned_values
-```
-
-Training stopped well before the configured 100 epochs, and `$internal_tuned_values` reports the epoch that `mlr3tuning` would use for internal tuning.
-
-## Building the Network as a Graph {#sec-graph}
-
-Everything in the [Defining an Architecture](pipeop_torch.html) article applies here as well.
-The terminal `PipeOp` for a `TaskTorch` is `po("torch_model")`, alongside the `po("torch_model_classif")` and `po("torch_model_regr")` you may already know:
-
-```{r custom_task_type-016}
+```{r custom_task_type-017}
 architecture = po("torch_ingress_num") %>>%
   nn("linear_1", out_features = 20) %>>%
   nn("relu_1") %>>%
@@ -293,50 +249,36 @@ glrn_weather$predict(tsk_weather, row_ids = splits$test)$score(msr_hamming)
 `nn("head")` sized its output layer through `output_dim_for()` and the resulting learner decoded its predictions through the task's prediction encoder.
 Neither of them knows anything about multi-label classification.
 
-## The Same Task, a Different Target Encoding {#sec-override}
+### Validation and Early Stopping {#sec-validation}
 
-Because the target tensor belongs to the learner, the same task can be trained two different ways without touching the task.
-Suppose we want to treat a single `factor` target as a regression onto one-hot encoded labels rather than as multi-class classification.
-
-```{r custom_task_type-017}
-iris_dt = as.data.table(iris)
-iris_levels = levels(iris_dt$Species)
-
-tsk_iris = as_task_torch(iris_dt, target = "Species", id = "iris",
-  output_dim = function(task) length(iris_levels),
-  default_encoder = function(task, network_output, predict_type) {
-    idx = as.integer(network_output$argmax(dim = 2L)$cpu())
-    list(response = factor(idx, levels = seq_along(iris_levels), labels = iris_levels))
-  }
-)
-```
-
-The task says the network has three outputs and that the largest of them names the predicted class.
-Whether those three numbers are logits trained with cross entropy, or one-hot regression targets trained with mean squared error, is the learner's decision:
+Custom measures can be used for validation and early stopping exactly like built-in ones.
+Below we hold out 30% of the training data, score it after every epoch, and stop once the Hamming loss has not improved for five epochs:
 
 ```{r custom_task_type-018}
-lrn_onehot = lrn("torch.module",
+lrn_early = lrn("torch.module",
   module_generator = nn_mlp,
   ingress_tokens = list(input = ingress_num()),
-  loss = t_loss("mse"),
-  target_batchgetter = function(data) {
-    torch_tensor(1 * model.matrix(~ 0 + data[[1L]]), dtype = torch_float())
-  },
-  epochs = 30, batch_size = 32, opt.lr = 0.05
+  loss = loss_bce,
+  target_batchgetter = weather_batchgetter,
+  latent = 32,
+  epochs = 100, batch_size = 32, opt.lr = 0.01,
+  patience = 5, measures_valid = msr_hamming
 )
+lrn_early$validate = 0.3
 
-lrn_onehot$train(tsk_iris)
-lrn_onehot$predict(tsk_iris)$score(msr_torch("acc", function(truth, response) mean(truth == response)))
+lrn_early$train(tsk_weather)
+lrn_early$internal_valid_scores
+lrn_early$internal_tuned_values
 ```
 
-Swapping in a learner with `loss = t_loss("cross_entropy")` and a `target_batchgetter` returning class indices trains the same task as ordinary multi-class classification, and both produce the same kind of prediction, because the task decides that.
+Training stopped well before the configured 100 epochs, and `$internal_tuned_values` reports the epoch that `mlr3tuning` would use for internal tuning.
 
-## Tasks without a Target {#sec-unsupervised}
+## A Simple Autoencoder {#sec-unsupervised}
 
 A `TaskTorch` is supervised or unsupervised depending only on whether you gave it target columns.
 Nothing beyond that is assumed about the structure of the problem.
 
-A task with no targets has no target element in its batches at all, so the loss is called as `loss(y_hat)`, with no second argument at all.
+A task with no targets has no target element in its batches at all, so the loss is called as `loss(y_hat)`, with no second argument.
 
 If the target of a batch is a function of its *input* -- an autoencoder reconstructing its input, a denoising or masked objective, contrastive pretraining -- then the learner's `target_batchgetter` may declare an `x` argument, which receives the feature tensors of the batch.
 An autoencoder over the numeric features of `iris` is then:
@@ -405,7 +347,7 @@ resample(tsk_ae, lrn_ae, rsmp("cv", folds = 3))$aggregate(msr_recon)
 The encoder above exists to turn the network's output into something a measure can be written against.
 When the output *is* what you want, the predict type `"lazy_tensor"` hands it over directly, and the task then needs no `default_encoder` at all:
 
-```{r custom_task_type-022b}
+```{r custom_task_type-023}
 lrn_raw = lrn_ae$clone(deep = TRUE)
 lrn_raw$predict_type = "lazy_tensor"
 
@@ -414,17 +356,17 @@ pred_raw
 ```
 
 One element per observation, holding that observation's reconstruction.
-A network with more than one head gives you one such column per head, named after the heads.
+This predict type needs a network that returns a single tensor -- one element per observation is one tensor per observation, so there is no room for a second head.
 `materialize()` turns them back into a tensor:
 
-```{r custom_task_type-022c}
+```{r custom_task_type-024}
 reconstruction = materialize(pred_raw$lazy_tensor, rbind = TRUE)
 reconstruction$shape
 ```
 
 It is the same network output the encoder saw, just not encoded into anything:
 
-```{r custom_task_type-022d}
+```{r custom_task_type-025}
 encoded = lrn_ae$predict(tsk_ae)$response
 all.equal(as.matrix(reconstruction$cpu()), unname(encoded), tolerance = 1e-6)
 ```
@@ -435,19 +377,20 @@ Keep the encoder for anything you want to store, and reach for `"lazy_tensor"` w
 
 The latent codes -- arguably the more interesting output of an autoencoder -- are not a prediction at all, and are available through the trained network:
 
-```{r custom_task_type-023}
+```{r custom_task_type-026}
 network = lrn_ae$network
 network$eval()
 x = torch_tensor(as.matrix(tsk_ae$data(rows = 1:5)), dtype = torch_float())
 as.matrix(with_no_grad(network$encoder(x)))
 ```
 
-## What You Give Up {#sec-limits}
+## Drawbacks of `TaskTorch` {#sec-drawbacks}
+
 
 All of this convenience comes from one decision: every `TaskTorch` has the same task type, `"torch"`.
 `mlr3` therefore cannot tell one custom problem from another.
 
-```{r custom_task_type-024}
+```{r custom_task_type-027}
 tsk_weather$task_type
 tsk_ae$task_type
 ```
@@ -460,47 +403,28 @@ The consequences are worth being explicit about:
 * Encapsulation has nothing to fall back to. `mlr3` requires a fallback learner for `encapsulate = "evaluate"` or `"callr"` and looks one up by task type; nothing is registered for `"torch"`, so `resample(task, learner, resampling, encapsulate = "evaluate")` errors with *Could not find default fallback learner* instead of carrying on past a failing fold. Pass a fallback of your own to `learner$encapsulate()` if you need one.
 * Not every `PipeOp` accepts a `TaskTorch`, see below.
 
-### Which PipeOps You Can Use {#sec-pipeops}
+## Summary
 
-A `PipeOp` declares on its input channel which task class it takes, and a `TaskTorch` is a `Task` but neither a `TaskClassif`, a `TaskRegr` nor a `TaskSupervised`.
-Operators asking for one of those refuse it with a type mismatch rather than a confusing error later:
+Before `mlr3torch` can train a network on a task it has to know three things, and a `TaskTorch` infers **none** of them:
 
-```{r custom_task_type-024b, error = TRUE}
-po("encodeimpact")$train(list(tsk_weather))
-```
+| what | who provides it | how |
+| --- | --- | --- |
+| the target tensor `y` of a batch | the **learner** | `target_batchgetter` |
+| the number of output units | the **task** | `output_dim`, read through `output_dim_for()` |
+| how a network output becomes a prediction | the **task** | `default_encoder`, read through `encode_prediction()` |
 
-That rules out the target encoders -- `po("encodeimpact")`, `po("encodelmer")`, `po("vtreat")` -- and the classification-specific operators such as `po("smote")` and `po("classbalancing")`.
-You can list them yourself:
+Nothing is guessed because the column types of a target say how it is *stored*, not how you want to *model* it: a two-level `factor` could be one logit or two, and `d` numeric columns could be one head of width `d` or `d` separate heads.
 
-```{r custom_task_type-024c}
-keys = mlr3pipelines::mlr_pipeops$keys()
-Filter(function(key) {
-  types = tryCatch(unique(po(key)$input$train), error = function(e) character())
-  any(types %in% c("TaskClassif", "TaskRegr", "TaskSupervised"))
-}, keys)
-```
+The split between task and learner follows what each piece is consumed by.
+What `y` has to look like is dictated by the loss, which belongs to the learner -- cross entropy wants `long` class indices where mean squared error wants `float`, so the same task trained with two losses needs two different target tensors.
+What a prediction looks like is what the task's measures are written against, so it belongs to the task.
 
-Everything declaring a plain `Task` works, which covers what you usually want in front of a network -- `po("scale")`, `po("pca")`, `po("encode")`, `po("removeconstants")` -- and all of `mlr3torch`'s own preprocessing operators:
+`output_dim` is a `function(task)` rather than a number so that it still holds after the task changes -- a different target column, a `$droplevels()`.
+It is also optional: only `nn("head")` and modules that call `output_dim_for()` themselves ask for it, so a network that sizes its own output never needs it.
 
-```{r custom_task_type-024d}
-po("scale")$train(list(tsk_weather))[[1L]]
-```
+`default_encoder` is a *default* in the same sense as `default_measure`: it is what a learner uses when it has none of its own.
+It receives the network's output unchanged, which makes a network with more than one head its business too, and it is where a consistency check between network and task belongs -- a network trained on three target levels emits three columns, and mapping those onto the levels of a task that has since been `$droplevels()`ed would relabel every observation rather than fail.
+A `LearnerTorch` subclass may overwrite the private `$.encode_prediction()` method and ignore the task's encoder entirely; `lrn("classif.tabm")` averages over its ensemble dimension that way, and the `torchvision` learners strip the auxiliary head of an Inception network first.
+The predict type `"lazy_tensor"` (@sec-raw-predictions) skips the encoding altogether.
 
-One caveat if you write your own preprocessing operator: `PipeOpTaskPreproc` passes the target to `.train_dt()` only for a `TaskSupervised`, so on a `TaskTorch` your `.train_dt()` is called without it.
-
-> **When to write a real task type instead**
->
-> If your learning problem is going into a package that other people depend on, add a proper task type to `mlr3` rather than using `TaskTorch`: a `Task` class, a `Prediction` class with its `PredictionData` methods, a `Measure`, entries in `mlr_reflections`, and methods for the `output_dim_for()`, `get_target_batchgetter()` and `encode_prediction()` generics.
-> That is what `mlr3proba` does for survival analysis.
-> You get real type checking, dictionary entries, and channel typing in `mlr3pipelines` -- at a cost of a few hundred lines instead of five.
-
-`TaskTorch` is for the stage before that: exploring a problem, running an experiment, or trying an architecture on something unusual without committing to an API.
-
-## Conclusion {#sec-conclusion}
-
-In this article we trained networks on two problems that `mlr3torch` has no built-in support for -- multi-label classification and an autoencoder -- without adding a task type to `mlr3`.
-
-`as_task_torch()` builds a task from any number of target columns, or none at all. You state the output dimension and the prediction encoding on the task and the target tensor on the learner; nothing is inferred from the data.
-Each of the three can be overridden on the task, and the target encoding can additionally be overridden on the learner.
-`msr_torch()` turns a plain R function into a measure.
-Everything that is a modelling decision -- the loss and the measure -- you state yourself, because those do not follow from the data.
+The loss and the measure are not inferred either, for the same reason: which ones are right depends on what your problem means, so you state them yourself.

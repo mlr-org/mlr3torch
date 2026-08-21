@@ -616,10 +616,7 @@ test_that("every storage an element can have is subset by observation", {
 })
 
 test_that("the lazy_tensor predict type hands back the network output", {
-  d = tt_data(20L)
-  d$y = rnorm(nrow(d))
-  # no `default_encoder`: this predict type never asks the task how to encode anything
-  task = as_task_torch(d, target = "y", id = "raw", output_dim = function(task) 1L)
+  task = tt_task_raw()
   learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
 
   # it is opt-in, like every predict type of this task type
@@ -650,9 +647,7 @@ test_that("the lazy_tensor predict type hands back the network output", {
 })
 
 test_that("lazy_tensor predictions of different folds are combined", {
-  d = tt_data(20L)
-  d$y = rnorm(nrow(d))
-  task = as_task_torch(d, target = "y", id = "raw", output_dim = function(task) 1L)
+  task = tt_task_raw()
   learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
   learner$predict_type = "lazy_tensor"
 
@@ -691,56 +686,39 @@ test_that("lazy_tensor predictions of different folds are combined", {
   expect_length(c(empty, pred$data)$lazy_tensor, task$nrow)
 })
 
-test_that("a lazy_tensor prediction of a two-head network is one column per head", {
+test_that("the lazy_tensor predict type needs a network with a single output", {
   task = tt_task_2head()
   learner = tt_learner(tt_loss_2head(), module_generator = tt_module_2head,
     predict_types = c("response", "lazy_tensor"))
   learner$predict_type = "lazy_tensor"
   learner$train(task)
-  pred = learner$predict(task)
 
-  # one `lazy_tensor` per head, so that the prediction is still one row per observation
-  expect_data_table(pred$lazy_tensor, nrows = task$nrow, ncols = 2L)
-  expect_names(names(pred$lazy_tensor), identical.to = c("m", "s"))
-  expect_class(pred$lazy_tensor$m, "lazy_tensor")
+  # one element per observation is one tensor per observation, so there is no room for a second head
+  expect_error(learner$predict(task), "cannot be one `lazy_tensor`")
+})
 
-  # it is what the network produced, head by head
-  tensors = learner$predict_tensor(task)
-  for (head in c("m", "s")) {
-    expect_equal(
-      as.numeric(as.matrix(materialize(pred$lazy_tensor[[head]], rbind = TRUE)$cpu())),
-      as.numeric(as.matrix(tensors[[head]]$cpu()))
-    )
-  }
+test_that("the lazy_tensor predict type can be scored during training", {
+  task = tt_task_raw(30L)
+  measure = msr_torch("ltnorm", function(lazy_tensor) {
+    as.numeric(materialize(lazy_tensor, rbind = TRUE)$pow(2)$mean()$cpu())
+  }, predict_type = "lazy_tensor", range = c(0, Inf), minimize = TRUE)
 
-  # ... and `as.data.table()` spreads it, the way a `data.table` truth spreads
-  expect_names(names(as.data.table(pred)),
-    must.include = c("lazy_tensor.m", "lazy_tensor.s"))
+  learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"),
+    measures_train = measure, measures_valid = measure, patience = 2L, epochs = 3L)
+  learner$predict_type = "lazy_tensor"
+  learner$validate = 0.3
+  learner$train(task)
 
-  # combining keeps every row with the values of its own fold, head-wise
-  parts = c(learner$predict(task, row_ids = 11:20)$data, learner$predict(task, row_ids = 1:10)$data)
-  expect_data_table(parts$lazy_tensor, nrows = task$nrow, ncols = 2L)
-  ord = match(task$row_ids, parts$row_ids)
-  expect_equal(
-    as.numeric(as.matrix(materialize(parts$lazy_tensor$m[ord], rbind = TRUE)$cpu())),
-    as.numeric(as.matrix(materialize(pred$lazy_tensor$m, rbind = TRUE)$cpu()))
-  )
-
-  # an empty prediction agrees on the heads, so it combines with a real one
-  empty = create_empty_prediction_data(task, learner)
-  expect_data_table(empty$lazy_tensor, nrows = 0L, ncols = 2L)
-  expect_length(c(empty, pred$data)$row_ids, task$nrow)
-
-  pred$filter(task$row_ids[1:5])
-  expect_data_table(pred$lazy_tensor, nrows = 5L, ncols = 2L)
+  # a real number, not the `NaN` of a measure whose predict type the prediction never had -- which
+  # is also what early stopping and internal tuning read, and a `NaN` there tunes `epochs` to 1
+  expect_number(learner$internal_valid_scores$ltnorm, lower = 0)
+  expect_number(learner$internal_tuned_values$epochs, lower = 1)
 })
 
 test_that("a lazy_tensor prediction does not survive saveRDS", {
   # documented in the *Predicting Tensors* section of `?LearnerTorch`: saving succeeds and the
   # tensors are dangling pointers afterwards, so this pins the behaviour we tell users about
-  d = tt_data(20L)
-  d$y = rnorm(nrow(d))
-  task = as_task_torch(d, target = "y", id = "raw", output_dim = function(task) 1L)
+  task = tt_task_raw()
   learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
   learner$predict_type = "lazy_tensor"
   rr = resample(task, learner, rsmp("holdout"))

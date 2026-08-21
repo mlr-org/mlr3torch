@@ -17,6 +17,19 @@ test_that("a measure declares what it asks for", {
     c("requires_task", "requires_learner", "requires_train_set")
   )
 
+  # the `obs_loss` is scored through the same arguments, so it declares them too
+  expect_set_equal(
+    msr_torch("c", function(truth) 1, obs_loss = function(truth, learner, weights) 1)$properties,
+    c("obs_loss", "requires_learner", "weights")
+  )
+
+  # what the caller declares is added to what is derived, rather than replaced -- a measure reading
+  # `learner$network` is meant to be written exactly like this, see `?msr_torch`
+  expect_set_equal(
+    msr_torch("d", function(truth, learner) 1, properties = "requires_model")$properties,
+    c("requires_learner", "requires_model")
+  )
+
   # the arguments actually arrive, which resample() is what provides them
   d = tt_data(40L)
   d$y = rnorm(nrow(d))
@@ -187,6 +200,47 @@ test_that("a measure can be scored with observation weights", {
   shuffled = learner$predict(task, row_ids = rev(task$row_ids))
   expect_equal(unname(shuffled$score(weighted, task = task)),
     unname(pred$score(weighted, task = task)))
+})
+
+test_that("a measure respects use_weights", {
+  d = tt_data(40L)
+  d$a = d$x1 > 0
+  d$b = d$x2 > 0
+  d$w = c(rep(0, 20L), rep(2, 20L))
+  task = tt_task(d, target = c("a", "b"), id = "w")
+  task$set_col_roles("w", "weights_measure")
+
+  learner = tt_learner(tt_loss_bce())
+  learner$train(task)
+  pred = learner$predict(task)
+  errs = rowMeans(as.matrix(pred$truth) != pred$response)
+
+  # `mlr3` hands over the weights or `NULL`, depending on this switch, so a measure taking them
+  # from the prediction itself would score the weighted number either way
+  weighted = msr_torch("wham", function(truth, response, weights = rep(1, length(errs))) {
+    weighted.mean(rowMeans(as.matrix(truth) != response), weights)
+  }, range = c(0, 1), obs_loss = function(truth, response, weights = rep(1, NROW(truth))) {
+    weights * rowMeans(as.matrix(truth) != response)
+  })
+  expect_equal(weighted$use_weights, "use")
+  expect_equal(unname(pred$score(weighted, task = task)), mean(errs[pred$row_ids > 20L]))
+  expect_equal(pred$obs_loss(weighted)$wham, d$w[pred$row_ids] * errs)
+
+  weighted$use_weights = "ignore"
+  expect_equal(unname(pred$score(weighted, task = task)), mean(errs))
+  expect_equal(pred$obs_loss(weighted)$wham, errs)
+
+  # ... and a function that cannot do without them says so, rather than scoring `sum(x * NULL)`
+  strict = msr_torch("strict", function(truth, response, weights) sum(weights), range = c(0, Inf))
+  strict$use_weights = "ignore"
+  expect_error(pred$score(strict, task = task), "asks for `weights` without a default")
+
+  # the same for a task that has no weights to begin with, which the trained network can predict
+  # as well -- the weights column was never a feature
+  strict$use_weights = "use"
+  unweighted = tt_task(d[, !"w"], target = c("a", "b"), id = "unweighted")
+  expect_error(learner$predict(unweighted)$score(strict, task = unweighted),
+    "asks for `weights` without a default")
 })
 
 test_that("the default measure of a task is used by aggregate()", {

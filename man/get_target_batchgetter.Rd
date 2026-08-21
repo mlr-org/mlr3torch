@@ -14,13 +14,15 @@ The task.}
 Additional arguments. Not used yet.}
 }
 \value{
-\verb{function(data)} or \verb{function(data, x)}
+\verb{function(data)}, \verb{function(data, x)}, or \code{NULL} for a task with no target
 }
 \description{
 Returns the function that converts the target column(s) of a \code{task} into the target tensor
 \code{y} of a batch, i.e. the tensor that the loss is applied to.
 The returned function takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}}
 containing only the target column(s), and returns a \code{\link[torch:torch_tensor]{torch_tensor}}.
+It is \code{NULL} for a task with no target at all, whose batches have no \code{y} element and whose loss
+is called as \code{loss(y_hat)}.
 
 For the target encodings of the built-in task types, see section
 \emph{Network Head and Target Encoding} of \code{\link{LearnerTorch}}.

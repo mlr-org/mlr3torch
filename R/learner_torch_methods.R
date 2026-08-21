@@ -23,29 +23,27 @@ learner_torch_network_output = function(self, private, task, param_vals) {
 
 learner_torch_predict = function(self, private, super, task, param_vals) {
   network_output = learner_torch_network_output(self, private, task, param_vals)
-  if (self$predict_type == "lazy_tensor") {
+  encode_network_output(network_output, task, self$predict_type, private$.encode_prediction)
+}
+
+# Turns the network's output into the elements of a prediction. Shared by predicting and by the
+# measures scored during training, so that a score during training is built exactly the way
+# predicting builds it -- they disagreed before, and a `lazy_tensor` measure could never be scored.
+encode_network_output = function(network_output, task, predict_type, encoder) {
+  if (predict_type == "lazy_tensor") {
     return(list(lazy_tensor = as_prediction_lazy_tensor(network_output)))
   }
-  check_encoded_prediction(private$.encode_prediction(network_output = network_output, task = task),
-    task)
+  check_encoded_prediction(encoder(network_output = network_output, task = task), task)
 }
 
-# The `"lazy_tensor"` predict type hands the network's output back as it is. A network with more
-# than one head produces one `lazy_tensor` per head, kept in a `data.table` so that the prediction
-# is still one row per observation; `as.data.table()` spreads it into `lazy_tensor.<head>` columns.
+# The `"lazy_tensor"` predict type hands the network's output back as it is, which a `lazy_tensor`
+# can only be for a network that returns a single tensor: one element per observation is one tensor
+# per observation, and there is no room for a second one.
 as_prediction_lazy_tensor = function(network_output) {
-  if (!is.list(network_output)) {
-    return(as_lazy_tensor(network_output))
+  if (!inherits(network_output, "torch_tensor")) {
+    stopf("The `\"lazy_tensor\"` predict type hands back what the network produced, but this network returned a `list()` of %i tensors, which cannot be one `lazy_tensor`. Predict a `response` and let the task's `default_encoder` combine the heads instead.", length(network_output)) # nolint
   }
-  as.data.table(set_names(lapply(network_output, as_lazy_tensor), head_names(network_output)))
-}
-
-# The heads of a network may be unnamed, but the columns of a prediction cannot be.
-head_names = function(network_output) {
-  nms = names2(network_output)
-  unnamed = is.na(nms) | !nzchar(nms)
-  nms[unnamed] = paste0("output_", which(unnamed))
-  make.unique(nms)
+  as_lazy_tensor(network_output)
 }
 
 # What the prediction encoder returned has to be a named `list()` of prediction elements. A bare
@@ -54,8 +52,7 @@ head_names = function(network_output) {
 # `cannot coerce type 'externalptr'` or `attempt to set an attribute on NULL`, with nothing in the
 # message naming the task or the encoder.
 check_encoded_prediction = function(encoded, task) {
-  ok = is.list(encoded) && !is.data.frame(encoded) &&
-    (!length(encoded) || test_names(names2(encoded), type = "unique"))
+  ok = is.list(encoded) && !is.data.frame(encoded) && test_names(names2(encoded), type = "unique")
   if (!ok) {
     stopf("The prediction encoding of task '%s' returned %s, but it has to be a named `list()` with elements such as 'response', 'prob' or 'se'. The encoding is the task's `default_encoder`, unless the learner overwrites the private `.encode_prediction()` method.", task$id, if (is.null(encoded)) "`NULL`" else sprintf("an object of class '%s'", class(encoded)[[1L]])) # nolint
   }
@@ -275,7 +272,8 @@ train_loop = function(ctx, cbs) {
         measures = ctx$measures_train,
         task = ctx$task_train,
         row_ids = ctx$task_train$row_ids[unlist(indices)],
-        prediction_encoder = ctx$prediction_encoder
+        prediction_encoder = ctx$prediction_encoder,
+        predict_type = ctx$learner$predict_type
       )
     }
 
@@ -289,7 +287,8 @@ train_loop = function(ctx, cbs) {
         task = ctx$task_valid,
         row_ids = ctx$task_valid$row_ids,
         prediction_encoder = ctx$prediction_encoder,
-        train_set = ctx$task_train$row_roles$use
+        train_set = ctx$task_train$row_roles$use,
+        predict_type = ctx$learner$predict_type
       )
       ctx$network$train()
       call("on_valid_end")
@@ -479,11 +478,10 @@ torch_network_predict = function(network, loader, device) {
 # The network output for a task without rows, i.e. what the encoder is handed when `mlr3` asks for
 # an empty prediction. Whether the network returns a tensor or a `list()` of them, and how wide each
 # of them is, is known to the network alone, so it is run on an empty batch rather than guessed.
-# Returns `NULL` when there is nothing to ask -- a learner that has no model -- or when the network
-# cannot be run on zero rows but the task's `output_dim` can stand in for it.
+# A learner without a model has nothing to ask, and falls back to the task's `output_dim`.
 zero_row_network_output = function(learner, task) {
   if (is.null(learner$model)) {
-    return(NULL)
+    return(torch_zeros(0L, output_dim_for(task)))
   }
   tryCatch({
     param_vals = learner$param_set$get_values(tags = "predict")
@@ -510,7 +508,7 @@ zero_row_network_output = function(learner, task) {
     }
     # A single tensor with `output_dim` columns is what the encoder is handed for a task that says
     # how wide its network is, so a network that dislikes empty batches keeps working.
-    NULL
+    torch_zeros(0L, output_dim_for(task))
   })
 }
 
@@ -641,13 +639,12 @@ encode_prediction.TaskRegr = function(task, network_output, predict_type, ...) {
 
 
 measure_prediction = function(network_output, measures, task, row_ids, prediction_encoder,
-  train_set = task$row_roles$use) {
+  train_set = task$row_roles$use, predict_type) {
   if (!length(measures)) {
     return(structure(list(), names = character(0)))
   }
 
-  prediction = check_encoded_prediction(
-    prediction_encoder(network_output = network_output, task = task), task)
+  prediction = encode_network_output(network_output, task, predict_type, prediction_encoder)
   # tagged at the point of use rather than in `.encode_prediction()`, which a learner may overwrite
   # -- an overwritten one would silently produce a prediction without a truth
   class(prediction) = c("prediction_torch", "list")

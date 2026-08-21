@@ -261,8 +261,9 @@ order_named_args = function(f, l) {
 #'
 #' This is an S3 generic and the single place where \CRANpkg{mlr3torch} decides how many output neurons
 #' a task needs: it is what [`PipeOpTorchHead`] and the [`LearnerTorch`]s that build their own head
-#' ask. Adding a method for a new task type is therefore the way to support it, see the
-#' "Supporting Other Task Types" section of [`PipeOpTorchHead`].
+#' ask, and what an empty prediction of a [`TaskTorch`] falls back to when the network cannot be run
+#' on a batch of zero rows. Adding a method for a new task type is therefore the way to support it,
+#' see the "Supporting Other Task Types" section of [`PipeOpTorchHead`].
 #'
 #' @param x (any)\cr
 #'   The task.

@@ -25,7 +25,12 @@
 #'   private `$.encode_prediction` method.
 #'   See [`LearnerTorch`] for more information.
 #' @param default_measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
-#'   The default measure of the task, which is e.g. used in `prediction$score()`.
+#'   The default measure of the task, i.e. what [`msr("torch.default")`][mlr_measures_torch.default]
+#'   resolves to.
+#'   `rr$score()` and `rr$aggregate()` of a [`ResampleResult`][mlr3::ResampleResult] use it without
+#'   being told, and `prediction$score(msr("torch.default"), task = task)` uses it when the task is
+#'   passed along -- a [`Prediction`][mlr3::Prediction] carries none, so `prediction$score()` on its
+#'   own cannot resolve it.
 #'
 #' @family Task
 #' @export

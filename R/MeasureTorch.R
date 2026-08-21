@@ -66,11 +66,17 @@ MeasureTorch = R6Class("MeasureTorch",
   private = list(
     .fun = NULL,
     .obs_loss_fun = NULL,
-    .score = function(prediction, task = NULL, learner = NULL, train_set = NULL, ...) {
-      mt_invoke(private$.fun, prediction, task = task, learner = learner, train_set = train_set)
+    .score = function(prediction, task = NULL, learner = NULL, train_set = NULL, weights = NULL,
+      ...) {
+      # `mlr3` passes the weights of the prediction, or `NULL` if `$use_weights` says to ignore
+      # them, so they are taken from here rather than from the prediction
+      mt_invoke(private$.fun, prediction, self$id, task = task, learner = learner,
+        train_set = train_set, weights = weights)
     },
     .obs_loss = function(prediction, task = NULL, learner = NULL, ...) {
-      loss = mt_invoke(private$.obs_loss_fun, prediction, task = task, learner = learner)
+      # `Measure$obs_loss()` passes no weights, so `$use_weights` is honoured here instead
+      loss = mt_invoke(private$.obs_loss_fun, prediction, self$id, task = task, learner = learner,
+        weights = if (self$use_weights == "use") prediction$weights)
       assert_numeric(loss, .var.name = sprintf("value of the `obs_loss` of measure '%s'", self$id))
       # `mlr3` assigns this with `data.table::set()`, which recycles: a function that reduced when
       # it should not have -- `mean()` where `rowMeans()` was meant -- would otherwise fill the
@@ -88,18 +94,23 @@ MeasureTorch = R6Class("MeasureTorch",
 mt_args = c("truth", "response", "prob", "se", "lazy_tensor", "prediction", "task", "learner",
   "train_set", "weights")
 
-mt_invoke = function(fun, prediction, task = NULL, learner = NULL, train_set = NULL) {
+mt_invoke = function(fun, prediction, id, task = NULL, learner = NULL, train_set = NULL,
+  weights = NULL) {
   args = list(truth = prediction$truth, response = prediction$response,
     prob = prediction$prob, se = prediction$se, lazy_tensor = prediction$lazy_tensor,
     task = task, learner = learner, train_set = train_set, prediction = prediction,
-    weights = prediction$weights)
-  formals = formals(fun)
-  args = args[intersect(names(formals), names(args))]
+    weights = weights)
+  args = args[intersect(names(formals(fun)), names(args))]
+  required = required_args(fun)
+  # A function asking for `weights` without a default cannot be called without them, and passing
+  # `NULL` is what makes that silent: `sum(err * NULL) / n` is 0, a perfect score for a loss.
+  if (is.null(weights) && "weights" %chin% required) {
+    stopf("Measure '%s' asks for `weights` without a default, but there are none: the task has no `weights_measure` column, or the measure's `$use_weights` is \"ignore\". Give the argument a default, such as `weights = rep(1, length(truth))`, to also score without them.", id) # nolint
+  }
   # An argument that is not there -- no `weights_measure` column, no `prob` -- is `NULL` here, and
   # passing it explicitly would override a default the function gave it. Drop those, so that
   # `function(truth, response, weights = 1)` sees its own default rather than `NULL`.
-  optional = map_lgl(formals[names(args)], function(default) !identical(default, quote(expr = )))
-  invoke(fun, .args = args[!(map_lgl(args, is.null) & optional)])
+  invoke(fun, .args = args[!(map_lgl(args, is.null) & names(args) %nin% required)])
 }
 
 #' @title Create a Measure for a Generic Torch Task

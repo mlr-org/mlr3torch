@@ -328,6 +328,8 @@ get_batch_constructor.default = function(task, feature_ingress_tokens, target_ba
 #' `y` of a batch, i.e. the tensor that the loss is applied to.
 #' The returned function takes an argument `data`, a [`data.table`][data.table::data.table]
 #' containing only the target column(s), and returns a [`torch_tensor`][torch::torch_tensor].
+#' It is `NULL` for a task with no target at all, whose batches have no `y` element and whose loss
+#' is called as `loss(y_hat)`.
 #'
 #' For the target encodings of the built-in task types, see section
 #' *Network Head and Target Encoding* of [`LearnerTorch`].
@@ -339,7 +341,7 @@ get_batch_constructor.default = function(task, feature_ingress_tokens, target_ba
 #'   The task.
 #' @param ... (any)\cr
 #'   Additional arguments. Not used yet.
-#' @return `function(data)` or `function(data, x)`
+#' @return `function(data)`, `function(data, x)`, or `NULL` for a task with no target
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' batchgetter = get_target_batchgetter(tsk("iris"))

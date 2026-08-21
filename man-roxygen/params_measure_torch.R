@@ -2,11 +2,15 @@
 #'   The id of the measure.
 #' @param fun (`function()`)\cr
 #'   The scoring function.
-#'   It receives whichever of the arguments `truth`, `response`, `prob`, `se`, `prediction`, `task`,
-#'   `learner`, `train_set` and `weights` it declares, and must return a single number.
+#'   It receives whichever of the arguments `truth`, `response`, `prob`, `se`, `lazy_tensor`,
+#'   `prediction`, `task`, `learner`, `train_set` and `weights` it declares, and must return a
+#'   single number. Asking for anything else is an error.
 #'   An argument that the prediction does not have -- `weights` on a task without a
 #'   `weights_measure` column, or `prob` on a response-only prediction -- is not passed at all, so a
 #'   default declared for it is what the function sees.
+#'   `weights` are also withheld when the measure's `$use_weights` is set to `"ignore"`, so give the
+#'   argument a default if the measure should score with and without weights, and none if it cannot
+#'   do without them -- asking for weights that do not exist is an error, not a score.
 #' @param minimize (`logical(1)`)\cr
 #'   Whether a smaller score is better.
 #'   `NA` (default) means the direction is unknown.
@@ -28,7 +32,8 @@
 #' @param label (`character(1)`)\cr
 #'   The label of the measure.
 #' @param obs_loss (`function()` or `NULL`)\cr
-#'   The per-observation loss. Declared like `fun` and if specified adds the `"obs_loss"` property.
+#'   The per-observation loss. Declared like `fun`, except that `train_set` is not available here,
+#'   and if specified adds the `"obs_loss"` property.
 #'   It must return one number per observation: a multi-target loss reduces over the targets
 #'   (`rowMeans()`), not over the observations (`mean()`), and returning a single number is an error
 #'   rather than a column of that number repeated.

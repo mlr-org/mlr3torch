@@ -5,10 +5,38 @@
 #' [`TaskTorch`].
 #'
 #' Because a [`TaskTorch`] can represent very different learning problems, this class does not
-#' prescribe much about how `truth`, `response`, `prob` and `se` are stored.
-#' Each of them may be an atomic vector, a `matrix()`, a [`data.table`][data.table::data.table], an
-#' array of any dimensionality, or a [`lazy_tensor`], i.e., anything whose *first* dimension indexes the
-#' observations.
+#' prescribe much about how `truth`, `response`, `prob` and `se` are stored: the task's prediction
+#' encoder decides, and that encoder is yours.
+#' The one rule is that the *first* dimension indexes the observations.
+#' Within that, an element may be an atomic vector, a `matrix()`, an `array()` of any
+#' dimensionality, a [`data.table`][data.table::data.table] or a [`lazy_tensor`].
+#' `truth` is whatever `task$truth()` returned -- a vector for one target, a `data.table` for
+#' several, a [`lazy_tensor`] for a lazy tensor column, and nothing at all for a task without a
+#' target.
+#'
+#' A bare `list()` is the one thing that is refused, even though it satisfies the rule above.
+#' It is what an encoder returns when it did not manage to build any of the above, and everything
+#' downstream -- combining folds, scoring, `as.data.table()` -- would then work observation by
+#' observation.
+#' A prediction that is one tensor per observation belongs in a [`lazy_tensor`].
+#'
+#' @section Tabling a Prediction:
+#' `as.data.table()` renders an element in one of two ways.
+#' `prob` spreads into one column per class, the way it does for a classification prediction.
+#' Everything else that is wider than one value per observation becomes a single column whose cells
+#' hold that observation's own array, printed as its shape -- `<array[3]>` for a response matrix
+#' with three columns.
+#' The asymmetry is deliberate: a `prob` column always means the same thing, whereas the width of a
+#' response is a property of the prediction rather than of the problem, and spreading the
+#' `(n, 3, 224, 224)` reconstruction of an autoencoder over images would give a table with 150528
+#' columns.
+#'
+#' @section Missing Predictions:
+#' Only a response with a single value per observation can report a *missing* prediction, so
+#' `$missing` is empty for anything wider even when the network emitted a `NaN`.
+#' What a partially missing observation should mean is a question this class cannot answer for a
+#' problem it knows nothing about, and a [`lazy_tensor`] could not answer it at all without
+#' materialising the whole prediction.
 #'
 #' @template params_prediction_torch
 #' @param truth (any)\cr
@@ -19,9 +47,8 @@
 #'   The predicted probabilities.
 #' @param se (any)\cr
 #'   The standard errors of the prediction.
-#' @param lazy_tensor ([`lazy_tensor`] or [`data.table`][data.table::data.table] of them)\cr
+#' @param lazy_tensor ([`lazy_tensor`])\cr
 #'   The output of the network, see the predict type `"lazy_tensor"` of [`LearnerTorch`].
-#'   A network with more than one head produces one column per head.
 #' @param weights (`numeric()` or `NULL`)\cr
 #'   The measure weights of the predicted observations, i.e. the `weights_measure` column of the
 #'   task. `mlr3` fills this in, so it rarely has to be passed by hand.
@@ -72,7 +99,7 @@ PredictionTorch = R6Class("PredictionTorch",
       assert_ro_binding(rhs)
       self$data$se
     },
-    #' @field lazy_tensor ([`lazy_tensor`] or [`data.table`][data.table::data.table] of them)\cr
+    #' @field lazy_tensor ([`lazy_tensor`])\cr
     #'   The output of the network, for the predict type `"lazy_tensor"`.
     lazy_tensor = function(rhs) {
       assert_ro_binding(rhs)
@@ -130,14 +157,6 @@ pt_combine = function(xs) {
     # `rbind()` only understands two dimensions -- it would flatten the rest into columns
     rbind_arrays(xs)
   } else if (is.data.frame(x)) {
-    # a `data.table` of `lazy_tensor` columns -- what a multi-head network predicts for the
-    # `"lazy_tensor"` predict type -- cannot go through `rbindlist()`, which would paste their
-    # indices together and keep the first descriptor, see the branch below
-    if (some(x, function(column) inherits(column, "lazy_tensor"))) {
-      return(as.data.table(set_names(lapply(names(x), function(nm) {
-        pt_combine(lapply(xs, function(xi) xi[[nm]]))
-      }), names(x))))
-    }
     rbindlist(xs, use.names = TRUE)
   } else if (inherits(x, "lazy_tensor")) {
     # FIXME: general concatenation of lazy tensors is not allowed (only when they have teh same DataDescriptor),
@@ -182,10 +201,8 @@ check_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
 #' @export
 is_missing_prediction_data.PredictionDataTorch = function(pdata, ...) { # nolint
   response = pdata$response
-  # Only a response with one value per observation can say that an observation was not predicted.
-  # Anything wider -- a matrix, an array, a `data.table`, a `lazy_tensor` -- would first have to
-  # decide what a partially missing observation is, and a `lazy_tensor` could not answer at all
-  # without materialising the whole prediction, so none of them report missing predictions.
+  # Only a response with one value per observation can say that an observation was not predicted,
+  # see the *Missing Predictions* section of the class documentation.
   if (is.null(response) || !is.atomic(response) || !is.null(dim(response))) {
     return(pdata$row_ids[0L])
   }
@@ -222,24 +239,15 @@ create_empty_prediction_data.TaskTorch = function(task, learner) { # nolint
     pdata$weights = numeric()
   }
 
-  # what the network really returns for zero rows, so that the encoder sees the structure it is
-  # promised -- a `list()` for a network with more than one head -- and nothing has to be guessed
-  # from the task's `output_dim`
-  network_output = zero_row_network_output(learner, task)
-
   if (learner$predict_type == "lazy_tensor") {
-    # `as_lazy_tensor()` cannot build one from a tensor without rows, but the heads of the network
-    # are what an empty prediction has to agree on with the non-empty ones it is combined with
-    pdata$lazy_tensor = if (is.list(network_output)) {
-      as.data.table(set_names(rep(list(lazy_tensor()), length(network_output)),
-        head_names(network_output)))
-    } else {
-      lazy_tensor()
-    }
+    # `as_lazy_tensor()` cannot build one from a tensor without rows, and there is nothing to ask
+    # the encoder about: this predict type never consults it
+    pdata$lazy_tensor = lazy_tensor()
   } else {
-    if (is.null(network_output)) {
-      network_output = torch_zeros(0L, output_dim_for(task))
-    }
+    # what the network really returns for zero rows, so that the encoder sees the structure it is
+    # promised -- a `list()` for a network with more than one head -- and nothing has to be guessed
+    # from the task's `output_dim`
+    network_output = zero_row_network_output(learner, task)
     empty = check_encoded_prediction(
       get_private(learner)$.encode_prediction(network_output = network_output, task = task), task)
     pdata = c(pdata, discard(empty, is.null))
@@ -302,11 +310,8 @@ as.data.table.PredictionTorch = function(x, ...) { # nolint
     list(data.table(row_ids = x$data$row_ids)),
     lapply(intersect(c("truth", pt_predict_types), names(x$data)), function(nm) {
       el = x$data[[nm]]
-      # `prob` becomes one column per class, the way `mlr3` tables a classification prediction.
-      # Every other array becomes one cell per observation, holding that observation's own array:
-      # its width is a property of the prediction rather than of the problem, and the
-      # (n, 3, 224, 224) reconstruction of an autoencoder over images would be 150528 columns, a
-      # table that cannot even be printed.
+      # `prob` spreads into one column per class and every other array becomes one cell per
+      # observation, see the *Tabling a Prediction* section of the class documentation.
       if (is.array(el) && nm != "prob") {
         el = pt_arrays(el)
       }

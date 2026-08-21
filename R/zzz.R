@@ -76,14 +76,16 @@ register_task_type_torch = function(mlr_reflections) { # nolint
     "torch", "mlr3torch", "TaskTorch", "LearnerTorch", "PredictionTorch", "PredictionDataTorch", "MeasureTorch"
   ), fill = TRUE), "type")
 
+  # No `weights_learner`: nothing in the training path of a `LearnerTorch` reads observation
+  # weights -- they reach neither the batches nor the loss -- so the column role would be one that
+  # is silently dropped rather than one that weights the training. `weights_measure` is consumed,
+  # by `MeasureTorch`.
   mlr_reflections$task_col_roles$torch = c("feature", "target", "name", "order", "stratum", "group",
-    "weights_learner", "weights_measure")
-  mlr_reflections$task_properties$torch = c("strata", "groups", "weights_learner",
     "weights_measure")
-  # "weights" is what lets a learner declare that it uses the `weights_learner` column role above;
-  # without it in this registry `Learner$new()` rejects the property, so the role would be one that
-  # no learner for this task type could ever consume
-  mlr_reflections$learner_properties$torch = c("validation", "internal_tuning", "marshal", "weights")
+  mlr_reflections$task_properties$torch = c("strata", "groups", "weights_measure")
+  # ... and for the same reason no "weights" property, which is what a learner would declare to say
+  # that it uses that role
+  mlr_reflections$learner_properties$torch = c("validation", "internal_tuning", "marshal")
   mlr_reflections$measure_properties$torch = c("na_score", "requires_task", "requires_learner",
     "requires_model", "requires_train_set", "weights", "requires_no_prediction", "obs_loss")
 

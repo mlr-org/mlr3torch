@@ -98,6 +98,14 @@ tt_loss_2head = function() {
     forward = function(input, target) nnf_mse_loss(input$m, target)), id = "mse_first")
 }
 
+# A task with no `default_encoder` at all: the `"lazy_tensor"` predict type never asks the task how
+# to encode anything, so nothing here has one to ask.
+tt_task_raw = function(n = 20L, id = "raw") {
+  d = tt_data(n)
+  d$y = rnorm(nrow(d))
+  as_task_torch(d, target = "y", id = id, output_dim = function(task) 1L)
+}
+
 # The encoder insists on the `list()` it is promised, and the task states no `output_dim`: how wide
 # a two-head network is, is a question only the network can answer.
 tt_task_2head = function(n = 20L, id = "twohead") {

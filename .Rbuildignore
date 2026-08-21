@@ -40,3 +40,4 @@ data-raw
 ^\.claude$
 ^TODOS\.md$
 ^example\.R$
+^report\.md$

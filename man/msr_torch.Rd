@@ -21,11 +21,15 @@ The id of the measure.}
 
 \item{fun}{(\verb{function()})\cr
 The scoring function.
-It receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{prediction}, \code{task},
-\code{learner}, \code{train_set} and \code{weights} it declares, and must return a single number.
+It receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{lazy_tensor},
+\code{prediction}, \code{task}, \code{learner}, \code{train_set} and \code{weights} it declares, and must return a
+single number. Asking for anything else is an error.
 An argument that the prediction does not have -- \code{weights} on a task without a
 \code{weights_measure} column, or \code{prob} on a response-only prediction -- is not passed at all, so a
-default declared for it is what the function sees.}
+default declared for it is what the function sees.
+\code{weights} are also withheld when the measure's \verb{$use_weights} is set to \code{"ignore"}, so give the
+argument a default if the measure should score with and without weights, and none if it cannot
+do without them -- asking for weights that do not exist is an error, not a score.}
 
 \item{minimize}{(\code{logical(1)})\cr
 Whether a smaller score is better.
@@ -53,7 +57,8 @@ measure reaches for the trained network, so that \code{mlr3} refuses to score in
 The label of the measure.}
 
 \item{obs_loss}{(\verb{function()} or \code{NULL})\cr
-The per-observation loss. Declared like \code{fun} and if specified adds the \code{"obs_loss"} property.
+The per-observation loss. Declared like \code{fun}, except that \code{train_set} is not available here,
+and if specified adds the \code{"obs_loss"} property.
 It must return one number per observation: a multi-target loss reduces over the targets
 (\code{rowMeans()}), not over the observations (\code{mean()}), and returning a single number is an error
 rather than a column of that number repeated.}

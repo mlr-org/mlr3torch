@@ -123,7 +123,12 @@ The default prediction encoder for the task. This can be overwritten by a learne
 private \verb{$.encode_prediction} method.
 See \code{\link{LearnerTorch}} for more information.}
       \item{\code{default_measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
-The default measure of the task, which is e.g. used in \code{prediction$score()}.}
+The default measure of the task, i.e. what \code{\link[=mlr_measures_torch.default]{msr("torch.default")}}
+resolves to.
+\code{rr$score()} and \code{rr$aggregate()} of a \code{\link[mlr3:ResampleResult]{ResampleResult}} use it without
+being told, and \code{prediction$score(msr("torch.default"), task = task)} uses it when the task is
+passed along -- a \code{\link[mlr3:Prediction]{Prediction}} carries none, so \code{prediction$score()} on its
+own cannot resolve it.}
     }
     \if{html}{\out{</div>}}
   }
