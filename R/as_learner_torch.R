@@ -34,14 +34,16 @@
 #' (`PipeOp`-id prefixed) names that the graph uses, so e.g. `nn_linear.out_features` keeps working.
 #'
 #' Operators that transform the [`Task`][mlr3::Task] before it reaches an ingress -- such as
-#' [`po("scale")`][mlr3pipelines::mlr_pipeops_scale] or the
-#' [preprocessing operators][PipeOpTaskPreprocTorch] -- cannot be part of the learner: they fit a
-#' state during training and behave differently during prediction, which is what a
-#' [`GraphLearner`][mlr3pipelines::GraphLearner] is for. Put them in front of the learner instead,
-#' e.g. `po("scale") %>>% as_learner_torch(graph)`.
-#' Only operators that route features without learning anything from them -- such as
-#' [`po("select")`][mlr3pipelines::mlr_pipeops_select], which is how a network with several ingress
-#' operators splits the task -- may precede an ingress.
+#' [`po("scale")`][mlr3pipelines::mlr_pipeops_scale], [`po("select")`][mlr3pipelines::mlr_pipeops_select]
+#' (which is how a network with several ingress operators splits the task) or the
+#' [preprocessing operators][PipeOpTaskPreprocTorch] -- are part of the learner and keep their
+#' [`PipeOp`][mlr3pipelines::PipeOp] semantics: they are trained during `$train()` and the state they
+#' fitted is reused during `$predict()`, so e.g. `po("scale")` standardizes the prediction data with
+#' the training statistics and an augmentation with `stages = "train"` is not applied during
+#' prediction.
+#' The fitted states are stored in `$model$ingress$states`.
+#' `$dataset(task)` returns the tensors of the prediction phase for a trained learner, pass
+#' `train = TRUE` for those of the training phase.
 #'
 #' @param x (any)\cr
 #'   The object to convert, e.g. a [`Graph`][mlr3pipelines::Graph].
@@ -62,7 +64,8 @@
 #' @include LearnerTorch.R
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' graph = po("torch_ingress_num") %>>%
+#' graph = po("scale") %>>%
+#'   po("torch_ingress_num") %>>%
 #'   nn("linear", out_features = 10) %>>%
 #'   nn("relu") %>>%
 #'   nn("head") %>>%
@@ -78,6 +81,11 @@
 #' learner$train(task)
 #' learner$network
 #' learner$predict(task)
+#'
+#' # po("scale") is part of the learner: it was fitted during $train() and the prediction data
+#' # is standardized with those statistics
+#' learner$model$ingress$states$scale$center
+#' learner$dataset(task)
 as_learner_torch = function(x, ...) {
   UseMethod("as_learner_torch")
 }
@@ -127,13 +135,6 @@ LearnerTorchGraph = R6Class("LearnerTorchGraph",
       if (nrow(graph$output) != 1L) {
         stopf("Graph cannot be converted to a LearnerTorch because it has %i output channels, but exactly one is required.", nrow(graph$output)) # nolint
       }
-      pre_ingress = setdiff(graph_ingress_ancestors(graph, ingress_ids), ingress_ids)
-      unsupported = pre_ingress[map_lgl(pre_ingress, function(po_id) {
-        !any(class(graph$pipeops[[po_id]]) %in% mlr3torch_routing_pipeops)
-      })]
-      if (length(unsupported)) {
-        stopf("PipeOp(s) %s cannot be part of a LearnerTorch: an operator before a PipeOpTorchIngress is applied to the prediction task as well, so it must not fit anything on the training data. Put it in front of the learner instead, e.g. po(\"scale\") %%>>%% as_learner_torch(graph).", paste0("'", unsupported, "'", collapse = ", ")) # nolint
-      }
 
       po_model = graph_single_pipeop(graph, "PipeOpTorchModel")
       task_type_graph = if (!is.null(po_model)) get_private(po_model)$.task_type
@@ -176,6 +177,7 @@ LearnerTorchGraph = R6Class("LearnerTorchGraph",
 
       private$.graph = graph
       private$.ingress_ids = ingress_ids
+      private$.part_ids = graph_ingress_ancestors(graph, ingress_ids)
 
       super$initialize(
         id = id %??% paste0(task_type, ".graph"),
@@ -204,36 +206,91 @@ LearnerTorchGraph = R6Class("LearnerTorchGraph",
   private = list(
     .graph = NULL,
     .ingress_ids = NULL,
-    .network = function(task, param_vals) {
-      md = private$.model_descriptor(task)
-      model_descriptor_to_module(md, output_pointers = list(md$pointer), list_output = FALSE)
-    },
-    .ingress_tokens = function(task, param_vals) {
-      graph = graph_ingress_part(private$.graph, private$.ingress_ids)
-      mds = keep(graph$train(task), function(x) test_class(x, "ModelDescriptor"))
-      tokens = do.call(c, c(list(list()), unname(map(mds, "ingress"))))
-      assert_names(names(tokens), type = "unique")
-      tokens
-    },
-    .model_descriptor = function(task) {
-      # the graph is stateful (it stores the built modules) and training it here must not change the
-      # learner, which is why we run a copy
-      md = private$.graph$clone(deep = TRUE)$train(task)[[1L]]
+    # ids of the operators up to and including the ingress, i.e. the part that turns the task into
+    # the one the network is trained on
+    .part_ids = NULL,
+    # the ingress tokens of the task that `.prepare_task()` last returned; always a duplicate of
+    # what the model or the descriptor below holds, so keeping it around loses nothing
+    .ingress_tokens_ = NULL,
+    # hands the built network from `.train()`, which runs the graph, to `.network()`, which is
+    # called further down in `super$.train()`; it holds torch modules, hence the `on.exit()` there
+    .md = NULL,
+    .train = function(task) {
+      # one run of the graph does everything the training phase needs: it fits the states of the
+      # operators before the ingress, creates the ingress tokens, and builds the modules
+      graph = private$.graph$clone(deep = TRUE)
+      md = graph$train(task)[[1L]]
       if (!test_class(md, "ModelDescriptor")) {
         stopf("Learner '%s': the graph produced an object of class '%s' instead of a ModelDescriptor.", self$id, class(md)[[1L]]) # nolint
       }
-      md
+      private$.md = md
+      private$.ingress_tokens_ = md$ingress
+      on.exit({private$.md = NULL}, add = TRUE)
+
+      # `md$task` is the task after the operators before the ingress ran, i.e. the one the network
+      # is built for; its `internal_valid_task` was transformed in predict mode by those operators
+      model = super$.train(md$task)
+      model$ingress = list(
+        tokens = md$ingress,
+        states = map(graph$pipeops[private$.part_ids], "state")
+      )
+      model
+    },
+    .predict = function(task) {
+      super$.predict(private$.prepare_task(task, train = FALSE))
+    },
+    .prepare_task = function(task, train) {
+      part = graph_ingress_part(private$.graph, private$.ingress_ids)
+      if (train) {
+        mds = keep(part$train(task), function(x) test_class(x, "ModelDescriptor"))
+        md = Reduce(model_descriptor_union, mds)
+        private$.ingress_tokens_ = md$ingress
+        return(md$task)
+      }
+      states = self$model$ingress$states
+      if (is.null(states)) {
+        stopf("Learner '%s' must be trained before the prediction phase's data can be created, because the operators before its ingress have not been fitted yet.", self$id) # nolint
+      }
+      for (po_id in names(states)) {
+        part$pipeops[[po_id]]$state = states[[po_id]]
+      }
+      # the ingress operators pass the task through during prediction, so this is the task the
+      # operators before them produced; it is merged the way `model_descriptor_union()` merges the
+      # tasks of several ingress paths during training
+      tasks = keep(part$predict(task), function(x) test_class(x, "Task"))
+      prepared = Reduce(function(t1, t2) {
+        if (identical(t1, t2)) t1 else PipeOpFeatureUnion$new()$train(list(t1, t2))[[1L]]
+      }, tasks)
+      if (!identical(prepared$row_ids, task$row_ids)) {
+        stopf("Learner '%s': the operators before its ingress changed the rows of task '%s' during prediction.", self$id, task$id) # nolint
+      }
+      private$.ingress_tokens_ = self$model$ingress$tokens
+      prepared
+    },
+    .network = function(task, param_vals) {
+      if (is.null(private$.md)) {
+        stopf("Learner '%s' can only build its network during training.", self$id)
+      }
+      network = model_descriptor_to_module(private$.md, output_pointers = list(private$.md$pointer),
+        list_output = FALSE)
+      # the graph built the modules before `$.train()` seeded torch's generator, so their weights
+      # were drawn outside the seeded region; re-initializing here puts them back under the seed,
+      # exactly like `PipeOpTorchModel` does for the GraphLearner route
+      network$reset_parameters()
+      network
+    },
+    .ingress_tokens = function(task, param_vals) {
+      tokens = private$.ingress_tokens_ %??% self$model$ingress$tokens
+      if (is.null(tokens)) {
+        stopf("Learner '%s' has no ingress tokens, use $dataset() only on a trained learner or with train = TRUE.", self$id) # nolint
+      }
+      tokens
     },
     .additional_phash_input = function() {
       list(private$.graph$phash, self$task_type, self$feature_types, self$properties, self$packages)
     }
   )
 )
-
-# Operators that only route features around instead of learning something from them. They are the
-# only ones a `LearnerTorch` can run before its ingress, see the check in `LearnerTorchGraph`.
-mlr3torch_routing_pipeops = c("PipeOpSelect", "PipeOpNOP", "PipeOpBranch", "PipeOpUnbranch",
-  "PipeOpCopy", "PipeOpFeatureUnion")
 
 graph_pipeops = function(graph, class) {
   keep(graph$pipeops, function(po) test_class(po, class))
@@ -275,9 +332,9 @@ graph_ingress_ancestors = function(graph, ingress_ids) {
   ids
 }
 
-# The ingress tokens are needed to build the dataloader, also during prediction, where the network
-# already exists. Because only `PipeOpTorchIngress` creates them, it suffices to run the part of the
-# graph that ends in the ingress operators, which avoids building the network a second time.
+# The part of the graph up to and including the ingress operators, i.e. everything that turns the
+# task into the task the network is trained on. It is what the learner has to run again during
+# prediction; the operators behind the ingress only concern the network, which by then exists.
 graph_ingress_part = function(graph, ingress_ids) {
   edges = graph$edges
   ids = graph_ingress_ancestors(graph, ingress_ids)

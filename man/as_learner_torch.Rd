@@ -87,18 +87,21 @@ All remaining parameters of the graph are exposed in the learner's \verb{$param_
 (\code{PipeOp}-id prefixed) names that the graph uses, so e.g. \code{nn_linear.out_features} keeps working.
 
 Operators that transform the \code{\link[mlr3:Task]{Task}} before it reaches an ingress -- such as
-\code{\link[mlr3pipelines:mlr_pipeops_scale]{po("scale")}} or the
-\link[=PipeOpTaskPreprocTorch]{preprocessing operators} -- cannot be part of the learner: they fit a
-state during training and behave differently during prediction, which is what a
-\code{\link[mlr3pipelines:GraphLearner]{GraphLearner}} is for. Put them in front of the learner instead,
-e.g. \code{po("scale") \%>>\% as_learner_torch(graph)}.
-Only operators that route features without learning anything from them -- such as
-\code{\link[mlr3pipelines:mlr_pipeops_select]{po("select")}}, which is how a network with several ingress
-operators splits the task -- may precede an ingress.
+\code{\link[mlr3pipelines:mlr_pipeops_scale]{po("scale")}}, \code{\link[mlr3pipelines:mlr_pipeops_select]{po("select")}}
+(which is how a network with several ingress operators splits the task) or the
+\link[=PipeOpTaskPreprocTorch]{preprocessing operators} -- are part of the learner and keep their
+\code{\link[mlr3pipelines:PipeOp]{PipeOp}} semantics: they are trained during \verb{$train()} and the state they
+fitted is reused during \verb{$predict()}, so e.g. \code{po("scale")} standardizes the prediction data with
+the training statistics and an augmentation with \code{stages = "train"} is not applied during
+prediction.
+The fitted states are stored in \verb{$model$ingress$states}.
+\verb{$dataset(task)} returns the tensors of the prediction phase for a trained learner, pass
+\code{train = TRUE} for those of the training phase.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
-graph = po("torch_ingress_num") \%>>\%
+graph = po("scale") \%>>\%
+  po("torch_ingress_num") \%>>\%
   nn("linear", out_features = 10) \%>>\%
   nn("relu") \%>>\%
   nn("head") \%>>\%
@@ -114,6 +117,11 @@ task = tsk("iris")
 learner$train(task)
 learner$network
 learner$predict(task)
+
+# po("scale") is part of the learner: it was fitted during $train() and the prediction data
+# is standardized with those statistics
+learner$model$ingress$states$scale$center
+learner$dataset(task)
 \dontshow{\}) # examplesIf}
 }
 \seealso{

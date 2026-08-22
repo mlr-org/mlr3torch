@@ -205,6 +205,18 @@
 #'   Moreover, one needs to pay attention respect the row ids of the provided task.
 #'   It is recommended to relu on [`task_dataset`] for creating the [`dataset`][torch::dataset].
 #'
+#' A learner that transforms the [`Task`][mlr3::Task] before it becomes tensors -- and that
+#' therefore has to do something different during training and during prediction -- implements this:
+#'
+#' * `.prepare_task(task, train)`\cr
+#'   ([`Task`][mlr3::Task], `logical(1)`) -> [`Task`][mlr3::Task]\cr
+#'   Map the task to the one that `.dataset()` should be built from.
+#'   `train` is `TRUE` during `$train()` and `FALSE` during `$predict()`, so that an operator that
+#'   fits a state on the training data can reuse it afterwards instead of fitting it again.
+#'   The default implementation returns the task unchanged.
+#'   It is called by the public `$dataset()` method; a learner that also needs it during
+#'   `$train()` and `$predict()` has to call it there itself, see [`as_learner_torch()`].
+#'
 #' It is also possible to overwrite the private `.dataloader()` method.
 #' This must respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].
 #'
@@ -377,16 +389,24 @@ LearnerTorch = R6Class("LearnerTorch",
       learner_unmarshal(.learner = self, ...)
     },
     #' @description
-    #' Create the dataset for a task.
+    #' Create the dataset for a task, i.e. the tensors that are fed to the network.
     #' @param task [`Task`][mlr3::Task]\cr
     #' The task
+    #' @param train (`logical(1)`)\cr
+    #' Whether to create the dataset the way `$train()` does (`TRUE`) or the way `$predict()` does
+    #' (`FALSE`).
+    #' Defaults to `FALSE` for a trained learner and to `TRUE` otherwise, because the prediction
+    #' phase can need what the training phase fitted.
+    #' The two only differ for learners that transform the task before it becomes tensors, see e.g.
+    #' [`as_learner_torch()`].
     #' @return [`dataset`][torch::dataset]
-    dataset = function(task) {
+    dataset = function(task, train = is.null(self$model)) {
       assert_task(task)
+      assert_flag(train)
       param_vals = self$param_set$values
       param_vals$device = auto_device(param_vals$device)
 
-      private$.dataset(task, param_vals)
+      private$.dataset(private$.prepare_task(task, train), param_vals)
     }
   ),
   active = list(
@@ -669,6 +689,11 @@ LearnerTorch = R6Class("LearnerTorch",
     .ingress_tokens = function(task, param_vals)  {
       stopf("Private method `$.ingress_tokens()` must be implemented.")
     },
+    # Learners whose dataset is not simply a view on the task -- because operators transform the
+    # task before it becomes tensors -- map the task to the one the network expects here. `train`
+    # selects the phase, because such operators can fit a state during training that the prediction
+    # phase has to reuse instead of fitting again.
+    .prepare_task = function(task, train) task,
     .dataset = function(task, param_vals) {
       if (!is.null(private$.ingress_tokens)) {
         task_dataset(

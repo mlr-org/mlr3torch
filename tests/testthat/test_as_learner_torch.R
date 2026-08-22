@@ -181,15 +181,111 @@ test_that("graphs that cannot be converted give an informative error", {
       task_type = "classif"),
     "2 output channels"
   )
-  expect_error(
-    as_learner_torch(po("scale") %>>% po("torch_ingress_num") %>>% nn("head"), task_type = "classif"),
-    "PipeOp\\(s\\) 'scale' cannot be part of a LearnerTorch"
-  )
-  expect_error(
-    as_learner_torch(po("trafo_resize", size = c(4, 4)) %>>% po("torch_ingress_ltnsr") %>>% nn("head"),
-      task_type = "classif"),
-    "'trafo_resize' cannot be part of a LearnerTorch"
-  )
+  learner = as_learner_torch(po("torch_ingress_num") %>>% nn("head"), task_type = "classif")
+  expect_error(learner$dataset(tsk("iris"), train = FALSE), "must be trained before")
+})
+
+batch_mean = function(ds, n) {
+  as.numeric(ds$.getbatch(seq_len(n))$x[[1L]]$mean())
+}
+
+test_that("a stateful operator before the ingress predicts with the training state", {
+  task = tsk("iris")
+  graph = po("scale") %>>% po("torch_ingress_num") %>>% nn("head")
+  learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
+  learner$train(task)
+
+  expect_names(names(learner$model$ingress$states), permutation.of = c("scale", "torch_ingress_num"))
+  expect_numeric(learner$model$ingress$states$scale$center, len = 4L)
+
+  # only the first class, whose features are far from the mean of the whole task
+  setosa = task$clone()$filter(1:50)
+  # the prediction phase standardizes with the statistics of the training task, ...
+  expect_true(abs(batch_mean(learner$dataset(setosa), 50L)) > 0.3)
+  # ... whereas the training phase would fit them on the task it is given
+  expect_equal(batch_mean(learner$dataset(setosa, train = TRUE), 50L), 0, tolerance = 1e-5)
+
+  expect_class(learner$predict(setosa), "PredictionClassif")
+  expect_class(learner$predict_newdata(task$data(1:5)), "PredictionClassif")
+})
+
+test_that("predictions match the GraphLearner route with a stateful operator in the graph", {
+  withr::local_seed(1)
+  task = tsk("iris")
+  graph = po("scale") %>>% po("torch_ingress_num") %>>% nn("linear", out_features = 5) %>>%
+    nn("relu") %>>% nn("head") %>>% po("torch_loss", "cross_entropy") %>>%
+    po("torch_optimizer", "adam", lr = 0.1)
+  ids = partition(task)
+
+  learner = as_learner_torch(graph, task_type = "classif", epochs = 2, batch_size = 32, seed = 1)
+  learner$predict_type = "prob"
+  learner$train(task, ids$train)
+
+  glrn = as_learner(graph %>>% po("torch_model_classif", epochs = 2, batch_size = 32, seed = 1))
+  glrn$predict_type = "prob"
+  glrn$train(task, ids$train)
+
+  expect_equal(learner$predict(task, ids$test)$prob, glrn$predict(task, ids$test)$prob)
+})
+
+test_that("the stages of a preprocessing operator are respected", {
+  task = tsk("lazy_iris")
+  # doubling the features is easy to recognize in the tensors and does not change their shape
+  po_augment = po("preproc_torch", id = "double",
+    fn = crate(function(x) x * 2), stages = "train")
+  graph = po_augment %>>% po("torch_ingress_ltnsr", shape = c(NA, 4)) %>>% nn("head")
+  learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
+  learner$train(task)
+
+  raw = batch_mean(as_learner_torch(po("torch_ingress_ltnsr") %>>% nn("head"), task_type = "classif",
+    epochs = 1, batch_size = 32)$dataset(task), 10L)
+  # `stages = "train"` means the transformation belongs to training only
+  expect_equal(batch_mean(learner$dataset(task, train = TRUE), 10L), 2 * raw)
+  expect_equal(batch_mean(learner$dataset(task), 10L), raw)
+})
+
+test_that("marshaling and serialization with a stateful operator before the ingress", {
+  task = tsk("iris")
+  graph = po("scale") %>>% po("torch_ingress_num") %>>% nn("head")
+  learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
+  learner$train(task)
+  pred = learner$predict(task)
+  center = learner$model$ingress$states$scale$center
+
+  path = tempfile()
+  on.exit(unlink(path), add = TRUE)
+  learner$marshal()
+  expect_true(learner$marshaled)
+  saveRDS(learner, path)
+  learner2 = readRDS(path)$unmarshal()
+
+  expect_equal(learner2$model$ingress$states$scale$center, center)
+  expect_equal(learner2$predict(task)$response, pred$response)
+})
+
+test_that("the internal validation task is transformed like prediction data", {
+  task = tsk("iris")
+  graph = po("scale") %>>% po("torch_ingress_num") %>>% nn("head")
+  learner = as_learner_torch(graph, task_type = "classif", epochs = 3, batch_size = 32,
+    measures_valid = msr("classif.ce"), patience = 2)
+  set_validate(learner, 0.3)
+  learner$train(task)
+
+  expect_number(learner$internal_valid_scores$classif.ce)
+  expect_number(learner$internal_tuned_values$epochs)
+  # the state was fitted on the training part only, not on the whole task
+  expect_false(isTRUE(all.equal(unname(learner$model$ingress$states$scale$center),
+    unname(colMeans(as.matrix(task$data(cols = task$feature_names)))))))
+})
+
+test_that("resampling works with a stateful operator before the ingress", {
+  graph = po("scale") %>>% po("torch_ingress_num") %>>% nn("head")
+  learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
+  rr = resample(tsk("iris"), learner, rsmp("cv", folds = 2L), store_models = TRUE)
+  expect_double(rr$aggregate())
+  # every fold fitted its own state
+  centers = map(rr$learners, function(l) l$model$ingress$states$scale$center)
+  expect_false(isTRUE(all.equal(centers[[1L]], centers[[2L]])))
 })
 
 test_that("autotest", {
