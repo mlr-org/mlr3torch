@@ -381,19 +381,6 @@ Moreover, one needs to pay attention respect the row ids of the provided task.
 It is recommended to relu on \code{\link{task_dataset}} for creating the \code{\link[torch:dataset]{dataset}}.
 }
 
-A learner that transforms the \code{\link[mlr3:Task]{Task}} before it becomes tensors -- and that
-therefore has to do something different during training and during prediction -- implements this:
-\itemize{
-\item \code{.prepare_task(task, train)}\cr
-(\code{\link[mlr3:Task]{Task}}, \code{logical(1)}) -> \code{\link[mlr3:Task]{Task}}\cr
-Map the task to the one that \code{.dataset()} should be built from.
-\code{train} is \code{TRUE} during \verb{$train()} and \code{FALSE} during \verb{$predict()}, so that an operator that
-fits a state on the training data can reuse it afterwards instead of fitting it again.
-The default implementation returns the task unchanged.
-It is called by the public \verb{$dataset()} method; a learner that also needs it during
-\verb{$train()} and \verb{$predict()} has to call it there itself, see \code{\link[=as_learner_torch]{as_learner_torch()}}.
-}
-
 It is also possible to overwrite the private \code{.dataloader()} method.
 This must respect the dataloader parameters from the \code{\link[paradox:ParamSet]{ParamSet}}.
 \itemize{
@@ -432,7 +419,6 @@ to implement the private \verb{$.additional_phash_input()}.
 
 \seealso{
 Other Learner:
-\code{\link[=as_learner_torch]{as_learner_torch()}},
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
@@ -679,10 +665,10 @@ Additional parameters.}
 \if{html}{\out{<a id="method-LearnerTorch-dataset"></a>}}
 \if{latex}{\out{\hypertarget{method-LearnerTorch-dataset}{}}}
 \subsection{\code{LearnerTorch$dataset()}}{
-  Create the dataset for a task, i.e. the tensors that are fed to the network.
+  Create the dataset for a task.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{LearnerTorch$dataset(task, train = is.null(self$model))}
+    \preformatted{LearnerTorch$dataset(task)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -690,13 +676,6 @@ Additional parameters.}
     \describe{
       \item{\code{task}}{\code{\link[mlr3:Task]{Task}}\cr
 The task}
-      \item{\code{train}}{(\code{logical(1)})\cr
-Whether to create the dataset the way \verb{$train()} does (\code{TRUE}) or the way \verb{$predict()} does
-(\code{FALSE}).
-Defaults to \code{FALSE} for a trained learner and to \code{TRUE} otherwise, because the prediction
-phase can need what the training phase fitted.
-The two only differ for learners that transform the task before it becomes tensors, see e.g.
-\code{\link[=as_learner_torch]{as_learner_torch()}}.}
     }
     \if{html}{\out{</div>}}
   }

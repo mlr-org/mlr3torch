@@ -2,63 +2,55 @@
 #'
 #' @description
 #' Converts a [`Graph`][mlr3pipelines::Graph] that is built from [`PipeOpTorch`] operators into a
-#' [`LearnerTorch`].
+#' [`GraphLearner`][mlr3pipelines::GraphLearner] that trains the network it defines.
 #'
-#' Calling [`as_learner()`][mlr3::as_learner] on such a graph gives a
-#' [`GraphLearner`][mlr3pipelines::GraphLearner], which trains the same network but hides everything
-#' that makes a torch learner useful behind `$base_learner()`.
-#' `as_learner_torch()` instead returns a first-class [`LearnerTorch`], i.e. one with a `$network`
-#' field, a `$dataset()` method, the torch parameters (`epochs`, `batch_size`, ...) at the top level,
-#' as well as marshaling, validation and internal tuning.
+#' In contrast to [`as_learner()`][mlr3::as_learner], the terminal [`PipeOpTorchModel`] is appended
+#' to the graph if it does not contain one already, and the returned learner has the `$network`,
+#' `$loss`, `$optimizer` and `$callbacks` fields and the `$dataset()` method of a torch learner.
 #'
 #' @details
-#' The neural network can only be built once the [`Task`][mlr3::Task] is known, because the input
-#' shapes are derived from it. The returned learner therefore stores the `Graph` and runs it during
-#' `$train()` to obtain the [`ModelDescriptor`] from which the network is created.
+#' The learner is a [`GraphLearner`][mlr3pipelines::GraphLearner], i.e. the parameters of the graph
+#' are exposed in `$param_set` under their (`PipeOp`-id prefixed) graph names, so the number of
+#' epochs is e.g. `torch_model_classif.epochs` and not `epochs`.
+#' Because the parameters of the torch model are the ones that are usually configured, `...` sets
+#' the parameters of the [`PipeOpTorchModel`], i.e. `as_learner_torch(graph, epochs = 10)` is the
+#' same as `graph %>>% po("torch_model_classif", epochs = 10)` converted with `as_learner()`.
 #'
-#' The operators that configure the *training* of the model instead of the network are consumed
-#' during the conversion, i.e. they are taken out of the graph and their configuration is moved to
-#' the learner:
+#' The loss, the optimizer and the callbacks are configured in the graph via
+#' [`po("torch_loss")`][mlr_pipeops_torch_loss], [`po("torch_optimizer")`][mlr_pipeops_torch_optimizer]
+#' and [`po("torch_callbacks")`][mlr_pipeops_torch_callbacks], of which the graph may contain at most
+#' one each.
+#' Just like for a [`LearnerTorch`], they are available via the `$loss`, `$optimizer` and
+#' `$callbacks` fields, which also replace the corresponding operator when assigned to.
+#' The arguments of the same name configure them during construction and take precedence over what
+#' the graph configures.
+#' When neither does, the defaults of [`LearnerTorch`] are used, i.e. the cross-entropy
+#' (classification) or mean-squared-error (regression) loss and the Adam optimizer.
 #'
-#' * [`po("torch_loss")`][mlr_pipeops_torch_loss] becomes the learner's `$loss` (parameters `loss.*`).
-#' * [`po("torch_optimizer")`][mlr_pipeops_torch_optimizer] becomes the learner's `$optimizer`
-#'   (parameters `opt.*`).
-#' * [`po("torch_callbacks")`][mlr_pipeops_torch_callbacks] becomes the learner's `$callbacks`
-#'   (parameters `cb.<id>.*`).
-#' * [`po("torch_model_classif")`][mlr_pipeops_torch_model_classif] and friends determine the
-#'   `task_type` and their parameter values (`epochs`, `batch_size`, ...) become the learner's.
-#'
-#' The `loss`, `optimizer` and `callbacks` arguments take precedence over the corresponding operators
-#' in the graph.
-#' All remaining parameters of the graph are exposed in the learner's `$param_set` under the same
-#' (`PipeOp`-id prefixed) names that the graph uses, so e.g. `nn_linear.out_features` keeps working.
-#'
-#' Operators that transform the [`Task`][mlr3::Task] before it reaches an ingress -- such as
-#' [`po("scale")`][mlr3pipelines::mlr_pipeops_scale], [`po("select")`][mlr3pipelines::mlr_pipeops_select]
-#' (which is how a network with several ingress operators splits the task) or the
-#' [preprocessing operators][PipeOpTaskPreprocTorch] -- are part of the learner and keep their
-#' [`PipeOp`][mlr3pipelines::PipeOp] semantics: they are trained during `$train()` and the state they
-#' fitted is reused during `$predict()`, so e.g. `po("scale")` standardizes the prediction data with
-#' the training statistics and an augmentation with `stages = "train"` is not applied during
-#' prediction.
-#' The fitted states are stored in `$model$ingress$states`.
+#' The neural network is only built during `$train()`, because the input shapes are derived from the
+#' [`Task`][mlr3::Task].
+#' Afterwards it is available via `$network`, which is a shortcut for `$base_learner()$network`.
 #' `$dataset(task)` returns the tensors of the prediction phase for a trained learner, pass
 #' `train = TRUE` for those of the training phase.
+#' The two differ when the graph transforms the task before it reaches an ingress -- such as
+#' [`po("scale")`][mlr3pipelines::mlr_pipeops_scale] or the
+#' [preprocessing operators][PipeOpTaskPreprocTorch] -- because the prediction phase reuses the
+#' state that these operators fitted during training.
 #'
 #' @param x (any)\cr
 #'   The object to convert, e.g. a [`Graph`][mlr3pipelines::Graph].
 #' @param ... (any)\cr
-#'   Parameter values passed to the created learner, e.g. `epochs = 10`.
+#'   Parameter values for the [`PipeOpTorchModel`], e.g. `epochs = 10`.
 #' @param task_type (`character(1)`)\cr
 #'   The task type of the learner.
-#'   Can be omitted if the graph contains a [`PipeOpTorchModel`], which then determines it.
+#'   Can be omitted if the graph already contains a [`PipeOpTorchModel`], which then determines it.
 #' @param id (`character(1)`)\cr
 #'   The id of the learner. Defaults to `"<task_type>.graph"`.
 #' @template param_optimizer
 #' @template param_loss
 #' @template param_callbacks
 #'
-#' @return [`LearnerTorch`]
+#' @return [`GraphLearner`][mlr3pipelines::GraphLearner]
 #' @family Graph Network
 #' @family Learner
 #' @include LearnerTorch.R
@@ -74,8 +66,7 @@
 #'
 #' learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
 #' learner$id
-#' # the parameters of the graph are available at the top level
-#' learner$param_set$set_values(linear.out_features = 20, opt.lr = 0.01)
+#' learner$param_set$set_values(linear.out_features = 20, torch_optimizer.lr = 0.01)
 #'
 #' task = tsk("iris")
 #' learner$train(task)
@@ -84,7 +75,6 @@
 #'
 #' # po("scale") is part of the learner: it was fitted during $train() and the prediction data
 #' # is standardized with those statistics
-#' learner$model$ingress$states$scale$center
 #' learner$dataset(task)
 as_learner_torch = function(x, ...) {
   UseMethod("as_learner_torch")
@@ -94,7 +84,7 @@ as_learner_torch = function(x, ...) {
 #' @export
 as_learner_torch.Graph = function(x, task_type = NULL, id = NULL, optimizer = NULL, loss = NULL, # nolint
   callbacks = NULL, ...) {
-  LearnerTorchGraph$new(
+  GraphLearnerTorch$new(
     graph = x,
     task_type = task_type,
     id = id,
@@ -113,241 +103,184 @@ as_learner_torch.PipeOp = function(x, ...) { # nolint
 
 #' @rdname as_learner_torch
 #' @export
-as_learner_torch.GraphLearner = function(x, task_type = x$task_type, id = NULL, ...) { # nolint
+as_learner_torch.GraphLearner = function(x, task_type = x$task_type, id = x$id, ...) { # nolint
   as_learner_torch(x$graph, task_type = task_type, id = id, ...)
 }
 
-# The learner returned by `as_learner_torch()`. It is intentionally not exported and not part of the
-# `mlr_learners` dictionary, because it cannot be constructed without a `Graph`.
-LearnerTorchGraph = R6Class("LearnerTorchGraph",
-  inherit = LearnerTorch,
+# The learner returned by `as_learner_torch()`. It is a `GraphLearner` that knows where the network
+# and its data live, hence it is neither exported nor part of the `mlr_learners` dictionary: it
+# cannot be constructed without a `Graph`.
+GraphLearnerTorch = R6Class("GraphLearnerTorch",
+  inherit = GraphLearner,
   public = list(
     initialize = function(graph, task_type = NULL, id = NULL, optimizer = NULL, loss = NULL,
       callbacks = NULL, param_vals = list()) {
       graph = as_graph(assert_r6(graph, "Graph"), clone = TRUE)
-      assert_string(id, null.ok = TRUE)
       assert_list(param_vals, names = "unique")
 
-      ingress_ids = graph_ingress_ids(graph)
-      if (!length(ingress_ids)) {
-        stopf("Graph cannot be converted to a LearnerTorch because it contains no PipeOpTorchIngress, add e.g. po(\"torch_ingress_num\") to its start.") # nolint
-      }
-      if (nrow(graph$output) != 1L) {
-        stopf("Graph cannot be converted to a LearnerTorch because it has %i output channels, but exactly one is required.", nrow(graph$output)) # nolint
+      if (!some(graph$pipeops, function(po) test_class(po, "PipeOpTorchIngress"))) {
+        stopf("Graph cannot be converted to a torch learner because it contains no PipeOpTorchIngress, add e.g. po(\"torch_ingress_num\") to its start.") # nolint
       }
 
-      po_model = graph_single_pipeop(graph, "PipeOpTorchModel")
-      task_type_graph = if (!is.null(po_model)) get_private(po_model)$.task_type
-      if (is.null(task_type)) {
-        if (is.null(task_type_graph)) {
+      po_model = graph_torch_model(graph)
+      if (is.null(po_model)) {
+        if (is.null(task_type)) {
           stopf("Cannot infer the task type of the graph, pass it via the `task_type` argument.")
         }
-        task_type = task_type_graph
-      } else {
         assert_choice(task_type, mlr_reflections$task_types$type)
-        if (!is.null(task_type_graph) && task_type != task_type_graph) {
+        po_model = PipeOpTorchModel$new(task_type = task_type, id = paste0("torch_model_", task_type))
+      } else {
+        task_type_graph = get_private(po_model)$.task_type
+        if (is.null(task_type)) {
+          task_type = task_type_graph
+        } else if (task_type != task_type_graph) {
           stopf("Task type '%s' was requested, but the graph contains PipeOp '%s' with task type '%s'.", task_type, po_model$id, task_type_graph) # nolint
         }
+        # the model operator is re-appended below, so that the operators that configure the training
+        # end up in front of it
+        graph = graph_before_model(graph)
       }
+      po_model$param_set$set_values(.values = param_vals)
 
-      # the configuration of the network's *training* moves from the graph to the learner, where it
-      # is exposed under the standard LearnerTorch names ('epochs', 'loss.*', 'opt.*', 'cb.*');
-      # leaving the operators in the graph would expose the same settings twice under two names
-      po_loss = graph_single_pipeop(graph, "PipeOpTorchLoss")
-      po_optimizer = graph_single_pipeop(graph, "PipeOpTorchOptimizer")
-      pos_callbacks = graph_pipeops(graph, "PipeOpTorchCallbacks")
-      loss = loss %??% (if (!is.null(po_loss)) get_private(po_loss)$.loss)
-      optimizer = optimizer %??% (if (!is.null(po_optimizer)) get_private(po_optimizer)$.optimizer)
-      callbacks = callbacks %??%
-        unlist(map(pos_callbacks, function(po) get_private(po)$.callbacks), recursive = FALSE)
-      model_param_vals = if (!is.null(po_model)) po_model$param_set$values else list()
-
-      consumed = c(names(pos_callbacks), map_chr(discard(list(po_loss, po_optimizer, po_model), is.null), "id"))
-      # `PipeOpNOP` passes the ModelDescriptor through unchanged and has no parameters, so replacing
-      # the consumed operators keeps the graph structure (and hence all edges) intact
-      for (po_id in consumed) {
-        graph$pipeops[[po_id]] = po("nop", id = po_id)
-      }
-      if (length(consumed)) {
-        graph$.__enclos_env__$private$.param_set = NULL
-      }
-      if (graph$output$train %nin% c("ModelDescriptor", "*")) {
-        stopf("Graph cannot be converted to a LearnerTorch because its output is of type '%s', but a ModelDescriptor is required.", graph$output$train) # nolint
-      }
-
-      private$.graph = graph
-      private$.ingress_ids = ingress_ids
-      private$.part_ids = graph_ingress_ancestors(graph, ingress_ids)
+      # the loss and the optimizer are part of the ModelDescriptor, so `PipeOpTorchModel` cannot
+      # fall back to the defaults of `LearnerTorch` itself and the graph has to configure them
+      graph = graph_default(graph, "PipeOpTorchLoss", "torch_loss",
+        switch(task_type, classif = "cross_entropy", regr = "mse", NULL))
+      graph = graph_default(graph, "PipeOpTorchOptimizer", "torch_optimizer", "adam")
+      graph = graph %>>% po_model
 
       super$initialize(
+        graph = graph,
         id = id %??% paste0(task_type, ".graph"),
         task_type = task_type,
-        param_set = alist(private$.graph$param_set),
-        loss = loss,
-        optimizer = optimizer,
-        callbacks = callbacks %??% list(),
-        packages = graph$packages,
-        feature_types = graph_feature_types(graph, ingress_ids),
-        label = "Graph Network",
-        man = "mlr3torch::as_learner_torch",
-        jittable = TRUE
+        clone_graph = FALSE
       )
 
-      self$param_set$set_values(.values = insert_named(model_param_vals, param_vals))
+      # the arguments take precedence over what the graph configures
+      if (!is.null(loss)) self$loss = loss
+      if (!is.null(optimizer)) self$optimizer = optimizer
+      if (!is.null(callbacks)) self$callbacks = callbacks
+    },
+    #' @description
+    #' Create the dataset for a task, i.e. the tensors that are fed to the network.
+    #' @param task [`Task`][mlr3::Task]\cr
+    #'   The task.
+    #' @param train (`logical(1)`)\cr
+    #'   Whether to create the dataset the way `$train()` does (`TRUE`) or the way `$predict()` does
+    #'   (`FALSE`).
+    #'   Defaults to `FALSE` for a trained learner and to `TRUE` otherwise, because the prediction
+    #'   phase reuses the state that the operators before the ingress fitted during training.
+    #' @return [`dataset`][torch::dataset]
+    dataset = function(task, train = is.null(self$model)) {
+      assert_task(task)
+      assert_flag(train)
+      if (train) {
+        md = graph_before_model(self$graph)$train(task)[[1L]]
+        task_dataset(
+          md$task,
+          feature_ingress_tokens = md$ingress,
+          target_batchgetter = get_target_batchgetter(md$task)
+        )
+      } else {
+        if (is.null(self$model)) {
+          stopf("Learner '%s' must be trained before the data of the prediction phase can be created, because the operators before its ingress have not been fitted yet.", self$id) # nolint
+        }
+        # in the prediction phase the operators pass the task through, so this is the task that the
+        # PipeOpTorchModel -- and hence its LearnerTorchModel -- receives
+        self$base_learner()$dataset(graph_before_model(self$graph_model)$predict(task)[[1L]])
+      }
     }
   ),
   active = list(
-    # The graph that defines the network. Its parameters are exposed in `$param_set`.
-    graph = function(rhs) {
+    #' @field network ([`nn_module`][torch::nn_module])\cr
+    #' The network of the trained learner, i.e. `$base_learner()$network`.
+    network = function(rhs) {
       assert_ro_binding(rhs)
-      private$.graph
+      self$base_learner()$network
+    },
+    #' @field loss ([`TorchLoss`])\cr
+    #' The torch loss, i.e. the one of the graph's [`PipeOpTorchLoss`][mlr_pipeops_torch_loss].
+    loss = function(rhs) {
+      if (!missing(rhs)) {
+        rhs = as_torch_loss(rhs, clone = TRUE)
+        assert_choice(self$task_type, rhs$task_types)
+        private$.configure("PipeOpTorchLoss", "torch_loss", rhs)
+      }
+      private$.configuration("PipeOpTorchLoss", ".loss")
+    },
+    #' @field optimizer ([`TorchOptimizer`])\cr
+    #' The torch optimizer, i.e. the one of the graph's
+    #' [`PipeOpTorchOptimizer`][mlr_pipeops_torch_optimizer].
+    optimizer = function(rhs) {
+      if (!missing(rhs)) {
+        private$.configure("PipeOpTorchOptimizer", "torch_optimizer", as_torch_optimizer(rhs, clone = TRUE))
+      }
+      private$.configuration("PipeOpTorchOptimizer", ".optimizer")
+    },
+    #' @field callbacks (`list()` of [`TorchCallback`]s)\cr
+    #' The callbacks, i.e. those of the graph's
+    #' [`PipeOpTorchCallbacks`][mlr_pipeops_torch_callbacks].
+    callbacks = function(rhs) {
+      if (!missing(rhs)) {
+        private$.configure("PipeOpTorchCallbacks", "torch_callbacks", as_torch_callbacks(rhs, clone = TRUE))
+      }
+      private$.configuration("PipeOpTorchCallbacks", ".callbacks") %??% list()
     }
   ),
   private = list(
-    .graph = NULL,
-    .ingress_ids = NULL,
-    # ids of the operators up to and including the ingress, i.e. the part that turns the task into
-    # the one the network is trained on
-    .part_ids = NULL,
-    # the ingress tokens of the task that `.prepare_task()` last returned; always a duplicate of
-    # what the model or the descriptor below holds, so keeping it around loses nothing
-    .ingress_tokens_ = NULL,
-    # hands the built network from `.train()`, which runs the graph, to `.network()`, which is
-    # called further down in `super$.train()`; it holds torch modules, hence the `on.exit()` there
-    .md = NULL,
-    .train = function(task) {
-      # one run of the graph does everything the training phase needs: it fits the states of the
-      # operators before the ingress, creates the ingress tokens, and builds the modules
-      graph = private$.graph$clone(deep = TRUE)
-      md = graph$train(task)[[1L]]
-      if (!test_class(md, "ModelDescriptor")) {
-        stopf("Learner '%s': the graph produced an object of class '%s' instead of a ModelDescriptor.", self$id, class(md)[[1L]]) # nolint
-      }
-      private$.md = md
-      private$.ingress_tokens_ = md$ingress
-      on.exit({private$.md = NULL}, add = TRUE)
-
-      # `md$task` is the task after the operators before the ingress ran, i.e. the one the network
-      # is built for; its `internal_valid_task` was transformed in predict mode by those operators
-      model = super$.train(md$task)
-      model$ingress = list(
-        tokens = md$ingress,
-        states = map(graph$pipeops[private$.part_ids], "state")
-      )
-      model
+    # The object that the operator of the given class configures, e.g. the `TorchLoss` of the
+    # `PipeOpTorchLoss`, or `NULL` if the graph contains no such operator.
+    .configuration = function(class, field) {
+      po_config = graph_single_pipeop(private$.graph, class)
+      if (!is.null(po_config)) get_private(po_config)[[field]]
     },
-    .predict = function(task) {
-      super$.predict(private$.prepare_task(task, train = FALSE))
-    },
-    .prepare_task = function(task, train) {
-      part = graph_ingress_part(private$.graph, private$.ingress_ids)
-      if (train) {
-        mds = keep(part$train(task), function(x) test_class(x, "ModelDescriptor"))
-        md = Reduce(model_descriptor_union, mds)
-        private$.ingress_tokens_ = md$ingress
-        return(md$task)
+    # Configure that aspect of the training. The whole operator is replaced instead of the object it
+    # holds, because the operator's ParamSet is the one of that object -- which is also why the
+    # parameter values of the operator are lost, just like they are when the loss of a `LearnerTorch`
+    # is replaced.
+    .configure = function(class, key, value) {
+      graph = private$.graph
+      po_config = graph_single_pipeop(graph, class)
+      if (is.null(po_config)) {
+        # the operator has to come in front of the model, which is the last operator of the graph
+        private$.graph = graph_before_model(graph) %>>% po(key, value) %>>% graph_torch_model(graph)
+      } else {
+        graph$pipeops[[po_config$id]] = po(key, value, id = po_config$id)
+        # the graph caches the collection of the parameter sets of its operators
+        graph$.__enclos_env__$private$.param_set = NULL
       }
-      states = self$model$ingress$states
-      if (is.null(states)) {
-        stopf("Learner '%s' must be trained before the prediction phase's data can be created, because the operators before its ingress have not been fitted yet.", self$id) # nolint
-      }
-      for (po_id in names(states)) {
-        part$pipeops[[po_id]]$state = states[[po_id]]
-      }
-      # the ingress operators pass the task through during prediction, so this is the task the
-      # operators before them produced; it is merged the way `model_descriptor_union()` merges the
-      # tasks of several ingress paths during training
-      tasks = keep(part$predict(task), function(x) test_class(x, "Task"))
-      prepared = Reduce(function(t1, t2) {
-        if (identical(t1, t2)) t1 else PipeOpFeatureUnion$new()$train(list(t1, t2))[[1L]]
-      }, tasks)
-      if (!identical(prepared$row_ids, task$row_ids)) {
-        stopf("Learner '%s': the operators before its ingress changed the rows of task '%s' during prediction.", self$id, task$id) # nolint
-      }
-      private$.ingress_tokens_ = self$model$ingress$tokens
-      prepared
-    },
-    .network = function(task, param_vals) {
-      if (is.null(private$.md)) {
-        stopf("Learner '%s' can only build its network during training.", self$id)
-      }
-      network = model_descriptor_to_module(private$.md, output_pointers = list(private$.md$pointer),
-        list_output = FALSE)
-      # the graph built the modules before `$.train()` seeded torch's generator, so their weights
-      # were drawn outside the seeded region; re-initializing here puts them back under the seed,
-      # exactly like `PipeOpTorchModel` does for the GraphLearner route
-      network$reset_parameters()
-      network
-    },
-    .ingress_tokens = function(task, param_vals) {
-      tokens = private$.ingress_tokens_ %??% self$model$ingress$tokens
-      if (is.null(tokens)) {
-        stopf("Learner '%s' has no ingress tokens, use $dataset() only on a trained learner or with train = TRUE.", self$id) # nolint
-      }
-      tokens
-    },
-    .additional_phash_input = function() {
-      list(private$.graph$phash, self$task_type, self$feature_types, self$properties, self$packages)
+      self$packages = union(self$packages, private$.graph$packages)
+      invisible(NULL)
     }
   )
 )
 
-graph_pipeops = function(graph, class) {
-  keep(graph$pipeops, function(po) test_class(po, class))
+# Append the operator that configures one aspect of the training with the default value, unless the
+# graph configures it already.
+graph_default = function(graph, class, key, default) {
+  if (is.null(default) || !is.null(graph_single_pipeop(graph, class))) graph else graph %>>% po(key, default)
 }
 
-graph_ingress_ids = function(graph) {
-  names(graph_pipeops(graph, "PipeOpTorchIngress"))
-}
-
+# The unique `PipeOp` of the given class, or `NULL` if the graph contains none.
 graph_single_pipeop = function(graph, class) {
-  pos = graph_pipeops(graph, class)
+  pos = keep(graph$pipeops, function(po) test_class(po, class))
   if (length(pos) > 1L) {
-    stopf("Graph cannot be converted to a LearnerTorch because it contains more than one %s: %s.", class, paste0("'", names(pos), "'", collapse = ", ")) # nolint
+    stopf("Graph cannot be converted to a torch learner because it contains more than one %s: %s.", class, paste0("'", names(pos), "'", collapse = ", ")) # nolint
   }
   if (length(pos)) pos[[1L]]
 }
 
-# Only the ingress operators can restrict which feature types the learner accepts, and only when
-# nothing preprocesses the task before them -- otherwise the features the ingress sees are not the
-# features of the task. Every ingress sees the whole task, hence the intersection.
-graph_feature_types = function(graph, ingress_ids) {
-  ingress_pos = graph$pipeops[ingress_ids]
-  is_source = !any(graph$edges$dst_id %in% ingress_ids)
-  if (!is_source) {
-    return(unname(mlr_reflections$task_feature_types))
-  }
-  Reduce(intersect, map(ingress_pos, "feature_types"))
+graph_torch_model = function(graph) {
+  graph_single_pipeop(graph, "PipeOpTorchModel")
 }
 
-graph_ingress_ancestors = function(graph, ingress_ids) {
-  edges = graph$edges
-  ids = ingress_ids
-  repeat {
-    parents = if (nrow(edges)) unique(edges$src_id[edges$dst_id %in% ids]) else character(0)
-    new_ids = setdiff(parents, ids)
-    if (!length(new_ids)) break
-    ids = c(ids, new_ids)
-  }
-  ids
-}
-
-# The part of the graph up to and including the ingress operators, i.e. everything that turns the
-# task into the task the network is trained on. It is what the learner has to run again during
-# prediction; the operators behind the ingress only concern the network, which by then exists.
-graph_ingress_part = function(graph, ingress_ids) {
-  edges = graph$edges
-  ids = graph_ingress_ancestors(graph, ingress_ids)
-  part = Graph$new()
-  for (po_id in ids) {
-    part$add_pipeop(graph$pipeops[[po_id]], clone = TRUE)
-  }
-  sub_edges = edges[edges$src_id %in% ids & edges$dst_id %in% ids, ]
-  for (i in seq_len(nrow(sub_edges))) {
-    part$add_edge(
-      src_id = sub_edges$src_id[[i]], src_channel = sub_edges$src_channel[[i]],
-      dst_id = sub_edges$dst_id[[i]], dst_channel = sub_edges$dst_channel[[i]]
-    )
-  }
-  part
+# Everything but the terminal `PipeOpTorchModel`, i.e. the part of the graph that turns the task
+# into the `ModelDescriptor` (during training) or into the task that the network's data is built
+# from (during prediction).
+graph_before_model = function(graph) {
+  id = graph_torch_model(graph)$id
+  graph = graph$clone(deep = TRUE)
+  graph$pipeops[[id]] = NULL
+  graph$edges = graph$edges[get("src_id") != id & get("dst_id") != id]
+  graph
 }

@@ -17,13 +17,14 @@
 * The `num_interop_threads` parameter of `LearnerTorch` is no longer initialized to `1`, so torch's
   default is left in place unless the parameter is set. Setting it to a value that torch can no
   longer apply is now an error instead of a warning.
+* The `phash` of `PipeOpTorchLoss` now takes the loss into account.
+  It read a field that does not exist, so two operators with different losses had the same hash.
 
 ## Features
 
 * New function `as_learner_torch()`, which converts a `Graph` of `PipeOpTorch` operators into a
-  `LearnerTorch` instead of the `GraphLearner` that `as_learner()` returns.
-* The `$dataset()` method of `LearnerTorch` gained a `train` argument that selects whether to build
-  the data of the training or of the prediction phase.
+  `GraphLearner` that appends the `PipeOpTorchModel` if the graph contains none and that has the
+  `$network` field and the `$dataset()` method of a torch learner.
 * `LearnerTorch` and `PipeOpTorchModel` now accept any task type registered in
   `mlr_reflections$task_types`, via the new generics `get_target_batchgetter()` and `encode_prediction()`.
 * New S3 generic `get_batch_constructor()`, which decides how a whole batch of a task is built,

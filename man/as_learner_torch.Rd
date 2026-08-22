@@ -21,18 +21,18 @@ as_learner_torch(x, ...)
 
 \method{as_learner_torch}{PipeOp}(x, ...)
 
-\method{as_learner_torch}{GraphLearner}(x, task_type = x$task_type, id = NULL, ...)
+\method{as_learner_torch}{GraphLearner}(x, task_type = x$task_type, id = x$id, ...)
 }
 \arguments{
 \item{x}{(any)\cr
 The object to convert, e.g. a \code{\link[mlr3pipelines:Graph]{Graph}}.}
 
 \item{...}{(any)\cr
-Parameter values passed to the created learner, e.g. \code{epochs = 10}.}
+Parameter values for the \code{\link{PipeOpTorchModel}}, e.g. \code{epochs = 10}.}
 
 \item{task_type}{(\code{character(1)})\cr
 The task type of the learner.
-Can be omitted if the graph contains a \code{\link{PipeOpTorchModel}}, which then determines it.}
+Can be omitted if the graph already contains a \code{\link{PipeOpTorchModel}}, which then determines it.}
 
 \item{id}{(\code{character(1)})\cr
 The id of the learner. Defaults to \code{"<task_type>.graph"}.}
@@ -50,53 +50,44 @@ They are executed in the order in which they are provided, unless a callback req
 otherwise via its \verb{$weight}, see section \emph{Ordering} of \code{\link{CallbackSet}}.}
 }
 \value{
-\code{\link{LearnerTorch}}
+\code{\link[mlr3pipelines:GraphLearner]{GraphLearner}}
 }
 \description{
 Converts a \code{\link[mlr3pipelines:Graph]{Graph}} that is built from \code{\link{PipeOpTorch}} operators into a
-\code{\link{LearnerTorch}}.
+\code{\link[mlr3pipelines:GraphLearner]{GraphLearner}} that trains the network it defines.
 
-Calling \code{\link[mlr3:as_learner]{as_learner()}} on such a graph gives a
-\code{\link[mlr3pipelines:GraphLearner]{GraphLearner}}, which trains the same network but hides everything
-that makes a torch learner useful behind \verb{$base_learner()}.
-\code{as_learner_torch()} instead returns a first-class \code{\link{LearnerTorch}}, i.e. one with a \verb{$network}
-field, a \verb{$dataset()} method, the torch parameters (\code{epochs}, \code{batch_size}, ...) at the top level,
-as well as marshaling, validation and internal tuning.
+In contrast to \code{\link[mlr3:as_learner]{as_learner()}}, the terminal \code{\link{PipeOpTorchModel}} is appended
+to the graph if it does not contain one already, and the returned learner has the \verb{$network},
+\verb{$loss}, \verb{$optimizer} and \verb{$callbacks} fields and the \verb{$dataset()} method of a torch learner.
 }
 \details{
-The neural network can only be built once the \code{\link[mlr3:Task]{Task}} is known, because the input
-shapes are derived from it. The returned learner therefore stores the \code{Graph} and runs it during
-\verb{$train()} to obtain the \code{\link{ModelDescriptor}} from which the network is created.
+The learner is a \code{\link[mlr3pipelines:GraphLearner]{GraphLearner}}, i.e. the parameters of the graph
+are exposed in \verb{$param_set} under their (\code{PipeOp}-id prefixed) graph names, so the number of
+epochs is e.g. \code{torch_model_classif.epochs} and not \code{epochs}.
+Because the parameters of the torch model are the ones that are usually configured, \code{...} sets
+the parameters of the \code{\link{PipeOpTorchModel}}, i.e. \code{as_learner_torch(graph, epochs = 10)} is the
+same as \code{graph \%>>\% po("torch_model_classif", epochs = 10)} converted with \code{as_learner()}.
 
-The operators that configure the \emph{training} of the model instead of the network are consumed
-during the conversion, i.e. they are taken out of the graph and their configuration is moved to
-the learner:
-\itemize{
-\item \code{\link[=mlr_pipeops_torch_loss]{po("torch_loss")}} becomes the learner's \verb{$loss} (parameters \verb{loss.*}).
-\item \code{\link[=mlr_pipeops_torch_optimizer]{po("torch_optimizer")}} becomes the learner's \verb{$optimizer}
-(parameters \verb{opt.*}).
-\item \code{\link[=mlr_pipeops_torch_callbacks]{po("torch_callbacks")}} becomes the learner's \verb{$callbacks}
-(parameters \verb{cb.<id>.*}).
-\item \code{\link[=mlr_pipeops_torch_model_classif]{po("torch_model_classif")}} and friends determine the
-\code{task_type} and their parameter values (\code{epochs}, \code{batch_size}, ...) become the learner's.
-}
+The loss, the optimizer and the callbacks are configured in the graph via
+\code{\link[=mlr_pipeops_torch_loss]{po("torch_loss")}}, \code{\link[=mlr_pipeops_torch_optimizer]{po("torch_optimizer")}}
+and \code{\link[=mlr_pipeops_torch_callbacks]{po("torch_callbacks")}}, of which the graph may contain at most
+one each.
+Just like for a \code{\link{LearnerTorch}}, they are available via the \verb{$loss}, \verb{$optimizer} and
+\verb{$callbacks} fields, which also replace the corresponding operator when assigned to.
+The arguments of the same name configure them during construction and take precedence over what
+the graph configures.
+When neither does, the defaults of \code{\link{LearnerTorch}} are used, i.e. the cross-entropy
+(classification) or mean-squared-error (regression) loss and the Adam optimizer.
 
-The \code{loss}, \code{optimizer} and \code{callbacks} arguments take precedence over the corresponding operators
-in the graph.
-All remaining parameters of the graph are exposed in the learner's \verb{$param_set} under the same
-(\code{PipeOp}-id prefixed) names that the graph uses, so e.g. \code{nn_linear.out_features} keeps working.
-
-Operators that transform the \code{\link[mlr3:Task]{Task}} before it reaches an ingress -- such as
-\code{\link[mlr3pipelines:mlr_pipeops_scale]{po("scale")}}, \code{\link[mlr3pipelines:mlr_pipeops_select]{po("select")}}
-(which is how a network with several ingress operators splits the task) or the
-\link[=PipeOpTaskPreprocTorch]{preprocessing operators} -- are part of the learner and keep their
-\code{\link[mlr3pipelines:PipeOp]{PipeOp}} semantics: they are trained during \verb{$train()} and the state they
-fitted is reused during \verb{$predict()}, so e.g. \code{po("scale")} standardizes the prediction data with
-the training statistics and an augmentation with \code{stages = "train"} is not applied during
-prediction.
-The fitted states are stored in \verb{$model$ingress$states}.
+The neural network is only built during \verb{$train()}, because the input shapes are derived from the
+\code{\link[mlr3:Task]{Task}}.
+Afterwards it is available via \verb{$network}, which is a shortcut for \verb{$base_learner()$network}.
 \verb{$dataset(task)} returns the tensors of the prediction phase for a trained learner, pass
 \code{train = TRUE} for those of the training phase.
+The two differ when the graph transforms the task before it reaches an ingress -- such as
+\code{\link[mlr3pipelines:mlr_pipeops_scale]{po("scale")}} or the
+\link[=PipeOpTaskPreprocTorch]{preprocessing operators} -- because the prediction phase reuses the
+state that these operators fitted during training.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -110,8 +101,7 @@ graph = po("scale") \%>>\%
 
 learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
 learner$id
-# the parameters of the graph are available at the top level
-learner$param_set$set_values(linear.out_features = 20, opt.lr = 0.01)
+learner$param_set$set_values(linear.out_features = 20, torch_optimizer.lr = 0.01)
 
 task = tsk("iris")
 learner$train(task)
@@ -120,7 +110,6 @@ learner$predict(task)
 
 # po("scale") is part of the learner: it was fitted during $train() and the prediction data
 # is standardized with those statistics
-learner$model$ingress$states$scale$center
 learner$dataset(task)
 \dontshow{\}) # examplesIf}
 }

@@ -11,14 +11,13 @@ test_that("classification: train and predict", {
   task = tsk("iris")
   learner = as_learner_torch(simple_graph(), task_type = "classif", epochs = 1, batch_size = 32)
 
-  expect_class(learner, "LearnerTorch")
+  expect_class(learner, "GraphLearner")
   expect_equal(learner$id, "classif.graph")
   expect_equal(learner$task_type, "classif")
-  expect_equal(learner$feature_types, c("integer", "numeric"))
 
   learner$train(task)
   expect_class(learner$network, c("nn_graph", "nn_module"))
-  expect_class(learner$model, "learner_torch_model")
+  expect_class(learner$base_learner(), "LearnerTorchModel")
 
   pred = learner$predict(task)
   expect_class(pred, "PredictionClassif")
@@ -30,15 +29,12 @@ test_that("regression: train and predict", {
   graph = po("torch_ingress_num") %>>% nn("head") %>>% po("torch_optimizer", "sgd", lr = 0.001)
   learner = as_learner_torch(graph, task_type = "regr", epochs = 1, batch_size = 16)
 
-  expect_class(learner, "LearnerTorch")
+  expect_class(learner, "GraphLearner")
   expect_equal(learner$id, "regr.graph")
-  # no `po("torch_loss")` in the graph, so the LearnerTorch default is used
-  expect_equal(learner$loss$id, "mse")
 
   learner$train(task)
   expect_class(learner$network, c("nn_graph", "nn_module"))
-  pred = learner$predict(task)
-  expect_class(pred, "PredictionRegr")
+  expect_class(learner$predict(task), "PredictionRegr")
 })
 
 test_that("the network and the dataset match the ingress of the graph", {
@@ -54,7 +50,7 @@ test_that("the network and the dataset match the ingress of the graph", {
   expect_equal(out$shape, c(2, 3))
 })
 
-test_that("predictions are identical to the GraphLearner route", {
+test_that("the learner is the one of the as_learner() route", {
   withr::local_seed(1)
   task = tsk("iris")
   graph = simple_graph()
@@ -68,6 +64,7 @@ test_that("predictions are identical to the GraphLearner route", {
   glrn$train(task)
 
   expect_equal(learner$predict(task)$prob, glrn$predict(task)$prob)
+  expect_equal(learner$param_set$values, glrn$param_set$values)
 })
 
 test_that("hyperparameters of the graph are exposed and used", {
@@ -75,46 +72,83 @@ test_that("hyperparameters of the graph are exposed and used", {
 
   expect_subset(c("linear.out_features", "linear.bias", "head.bias"), learner$param_set$ids())
   expect_equal(learner$param_set$values$linear.out_features, 5)
-  # the parameters of the consumed configuration operators move to the LearnerTorch names
-  expect_subset(c("opt.lr", "loss.reduction"), learner$param_set$ids())
-  expect_false(any(startsWith(learner$param_set$ids(), "torch_")))
-  expect_equal(learner$param_set$values$opt.lr, 0.1)
+  # `...` configures the appended PipeOpTorchModel
+  expect_equal(learner$param_set$values$torch_model_classif.epochs, 1)
+  expect_equal(learner$param_set$values$torch_optimizer.lr, 0.1)
 
   learner$param_set$set_values(linear.out_features = 7)
   learner$train(tsk("iris"))
   expect_equal(learner$network$graph$pipeops$linear$module$out_features, 7)
 })
 
-test_that("loss, optimizer and callbacks are taken from the graph", {
+test_that("loss, optimizer and callbacks are read from the graph", {
   graph = simple_graph() %>>% po("torch_callbacks", t_clbk("checkpoint", freq = 2))
   learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
 
   expect_equal(learner$loss$id, "cross_entropy")
   expect_equal(learner$optimizer$id, "adam")
   expect_equal(ids(learner$callbacks), "checkpoint")
-  expect_subset("cb.checkpoint.freq", learner$param_set$ids())
-  expect_equal(learner$param_set$values$cb.checkpoint.freq, 2)
+  expect_equal(learner$param_set$values$torch_callbacks.checkpoint.freq, 2)
 })
 
 test_that("constructor arguments take precedence over the graph", {
-  learner = as_learner_torch(simple_graph(), task_type = "classif", optimizer = t_opt("sgd", lr = 0.5),
-    loss = t_loss("cross_entropy", reduction = "sum"), id = "my_learner")
+  path = tempfile()
+  learner = as_learner_torch(simple_graph(), task_type = "classif", id = "my_learner",
+    loss = t_loss("cross_entropy", reduction = "sum"), optimizer = t_opt("sgd", lr = 0.5),
+    callbacks = t_clbk("checkpoint", freq = 1, path = path), epochs = 1, batch_size = 32)
 
   expect_equal(learner$id, "my_learner")
   expect_equal(learner$optimizer$id, "sgd")
-  expect_equal(learner$param_set$values$opt.lr, 0.5)
-  expect_equal(learner$param_set$values$loss.reduction, "sum")
+  expect_equal(learner$param_set$values$torch_optimizer.lr, 0.5)
+  expect_equal(learner$param_set$values$torch_loss.reduction, "sum")
+  # the callbacks operator is not part of the graph, so it was inserted in front of the model
+  expect_equal(ids(learner$callbacks), "checkpoint")
+  expect_equal(learner$param_set$values$torch_callbacks.checkpoint.freq, 1)
+  expect_equal(last(learner$graph$ids(sorted = TRUE)), "torch_model_classif")
+
+  learner$train(tsk("iris"))
+  expect_equal(learner$base_learner()$model$callbacks$checkpoint$path, path)
 })
 
-test_that("a terminal PipeOpTorchModel determines the task type and the parameter values", {
+test_that("loss, optimizer and callbacks can be replaced", {
+  learner = as_learner_torch(simple_graph(), task_type = "classif", epochs = 1, batch_size = 32)
+
+  learner$loss = t_loss("cross_entropy", reduction = "sum")
+  learner$optimizer = t_opt("sgd", lr = 0.5)
+  learner$callbacks = t_clbk("history")
+
+  expect_equal(learner$loss$id, "cross_entropy")
+  expect_equal(learner$param_set$values$torch_loss.reduction, "sum")
+  expect_equal(learner$optimizer$id, "sgd")
+  expect_equal(learner$param_set$values$torch_optimizer.lr, 0.5)
+  # replacing the optimizer removes the parameter values of the previous one
+  expect_false("torch_optimizer.betas" %in% names(learner$param_set$values))
+  expect_equal(ids(learner$callbacks), "history")
+
+  learner$train(tsk("iris"))
+  expect_data_table(learner$base_learner()$model$callbacks$history)
+
+  # a loss that does not support the task type is rejected, as for a LearnerTorch
+  expect_error({learner$loss = t_loss("mse")}, "task_type")
+})
+
+test_that("the loss and the optimizer default to the ones of LearnerTorch", {
+  learner = as_learner_torch(po("torch_ingress_num") %>>% nn("head"), task_type = "regr",
+    epochs = 1, batch_size = 16)
+
+  expect_subset(c("torch_loss.reduction", "torch_optimizer.lr"), learner$param_set$ids())
+  learner$train(tsk("mtcars"))
+  expect_equal(learner$base_learner()$loss$id, "mse")
+  expect_equal(learner$base_learner()$optimizer$id, "adam")
+})
+
+test_that("a terminal PipeOpTorchModel determines the task type and takes the parameter values", {
   graph = simple_graph() %>>% po("torch_model_classif", epochs = 3, batch_size = 8)
-  learner = as_learner_torch(graph)
+  learner = as_learner_torch(graph, batch_size = 16)
 
   expect_equal(learner$task_type, "classif")
-  expect_equal(learner$param_set$values$epochs, 3)
-  expect_equal(learner$param_set$values$batch_size, 8)
-  # `epochs` must not be exposed a second time under the PipeOp's name
-  expect_false(any(startsWith(learner$param_set$ids(), "torch_model_classif.")))
+  expect_equal(learner$param_set$values$torch_model_classif.epochs, 3)
+  expect_equal(learner$param_set$values$torch_model_classif.batch_size, 16)
 
   learner$train(tsk("iris"))
   expect_class(learner$network, "nn_graph")
@@ -123,13 +157,16 @@ test_that("a terminal PipeOpTorchModel determines the task type and the paramete
 test_that("PipeOp and GraphLearner methods", {
   learner = as_learner_torch(po("torch_ingress_num") %>>% nn("head"), task_type = "regr",
     epochs = 1, batch_size = 16)
-  expect_class(learner, "LearnerTorch")
+  expect_class(learner, "GraphLearner")
+  learner$train(tsk("mtcars"))
+  expect_class(learner$network, "nn_graph")
 
   glrn = as_learner(simple_graph() %>>% po("torch_model_classif", epochs = 1, batch_size = 32))
   learner2 = as_learner_torch(glrn)
-  expect_class(learner2, "LearnerTorch")
+  expect_class(learner2, "GraphLearner")
   expect_equal(learner2$task_type, "classif")
-  expect_equal(learner2$param_set$values$epochs, 1)
+  expect_equal(learner2$id, glrn$id)
+  expect_equal(learner2$param_set$values$torch_model_classif.epochs, 1)
 })
 
 test_that("multiple ingress operators", {
@@ -142,9 +179,6 @@ test_that("multiple ingress operators", {
   )) %>>% nn("merge_cat") %>>% nn("head")
 
   learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
-  # the task is preprocessed before it reaches the ingress, so the learner cannot restrict its
-  # feature types to the ones the ingress accepts
-  expect_set_equal(learner$feature_types, unname(mlr_reflections$task_feature_types))
 
   learner$train(task)
   expect_set_equal(names(learner$network$shapes_in), c("sepal.input", "petal.input"))
@@ -157,7 +191,6 @@ test_that("lazy tensor ingress", {
   graph = po("torch_ingress_ltnsr") %>>% nn("head")
   learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
 
-  expect_equal(learner$feature_types, "lazy_tensor")
   learner$train(task)
   expect_equal(learner$network$shapes_in[["torch_ingress_ltnsr.input"]], c(NA, 4))
   expect_class(learner$predict(task), "PredictionClassif")
@@ -179,7 +212,7 @@ test_that("graphs that cannot be converted give an informative error", {
   expect_error(
     as_learner_torch(gunion(list(po("torch_ingress_num"), po("torch_ingress_num", id = "second"))),
       task_type = "classif"),
-    "2 output channels"
+    "output"
   )
   learner = as_learner_torch(po("torch_ingress_num") %>>% nn("head"), task_type = "classif")
   expect_error(learner$dataset(tsk("iris"), train = FALSE), "must be trained before")
@@ -195,9 +228,6 @@ test_that("a stateful operator before the ingress predicts with the training sta
   learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
   learner$train(task)
 
-  expect_names(names(learner$model$ingress$states), permutation.of = c("scale", "torch_ingress_num"))
-  expect_numeric(learner$model$ingress$states$scale$center, len = 4L)
-
   # only the first class, whose features are far from the mean of the whole task
   setosa = task$clone()$filter(1:50)
   # the prediction phase standardizes with the statistics of the training task, ...
@@ -207,25 +237,6 @@ test_that("a stateful operator before the ingress predicts with the training sta
 
   expect_class(learner$predict(setosa), "PredictionClassif")
   expect_class(learner$predict_newdata(task$data(1:5)), "PredictionClassif")
-})
-
-test_that("predictions match the GraphLearner route with a stateful operator in the graph", {
-  withr::local_seed(1)
-  task = tsk("iris")
-  graph = po("scale") %>>% po("torch_ingress_num") %>>% nn("linear", out_features = 5) %>>%
-    nn("relu") %>>% nn("head") %>>% po("torch_loss", "cross_entropy") %>>%
-    po("torch_optimizer", "adam", lr = 0.1)
-  ids = partition(task)
-
-  learner = as_learner_torch(graph, task_type = "classif", epochs = 2, batch_size = 32, seed = 1)
-  learner$predict_type = "prob"
-  learner$train(task, ids$train)
-
-  glrn = as_learner(graph %>>% po("torch_model_classif", epochs = 2, batch_size = 32, seed = 1))
-  glrn$predict_type = "prob"
-  glrn$train(task, ids$train)
-
-  expect_equal(learner$predict(task, ids$test)$prob, glrn$predict(task, ids$test)$prob)
 })
 
 test_that("the stages of a preprocessing operator are respected", {
@@ -244,13 +255,12 @@ test_that("the stages of a preprocessing operator are respected", {
   expect_equal(batch_mean(learner$dataset(task), 10L), raw)
 })
 
-test_that("marshaling and serialization with a stateful operator before the ingress", {
+test_that("marshaling and serialization", {
   task = tsk("iris")
   graph = po("scale") %>>% po("torch_ingress_num") %>>% nn("head")
   learner = as_learner_torch(graph, task_type = "classif", epochs = 1, batch_size = 32)
   learner$train(task)
   pred = learner$predict(task)
-  center = learner$model$ingress$states$scale$center
 
   path = tempfile()
   on.exit(unlink(path), add = TRUE)
@@ -259,11 +269,11 @@ test_that("marshaling and serialization with a stateful operator before the ingr
   saveRDS(learner, path)
   learner2 = readRDS(path)$unmarshal()
 
-  expect_equal(learner2$model$ingress$states$scale$center, center)
   expect_equal(learner2$predict(task)$response, pred$response)
+  expect_class(learner2$network, "nn_graph")
 })
 
-test_that("the internal validation task is transformed like prediction data", {
+test_that("validation and internal tuning", {
   task = tsk("iris")
   graph = po("scale") %>>% po("torch_ingress_num") %>>% nn("head")
   learner = as_learner_torch(graph, task_type = "classif", epochs = 3, batch_size = 32,
@@ -271,11 +281,8 @@ test_that("the internal validation task is transformed like prediction data", {
   set_validate(learner, 0.3)
   learner$train(task)
 
-  expect_number(learner$internal_valid_scores$classif.ce)
-  expect_number(learner$internal_tuned_values$epochs)
-  # the state was fitted on the training part only, not on the whole task
-  expect_false(isTRUE(all.equal(unname(learner$model$ingress$states$scale$center),
-    unname(colMeans(as.matrix(task$data(cols = task$feature_names)))))))
+  expect_number(learner$internal_valid_scores$torch_model_classif.classif.ce)
+  expect_number(learner$internal_tuned_values$torch_model_classif.epochs)
 })
 
 test_that("resampling works with a stateful operator before the ingress", {
@@ -284,11 +291,6 @@ test_that("resampling works with a stateful operator before the ingress", {
   rr = resample(tsk("iris"), learner, rsmp("cv", folds = 2L), store_models = TRUE)
   expect_double(rr$aggregate())
   # every fold fitted its own state
-  centers = map(rr$learners, function(l) l$model$ingress$states$scale$center)
+  centers = map(rr$learners, function(l) l$graph_model$pipeops$scale$state$center)
   expect_false(isTRUE(all.equal(centers[[1L]], centers[[2L]])))
-})
-
-test_that("autotest", {
-  learner = as_learner_torch(simple_graph(), task_type = "classif", epochs = 1, batch_size = 32)
-  expect_learner_torch(learner, task = tsk("iris"))
 })
