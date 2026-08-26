@@ -21,11 +21,27 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
     device = param_vals$device
   )
 
-  callbacks = set_names(lapply(self$callbacks, function(descriptor) {
+  # the stages a callback set defines, read off its generator instead of an instance:
+  # inherited stages live in the parent generators, so the whole chain is walked
+  extract_stages_from_generator = function(generator) {
+    stages = character()
+    # TODO: confirm thiswalks up the inheritance chain
+    while (inherits(generator, "R6ClassGenerator")) {
+      stages = c(stages, names(generator$public_methods))
+      generator = generator$get_inherit()
+    }
+    unique(stages)
+  }
+
+  predict_descriptors = keep(self$callbacks, function(descriptor) {
+    any(mlr_reflections$torch$predict_stages %in% extract_stages_from_generator(descriptor$generator))
+  })
+
+  callbacks = set_names(lapply(predict_descriptors, function(descriptor) {
     cb = descriptor$generate()
     cb$ctx = ctx
     cb
-  }), ids(self$callbacks))
+  }), ids(predict_descriptors))
 
   call = function(step_name) {
     lapply(callbacks, function(x) {

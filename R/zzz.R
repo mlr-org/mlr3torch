@@ -62,6 +62,11 @@ register_mlr3 = function() {
       "on_predict_begin",
       "on_batch_predict_end",
       "on_predict_end"
+    ),
+    predict_stages = c(
+      "on_predict_begin",
+      "on_batch_predict_end",
+      "on_predict_end"
     )
   )
 
