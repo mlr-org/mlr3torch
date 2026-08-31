@@ -23,10 +23,31 @@ This validation data can also be used for early stopping, see the description of
 
 \section{Saving a Learner}{
 
-In order to save a \code{LearnerTorch} for later usage, it is necessary to call the \verb{$marshal()} method on the \code{Learner}
-before writing it to disk, as the object will otherwise not be saved correctly.
-After loading a marshaled \code{LearnerTorch} into R again, you then need to call \verb{$unmarshal()} to transform it
-into a useable state.
+A trained network lives in C++ memory and R only holds an external pointer to it. Such a pointer
+is meaningless in another R session, so a \code{LearnerTorch} has to be \emph{marshaled} -- its tensors
+converted into plain R objects -- before it is written to disk, and unmarshaled afterwards:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{learner$train(task)
+learner$marshal()
+saveRDS(learner, "learner.rds")
+
+learner = readRDS("learner.rds")
+learner$unmarshal()
+learner$predict(task)
+}\if{html}{\out{</div>}}
+
+Skipping \verb{$marshal()} is a silent-data-loss footgun rather than an error: \code{saveRDS()} on an
+unmarshaled learner \emph{succeeds}, and only the \verb{$predict()} after \code{readRDS()} fails, with
+\verb{external pointer is not valid}. If you see that message, this section is the reason.
+
+\code{resample()}, \code{benchmark()} and tuning do this for you. \code{LearnerTorch} has the \code{"marshal"}
+property, so \code{mlr3} marshals and unmarshals around every worker boundary automatically -- with
+\code{future}, \code{mirai} or \code{callr} alike. The manual calls above are only needed when you serialize a
+learner yourself.
+
+For the same reason \verb{$model$network} must not be shared across processes: it is a live torch
+object bound to the session and the device that created it, not a value that can be sent
+somewhere else.
 }
 
 \section{Early Stopping and Internal Tuning}{
@@ -153,8 +174,22 @@ These include:
 When resampling, benchmarking or tuning in parallel, each worker uses \code{num_threads} threads, so
 divide the available cores among the workers instead to avoid oversubscribing the machine.
 \item \code{tensor_dataset}: Set this to \code{TRUE} (or \code{"device"} if on a GPU) if the dataset fits into memory.
+This loads and stacks every batch once up front, so it must not be used with a \code{\link{lazy_tensor}}
+that applies random data augmentation -- the augmentation would then be drawn only once.
 \item \code{batch_size}: Especially for very small models, choose a larger batch size.
+\item \code{batch_size_predict}: Prediction has no backward pass and so fits larger batches than training.
+It does not change the predictions, so it trades memory against speed and nothing else.
+\item \code{jit_trace}: Set this to \code{TRUE} to remove the per-batch R interpreter overhead, but only for a
+network whose control flow and shapes do not depend on the data. See the parameter's own entry.
+\item \code{num_workers}: Load batches in parallel worker processes. This pays off when the dataset does
+real work per item -- decoding images, or materializing a \code{\link{lazy_tensor}} -- and costs more than
+it saves for data that is already in memory. Workers are separate R processes, so anything they
+need has to reach them via \code{worker_globals}, \code{worker_packages} and \code{worker_init_fn}.
+\item \code{pin_memory}: With a GPU, this speeds up the host-to-device copy of each batch.
 }
+
+Downloads and the cached datasets that back the example tasks are governed separately; see
+\code{\link{mlr3torch-package}} for the \code{mlr3torch.cache} option.
 
 Also, see the \emph{Early Stopping and Internal Tuning} section for how to terminate training early.
 }
@@ -218,6 +253,19 @@ can avoid unnecessary moving of tensors between devices.
 When your dataset fits into memory this will make the loading of batches faster.
 Note that this should not be set for datasets that contain \code{\link{lazy_tensor}}s with random data augmentation,
 as this augmentation will only be applied once at the beginning of training.
+\item \code{jit_trace} :: \code{logical(1)}\cr
+Whether to trace the network with \code{\link[torch:jit_trace]{torch::jit_trace()}} once at the start of training and then
+train the traced module instead of the original one.
+This is initialized to \code{FALSE}, and the parameter only exists for learners whose architecture
+can be traced -- the torchvision learners that cannot (Inception v3 and the vision transformers,
+whose control flow the tracer cannot represent) do not expose it.
+Tracing removes the per-batch overhead of the R interpreter, which can speed up training
+noticeably for small networks, where that overhead is a large share of the work.
+It records the operations of a single example batch, so it is only faithful when the network's
+control flow does not depend on the data and the shapes do not vary between batches.
+A network that branches on tensor \emph{values}, or that changes shape from batch to batch, is traced
+into whichever path the example batch happened to take, silently and without a warning.
+After training, \verb{$model$network} is a \code{script_module} rather than the module the learner built.
 }
 
 \strong{Evaluation}:
@@ -308,7 +356,7 @@ Negative values mean no timeout and the default is \code{-1}.
 A function that receives the worker id (in \verb{[1, num_workers]}) and is executed after seeding
 on the worker but before data loading.
 \item \code{worker_globals} :: \code{list()} | \code{character()}\cr
-When loading data in parallel, this allows to export globals to the workers.
+When loading data in parallel, this makes it possible to export globals to the workers.
 If this is a character vector, the objects in the global environment with those names
 are copied to the workers.
 \item \code{worker_packages} :: \code{character()}\cr

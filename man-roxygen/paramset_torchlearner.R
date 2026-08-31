@@ -42,6 +42,19 @@
 #'   When your dataset fits into memory this will make the loading of batches faster.
 #'   Note that this should not be set for datasets that contain [`lazy_tensor`]s with random data augmentation,
 #'   as this augmentation will only be applied once at the beginning of training.
+#' * `jit_trace` :: `logical(1)`\cr
+#'   Whether to trace the network with [`torch::jit_trace()`] once at the start of training and then
+#'   train the traced module instead of the original one.
+#'   This is initialized to `FALSE`, and the parameter only exists for learners whose architecture
+#'   can be traced -- the torchvision learners that cannot (Inception v3 and the vision transformers,
+#'   whose control flow the tracer cannot represent) do not expose it.
+#'   Tracing removes the per-batch overhead of the R interpreter, which can speed up training
+#'   noticeably for small networks, where that overhead is a large share of the work.
+#'   It records the operations of a single example batch, so it is only faithful when the network's
+#'   control flow does not depend on the data and the shapes do not vary between batches.
+#'   A network that branches on tensor *values*, or that changes shape from batch to batch, is traced
+#'   into whichever path the example batch happened to take, silently and without a warning.
+#'   After training, `$model$network` is a `script_module` rather than the module the learner built.
 #'
 #' **Evaluation**:
 #' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s\cr
@@ -124,7 +137,7 @@
 #'   A function that receives the worker id (in `[1, num_workers]`) and is executed after seeding
 #'   on the worker but before data loading.
 #' * `worker_globals` :: `list()` | `character()`\cr
-#'   When loading data in parallel, this allows to export globals to the workers.
+#'   When loading data in parallel, this makes it possible to export globals to the workers.
 #'   If this is a character vector, the objects in the global environment with those names
 #'   are copied to the workers.
 #' * `worker_packages` :: `character()`\cr

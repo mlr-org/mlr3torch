@@ -16,10 +16,32 @@
 #' This validation data can also be used for early stopping, see the description of the `Learner`'s parameters.
 #'
 #' @section Saving a Learner:
-#' In order to save a `LearnerTorch` for later usage, it is necessary to call the `$marshal()` method on the `Learner`
-#' before writing it to disk, as the object will otherwise not be saved correctly.
-#' After loading a marshaled `LearnerTorch` into R again, you then need to call `$unmarshal()` to transform it
-#' into a useable state.
+#' A trained network lives in C++ memory and R only holds an external pointer to it. Such a pointer
+#' is meaningless in another R session, so a `LearnerTorch` has to be *marshaled* -- its tensors
+#' converted into plain R objects -- before it is written to disk, and unmarshaled afterwards:
+#'
+#' ```r
+#' learner$train(task)
+#' learner$marshal()
+#' saveRDS(learner, "learner.rds")
+#'
+#' learner = readRDS("learner.rds")
+#' learner$unmarshal()
+#' learner$predict(task)
+#' ```
+#'
+#' Skipping `$marshal()` is a silent-data-loss footgun rather than an error: `saveRDS()` on an
+#' unmarshaled learner *succeeds*, and only the `$predict()` after `readRDS()` fails, with
+#' `external pointer is not valid`. If you see that message, this section is the reason.
+#'
+#' `resample()`, `benchmark()` and tuning do this for you. `LearnerTorch` has the `"marshal"`
+#' property, so `mlr3` marshals and unmarshals around every worker boundary automatically -- with
+#' `future`, `mirai` or `callr` alike. The manual calls above are only needed when you serialize a
+#' learner yourself.
+#'
+#' For the same reason `$model$network` must not be shared across processes: it is a live torch
+#' object bound to the session and the device that created it, not a value that can be sent
+#' somewhere else.
 #'
 #' @section Early Stopping and Internal Tuning:
 #' In order to prevent overfitting, the `LearnerTorch` class allows to use early stopping via the `patience`
@@ -127,7 +149,21 @@
 #'   When resampling, benchmarking or tuning in parallel, each worker uses `num_threads` threads, so
 #'   divide the available cores among the workers instead to avoid oversubscribing the machine.
 #' * `tensor_dataset`: Set this to `TRUE` (or `"device"` if on a GPU) if the dataset fits into memory.
+#'   This loads and stacks every batch once up front, so it must not be used with a [`lazy_tensor`]
+#'   that applies random data augmentation -- the augmentation would then be drawn only once.
 #' * `batch_size`: Especially for very small models, choose a larger batch size.
+#' * `batch_size_predict`: Prediction has no backward pass and so fits larger batches than training.
+#'   It does not change the predictions, so it trades memory against speed and nothing else.
+#' * `jit_trace`: Set this to `TRUE` to remove the per-batch R interpreter overhead, but only for a
+#'   network whose control flow and shapes do not depend on the data. See the parameter's own entry.
+#' * `num_workers`: Load batches in parallel worker processes. This pays off when the dataset does
+#'   real work per item -- decoding images, or materializing a [`lazy_tensor`] -- and costs more than
+#'   it saves for data that is already in memory. Workers are separate R processes, so anything they
+#'   need has to reach them via `worker_globals`, `worker_packages` and `worker_init_fn`.
+#' * `pin_memory`: With a GPU, this speeds up the host-to-device copy of each batch.
+#'
+#' Downloads and the cached datasets that back the example tasks are governed separately; see
+#' [`mlr3torch-package`] for the `mlr3torch.cache` option.
 #'
 #' Also, see the *Early Stopping and Internal Tuning* section for how to terminate training early.
 #'

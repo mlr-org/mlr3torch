@@ -57,6 +57,19 @@ can avoid unnecessary moving of tensors between devices.
 When your dataset fits into memory this will make the loading of batches faster.
 Note that this should not be set for datasets that contain \code{\link{lazy_tensor}}s with random data augmentation,
 as this augmentation will only be applied once at the beginning of training.
+\item \code{jit_trace} :: \code{logical(1)}\cr
+Whether to trace the network with \code{\link[torch:jit_trace]{torch::jit_trace()}} once at the start of training and then
+train the traced module instead of the original one.
+This is initialized to \code{FALSE}, and the parameter only exists for learners whose architecture
+can be traced -- the torchvision learners that cannot (Inception v3 and the vision transformers,
+whose control flow the tracer cannot represent) do not expose it.
+Tracing removes the per-batch overhead of the R interpreter, which can speed up training
+noticeably for small networks, where that overhead is a large share of the work.
+It records the operations of a single example batch, so it is only faithful when the network's
+control flow does not depend on the data and the shapes do not vary between batches.
+A network that branches on tensor \emph{values}, or that changes shape from batch to batch, is traced
+into whichever path the example batch happened to take, silently and without a warning.
+After training, \verb{$model$network} is a \code{script_module} rather than the module the learner built.
 }
 
 \strong{Evaluation}:
@@ -147,7 +160,7 @@ Negative values mean no timeout and the default is \code{-1}.
 A function that receives the worker id (in \verb{[1, num_workers]}) and is executed after seeding
 on the worker but before data loading.
 \item \code{worker_globals} :: \code{list()} | \code{character()}\cr
-When loading data in parallel, this allows to export globals to the workers.
+When loading data in parallel, this makes it possible to export globals to the workers.
 If this is a character vector, the objects in the global environment with those names
 are copied to the workers.
 \item \code{worker_packages} :: \code{character()}\cr
