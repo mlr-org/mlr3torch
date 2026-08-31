@@ -29,18 +29,9 @@ This then also requires to implement a \verb{$load_state_dict(state_dict)} metho
 callback state into a different callback.
 Note that the \verb{$state_dict()} should not include the parameter values that were used to initialize the callback.
 
-A callback that ends training by setting \code{ctx$terminate} should set it again in
-\verb{$load_state_dict()} when its restored state says the run was over -- as
-\link[=mlr_learners_torch]{early stopping} does when the restored stagnation has reached \code{patience}.
-The training loop consults \code{ctx$terminate} before each epoch, so a run continuing such a
-checkpoint then trains nothing instead of one more epoch.
-
-A state must survive \code{\link[base:readRDS]{saveRDS()}}, which is how \code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}}
-writes it and how a learner is serialized.
-\code{torch} tensors and modules do not: they are external pointers, and one that was written and read
-back errors with \verb{external pointer is not valid} when it is used.
-Convert them, e.g. with \code{\link[base:array]{as.array()}} or \code{\link[torch:torch_serialize]{torch::torch_serialize()}}, and convert
-them back in \verb{$load_state_dict()}.
+In order to be able to resume a callback, it needs to work with \code{saveRDS}, so it cannot contain
+external pointers such as \code{\link[torch:torch_tensor]{torch_tensor}}s.
+Convert them to R data, e.g. via \code{as.array()}.
 
 For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
 \code{CallbackSet} and then wraps it in a \code{\link{TorchCallback}}.
@@ -169,6 +160,9 @@ This returns \code{NULL} by default.
 \if{latex}{\out{\hypertarget{method-CallbackSet-load_state_dict}{}}}
 \subsection{\code{CallbackSet$load_state_dict()}}{
   Loads the state dict into the callback to continue training.
+A callback that keeps no state inherits this, which has nothing to load and therefore only
+warns when it is handed a state anyway -- a callback that implements \verb{$state_dict()} but not
+this method, so that a resuming run cannot give its state back.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSet$load_state_dict(state_dict)}

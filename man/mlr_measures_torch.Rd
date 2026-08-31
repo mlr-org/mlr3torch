@@ -95,23 +95,6 @@ The range of possible scores.}
 The predict type the measure requires: \code{"response"} (default), \code{"prob"}, \code{"se"} or
 \code{"lazy_tensor"}.
 A measure asking for one it did not declare here still receives it, if the prediction has it.}
-      \item{\code{properties}}{(\code{character()})\cr
-Properties of the measure, see \code{\link[mlr3:Measure]{Measure}}.
-The \code{"requires_task"}, \code{"requires_learner"}, \code{"requires_train_set"} and \code{"weights"} properties
-are added automatically when \code{fun} declares the corresponding argument.
-\code{"requires_model"} is not: a \code{learner} argument only says that the learner object is needed,
-and \code{mlr3} hands that over even when the model was not stored -- after a \code{resample()} with
-\code{store_models = FALSE}, \code{learner$network} is then \code{NULL} and a measure reading it scores
-whatever an empty model gives. Pass \code{properties = "requires_model"} yourself whenever the
-measure reaches for the trained network, so that \code{mlr3} refuses to score instead.}
-      \item{\code{label}}{(\code{character(1)})\cr
-The label of the measure.}
-      \item{\code{obs_loss}}{(\verb{function()} or \code{NULL})\cr
-The per-observation loss. Declared like \code{fun}, except that \code{train_set} is not available here,
-and if specified adds the \code{"obs_loss"} property.
-It must return one number per observation: a multi-target loss reduces over the targets
-(\code{rowMeans()}), not over the observations (\code{mean()}), and returning a single number is an error
-rather than a column of that number repeated.}
     }
     \if{html}{\out{</div>}}
   }

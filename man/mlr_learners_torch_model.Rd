@@ -44,6 +44,8 @@ learner$predict(task, ids$test)
 }
 \seealso{
 Other Learner:
+\code{\link{GraphLearnerTorch}},
+\code{\link[=as_learner_torch]{as_learner_torch()}},
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
@@ -56,6 +58,7 @@ Other Learner:
 Other Graph Network:
 \code{\link[=ModelDescriptor]{ModelDescriptor()}},
 \code{\link[=TorchIngressToken]{TorchIngressToken()}},
+\code{\link[=as_learner_torch]{as_learner_torch()}},
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{mlr_pipeops_torch_ingress}},

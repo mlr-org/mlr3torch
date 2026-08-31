@@ -12,11 +12,6 @@ Unfreeze some weights (parameters of the network) after some number of steps or 
 Which weights are trainable is stored and restored, so a resumed run does not freeze again what
 the run it continues had already unfrozen: \code{starting_weights} is applied first, and the restored
 weights are unfrozen on top of it.
-The schedule itself continues rather than starting over, since an \code{epoch} schedule follows the
-restored epoch and a \code{batch} one the restored step count.
-A resumed run may therefore use another \code{batch_size}: the steps keep counting where the
-checkpoint left them, so the remaining points of a \code{batch} schedule are still reached -- but
-they fall after a different amount of data than they would have in the original run.
 }
 
 \examples{

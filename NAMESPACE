@@ -13,6 +13,9 @@ S3method(as_lazy_tensor,DataDescriptor)
 S3method(as_lazy_tensor,dataset)
 S3method(as_lazy_tensor,numeric)
 S3method(as_lazy_tensor,torch_tensor)
+S3method(as_learner_torch,Graph)
+S3method(as_learner_torch,GraphLearner)
+S3method(as_learner_torch,PipeOp)
 S3method(as_prediction,PredictionDataTorch)
 S3method(as_prediction_data,prediction_torch)
 S3method(as_torch_callback,R6ClassGenerator)
@@ -103,6 +106,7 @@ export(CallbackSetUnfreeze)
 export(ContextTorch)
 export(DataBackendLazy)
 export(DataDescriptor)
+export(GraphLearnerTorch)
 export(LearnerTorch)
 export(LearnerTorchFTTransformer)
 export(LearnerTorchFeatureless)
@@ -201,6 +205,7 @@ export(TorchLoss)
 export(TorchOptimizer)
 export(as_data_descriptor)
 export(as_lazy_tensor)
+export(as_learner_torch)
 export(as_lr_scheduler)
 export(as_task_torch)
 export(as_torch_callback)
@@ -283,16 +288,20 @@ import(mlr3misc)
 import(mlr3pipelines)
 import(paradox)
 import(torch)
-importFrom(R6,R6Class)
-importFrom(R6,is.R6)
+importFrom(R6,
+  R6Class,
+  is.R6
+)
 importFrom(coro,exhausted)
 importFrom(methods,formalArgs)
 importFrom(tools,R_user_dir)
-importFrom(utils,capture.output)
-importFrom(utils,getFromNamespace)
-importFrom(utils,gethash)
-importFrom(utils,hashtab)
-importFrom(utils,head)
-importFrom(utils,sethash)
-importFrom(utils,tail)
+importFrom(utils,
+  capture.output,
+  getFromNamespace,
+  gethash,
+  hashtab,
+  head,
+  sethash,
+  tail
+)
 importFrom(withr,with_seed)

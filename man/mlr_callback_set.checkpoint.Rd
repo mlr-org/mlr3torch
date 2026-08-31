@@ -8,35 +8,15 @@
 Saves the optimizer, weights, and callback states every \code{freq} epochs as well as the final state.
 This can be used to later continue a training run via the \code{resume} parameter of \code{\link{LearnerTorch}}.
 
-A folder holds the checkpoints of a single run, which is continued from where it ended: training
-errors when \code{epochs} is less than the most recent checkpoint in \code{path}, and a run never
-writes over a checkpoint that is already there.
-When \code{epochs} is exactly that checkpoint, the run in the folder is already finished: it is
-loaded and returned, and nothing is written.
-Each file is checked again immediately before it is written and an existing one is an error, so
-a second run writing into the same folder is also caught when it started after this run did --
-the check the folder gets before training cannot see it.
-The exception is a checkpoint that was already half-written when this run started, which is what
-a run killed mid-write leaves behind and which may be completed.
-
 Checkpoints are written at the end of an epoch. For one written after epoch \verb{<n>}, three files
 are created in \code{path}:
 \itemize{
 \item \verb{network<n>.pt} :: The \verb{$state_dict()} of the network.
 \item \verb{optimizer<n>.pt} :: The \verb{$state_dict()} of the optimizer.
-Next to them, written once with the first checkpoint, is \code{run.rds}: the task the folder's run
-trains on and the rows of its internal validation split, which a resuming run is checked against.
-\item \verb{state<n>.rds} :: The epoch, the version of \code{mlr3torch} that wrote the checkpoint, as well as
+\item \verb{state<n>.rds} :: The epoch, the version of \code{mlr3torch} that wrote the checkpoint,
 the \verb{$state_dict()}s of the training run's other callbacks, so that a later run can
-continue e.g. the training history or the learning rate schedule.
-The class of each of those callbacks is recorded next to its state, which lets a resuming run
-notice that an id stands for a callback of another class instead of restoring the state of one
-into the other.
-Callbacks of the same class are indistinguishable to that check, and \code{\link[=torch_callback]{torch_callback()}} names
-the class after the id, so a custom callback under a builtin's id is not caught by it.
-This file is written with \code{\link[base:readRDS]{saveRDS()}}, so a callback state containing a
-\code{torch} tensor or module is written as an invalid pointer and errors when a resuming run uses
-it -- see section \emph{Inheriting} of \code{\link{CallbackSet}}.
+continue, as well as some other information.
+Additionally, there is \code{run.rds} which contains some additioanl global meta information.
 }
 }
 \details{
@@ -152,9 +132,8 @@ How often the model is saved, in epochs.}
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-state_dict"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-state_dict}{}}}
 \subsection{\code{CallbackSetCheckpoint$state_dict()}}{
-  Returns the folder this callback writes to, so that \verb{learner$model$callbacks$<id>$path}
-names it. This is the only place it can be read off a trained learner when \code{path} is a
-\verb{function()}, which is called once per training run.
+  Returns the folder this callback writes to so it can be accessed from the learner
+when the \code{path} was a function.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetCheckpoint$state_dict()}
@@ -166,8 +145,7 @@ names it. This is the only place it can be read off a trained learner when \code
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-on_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_begin}{}}}
 \subsection{\code{CallbackSetCheckpoint$on_begin()}}{
-  Refuses to start when this run would not get past the checkpoint that is already in \code{path},
-or would write over the checkpoint of another run.
+  Checks whether the checkpoint path is valid.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetCheckpoint$on_begin()}

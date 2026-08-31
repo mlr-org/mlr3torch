@@ -8,9 +8,9 @@ The \code{\link[mlr3:Prediction]{Prediction}} object returned by learners that w
 \code{\link{TaskTorch}}.
 
 Because a \code{\link{TaskTorch}} can represent very different learning problems, this class does not
-prescribe much about how \code{truth}, \code{response}, \code{prob} and \code{se} are stored: the task's prediction
-encoder decides, and that encoder is yours.
-The one rule is that the \emph{first} dimension indexes the observations.
+prescribe much about how \code{truth}, \code{response}, \code{prob} and \code{se} are stored.
+This is defined by the task's prediction encoder, where you need to ensure that the first
+dimension indexes the observations.
 Within that, an element may be an atomic vector, a \code{matrix()}, an \code{array()} of any
 dimensionality, a \code{\link[data.table:data.table]{data.table}} or a \code{\link{lazy_tensor}}.
 \code{truth} is whatever \code{task$truth()} returned -- a vector for one target, a \code{data.table} for
