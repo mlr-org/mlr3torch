@@ -365,17 +365,18 @@ test_that("prob and se are opt-in for a torch learner", {
   # whether probabilities exist is decided by the task's `default_encoder`, which is unknown
   # when the learner is built, so claiming them by default let `predict_type = "prob"` through
   # only for the prediction to come back without any
+  # `lazy_tensor` is the exception: it hands the network's output back without asking the encoder
   learner = tt_learner(t_loss("mse"))
-  expect_equal(learner$predict_types, "response")
+  expect_set_equal(learner$predict_types, c("response", "lazy_tensor"))
   expect_error({learner$predict_type = "prob"}, "does not support predict type 'prob'")
   expect_error({learner$predict_type = "se"}, "does not support predict type 'se'")
 
   expect_set_equal(tt_learner(t_loss("mse"), predict_types = c("response", "prob"))$predict_types,
-    c("response", "prob"))
+    c("response", "prob", "lazy_tensor"))
   # the route through a Graph has to offer it too, or a GraphLearner could never predict prob
   expect_set_equal(po("torch_model", predict_types = c("response", "prob"))$learner$predict_types,
-    c("response", "prob"))
-  expect_equal(po("torch_model")$learner$predict_types, "response")
+    c("response", "prob", "lazy_tensor"))
+  expect_set_equal(po("torch_model")$learner$predict_types, c("response", "lazy_tensor"))
 
   # classif and regr keep the defaults mlr3 expects of them
   expect_set_equal(lrn("classif.torch_featureless")$predict_types, c("response", "prob"))

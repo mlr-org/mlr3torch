@@ -122,11 +122,12 @@ network produced -- a \code{\link{lazy_tensor}} with one element per observation
 task's \code{default_encoder} to turn it into a response.
 It is how to get at the logits of a classifier or the reconstruction of an autoencoder, and a
 task predicted this way needs no encoder at all.
-Like every predict type of this task type it is opt-in:
-\code{lrn("torch.module", predict_types = c("response", "lazy_tensor"))}.
-It needs a network that returns a single tensor: one element per observation is one tensor per
-observation, so a network with more than one head is refused. Predict a \code{response} and let the
-task's \code{default_encoder} combine the heads instead.
+Unlike \code{"prob"} and \code{"se"} it is not opt-in: every learner for this task type has it among its
+\verb{$predict_types}, because handing the output back does not depend on how the learner encodes a
+prediction. Set \code{learner$predict_type = "lazy_tensor"} to use it.
+A network with more than one head hands back one \code{\link{lazy_tensor}} per head, held in a
+\code{\link[data.table:data.table]{data.table}} with one column per head so that the prediction is still
+one row per observation; \code{as.data.table()} spreads it into \verb{lazy_tensor.<head>} columns.
 
 Two things to know before using it:
 \itemize{
@@ -475,7 +476,6 @@ which are varied systematically during tuning (parameter values).}
     \item \href{#method-LearnerTorch-marshal}{\code{LearnerTorch$marshal()}}
     \item \href{#method-LearnerTorch-unmarshal}{\code{LearnerTorch$unmarshal()}}
     \item \href{#method-LearnerTorch-dataset}{\code{LearnerTorch$dataset()}}
-    \item \href{#method-LearnerTorch-predict_tensor}{\code{LearnerTorch$predict_tensor()}}
     \item \href{#method-LearnerTorch-clone}{\code{LearnerTorch$clone()}}
   }
 }
@@ -675,38 +675,6 @@ The task}
   }
   \subsection{Returns}{
     \code{\link[torch:dataset]{dataset}}
-  }
-}
-
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerTorch-predict_tensor"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerTorch-predict_tensor}{}}}
-\subsection{\code{LearnerTorch$predict_tensor()}}{
-  The raw output of the trained network on a \code{task}, i.e. what the private
-\verb{$.encode_prediction()} method is handed before it turns it into a
-\code{\link[mlr3:Prediction]{Prediction}}: the logits of a classifier, the reconstruction of an
-autoencoder, or whatever else the network returns.
-This runs the same path as \verb{$predict()} -- evaluation mode, device placement, batching and
-\code{\link[torch:with_no_grad]{with_no_grad()}} -- so it is not the same as calling \verb{$network}
-yourself, which leaves all four to you.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{LearnerTorch$predict_tensor(task, row_ids = NULL)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{task}}{(\code{\link[mlr3:Task]{Task}})\cr
-The task to predict on.}
-      \item{\code{row_ids}}{(\code{integer()} or \code{NULL})\cr
-The rows to predict on. All rows if \code{NULL} (default).}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    \code{\link[torch:torch_tensor]{torch_tensor}}, or a \code{list()} of them for a network that
-returns more than one, see section \emph{Network Head and Target Encoding}.
   }
 }
 

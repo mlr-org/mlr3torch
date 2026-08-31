@@ -24,9 +24,8 @@ where it is 1). For regression, it is 1.
 
 This is an S3 generic and the single place where \CRANpkg{mlr3torch} decides how many output neurons
 a task needs: it is what \code{\link{PipeOpTorchHead}} and the \code{\link{LearnerTorch}}s that build their own head
-ask, and what an empty prediction of a \code{\link{TaskTorch}} falls back to when the network cannot be run
-on a batch of zero rows. Adding a method for a new task type is therefore the way to support it,
-see the "Supporting Other Task Types" section of \code{\link{PipeOpTorchHead}}.
+ask. Adding a method for a new task type is therefore the way to support it, see the
+"Supporting Other Task Types" section of \code{\link{PipeOpTorchHead}}.
 }
 \seealso{
 \code{\link{PipeOpTorchHead}}

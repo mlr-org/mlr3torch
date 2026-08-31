@@ -17,32 +17,19 @@ dimensionality, a \code{\link[data.table:data.table]{data.table}} or a \code{\li
 several, a \code{\link{lazy_tensor}} for a lazy tensor column, and nothing at all for a task without a
 target.
 
-A bare \code{list()} is the one thing that is refused, even though it satisfies the rule above.
-It is what an encoder returns when it did not manage to build any of the above, and everything
-downstream -- combining folds, scoring, \code{as.data.table()} -- would then work observation by
-observation.
-A prediction that is one tensor per observation belongs in a \code{\link{lazy_tensor}}.
-}
-\section{Tabling a Prediction}{
-
-\code{as.data.table()} renders an element in one of two ways.
-\code{prob} spreads into one column per class, the way it does for a classification prediction.
+When a prediction is converted to a \code{data.table}, which is e.g. used for the printer,
+the conversion depends on the type of the object.
+A \code{prob} \emph{matrix} spreads into one column per class, the way it does for a classification
+prediction.
 Everything else that is wider than one value per observation becomes a single column whose cells
 hold that observation's own array, printed as its shape -- \verb{<array[3]>} for a response matrix
-with three columns.
-The asymmetry is deliberate: a \code{prob} column always means the same thing, whereas the width of a
-response is a property of the prediction rather than of the problem, and spreading the
-\verb{(n, 3, 224, 224)} reconstruction of an autoencoder over images would give a table with 150528
-columns.
+with three columns, \verb{<array[3x224x224]>} for a \code{prob} with a class dimension and two spatial
+ones.
 }
-
 \section{Missing Predictions}{
 
 Only a response with a single value per observation can report a \emph{missing} prediction, so
-\verb{$missing} is empty for anything wider even when the network emitted a \code{NaN}.
-What a partially missing observation should mean is a question this class cannot answer for a
-problem it knows nothing about, and a \code{\link{lazy_tensor}} could not answer it at all without
-materialising the whole prediction.
+\verb{$missing} can only be \code{TRUE} for scalars and is always \code{FALSE} for parially missing predictions.
 }
 
 \examples{
@@ -68,7 +55,7 @@ The predicted probabilities.}
     \item{\code{se}}{(any)\cr
 The standard errors of the prediction.}
 
-    \item{\code{lazy_tensor}}{(\code{\link{lazy_tensor}})\cr
+    \item{\code{lazy_tensor}}{(\code{\link{lazy_tensor}} or \code{\link[data.table:data.table]{data.table}} of them)\cr
 The output of the network, for the predict type \code{"lazy_tensor"}.}
   }
   \if{html}{\out{</div>}}
@@ -125,8 +112,9 @@ The predicted response.}
 The predicted probabilities.}
       \item{\code{se}}{(any)\cr
 The standard errors of the prediction.}
-      \item{\code{lazy_tensor}}{(\code{\link{lazy_tensor}})\cr
-The output of the network, see the predict type \code{"lazy_tensor"} of \code{\link{LearnerTorch}}.}
+      \item{\code{lazy_tensor}}{(\code{\link{lazy_tensor}} or \code{\link[data.table:data.table]{data.table}} of them)\cr
+The output of the network, see the predict type \code{"lazy_tensor"} of \code{\link{LearnerTorch}}.
+A network with more than one head produces one column per head.}
       \item{\code{weights}}{(\code{numeric()} or \code{NULL})\cr
 The measure weights of the predicted observations, i.e. the \code{weights_measure} column of the
 task. \code{mlr3} fills this in, so it rarely has to be passed by hand.}

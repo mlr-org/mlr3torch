@@ -320,10 +320,6 @@ mlr3torch_losses$add("cross_entropy", function() {
   )
   TorchLoss$new(
     torch_loss = function(task, ...) {
-      # a TaskTorch encodes a factor target the same way a multiclass TaskClassif does
-      if (task$task_type %nin% c("classif", "torch")) {
-        stopf("Cross entropy loss is only defined for classification tasks, but task is of type '%s'", task$task_type)
-      }
       # an explicitly passed `NULL` (as in `t_loss("cross_entropy", class_weight = NULL)`) is kept as a
       # list element, so it would be forwarded to the `nn_module` as an unused argument
       args = discard(list(...), is.null)

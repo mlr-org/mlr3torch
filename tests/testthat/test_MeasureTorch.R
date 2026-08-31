@@ -134,7 +134,7 @@ test_that("a measure can read the predicted tensors", {
   d = tt_data(20L)
   d$y = rnorm(nrow(d))
   task = tt_task(d, target = "y")
-  learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
+  learner = tt_learner(t_loss("mse"))
   learner$predict_type = "lazy_tensor"
   learner$train(task)
   pred = learner$predict(task)

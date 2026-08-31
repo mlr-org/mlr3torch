@@ -1557,53 +1557,6 @@ test_that("hashes are reproducible across R sessions", {
     epochs = 1, batch_size = 16, device = "cpu")$hash)
 })
 
-test_that("predict_tensor returns the raw output of the network", {
-  d = tt_data(20L)
-  d$y = rnorm(nrow(d))
-  task = tt_task(d, target = "y")
-  learner = tt_learner(t_loss("mse"))
-
-  expect_error(learner$predict_tensor(task), "has not been trained yet")
-  learner$train(task)
-
-  out = learner$predict_tensor(task)
-  expect_class(out, "torch_tensor")
-  expect_equal(out$shape, c(task$nrow, 1L))
-  # the same path as `$predict()`: no gradients, and the network left in evaluation mode
-  expect_false(out$requires_grad)
-  expect_false(learner$network$training)
-
-  # it is what the encoder is handed, so encoding it by hand gives the prediction back
-  encoded = encode_prediction(task, out, predict_type = "response")
-  expect_equal(encoded$response, learner$predict(task)$response)
-
-  # a subset of the rows, in the order they were asked for
-  part = learner$predict_tensor(task, row_ids = task$row_ids[c(2L, 5L)])
-  expect_equal(part$shape, c(2L, 1L))
-  # two rows and twenty rows do not take the same path through float32 arithmetic
-  expect_equal(as.numeric(as.matrix(part$cpu())), learner$predict(task)$response[c(2L, 5L)],
-    tolerance = 1e-6)
-
-  expect_error(learner$predict_tensor(task, row_ids = 1000L), "Assertion")
-})
-
-test_that("predict_tensor gives the logits of a classifier", {
-  # the built-in task types benefit too: the logits are otherwise gone by the time you see a
-  # `PredictionClassif`, which holds probabilities and a response
-  task = tsk("iris")
-  learner = lrn("classif.mlp", epochs = 1L, batch_size = 16L, neurons = 5L)
-  learner$train(task)
-
-  logits = learner$predict_tensor(task)
-  expect_class(logits, "torch_tensor")
-  expect_equal(logits$shape, c(task$nrow, 3L))
-
-  # softmaxing them by hand reproduces what the learner predicts
-  learner$predict_type = "prob"
-  prob = as.matrix(torch::nnf_softmax(logits, dim = 2L)$cpu())
-  expect_equal(unname(prob), unname(learner$predict(task)$prob), tolerance = 1e-6)
-})
-
 test_that("the machinery of LearnerTorch works on a generic torch task", {
   task = tt_task_labels(40L)
   learner = tt_learner(tt_loss_bce(), epochs = 2L)
@@ -1611,8 +1564,9 @@ test_that("the machinery of LearnerTorch works on a generic torch task", {
   expect_equal(learner$task_type, "torch")
   # the task type claims no more than every LearnerTorch has, see `register_task_type_torch()`
   expect_set_equal(learner$properties, c("marshal", "validation", "internal_tuning"))
-  # `prob` and `se` are opt-in, because only the task's encoder knows whether they exist
-  expect_equal(learner$predict_types, "response")
+  # `prob` and `se` are opt-in, because only the task's encoder knows whether they exist;
+  # `lazy_tensor` is not, because handing the network's output back needs no encoder
+  expect_set_equal(learner$predict_types, c("response", "lazy_tensor"))
 
   learner$train(task)
   expect_class(learner$network, "nn_module")

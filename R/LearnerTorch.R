@@ -100,11 +100,12 @@
 #' task's `default_encoder` to turn it into a response.
 #' It is how to get at the logits of a classifier or the reconstruction of an autoencoder, and a
 #' task predicted this way needs no encoder at all.
-#' Like every predict type of this task type it is opt-in:
-#' `lrn("torch.module", predict_types = c("response", "lazy_tensor"))`.
-#' It needs a network that returns a single tensor: one element per observation is one tensor per
-#' observation, so a network with more than one head is refused. Predict a `response` and let the
-#' task's `default_encoder` combine the heads instead.
+#' Unlike `"prob"` and `"se"` it is not opt-in: every learner for this task type has it among its
+#' `$predict_types`, because handing the output back does not depend on how the learner encodes a
+#' prediction. Set `learner$predict_type = "lazy_tensor"` to use it.
+#' A network with more than one head hands back one [`lazy_tensor`] per head, held in a
+#' [`data.table`][data.table::data.table] with one column per head so that the prediction is still
+#' one row per observation; `as.data.table()` spreads it into `lazy_tensor.<head>` columns.
 #'
 #' Two things to know before using it:
 #' * **Such a prediction does not survive [`saveRDS()`][base::saveRDS].** It holds `torch` tensors,
@@ -288,6 +289,11 @@ LearnerTorch = R6Class("LearnerTorch",
         properties = union(properties, c("twoclass", "multiclass"))
       }
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
+      if (task_type == "torch") {
+        # Handing back the network's output does not depend on how the learner encodes a
+        # prediction, so every learner for this task type can do it and none has to opt in.
+        predict_types = union(predict_types, "lazy_tensor")
+      }
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
       packages = union(c("mlr3", "mlr3torch"), packages)
 
@@ -414,35 +420,6 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals$device = auto_device(param_vals$device)
 
       private$.dataset(task, param_vals)
-    },
-    #' @description
-    #' The raw output of the trained network on a `task`, i.e. what the private
-    #' `$.encode_prediction()` method is handed before it turns it into a
-    #' [`Prediction`][mlr3::Prediction]: the logits of a classifier, the reconstruction of an
-    #' autoencoder, or whatever else the network returns.
-    #' This runs the same path as `$predict()` -- evaluation mode, device placement, batching and
-    #' [`with_no_grad()`][torch::with_no_grad] -- so it is not the same as calling `$network`
-    #' yourself, which leaves all four to you.
-    #' @param task ([`Task`][mlr3::Task])\cr
-    #'   The task to predict on.
-    #' @param row_ids (`integer()` or `NULL`)\cr
-    #'   The rows to predict on. All rows if `NULL` (default).
-    #' @return [`torch_tensor`][torch::torch_tensor], or a `list()` of them for a network that
-    #'   returns more than one, see section *Network Head and Target Encoding*.
-    predict_tensor = function(task, row_ids = NULL) {
-      assert_task(task)
-      if (is.null(self$model)) {
-        stopf("Learner '%s' has not been trained yet, so it has no network to predict with.", self$id)
-      }
-      if (!is.null(row_ids)) {
-        task = task$clone(deep = TRUE)$filter(assert_row_ids(row_ids))
-      }
-      param_vals = self$param_set$get_values(tags = "predict")
-      param_vals$device = auto_device(param_vals$device)
-      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
-        num_interop_threads = param_vals$num_interop_threads, expr = {
-        learner_torch_network_output(self, private, task, param_vals)
-      })
     }
   ),
   active = list(

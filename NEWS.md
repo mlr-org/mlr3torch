@@ -20,11 +20,6 @@
 
 ## Features
 
-* The task type `"torch"` gained the predict type `"lazy_tensor"`, which hands back the raw output
-  of the network instead of encoding it into a response. Such a prediction does not survive
-  `saveRDS()`, see the *Predicting Tensors* section of `?LearnerTorch`.
-* New method `LearnerTorch$predict_tensor()`, which returns the network's output on a task as a
-  `torch_tensor` rather than as a `Prediction`.
 * `LearnerTorch` and `PipeOpTorchModel` now accept any task type registered in
   `mlr_reflections$task_types`, via the new generics `get_target_batchgetter()` and `encode_prediction()`.
 * New S3 generic `get_batch_constructor()`, which decides how a whole batch of a task is built,

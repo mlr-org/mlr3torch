@@ -235,10 +235,32 @@ test_that("an encoder that cannot build an empty prediction errors here", {
   empty = create_empty_prediction_data(no_dim, learner)
   expect_numeric(empty$response, len = 0L)
 
-  # without a model there is no network to ask, and then `output_dim` is what is left
+  # without a model there is no network to ask, and `output_dim` is not a substitute: it describes
+  # a single tensor, which is not what a network with more than one head returns
   untrained = tt_learner(t_loss("mse"))
-  expect_error(create_empty_prediction_data(no_dim, untrained), "has no `output_dim`")
-  expect_numeric(create_empty_prediction_data(tt_task(d, target = "y"), untrained)$response, len = 0L)
+  expect_error(create_empty_prediction_data(no_dim, untrained), "has no model")
+  expect_error(create_empty_prediction_data(tt_task(d, target = "y"), untrained), "has no model")
+})
+
+test_that("the empty prediction never builds an empty batch", {
+  d = tt_data(20L)
+  d$y = rnorm(nrow(d))
+  # plenty of real networks and batchgetters cannot be run on zero rows, so the structure is taken
+  # from a batch of one row and cut back afterwards
+  picky = nn_module("picky",
+    initialize = function(task) self$l = nn_linear(length(task$feature_names), 1L),
+    forward = function(x) {
+      if (!nrow(x)) stop("this network refuses empty batches")
+      self$l(x)
+    })
+  # no `output_dim`, so a failure here cannot hide behind the fallback
+  task = as_task_torch(d, target = "y", id = "picky", default_encoder = tt_enc)
+  learner = tt_learner(t_loss("mse"), module_generator = picky)
+  learner$train(task)
+
+  empty = create_empty_prediction_data(task, learner)
+  expect_numeric(empty$response, len = 0L)
+  expect_length(learner$predict(task, row_ids = integer(0))$row_ids, 0L)
 })
 
 test_that("an empty prediction is encoded from what the network really returns", {
@@ -330,6 +352,30 @@ test_that("matrix valued predictions survive a resample round trip", {
   # the cell is a one-dimensional array, so compare the values it holds
   expect_equal(as.numeric(tab$response[[1L]]), unname(pred$response[1L, ]))
   expect_false(any(startsWith(names(tab), "response.")))
+})
+
+test_that("only a prob matrix spreads into one column per class", {
+  d = tt_data(10L)
+  d$y = rnorm(nrow(d))
+  task = tt_task(d, target = "y")
+
+  # two dimensions are what a column per class means, so this is the one shape that spreads
+  flat = PredictionTorch$new(task, response = rnorm(task$nrow),
+    prob = matrix(runif(task$nrow * 2L), ncol = 2L, dimnames = list(NULL, c("a", "b"))))
+  expect_names(names(as.data.table(flat)), must.include = c("prob.a", "prob.b"))
+
+  # anything wider is one cell per observation, like every other wide element -- spreading it would
+  # give a column per class *and* per pixel
+  wide = PredictionTorch$new(task, response = rnorm(task$nrow),
+    prob = array(runif(task$nrow * 2L * 3L), dim = c(task$nrow, 2L, 3L)))
+  tab = as.data.table(wide)
+  expect_class(tab$prob, "pt_arrays")
+  expect_equal(format(tab$prob)[1L], "<array[2x3]>")
+  expect_false(any(startsWith(names(tab), "prob.")))
+
+  # a `prob` that is one value per observation stays one column
+  vec = PredictionTorch$new(task, response = rnorm(task$nrow), prob = runif(task$nrow))
+  expect_true("prob" %chin% names(as.data.table(vec)))
 })
 
 test_that("factor valued predictions survive a resample round trip", {
@@ -617,11 +663,11 @@ test_that("every storage an element can have is subset by observation", {
 
 test_that("the lazy_tensor predict type hands back the network output", {
   task = tt_task_raw()
-  learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
+  learner = tt_learner(t_loss("mse"))
 
-  # it is opt-in, like every predict type of this task type
-  plain = tt_learner(t_loss("mse"))
-  expect_error({plain$predict_type = "lazy_tensor"}, "does not support predict type")
+  # unlike `prob` and `se` it is not opt-in: every learner for this task type can hand the
+  # network's output back, so nothing has to be declared at construction
+  expect_set_equal(learner$predict_types, c("response", "lazy_tensor"))
 
   learner$predict_type = "lazy_tensor"
   learner$train(task)
@@ -634,9 +680,14 @@ test_that("the lazy_tensor predict type hands back the network output", {
   expect_equal(materialize(pred$lazy_tensor, rbind = TRUE)$shape, c(task$nrow, 1L))
 
   # it is what the network produced, not something the task derived
+  batch = learner$dataset(task)$.getbatch(seq_len(task$nrow))
+  learner$network$eval()
+  expected = with_no_grad(learner$network(batch$x$x))
+  # one batch of 20 rows and the two batches `$predict()` used do not take the same path through
+  # float32 arithmetic, so this is equal only up to rounding
   expect_equal(
     as.numeric(as.matrix(materialize(pred$lazy_tensor, rbind = TRUE)$cpu())),
-    as.numeric(as.matrix(learner$predict_tensor(task)$cpu()))
+    as.numeric(as.matrix(expected$cpu())), tolerance = 1e-6
   )
 
   # ... and it travels through the machinery like any other element
@@ -648,7 +699,7 @@ test_that("the lazy_tensor predict type hands back the network output", {
 
 test_that("lazy_tensor predictions of different folds are combined", {
   task = tt_task_raw()
-  learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
+  learner = tt_learner(t_loss("mse"))
   learner$predict_type = "lazy_tensor"
 
   # every fold wraps its own network output, so the folds share no data descriptor and
@@ -679,22 +730,57 @@ test_that("lazy_tensor predictions of different folds are combined", {
   expect_false(inherits(dd(on_demand)$dataset, "in_memory_tensor_dataset"))
   expect_error(pt_combine(list(on_demand, pred$lazy_tensor)), "reads its data on demand")
 
-  # an empty prediction is an empty lazy tensor, because one cannot be encoded from zero rows
+  # an empty prediction is an empty lazy tensor, because one cannot be encoded from zero rows.
+  # `resample()` clones, so this learner still has to be trained to have a network to ask
+  learner$train(task)
   empty = create_empty_prediction_data(task, learner)
   expect_class(empty$lazy_tensor, "lazy_tensor")
   expect_length(empty$lazy_tensor, 0L)
   expect_length(c(empty, pred$data)$lazy_tensor, task$nrow)
 })
 
-test_that("the lazy_tensor predict type needs a network with a single output", {
+test_that("a lazy_tensor prediction of a two-head network is one column per head", {
   task = tt_task_2head()
-  learner = tt_learner(tt_loss_2head(), module_generator = tt_module_2head,
-    predict_types = c("response", "lazy_tensor"))
+  learner = tt_learner(tt_loss_2head(), module_generator = tt_module_2head)
   learner$predict_type = "lazy_tensor"
   learner$train(task)
+  pred = learner$predict(task)
 
-  # one element per observation is one tensor per observation, so there is no room for a second head
-  expect_error(learner$predict(task), "cannot be one `lazy_tensor`")
+  # one `lazy_tensor` per head, so that the prediction is still one row per observation
+  expect_data_table(pred$lazy_tensor, nrows = task$nrow, ncols = 2L)
+  expect_names(names(pred$lazy_tensor), identical.to = c("m", "s"))
+  expect_class(pred$lazy_tensor$m, "lazy_tensor")
+
+  # it is what the network produced, head by head
+  batch = learner$dataset(task)$.getbatch(seq_len(task$nrow))
+  learner$network$eval()
+  tensors = with_no_grad(learner$network(batch$x$x))
+  for (head in c("m", "s")) {
+    expect_equal(
+      as.numeric(as.matrix(materialize(pred$lazy_tensor[[head]], rbind = TRUE)$cpu())),
+      as.numeric(as.matrix(tensors[[head]]$cpu())), tolerance = 1e-6
+    )
+  }
+
+  # ... and `as.data.table()` spreads it, the way a `data.table` truth spreads
+  expect_names(names(as.data.table(pred)), must.include = c("lazy_tensor.m", "lazy_tensor.s"))
+
+  # combining keeps every row with the values of its own fold, head-wise
+  parts = c(learner$predict(task, row_ids = 11:20)$data, learner$predict(task, row_ids = 1:10)$data)
+  expect_data_table(parts$lazy_tensor, nrows = task$nrow, ncols = 2L)
+  ord = match(task$row_ids, parts$row_ids)
+  expect_equal(
+    as.numeric(as.matrix(materialize(parts$lazy_tensor$m[ord], rbind = TRUE)$cpu())),
+    as.numeric(as.matrix(materialize(pred$lazy_tensor$m, rbind = TRUE)$cpu()))
+  )
+
+  # an empty prediction agrees on the heads, so it combines with a real one
+  empty = create_empty_prediction_data(task, learner)
+  expect_data_table(empty$lazy_tensor, nrows = 0L, ncols = 2L)
+  expect_length(c(empty, pred$data)$row_ids, task$nrow)
+
+  pred$filter(task$row_ids[1:5])
+  expect_data_table(pred$lazy_tensor, nrows = 5L, ncols = 2L)
 })
 
 test_that("the lazy_tensor predict type can be scored during training", {
@@ -703,8 +789,8 @@ test_that("the lazy_tensor predict type can be scored during training", {
     as.numeric(materialize(lazy_tensor, rbind = TRUE)$pow(2)$mean()$cpu())
   }, predict_type = "lazy_tensor", range = c(0, Inf), minimize = TRUE)
 
-  learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"),
-    measures_train = measure, measures_valid = measure, patience = 2L, epochs = 3L)
+  learner = tt_learner(t_loss("mse"), measures_train = measure, measures_valid = measure,
+    patience = 2L, epochs = 3L)
   learner$predict_type = "lazy_tensor"
   learner$validate = 0.3
   learner$train(task)
@@ -719,7 +805,7 @@ test_that("a lazy_tensor prediction does not survive saveRDS", {
   # documented in the *Predicting Tensors* section of `?LearnerTorch`: saving succeeds and the
   # tensors are dangling pointers afterwards, so this pins the behaviour we tell users about
   task = tt_task_raw()
-  learner = tt_learner(t_loss("mse"), predict_types = c("response", "lazy_tensor"))
+  learner = tt_learner(t_loss("mse"))
   learner$predict_type = "lazy_tensor"
   rr = resample(task, learner, rsmp("holdout"))
 

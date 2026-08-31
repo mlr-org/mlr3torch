@@ -27,7 +27,6 @@
 ^info$
 ^README_files$
 ^TODO\.md$
-^TODOs\.md$
 ^\.ignore$
 ^inst/data_scripts$
 ^vignettes/articles$
@@ -39,5 +38,3 @@ data-raw
 ^cran-comments\.md$
 ^\.claude$
 ^TODOS\.md$
-^example\.R$
-^report\.md$

@@ -167,4 +167,4 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
 #' @include PipeOpTorchIngress.R task_dataset.R TorchLoss.R
 register_learner("classif.torch_model", LearnerTorchModel)
 register_learner("regr.torch_model", LearnerTorchModel)
-register_learner("torch.torch_model", LearnerTorchModel, loss = loss_placeholder())
+register_learner("torch.model", LearnerTorchModel, loss = loss_placeholder())
