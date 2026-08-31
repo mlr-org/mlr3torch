@@ -6,7 +6,12 @@
 #' @template learner
 #'
 #' @description
-#' Create a torch learner from a torch module.
+#' Wraps a [`torch::nn_module`] into a [`LearnerTorch`], so an architecture written directly in
+#' `torch` can be trained, resampled and tuned like any other mlr3 learner without going through a
+#' [`Graph`][mlr3pipelines::Graph] of `PipeOpTorch` operators.
+#' This is the shortest path from an existing `torch` model to mlr3, and the natural choice for an
+#' architecture whose forward pass is easier to write as code than to assemble from operators.
+#' The module receives the task's features as its arguments, which `ingress_tokens` maps.
 #'
 #' @template param_task_type
 #' @param module_generator (`function` or `nn_module_generator`)\cr

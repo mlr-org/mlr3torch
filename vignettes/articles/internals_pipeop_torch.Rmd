@@ -110,7 +110,7 @@ output = module_graph$train(input)[[1]]
 output
 ```
 
-While this object allows to easily perform a forward pass, it does not inherit from `nn_module`, which is useful for various reasons.
+While this object makes it easy to perform a forward pass, it does not inherit from `nn_module`, which is useful for various reasons.
 Instead of having a class that inherits both from `nn_module` and `Graph` (which does not work in R6, since multiple inheritance is not available), there is a class that inherits from `nn_module` and contains a `Graph` member slot through composition.
 This class is `nn_graph`.
 It is constructed with a `Graph`, as well as information about the shape(s) of the `torch_tensor`(s) it expects as inputs.

@@ -1,6 +1,9 @@
 #' Auto Device
 #'
-#' First tries cuda, then cpu.
+#' Resolves the `device` parameter of a learner.
+#' `"auto"` becomes `"cuda"` when a CUDA device is available and `"cpu"` otherwise; any other value
+#' is returned unchanged, except that an explicit `"cuda"` without an available CUDA device is an
+#' error rather than a failure deep inside libtorch later on.
 #'
 #' @param device (`character(1)`)\cr
 #'   The device. If not `NULL`, is returned as is.
@@ -176,8 +179,14 @@ auto_cache_lazy_tensors = function(lts) {
   anyDuplicated(unlist(map_if(lts, function(x) length(x) > 0, function(x) dd(x)$dataset_hash))) > 0L
 }
 
-#' Replace the head of a network
-#' Replaces the head of the network with a linear layer with d_out classes.
+#' Replace the Head of a Network
+#'
+#' Replaces the last layer of a pretrained network with a fresh [`torch::nn_linear`] that has
+#' `d_out` output features, so a network trained on some other task can be fine-tuned on this one.
+#' The new layer's input size is read off the layer it replaces, and its weights are newly
+#' initialized while the rest of the network keeps its pretrained weights.
+#' Methods are provided for the torchvision architectures that the `LearnerTorchVision` learners
+#' wrap; the learners call this themselves, so it is only needed when building a network by hand.
 #' @param network ([`torch::nn_module`])\cr
 #'   The network
 #' @param d_out (`integer(1)`)\cr

@@ -334,7 +334,11 @@ PipeOpTorchReLU6 = R6Class("PipeOpTorchReLU6",
 register_po("nn_relu6", PipeOpTorchReLU6)
 
 #' @title RReLU Activation Function
-#' @inherit torch::nnf_rrelu description
+#' @description
+#' Applies the randomized leaky ReLU element-wise: negative inputs are multiplied by a slope drawn
+#' uniformly from `[lower, upper]` for each element, while positive inputs pass through unchanged.
+#' The slope is redrawn on every forward pass during training and fixed to the midpoint of the
+#' interval at evaluation time, which makes the randomness act as a regularizer.
 #' @section nn_module: Calls [`torch::nn_rrelu()`] when trained.
 #' @section Parameters:
 #' * `lower`:: `numeric(1)`\cr
@@ -455,7 +459,13 @@ register_po("nn_celu", PipeOpTorchCELU)
 
 #' @title GELU Activation Function
 #'
-#' @inherit torch::nnf_gelu description
+#' @description
+#' Applies the Gaussian Error Linear Unit \eqn{\text{GELU}(x) = x \Phi(x)} element-wise, where
+#' \eqn{\Phi} is the standard normal cumulative distribution function.
+#' It is a smooth alternative to `nn("relu")`, weighting an input by the probability that a standard
+#' normal draw falls below it rather than gating it hard at 0, and is the activation used by the
+#' transformer architectures in this package.
+#' The `approximate` parameter selects between the exact form and a cheaper `tanh` approximation.
 #' @section nn_module: Calls [`torch::nn_gelu()`] when trained.
 #' @section Parameters:
 #' * `approximate` :: `character(1)`\cr

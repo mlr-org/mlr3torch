@@ -1,7 +1,12 @@
 #' @title Create a lazy tensor
 #'
 #' @description
-#' Create a lazy tensor.
+#' Creates a `lazy_tensor`, the vector type that lets a [`Task`][mlr3::Task] carry tensor-valued
+#' features -- images, or anything else that does not fit a `data.table` cell.
+#' It behaves like an ordinary vector, so it can be subset, combined and stored in a task's data
+#' backend, but it holds only a pointer into a [`DataDescriptor`] plus the row `ids` it selects:
+#' the tensors themselves are read, and any preprocessing applied, when [`materialize()`] is called,
+#' which is what makes it lazy.
 #' @param data_descriptor ([`DataDescriptor`] or `NULL`)\cr
 #'   The data descriptor or `NULL` for a lazy tensor of length 0.
 #' @param ids (`integer()`)\cr
@@ -131,7 +136,9 @@ dd = function(x) {
 
 #' @title Convert to Lazy Tensor
 #' @description
-#' Convert a object to a [`lazy_tensor`].
+#' Converts an object to a [`lazy_tensor`].
+#' A [`dataset`][torch::dataset] is wrapped as-is, a [`torch_tensor`][torch::torch_tensor] or a
+#' `numeric()` is first turned into a dataset whose first dimension indexes the observations.
 #'
 #' @param x (any)\cr
 #'   Object to convert to a [`lazy_tensor`]

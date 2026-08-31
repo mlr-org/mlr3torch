@@ -161,8 +161,8 @@
 * Added `po("nn_fn")` for calling custom functions in a network.
 * Added the FT Transformer model for tabular data.
 * Added encoders for numericals and categoricals
-* `nn("block")` (which allows to repeat the same network segment multiple
-  times) now has an extra argument `trafo`, which allows to modify the
+* `nn("block")` (which repeats the same network segment multiple
+  times) now has an extra argument `trafo`, which makes it possible to modify the
   parameter values per layer.
 
 ### Callbacks:
@@ -223,7 +223,7 @@
   [torch tutorial](https://torch.mlverse.org/docs/articles/torchscript)
   for more information.
 * Added parameter `num_interop_threads` to `LearnerTorch`.
-* The `tensor_dataset` parameter was added, which allows to stack all batches
+* The `tensor_dataset` parameter was added, which makes it possible to stack all batches
   at the beginning of training to make loading of batches afterwards faster.
 * Use a faster default image loader.
 

@@ -5,7 +5,12 @@
 \alias{PipeOpTorchGELU}
 \title{GELU Activation Function}
 \description{
-Gelu
+Applies the Gaussian Error Linear Unit \eqn{\text{GELU}(x) = x \Phi(x)} element-wise, where
+\eqn{\Phi} is the standard normal cumulative distribution function.
+It is a smooth alternative to \code{nn("relu")}, weighting an input by the probability that a standard
+normal draw falls below it rather than gating it hard at 0, and is the activation used by the
+transformer architectures in this package.
+The \code{approximate} parameter selects between the exact form and a cheaper \code{tanh} approximation.
 }
 \section{nn_module}{
  Calls \code{\link[torch:nn_gelu]{torch::nn_gelu()}} when trained.

@@ -4,7 +4,7 @@
 #'
 #' @description
 #' `PipeOpModule` wraps an [`nn_module`][torch::nn_module] or `function` that is being called during the `train` phase of this
-#' [`mlr3pipelines::PipeOp`]. By doing so, this allows to assemble `PipeOpModule`s in a computational
+#' [`mlr3pipelines::PipeOp`]. By doing so, this makes it possible to assemble `PipeOpModule`s in a computational
 #' [`mlr3pipelines::Graph`] that represents either a neural network or a preprocessing graph of a [`lazy_tensor`].
 #' In most cases it is easier to create such a network by creating a graph that generates this graph.
 #'

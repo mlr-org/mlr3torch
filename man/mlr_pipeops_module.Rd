@@ -6,7 +6,7 @@
 \title{Class for Torch Module Wrappers}
 \description{
 \code{PipeOpModule} wraps an \code{\link[torch:nn_module]{nn_module}} or \code{function} that is being called during the \code{train} phase of this
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}. By doing so, this allows to assemble \code{PipeOpModule}s in a computational
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}. By doing so, this makes it possible to assemble \code{PipeOpModule}s in a computational
 \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} that represents either a neural network or a preprocessing graph of a \code{\link{lazy_tensor}}.
 In most cases it is easier to create such a network by creating a graph that generates this graph.
 

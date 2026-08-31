@@ -8,7 +8,12 @@
 #' @template learner_example
 #'
 #' @description
-#' Tabular resnet.
+#' A residual network for tabular data, following Gorishniy et al. (2021).
+#' The features are projected to a hidden dimension and then passed through `n_blocks` identical
+#' residual blocks, each of which batch-normalizes its input, passes it through two linear layers
+#' each followed by dropout, and adds the result back to the block's input.
+#' The skip connections are what let the network be made deep without the training difficulties a
+#' plain stack of linear layers of the same depth would run into.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`], as well as:

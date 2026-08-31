@@ -5,7 +5,10 @@
 \alias{PipeOpTorchRReLU}
 \title{RReLU Activation Function}
 \description{
-Randomized leaky ReLU.
+Applies the randomized leaky ReLU element-wise: negative inputs are multiplied by a slope drawn
+uniformly from \verb{[lower, upper]} for each element, while positive inputs pass through unchanged.
+The slope is redrawn on every forward pass during training and fixed to the midpoint of the
+interval at evaluation time, which makes the randomness act as a regularizer.
 }
 \section{nn_module}{
  Calls \code{\link[torch:nn_rrelu]{torch::nn_rrelu()}} when trained.

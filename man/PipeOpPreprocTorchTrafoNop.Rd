@@ -8,5 +8,8 @@
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \description{
-Does nothing.
+The identity transformation: it returns the tensor it is given, unchanged.
+It exists so that "no preprocessing" can be written as a \code{PipeOp} like any other, which is what
+makes preprocessing tunable -- a \code{po("trafo_nop")} branch lets a tuner choose between applying a
+transformation and leaving the data alone.
 }

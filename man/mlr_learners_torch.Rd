@@ -52,7 +52,7 @@ somewhere else.
 
 \section{Early Stopping and Internal Tuning}{
 
-In order to prevent overfitting, the \code{LearnerTorch} class allows to use early stopping via the \code{patience}
+In order to prevent overfitting, the \code{LearnerTorch} class supports early stopping via the \code{patience}
 and \code{min_delta} parameters, see the \code{Learner}'s parameters.
 When tuning a \code{LearnerTorch} it is also possible to combine the explicit tuning via \code{mlr3tuning}
 and the \code{LearnerTorch}'s internal tuning of the epochs via early stopping.

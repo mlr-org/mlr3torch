@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.svg}{options: style='float: right' alt='logo' width='120'}}
 
-Deep Learning library that extends the mlr3 framework by building upon the 'torch' package. It allows to conveniently build, train, and evaluate deep learning models without having to worry about low level details. Custom architectures can be created using the graph language defined in 'mlr3pipelines'.
+Deep Learning library that extends the mlr3 framework by building upon the 'torch' package. It makes it convenient to build, train, and evaluate deep learning models without having to worry about low level details. Custom architectures can be created using the graph language defined in 'mlr3pipelines'.
 }
 \section{Options}{
 

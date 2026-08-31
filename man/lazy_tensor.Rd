@@ -14,7 +14,12 @@ The data descriptor or \code{NULL} for a lazy tensor of length 0.}
 The elements of the \code{data_descriptor} to be included in the lazy tensor.}
 }
 \description{
-Create a lazy tensor.
+Creates a \code{lazy_tensor}, the vector type that lets a \code{\link[mlr3:Task]{Task}} carry tensor-valued
+features -- images, or anything else that does not fit a \code{data.table} cell.
+It behaves like an ordinary vector, so it can be subset, combined and stored in a task's data
+backend, but it holds only a pointer into a \code{\link{DataDescriptor}} plus the row \code{ids} it selects:
+the tensors themselves are read, and any preprocessing applied, when \code{\link[=materialize]{materialize()}} is called,
+which is what makes it lazy.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
