@@ -1040,7 +1040,7 @@ test_that("NA prediction during validation does not cause issues.", {
   task = tsk("mtcars")
   learner$train(task)
   expect_true(
-    is.na(learner$model$callbacks$history$valid.regr.mse[1L]),
+    is.na(learner$model$callbacks$history$valid.regr.mse[1L])
   )
 })
 
