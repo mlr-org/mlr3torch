@@ -13,9 +13,8 @@
 #'   The task for which to build the [dataset][torch::dataset].
 #' @param feature_ingress_tokens (named `list()` of [`TorchIngressToken`])\cr
 #'   Each ingress token defines one item in the `$x` value of a batch with corresponding names.
-#' @param target_batchgetter (`function(data, device)`)\cr
-#'   A function taking in arguments `data`, which is a `data.table` containing only the target variable, and `device`.
-#'   It must return the target as a torch [tensor][torch::torch_tensor] on the selected device.
+#' @templateVar target_batchgetter_null If `NULL` (default), the batches have no `y` element.
+#' @template param_target_batchgetter
 #' @export
 #' @return [`torch::dataset`]
 #' @examplesIf torch::torch_is_installed()
@@ -280,9 +279,8 @@ target_batchgetter_regr = function(data) {
 #' @param feature_ingress_tokens (named `list()` of [`TorchIngressToken`])\cr
 #'   The ingress tokens that define `x`. Their features are already resolved, i.e. they are
 #'   `character()` vectors and not [`Selector`][mlr3pipelines::Selector]s.
-#' @param target_batchgetter (`function(data)` or `NULL`)\cr
-#'   The function that defines `y`, or `NULL` if the dataset has no target.
-#'   The default is to use [`get_target_batchgetter()`].
+#' @templateVar target_batchgetter_null If `NULL` (default), the batches have no `y` element.
+#' @template param_target_batchgetter
 #' @param ... (any)\cr
 #'   Additional arguments. Not used yet.
 #' @return `function(data, cache) -> list(x = list<torch_tensor>, y = torch_tensor | NULL)`
@@ -307,12 +305,17 @@ get_batch_constructor = function(task, feature_ingress_tokens, target_batchgette
 #' @export
 get_batch_constructor.default = function(task, feature_ingress_tokens, target_batchgetter = NULL, ...) { # nolint
   target_names = task$target_names
+  needs_x = !is.null(target_batchgetter) && "x" %in% formalArgs(target_batchgetter)
+  if (!length(target_names) && !needs_x) {
+    target_batchgetter = NULL
+  }
   function(data, cache = NULL) {
     x = lapply(feature_ingress_tokens, function(it) {
       it$batchgetter(data[, it$features, with = FALSE], cache = cache)
     })
     y = if (!is.null(target_batchgetter)) {
-      target_batchgetter(data[, target_names, with = FALSE])
+      target_data = data[, target_names, with = FALSE]
+      if (needs_x) target_batchgetter(target_data, x = x) else target_batchgetter(target_data)
     }
     list(x = x, y = y)
   }
@@ -322,18 +325,27 @@ get_batch_constructor.default = function(task, feature_ingress_tokens, target_ba
 #'
 #' @description
 #' Returns the function that converts the target column(s) of a `task` into the target tensor
-#' `y` of a batch.
+#' `y` of a batch, i.e. the tensor that the loss is applied to.
+#' The returned function takes an argument `data`, a [`data.table`][data.table::data.table]
+#' containing only the target column(s), and returns a [`torch_tensor`][torch::torch_tensor].
+#' It is `NULL` for a task with no target at all, whose batches have no `y` element and whose loss
+#' is called as `loss(y_hat)`.
+#'
+#' For the target encodings of the built-in task types, see section
+#' *Network Head and Target Encoding* of [`LearnerTorch`].
+#'
+#' When adding support for a custom task type, implement a method for the corresponding
+#' [`Task`][mlr3::Task] class.
 #'
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   The task.
 #' @param ... (any)\cr
 #'   Additional arguments. Not used yet.
-#' @return `function(data)`
+#' @return `function(data)`, `function(data, x)`, or `NULL` for a task with no target
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' task = tsk("iris")
-#' batchgetter = get_target_batchgetter(task)
-#' batchgetter(task$data(1:2, "Species")[[1L]])
+#' batchgetter = get_target_batchgetter(tsk("iris"))
+#' batchgetter(data.table::data.table(Species = factor(c("setosa", "virginica"))))
 get_target_batchgetter = function(task, ...) {
   UseMethod("get_target_batchgetter")
 }

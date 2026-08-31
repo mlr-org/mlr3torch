@@ -38,7 +38,7 @@ test_that("cannot clone trained LearnerTorchModel", {
     task_type = "classif",
     network = testmodule_linear(task),
     ingress_tokens = list(x = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L))),
-    packages = "data.table",
+    packages = "data.table"
   )
   learner$param_set$set_values(
     epochs = 0, batch_size = 50
@@ -75,7 +75,7 @@ test_that("LearnerTorchModel and marshaling", {
     task_type = "classif",
     network = testmodule_linear(task),
     ingress_tokens = list(x = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L))),
-    packages = "data.table",
+    packages = "data.table"
   )
   learner$encapsulate("callr", lrn("classif.featureless"))
   learner$param_set$set_values(

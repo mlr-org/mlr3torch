@@ -1040,7 +1040,7 @@ test_that("NA prediction during validation does not cause issues.", {
   task = tsk("mtcars")
   learner$train(task)
   expect_true(
-    is.na(learner$model$callbacks$history$valid.regr.mse[1L]),
+    is.na(learner$model$callbacks$history$valid.regr.mse[1L])
   )
 })
 
@@ -1555,4 +1555,50 @@ test_that("hashes are reproducible across R sessions", {
   expect_equal(hash_in_session(FALSE), hash_in_session(TRUE))
   expect_equal(hash_in_session(FALSE), lrn("classif.mlp", activation = nn_relu, neurons = 3,
     epochs = 1, batch_size = 16, device = "cpu")$hash)
+})
+
+test_that("the machinery of LearnerTorch works on a generic torch task", {
+  task = tt_task_labels(40L)
+  learner = tt_learner(tt_loss_bce(), epochs = 2L)
+
+  expect_equal(learner$task_type, "torch")
+  # the task type claims no more than every LearnerTorch has, see `register_task_type_torch()`
+  expect_set_equal(learner$properties, c("marshal", "validation", "internal_tuning"))
+  # `prob` and `se` are opt-in, because only the task's encoder knows whether they exist;
+  # `lazy_tensor` is not, because handing the network's output back needs no encoder
+  expect_set_equal(learner$predict_types, c("response", "lazy_tensor"))
+
+  learner$train(task)
+  expect_class(learner$network, "nn_module")
+  expect_permutation(
+    names(learner$model),
+    c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks", "epochs",
+      "internal_valid_scores")
+  )
+
+  pred = learner$predict(task)
+  expect_class(pred, "PredictionTorch")
+  expect_matrix(pred$response, mode = "logical", nrows = task$nrow, ncols = 2L)
+
+  expect_matrix(learner$predict(task)$response, mode = "logical", nrows = task$nrow, ncols = 2L)
+})
+
+test_that("validation and early stopping work on a generic torch task", {
+  task = tt_task_labels(40L)
+  task$internal_valid_task = task$clone(deep = TRUE)
+
+  measure = msr_torch("hamming", function(truth, response) mean(as.matrix(truth) != response),
+    range = c(0, 1), minimize = TRUE)
+  learner = tt_learner(tt_loss_bce(), epochs = 6L, eval_freq = 2L,
+    measures_valid = measure, validate = "predefined")
+
+  learner$train(task)
+  expect_list(learner$internal_valid_scores, "numeric", len = 1L)
+  expect_equal(names(learner$internal_valid_scores), "hamming")
+  expect_number(learner$internal_valid_scores[[1L]], lower = 0, upper = 1)
+
+  # early stopping tunes `epochs`, which is what the "internal_tuning" property promises
+  learner$param_set$set_values(patience = 1L)
+  learner$train(task)
+  expect_number(learner$internal_tuned_values$epochs, lower = 1, upper = 6)
 })

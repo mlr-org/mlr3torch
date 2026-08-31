@@ -115,6 +115,34 @@ is also ensured to be the first factor level) is \code{1} and the negative class
 }
 }
 
+\section{Predicting Tensors}{
+
+The predict type \code{"lazy_tensor"}, available for the task type \code{"torch"}, hands back what the
+network produced -- a \code{\link{lazy_tensor}} with one element per observation -- instead of asking the
+task's \code{default_encoder} to turn it into a response.
+It is how to get at the logits of a classifier or the reconstruction of an autoencoder, and a
+task predicted this way needs no encoder at all.
+Unlike \code{"prob"} and \code{"se"} it is not opt-in: every learner for this task type has it among its
+\verb{$predict_types}, because handing the output back does not depend on how the learner encodes a
+prediction. Set \code{learner$predict_type = "lazy_tensor"} to use it.
+A network with more than one head hands back one \code{\link{lazy_tensor}} per head, held in a
+\code{\link[data.table:data.table]{data.table}} with one column per head so that the prediction is still
+one row per observation; \code{as.data.table()} spreads it into \verb{lazy_tensor.<head>} columns.
+
+Two things to know before using it:
+\itemize{
+\item \strong{Such a prediction does not survive \code{\link[base:saveRDS]{saveRDS()}}.} It holds \code{torch} tensors,
+which are external pointers: saving \emph{succeeds}, and the object then fails with
+\emph{external pointer is not valid} the next time the tensors are touched, in this session or in
+another. This applies to a \code{\link[mlr3:ResampleResult]{ResampleResult}} holding one as well -- its
+row ids and scores survive, its tensors do not.
+\item Nothing about it is lazy. A \code{\link{lazy_tensor}} built from a tensor holds that tensor, so a
+prediction of this type is the network's output in memory, and \code{resample()} holds every fold's
+-- combining the folds concatenates them, since lazy tensors from different networks share no
+data descriptor and cannot be concatenated lazily.
+}
+}
+
 \section{Important Runtime Considerations}{
 
 There are a few hyperparameters settings that can have a considerable impact on the runtime of the learner.
@@ -296,11 +324,13 @@ There are no separate classes for classification and regression to inherit from.
 Instead, the \code{task_type} must be specified as a construction argument.
 Any task type that is registered in
 \code{\link[mlr3:mlr_reflections]{mlr_reflections$task_types}} can be used.
-Support for a task type that \pkg{mlr3torch} does not know is added by implementing methods for
+Support for a task type that \CRANpkg{mlr3torch} does not know is added by implementing methods for
 the three S3 generics that hold the task-type-specific behaviour: \code{\link[=output_dim_for]{output_dim_for()}} (how many
 output neurons the network needs), \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} (how the target is turned into a
 tensor) and \code{\link[=encode_prediction]{encode_prediction()}} (how the network's output is turned back into a prediction).
 Such a learner also has to be given a \code{loss} explicitly.
+This class can also be used for custom task types, see \code{\link{TaskTorch}} and the
+\emph{Custom Learning Problems} article for more information.
 
 When inheriting from this class, one should overload the following methods:
 \itemize{
@@ -526,6 +556,7 @@ The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.
 For regression, the default is \code{"response"}.
 For classification, this defaults to \code{"response"} and \code{"prob"}.
+For the task type \code{"torch"}, it defaults to \code{"response"}.
 For other task types, it defaults to all predict types that are registered for the task type.
 To deviate from the defaults, it is necessary to overwrite the private \verb{$.encode_prediction()}
 method, see section \emph{Inheriting}.}
