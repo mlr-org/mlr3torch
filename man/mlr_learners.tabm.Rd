@@ -152,6 +152,7 @@ In \emph{Advances in Neural Information Processing Systems 35 (NeurIPS)}.
 }
 \seealso{
 Other Learner:
+\code{\link{GraphLearnerTorch}},
 \code{\link[=as_learner_torch]{as_learner_torch()}},
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},

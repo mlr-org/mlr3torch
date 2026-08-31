@@ -88,6 +88,8 @@ reference:
   - title: Learners
     contents:
       - starts_with("mlr_learners")
+      - as_learner_torch
+      - GraphLearnerTorch
       - replace_head
   - title: Tasks
     contents:
