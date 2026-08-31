@@ -33,6 +33,13 @@
 
 ### Features
 
+- New function
+  [`as_learner_torch()`](https://mlr3torch.mlr-org.com/dev/reference/as_learner_torch.md),
+  which converts a `Graph` of `PipeOpTorch` operators into a `Learner`.
+  It’s advantage over
+  [`as_learner()`](https://mlr3.mlr-org.com/reference/as_learner.html)
+  is that the resulting learner exposes methods like `$network()` and
+  `$dataset()`.
 - `LearnerTorch` and `PipeOpTorchModel` now accept any task type
   registered in `mlr_reflections$task_types`, via the new generics
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md)

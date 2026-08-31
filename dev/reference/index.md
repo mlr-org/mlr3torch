@@ -38,6 +38,10 @@
 - [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch_model.md)
   [`LearnerTorchModel`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch_model.md)
   : Learner Torch Model
+- [`as_learner_torch()`](https://mlr3torch.mlr-org.com/dev/reference/as_learner_torch.md)
+  : Convert a Graph to a Torch Learner
+- [`GraphLearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/GraphLearnerTorch.md)
+  : Graph Learner for Torch Networks
 - [`replace_head()`](https://mlr3torch.mlr-org.com/dev/reference/replace_head.md)
   : Replace the head of a network Replaces the head of the network with
   a linear layer with d_out classes.

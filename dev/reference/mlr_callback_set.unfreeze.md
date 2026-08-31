@@ -8,13 +8,7 @@ steps or epochs.
 Which weights are trainable is stored and restored, so a resumed run
 does not freeze again what the run it continues had already unfrozen:
 `starting_weights` is applied first, and the restored weights are
-unfrozen on top of it. The schedule itself continues rather than
-starting over, since an `epoch` schedule follows the restored epoch and
-a `batch` one the restored step count. A resumed run may therefore use
-another `batch_size`: the steps keep counting where the checkpoint left
-them, so the remaining points of a `batch` schedule are still reached –
-but they fall after a different amount of data than they would have in
-the original run.
+unfrozen on top of it.
 
 ## See also
 

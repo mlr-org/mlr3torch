@@ -165,29 +165,6 @@ The predict type the measure requires: <code>"response"</code> (default), <code>
 <code>"lazy_tensor"</code>.
 A measure asking for one it did not declare here still receives it, if the prediction has it.</p></dd>
 
-      <dt><code>properties</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
-Properties of the measure, see <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>.
-The <code>"requires_task"</code>, <code>"requires_learner"</code>, <code>"requires_train_set"</code> and <code>"weights"</code> properties
-are added automatically when <code>fun</code> declares the corresponding argument.
-<code>"requires_model"</code> is not: a <code>learner</code> argument only says that the learner object is needed,
-and <code>mlr3</code> hands that over even when the model was not stored – after a <code><a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">resample()</a></code> with
-<code>store_models = FALSE</code>, <code>learner$network</code> is then <code>NULL</code> and a measure reading it scores
-whatever an empty model gives. Pass <code>properties = "requires_model"</code> yourself whenever the
-measure reaches for the trained network, so that <code>mlr3</code> refuses to score instead.</p></dd>
-
-      <dt><code>label</code></dt>
-<dd><p>(<code>character(1)</code>)<br>
-The label of the measure.</p></dd>
-
-      <dt><code>obs_loss</code></dt>
-<dd><p>(<code>function()</code> or <code>NULL</code>)<br>
-The per-observation loss. Declared like <code>fun</code>, except that <code>train_set</code> is not available here,
-and if specified adds the <code>"obs_loss"</code> property.
-It must return one number per observation: a multi-target loss reduces over the targets
-(<code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans()</a></code>), not over the observations (<code><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean()</a></code>), and returning a single number is an error
-rather than a column of that number repeated.</p></dd>
-
 
 </dl><p></p></div>
 </div>

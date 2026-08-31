@@ -86,7 +86,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="features-development-version">Features<a class="anchor" aria-label="anchor" href="#features-development-version"></a></h3>
-<ul><li>
+<ul><li>New function <code><a href="../reference/as_learner_torch.html">as_learner_torch()</a></code>, which converts a <code>Graph</code> of <code>PipeOpTorch</code> operators into a <code>Learner</code>. It’s advantage over <code><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner()</a></code> is that the resulting learner exposes methods like <code>$network()</code> and <code>$dataset()</code>.</li>
+<li>
 <code>LearnerTorch</code> and <code>PipeOpTorchModel</code> now accept any task type registered in <code>mlr_reflections$task_types</code>, via the new generics <code><a href="../reference/get_target_batchgetter.html">get_target_batchgetter()</a></code> and <code><a href="../reference/encode_prediction.html">encode_prediction()</a></code>.</li>
 <li>New S3 generic <code><a href="../reference/get_batch_constructor.html">get_batch_constructor()</a></code>, which decides how a whole batch of a task is built, i.e. both the features <code>x</code> and the target <code>y</code>.</li>
 <li>Added support for <code>TaskTorch</code> to easily go beyond the regression and classification setting, see the <em>Custom Learning Problems</em> article for more information.</li>

@@ -8,9 +8,9 @@ Because a
 [`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)
 can represent very different learning problems, this class does not
 prescribe much about how `truth`, `response`, `prob` and `se` are
-stored: the task's prediction encoder decides, and that encoder is
-yours. The one rule is that the *first* dimension indexes the
-observations. Within that, an element may be an atomic vector, a
+stored. This is defined by the task's prediction encoder, where you need
+to ensure that the first dimension indexes the observations. Within
+that, an element may be an atomic vector, a
 [`matrix()`](https://rdrr.io/r/base/matrix.html), an
 [`array()`](https://rdrr.io/r/base/array.html) of any dimensionality, a
 [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html) or a

@@ -7,63 +7,25 @@
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Checkpoint Callback — mlr_callback_set.checkpoint"><meta name="description" content="Saves the optimizer, weights, and callback states every freq epochs as well as the final state.
 This can be used to later continue a training run via the resume parameter of LearnerTorch.
-A folder holds the checkpoints of a single run, which is continued from where it ended: training
-errors when epochs is less than the most recent checkpoint in path, and a run never
-writes over a checkpoint that is already there.
-When epochs is exactly that checkpoint, the run in the folder is already finished: it is
-loaded and returned, and nothing is written.
-Each file is checked again immediately before it is written and an existing one is an error, so
-a second run writing into the same folder is also caught when it started after this run did –
-the check the folder gets before training cannot see it.
-The exception is a checkpoint that was already half-written when this run started, which is what
-a run killed mid-write leaves behind and which may be completed.
 Checkpoints are written at the end of an epoch. For one written after epoch &amp;lt;n&amp;gt;, three files
 are created in path:
 network&amp;lt;n&amp;gt;.pt :: The $state_dict() of the network.
 optimizer&amp;lt;n&amp;gt;.pt :: The $state_dict() of the optimizer.
-Next to them, written once with the first checkpoint, is run.rds: the task the folder's run
-trains on and the rows of its internal validation split, which a resuming run is checked against.
-state&amp;lt;n&amp;gt;.rds :: The epoch, the version of mlr3torch that wrote the checkpoint, as well as
+state&amp;lt;n&amp;gt;.rds :: The epoch, the version of mlr3torch that wrote the checkpoint,
 the $state_dict()s of the training run's other callbacks, so that a later run can
-continue e.g. the training history or the learning rate schedule.
-The class of each of those callbacks is recorded next to its state, which lets a resuming run
-notice that an id stands for a callback of another class instead of restoring the state of one
-into the other.
-Callbacks of the same class are indistinguishable to that check, and torch_callback() names
-the class after the id, so a custom callback under a builtin's id is not caught by it.
-This file is written with saveRDS(), so a callback state containing a
-torch tensor or module is written as an invalid pointer and errors when a resuming run uses
-it – see section Inheriting of CallbackSet.
+continue, as well as some other information.
+Additionally, there is run.rds which contains some additioanl global meta information.
 
 "><meta property="og:description" content="Saves the optimizer, weights, and callback states every freq epochs as well as the final state.
 This can be used to later continue a training run via the resume parameter of LearnerTorch.
-A folder holds the checkpoints of a single run, which is continued from where it ended: training
-errors when epochs is less than the most recent checkpoint in path, and a run never
-writes over a checkpoint that is already there.
-When epochs is exactly that checkpoint, the run in the folder is already finished: it is
-loaded and returned, and nothing is written.
-Each file is checked again immediately before it is written and an existing one is an error, so
-a second run writing into the same folder is also caught when it started after this run did –
-the check the folder gets before training cannot see it.
-The exception is a checkpoint that was already half-written when this run started, which is what
-a run killed mid-write leaves behind and which may be completed.
 Checkpoints are written at the end of an epoch. For one written after epoch &amp;lt;n&amp;gt;, three files
 are created in path:
 network&amp;lt;n&amp;gt;.pt :: The $state_dict() of the network.
 optimizer&amp;lt;n&amp;gt;.pt :: The $state_dict() of the optimizer.
-Next to them, written once with the first checkpoint, is run.rds: the task the folder's run
-trains on and the rows of its internal validation split, which a resuming run is checked against.
-state&amp;lt;n&amp;gt;.rds :: The epoch, the version of mlr3torch that wrote the checkpoint, as well as
+state&amp;lt;n&amp;gt;.rds :: The epoch, the version of mlr3torch that wrote the checkpoint,
 the $state_dict()s of the training run's other callbacks, so that a later run can
-continue e.g. the training history or the learning rate schedule.
-The class of each of those callbacks is recorded next to its state, which lets a resuming run
-notice that an id stands for a callback of another class instead of restoring the state of one
-into the other.
-Callbacks of the same class are indistinguishable to that check, and torch_callback() names
-the class after the id, so a custom callback under a builtin's id is not caught by it.
-This file is written with saveRDS(), so a callback state containing a
-torch tensor or module is written as an invalid pointer and errors when a resuming run uses
-it – see section Inheriting of CallbackSet.
+continue, as well as some other information.
+Additionally, there is run.rds which contains some additioanl global meta information.
 
 "><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -135,32 +97,13 @@ it – see section Inheriting of CallbackSet.
     <div class="ref-description section level2">
     <p>Saves the optimizer, weights, and callback states every <code>freq</code> epochs as well as the final state.
 This can be used to later continue a training run via the <code>resume</code> parameter of <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>.</p>
-<p>A folder holds the checkpoints of a single run, which is continued from where it ended: training
-errors when <code>epochs</code> is less than the most recent checkpoint in <code>path</code>, and a run never
-writes over a checkpoint that is already there.
-When <code>epochs</code> is exactly that checkpoint, the run in the folder is already finished: it is
-loaded and returned, and nothing is written.
-Each file is checked again immediately before it is written and an existing one is an error, so
-a second run writing into the same folder is also caught when it started after this run did –
-the check the folder gets before training cannot see it.
-The exception is a checkpoint that was already half-written when this run started, which is what
-a run killed mid-write leaves behind and which may be completed.</p>
 <p>Checkpoints are written at the end of an epoch. For one written after epoch <code>&lt;n&gt;</code>, three files
 are created in <code>path</code>:</p><ul><li><p><code>network&lt;n&gt;.pt</code> :: The <code>$state_dict()</code> of the network.</p></li>
-<li><p><code>optimizer&lt;n&gt;.pt</code> :: The <code>$state_dict()</code> of the optimizer.
-Next to them, written once with the first checkpoint, is <code>run.rds</code>: the task the folder's run
-trains on and the rows of its internal validation split, which a resuming run is checked against.</p></li>
-<li><p><code>state&lt;n&gt;.rds</code> :: The epoch, the version of <code>mlr3torch</code> that wrote the checkpoint, as well as
+<li><p><code>optimizer&lt;n&gt;.pt</code> :: The <code>$state_dict()</code> of the optimizer.</p></li>
+<li><p><code>state&lt;n&gt;.rds</code> :: The epoch, the version of <code>mlr3torch</code> that wrote the checkpoint,
 the <code>$state_dict()</code>s of the training run's other callbacks, so that a later run can
-continue e.g. the training history or the learning rate schedule.
-The class of each of those callbacks is recorded next to its state, which lets a resuming run
-notice that an id stands for a callback of another class instead of restoring the state of one
-into the other.
-Callbacks of the same class are indistinguishable to that check, and <code><a href="torch_callback.html">torch_callback()</a></code> names
-the class after the id, so a custom callback under a builtin's id is not caught by it.
-This file is written with <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>, so a callback state containing a
-<code>torch</code> tensor or module is written as an invalid pointer and errors when a resuming run uses
-it – see section <em>Inheriting</em> of <code><a href="mlr_callback_set.html">CallbackSet</a></code>.</p></li>
+continue, as well as some other information.
+Additionally, there is <code>run.rds</code> which contains some additioanl global meta information.</p></li>
 </ul></div>
 
 
@@ -256,9 +199,8 @@ How often the model is saved, in epochs.</p></dd>
 
 <p></p><hr><a id="method-CallbackSetCheckpoint-state_dict"></a><div class="section">
 <h3 id="callbacksetcheckpoint-state-dict-"><code>CallbackSetCheckpoint$state_dict()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-state-dict-"></a></h3>
-<p>Returns the folder this callback writes to, so that <code>learner$model$callbacks$&lt;id&gt;$path</code>
-names it. This is the only place it can be read off a trained learner when <code>path</code> is a
-<code>function()</code>, which is called once per training run.</p><div class="section">
+<p>Returns the folder this callback writes to so it can be accessed from the learner
+when the <code>path</code> was a function.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetCheckpoint</span><span class="op">$</span><span class="fu">state_dict</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -267,8 +209,7 @@ names it. This is the only place it can be read off a trained learner when <code
 
 <p></p><hr><a id="method-CallbackSetCheckpoint-on_begin"></a><div class="section">
 <h3 id="callbacksetcheckpoint-on-begin-"><code>CallbackSetCheckpoint$on_begin()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-on-begin-"></a></h3>
-<p>Refuses to start when this run would not get past the checkpoint that is already in <code>path</code>,
-or would write over the checkpoint of another run.</p><div class="section">
+<p>Checks whether the checkpoint path is valid.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetCheckpoint</span><span class="op">$</span><span class="fu">on_begin</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>

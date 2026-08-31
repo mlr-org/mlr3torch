@@ -32,11 +32,9 @@ afterwards.
 
 That state contains the scheduler's configuration as well as its
 progress, and restoring it overwrites what the resuming run was
-configured with. Resuming with different scheduler arguments – or a
-different `opt.lr`, which the schedule's base rates are derived from –
+configured with. Resuming with different scheduler arguments, or a
+different `opt.lr`, which the schedule's base rates are derived from,
 therefore silently continues the schedule of the checkpointed run.
-Configure both runs the same way; a schedule cannot be changed halfway
-through.
 
 ## Super class
 

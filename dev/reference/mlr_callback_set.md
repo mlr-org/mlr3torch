@@ -31,24 +31,11 @@ defines how to load a previously saved callback state into a different
 callback. Note that the `$state_dict()` should not include the parameter
 values that were used to initialize the callback.
 
-A callback that ends training by setting `ctx$terminate` should set it
-again in `$load_state_dict()` when its restored state says the run was
-over – as [early
-stopping](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)
-does when the restored stagnation has reached `patience`. The training
-loop consults `ctx$terminate` before each epoch, so a run continuing
-such a checkpoint then trains nothing instead of one more epoch.
-
-A state must survive [`saveRDS()`](https://rdrr.io/r/base/readRDS.html),
-which is how
-[`t_clbk("checkpoint")`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.checkpoint.md)
-writes it and how a learner is serialized. `torch` tensors and modules
-do not: they are external pointers, and one that was written and read
-back errors with `external pointer is not valid` when it is used.
-Convert them, e.g. with
-[`as.array()`](https://rdrr.io/r/base/array.html) or
-[`torch::torch_serialize()`](https://torch.mlverse.org/docs/reference/torch_serialize.html),
-and convert them back in `$load_state_dict()`.
+In order to be able to resume a callback, it needs to work with
+`saveRDS`, so it cannot contain external pointers such as
+[`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html)s.
+Convert them to R data, e.g. via
+[`as.array()`](https://rdrr.io/r/base/array.html).
 
 For creating custom callbacks, the function
 [`torch_callback()`](https://mlr3torch.mlr-org.com/dev/reference/torch_callback.md)
@@ -194,7 +181,11 @@ This returns `NULL` by default.
 
 ### `CallbackSet$load_state_dict()`
 
-Loads the state dict into the callback to continue training.
+Loads the state dict into the callback to continue training. A callback
+that keeps no state inherits this, which has nothing to load and
+therefore only warns when it is handed a state anyway – a callback that
+implements `$state_dict()` but not this method, so that a resuming run
+cannot give its state back.
 
 #### Usage
 

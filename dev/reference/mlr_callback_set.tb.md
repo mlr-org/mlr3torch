@@ -10,13 +10,7 @@ Logs events at most every epoch.
 
 ## Resuming
 
-This callback keeps no state of its own. The measures are logged under
-the epoch they belong to and the training loss under
-[`ContextTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_context_torch.md)'s
-`global_step`, both of which a resumed run continues counting rather
-than restarting, so its curves extend those of the run it continues.
-Point the resumed run at the `path` its predecessor wrote and both
-halves end up in one TensorBoard run; a fresh `path` puts them in two.
+This callback keeps no state of its own so it can trivially be resumed.
 
 ## See also
 

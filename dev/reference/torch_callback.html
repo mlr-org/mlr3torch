@@ -160,9 +160,7 @@ Function to execute at the given stage, see section <em>Stages</em>.</p></dd>
 <dt id="arg-state-dict">state_dict<a class="anchor" aria-label="anchor" href="#arg-state-dict"></a></dt>
 <dd><p>(<code>function()</code>)<br>
 The function that retrieves the state dict from the callback.
-This is what will be available in the learner after training.
-It must return something that survives <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>, so no <code>torch</code> tensors or
-modules, see section <em>Inheriting</em> of <code><a href="mlr_callback_set.html">CallbackSet</a></code>.</p></dd>
+This is what will be available in the learner after training.</p></dd>
 
 
 <dt id="arg-load-state-dict">load_state_dict<a class="anchor" aria-label="anchor" href="#arg-load-state-dict"></a></dt>

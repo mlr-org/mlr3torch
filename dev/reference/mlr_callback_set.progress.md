@@ -4,12 +4,7 @@ Prints a progress bar and the metrics for training and validation.
 
 ## Resuming
 
-A resumed run prints only the epochs it trains itself, numbered as what
-they are: it starts at the epoch after the checkpoint, not at epoch 1.
-The time training has taken is carried across runs, so the total this
-reports when training ends covers the runs the checkpoint came from as
-well and not only the last one. Such a run reports that total split into
-the time before it and the time it took itself.
+This callback can be resumed without any problems.
 
 ## See also
 
@@ -209,8 +204,8 @@ learner$param_set$set_values(
 )
 
 learner$train(task)
-#> Epoch 1/5 started (2026-08-31 08:32:27)
-#> Validation for epoch 1 started (2026-08-31 08:32:27)
+#> Epoch 1/5 started (2026-08-31 09:28:40)
+#> Validation for epoch 1 started (2026-08-31 09:28:40)
 #> 
 #> [Summary epoch 1]
 #> ------------------
@@ -220,8 +215,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.78
 #> 
-#> Epoch 2/5 started (2026-08-31 08:32:27)
-#> Validation for epoch 2 started (2026-08-31 08:32:28)
+#> Epoch 2/5 started (2026-08-31 09:28:40)
+#> Validation for epoch 2 started (2026-08-31 09:28:41)
 #> 
 #> [Summary epoch 2]
 #> ------------------
@@ -231,8 +226,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.53
 #> 
-#> Epoch 3/5 started (2026-08-31 08:32:28)
-#> Validation for epoch 3 started (2026-08-31 08:32:28)
+#> Epoch 3/5 started (2026-08-31 09:28:41)
+#> Validation for epoch 3 started (2026-08-31 09:28:41)
 #> 
 #> [Summary epoch 3]
 #> ------------------
@@ -242,8 +237,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.60
 #> 
-#> Epoch 4/5 started (2026-08-31 08:32:28)
-#> Validation for epoch 4 started (2026-08-31 08:32:29)
+#> Epoch 4/5 started (2026-08-31 09:28:41)
+#> Validation for epoch 4 started (2026-08-31 09:28:42)
 #> 
 #> [Summary epoch 4]
 #> ------------------
@@ -253,8 +248,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.60
 #> 
-#> Epoch 5/5 started (2026-08-31 08:32:29)
-#> Validation for epoch 5 started (2026-08-31 08:32:29)
+#> Epoch 5/5 started (2026-08-31 09:28:42)
+#> Validation for epoch 5 started (2026-08-31 09:28:42)
 #> 
 #> [Summary epoch 5]
 #> ------------------
@@ -264,5 +259,5 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.60
 #> 
-#> Finished training for 5 epochs (2026-08-31 08:32:29, 2.2s total)
+#> Finished training for 5 epochs (2026-08-31 09:28:42, 2.3s total)
 ```

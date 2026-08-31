@@ -88,12 +88,7 @@ To view them, use TensorBoard with <code>tensorflow::tensorboard()</code> (requi
     <h2 id="resuming">Resuming<a class="anchor" aria-label="anchor" href="#resuming"></a></h2>
 
 
-<p>This callback keeps no state of its own.
-The measures are logged under the epoch they belong to and the training loss under
-<code><a href="mlr_context_torch.html">ContextTorch</a></code>'s <code>global_step</code>, both of which a resumed run continues counting rather than
-restarting, so its curves extend those of the run it continues.
-Point the resumed run at the <code>path</code> its predecessor wrote and both halves end up in one
-TensorBoard run; a fresh <code>path</code> puts them in two.</p>
+<p>This callback keeps no state of its own so it can trivially be resumed.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

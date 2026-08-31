@@ -8,9 +8,9 @@
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Prediction Object for a Generic Torch Task — PredictionTorch"><meta name="description" content="The Prediction object returned by learners that were trained on a
 TaskTorch.
 Because a TaskTorch can represent very different learning problems, this class does not
-prescribe much about how truth, response, prob and se are stored: the task's prediction
-encoder decides, and that encoder is yours.
-The one rule is that the first dimension indexes the observations.
+prescribe much about how truth, response, prob and se are stored.
+This is defined by the task's prediction encoder, where you need to ensure that the first
+dimension indexes the observations.
 Within that, an element may be an atomic vector, a matrix(), an array() of any
 dimensionality, a data.table or a lazy_tensor.
 truth is whatever task$truth() returned – a vector for one target, a data.table for
@@ -26,9 +26,9 @@ with three columns, &amp;lt;array[3x224x224]&amp;gt; for a prob with a class dim
 ones."><meta property="og:description" content="The Prediction object returned by learners that were trained on a
 TaskTorch.
 Because a TaskTorch can represent very different learning problems, this class does not
-prescribe much about how truth, response, prob and se are stored: the task's prediction
-encoder decides, and that encoder is yours.
-The one rule is that the first dimension indexes the observations.
+prescribe much about how truth, response, prob and se are stored.
+This is defined by the task's prediction encoder, where you need to ensure that the first
+dimension indexes the observations.
 Within that, an element may be an atomic vector, a matrix(), an array() of any
 dimensionality, a data.table or a lazy_tensor.
 truth is whatever task$truth() returned – a vector for one target, a data.table for
@@ -112,9 +112,9 @@ ones."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg
     <p>The <code><a href="https://mlr3.mlr-org.com/reference/Prediction.html" class="external-link">Prediction</a></code> object returned by learners that were trained on a
 <code><a href="mlr_tasks_torch.html">TaskTorch</a></code>.</p>
 <p>Because a <code><a href="mlr_tasks_torch.html">TaskTorch</a></code> can represent very different learning problems, this class does not
-prescribe much about how <code>truth</code>, <code>response</code>, <code>prob</code> and <code>se</code> are stored: the task's prediction
-encoder decides, and that encoder is yours.
-The one rule is that the <em>first</em> dimension indexes the observations.
+prescribe much about how <code>truth</code>, <code>response</code>, <code>prob</code> and <code>se</code> are stored.
+This is defined by the task's prediction encoder, where you need to ensure that the first
+dimension indexes the observations.
 Within that, an element may be an atomic vector, a <code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix()</a></code>, an <code><a href="https://rdrr.io/r/base/array.html" class="external-link">array()</a></code> of any
 dimensionality, a <code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></code> or a <code><a href="lazy_tensor.html">lazy_tensor</a></code>.
 <code>truth</code> is whatever <code>task$truth()</code> returned – a vector for one target, a <code>data.table</code> for

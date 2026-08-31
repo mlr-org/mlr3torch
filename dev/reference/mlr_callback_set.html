@@ -108,17 +108,9 @@ after training finishes.
 This then also requires to implement a <code>$load_state_dict(state_dict)</code> method that defines how to load a previously saved
 callback state into a different callback.
 Note that the <code>$state_dict()</code> should not include the parameter values that were used to initialize the callback.</p>
-<p>A callback that ends training by setting <code>ctx$terminate</code> should set it again in
-<code>$load_state_dict()</code> when its restored state says the run was over – as
-<a href="mlr_learners_torch.html">early stopping</a> does when the restored stagnation has reached <code>patience</code>.
-The training loop consults <code>ctx$terminate</code> before each epoch, so a run continuing such a
-checkpoint then trains nothing instead of one more epoch.</p>
-<p>A state must survive <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>, which is how <code><a href="mlr_callback_set.checkpoint.html">t_clbk("checkpoint")</a></code>
-writes it and how a learner is serialized.
-<code>torch</code> tensors and modules do not: they are external pointers, and one that was written and read
-back errors with <code>external pointer is not valid</code> when it is used.
-Convert them, e.g. with <code><a href="https://rdrr.io/r/base/array.html" class="external-link">as.array()</a></code> or <code><a href="https://torch.mlverse.org/docs/reference/torch_serialize.html" class="external-link">torch::torch_serialize()</a></code>, and convert
-them back in <code>$load_state_dict()</code>.</p>
+<p>In order to be able to resume a callback, it needs to work with <code>saveRDS</code>, so it cannot contain
+external pointers such as <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>s.
+Convert them to R data, e.g. via <code><a href="https://rdrr.io/r/base/array.html" class="external-link">as.array()</a></code>.</p>
 <p>For creating custom callbacks, the function <code><a href="torch_callback.html">torch_callback()</a></code> is recommended, which creates a
 <code>CallbackSet</code> and then wraps it in a <code><a href="TorchCallback.html">TorchCallback</a></code>.
 To create a <code>CallbackSet</code> the convenience function <code><a href="callback_set.html">callback_set()</a></code> can be used.
@@ -241,7 +233,10 @@ This returns <code>NULL</code> by default.</p><div class="section">
 
 <p></p><hr><a id="method-CallbackSet-load_state_dict"></a><div class="section">
 <h3 id="callbackset-load-state-dict-"><code>CallbackSet$load_state_dict()</code><a class="anchor" aria-label="anchor" href="#callbackset-load-state-dict-"></a></h3>
-<p>Loads the state dict into the callback to continue training.</p><div class="section">
+<p>Loads the state dict into the callback to continue training.
+A callback that keeps no state inherits this, which has nothing to load and therefore only
+warns when it is handed a state anyway – a callback that implements <code>$state_dict()</code> but not
+this method, so that a resuming run cannot give its state back.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSet</span><span class="op">$</span><span class="fu">load_state_dict</span><span class="op">(</span><span class="va">state_dict</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">

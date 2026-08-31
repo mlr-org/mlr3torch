@@ -76,6 +76,7 @@ nn_graph(graph, shapes_in, output_map = graph$output$name, list_output = FALSE)
 Other Graph Network:
 [`ModelDescriptor()`](https://mlr3torch.mlr-org.com/dev/reference/ModelDescriptor.md),
 [`TorchIngressToken()`](https://mlr3torch.mlr-org.com/dev/reference/TorchIngressToken.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/dev/reference/as_learner_torch.md),
 [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch_model.md),
 [`mlr_pipeops_module`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_module.md),
 [`mlr_pipeops_torch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md),
@@ -104,21 +105,21 @@ x = torch_randn(16, 10)
 
 network(module_1.input = x)
 #> torch_tensor
-#>  0.0649
-#>  0.3733
-#>  0.2624
-#>  0.0827
-#>  0.3914
-#> -0.2292
-#> -0.2201
-#>  0.3256
-#> -0.3266
-#>  0.1092
-#> -0.2965
-#> -0.0335
-#> -0.1847
-#>  0.0774
-#> -0.4185
-#>  0.0101
+#>  0.3932
+#>  0.1855
+#>  0.0577
+#>  0.4456
+#>  0.6228
+#>  0.1634
+#>  0.3309
+#>  0.4704
+#>  0.1945
+#>  0.0360
+#>  0.6847
+#>  0.2488
+#>  0.2751
+#>  0.6014
+#>  0.3517
+#>  0.0907
 #> [ CPUFloatType{16,1} ][ grad_fn = <AddmmBackward0> ]
 ```

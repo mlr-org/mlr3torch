@@ -104,39 +104,6 @@ Creates a new instance of this
   `"prob"`, `"se"` or `"lazy_tensor"`. A measure asking for one it did
   not declare here still receives it, if the prediction has it.
 
-- `properties`:
-
-  ([`character()`](https://rdrr.io/r/base/character.html))  
-  Properties of the measure, see
-  [`Measure`](https://mlr3.mlr-org.com/reference/Measure.html). The
-  `"requires_task"`, `"requires_learner"`, `"requires_train_set"` and
-  `"weights"` properties are added automatically when `fun` declares the
-  corresponding argument. `"requires_model"` is not: a `learner`
-  argument only says that the learner object is needed, and `mlr3` hands
-  that over even when the model was not stored – after a
-  [`resample()`](https://mlr3.mlr-org.com/reference/resample.html) with
-  `store_models = FALSE`, `learner$network` is then `NULL` and a measure
-  reading it scores whatever an empty model gives. Pass
-  `properties = "requires_model"` yourself whenever the measure reaches
-  for the trained network, so that `mlr3` refuses to score instead.
-
-- `label`:
-
-  (`character(1)`)  
-  The label of the measure.
-
-- `obs_loss`:
-
-  (`function()` or `NULL`)  
-  The per-observation loss. Declared like `fun`, except that `train_set`
-  is not available here, and if specified adds the `"obs_loss"`
-  property. It must return one number per observation: a multi-target
-  loss reduces over the targets
-  ([`rowMeans()`](https://rdrr.io/r/base/colSums.html)), not over the
-  observations ([`mean()`](https://rdrr.io/r/base/mean.html)), and
-  returning a single number is an error rather than a column of that
-  number repeated.
-
 ------------------------------------------------------------------------
 
 ### `MeasureTorch$clone()`

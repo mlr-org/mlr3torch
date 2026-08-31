@@ -54,6 +54,7 @@ Inherited methods
 - [`mlr3::Task$add_strata()`](https://mlr3.mlr-org.com/reference/Task.html#method-add_strata)
 - [`mlr3::Task$cbind()`](https://mlr3.mlr-org.com/reference/Task.html#method-cbind)
 - [`mlr3::Task$data()`](https://mlr3.mlr-org.com/reference/Task.html#method-data)
+- [`mlr3::Task$divide()`](https://mlr3.mlr-org.com/reference/Task.html#method-divide)
 - [`mlr3::Task$droplevels()`](https://mlr3.mlr-org.com/reference/Task.html#method-droplevels)
 - [`mlr3::Task$filter()`](https://mlr3.mlr-org.com/reference/Task.html#method-filter)
 - [`mlr3::Task$format()`](https://mlr3.mlr-org.com/reference/Task.html#method-format)
@@ -137,13 +138,7 @@ Creates a new instance of this
   `NULL`)  
   The default measure of the task, i.e. what
   [`msr("torch.default")`](https://mlr3torch.mlr-org.com/dev/reference/mlr_measures_torch.default.md)
-  resolves to. `rr$score()` and `rr$aggregate()` of a
-  [`ResampleResult`](https://mlr3.mlr-org.com/reference/ResampleResult.html)
-  use it without being told, and
-  `prediction$score(msr("torch.default"), task = task)` uses it when the
-  task is passed along – a
-  [`Prediction`](https://mlr3.mlr-org.com/reference/Prediction.html)
-  carries none, so `prediction$score()` on its own cannot resolve it.
+  resolves to.
 
 ------------------------------------------------------------------------
 

@@ -114,9 +114,8 @@ Creating a scheduler resets the optimizer's learning rate to the one the schedul
 the rate the restored schedule had reached is put back afterwards.</p>
 <p>That state contains the scheduler's configuration as well as its progress, and restoring it
 overwrites what the resuming run was configured with.
-Resuming with different scheduler arguments – or a different <code>opt.lr</code>, which the schedule's base
-rates are derived from – therefore silently continues the schedule of the checkpointed run.
-Configure both runs the same way; a schedule cannot be changed halfway through.</p>
+Resuming with different scheduler arguments, or a different <code>opt.lr</code>, which the schedule's base
+rates are derived from, therefore silently continues the schedule of the checkpointed run.</p>
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
