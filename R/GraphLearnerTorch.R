@@ -1,17 +1,10 @@
 #' @title Convert a Graph to a Torch Learner
 #'
 #' @description
-#' Converts a [`Graph`][mlr3pipelines::Graph] that is built from [`PipeOpTorch`] operators and ends
-#' in a [`PipeOpTorchModel`] into a [`GraphLearner`][mlr3pipelines::GraphLearner] that also exposes
-#' what a [`LearnerTorch`] does: the `$network`, `$loss`, `$optimizer` and `$callbacks` fields and
-#' the `$dataset()` method, which returns the data of the prediction phase and, with
-#' `stage = "train"`, that of the training phase.
-#'
-#' The graph is taken as it is, so it has to configure the training itself: the loss, the optimizer
-#' and the callbacks come from its [`po("torch_loss")`][mlr_pipeops_torch_loss],
-#' [`po("torch_optimizer")`][mlr_pipeops_torch_optimizer] and
-#' [`po("torch_callbacks")`][mlr_pipeops_torch_callbacks], which is why those three fields are
-#' read-only.
+#' Converts a [`Graph`][mlr3pipelines::Graph] representing a deep learning pipeline into a
+#' [`GraphLearnerTorch`].
+#' The advantage over using [`as_learner()`] is that the resulting learner exposes methods like
+#' `$dataset()` and fields like `$network`.
 #'
 #' @param x (any)\cr
 #'   The object to convert, e.g. a [`Graph`][mlr3pipelines::Graph].
@@ -44,9 +37,7 @@
 #' learner$network
 #' learner$predict(task)
 #'
-#' # po("scale") is part of the learner: it was fitted during $train() and the prediction data
-#' # is standardized with those statistics
-#' learner$dataset(task)
+#' learner$dataset(task, "train")
 as_learner_torch = function(x, ...) {
   UseMethod("as_learner_torch")
 }
@@ -54,10 +45,6 @@ as_learner_torch = function(x, ...) {
 #' @rdname as_learner_torch
 #' @export
 as_learner_torch.Graph = function(x, id = NULL, ...) { # nolint
-  # the graph is run as it is, so it has to be a complete torch learner graph
-  if (!some(x$pipeops, function(po) test_class(po, "PipeOpTorchIngress"))) {
-    stopf("Graph is not a torch learner graph because it contains no PipeOpTorchIngress, add e.g. po(\"torch_ingress_num\") to its start.") # nolint
-  }
   po_model = graph_single_pipeop(x, "PipeOpTorchModel")
   if (is.null(po_model)) {
     stopf("Graph is not a torch learner graph because it contains no PipeOpTorchModel, add e.g. po(\"torch_model_classif\") to its end.") # nolint

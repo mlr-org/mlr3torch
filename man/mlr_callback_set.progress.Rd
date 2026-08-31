@@ -9,11 +9,7 @@ Prints a progress bar and the metrics for training and validation.
 }
 \section{Resuming}{
 
-A resumed run prints only the epochs it trains itself, numbered as what they are: it starts at
-the epoch after the checkpoint, not at epoch 1.
-The time training has taken is carried across runs, so the total this reports when training ends
-covers the runs the checkpoint came from as well and not only the last one.
-Such a run reports that total split into the time before it and the time it took itself.
+This callback can be resumed without any problems.
 }
 
 \examples{

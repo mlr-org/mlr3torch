@@ -39,9 +39,7 @@ Function to execute at the given stage, see section \emph{Stages}.}
 
 \item{state_dict}{(\verb{function()})\cr
 The function that retrieves the state dict from the callback.
-This is what will be available in the learner after training.
-It must return something that survives \code{\link[base:readRDS]{saveRDS()}}, so no \code{torch} tensors or
-modules, see section \emph{Inheriting} of \code{\link{CallbackSet}}.}
+This is what will be available in the learner after training.}
 
 \item{load_state_dict}{(\verb{function(state_dict)})\cr
 Function that loads a callback state.}

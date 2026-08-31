@@ -29,17 +29,10 @@ The id of the learner. Defaults to \code{"<task_type>.graph"}.}
 \code{\link[mlr3pipelines:GraphLearner]{GraphLearner}}
 }
 \description{
-Converts a \code{\link[mlr3pipelines:Graph]{Graph}} that is built from \code{\link{PipeOpTorch}} operators and ends
-in a \code{\link{PipeOpTorchModel}} into a \code{\link[mlr3pipelines:GraphLearner]{GraphLearner}} that also exposes
-what a \code{\link{LearnerTorch}} does: the \verb{$network}, \verb{$loss}, \verb{$optimizer} and \verb{$callbacks} fields and
-the \verb{$dataset()} method, which returns the data of the prediction phase and, with
-\code{stage = "train"}, that of the training phase.
-
-The graph is taken as it is, so it has to configure the training itself: the loss, the optimizer
-and the callbacks come from its \code{\link[=mlr_pipeops_torch_loss]{po("torch_loss")}},
-\code{\link[=mlr_pipeops_torch_optimizer]{po("torch_optimizer")}} and
-\code{\link[=mlr_pipeops_torch_callbacks]{po("torch_callbacks")}}, which is why those three fields are
-read-only.
+Converts a \code{\link[mlr3pipelines:Graph]{Graph}} representing a deep learning pipeline into a
+\code{\link{GraphLearnerTorch}}.
+The advantage over using \code{\link[mlr3:as_learner]{as_learner()}} is that the resulting learner exposes methods like
+\verb{$dataset()} and fields like \verb{$network}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -61,9 +54,7 @@ learner$train(task)
 learner$network
 learner$predict(task)
 
-# po("scale") is part of the learner: it was fitted during $train() and the prediction data
-# is standardized with those statistics
-learner$dataset(task)
+learner$dataset(task, "train")
 \dontshow{\}) # examplesIf}
 }
 \seealso{

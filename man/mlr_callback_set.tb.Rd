@@ -13,12 +13,7 @@ Logs events at most every epoch.
 }
 \section{Resuming}{
 
-This callback keeps no state of its own.
-The measures are logged under the epoch they belong to and the training loss under
-\code{\link{ContextTorch}}'s \code{global_step}, both of which a resumed run continues counting rather than
-restarting, so its curves extend those of the run it continues.
-Point the resumed run at the \code{path} its predecessor wrote and both halves end up in one
-TensorBoard run; a fresh \code{path} puts them in two.
+This callback keeps no state of its own so it can trivially be resumed.
 }
 
 \seealso{
