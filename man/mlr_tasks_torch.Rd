@@ -65,6 +65,7 @@ Called by \code{\link[=output_dim_for]{output_dim_for()}}.}
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="add_strata"><a href='../../mlr3/html/Task.html#method-Task-add_strata'><code>mlr3::Task$add_strata()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="cbind"><a href='../../mlr3/html/Task.html#method-Task-cbind'><code>mlr3::Task$cbind()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="data"><a href='../../mlr3/html/Task.html#method-Task-data'><code>mlr3::Task$data()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="divide"><a href='../../mlr3/html/Task.html#method-Task-divide'><code>mlr3::Task$divide()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="droplevels"><a href='../../mlr3/html/Task.html#method-Task-droplevels'><code>mlr3::Task$droplevels()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="filter"><a href='../../mlr3/html/Task.html#method-Task-filter'><code>mlr3::Task$filter()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="format"><a href='../../mlr3/html/Task.html#method-Task-format'><code>mlr3::Task$format()</code></a></span></li>
@@ -124,11 +125,7 @@ private \verb{$.encode_prediction} method.
 See \code{\link{LearnerTorch}} for more information.}
       \item{\code{default_measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
 The default measure of the task, i.e. what \code{\link[=mlr_measures_torch.default]{msr("torch.default")}}
-resolves to.
-\code{rr$score()} and \code{rr$aggregate()} of a \code{\link[mlr3:ResampleResult]{ResampleResult}} use it without
-being told, and \code{prediction$score(msr("torch.default"), task = task)} uses it when the task is
-passed along -- a \code{\link[mlr3:Prediction]{Prediction}} carries none, so \code{prediction$score()} on its
-own cannot resolve it.}
+resolves to.}
     }
     \if{html}{\out{</div>}}
   }
