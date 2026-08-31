@@ -18,9 +18,14 @@ knitr::opts_chunk$set(
 
 In this vignette we will show how to get started with `mlr3torch` by training a simple neural network on a tabular regression problem.
 We assume that you are familiar with the `mlr3` framework, see e.g. the [mlr3 book](https://mlr3book.mlr-org.com/).
-As a first example, we will train a simple multi-layer perceptron (MLP) on the well-known "mtcars" task, where the goal is to predict the miles per galleon ('mpg') of cars.
-This architecture comes as a predfined learner with `mlr3torch`, but you can also easily create new network architectures, see the *Neural Networks as Graphs* vignette for a detailed introduoduion.
+As a first example, we will train a simple multi-layer perceptron (MLP) on the well-known "mtcars" task, where the goal is to predict the miles per gallon ('mpg') of cars.
+This architecture comes as a predefined learner with `mlr3torch`, but you can also easily create new network architectures, see the *Neural Networks as Graphs* vignette for a detailed introduction.
 We first set a seed for reproducibility, load the library and construct the task.
+Seeding R's RNG is enough here: a `LearnerTorch` seeds torch itself, and its `seed` parameter is
+initialized to `"random"`, meaning the torch seed is *drawn* from R's RNG at the start of training
+and then recorded in `$model$seed`.
+Setting `seed` to a number instead pins it directly, which is what you want if a learner has to
+train reproducibly regardless of the surrounding R session.
 
 ```{r, message = FALSE}
 set.seed(314)

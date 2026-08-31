@@ -3,7 +3,7 @@
 \name{mlr_pipeops_nn_unsqueeze}
 \alias{mlr_pipeops_nn_unsqueeze}
 \alias{PipeOpTorchUnsqueeze}
-\title{Unqueeze a Tensor}
+\title{Unsqueeze a Tensor}
 \description{
 Unsqueezes a tensor by calling \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}} with the given dimension \code{dim}.
 }
