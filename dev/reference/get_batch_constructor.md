@@ -56,10 +56,15 @@ get_batch_constructor(
 
 - target_batchgetter:
 
-  (`function(data)` or `NULL`)  
-  The function that defines `y`, or `NULL` if the dataset has no target.
-  The default is to use
+  (`function()` or `NULL`)  
+  Converts the target columns of a batch into the target tensor `y` that
+  the loss is applied to. Takes an argument `data`, a
+  [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html)
+  with only the target columns, and optionally an argument `x`, the
+  named list of feature tensors of the batch, which is what a target
+  that is a function of the input needs, see
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md).
+  If `NULL` (default), the batches have no `y` element.
 
 - ...:
 

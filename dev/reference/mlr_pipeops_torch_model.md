@@ -2,8 +2,16 @@
 
 Builds a Torch Learner from a
 [`ModelDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/ModelDescriptor.md)
-and trains it with the given parameter specification. The task type must
-be specified during construction.
+and trains it with the given parameter specification.
+
+This is `po("torch_model")`, which works on the general-purpose task
+type of `mlr3torch`, see
+[`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md).
+For classification and regression see
+[`PipeOpTorchModelClassif`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_model_classif.md)
+and
+[`PipeOpTorchModelRegr`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_model_regr.md)
+respectively.
 
 ## Parameters
 
@@ -121,18 +129,6 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   of the network's parameters in memory. Checkpoints written by
   `t_clbk("checkpoint")` are unaffected: they always hold the network as
   training left it.
-
-  When a run is resumed (see the section *Resuming* of
-  [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)),
-  the best score, the epoch it was observed in and the number of
-  evaluation steps without improvement are restored, so `patience` keeps
-  counting across runs instead of starting over. The best epoch's
-  weights are not part of a checkpoint, however – they are a full copy
-  of the network, which every checkpoint would otherwise carry. A
-  resumed run with `restore_best_weights` that never beats the restored
-  best score therefore ends with the weights of its last epoch while
-  `$internal_tuned_values` still reports the earlier best epoch, which
-  is warned about when the state is restored.
 
 **Dataloader**:
 
@@ -264,14 +260,20 @@ Creates a new instance of this
 
 #### Usage
 
-    PipeOpTorchModel$new(task_type, id = "torch_model", param_vals = list())
+    PipeOpTorchModel$new(
+      task_type = "torch",
+      id = "torch_model",
+      param_vals = list(),
+      target_batchgetter = NULL,
+      predict_types = NULL
+    )
 
 #### Arguments
 
 - `task_type`:
 
   (`character(1)`)  
-  The task type of the model.
+  The task type of the model. Defaults to `"torch"`.
 
 - `id`:
 
@@ -283,6 +285,30 @@ Creates a new instance of this
   ([`list()`](https://rdrr.io/r/base/list.html))  
   List of hyperparameter settings, overwriting the hyperparameter
   settings that would otherwise be set during construction.
+
+- `target_batchgetter`:
+
+  (`function()` or `NULL`)  
+  Converts the target columns of a batch into the target tensor `y` that
+  the loss is applied to. Takes an argument `data`, a
+  [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html)
+  with only the target columns, and optionally an argument `x`, the
+  named list of feature tensors of the batch, which is what a target
+  that is a function of the input needs, see
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md).
+  If `NULL` (default), it is taken from the task via
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md),
+  which the built-in task types provide, but a
+  [`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)
+  only if it has no target at all, in which case the batches have no `y`
+  element.
+
+- `predict_types`:
+
+  ([`character()`](https://rdrr.io/r/base/character.html))  
+  The predict types. See
+  [`mlr_reflections$learner_predict_types`](https://mlr3.mlr-org.com/reference/mlr_reflections.html)
+  for available values.
 
 ------------------------------------------------------------------------
 

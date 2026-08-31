@@ -31,6 +31,7 @@ Works like mlr3::lrn() and mlr3::lrns()."><meta property="og:image" content="htt
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
@@ -131,7 +132,7 @@ The keys of the losses.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: nn_mse_loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: reduction=mean</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr,torch</span>
 <span class="r-in"><span><span class="co"># get the dictionary</span></span></span>
 <span class="r-in"><span><span class="fu">t_loss</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DictionaryMlr3torchLosses&gt; with 3 stored values</span>
@@ -142,14 +143,14 @@ The keys of the losses.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: nn_mse_loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr,torch</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $l1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchLoss:l1&gt; Absolute Error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: nn_l1_loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr,torch</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># get the dictionary</span></span></span>
 <span class="r-in"><span><span class="fu">t_losses</span><span class="op">(</span><span class="op">)</span></span></span>

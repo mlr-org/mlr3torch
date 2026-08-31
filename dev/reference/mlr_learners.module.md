@@ -91,7 +91,8 @@ Creates a new instance of this
       callbacks = list(),
       packages = character(0),
       feature_types = NULL,
-      predict_types = NULL
+      predict_types = NULL,
+      target_batchgetter = NULL
     )
 
 #### Arguments
@@ -174,6 +175,23 @@ Creates a new instance of this
   The predict types. See
   [`mlr_reflections$learner_predict_types`](https://mlr3.mlr-org.com/reference/mlr_reflections.html)
   for available values.
+
+- `target_batchgetter`:
+
+  (`function()` or `NULL`)  
+  Converts the target columns of a batch into the target tensor `y` that
+  the loss is applied to. Takes an argument `data`, a
+  [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html)
+  with only the target columns, and optionally an argument `x`, the
+  named list of feature tensors of the batch, which is what a target
+  that is a function of the input needs, see
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md).
+  If `NULL` (default), it is taken from the task via
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md),
+  which the built-in task types provide, but a
+  [`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)
+  only if it has no target at all, in which case the batches have no `y`
+  element.
 
 ------------------------------------------------------------------------
 

@@ -35,6 +35,7 @@ as.data.table."><meta property="og:image" content="https://mlr3torch.mlr-org.com
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
@@ -122,22 +123,22 @@ Can be converted to a <code><a href="https://rdrr.io/pkg/data.table/man/data.tab
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: nn_mse_loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr,torch</span>
 <span class="r-in"><span><span class="co"># is equivalent to</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"mse"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchLoss:mse&gt; Mean Squared Error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: nn_mse_loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr,torch</span>
 <span class="r-in"><span><span class="co"># convert to a data.table</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">mlr3torch_losses</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;key&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              key              label task_types        packages</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;char&gt;             &lt;char&gt;     &lt;list&gt;          &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: cross_entropy      Cross Entropy    classif torch,mlr3torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:            l1     Absolute Error       regr torch,mlr3torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           mse Mean Squared Error       regr torch,mlr3torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              key              label    task_types        packages</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;char&gt;             &lt;char&gt;        &lt;list&gt;          &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: cross_entropy      Cross Entropy classif,torch torch,mlr3torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:            l1     Absolute Error    regr,torch torch,mlr3torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           mse Mean Squared Error    regr,torch torch,mlr3torch</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

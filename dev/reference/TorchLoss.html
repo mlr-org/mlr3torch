@@ -39,6 +39,7 @@ Items from this dictionary can be retrieved using t_loss()."><meta property="og:
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
@@ -159,7 +160,8 @@ Can have arguments <code>task</code> that will be provided when the loss is inst
 
       <dt><code>task_types</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
-The task types supported by this loss.</p></dd>
+The task types supported by this loss.
+If <code>NULL</code> (default), the loss is applicable to <code>"classif"</code>, <code>"regr"</code> and <code>"torch"</code>.</p></dd>
 
       <dt><code>param_set</code></dt>
 <dd><p>(<code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code> or <code>NULL</code>)<br>
@@ -268,7 +270,7 @@ The task. Must be provided if the loss function requires a task.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: nn_mse_loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: reduction=mean</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr,torch</span>
 <span class="r-in"><span><span class="va">torch_loss</span><span class="op">$</span><span class="va">param_set</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(1)&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           id    class lower upper nlevels default  value</span>
@@ -277,7 +279,7 @@ The task. Must be provided if the loss function requires a task.</p></dd>
 <span class="r-in"><span><span class="va">torch_loss</span><span class="op">$</span><span class="va">label</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Mean Squared Error"</span>
 <span class="r-in"><span><span class="va">torch_loss</span><span class="op">$</span><span class="va">task_types</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "regr"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "regr"  "torch"</span>
 <span class="r-in"><span><span class="va">torch_loss</span><span class="op">$</span><span class="va">id</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "mse"</span>
 <span class="r-in"><span></span></span>

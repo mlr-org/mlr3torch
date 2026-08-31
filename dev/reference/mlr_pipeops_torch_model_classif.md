@@ -180,7 +180,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.081 
+#>   0.096 
 #> 
 #> $task_hash
 #> [1] "abc694dd29a7a8ce"
@@ -192,7 +192,7 @@ po_model$state
 #> NULL
 #> 
 #> $mlr3_version
-#> [1] ‘1.7.1’
+#> [1] ‘1.8.0’
 #> 
 #> $internal_tuned_values
 #> named list()

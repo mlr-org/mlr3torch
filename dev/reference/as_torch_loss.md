@@ -106,7 +106,7 @@ as_torch_loss("mse")
 #> * Generator: nn_mse_loss
 #> * Parameters: list()
 #> * Packages: torch,mlr3torch
-#> * Task Types: regr
+#> * Task Types: regr,torch
 
 # TorchLosses are returned as-is, unless clone is TRUE
 loss = t_loss("mse")

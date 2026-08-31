@@ -42,69 +42,31 @@ need to include `epochs = to_tune(upper = <upper>, internal = TRUE)` in
 the search space, where `<upper>` is the maximally allowed number of
 epochs, and configure the early stopping.
 
-## Resuming
+## Checkpointing and Resuming
 
-Training can be continued from a checkpoint written by
+It is possible to save intermediate results from a run via the
 [`t_clbk("checkpoint")`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.checkpoint.md)
-by setting the `resume` parameter. This parameter can either be a path
-or `TRUE` which will use the path of the provided checkpoint callback.
-When the latest written checkpoint was for `n1` epochs, the learner
-needs to be configured to be trained for `n >= n1` epochs and the
-training will run for `n2 = n - n1` epochs. With `n = n1` the
-checkpointed run is already finished, so nothing is trained and the
-model of the checkpoint is returned – which is what lets a script that
-restarts itself be run again after it succeeded, and what recovers the
-model of a run that was killed after its last epoch. Configuring
-`n < n1` is an error. Resuming will load the network weights, optimizer
-states and callback states. For some callbacks, training for `n1` and
-then `n2` epochs via resuming is not the same as training for `n` epochs
-from the start. This is for example the case for learning rate
-schedulers that depend on the total number of epochs to train for. The
-callbacks document their behavior under a corresponding *Resuming*
-section in their documentation. Furthermore, rng states are not
-restored, which constitutes another difference between a full and a
-resumed training run. With a fixed `seed` this means that a resumed run
-repeats the random draws of the run it continues: torch's generator is
-seeded at the start of every training run, so the resumed epochs see the
-same shuffling and the same dropout masks as the first epochs of the
-original run did. A run that is restarted often – e.g. one checkpointing
-every epoch on a preemptible machine – therefore trains on the same
-batch order over and over. Use the default `seed = "random"` when this
-matters more than reproducing a run exactly.
-
-The checkpoint records the task it was written for and the rows of the
-internal validation split, and a run whose task id or split differs is
-refused: the restored network has seen rows such a run holds out, and a
-restored early stopping score was measured on other rows. Because
-`validate = <ratio>` draws a new split from **R's** random number
-generator on every run – which the `seed` parameter does not govern, as
-it only seeds torch – a run to be resumed should use
-`validate = "predefined"` with a fixed `internal_valid_task`, or seed
-R's generator identically before each run.
-
-Configure the resuming learner like the one that wrote the checkpoint
-and change only `epochs`. What the checkpoint holds wins over what the
-resuming learner is configured with: the optimizer is restored from it,
-so a different `opt.lr` (or any other `opt.*` value) set on the resuming
-learner has no effect, and the same is true for the state of every
-callback that restores one.
-
-Early stopping is checked rather than silently continued: the checkpoint
-records which validation measure its best score belongs to – the first
-of `measures_valid`, which is the one early stopping tracks – and a run
-tracking another measure is refused. A run that early stopping *ended*
-is finished, whatever `epochs` says: resuming it warns, trains no epoch
-and returns the model of the checkpoint, so that a script restarting
-itself converges instead of training one epoch further on every attempt.
-The same holds for a callback of your own that ends a run through
-`ctx$terminate`, provided it sets that flag again when its state is
-restored, see the *State* section of
-[`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md).
-
-Callback states are matched to the callbacks of the resuming run **by
-id**. A state whose id is not among this run's callbacks is skipped with
-a warning, and a callback whose id is not in the checkpoint simply
-starts fresh.
+callback. It is then possible to train for more epochs by setting the
+`resume` parameter of the `LearnerTorch`. This parameter can either be a
+path or `TRUE` which will use the path of the provided checkpoint
+callback. Only the number of epochs should be changed between resumed
+runs, other parameter changes are considered undefined behavior. Also,
+make sure to use the same train-validation split. When the latest
+written checkpoint was for `n1` epochs, the learner needs to be
+configured to be trained for `n >= n1` epochs and the training will run
+for `n2 = n - n1` epochs. With `n = n1` the checkpointed run is already
+finished, so nothing is trained and the model of the checkpoint is
+returned – which is what lets a script that restarts itself be run again
+after it succeeded, and what recovers the model of a run that was killed
+after its last epoch. Configuring `n < n1` is an error. Resuming will
+load the network weights, optimizer states and callback states. For some
+callbacks, training for `n1` and then `n2` epochs via resuming is not
+the same as training for `n` epochs from the start. This is for example
+the case for learning rate schedulers that depend on the total number of
+epochs to train for. The callbacks document their behavior under a
+corresponding *Resuming* section in their documentation. Furthermore,
+rng states are not restored, which constitutes another difference
+between a full and a resumed training run.
 
 ## Network Head and Target Encoding
 
@@ -179,6 +141,49 @@ Furthermore, the target encoding is expected to be as follows:
   [`torch_long`](https://torch.mlverse.org/docs/reference/torch_dtype.html)
   with shape `(batch_size)` where the label-encoding goes from `1` to
   `n_classes`.
+
+## Predicting Tensors
+
+The predict type `"lazy_tensor"`, available for the task type `"torch"`,
+hands back what the network produced – a
+[`lazy_tensor`](https://mlr3torch.mlr-org.com/dev/reference/lazy_tensor.md)
+with one element per observation – instead of asking the task's
+`default_encoder` to turn it into a response. It is how to get at the
+logits of a classifier or the reconstruction of an autoencoder, and a
+task predicted this way needs no encoder at all. Unlike `"prob"` and
+`"se"` it is not opt-in: every learner for this task type has it among
+its `$predict_types`, because handing the output back does not depend on
+how the learner encodes a prediction. Set
+`learner$predict_type = "lazy_tensor"` to use it. A network with more
+than one head hands back one
+[`lazy_tensor`](https://mlr3torch.mlr-org.com/dev/reference/lazy_tensor.md)
+per head, held in a
+[`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html) with
+one column per head so that the prediction is still one row per
+observation;
+[`as.data.table()`](https://rdrr.io/pkg/data.table/man/as.data.table.html)
+spreads it into `lazy_tensor.<head>` columns.
+
+Two things to know before using it:
+
+- **Such a prediction does not survive
+  [`saveRDS()`](https://rdrr.io/r/base/readRDS.html).** It holds `torch`
+  tensors, which are external pointers: saving *succeeds*, and the
+  object then fails with *external pointer is not valid* the next time
+  the tensors are touched, in this session or in another. This applies
+  to a
+  [`ResampleResult`](https://mlr3.mlr-org.com/reference/ResampleResult.html)
+  holding one as well – its row ids and scores survive, its tensors do
+  not.
+
+- Nothing about it is lazy. A
+  [`lazy_tensor`](https://mlr3torch.mlr-org.com/dev/reference/lazy_tensor.md)
+  built from a tensor holds that tensor, so a prediction of this type is
+  the network's output in memory, and
+  [`resample()`](https://mlr3.mlr-org.com/reference/resample.html) holds
+  every fold's – combining the folds concatenates them, since lazy
+  tensors from different networks share no data descriptor and cannot be
+  concatenated lazily.
 
 ## Important Runtime Considerations
 
@@ -347,17 +352,6 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   `t_clbk("checkpoint")` are unaffected: they always hold the network as
   training left it.
 
-  When a run is resumed (see the section *Resuming* of `LearnerTorch`),
-  the best score, the epoch it was observed in and the number of
-  evaluation steps without improvement are restored, so `patience` keeps
-  counting across runs instead of starting over. The best epoch's
-  weights are not part of a checkpoint, however – they are a full copy
-  of the network, which every checkpoint would otherwise carry. A
-  resumed run with `restore_best_weights` that never beats the restored
-  best score therefore ends with the weights of its last epoch while
-  `$internal_tuned_values` still reports the earlier best epoch, which
-  is warned about when the state is restored.
-
 **Dataloader**:
 
 - `batch_size` :: `integer(1)`  
@@ -437,8 +431,9 @@ There are no separate classes for classification and regression to
 inherit from. Instead, the `task_type` must be specified as a
 construction argument. Any task type that is registered in
 [`mlr_reflections$task_types`](https://mlr3.mlr-org.com/reference/mlr_reflections.html)
-can be used. Support for a task type that mlr3torch does not know is
-added by implementing methods for the three S3 generics that hold the
+can be used. Support for a task type that
+[mlr3torch](https://CRAN.R-project.org/package=mlr3torch) does not know
+is added by implementing methods for the three S3 generics that hold the
 task-type-specific behaviour:
 [`output_dim_for()`](https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.md)
 (how many output neurons the network needs),
@@ -446,7 +441,10 @@ task-type-specific behaviour:
 (how the target is turned into a tensor) and
 [`encode_prediction()`](https://mlr3torch.mlr-org.com/dev/reference/encode_prediction.md)
 (how the network's output is turned back into a prediction). Such a
-learner also has to be given a `loss` explicitly.
+learner also has to be given a `loss` explicitly. This class can also be
+used for custom task types, see
+[`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)
+and the *Custom Learning Problems* article for more information.
 
 When inheriting from this class, one should overload the following
 methods:
@@ -781,11 +779,11 @@ Creates a new instance of this
   The predict types. See
   [`mlr_reflections$learner_predict_types`](https://mlr3.mlr-org.com/reference/mlr_reflections.html)
   for available values. For regression, the default is `"response"`. For
-  classification, this defaults to `"response"` and `"prob"`. For other
-  task types, it defaults to all predict types that are registered for
-  the task type. To deviate from the defaults, it is necessary to
-  overwrite the private `$.encode_prediction()` method, see section
-  *Inheriting*.
+  classification, this defaults to `"response"` and `"prob"`. For the
+  task type `"torch"`, it defaults to `"response"`. For other task
+  types, it defaults to all predict types that are registered for the
+  task type. To deviate from the defaults, it is necessary to overwrite
+  the private `$.encode_prediction()` method, see section *Inheriting*.
 
 - `callbacks`:
 

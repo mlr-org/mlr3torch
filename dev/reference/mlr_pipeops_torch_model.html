@@ -5,9 +5,15 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="PipeOp Torch Model — mlr_pipeops_torch_model"><meta name="description" content="Builds a Torch Learner from a ModelDescriptor and trains it with the given parameter specification.
-The task type must be specified during construction."><meta property="og:description" content="Builds a Torch Learner from a ModelDescriptor and trains it with the given parameter specification.
-The task type must be specified during construction."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="PipeOp Torch Model — mlr_pipeops_torch_model"><meta name="description" content='Builds a Torch Learner from a ModelDescriptor and trains it with the given parameter specification.
+This is po("torch_model"), which works on the general-purpose task type of mlr3torch, see
+TaskTorch.
+For classification and regression see PipeOpTorchModelClassif and PipeOpTorchModelRegr
+respectively.'><meta property="og:description" content='Builds a Torch Learner from a ModelDescriptor and trains it with the given parameter specification.
+This is po("torch_model"), which works on the general-purpose task type of mlr3torch, see
+TaskTorch.
+For classification and regression see PipeOpTorchModelClassif and PipeOpTorchModelRegr
+respectively.'><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -31,6 +37,7 @@ The task type must be specified during construction."><meta property="og:image" 
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
@@ -74,8 +81,11 @@ The task type must be specified during construction."><meta property="og:image" 
     </div>
 
     <div class="ref-description section level2">
-    <p>Builds a Torch Learner from a <code><a href="ModelDescriptor.html">ModelDescriptor</a></code> and trains it with the given parameter specification.
-The task type must be specified during construction.</p>
+    <p>Builds a Torch Learner from a <code><a href="ModelDescriptor.html">ModelDescriptor</a></code> and trains it with the given parameter specification.</p>
+<p>This is <code>po("torch_model")</code>, which works on the general-purpose task type of <code>mlr3torch</code>, see
+<code><a href="mlr_tasks_torch.html">TaskTorch</a></code>.
+For classification and regression see <code><a href="mlr_pipeops_torch_model_classif.html">PipeOpTorchModelClassif</a></code> and <code><a href="mlr_pipeops_torch_model_regr.html">PipeOpTorchModelRegr</a></code>
+respectively.</p>
     </div>
 
 
@@ -158,15 +168,7 @@ of the last epoch that was trained. Is initialized to <code>FALSE</code>, i.e. t
 epoch is stored. Setting this to <code>TRUE</code> makes the stored network the one of the epoch that
 <code>$internal_tuned_values</code> reports, and costs one additional copy of the network's parameters in
 memory. Checkpoints written by <code>t_clbk("checkpoint")</code> are unaffected: they always hold the
-network as training left it.</p>
-<p>When a run is resumed (see the section <em>Resuming</em> of <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>), the best score, the
-epoch it was observed in and the number of evaluation steps without improvement are restored,
-so <code>patience</code> keeps counting across runs instead of starting over.
-The best epoch's weights are not part of a checkpoint, however – they are a full copy of the
-network, which every checkpoint would otherwise carry.
-A resumed run with <code>restore_best_weights</code> that never beats the restored best score therefore
-ends with the weights of its last epoch while <code>$internal_tuned_values</code> still reports the
-earlier best epoch, which is warned about when the state is restored.</p></li>
+network as training left it.</p></li>
 </ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
 The batch size used by the training and prediction dataloader.
 It is required for training (unless a <code>batch_sampler</code> is provided, which already determines the
@@ -254,12 +256,18 @@ its <code>$train()</code> method is called on the <code><a href="https://mlr3.ml
 <h3 id="pipeoptorchmodel-new-"><code>PipeOpTorchModel$new()</code><a class="anchor" aria-label="anchor" href="#pipeoptorchmodel-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_pipeops_torch_model.html">PipeOpTorchModel</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">task_type</span>, id <span class="op">=</span> <span class="st">"torch_model"</span>, param_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_pipeops_torch_model.html">PipeOpTorchModel</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  task_type <span class="op">=</span> <span class="st">"torch"</span>,</span>
+<span>  id <span class="op">=</span> <span class="st">"torch_model"</span>,</span>
+<span>  param_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  target_batchgetter <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  predict_types <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>task_type</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
-The task type of the model.</p></dd>
+The task type of the model. Defaults to <code>"torch"</code>.</p></dd>
 
       <dt><code>id</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
@@ -269,6 +277,19 @@ Identifier of the resulting  object.</p></dd>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.</p></dd>
+
+      <dt><code>target_batchgetter</code></dt>
+<dd><p>(<code>function()</code> or <code>NULL</code>)<br>
+Converts the target columns of a batch into the target tensor <code>y</code> that the loss is applied to.
+Takes an argument <code>data</code>, a <code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></code> with only the target columns,
+and optionally an argument <code>x</code>, the named list of feature tensors of the batch, which is what a
+target that is a function of the input needs, see <code><a href="get_target_batchgetter.html">get_target_batchgetter()</a></code>.
+If <code>NULL</code> (default), it is taken from the task via <code><a href="get_target_batchgetter.html">get_target_batchgetter()</a></code>, which the built-in task types provide, but a <code><a href="mlr_tasks_torch.html">TaskTorch</a></code> only if it has no target at all, in which case the batches have no <code>y</code> element.</p></dd>
+
+      <dt><code>predict_types</code></dt>
+<dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
+The predict types.
+See <code><a href="https://mlr3.mlr-org.com/reference/mlr_reflections.html" class="external-link">mlr_reflections$learner_predict_types</a></code> for available values.</p></dd>
 
 
 </dl><p></p></div>

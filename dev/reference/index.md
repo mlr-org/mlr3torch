@@ -56,9 +56,27 @@
   : MNIST Image classification
 - [`mlr_tasks_tiny_imagenet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_tiny_imagenet.md)
   : Tiny ImageNet Classification Task
+- [`mlr_tasks_torch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)
+  [`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)
+  : Generic Torch Task
 - [`mlr_backends_lazy`](https://mlr3torch.mlr-org.com/dev/reference/mlr_backends_lazy.md)
   [`DataBackendLazy`](https://mlr3torch.mlr-org.com/dev/reference/mlr_backends_lazy.md)
   : Lazy Data Backend
+
+## Custom Task Types
+
+- [`as_task_torch()`](https://mlr3torch.mlr-org.com/dev/reference/as_task_torch.md)
+  : Create a Generic Torch Task
+- [`PredictionTorch`](https://mlr3torch.mlr-org.com/dev/reference/PredictionTorch.md)
+  : Prediction Object for a Generic Torch Task
+- [`mlr_measures_torch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_measures_torch.md)
+  [`MeasureTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_measures_torch.md)
+  : Measure for a Generic Torch Task
+- [`msr_torch()`](https://mlr3torch.mlr-org.com/dev/reference/msr_torch.md)
+  : Create a Measure for a Generic Torch Task
+- [`mlr_measures_torch.default`](https://mlr3torch.mlr-org.com/dev/reference/mlr_measures_torch.default.md)
+  [`MeasureTorchDefault`](https://mlr3torch.mlr-org.com/dev/reference/mlr_measures_torch.default.md)
+  : Default Measure of a Generic Torch Task
 
 ## Network Building Blocks
 

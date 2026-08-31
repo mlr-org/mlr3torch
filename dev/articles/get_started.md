@@ -86,7 +86,7 @@ prediction = mlp$predict(task, row_ids = splits$test)
 # Compute the mse
 prediction$score(msr("regr.mse"))
 #> regr.mse 
-#> 247.8627
+#> 247.8626
 ```
 
 ## Scaling the Features
@@ -132,7 +132,7 @@ mlp_unscaled$predict(task, row_ids = splits$test)$score(msr("regr.mse"))
 mlp_scaled$train(task, row_ids = splits$train)
 mlp_scaled$predict(task, row_ids = splits$test)$score(msr("regr.mse"))
 #> regr.mse 
-#> 26.36342
+#> 26.36343
 ```
 
 Because scaling is a property of the data and not of a specific
@@ -188,7 +188,7 @@ l1
 #> * Generator: nn_l1_loss
 #> * Parameters: list()
 #> * Packages: torch,mlr3torch
-#> * Task Types: regr
+#> * Task Types: regr,torch
 ```
 
 Its `ParamSet` contains only one parameter, namely `reduction`, which
@@ -411,7 +411,7 @@ than the default `mlp` learner.
 
 prediction_custom$score(msr("regr.mae"))
 #> regr.mae 
-#> 7.107884
+#> 7.107885
 prediction$score(msr("regr.mae"))
 #> regr.mae 
 #> 14.04447
@@ -427,10 +427,10 @@ head(mlp_custom$model$callbacks$history)
 #>    <num>          <num>
 #> 1:     1   4.854304e+06
 #> 2:     2   6.452428e+01
-#> 3:     3   4.424062e+02
-#> 4:     4   1.363023e+01
-#> 5:     5   3.004844e+02
-#> 6:     6   1.792239e+01
+#> 3:     3   4.424063e+02
+#> 4:     4   1.363021e+01
+#> 5:     5   3.004845e+02
+#> 6:     6   1.792240e+01
 ```
 
 The plot below shows it for the epochs 6 to 30.

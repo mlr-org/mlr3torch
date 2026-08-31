@@ -35,11 +35,13 @@ For
 The output dimension is not hard-coded here: `PipeOpTorchHead` asks the
 generic
 [`output_dim_for()`](https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.md)
-how many output neurons the task needs, and mlr3torch implements methods
-for [`TaskClassif`](https://mlr3.mlr-org.com/reference/TaskClassif.html)
-and [`TaskRegr`](https://mlr3.mlr-org.com/reference/TaskRegr.html). You
-can add support to your custom task type by implementing a method for
-your class.
+how many output neurons the task needs, and
+[mlr3torch](https://CRAN.R-project.org/package=mlr3torch) implements
+methods for
+[`TaskClassif`](https://mlr3.mlr-org.com/reference/TaskClassif.html) and
+[`TaskRegr`](https://mlr3.mlr-org.com/reference/TaskRegr.html). You can
+add support to your custom task type by implementing a method for your
+class.
 
 ## Input and Output Channels
 

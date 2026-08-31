@@ -44,20 +44,20 @@ mlr3torch_losses$get("mse")
 #> * Generator: nn_mse_loss
 #> * Parameters: list()
 #> * Packages: torch,mlr3torch
-#> * Task Types: regr
+#> * Task Types: regr,torch
 # is equivalent to
 t_loss("mse")
 #> <TorchLoss:mse> Mean Squared Error
 #> * Generator: nn_mse_loss
 #> * Parameters: list()
 #> * Packages: torch,mlr3torch
-#> * Task Types: regr
+#> * Task Types: regr,torch
 # convert to a data.table
 as.data.table(mlr3torch_losses)
 #> Key: <key>
-#>              key              label task_types        packages
-#>           <char>             <char>     <list>          <list>
-#> 1: cross_entropy      Cross Entropy    classif torch,mlr3torch
-#> 2:            l1     Absolute Error       regr torch,mlr3torch
-#> 3:           mse Mean Squared Error       regr torch,mlr3torch
+#>              key              label    task_types        packages
+#>           <char>             <char>        <list>          <list>
+#> 1: cross_entropy      Cross Entropy classif,torch torch,mlr3torch
+#> 2:            l1     Absolute Error    regr,torch torch,mlr3torch
+#> 3:           mse Mean Squared Error    regr,torch torch,mlr3torch
 ```

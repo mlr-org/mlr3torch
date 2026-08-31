@@ -142,10 +142,11 @@ During *prediction*, all input and output channels are of class
 
 ## Shape Inference
 
-A network is assembled without any data flowing through it, so mlr3torch
-tracks the shape of the tensors instead: it starts from the shape the
-ingress announces and hands each `PipeOp` the shapes of its inputs,
-which is how auxiliary parameters such as `in_features` of
+A network is assembled without any data flowing through it, so
+[mlr3torch](https://CRAN.R-project.org/package=mlr3torch) tracks the
+shape of the tensors instead: it starts from the shape the ingress
+announces and hands each `PipeOp` the shapes of its inputs, which is how
+auxiliary parameters such as `in_features` of
 [`nn_linear`](https://torch.mlverse.org/docs/reference/nn_linear.html)
 are filled in automatically.
 
@@ -436,8 +437,8 @@ network
 x = torch_tensor(as.matrix(task$data(1:2, task$feature_names)))
 with_no_grad(network(torch_ingress_num.input = x))
 #> torch_tensor
-#> -0.6231  0.6130 -0.7214
-#> -0.6104  0.5462 -0.6595
+#>  0.3781 -0.5918 -0.8519
+#>  0.3467 -0.5445 -0.7992
 #> [ CPUFloatType{2,3} ]
 
 

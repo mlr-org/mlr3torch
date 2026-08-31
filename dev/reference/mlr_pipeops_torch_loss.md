@@ -117,5 +117,5 @@ mdout$loss
 #> * Generator: function
 #> * Parameters: list()
 #> * Packages: torch,mlr3torch
-#> * Task Types: classif
+#> * Task Types: classif,torch
 ```

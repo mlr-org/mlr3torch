@@ -29,6 +29,7 @@
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
@@ -147,7 +148,8 @@
 <span>  callbacks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  feature_types <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  predict_types <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  predict_types <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  target_batchgetter <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
@@ -208,6 +210,14 @@ The feature types. Defaults to all available feature types.</p></dd>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The predict types.
 See <code><a href="https://mlr3.mlr-org.com/reference/mlr_reflections.html" class="external-link">mlr_reflections$learner_predict_types</a></code> for available values.</p></dd>
+
+      <dt><code>target_batchgetter</code></dt>
+<dd><p>(<code>function()</code> or <code>NULL</code>)<br>
+Converts the target columns of a batch into the target tensor <code>y</code> that the loss is applied to.
+Takes an argument <code>data</code>, a <code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></code> with only the target columns,
+and optionally an argument <code>x</code>, the named list of feature tensors of the batch, which is what a
+target that is a function of the input needs, see <code><a href="get_target_batchgetter.html">get_target_batchgetter()</a></code>.
+If <code>NULL</code> (default), it is taken from the task via <code><a href="get_target_batchgetter.html">get_target_batchgetter()</a></code>, which the built-in task types provide, but a <code><a href="mlr_tasks_torch.html">TaskTorch</a></code> only if it has no target at all, in which case the batches have no <code>y</code> element.</p></dd>
 
 
 </dl><p></p></div>

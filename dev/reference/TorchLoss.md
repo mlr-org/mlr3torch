@@ -95,7 +95,8 @@ Creates a new instance of this
 - `task_types`:
 
   ([`character()`](https://rdrr.io/r/base/character.html))  
-  The task types supported by this loss.
+  The task types supported by this loss. If `NULL` (default), the loss
+  is applicable to `"classif"`, `"regr"` and `"torch"`.
 
 - `param_set`:
 
@@ -205,7 +206,7 @@ torch_loss
 #> * Generator: nn_mse_loss
 #> * Parameters: reduction=mean
 #> * Packages: torch,mlr3torch
-#> * Task Types: regr
+#> * Task Types: regr,torch
 torch_loss$param_set
 #> <ParamSet(1)>
 #>           id    class lower upper nlevels default  value
@@ -214,7 +215,7 @@ torch_loss$param_set
 torch_loss$label
 #> [1] "Mean Squared Error"
 torch_loss$task_types
-#> [1] "regr"
+#> [1] "regr"  "torch"
 torch_loss$id
 #> [1] "mse"
 

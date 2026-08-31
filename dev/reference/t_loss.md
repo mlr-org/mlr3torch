@@ -62,7 +62,7 @@ t_loss("mse", reduction = "mean")
 #> * Generator: nn_mse_loss
 #> * Parameters: reduction=mean
 #> * Packages: torch,mlr3torch
-#> * Task Types: regr
+#> * Task Types: regr,torch
 # get the dictionary
 t_loss()
 #> <DictionaryMlr3torchLosses> with 3 stored values
@@ -73,14 +73,14 @@ t_losses(c("mse", "l1"))
 #> * Generator: nn_mse_loss
 #> * Parameters: list()
 #> * Packages: torch,mlr3torch
-#> * Task Types: regr
+#> * Task Types: regr,torch
 #> 
 #> $l1
 #> <TorchLoss:l1> Absolute Error
 #> * Generator: nn_l1_loss
 #> * Parameters: list()
 #> * Packages: torch,mlr3torch
-#> * Task Types: regr
+#> * Task Types: regr,torch
 #> 
 # get the dictionary
 t_losses()

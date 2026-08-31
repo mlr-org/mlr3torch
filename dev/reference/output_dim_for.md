@@ -1,11 +1,13 @@
 # Network Output Dimension
 
 Calculates the output dimension of a neural network for a given task
-that is expected by mlr3torch. For classification, this is the number of
-classes (unless it is a binary classification task, where it is 1). For
-regression, it is 1.
+that is expected by
+[mlr3torch](https://CRAN.R-project.org/package=mlr3torch). For
+classification, this is the number of classes (unless it is a binary
+classification task, where it is 1). For regression, it is 1.
 
-This is an S3 generic and the single place where mlr3torch decides how
+This is an S3 generic and the single place where
+[mlr3torch](https://CRAN.R-project.org/package=mlr3torch) decides how
 many output neurons a task needs: it is what
 [`PipeOpTorchHead`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_head.md)
 and the

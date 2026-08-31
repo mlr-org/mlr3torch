@@ -42,6 +42,9 @@
   [`get_batch_constructor()`](https://mlr3torch.mlr-org.com/dev/reference/get_batch_constructor.md),
   which decides how a whole batch of a task is built, i.e. both the
   features `x` and the target `y`.
+- Added support for `TaskTorch` to easily go beyond the regression and
+  classification setting, see the *Custom Learning Problems* article for
+  more information.
 - A network can now return a
   [`list()`](https://rdrr.io/r/base/list.html) of tensors in evaluation
   mode, which is passed to

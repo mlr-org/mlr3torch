@@ -29,6 +29,7 @@
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
@@ -262,62 +263,62 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 1/5 started (2026-08-21 09:02:02)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 1 started (2026-08-21 09:02:03)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 1/5 started (2026-08-31 08:32:27)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 1 started (2026-08-31 08:32:27)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.29</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.71</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.23</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.77</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.56</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.78</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 2/5 started (2026-08-21 09:02:03)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 2 started (2026-08-21 09:02:03)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 2/5 started (2026-08-31 08:32:27)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 2 started (2026-08-31 08:32:28)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 2]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.33</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.62</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.38</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.47</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.53</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 3/5 started (2026-08-21 09:02:03)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 3 started (2026-08-21 09:02:04)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 3/5 started (2026-08-31 08:32:28)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 3 started (2026-08-31 08:32:28)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 3]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.64</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.70</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.30</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.60</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 4/5 started (2026-08-21 09:02:04)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 4 started (2026-08-21 09:02:04)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 4/5 started (2026-08-31 08:32:28)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 4 started (2026-08-31 08:32:29)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 4]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.68</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.32</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.40</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.60</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 5/5 started (2026-08-21 09:02:04)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 5 started (2026-08-21 09:02:05)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 5/5 started (2026-08-31 08:32:29)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 5 started (2026-08-31 08:32:29)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 5]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.68</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.32</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.28</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.60</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Finished training for 5 epochs (2026-08-21 09:02:05, 2.8s total)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Finished training for 5 epochs (2026-08-31 08:32:29, 2.2s total)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

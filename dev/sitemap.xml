@@ -3,6 +3,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/callback_list.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/callbacks.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/articles/custom_task_type.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/get_started.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/index.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/articles/internals_pipeop_torch.html</loc></url>
@@ -22,6 +23,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/ModelDescriptor.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/PipeOpPreprocTorchTrafoNop.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/PipeOpPreprocTorchTrafoReshape.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/PredictionTorch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/Select.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/TorchCallback.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html</loc></url>
@@ -31,6 +33,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/as_data_descriptor.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/as_lazy_tensor.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/as_lr_scheduler.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/as_task_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/as_torch_callback.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/as_torch_callbacks.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/as_torch_loss.html</loc></url>
@@ -90,6 +93,8 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch_image.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch_model.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_measures_torch.default.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_measures_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_augment_center_crop.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_augment_color_jitter.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_augment_crop.html</loc></url>
@@ -194,9 +199,11 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_melanoma.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_mnist.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_tiny_imagenet.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_learner.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_module.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_union.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/msr_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_ft_cls.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_ft_transformer_block.html</loc></url>

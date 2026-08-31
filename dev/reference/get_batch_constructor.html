@@ -57,6 +57,7 @@ y."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
@@ -140,9 +141,12 @@ The ingress tokens that define <code>x</code>. Their features are already resolv
 
 
 <dt id="arg-target-batchgetter">target_batchgetter<a class="anchor" aria-label="anchor" href="#arg-target-batchgetter"></a></dt>
-<dd><p>(<code>function(data)</code> or <code>NULL</code>)<br>
-The function that defines <code>y</code>, or <code>NULL</code> if the dataset has no target.
-The default is to use <code><a href="get_target_batchgetter.html">get_target_batchgetter()</a></code>.</p></dd>
+<dd><p>(<code>function()</code> or <code>NULL</code>)<br>
+Converts the target columns of a batch into the target tensor <code>y</code> that the loss is applied to.
+Takes an argument <code>data</code>, a <code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></code> with only the target columns,
+and optionally an argument <code>x</code>, the named list of feature tensors of the batch, which is what a
+target that is a function of the input needs, see <code><a href="get_target_batchgetter.html">get_target_batchgetter()</a></code>.
+If <code>NULL</code> (default), the batches have no <code>y</code> element.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

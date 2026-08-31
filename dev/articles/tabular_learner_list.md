@@ -20,3 +20,5 @@ by `mlr3torch`: An overview of all learners can also be found on the
 | regr.tabm | TabM | regr | logical, integer, numeric, factor , ordered |  |
 | regr.torch_featureless | Featureless Torch Learner | regr | logical , integer , numeric , character , factor , ordered , POSIXct , Date , lazy_tensor |  |
 | regr.torch_model | Torch Model | regr | logical , integer , numeric , character , factor , ordered , POSIXct , Date , lazy_tensor |  |
+| torch.model | Torch Model | torch | logical , integer , numeric , character , factor , ordered , POSIXct , Date , lazy_tensor |  |
+| torch.module | Custom Module | torch | logical , integer , numeric , character , factor , ordered , POSIXct , Date , lazy_tensor |  |

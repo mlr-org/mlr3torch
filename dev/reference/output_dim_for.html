@@ -43,6 +43,7 @@ ask. Adding a method for a new task type is therefore the way to support it, see
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
@@ -87,10 +88,10 @@ ask. Adding a method for a new task type is therefore the way to support it, see
 
     <div class="ref-description section level2">
     <p>Calculates the output dimension of a neural network for a given task that is expected by
-<span class="pkg">mlr3torch</span>.
+<a href="https://CRAN.R-project.org/package=mlr3torch" class="external-link"><span class="pkg">mlr3torch</span></a>.
 For classification, this is the number of classes (unless it is a binary classification task,
 where it is 1). For regression, it is 1.</p>
-<p>This is an S3 generic and the single place where <span class="pkg">mlr3torch</span> decides how many output neurons
+<p>This is an S3 generic and the single place where <a href="https://CRAN.R-project.org/package=mlr3torch" class="external-link"><span class="pkg">mlr3torch</span></a> decides how many output neurons
 a task needs: it is what <code><a href="mlr_pipeops_nn_head.html">PipeOpTorchHead</a></code> and the <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>s that build their own head
 ask. Adding a method for a new task type is therefore the way to support it, see the
 "Supporting Other Task Types" section of <code><a href="mlr_pipeops_nn_head.html">PipeOpTorchHead</a></code>.</p>

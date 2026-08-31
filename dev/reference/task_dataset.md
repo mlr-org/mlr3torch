@@ -39,12 +39,15 @@ task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL)
 
 - target_batchgetter:
 
-  (`function(data, device)`)  
-  A function taking in arguments `data`, which is a `data.table`
-  containing only the target variable, and `device`. It must return the
-  target as a torch
-  [tensor](https://torch.mlverse.org/docs/reference/torch_tensor.html)
-  on the selected device.
+  (`function()` or `NULL`)  
+  Converts the target columns of a batch into the target tensor `y` that
+  the loss is applied to. Takes an argument `data`, a
+  [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html)
+  with only the target columns, and optionally an argument `x`, the
+  named list of feature tensors of the batch, which is what a target
+  that is a function of the input needs, see
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md).
+  If `NULL` (default), the batches have no `y` element.
 
 ## Value
 

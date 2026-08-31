@@ -31,6 +31,7 @@ All torch learners should inherit from this class."><meta property="og:image" co
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
@@ -110,13 +111,17 @@ To do so, you just need to include <code>epochs = to_tune(upper = &lt;upper&gt;,
 where <code>&lt;upper&gt;</code> is the maximally allowed number of epochs, and configure the early stopping.</p>
     </div>
     <div class="section level2">
-    <h2 id="resuming">Resuming<a class="anchor" aria-label="anchor" href="#resuming"></a></h2>
+    <h2 id="checkpointing-and-resuming">Checkpointing and Resuming<a class="anchor" aria-label="anchor" href="#checkpointing-and-resuming"></a></h2>
 
 
-<p>Training can be continued from a checkpoint written by
-<code><a href="mlr_callback_set.checkpoint.html">t_clbk("checkpoint")</a></code> by setting the <code>resume</code> parameter.
+<p>It is possible to save intermediate results from a run via the
+<code><a href="mlr_callback_set.checkpoint.html">t_clbk("checkpoint")</a></code> callback.
+It is then possible to train for more epochs by setting the <code>resume</code> parameter of the <code>LearnerTorch</code>.
 This parameter can either be a path or <code>TRUE</code> which will use the path of the provided checkpoint
 callback.
+Only the number of epochs should be changed between resumed runs, other parameter changes
+are considered undefined behavior.
+Also, make sure to use the same train-validation split.
 When the latest written checkpoint was for <code>n1</code> epochs, the learner needs to be configured
 to be trained for <code>n &gt;= n1</code> epochs and the training will run for <code>n2 = n - n1</code> epochs.
 With <code>n = n1</code> the checkpointed run is already finished, so nothing is trained and the model of
@@ -131,35 +136,7 @@ to train for.
 The callbacks document their behavior under a corresponding
 <em>Resuming</em> section in their documentation.
 Furthermore, rng states are not restored, which constitutes another difference between a full
-and a resumed training run.
-With a fixed <code>seed</code> this means that a resumed run repeats the random draws of the run it
-continues: torch's generator is seeded at the start of every training run, so the resumed epochs
-see the same shuffling and the same dropout masks as the first epochs of the original run did.
-A run that is restarted often – e.g. one checkpointing every epoch on a preemptible machine –
-therefore trains on the same batch order over and over.
-Use the default <code>seed = "random"</code> when this matters more than reproducing a run exactly.</p>
-<p>The checkpoint records the task it was written for and the rows of the internal validation
-split, and a run whose task id or split differs is refused: the restored network has seen rows
-such a run holds out, and a restored early stopping score was measured on other rows.
-Because <code>validate = &lt;ratio&gt;</code> draws a new split from <strong>R's</strong> random number generator on every run
-– which the <code>seed</code> parameter does not govern, as it only seeds torch – a run to be resumed
-should use <code>validate = "predefined"</code> with a fixed <code>internal_valid_task</code>, or seed R's generator
-identically before each run.</p>
-<p>Configure the resuming learner like the one that wrote the checkpoint and change only <code>epochs</code>.
-What the checkpoint holds wins over what the resuming learner is configured with: the optimizer
-is restored from it, so a different <code>opt.lr</code> (or any other <code>opt.*</code> value) set on the resuming
-learner has no effect, and the same is true for the state of every callback that restores one.</p>
-<p>Early stopping is checked rather than silently continued: the checkpoint records which
-validation measure its best score belongs to – the first of <code>measures_valid</code>, which is the one
-early stopping tracks – and a run tracking another measure is refused.
-A run that early stopping <em>ended</em> is finished, whatever <code>epochs</code> says: resuming it warns, trains
-no epoch and returns the model of the checkpoint, so that a script restarting itself converges
-instead of training one epoch further on every attempt.
-The same holds for a callback of your own that ends a run through <code>ctx$terminate</code>, provided it
-sets that flag again when its state is restored, see the <em>State</em> section of <code><a href="mlr_callback_set.html">CallbackSet</a></code>.</p>
-<p>Callback states are matched to the callbacks of the resuming run <strong>by id</strong>.
-A state whose id is not among this run's callbacks is skipped with a warning, and a callback
-whose id is not in the checkpoint simply starts fresh.</p>
+and a resumed training run.</p>
     </div>
     <div class="section level2">
     <h2 id="network-head-and-target-encoding">Network Head and Target Encoding<a class="anchor" aria-label="anchor" href="#network-head-and-target-encoding"></a></h2>
@@ -194,6 +171,31 @@ classifier.</p>
 is also ensured to be the first factor level) is <code>1</code> and the negative class is <code>0</code>.</p></li>
 <li><p>multi-class classification: The <code>factor</code> target variable of a <code><a href="https://mlr3.mlr-org.com/reference/TaskClassif.html" class="external-link">TaskClassif</a></code> is a label-encoded
 <code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_long</a></code> with shape <code>(batch_size)</code> where the label-encoding goes from <code>1</code> to <code>n_classes</code>.</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="predicting-tensors">Predicting Tensors<a class="anchor" aria-label="anchor" href="#predicting-tensors"></a></h2>
+
+
+<p>The predict type <code>"lazy_tensor"</code>, available for the task type <code>"torch"</code>, hands back what the
+network produced – a <code><a href="lazy_tensor.html">lazy_tensor</a></code> with one element per observation – instead of asking the
+task's <code>default_encoder</code> to turn it into a response.
+It is how to get at the logits of a classifier or the reconstruction of an autoencoder, and a
+task predicted this way needs no encoder at all.
+Unlike <code>"prob"</code> and <code>"se"</code> it is not opt-in: every learner for this task type has it among its
+<code>$predict_types</code>, because handing the output back does not depend on how the learner encodes a
+prediction. Set <code>learner$predict_type = "lazy_tensor"</code> to use it.
+A network with more than one head hands back one <code><a href="lazy_tensor.html">lazy_tensor</a></code> per head, held in a
+<code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></code> with one column per head so that the prediction is still
+one row per observation; <code><a href="https://rdrr.io/pkg/data.table/man/as.data.table.html" class="external-link">as.data.table()</a></code> spreads it into <code>lazy_tensor.&lt;head&gt;</code> columns.</p>
+<p>Two things to know before using it:</p><ul><li><p><strong>Such a prediction does not survive <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>.</strong> It holds <code>torch</code> tensors,
+which are external pointers: saving <em>succeeds</em>, and the object then fails with
+<em>external pointer is not valid</em> the next time the tensors are touched, in this session or in
+another. This applies to a <code><a href="https://mlr3.mlr-org.com/reference/ResampleResult.html" class="external-link">ResampleResult</a></code> holding one as well – its
+row ids and scores survive, its tensors do not.</p></li>
+<li><p>Nothing about it is lazy. A <code><a href="lazy_tensor.html">lazy_tensor</a></code> built from a tensor holds that tensor, so a
+prediction of this type is the network's output in memory, and <code><a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">resample()</a></code> holds every fold's
+– combining the folds concatenates them, since lazy tensors from different networks share no
+data descriptor and cannot be concatenated lazily.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="important-runtime-considerations">Important Runtime Considerations<a class="anchor" aria-label="anchor" href="#important-runtime-considerations"></a></h2>
@@ -299,15 +301,7 @@ of the last epoch that was trained. Is initialized to <code>FALSE</code>, i.e. t
 epoch is stored. Setting this to <code>TRUE</code> makes the stored network the one of the epoch that
 <code>$internal_tuned_values</code> reports, and costs one additional copy of the network's parameters in
 memory. Checkpoints written by <code>t_clbk("checkpoint")</code> are unaffected: they always hold the
-network as training left it.</p>
-<p>When a run is resumed (see the section <em>Resuming</em> of <code>LearnerTorch</code>), the best score, the
-epoch it was observed in and the number of evaluation steps without improvement are restored,
-so <code>patience</code> keeps counting across runs instead of starting over.
-The best epoch's weights are not part of a checkpoint, however – they are a full copy of the
-network, which every checkpoint would otherwise carry.
-A resumed run with <code>restore_best_weights</code> that never beats the restored best score therefore
-ends with the weights of its last epoch while <code>$internal_tuned_values</code> still reports the
-earlier best epoch, which is warned about when the state is restored.</p></li>
+network as training left it.</p></li>
 </ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
 The batch size used by the training and prediction dataloader.
 It is required for training (unless a <code>batch_sampler</code> is provided, which already determines the
@@ -361,11 +355,13 @@ Which packages to load on the workers.</p></li>
 Instead, the <code>task_type</code> must be specified as a construction argument.
 Any task type that is registered in
 <code><a href="https://mlr3.mlr-org.com/reference/mlr_reflections.html" class="external-link">mlr_reflections$task_types</a></code> can be used.
-Support for a task type that <span class="pkg">mlr3torch</span> does not know is added by implementing methods for
+Support for a task type that <a href="https://CRAN.R-project.org/package=mlr3torch" class="external-link"><span class="pkg">mlr3torch</span></a> does not know is added by implementing methods for
 the three S3 generics that hold the task-type-specific behaviour: <code><a href="output_dim_for.html">output_dim_for()</a></code> (how many
 output neurons the network needs), <code><a href="get_target_batchgetter.html">get_target_batchgetter()</a></code> (how the target is turned into a
 tensor) and <code><a href="encode_prediction.html">encode_prediction()</a></code> (how the network's output is turned back into a prediction).
-Such a learner also has to be given a <code>loss</code> explicitly.</p>
+Such a learner also has to be given a <code>loss</code> explicitly.
+This class can also be used for custom task types, see <code><a href="mlr_tasks_torch.html">TaskTorch</a></code> and the
+<em>Custom Learning Problems</em> article for more information.</p>
 <p>When inheriting from this class, one should overload the following methods:</p><ul><li><p><code>.network(task, param_vals)</code><br>
 (<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code><br>
 Construct a <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">torch::nn_module</a></code> object for the given task and parameter values, i.e. the neural network that
@@ -602,6 +598,7 @@ The predict types.
 See <code><a href="https://mlr3.mlr-org.com/reference/mlr_reflections.html" class="external-link">mlr_reflections$learner_predict_types</a></code> for available values.
 For regression, the default is <code>"response"</code>.
 For classification, this defaults to <code>"response"</code> and <code>"prob"</code>.
+For the task type <code>"torch"</code>, it defaults to <code>"response"</code>.
 For other task types, it defaults to all predict types that are registered for the task type.
 To deviate from the defaults, it is necessary to overwrite the private <code>$.encode_prediction()</code>
 method, see section <em>Inheriting</em>.</p></dd>

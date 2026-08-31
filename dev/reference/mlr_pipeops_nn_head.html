@@ -29,6 +29,7 @@
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
@@ -102,7 +103,7 @@ Whether to use a bias. Default is <code>TRUE</code>.</p></li>
 
 
 <p>The output dimension is not hard-coded here: <code>PipeOpTorchHead</code> asks the generic
-<code><a href="output_dim_for.html">output_dim_for()</a></code> how many output neurons the task needs, and <span class="pkg">mlr3torch</span> implements methods
+<code><a href="output_dim_for.html">output_dim_for()</a></code> how many output neurons the task needs, and <a href="https://CRAN.R-project.org/package=mlr3torch" class="external-link"><span class="pkg">mlr3torch</span></a> implements methods
 for <code><a href="https://mlr3.mlr-org.com/reference/TaskClassif.html" class="external-link">TaskClassif</a></code> and <code><a href="https://mlr3.mlr-org.com/reference/TaskRegr.html" class="external-link">TaskRegr</a></code>.
 You can add support to your custom task type by implementing a method for your class.</p>
     </div>
