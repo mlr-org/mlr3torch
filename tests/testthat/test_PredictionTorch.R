@@ -745,13 +745,14 @@ test_that("a lazy_tensor prediction of a two-head network is one column per head
   # ... and `as.data.table()` spreads it, the way a `data.table` truth spreads
   expect_names(names(as.data.table(pred)), must.include = c("lazy_tensor.m", "lazy_tensor.s"))
 
-  # combining keeps every row with the values of its own fold, head-wise
+  # combining keeps every row with the values of its own fold, head-wise; the folds and the
+  # single prediction batch the rows differently, so this is again equal only up to rounding
   parts = c(learner$predict(task, row_ids = 11:20)$data, learner$predict(task, row_ids = 1:10)$data)
   expect_data_table(parts$lazy_tensor, nrows = task$nrow, ncols = 2L)
   ord = match(task$row_ids, parts$row_ids)
   expect_equal(
     as.numeric(as.matrix(materialize(parts$lazy_tensor$m[ord], rbind = TRUE)$cpu())),
-    as.numeric(as.matrix(materialize(pred$lazy_tensor$m, rbind = TRUE)$cpu()))
+    as.numeric(as.matrix(materialize(pred$lazy_tensor$m, rbind = TRUE)$cpu())), tolerance = 1e-6
   )
 
   # an empty prediction agrees on the heads, so it combines with a real one
