@@ -16,6 +16,14 @@ This is used in the \code{\link{LearnerTorchFTTransformer}}.
 Calls \code{\link[=nn_ft_cls]{nn_ft_cls()}} when trained.
 }
 
+\section{Parameters}{
+
+The parameters of \code{\link[=nn_ft_cls]{nn_ft_cls()}}, which documents what they do.\tabular{llll}{
+   Id \tab Type \tab Default \tab Levels \cr
+   initialization \tab character \tab - \tab uniform, normal \cr
+}
+}
+
 \section{State}{
 
 The state is the value calculated by the public method \verb{$shapes_out()}.
