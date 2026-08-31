@@ -7,6 +7,10 @@
 #' The history is saved as a data.table where the validation measures are prefixed with `"valid."`
 #' and the training measures are prefixed with `"train."`.
 #'
+#' @section Resuming:
+#' The epochs of a resumed run are appended to the history of the run it continues.
+#' A measure that only one of the two runs recorded is `NA` for the epochs of the other.
+#'
 #' @export
 #' @include CallbackSet.R
 #' @examplesIf torch::torch_is_installed()
@@ -52,11 +56,13 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
       if (is.null(self$prev_state)) {
         state
       } else {
-        rbind(state, self$prev_state)
+        # We fill in case the measures differ between the runs
+        rbind(self$prev_state, state, fill = TRUE)
       }
     },
     #' @description
-    #' Sets the field `$train` and `$valid` to those contained in the state dict.
+    #' Remembers the history contained in the state dict, so that the epochs of the current run are
+    #' appended to it by `$state_dict()`.
     #' @param state_dict (`callback_state_history`)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {

@@ -20,12 +20,12 @@ running_on_mac = function() {
   Sys.info()["sysname"] == "Darwin"
 }
 
-inferps = function(fn, ignore = character(0), tags = "train") {
+inferps = function(fn, ignore = character(0), tags = "train", required = FALSE) {
   if (inherits(fn, "R6ClassGenerator")) {
     fn = get_init(fn)
-    if (is.null(fn)) {
-      return(ps())
-    }
+  }
+  if (is.null(fn)) {
+    return(ps())
   }
   assert_function(fn)
   assert_character(ignore, any.missing = FALSE)
@@ -33,7 +33,10 @@ inferps = function(fn, ignore = character(0), tags = "train") {
   frm = formals(fn)
   frm = frm[names(frm) %nin% ignore]
 
-  frm_domains = lapply(frm, function(formal) p_uty(tags = tags))
+  # an argument that has no default cannot be left unset, so it is tagged "required"
+  frm_domains = lapply(frm, function(formal) {
+    p_uty(tags = if (required && identical(formal, alist(x = )$x)) c(tags, "required") else tags)
+  })
 
   do.call(paradox::ps, frm_domains)
 }
@@ -62,9 +65,7 @@ assert_inherits_classname = function(class_generator, classname) {
 }
 
 get_init = function(x) {
-  cls = class_with_init(x)
-  if (is.null(cls)) return(NULL)
-  cls$public_methods$initialize
+  get_method(x, "initialize")
 }
 
 # jarl-ignore unused_function: called from man-roxygen/learner_example.R, which jarl does not scan
@@ -84,15 +85,11 @@ default_task_id = function(learner) {
 
 }
 
-class_with_init = function(x) {
-  if (is.null(x)) {
-    # This is the case where no initialize method is found
-    return(NULL)
-  } else if (is.null(x$public_methods) || exists("initialize", x$public_methods, inherits = FALSE)) {
-    return(x)
-  } else {
-    Recall(x$get_inherit())
-  }
+# the method of the generator itself or, failing that, of the class it inherits from
+get_method = function(x, name) {
+  if (is.null(x) || is.null(x$public_methods)) return(NULL)
+  if (exists(name, x$public_methods, inherits = FALSE)) return(x$public_methods[[name]])
+  Recall(x$get_inherit(), name)
 }
 
 sample_input_from_shapes = function(shapes, n = 1L) {
@@ -258,11 +255,11 @@ order_named_args = function(f, l) {
 #' @title Network Output Dimension
 #' @description
 #' Calculates the output dimension of a neural network for a given task that is expected by
-#' \pkg{mlr3torch}.
+#' \CRANpkg{mlr3torch}.
 #' For classification, this is the number of classes (unless it is a binary classification task,
 #' where it is 1). For regression, it is 1.
 #'
-#' This is an S3 generic and the single place where \pkg{mlr3torch} decides how many output neurons
+#' This is an S3 generic and the single place where \CRANpkg{mlr3torch} decides how many output neurons
 #' a task needs: it is what [`PipeOpTorchHead`] and the [`LearnerTorch`]s that build their own head
 #' ask. Adding a method for a new task type is therefore the way to support it, see the
 #' "Supporting Other Task Types" section of [`PipeOpTorchHead`].
@@ -320,4 +317,20 @@ categ_cardinalities = function(task) {
   cardinalities = lengths(task$levels(features))[features]
   cardinalities[types == "logical"] = 2L
   set_names(as.integer(cardinalities), features)
+}
+
+rbind_arrays = function(xs) {
+  d = dim(xs[[1L]])
+  k = length(d)
+  walk(xs, function(x) {
+    if (!identical(dim(x)[-1L], d[-1L])) {
+      stopf("Cannot combine arrays of dimensions (%s) and (%s), they differ beyond the first dimension.", paste(d, collapse = ", "), paste(dim(x), collapse = ", ")) # nolint
+    }
+  })
+  if (k == 1L) {
+    return(array(do.call(c, xs), dim = sum(map_int(xs, function(x) dim(x)[1L]))))
+  }
+  rotated = do.call(c, lapply(xs, function(x) aperm(x, c(2:k, 1L))))
+  nrows = sum(map_int(xs, function(x) dim(x)[1L]))
+  aperm(array(rotated, dim = c(d[-1L], nrows)), c(k, seq_len(k - 1L)))
 }

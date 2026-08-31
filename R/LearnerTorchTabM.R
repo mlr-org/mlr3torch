@@ -1060,7 +1060,9 @@ tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NU
 #'   or `"normal"`. If unset, `"normal"` is
 #'   used when `num_embeddings` is set and `"random-signs"` otherwise.
 #'
-#' Parameters of the embeddings for the numerical features:
+#' Parameters of the embeddings for the numerical features.
+#' The embedding types are those of `r cite_bib("gorishniy2022embeddings")`, see the
+#' *References* section for the paper that introduces and compares them:
 #' * `num_embeddings` :: `character(1)`\cr
 #'   The type of the numerical feature embeddings, one of `"none"` (default),
 #'   `"linear_relu"`, `"periodic"` or `"piecewise_linear"`. The last two usually perform best.
@@ -1092,7 +1094,7 @@ tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NU
 #' binary) are averaged over the `k` submodels; for regression the outputs are averaged.
 #'
 #' @references
-#' `r format_bib("gorishniy2025tabm", "wen2020batchensemble")`
+#' `r format_bib("gorishniy2025tabm", "wen2020batchensemble", "gorishniy2022embeddings")`
 #' @export
 LearnerTorchTabM = R6Class("LearnerTorchTabM",
   inherit = LearnerTorch,
@@ -1200,25 +1202,25 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
     # The network returns one prediction per submodel, i.e. a tensor of shape
     # (batch, k, d_out). Upstream averages the probabilities of the k submodels
     # (see `paper/bin/model.py`), which is not the same as averaging the logits.
-    # `encode_prediction_default()` expects scores, so the averaged probabilities are
+    # `encode_prediction()` expects scores, so the averaged probabilities are
     # mapped back to the score scale (log / logit); this roundtrip is exact up to
     # floating point accuracy because softmax(log(p)) == p and sigmoid(logit(p)) == p.
-    .encode_prediction = function(predict_tensor, task) {
+    .encode_prediction = function(network_output, task) {
       reduced = with_no_grad({
         if (task$task_type == "regr") {
-          predict_tensor$mean(dim = 2L)
+          network_output$mean(dim = 2L)
         } else if ("twoclass" %in% task$properties) {
-          p = torch_sigmoid(predict_tensor)$mean(dim = 2L)$clamp(min = 1e-7, max = 1 - 1e-7)
+          p = torch_sigmoid(network_output)$mean(dim = 2L)$clamp(min = 1e-7, max = 1 - 1e-7)
           torch_log(p) - torch_log1p(-p)
         } else {
-          p = nnf_softmax(predict_tensor, dim = 3L)$mean(dim = 2L)
+          p = nnf_softmax(network_output, dim = 3L)$mean(dim = 2L)
           torch_log(p$clamp(min = 1e-30))
         }
       })
-      encode_prediction_default(
-        predict_tensor = reduced,
-        predict_type = self$predict_type,
-        task = task
+      encode_prediction(
+        task = task,
+        network_output = reduced,
+        predict_type = self$predict_type
       )
     }
   )

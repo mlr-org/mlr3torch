@@ -538,12 +538,13 @@ test_that("early stopping works", {
   # the first evaluation can do no comparison, i.e. the second eval with no improvement is the third epoch
   expect_equal(learner$internal_tuned_values, list(epochs = 3))
 
-  # in this scenario early stopping should definitely not trigger yet
   learner$param_set$set_values(
     min_delta = 0, patience = 5, opt.lr = 0.01, eval_freq = 1
   )
   learner$train(task)
-  expect_equal(learner$internal_tuned_values, list(epochs = 1))
+  history = learner$model$callbacks$history
+  expect_equal(learner$internal_tuned_values,
+    list(epochs = history$epoch[which.min(history$valid.classif.ce)]))
 })
 
 test_that("validation works", {
@@ -1039,7 +1040,7 @@ test_that("NA prediction during validation does not cause issues.", {
   task = tsk("mtcars")
   learner$train(task)
   expect_true(
-    is.na(learner$model$callbacks$history$valid.regr.mse[1L]),
+    is.na(learner$model$callbacks$history$valid.regr.mse[1L])
   )
 })
 
@@ -1215,22 +1216,391 @@ test_that("sampler and batch_sampler are checked", {
   learner$param_set$set_values(sampler = sampler)
 })
 
-test_that("resample() returns the learners in iteration order", {
-  # `Learner$hash` digests `param_set$values` as a whole. Without `hash_input.list()` the `nn_module`
-  # in `activation` is serialized together with its environment, which torch mutates when the module
-  # is first instantiated, so the iterations recorded different hashes and `ResultData$learners()`
-  # -- which merges on `learner_hash` with `sort = TRUE` -- returned them in hash order.
-  task = tsk("iris")
-  set.seed(1)
-  rr = resample(task, lrn("classif.mlp", epochs = 1, batch_size = 32, neurons = 5,
-    device = "cpu", predict_type = "prob"), rsmp("cv", folds = 3), store_models = TRUE)
+test_that("the model has a printer", {
+  # the seed parameter only seeds torch, the internal validation split comes from R's RNG
+  withr::local_seed(1)
+  learner = lrn("classif.mlp", epochs = 2, batch_size = 50, neurons = 5, device = "cpu",
+    validate = 0.3, measures_valid = msr("classif.ce"), callbacks = t_clbk("history"),
+    seed = 1)
+  learner$train(tsk("iris"))
+  expect_snapshot(learner$model)
+})
 
+test_that("a callback can end training before its first epoch", {
+  stop_now = torch_callback("stop_now", on_begin = function() self$ctx$terminate = TRUE)
+  learner = lrn("classif.mlp", epochs = 5L, batch_size = 50, neurons = 10, callbacks = stop_now)
+  learner$train(tsk("iris"))
+  expect_equal(learner$model$epochs, 0L)
+})
+
+describe("resuming from a checkpoint", {
+  it("continues from the checkpointed epoch, with the weights the checkpoint holds", {
+    path = tempfile()
+    first = make_checkpoint(epochs = 2L, path = path)
+
+    restored = NULL
+    remember = function() {
+      restored <<- as.numeric(self$ctx$network$parameters[[1L]]$flatten())
+    }
+    record = torch_callback("record", on_begin = remember)
+
+    # 'epochs' is the total number of epochs, i.e. 3 more are trained
+    resumed = resumer(5L, path, callbacks = record)
+    resumed$train(tsk("iris"))
+    expect_equal(resumed$model$epochs, 5L)
+    expect_equal(restored, as.numeric(first$network$parameters[[1L]]$flatten()))
+
+    expect_error(resumer(4L, path)$train(tsk("sonar")), "was written for task 'iris'")
+
+    file = file.path(path, "state2.rds")
+    state = readRDS(file)
+    state$version = "0.0.1"
+    saveRDS(state, file)
+    expect_warning(resumer(4L, path)$train(tsk("iris")), "written by mlr3torch 0.0.1")
+  })
+
+  it("a checkpoint is refused when the internal validation split differs", {
+    path = tempfile()
+    make = function(epochs, ...) lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
+      validate = 0.3, measures_valid = msr("classif.ce"), ...)
+    make(2L, callbacks = t_clbk("checkpoint", freq = 1, path = path))$train(tsk("iris"))
+
+    resumed = make(4L)
+    resumed$param_set$set_values(resume = path)
+    expect_error(resumed$train(tsk("iris")), "different internal validation split")
+
+    plain = resumer(4L, path)
+    expect_error(plain$train(tsk("iris")), "written with an internal validation split")
+  })
+
+  it("a fixed internal validation task resumes", {
+    task = tsk("iris")
+    task$internal_valid_task = 1:30
+    path = tempfile()
+    make = function(epochs, ...) lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
+      validate = "predefined", measures_valid = msr("classif.ce"), ...)
+    make(2L, callbacks = t_clbk("checkpoint", freq = 1, path = path))$train(task)
+
+    resumed = make(4L)
+    resumed$param_set$set_values(resume = path)
+    expect_no_error(resumed$train(task))
+    expect_equal(resumed$model$epochs, 4L)
+  })
+
+  it("a folder that holds no checkpoint at all is an error", {
+    expect_error(resumer(2L, tempfile())$train(tsk("iris")), "does not exist or holds no checkpoint")
+    unrelated = tempfile()
+    dir.create(unrelated)
+    writeLines("not a checkpoint", file.path(unrelated, "notes.txt"))
+    expect_error(resumer(2L, unrelated)$train(tsk("iris")), "does not exist or holds no checkpoint")
+  })
+
+  it("training starts from scratch when there is no checkpoint yet", {
+    path = tempfile()
+    learner = resumer(2L, path, callbacks = t_clbk("checkpoint", freq = 1, path = path))
+    expect_no_error(learner$train(tsk("iris")))
+    expect_equal(learner$model$epochs, 2L)
+
+    again = resumer(4L, path, callbacks = t_clbk("checkpoint", freq = 1, path = path))
+    again$train(tsk("iris"))
+    expect_equal(again$model$epochs, 4L)
+  })
+
+  it("the most recent complete checkpoint is used", {
+    path = tempfile()
+    make_checkpoint(epochs = 3L, freq = 1L, path = path)
+    file.create(file.path(path, "network4.pt"))
+
+    resumed = resumer(4L, path)
+    expect_warning(resumed$train(tsk("iris")), "Ignoring incomplete checkpoint\\(s\\) 4")
+    expect_equal(resumed$model$epochs, 4L)
+  })
+
+  it("checkpoints without a state file are ignored", {
+    path = tempfile()
+    make_checkpoint(epochs = 2L, freq = 1L, path = path)
+    file.remove(file.path(path, "state2.rds"))
+
+    resumed = resumer(4L, path)
+    expect_warning(resumed$train(tsk("iris")), "Ignoring incomplete checkpoint\\(s\\) 2")
+    expect_equal(resumed$model$epochs, 4L)
+
+    file.remove(list.files(path, pattern = "^state", full.names = TRUE))
+    scratch = resumer(2L, path)
+    expect_warning(scratch$train(tsk("iris")), "Ignoring incomplete checkpoint")
+    expect_equal(scratch$model$epochs, 2L)
+  })
+
+  it("continues the global step across a change of batch size", {
+    path = tempfile()
+    seen = NULL
+    record = function() {
+      seen <<- c(seen, self$ctx$global_step)
+    }
+    spy = torch_callback("spy", on_batch_end = record)
+    make_checkpoint(epochs = 2L, path = path, callbacks = list(spy))
+    expect_equal(seen, 1:6)
+    expect_equal(readRDS(file.path(path, "state2.rds"))$global_step, 6)
+
+    seen = NULL
+    resumed = lrn("classif.mlp", epochs = 3L, batch_size = 150, neurons = 10, callbacks = spy)
+    resumed$param_set$set_values(resume = path)
+    resumed$train(tsk("iris"))
+    expect_equal(seen, 7L)
+  })
+
+
+  it("a checkpoint that is already at 'epochs' is loaded instead of continued", {
+    task = tsk("iris")
+    path = tempfile()
+    first = make_checkpoint(epochs = 3L, path = path)
+
+    reloaded = resumer(3L, path)
+    expect_no_error(reloaded$train(task))
+    expect_equal(reloaded$model$epochs, 3L)
+    expect_equal(
+      as.numeric(reloaded$network$parameters[[1L]]$flatten()),
+      as.numeric(first$network$parameters[[1L]]$flatten())
+    )
+    expect_equal(reloaded$predict(task)$response, first$predict(task)$response)
+
+    expect_error(resumer(2L, path)$train(task), "trained for 3 epochs, but 'epochs' is 2")
+  })
+
+  it("a finished run reports the validation scores of the checkpoint", {
+    # they are measured in an epoch, so a run that trains none has to take them from the checkpoint
+    task = task_with_valid()
+    path = tempfile()
+    args = list(validate = "predefined", measures_valid = msrs("classif.acc"))
+    first = invoke(make_checkpoint, epochs = 2L, path = path, task = task, .args = args)
+
+    reloaded = invoke(resumer, epochs = 2L, path = path, .args = args)
+    reloaded$train(task)
+    expect_equal(reloaded$internal_valid_scores, first$internal_valid_scores)
+  })
+
+  it("resume = TRUE takes the path from the checkpoint callback", {
+    path = tempfile()
+    make_checkpoint(epochs = 2L, path = path)
+
+    # the same learner definition serves the first run and every restart
+    resumed = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10, resume = TRUE,
+      callbacks = t_clbk("checkpoint", freq = 1, path = path))
+    resumed$train(tsk("iris"))
+
+    expect_equal(resumed$model$epochs, 4L)
+    expect_true(file.exists(file.path(path, "network4.pt")))
+  })
+
+  it("resume = TRUE errors without a checkpoint callback", {
+    learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, resume = TRUE)
+    # a misconfiguration, so it must not be swallowed by a fallback learner
+    expect_error_config(learner$train(tsk("iris")), "no 'checkpoint' callback")
+  })
+
+  it("callback states that cannot be restored are skipped with a warning", {
+    path = tempfile()
+    # a callback that saves a state but cannot load one. torch_callback() rejects that combination,
+    # so the class is written by hand, as a user extending CallbackSet directly could.
+    CallbackSetWriteOnly = R6Class("CallbackSetWriteOnly", inherit = CallbackSet,
+      public = list(state_dict = function() list(a = 1)))
+    writeonly = as_torch_callback(CallbackSetWriteOnly, id = "writeonly")
+    make_checkpoint(epochs = 1L, path = path, callbacks = list(writeonly))
+
+    resumed = resumer(2L, path, callbacks = writeonly)
+    expect_warning(resumed$train(tsk("iris")), "does not implement \\$load_state_dict")
+  })
+
+  it("a state is matched to its callback by id and class", {
+    # ids alone cannot tell the callbacks apart, so the checkpoint records what was behind each one
+    path = tempfile()
+    make_checkpoint(epochs = 1L, path = path, callbacks = list(t_clbk("history")))
+
+    # a run without the callback the state belongs to
+    expect_warning(resumer(2L, path)$train(tsk("iris")), "'history'.*not part of this training run")
+
+    impostor = torch_callback("history", classname = "CallbackSetImpostor",
+      state_dict = function() list(), load_state_dict = function(state_dict) NULL)
+    expect_error(resumer(2L, path, callbacks = impostor)$train(tsk("iris")),
+      "'history' was a <CallbackSetHistory> and is a <CallbackSetImpostor>")
+
+    # the same class under the same id is restored as before
+    expect_no_error(resumer(2L, path, callbacks = t_clbk("history"))$train(tsk("iris")))
+  })
+
+  it("stateless callbacks do not interfere", {
+    path = tempfile()
+    noop = torch_callback("noop", on_epoch_end = function() NULL)
+    make_checkpoint(epochs = 2L, path = path, callbacks = list(noop))
+
+    resumed = resumer(4L, path, callbacks = noop)
+    expect_no_warning(resumed$train(tsk("iris")))
+    expect_equal(resumed$model$epochs, 4L)
+  })
+
+  it("re-running a finished script returns its model and leaves the checkpoint alone, whatever `freq` is", { # nolint
+    # `epochs` is the total, so running the same script again resumes a checkpoint that has nothing
+    # left to train. It hands back the model of that run without rewriting the checkpoint, which is
+    # what makes a script that restarts itself safe to run once more after it succeeded.
+    task = tsk("iris")
+    walk(c(1L, 2L, 3L), function(freq) {
+      path = tempfile()
+      make = function() {
+        lrn("classif.mlp", epochs = 5L, batch_size = 50, neurons = 10, resume = TRUE,
+          callbacks = t_clbk("checkpoint", freq = freq, path = path))
+      }
+      first = make()
+      first$train(task)
+      before = list.files(path)
+
+      again = make()
+      expect_no_error(again$train(task))
+      expect_equal(again$model$epochs, 5L, info = freq)
+      expect_equal(
+        as.numeric(again$network$parameters[[1L]]$flatten()),
+        as.numeric(first$network$parameters[[1L]]$flatten()),
+        info = freq
+      )
+      expect_set_equal(list.files(path), before)
+    })
+  })
+
+  it("an incomplete newest checkpoint does not make its folder unusable", {
+    # a run killed while writing a checkpoint must be able to restart into its own folder: the
+    # half-written epoch is not what a resume reads, so this one continues from 5 and rewrites 6
+    task = tsk("iris")
+    path = tempfile()
+    first = lrn("classif.mlp", epochs = 6L, batch_size = 50, neurons = 10,
+      callbacks = t_clbk("checkpoint", freq = 1, path = path))
+    first$train(task)
+    file.remove(file.path(path, "optimizer6.pt"))
+
+    resumed = lrn("classif.mlp", epochs = 8L, batch_size = 50, neurons = 10, resume = path,
+      callbacks = t_clbk("checkpoint", freq = 1, path = path))
+    expect_warning(resumed$train(task), "Ignoring incomplete checkpoint\\(s\\) 6")
+    expect_equal(resumed$model$epochs, 8L)
+    expect_true(file.exists(file.path(path, "optimizer6.pt")))
+  })
+})
+
+test_that("resample() returns the learners in iteration order", {
+  # the hash of the MLP below was not stable previously, because the hash of a newly created
+  # module changes after it's jit compiled
+  activation = nn_module("my_activation",
+    initialize = function() NULL,
+    forward = function(input) torch_relu(input)
+  )
+  task = tsk("iris")
+  withr::local_seed(1)
+  rr = resample(task, lrn("classif.mlp", activation = activation, epochs = 1, batch_size = 32,
+    neurons = 5, device = "cpu", predict_type = "prob"), rsmp("cv", folds = 3), store_models = TRUE)
+
+  # the symptom: learner `i` must be the model that produced prediction `i`
   for (i in 1:3) {
     expect_equal(
       rr$learners[[i]]$predict(task, rr$resampling$test_set(i))$prob,
       rr$predictions()[[i]]$prob
     )
   }
+
+  # the invariant the symptom follows from, asserted directly: the sort above is a no-op only if
+  # every iteration recorded the same hash. Checking it here does not depend on the permutation that
+  # `order()` happens to produce for three drifting hashes.
+  fact = get_private(rr)$.data$data$fact
+  expect_equal(uniqueN(fact$learner_hash), 1L)
+})
+
+test_that("training does not change the hash of a learner holding an nn_module", {
+  # just like the test above, creating a module compiles the generator which used to change
+  # it's hash
+  fresh = nn_module("my_activation2", initialize = function() NULL, forward = function(input) torch_relu(input))
+  learners = list(
+    lrn("classif.mlp", activation = fresh, neurons = 3),
+    lrn("classif.mlp", activation = nn_relu, neurons = 3),
+    lrn("regr.mlp", activation = nn_tanh, neurons = 3),
+    lrn("classif.tabm", activation = nn_relu),
+    lrn("classif.tab_resnet", n_blocks = 1, d_block = 4, d_hidden = 4, dropout1 = 0, dropout2 = 0)
+  )
+  tasks = c("iris", "iris", "mtcars", "iris", "iris")
+
+  for (i in seq_along(learners)) {
+    learner = learners[[i]]
+    learner$param_set$set_values(epochs = 1, batch_size = 16, device = "cpu")
+    before = learner$hash
+    learner$train(tsk(tasks[[i]]))
+    expect_equal(before, learner$hash, info = learner$id)
+  }
+})
+
+test_that("learners holding a different module_generator as activation hash differently", {
+  expect_false(identical(
+    lrn("classif.mlp", activation = nn_relu, neurons = 3)$hash,
+    lrn("classif.mlp", activation = nn_tanh, neurons = 3)$hash
+  ))
+})
+
+test_that("hashes are reproducible across R sessions", {
+  skip_on_cran()
+  skip_if_not_installed("callr")
+  hash_in_session = function(train) {
+    callr::r(function(train) {
+      library(mlr3torch)
+      learner = lrn("classif.mlp", activation = nn_relu, neurons = 3, epochs = 1, batch_size = 16,
+        device = "cpu")
+      if (train) learner$train(tsk("iris"))
+      learner$hash
+    }, args = list(train = train), libpath = .libPaths())
+  }
+
+  expect_equal(hash_in_session(FALSE), hash_in_session(TRUE))
+  expect_equal(hash_in_session(FALSE), lrn("classif.mlp", activation = nn_relu, neurons = 3,
+    epochs = 1, batch_size = 16, device = "cpu")$hash)
+})
+
+test_that("the machinery of LearnerTorch works on a generic torch task", {
+  task = tt_task_labels(40L)
+  learner = tt_learner(tt_loss_bce(), epochs = 2L)
+
+  expect_equal(learner$task_type, "torch")
+  # the task type claims no more than every LearnerTorch has, see `register_task_type_torch()`
+  expect_set_equal(learner$properties, c("marshal", "validation", "internal_tuning"))
+  # `prob` and `se` are opt-in, because only the task's encoder knows whether they exist;
+  # `lazy_tensor` is not, because handing the network's output back needs no encoder
+  expect_set_equal(learner$predict_types, c("response", "lazy_tensor"))
+
+  learner$train(task)
+  expect_class(learner$network, "nn_module")
+  expect_permutation(
+    names(learner$model),
+    c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks", "epochs",
+      "internal_valid_scores")
+  )
+
+  pred = learner$predict(task)
+  expect_class(pred, "PredictionTorch")
+  expect_matrix(pred$response, mode = "logical", nrows = task$nrow, ncols = 2L)
+
+  expect_matrix(learner$predict(task)$response, mode = "logical", nrows = task$nrow, ncols = 2L)
+})
+
+test_that("validation and early stopping work on a generic torch task", {
+  task = tt_task_labels(40L)
+  task$internal_valid_task = task$clone(deep = TRUE)
+
+  measure = msr_torch("hamming", function(truth, response) mean(as.matrix(truth) != response),
+    range = c(0, 1), minimize = TRUE)
+  learner = tt_learner(tt_loss_bce(), epochs = 6L, eval_freq = 2L,
+    measures_valid = measure, validate = "predefined")
+
+  learner$train(task)
+  expect_list(learner$internal_valid_scores, "numeric", len = 1L)
+  expect_equal(names(learner$internal_valid_scores), "hamming")
+  expect_number(learner$internal_valid_scores[[1L]], lower = 0, upper = 1)
+
+  # early stopping tunes `epochs`, which is what the "internal_tuning" property promises
+  learner$param_set$set_values(patience = 1L)
+  learner$train(task)
+  expect_number(learner$internal_tuned_values$epochs, lower = 1, upper = 6)
 })
 
 test_that("hash_input() recurses into lists so that nn_modules hash stably", {

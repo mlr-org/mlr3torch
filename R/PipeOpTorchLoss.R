@@ -13,7 +13,6 @@
 #' @section Internals:
 #' During training the loss is cloned and added to the [`ModelDescriptor`].
 #'
-#' @family PipeOps
 #' @family Model Configuration
 #'
 #' @export
@@ -59,7 +58,7 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
       inputs
     },
     .loss = NULL,
-    .additional_phash_input = function() self$loss$phash
+    .additional_phash_input = function() private$.loss$phash
   )
 )
 

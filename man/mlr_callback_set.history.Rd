@@ -9,6 +9,12 @@ Saves the training and validation history during training.
 The history is saved as a data.table where the validation measures are prefixed with \code{"valid."}
 and the training measures are prefixed with \code{"train."}.
 }
+\section{Resuming}{
+
+The epochs of a resumed run are appended to the history of the run it continues.
+A measure that only one of the two runs recorded is \code{NA} for the epochs of the other.
+}
+
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 
@@ -73,7 +79,8 @@ print(learner$model$callbacks$history)
 \if{html}{\out{<a id="method-CallbackSetHistory-load_state_dict"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetHistory-load_state_dict}{}}}
 \subsection{\code{CallbackSetHistory$load_state_dict()}}{
-  Sets the field \verb{$train} and \verb{$valid} to those contained in the state dict.
+  Remembers the history contained in the state dict, so that the epochs of the current run are
+appended to it by \verb{$state_dict()}.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetHistory$load_state_dict(state_dict)}

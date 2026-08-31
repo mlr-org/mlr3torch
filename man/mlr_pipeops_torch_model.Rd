@@ -6,7 +6,11 @@
 \title{PipeOp Torch Model}
 \description{
 Builds a Torch Learner from a \code{\link{ModelDescriptor}} and trains it with the given parameter specification.
-The task type must be specified during construction.
+
+This is \code{po("torch_model")}, which works on the general-purpose task type of \code{mlr3torch}, see
+\code{\link{TaskTorch}}.
+For classification and regression see \code{\link{PipeOpTorchModelClassif}} and \code{\link{PipeOpTorchModelRegr}}
+respectively.
 }
 \section{Parameters}{
 
@@ -29,10 +33,11 @@ When resampling, benchmarking or tuning in parallel, each worker uses this many 
 divide the available cores among the workers instead of setting this to the number of cores.
 \item \code{num_interop_threads} :: \code{integer(1)}\cr
 The number of threads for interop parallelization (if \code{device} is \code{"cpu"}).
-This value is initialized to 1.
-Note that this can only be set \strong{once} per session, so training a learner once already sets this.
-Because the value is initialized, a deviating value only takes effect if it is set on the first
-learner that is trained in a session. You can work around this via encapsulation, see \code{\link[mlr3:Learner]{mlr3::Learner}}.
+Note that this can only be set \strong{once} per session, so setting this for one learner also changes the
+behavior of other learners, and a later learner asking for a different value errors.
+\code{NULL} (default) uses whatever is set.
+In order to use different values for this parameter, use encapsulation to train the learners
+in separate R sessions.
 \item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
 The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
@@ -41,6 +46,9 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
+This parameter only seeds torch's random number generator, it does \strong{not} seed R's.
+Anything that is drawn from R's RNG is therefore unaffected by it, so to make those parts
+reproducible you need to seed R's RNG as well, e.g. via \code{\link[=set.seed]{set.seed()}}.
 \item \code{tensor_dataset} :: \code{logical(1)} | \code{"device"}\cr
 Whether to load all batches at once at the beginning of training and stack them.
 This is initialized to \code{FALSE}.
@@ -63,6 +71,17 @@ This is initialized to \code{1}.
 Note that the final model is always evaluated.
 }
 
+\strong{Resuming}:
+\itemize{
+\item \code{resume} :: \code{character(1)} or \code{TRUE}\cr
+Continues training from a checkpoint written by
+\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}}, either the folder it wrote to or \code{TRUE},
+which takes that folder from the checkpoint callback of this learner.
+Note that \code{epochs} is the \emph{total} number of epochs, i.e. it includes the epochs the checkpoint
+was already trained for: resuming a checkpoint from epoch 5 with \code{epochs = 8} trains 3 more
+epochs.
+}
+
 \strong{Early Stopping}:
 \itemize{
 \item \code{patience} :: \code{integer(1)}\cr
@@ -79,6 +98,13 @@ field of the learner.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
+\item \code{restore_best_weights} :: \code{logical(1)}\cr
+Whether to restore the weights of the best epoch when training ends, instead of keeping those
+of the last epoch that was trained. Is initialized to \code{FALSE}, i.e. the network of the last
+epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
+\verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
+memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
+network as training left it.
 }
 
 \strong{Dataloader}:
@@ -151,78 +177,6 @@ Then the parameters are set according to the parameters specified in \code{PipeO
 its \verb{$train()} method is called on the \code{\link[mlr3:Task]{Task}} stored in the \code{\link{ModelDescriptor}}.
 }
 
-\seealso{
-Other PipeOps:
-\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
-\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
-\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
-\code{\link{mlr_pipeops_nn_avg_pool1d}},
-\code{\link{mlr_pipeops_nn_avg_pool2d}},
-\code{\link{mlr_pipeops_nn_avg_pool3d}},
-\code{\link{mlr_pipeops_nn_batch_norm1d}},
-\code{\link{mlr_pipeops_nn_batch_norm2d}},
-\code{\link{mlr_pipeops_nn_batch_norm3d}},
-\code{\link{mlr_pipeops_nn_block}},
-\code{\link{mlr_pipeops_nn_celu}},
-\code{\link{mlr_pipeops_nn_conv1d}},
-\code{\link{mlr_pipeops_nn_conv2d}},
-\code{\link{mlr_pipeops_nn_conv3d}},
-\code{\link{mlr_pipeops_nn_conv_transpose1d}},
-\code{\link{mlr_pipeops_nn_conv_transpose2d}},
-\code{\link{mlr_pipeops_nn_conv_transpose3d}},
-\code{\link{mlr_pipeops_nn_dropout}},
-\code{\link{mlr_pipeops_nn_elu}},
-\code{\link{mlr_pipeops_nn_flatten}},
-\code{\link{mlr_pipeops_nn_ft_cls}},
-\code{\link{mlr_pipeops_nn_ft_transformer_block}},
-\code{\link{mlr_pipeops_nn_geglu}},
-\code{\link{mlr_pipeops_nn_gelu}},
-\code{\link{mlr_pipeops_nn_glu}},
-\code{\link{mlr_pipeops_nn_hardshrink}},
-\code{\link{mlr_pipeops_nn_hardsigmoid}},
-\code{\link{mlr_pipeops_nn_hardtanh}},
-\code{\link{mlr_pipeops_nn_head}},
-\code{\link{mlr_pipeops_nn_identity}},
-\code{\link{mlr_pipeops_nn_layer_norm}},
-\code{\link{mlr_pipeops_nn_leaky_relu}},
-\code{\link{mlr_pipeops_nn_linear}},
-\code{\link{mlr_pipeops_nn_log_sigmoid}},
-\code{\link{mlr_pipeops_nn_max_pool1d}},
-\code{\link{mlr_pipeops_nn_max_pool2d}},
-\code{\link{mlr_pipeops_nn_max_pool3d}},
-\code{\link{mlr_pipeops_nn_merge}},
-\code{\link{mlr_pipeops_nn_merge_cat}},
-\code{\link{mlr_pipeops_nn_merge_prod}},
-\code{\link{mlr_pipeops_nn_merge_sum}},
-\code{\link{mlr_pipeops_nn_multihead_attention}},
-\code{\link{mlr_pipeops_nn_prelu}},
-\code{\link{mlr_pipeops_nn_reglu}},
-\code{\link{mlr_pipeops_nn_relu}},
-\code{\link{mlr_pipeops_nn_relu6}},
-\code{\link{mlr_pipeops_nn_reshape}},
-\code{\link{mlr_pipeops_nn_rrelu}},
-\code{\link{mlr_pipeops_nn_selu}},
-\code{\link{mlr_pipeops_nn_sigmoid}},
-\code{\link{mlr_pipeops_nn_softmax}},
-\code{\link{mlr_pipeops_nn_softplus}},
-\code{\link{mlr_pipeops_nn_softshrink}},
-\code{\link{mlr_pipeops_nn_softsign}},
-\code{\link{mlr_pipeops_nn_squeeze}},
-\code{\link{mlr_pipeops_nn_tanh}},
-\code{\link{mlr_pipeops_nn_tanhshrink}},
-\code{\link{mlr_pipeops_nn_threshold}},
-\code{\link{mlr_pipeops_nn_tokenizer_categ}},
-\code{\link{mlr_pipeops_nn_tokenizer_num}},
-\code{\link{mlr_pipeops_nn_transformer_encoder_layer}},
-\code{\link{mlr_pipeops_nn_unsqueeze}},
-\code{\link{mlr_pipeops_torch_ingress}},
-\code{\link{mlr_pipeops_torch_ingress_categ}},
-\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
-\code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{mlr_pipeops_torch_loss}},
-\code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}}
-}
 \concept{PipeOps}
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3pipelines:PipeOpLearner]{mlr3pipelines::PipeOpLearner}} -> \code{PipeOpTorchModel}
@@ -249,19 +203,34 @@ Other PipeOps:
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{PipeOpTorchModel$new(task_type, id = "torch_model", param_vals = list())}
+    \preformatted{PipeOpTorchModel$new(
+  task_type = "torch",
+  id = "torch_model",
+  param_vals = list(),
+  target_batchgetter = NULL,
+  predict_types = NULL
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{task_type}}{(\code{character(1)})\cr
-The task type of the model.}
+The task type of the model. Defaults to \code{"torch"}.}
       \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
       \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
+      \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
+Converts the target columns of a batch into the target tensor \code{y} that the loss is applied to.
+Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
+and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
+target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
+If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide, but a \code{\link{TaskTorch}} only if it has no target at all, in which case the batches have no \code{y} element.}
+      \item{\code{predict_types}}{(\code{character()})\cr
+The predict types.
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
     }
     \if{html}{\out{</div>}}
   }

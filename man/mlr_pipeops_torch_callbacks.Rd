@@ -50,13 +50,8 @@ Other Model Configuration:
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_optimizer}},
 \code{\link[=model_descriptor_union]{model_descriptor_union()}}
-
-Other PipeOp:
-\code{\link{mlr_pipeops_module}},
-\code{\link{mlr_pipeops_torch_optimizer}}
 }
 \concept{Model Configuration}
-\concept{PipeOp}
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchCallbacks}
 }

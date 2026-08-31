@@ -114,13 +114,13 @@ test_that("learner_torch_predict works", {
   check(tsk("mtcars"), 1)
 })
 
-test_that("encode_prediction_default works", {
+test_that("encode_prediction works", {
   check_classif = function(task, ncol) {
     pt = torch_rand(task$nrow, output_dim_for(task))
     pt = pt / torch_sum(pt, 2L)$reshape(c(task$nrow, 1))
 
-    p1 = encode_prediction_default(pt, "response", task)
-    p2 = encode_prediction_default(pt, "prob", task)
+    p1 = encode_prediction(task, pt, "response")
+    p2 = encode_prediction(task, pt, "prob")
 
     pd1 = as_prediction_data(p1, task)
     pd2 = as_prediction_data(p2, task)
@@ -133,10 +133,106 @@ test_that("encode_prediction_default works", {
 
   check_regr = function(task, ncol) {
     pt = torch_rand(task$nrow, 1)
-    p = encode_prediction_default(pt, "response", task)
+    p = encode_prediction(task, pt, "response")
     expect_equal(as.numeric(p$response), as.numeric(pt))
   }
   check_regr(tsk("mtcars"), 1)
+})
+
+test_that("the built-in encodings accept one head and reject more", {
+  regr = tsk("mtcars")
+  pt = torch_rand(regr$nrow, 1)
+  expect_equal(encode_prediction(regr, list(pt), "response"), encode_prediction(regr, pt, "response"))
+  expect_error(encode_prediction(regr, list(mu = pt, sigma = pt), "response"),
+    "returned 2 tensors, but the prediction encoding for task type 'regr' expects a single one")
+
+  classif = tsk("iris")
+  pt = torch_rand(classif$nrow, output_dim_for(classif))
+  expect_equal(encode_prediction(classif, list(pt), "prob"), encode_prediction(classif, pt, "prob"))
+  expect_error(encode_prediction(classif, list(pt, pt), "prob"),
+    "returned 2 tensors, but the prediction encoding for task type 'classif' expects a single one")
+})
+
+test_that("torch_network_predict concatenates the heads of a network that returns a list", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", batch_size = 16, epochs = 1, device = "cpu")
+  dl = get_private(learner)$.dataloader_predict(
+    get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
+
+  # the two heads have different widths, so a mix-up between them cannot go unnoticed
+  network = nn_module(
+    initialize = function() NULL,
+    forward = function(x) list(identity = x, total = x$sum(dim = 2L, keepdim = TRUE))
+  )()
+
+  pred = torch_network_predict(network, dl, device = "cpu")
+
+  expect_list(pred, types = "torch_tensor", len = 2L)
+  expect_equal(names(pred), c("identity", "total"))
+  expect_equal(dim(pred$identity), c(task$nrow, length(task$feature_names)))
+  expect_equal(dim(pred$total), c(task$nrow, 1L))
+  expect_true(torch_allclose(pred$total, pred$identity$sum(dim = 2L, keepdim = TRUE)))
+})
+
+test_that("a network with two heads can be trained, scored and predicted", {
+  two_heads = nn_module("nn_two_heads",
+    initialize = function(d_in) {
+      self$mu = nn_linear(d_in, 1)
+      self$log_sigma = nn_linear(d_in, 1)
+    },
+    forward = function(x) list(mu = self$mu(x), log_sigma = self$log_sigma(x))
+  )
+
+  LearnerTwoHeads = R6Class("LearnerTwoHeads",
+    inherit = LearnerTorch,
+    public = list(
+      initialize = function() {
+        super$initialize(task_type = "regr", id = "regr.two_heads", label = "Two Heads",
+          param_set = ps(), feature_types = c("numeric", "integer"), man = "mlr3torch::two_heads",
+          callbacks = t_clbk("history"))
+      }
+    ),
+    private = list(
+      .network = function(task, param_vals) two_heads(length(task$feature_names)),
+      .ingress_tokens = function(task, param_vals) {
+        list(x = ingress_num(shape = c(NA, length(task$feature_names))))
+      },
+      # the configured loss is applied to a single tensor, so it is wrapped to see only the mean
+      .loss_fn = function(task, param_vals) {
+        nn_module("nn_mu_loss",
+          initialize = function(loss) self$loss = loss,
+          forward = function(input, target) self$loss(input$mu, target)
+        )(super$.loss_fn(task, param_vals))
+      },
+      .encode_prediction = function(network_output, task) {
+        list(response = as.numeric(network_output$mu + torch_exp(network_output$log_sigma)))
+      }
+    )
+  )
+
+  # the features are scaled, otherwise the exponentiated head overflows
+  task = po("scale")$train(list(tsk("mtcars")))[[1L]]
+  learner = LearnerTwoHeads$new()
+  learner$param_set$set_values(epochs = 1L, batch_size = 16L, measures_valid = msr("regr.mse"),
+    measures_train = msr("regr.mse"))
+  set_validate(learner, 0.3)
+  learner$train(task)
+
+  # the validation scores go through the same encoding as the prediction
+  expect_list(learner$internal_valid_scores, types = "numeric", len = 1L)
+  expect_false(is.na(learner$internal_valid_scores$regr.mse))
+
+  # and so do the training scores, i.e. the encoder sees both heads in either phase
+  history = learner$model$callbacks$history
+  expect_false(is.na(history$train.regr.mse))
+
+  pred = learner$predict(task)
+  expect_class(pred, "PredictionRegr")
+
+  # both heads made it into the response, in the right order
+  x = torch_tensor(as.matrix(task$data(cols = task$feature_names)), dtype = torch_float())
+  out = with_no_grad(learner$model$network(x))
+  expect_equal(pred$response, as.numeric(out$mu + torch_exp(out$log_sigma)), tolerance = 1e-5)
 })
 
 test_that("Train and predict are reproducible and seeds work as expected", {

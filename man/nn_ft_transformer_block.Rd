@@ -35,7 +35,7 @@ Number of attention heads.}
 Dropout probability in the attention mechanism.}
 
 \item{attention_initialization}{(\code{character(1)})\cr
-Initialization method for attention weights. Either "kaiming" or "xavier".}
+Initialization of the query, key and value projections, either \code{"kaiming"} or \code{"xavier"}.}
 
 \item{ffn_d_hidden}{(\code{integer(1)})\cr
 Hidden dimension of the feed-forward network. Multiplied by 2 if using ReGLU or GeGLU activation.}
@@ -47,7 +47,7 @@ Alternative way to specify the hidden dimension of the feed-forward network as \
 Dropout probability in the feed-forward network.}
 
 \item{ffn_activation}{(\code{nn_module})\cr
-Activation function for the feed-forward network. Default value is \code{nn_reglu}.}
+Activation function for the feed-forward network.}
 
 \item{residual_dropout}{(\code{numeric(1)})\cr
 Dropout probability for residual connections.}
@@ -56,13 +56,13 @@ Dropout probability for residual connections.}
 Whether to apply normalization before attention and FFN (\code{TRUE}) or after (\code{FALSE}).}
 
 \item{is_first_layer}{(\code{logical(1)})\cr
-Whether this is the first layer in the transformer stack. Default value is \code{FALSE}.}
+Whether this is the first layer in the transformer stack.}
 
 \item{attention_normalization}{(\code{nn_module})\cr
-Normalization module to use for attention. Default value is \code{nn_layer_norm}.}
+Normalization module to use for attention.}
 
 \item{ffn_normalization}{(\code{nn_module})\cr
-Normalization module to use for the feed-forward network. Default value is \code{nn_layer_norm}.}
+Normalization module to use for the feed-forward network.}
 
 \item{query_idx}{(\code{integer()} or \code{NULL})\cr
 Indices of the tensor to apply attention to. Should not be set manually.
@@ -71,13 +71,13 @@ In the last block in a stack of transformers, this is set to \code{-1}
 so that attention is applied only to the embedding of the CLS token.}
 
 \item{attention_bias}{(\code{logical(1)})\cr
-Whether attention has a bias. Default is \code{TRUE}}
+Whether attention has a bias.}
 
 \item{ffn_bias_first}{(\code{logical(1)})\cr
-Whether the first layer in the FFN has a bias. Default is \code{TRUE}}
+Whether the first layer in the FFN has a bias.}
 
 \item{ffn_bias_second}{(\code{logical(1)})\cr
-Whether the second layer in the FFN has a bias. Default is \code{TRUE}}
+Whether the second layer in the FFN has a bias.}
 }
 \description{
 A transformer block consisting of a multi-head self-attention mechanism followed by a feed-forward

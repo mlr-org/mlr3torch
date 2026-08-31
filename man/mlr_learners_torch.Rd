@@ -39,6 +39,33 @@ To do so, you just need to include \verb{epochs = to_tune(upper = <upper>, inter
 where \verb{<upper>} is the maximally allowed number of epochs, and configure the early stopping.
 }
 
+\section{Checkpointing and Resuming}{
+
+It is possible to save intermediate results from a run via the
+\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}} callback.
+It is then possible to train for more epochs by setting the \code{resume} parameter of the \code{LearnerTorch}.
+This parameter can either be a path or \code{TRUE} which will use the path of the provided checkpoint
+callback.
+Only the number of epochs should be changed between resumed runs, other parameter changes
+are considered undefined behavior.
+Also, make sure to use the same train-validation split.
+When the latest written checkpoint was for \code{n1} epochs, the learner needs to be configured
+to be trained for \code{n >= n1} epochs and the training will run for \code{n2 = n - n1} epochs.
+With \code{n = n1} the checkpointed run is already finished, so nothing is trained and the model of
+the checkpoint is returned -- which is what lets a script that restarts itself be run again
+after it succeeded, and what recovers the model of a run that was killed after its last epoch.
+Configuring \code{n < n1} is an error.
+Resuming will load the network weights, optimizer states and callback states.
+For some callbacks, training for \code{n1} and then \code{n2} epochs via resuming is not the same as
+training for \code{n} epochs from the start.
+This is for example the case for learning rate schedulers that depend on the total number of epochs
+to train for.
+The callbacks document their behavior under a corresponding
+\emph{Resuming} section in their documentation.
+Furthermore, rng states are not restored, which constitutes another difference between a full
+and a resumed training run.
+}
+
 \section{Network Head and Target Encoding}{
 
 Torch learners are expected to have the following output:
@@ -48,24 +75,33 @@ Torch learners are expected to have the following output:
 \item regression: \verb{(batch_size, 1)} representing the response prediction.
 }
 
-A network may return more than one prediction during training, which is what networks with
-auxiliary classifiers such as \code{\link[=mlr_learners.torchvision]{Inception v3}} do.
-In this case the network returns a \code{list()} of tensors, each with the shape given above, and
-the following convention applies:
+A network may return more than one tensor, in which case it returns a \code{list()} of them.
+There are two typical reasons for this:
 \itemize{
-\item The \strong{first} element is the primary prediction. It is the one that is scored by
-\code{measures_train} and the one that the network is expected to return when it is in evaluation
-mode, i.e. when predicting and when calculating the validation scores.
-\item The remaining elements are the predictions of the auxiliary classifiers. They only exist to
-contribute to the loss during training and are never scored.
+\item Networks with auxiliary classifiers such as \code{\link[=mlr_learners.torchvision]{Inception v3}} return
+additional predictions that only exist to contribute to the loss during training. Here, every
+element has the shape given above and the first one is the prediction of interest.
+\item A prediction that consists of several quantities -- e.g. a mean and a standard deviation -- is
+expressed by returning one tensor per quantity, which the prediction encoding combines.
 }
 
-During training, \code{\link{ContextTorch}} makes both available: \code{ctx$y_hats} is the complete output of
-the network, i.e. what the loss is applied to, and \code{ctx$y_hat} is always the primary
-prediction. For a network that returns a single tensor the two are identical.
+In both cases the complete output is what the rest of the learner works with:
+\itemize{
+\item The loss is applied to it. Because the configured loss expects a single tensor, a learner
+whose network returns a list has to wrap it by overloading \code{.loss_fn()}, see the list of
+methods below. \code{\link{ContextTorch}} makes the output available as \code{ctx$y_hats}.
+\item The prediction is encoded from it, both when predicting and when calculating the training and
+validation scores, so \code{.encode_prediction()} always receives the complete network output. Such
+a learner needs an \code{\link[=encode_prediction]{encode_prediction()}} method for its task type, or has to overload the
+private \code{.encode_prediction()} method, because the encodings of the built-in task types expect
+a single tensor.
+}
 
-Because the configured loss is applied to a single tensor, a learner whose network returns a
-list has to wrap it by overloading \code{.loss_fn()}, see the list of methods below.
+Note that the complete output is whatever the network returned in the mode it was called in, so a
+network whose extra tensors exist only during training -- as auxiliary classifiers do -- returns a
+different structure during training than during prediction, and \code{.encode_prediction()} has to
+handle both. \code{classif.inception_v3} does this by encoding only the prediction of the main
+classifier.
 
 Furthermore, the target encoding is expected to be as follows:
 \itemize{
@@ -76,6 +112,34 @@ Furthermore, the target encoding is expected to be as follows:
 is also ensured to be the first factor level) is \code{1} and the negative class is \code{0}.
 \item multi-class classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is a label-encoded
 \code{\link[torch:torch_long]{torch_long}} with shape \code{(batch_size)} where the label-encoding goes from \code{1} to \code{n_classes}.
+}
+}
+
+\section{Predicting Tensors}{
+
+The predict type \code{"lazy_tensor"}, available for the task type \code{"torch"}, hands back what the
+network produced -- a \code{\link{lazy_tensor}} with one element per observation -- instead of asking the
+task's \code{default_encoder} to turn it into a response.
+It is how to get at the logits of a classifier or the reconstruction of an autoencoder, and a
+task predicted this way needs no encoder at all.
+Unlike \code{"prob"} and \code{"se"} it is not opt-in: every learner for this task type has it among its
+\verb{$predict_types}, because handing the output back does not depend on how the learner encodes a
+prediction. Set \code{learner$predict_type = "lazy_tensor"} to use it.
+A network with more than one head hands back one \code{\link{lazy_tensor}} per head, held in a
+\code{\link[data.table:data.table]{data.table}} with one column per head so that the prediction is still
+one row per observation; \code{as.data.table()} spreads it into \verb{lazy_tensor.<head>} columns.
+
+Two things to know before using it:
+\itemize{
+\item \strong{Such a prediction does not survive \code{\link[base:saveRDS]{saveRDS()}}.} It holds \code{torch} tensors,
+which are external pointers: saving \emph{succeeds}, and the object then fails with
+\emph{external pointer is not valid} the next time the tensors are touched, in this session or in
+another. This applies to a \code{\link[mlr3:ResampleResult]{ResampleResult}} holding one as well -- its
+row ids and scores survive, its tensors do not.
+\item Nothing about it is lazy. A \code{\link{lazy_tensor}} built from a tensor holds that tensor, so a
+prediction of this type is the network's output in memory, and \code{resample()} holds every fold's
+-- combining the folds concatenates them, since lazy tensors from different networks share no
+data descriptor and cannot be concatenated lazily.
 }
 }
 
@@ -130,10 +194,11 @@ When resampling, benchmarking or tuning in parallel, each worker uses this many 
 divide the available cores among the workers instead of setting this to the number of cores.
 \item \code{num_interop_threads} :: \code{integer(1)}\cr
 The number of threads for interop parallelization (if \code{device} is \code{"cpu"}).
-This value is initialized to 1.
-Note that this can only be set \strong{once} per session, so training a learner once already sets this.
-Because the value is initialized, a deviating value only takes effect if it is set on the first
-learner that is trained in a session. You can work around this via encapsulation, see \code{\link[mlr3:Learner]{mlr3::Learner}}.
+Note that this can only be set \strong{once} per session, so setting this for one learner also changes the
+behavior of other learners, and a later learner asking for a different value errors.
+\code{NULL} (default) uses whatever is set.
+In order to use different values for this parameter, use encapsulation to train the learners
+in separate R sessions.
 \item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
 The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
@@ -142,6 +207,9 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
+This parameter only seeds torch's random number generator, it does \strong{not} seed R's.
+Anything that is drawn from R's RNG is therefore unaffected by it, so to make those parts
+reproducible you need to seed R's RNG as well, e.g. via \code{\link[=set.seed]{set.seed()}}.
 \item \code{tensor_dataset} :: \code{logical(1)} | \code{"device"}\cr
 Whether to load all batches at once at the beginning of training and stack them.
 This is initialized to \code{FALSE}.
@@ -164,6 +232,17 @@ This is initialized to \code{1}.
 Note that the final model is always evaluated.
 }
 
+\strong{Resuming}:
+\itemize{
+\item \code{resume} :: \code{character(1)} or \code{TRUE}\cr
+Continues training from a checkpoint written by
+\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}}, either the folder it wrote to or \code{TRUE},
+which takes that folder from the checkpoint callback of this learner.
+Note that \code{epochs} is the \emph{total} number of epochs, i.e. it includes the epochs the checkpoint
+was already trained for: resuming a checkpoint from epoch 5 with \code{epochs = 8} trains 3 more
+epochs.
+}
+
 \strong{Early Stopping}:
 \itemize{
 \item \code{patience} :: \code{integer(1)}\cr
@@ -180,6 +259,13 @@ field of the learner.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
+\item \code{restore_best_weights} :: \code{logical(1)}\cr
+Whether to restore the weights of the best epoch when training ends, instead of keeping those
+of the last epoch that was trained. Is initialized to \code{FALSE}, i.e. the network of the last
+epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
+\verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
+memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
+network as training left it.
 }
 
 \strong{Dataloader}:
@@ -236,7 +322,15 @@ Also see \code{torch::dataloader} for more information.
 
 There are no separate classes for classification and regression to inherit from.
 Instead, the \code{task_type} must be specified as a construction argument.
-Currently, only classification and regression are supported.
+Any task type that is registered in
+\code{\link[mlr3:mlr_reflections]{mlr_reflections$task_types}} can be used.
+Support for a task type that \CRANpkg{mlr3torch} does not know is added by implementing methods for
+the three S3 generics that hold the task-type-specific behaviour: \code{\link[=output_dim_for]{output_dim_for()}} (how many
+output neurons the network needs), \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} (how the target is turned into a
+tensor) and \code{\link[=encode_prediction]{encode_prediction()}} (how the network's output is turned back into a prediction).
+Such a learner also has to be given a \code{loss} explicitly.
+This class can also be used for custom task types, see \code{\link{TaskTorch}} and the
+\emph{Custom Learning Problems} article for more information.
 
 When inheriting from this class, one should overload the following methods:
 \itemize{
@@ -245,7 +339,7 @@ When inheriting from this class, one should overload the following methods:
 Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
 Note that a specific output shape is expected from the returned network, see section \emph{Network Head and Target Encoding}.
-That section also describes how a network can return more than one prediction during training.
+That section also describes when a network can return more than one tensor.
 You can use \code{\link[=output_dim_for]{output_dim_for()}} to obtain the correct output dimension for a given task.
 \item \code{.loss_fn(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:nn_module]{nn_module}}\cr
@@ -293,10 +387,12 @@ which takes the \code{batch_size_predict} parameter into account.
 
 To change the predict types, it is possible to overwrite the method below:
 \itemize{
-\item \code{.encode_prediction(predict_tensor, task)}\cr
-(\code{\link[torch:torch_tensor]{torch_tensor}}, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr
-Take in the raw predictions from \code{self$network} (\code{predict_tensor}) and encode them into a
+\item \code{.encode_prediction(network_output, task)}\cr
+(\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()} of them, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr
+Take in the raw predictions from \code{self$network} (\code{network_output}) and encode them into a
 format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
+It is a \code{list()} of tensors when the network returns more than one, see section
+\emph{Network Head and Target Encoding}.
 This method must take \code{self$predict_type} into account.
 }
 
@@ -316,6 +412,8 @@ to implement the private \verb{$.additional_phash_input()}.
 
 \seealso{
 Other Learner:
+\code{\link{GraphLearnerTorch}},
+\code{\link[=as_learner_torch]{as_learner_torch()}},
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
@@ -448,7 +546,9 @@ The optimizer to use for training.
 Defaults to adam.}
       \item{\code{loss}}{(\code{NULL} or \code{\link{TorchLoss}})\cr
 The loss to use for training.
-Defaults to MSE for regression and cross entropy for classification.}
+Defaults to MSE for regression and cross entropy for classification.
+For other task types there is no default and the loss has to be given, because which loss is
+appropriate depends on the learning problem.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{predict_types}}{(\code{character()})\cr
@@ -456,6 +556,8 @@ The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.
 For regression, the default is \code{"response"}.
 For classification, this defaults to \code{"response"} and \code{"prob"}.
+For the task type \code{"torch"}, it defaults to \code{"response"}.
+For other task types, it defaults to all predict types that are registered for the task type.
 To deviate from the defaults, it is necessary to overwrite the private \verb{$.encode_prediction()}
 method, see section \emph{Inheriting}.}
       \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
