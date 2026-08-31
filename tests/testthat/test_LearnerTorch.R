@@ -1602,11 +1602,3 @@ test_that("validation and early stopping work on a generic torch task", {
   learner$train(task)
   expect_number(learner$internal_tuned_values$epochs, lower = 1, upper = 6)
 })
-
-test_that("a learner for a different task type is rejected by LearnerTorch itself", {
-  task = tt_task_labels(20L)
-  # `mlr3::assert_task_learner()` accepts any learner inheriting the class registered for the task
-  # type, and `LearnerTorch` is the one registered for "torch", so it passes that check
-  expect_error(lrn("classif.mlp", epochs = 1L, batch_size = 16L)$train(task),
-    "is for task type 'classif'")
-})

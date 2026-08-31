@@ -5,9 +5,9 @@
 #' [`TaskTorch`].
 #'
 #' Because a [`TaskTorch`] can represent very different learning problems, this class does not
-#' prescribe much about how `truth`, `response`, `prob` and `se` are stored: the task's prediction
-#' encoder decides, and that encoder is yours.
-#' The one rule is that the *first* dimension indexes the observations.
+#' prescribe much about how `truth`, `response`, `prob` and `se` are stored.
+#' This is defined by the task's prediction encoder, where you need to ensure that the first
+#' dimension indexes the observations.
 #' Within that, an element may be an atomic vector, a `matrix()`, an `array()` of any
 #' dimensionality, a [`data.table`][data.table::data.table] or a [`lazy_tensor`].
 #' `truth` is whatever `task$truth()` returned -- a vector for one target, a `data.table` for
@@ -101,10 +101,6 @@ PredictionTorch = R6Class("PredictionTorch",
 pt_predict_types = c("response", "prob", "se", "lazy_tensor")
 pt_elements = c("truth", pt_predict_types, "weights")
 
-# One cell per observation, each holding that observation's own array. The class is only a hook for
-# printing: `as.data.table()` on a prediction exists mostly to print it, and a `data.table` pastes
-# the contents of a list column -- megabytes of numbers for a batch of images -- unless the column's
-# class has a `format_col()` method. `lazy_tensor` hooks into the same generic.
 pt_arrays = function(x) {
   cells = lapply(seq_len(NROW(x)), function(i) array(pt_subset(x, i), dim = dim(x)[-1L]))
   structure(cells, class = c("pt_arrays", "list"))

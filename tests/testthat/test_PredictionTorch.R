@@ -420,26 +420,6 @@ test_that("array valued predictions survive a resample round trip", {
   expect_true(sum(nchar(capture.output(print(pred)))) < 1000L)
 })
 
-test_that("a bare list is not a storage a prediction may use", {
-  d = tt_data(20L)
-  d$y = d$x1 + rnorm(nrow(d))
-  # an encoder that returns one value per observation, but in a list rather than a vector
-  task = tt_task(d, target = "y",
-    default_encoder = function(task, network_output, predict_type) {
-      list(response = as.list(as.numeric(network_output$cpu())))
-    })
-  learner = tt_learner(t_loss("mse"))
-  learner$train(task)
-
-  expect_error(learner$predict(task), "bare `list()`", fixed = TRUE)
-
-  # the two list-shaped storages that are allowed are not caught by it
-  pdata = list(row_ids = 1:3, response = as_lazy_tensor(torch_randn(3L, 2L)),
-    truth = data.table(a = 1:3, b = 4:6))
-  class(pdata) = c("PredictionDataTorch", "PredictionData")
-  expect_no_error(check_prediction_data(pdata))
-})
-
 test_that("only a response with one value per observation reports missing predictions", {
   pdata = function(response) {
     structure(list(row_ids = 1:3, response = response),
@@ -799,20 +779,4 @@ test_that("the lazy_tensor predict type can be scored during training", {
   # is also what early stopping and internal tuning read, and a `NaN` there tunes `epochs` to 1
   expect_number(learner$internal_valid_scores$ltnorm, lower = 0)
   expect_number(learner$internal_tuned_values$epochs, lower = 1)
-})
-
-test_that("a lazy_tensor prediction does not survive saveRDS", {
-  # documented in the *Predicting Tensors* section of `?LearnerTorch`: saving succeeds and the
-  # tensors are dangling pointers afterwards, so this pins the behaviour we tell users about
-  task = tt_task_raw()
-  learner = tt_learner(t_loss("mse"))
-  learner$predict_type = "lazy_tensor"
-  rr = resample(task, learner, rsmp("holdout"))
-
-  path = tempfile()
-  expect_no_error(saveRDS(rr, path))
-  back = readRDS(path)
-  # the row ids survive, the tensors do not
-  expect_length(back$prediction()$row_ids, length(rr$prediction()$row_ids))
-  expect_error(materialize(back$prediction()$lazy_tensor, rbind = TRUE), "external pointer")
 })

@@ -7,7 +7,7 @@
 #' supervised and unsupervised problems.
 #' The article on *Custom Learning Problems* covers all of this in more detail.
 #'
-#' The problem this generic task solves is that it is rather complicated to register new task 
+#' The problem this generic task solves is that it is rather complicated to register new task
 #' types with `mlr3`, so this class makes this easier.
 #' The price of this flexibility is the loss of some compatibility checks.
 #'
@@ -27,10 +27,6 @@
 #' @param default_measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
 #'   The default measure of the task, i.e. what [`msr("torch.default")`][mlr_measures_torch.default]
 #'   resolves to.
-#'   `rr$score()` and `rr$aggregate()` of a [`ResampleResult`][mlr3::ResampleResult] use it without
-#'   being told, and `prediction$score(msr("torch.default"), task = task)` uses it when the task is
-#'   passed along -- a [`Prediction`][mlr3::Prediction] carries none, so `prediction$score()` on its
-#'   own cannot resolve it.
 #'
 #' @family Task
 #' @export

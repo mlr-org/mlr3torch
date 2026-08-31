@@ -255,8 +255,8 @@ lrn_ae$predict(tsk_ae)$score(msr_recon, task = tsk_ae)
 
 ### Predictions as Tensors {#sec-raw-predictions}
 
-The encoder above exists to turn the network's output into something a measure can be written against.
-When the output *is* what you want, the predict type `"lazy_tensor"` hands it over directly, and the task then needs no `default_encoder` at all:
+In some cases, you mighth want to directly access the raw tensor predictions instead of an encoded variant.
+This is possible via the `"lazy_tensor"` predict type:
 
 ```{r custom_task_type-017}
 lrn_raw = lrn_ae$clone(deep = TRUE)
@@ -266,29 +266,16 @@ pred_raw = lrn_raw$predict(tsk_ae)
 pred_raw
 ```
 
-One element per observation, holding that observation's reconstruction.
-A network with more than one head gives you one such column per head, named after the heads.
-`materialize()` turns them back into a tensor:
+You can convert this to an actual `torch_tensor` by materializing it:
 
 ```{r custom_task_type-018}
 reconstruction = materialize(pred_raw$lazy_tensor, rbind = TRUE)
 reconstruction$shape
 ```
 
-It is the same network output the encoder saw, just not encoded into anything:
+Note that this prediction can currently not be correctly saved via `saveRDS()` as it holds external pointers.
 
-```{r custom_task_type-019}
-encoded = lrn_ae$predict(tsk_ae)$response
-all.equal(as.matrix(reconstruction$cpu()), unname(encoded), tolerance = 1e-6)
-```
-
-This is the one predict type whose predictions do **not** survive `saveRDS()`.
-They hold `torch` tensors, which are external pointers: saving succeeds and the tensors are invalid the next time they are touched, in this session or another. A `ResampleResult` containing them keeps its row ids and scores but loses its tensors.
-Keep the encoder for anything you want to store, and reach for `"lazy_tensor"` when you are working with the output there and then.
-
-The latent codes, arguably the more interesting output of an autoencoder, are not a prediction at all: nothing can score them and there is no ground truth to compare them against.
-They are a property of the network, and the network is right there in the trained learner.
-The only thing you need from `mlr3torch` is the tensors that the network expects, which `learner$dataset()` builds the same way training and prediction build them:
+You can also directly access the network, e.g. to get the latent embeddings:
 
 ```{r custom_task_type-020}
 ds = lrn_ae$dataset(tsk_ae)
@@ -296,12 +283,8 @@ batch = ds$.getbatch(1:5)
 
 network = lrn_ae$network
 network$eval()
-as.matrix(with_no_grad(network$encoder(batch$x$input))$cpu())
+with_no_grad(network$encoder(batch$x$input))$cpu()
 ```
-
-Building that tensor by hand would work for a task whose features are four numeric columns, and would quietly go wrong for one with a `factor`, a `lazy_tensor` or an image transformation, because the ingress tokens are what decide how a batch is built.
-Reach for `learner$dataset()` whenever you want to run the network yourself: intermediate activations, gradients with respect to an input, anything that is not a prediction.
-For larger tasks, hand the dataset to `torch::dataloader()` rather than asking for every row at once, and move the tensors to the learner's device yourself.
 
 ## Drawbacks of `TaskTorch` {#sec-drawbacks}
 
@@ -315,8 +298,7 @@ lrn("classif.featureless")$train(tsk("mtcars"))
 
 This is because they have different `task_type`s.
 Because the `"torch"` task type can represent an arbitrary task type (that is what it is designed for), we can't distinguish between the multi-label classification task and the reconstruction problem.
-E.g., training the autoencoder on the weather data is simply undefined behavior and we cannot guarantee anything.
+E.g., training the autoencoder on the weather data is simply undefined behavior.
 The same also holds true for measures.
 As such, the `TaskTorch` is a *quick and dirty* way to approach a modeling problem.
 The alternative is to properly create a new task type, which requires implementing sub-classes (such as `TaskRegr`, `MeasureRegr`, etc.) and registering the new task type with {mlr3}.
-For a simple one-off modeling problem, the effort involved might not be worth it.
