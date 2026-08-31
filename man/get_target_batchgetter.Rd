@@ -14,16 +14,25 @@ The task.}
 Additional arguments. Not used yet.}
 }
 \value{
-\verb{function(data)}
+\verb{function(data)}, \verb{function(data, x)}, or \code{NULL} for a task with no target
 }
 \description{
 Returns the function that converts the target column(s) of a \code{task} into the target tensor
-\code{y} of a batch.
+\code{y} of a batch, i.e. the tensor that the loss is applied to.
+The returned function takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}}
+containing only the target column(s), and returns a \code{\link[torch:torch_tensor]{torch_tensor}}.
+It is \code{NULL} for a task with no target at all, whose batches have no \code{y} element and whose loss
+is called as \code{loss(y_hat)}.
+
+For the target encodings of the built-in task types, see section
+\emph{Network Head and Target Encoding} of \code{\link{LearnerTorch}}.
+
+When adding support for a custom task type, implement a method for the corresponding
+\code{\link[mlr3:Task]{Task}} class.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
-task = tsk("iris")
-batchgetter = get_target_batchgetter(task)
-batchgetter(task$data(1:2, "Species")[[1L]])
+batchgetter = get_target_batchgetter(tsk("iris"))
+batchgetter(data.table::data.table(Species = factor(c("setosa", "virginica"))))
 \dontshow{\}) # examplesIf}
 }

@@ -255,11 +255,11 @@ order_named_args = function(f, l) {
 #' @title Network Output Dimension
 #' @description
 #' Calculates the output dimension of a neural network for a given task that is expected by
-#' \pkg{mlr3torch}.
+#' \CRANpkg{mlr3torch}.
 #' For classification, this is the number of classes (unless it is a binary classification task,
 #' where it is 1). For regression, it is 1.
 #'
-#' This is an S3 generic and the single place where \pkg{mlr3torch} decides how many output neurons
+#' This is an S3 generic and the single place where \CRANpkg{mlr3torch} decides how many output neurons
 #' a task needs: it is what [`PipeOpTorchHead`] and the [`LearnerTorch`]s that build their own head
 #' ask. Adding a method for a new task type is therefore the way to support it, see the
 #' "Supporting Other Task Types" section of [`PipeOpTorchHead`].
@@ -317,4 +317,20 @@ categ_cardinalities = function(task) {
   cardinalities = lengths(task$levels(features))[features]
   cardinalities[types == "logical"] = 2L
   set_names(as.integer(cardinalities), features)
+}
+
+rbind_arrays = function(xs) {
+  d = dim(xs[[1L]])
+  k = length(d)
+  walk(xs, function(x) {
+    if (!identical(dim(x)[-1L], d[-1L])) {
+      stopf("Cannot combine arrays of dimensions (%s) and (%s), they differ beyond the first dimension.", paste(d, collapse = ", "), paste(dim(x), collapse = ", ")) # nolint
+    }
+  })
+  if (k == 1L) {
+    return(array(do.call(c, xs), dim = sum(map_int(xs, function(x) dim(x)[1L]))))
+  }
+  rotated = do.call(c, lapply(xs, function(x) aperm(x, c(2:k, 1L))))
+  nrows = sum(map_int(xs, function(x) dim(x)[1L]))
+  aperm(array(rotated, dim = c(d[-1L], nrows)), c(k, seq_len(k - 1L)))
 }

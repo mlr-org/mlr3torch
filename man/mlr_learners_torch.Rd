@@ -39,12 +39,16 @@ To do so, you just need to include \verb{epochs = to_tune(upper = <upper>, inter
 where \verb{<upper>} is the maximally allowed number of epochs, and configure the early stopping.
 }
 
-\section{Resuming}{
+\section{Checkpointing and Resuming}{
 
-Training can be continued from a checkpoint written by
-\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}} by setting the \code{resume} parameter.
+It is possible to save intermediate results from a run via the
+\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}} callback.
+It is then possible to train for more epochs by setting the \code{resume} parameter of the \code{LearnerTorch}.
 This parameter can either be a path or \code{TRUE} which will use the path of the provided checkpoint
 callback.
+Only the number of epochs should be changed between resumed runs, other parameter changes
+are considered undefined behavior.
+Also, make sure to use the same train-validation split.
 When the latest written checkpoint was for \code{n1} epochs, the learner needs to be configured
 to be trained for \code{n >= n1} epochs and the training will run for \code{n2 = n - n1} epochs.
 With \code{n = n1} the checkpointed run is already finished, so nothing is trained and the model of
@@ -60,38 +64,6 @@ The callbacks document their behavior under a corresponding
 \emph{Resuming} section in their documentation.
 Furthermore, rng states are not restored, which constitutes another difference between a full
 and a resumed training run.
-With a fixed \code{seed} this means that a resumed run repeats the random draws of the run it
-continues: torch's generator is seeded at the start of every training run, so the resumed epochs
-see the same shuffling and the same dropout masks as the first epochs of the original run did.
-A run that is restarted often -- e.g. one checkpointing every epoch on a preemptible machine --
-therefore trains on the same batch order over and over.
-Use the default \code{seed = "random"} when this matters more than reproducing a run exactly.
-
-The checkpoint records the task it was written for and the rows of the internal validation
-split, and a run whose task id or split differs is refused: the restored network has seen rows
-such a run holds out, and a restored early stopping score was measured on other rows.
-Because \verb{validate = <ratio>} draws a new split from \strong{R's} random number generator on every run
--- which the \code{seed} parameter does not govern, as it only seeds torch -- a run to be resumed
-should use \code{validate = "predefined"} with a fixed \code{internal_valid_task}, or seed R's generator
-identically before each run.
-
-Configure the resuming learner like the one that wrote the checkpoint and change only \code{epochs}.
-What the checkpoint holds wins over what the resuming learner is configured with: the optimizer
-is restored from it, so a different \code{opt.lr} (or any other \verb{opt.*} value) set on the resuming
-learner has no effect, and the same is true for the state of every callback that restores one.
-
-Early stopping is checked rather than silently continued: the checkpoint records which
-validation measure its best score belongs to -- the first of \code{measures_valid}, which is the one
-early stopping tracks -- and a run tracking another measure is refused.
-A run that early stopping \emph{ended} is finished, whatever \code{epochs} says: resuming it warns, trains
-no epoch and returns the model of the checkpoint, so that a script restarting itself converges
-instead of training one epoch further on every attempt.
-The same holds for a callback of your own that ends a run through \code{ctx$terminate}, provided it
-sets that flag again when its state is restored, see the \emph{State} section of \code{\link{CallbackSet}}.
-
-Callback states are matched to the callbacks of the resuming run \strong{by id}.
-A state whose id is not among this run's callbacks is skipped with a warning, and a callback
-whose id is not in the checkpoint simply starts fresh.
 }
 
 \section{Network Head and Target Encoding}{
@@ -140,6 +112,34 @@ Furthermore, the target encoding is expected to be as follows:
 is also ensured to be the first factor level) is \code{1} and the negative class is \code{0}.
 \item multi-class classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is a label-encoded
 \code{\link[torch:torch_long]{torch_long}} with shape \code{(batch_size)} where the label-encoding goes from \code{1} to \code{n_classes}.
+}
+}
+
+\section{Predicting Tensors}{
+
+The predict type \code{"lazy_tensor"}, available for the task type \code{"torch"}, hands back what the
+network produced -- a \code{\link{lazy_tensor}} with one element per observation -- instead of asking the
+task's \code{default_encoder} to turn it into a response.
+It is how to get at the logits of a classifier or the reconstruction of an autoencoder, and a
+task predicted this way needs no encoder at all.
+Unlike \code{"prob"} and \code{"se"} it is not opt-in: every learner for this task type has it among its
+\verb{$predict_types}, because handing the output back does not depend on how the learner encodes a
+prediction. Set \code{learner$predict_type = "lazy_tensor"} to use it.
+A network with more than one head hands back one \code{\link{lazy_tensor}} per head, held in a
+\code{\link[data.table:data.table]{data.table}} with one column per head so that the prediction is still
+one row per observation; \code{as.data.table()} spreads it into \verb{lazy_tensor.<head>} columns.
+
+Two things to know before using it:
+\itemize{
+\item \strong{Such a prediction does not survive \code{\link[base:saveRDS]{saveRDS()}}.} It holds \code{torch} tensors,
+which are external pointers: saving \emph{succeeds}, and the object then fails with
+\emph{external pointer is not valid} the next time the tensors are touched, in this session or in
+another. This applies to a \code{\link[mlr3:ResampleResult]{ResampleResult}} holding one as well -- its
+row ids and scores survive, its tensors do not.
+\item Nothing about it is lazy. A \code{\link{lazy_tensor}} built from a tensor holds that tensor, so a
+prediction of this type is the network's output in memory, and \code{resample()} holds every fold's
+-- combining the folds concatenates them, since lazy tensors from different networks share no
+data descriptor and cannot be concatenated lazily.
 }
 }
 
@@ -266,15 +266,6 @@ epoch is stored. Setting this to \code{TRUE} makes the stored network the one of
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
 memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
 network as training left it.
-
-When a run is resumed (see the section \emph{Resuming} of \code{\link{LearnerTorch}}), the best score, the
-epoch it was observed in and the number of evaluation steps without improvement are restored,
-so \code{patience} keeps counting across runs instead of starting over.
-The best epoch's weights are not part of a checkpoint, however -- they are a full copy of the
-network, which every checkpoint would otherwise carry.
-A resumed run with \code{restore_best_weights} that never beats the restored best score therefore
-ends with the weights of its last epoch while \verb{$internal_tuned_values} still reports the
-earlier best epoch, which is warned about when the state is restored.
 }
 
 \strong{Dataloader}:
@@ -333,11 +324,13 @@ There are no separate classes for classification and regression to inherit from.
 Instead, the \code{task_type} must be specified as a construction argument.
 Any task type that is registered in
 \code{\link[mlr3:mlr_reflections]{mlr_reflections$task_types}} can be used.
-Support for a task type that \pkg{mlr3torch} does not know is added by implementing methods for
+Support for a task type that \CRANpkg{mlr3torch} does not know is added by implementing methods for
 the three S3 generics that hold the task-type-specific behaviour: \code{\link[=output_dim_for]{output_dim_for()}} (how many
 output neurons the network needs), \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} (how the target is turned into a
 tensor) and \code{\link[=encode_prediction]{encode_prediction()}} (how the network's output is turned back into a prediction).
 Such a learner also has to be given a \code{loss} explicitly.
+This class can also be used for custom task types, see \code{\link{TaskTorch}} and the
+\emph{Custom Learning Problems} article for more information.
 
 When inheriting from this class, one should overload the following methods:
 \itemize{
@@ -561,6 +554,7 @@ The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.
 For regression, the default is \code{"response"}.
 For classification, this defaults to \code{"response"} and \code{"prob"}.
+For the task type \code{"torch"}, it defaults to \code{"response"}.
 For other task types, it defaults to all predict types that are registered for the task type.
 To deviate from the defaults, it is necessary to overwrite the private \verb{$.encode_prediction()}
 method, see section \emph{Inheriting}.}

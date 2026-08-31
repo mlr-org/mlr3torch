@@ -9,13 +9,47 @@ normalize_to_list = function(x) {
   x
 }
 
-learner_torch_predict = function(self, private, super, task, param_vals) {
+learner_torch_network_output = function(self, private, task, param_vals) {
   # parameter like device "auto" already resolved
   self$network$to(device = param_vals$device)
   self$network$eval()
   data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
-  network_output = torch_network_predict(self$network, data_loader, device = param_vals$device)
-  private$.encode_prediction(network_output = network_output, task = task)
+  torch_network_predict(self$network, data_loader, device = param_vals$device)
+}
+
+learner_torch_predict = function(self, private, super, task, param_vals) {
+  network_output = learner_torch_network_output(self, private, task, param_vals)
+  encode_network_output(network_output, task, self$predict_type, private$.encode_prediction)
+}
+
+encode_network_output = function(network_output, task, predict_type, encoder) {
+  # lazy tensors are just simply forwards, irrespective of the provided encoder
+  if (predict_type == "lazy_tensor") {
+    return(list(lazy_tensor = as_prediction_lazy_tensor(network_output)))
+  }
+  check_encoded_prediction(encoder(network_output = network_output, task = task), task)
+}
+
+as_prediction_lazy_tensor = function(network_output) {
+  if (!is.list(network_output)) {
+    return(as_lazy_tensor(network_output))
+  }
+  as.data.table(set_names(lapply(network_output, as_lazy_tensor), head_names(network_output)))
+}
+
+head_names = function(network_output) {
+  nms = names2(network_output)
+  unnamed = is.na(nms) | !nzchar(nms)
+  nms[unnamed] = paste0("output_", which(unnamed))
+  make.unique(nms)
+}
+
+check_encoded_prediction = function(encoded, task) {
+  ok = is.list(encoded) && !is.data.frame(encoded) && test_names(names2(encoded), type = "unique")
+  if (!ok) {
+    stopf("The prediction encoding of task '%s' returned %s, but it has to be a named `list()` with elements such as 'response', 'prob' or 'se'. The encoding is the task's `default_encoder`, unless the learner overwrites the private `.encode_prediction()` method.", task$id, if (is.null(encoded)) "`NULL`" else sprintf("an object of class '%s'", class(encoded)[[1L]])) # nolint
+  }
+  encoded
 }
 
 learner_torch_train = function(self, private, super, task, param_vals) {
@@ -179,7 +213,10 @@ train_loop = function(ctx, cbs) {
         stop("dataloader_next() returned NULL, which means there are no more samples/batches. Typically this occurs when length of sampler/batch_sampler is greater than the number of samples/batches. Please modify .length() method to return the correct number (samples for sampler, batches for batch_sampler), which should be equal to the number of times that .iter() can be called before returning coro::exhausted()")
       }
       ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
-      ctx$batch$y = ctx$batch$y$to(device = ctx$device)
+      # a task without a target produces batches without a `y`, see `TaskTorch`
+      if (!is.null(ctx$batch$y)) {
+        ctx$batch$y = ctx$batch$y$to(device = ctx$device)
+      }
       ctx$optimizer$zero_grad()
 
       call("on_batch_begin")
@@ -195,7 +232,11 @@ train_loop = function(ctx, cbs) {
       # offered to callbacks as a convenience.
       ctx$y_hat = if (is.list(ctx$y_hats)) ctx$y_hats[[1L]] else ctx$y_hats
 
-      loss = ctx$loss_fn(ctx$y_hats, ctx$batch$y)
+      loss = if (is.null(ctx$batch$y)) {
+        ctx$loss_fn(ctx$y_hats)
+      } else {
+        ctx$loss_fn(ctx$y_hats, ctx$batch$y)
+      }
 
       loss$backward()
 
@@ -224,7 +265,8 @@ train_loop = function(ctx, cbs) {
         measures = ctx$measures_train,
         task = ctx$task_train,
         row_ids = ctx$task_train$row_ids[unlist(indices)],
-        prediction_encoder = ctx$prediction_encoder
+        prediction_encoder = ctx$prediction_encoder,
+        predict_type = ctx$learner$predict_type
       )
     }
 
@@ -237,7 +279,9 @@ train_loop = function(ctx, cbs) {
         measures = ctx$measures_valid,
         task = ctx$task_valid,
         row_ids = ctx$task_valid$row_ids,
-        prediction_encoder = ctx$prediction_encoder
+        prediction_encoder = ctx$prediction_encoder,
+        train_set = ctx$task_train$row_roles$use,
+        predict_type = ctx$learner$predict_type
       )
       ctx$network$train()
       call("on_valid_end")
@@ -424,6 +468,49 @@ torch_network_predict = function(network, loader, device) {
   cat_predictions(predictions)
 }
 
+zero_row_network_output = function(learner, task) {
+  if (is.null(learner$model)) {
+    stopf("Learner '%s' cannot build the empty prediction for task '%s' because it has no model: what a network returns for zero rows is known to the network alone, and the task cannot be asked instead.", learner$id, task$id) # nolint
+  }
+  # probe with a single batch and set the resulting batch dims to 0
+  # we can't rely on output_dim_for, as this is just the default and learners can overwrite it.
+  tryCatch({
+    param_vals = learner$param_set$get_values(tags = "predict")
+    param_vals$device = auto_device(param_vals$device)
+    # `mlr3` takes this path before it unmarshals, so the model may still be marshaled here
+    model = if (isTRUE(learner$marshaled)) {
+      unmarshal_model(learner$model, inplace = FALSE)
+    } else {
+      learner$model
+    }
+    network = model$network
+    network$to(device = param_vals$device)
+    network$eval()
+    # `mlr3` filtered the task to zero rows, but its backend still holds them
+    rows = task$backend$rownames
+    if (!length(rows)) {
+      stopf("the task has no rows at all, so no batch can be built from it")
+    }
+    one_row = task$clone(deep = TRUE)
+    one_row$row_roles$use = rows[1L]
+    batch = get_private(learner)$.dataset(one_row, param_vals)$.getbatch(1L)
+    x = lapply(batch$x, function(tensor) tensor$to(device = param_vals$device))
+    output = if (has_one_arg(network)) {
+      with_no_grad(network$forward(x[[1L]]))
+    } else {
+      with_no_grad(invoke(network$forward, .args = x))
+    }
+    # only the structure is wanted, so the one row is cut away again
+    if (is.list(output)) lapply(output, drop_rows) else drop_rows(output)
+  }, error = function(e) {
+    stopf("Learner '%s' cannot build the empty prediction for task '%s': running its network on a batch of one row failed with: %s", learner$id, task$id, conditionMessage(e)) # nolint
+  })
+}
+
+drop_rows = function(tensor) {
+  tensor$narrow(1L, 1L, 0L)
+}
+
 # The network's evaluation-mode output is what `encode_prediction()` receives: either a single
 # tensor or, for a network with more than one head, a `list()` of them. The batches are concatenated
 # head-wise, so the encoder sees the same structure it would see for a single batch.
@@ -550,21 +637,28 @@ encode_prediction.TaskRegr = function(task, network_output, predict_type, ...) {
 }
 
 
-measure_prediction = function(network_output, measures, task, row_ids, prediction_encoder) {
+measure_prediction = function(network_output, measures, task, row_ids, prediction_encoder,
+  train_set = task$row_roles$use, predict_type) {
   if (!length(measures)) {
     return(structure(list(), names = character(0)))
   }
 
-  prediction = prediction_encoder(network_output = network_output, task = task)
-  prediction = as_prediction_data(prediction, task = task, check = FALSE, row_ids = row_ids)
+  prediction = encode_network_output(network_output, task, predict_type, prediction_encoder)
+  # tagged at the point of use rather than in `.encode_prediction()`, which a learner may overwrite
+  # -- an overwritten one would silently produce a prediction without a truth
+  class(prediction) = c("prediction_torch", "list")
+  prediction = as_prediction_data(prediction, task = task, row_ids = row_ids, check = FALSE)
   prediction = as_prediction(prediction, task = task, check = FALSE)
 
   lapply(
     measures,
     function(measure) {
       tryCatch(
-        measure$score(prediction, task = task, train_set = task$row_roles$use),
-        error = function(e) NaN
+        measure$score(prediction, task = task, train_set = train_set),
+        error = function(e) {
+          warningf("Measure '%s' could not be computed and is reported as NaN: %s", measure$id, conditionMessage(e)) # nolint
+          NaN
+        }
       )
     }
   )

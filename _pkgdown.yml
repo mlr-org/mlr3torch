@@ -73,6 +73,8 @@ navbar:
         href: articles/callbacks.html
       - text: Non-Tabular Data
         href: articles/lazy_tensor.html
+      - text: Custom Learning Problems
+        href: articles/custom_task_type.html
       - text: ---
       - text: Internals
       - text: Networks as Graphs
@@ -93,6 +95,13 @@ reference:
     contents:
       - starts_with("mlr_tasks")
       - mlr_backends_lazy
+  - title: Custom Task Types
+    contents:
+      - as_task_torch
+      - PredictionTorch
+      - MeasureTorch
+      - msr_torch
+      - mlr_measures_torch.default
   - title: Network Building Blocks
     contents:
       - ModelDescriptor

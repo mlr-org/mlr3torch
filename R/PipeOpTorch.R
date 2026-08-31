@@ -84,7 +84,7 @@
 #' During *prediction*, all input and output channels are of class [`Task`][mlr3::Task].
 #'
 #' @section Shape Inference:
-#' A network is assembled without any data flowing through it, so \pkg{mlr3torch} tracks the shape
+#' A network is assembled without any data flowing through it, so \CRANpkg{mlr3torch} tracks the shape
 #' of the tensors instead: it starts from the shape the ingress announces and hands each `PipeOp`
 #' the shapes of its inputs, which is how auxiliary parameters such as `in_features` of
 #' [`nn_linear`][torch::nn_linear] are filled in automatically.
