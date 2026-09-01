@@ -35,6 +35,7 @@
 * New article *Writing your own PipeOpTorch*.
 * The `$model` of a `LearnerTorch` now has a printer.
 * Added more image learners from {torchvision}.
+* `LearnerTorch` now implements `$best_valid_scores`.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.
 * `LearnerTorch` now has `.loss_fn(task, param_vals)` private method that allows

@@ -30,7 +30,7 @@
 #' where `<upper>` is the maximally allowed number of epochs, and configure the early stopping.
 #'
 #' @section Checkpointing and Resuming:
-#' It is possible to save intermediate results from a run via the 
+#' It is possible to save intermediate results from a run via the
 #' [`t_clbk("checkpoint")`][mlr_callback_set.checkpoint] callback.
 #' It is then possible to train for more epochs by setting the `resume` parameter of the `LearnerTorch`.
 #' This parameter can either be a path or `TRUE` which will use the path of the provided checkpoint
@@ -479,11 +479,22 @@ LearnerTorch = R6Class("LearnerTorch",
     },
 
     #' @field internal_valid_scores
-    #' Retrieves the internal validation scores as a named `list()`.
+    #' Retrieves the internal validation scores of the current network as a named `list()`.
+    #' This is the *last* epoch, unless `restore_best_weights` is `TRUE`.
     #' Specify the `$validate` field and the `measures_valid` parameter to configure this.
     #' Returns `NULL` if learner is not trained yet.
     internal_valid_scores = function() {
       self$state$internal_valid_scores
+    },
+    #' @field best_valid_scores
+    #' Retrieves the internal validation scores of the *best* epoch as a named `list()`.
+    #' Only available when doing early stopping.
+    #' Note that *best* here means with respect to the metric that was used for early stopping.
+    best_valid_scores = function() {
+      if (is.null(self$model)) {
+        return(NULL)
+      }
+      private$.extract_best_valid_scores()
     },
     #' @field internal_tuned_values
     #' When early stopping is active, this returns a named list with the early-stopped epochs,
@@ -562,6 +573,18 @@ LearnerTorch = R6Class("LearnerTorch",
         named_list()
       } else {
         self$model$internal_valid_scores
+      }
+    },
+    .extract_best_valid_scores = function() {
+      # `$internal_valid_scores` lives in `$state` and so survives marshaling; this is read off the
+      # model, which marshaling nests one level down, so it has to be unwrapped to match
+      model = if (isTRUE(self$marshaled)) self$model$marshaled else self$model
+      # the best epoch is only tracked when early stopping is active
+      scores = model$callbacks$early_stopping$best_valid_scores
+      if (is.null(scores)) {
+        named_list()
+      } else {
+        scores
       }
     },
     .validate = NULL,

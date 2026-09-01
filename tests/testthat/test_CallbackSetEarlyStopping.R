@@ -1,3 +1,54 @@
+test_that("best_valid_scores are the scores of the best epoch", {
+  task = tsk("mtcars")
+  make = function(...) {
+    learner = lrn("regr.mlp", batch_size = 8, neurons = c(50, 50), p = 0, validate = 0.3,
+      measures_valid = msrs(c("regr.mse", "regr.mae")), seed = 3, opt.lr = 0.5, ...)
+    withr::with_seed(42, learner$train(task))
+    learner
+  }
+  learner = make(epochs = 30, patience = 3)
+
+  best = learner$best_valid_scores
+  last = learner$internal_valid_scores
+  expect_list(best, types = "numeric")
+  expect_names(names(best), permutation.of = names(last))
+
+  best_epoch = learner$internal_tuned_values$epochs
+  expect_lt(best_epoch, learner$model$epochs)
+  expect_false(isTRUE(all.equal(best, last)))
+  expect_lt(best$regr.mse, last$regr.mse)
+
+  reference = make(epochs = best_epoch, patience = 0)
+  expect_equal(best, reference$internal_valid_scores)
+})
+
+test_that("best_valid_scores survives marshaling, as internal_valid_scores does", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", epochs = 3L, batch_size = 50, neurons = 10, validate = 0.3,
+    measures_valid = msrs("classif.acc"), patience = 2L, min_delta = 0)
+  learner$train(task)
+  before = learner$best_valid_scores
+  expect_list(before, types = "numeric", len = 1L)
+
+  learner$marshal()
+  expect_true(learner$marshaled)
+  expect_equal(learner$best_valid_scores, before)
+  expect_list(learner$internal_valid_scores, types = "numeric", len = 1L)
+
+  learner$unmarshal()
+  expect_equal(learner$best_valid_scores, before)
+})
+
+test_that("no best_valid_scores without early stopping", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, validate = 0.3,
+    measures_valid = msrs("classif.acc"), patience = 0L)
+  learner$train(task)
+
+  expect_equal(learner$best_valid_scores, named_list())
+  expect_list(learner$internal_valid_scores, types = "numeric")
+})
+
 test_that("the internally tuned epochs still come from the state dict", {
   task = tsk("iris")
   learner = lrn("classif.mlp", epochs = 3L, batch_size = 50, neurons = 10, validate = 0.3,
@@ -49,6 +100,26 @@ test_that("restore_best_weights restores the weights of the best epoch", {
   expect_false(isTRUE(all.equal(saved, state_nums(checkpointed))))
 })
 
+test_that("restore_best_weights makes the internal valid scores those of the best epoch", {
+  task = tsk("mtcars")
+  make_es_learner = function(...) {
+    learner = lrn("regr.mlp", batch_size = 8, neurons = c(50, 50), p = 0, validate = 0.3,
+      measures_valid = msrs(c("regr.mse", "regr.mae")), seed = 3, opt.lr = 0.5, ...)
+    withr::with_seed(42, learner$train(task))
+    learner
+  }
+
+  last = make_es_learner(epochs = 30, patience = 3)
+  expect_false(isTRUE(all.equal(last$internal_valid_scores, last$best_valid_scores)))
+
+  restored = make_es_learner(epochs = 30, patience = 3, restore_best_weights = TRUE)
+  expect_equal(restored$internal_valid_scores, restored$best_valid_scores)
+  expect_equal(restored$best_valid_scores, last$best_valid_scores)
+
+  reference = make_es_learner(epochs = last$internal_tuned_values$epochs, patience = 0)
+  expect_equal(restored$internal_valid_scores, reference$internal_valid_scores)
+})
+
 describe("resuming", {
   it("early stopping continues with the score and stagnation of the previous run", {
     # a fixed validation task and `opt.lr = 0` make the score constant, so no epoch of the resumed
@@ -65,7 +136,7 @@ describe("resuming", {
     make(2L, t_clbk("checkpoint", freq = 1, path = path))$train(task)
     checkpointed = readRDS(file.path(path, "state2.rds"))$callbacks$early_stopping
     expect_names(names(checkpointed),
-      permutation.of = c("best_epochs", "best_score", "stagnation", "measure"))
+      permutation.of = c("best_epochs", "best_score", "best_valid_scores", "stagnation", "measure"))
     expect_equal(checkpointed$measure, "classif.ce")
 
     resumed = make(4L, list())
@@ -90,7 +161,7 @@ describe("resuming", {
 
     # a full copy of the network per checkpoint is not worth it, so the weights are not stored
     expect_named(readRDS(file.path(path, "state2.rds"))$callbacks$early_stopping,
-      c("best_epochs", "best_score", "stagnation", "measure"))
+      c("best_epochs", "best_score", "best_valid_scores", "stagnation", "measure"))
 
     resumed = invoke(resumer, epochs = 4L, path = path, .args = c(args, restore_best_weights = TRUE))
     expect_warning(resumed$train(task), "restore_best_weights")

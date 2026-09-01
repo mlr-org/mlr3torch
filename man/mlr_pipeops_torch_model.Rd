@@ -89,21 +89,28 @@ This activates early stopping using the validation scores.
 If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
 Note that this counts \emph{evaluation steps}, not epochs: when \code{eval_freq} is greater than \code{1},
 \code{patience} evaluation steps correspond to \code{patience * eval_freq} epochs.
-Note that the final model is stored in the learner, not the best model.
+Note that the final model is stored in the learner, not the best model, unless
+\code{restore_best_weights} is set to \code{TRUE}.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
 If this is set, the epoch after which no improvement was observed, can be accessed via the \verb{$internal_tuned_values}
-field of the learner.
+field of the learner, and the validation scores of that epoch via its \verb{$best_valid_scores} field.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
 \item \code{restore_best_weights} :: \code{logical(1)}\cr
 Whether to restore the weights of the best epoch when training ends, instead of keeping those
-of the last epoch that was trained. Is initialized to \code{FALSE}, i.e. the network of the last
+of the last epoch that was trained. Like \code{min_delta}, this only has an effect when early stopping
+is active, i.e. when \code{patience} is greater than \code{0}.
+Is initialized to \code{FALSE}, i.e. the network of the last
 epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
-memory. Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
+memory. Because \verb{$internal_valid_scores} describes the network that is stored, it then reports
+the scores of the best epoch, i.e. the same scores as \verb{$best_valid_scores} -- except on a
+resumed run that never beats the score its checkpoint had already reached, which remembers no
+weights to restore and so still ends on those of its last epoch.
+Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
 network as training left it.
 }
 

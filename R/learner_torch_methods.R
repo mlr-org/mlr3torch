@@ -133,6 +133,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   }), ids(self$callbacks))
 
 
+  es = NULL
   if (param_vals$patience > 0L) {
     es = CallbackSetEarlyStopping$new(
       patience = param_vals$patience,
@@ -145,6 +146,10 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   }
 
   model = train_loop(ctx, callbacks)
+
+  if (!is.null(es) && es$restored_best_weights) {
+    model$internal_valid_scores = es$best_valid_scores
+  }
 
   # In case the seed was "random" initially we want to make the sampled seed available in the state.
   model$seed = param_vals$seed

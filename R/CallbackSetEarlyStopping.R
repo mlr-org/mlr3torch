@@ -12,7 +12,9 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       self$stagnation = 0L
       self$best_score = NULL
       self$epoch_at_best_score = NULL
+      self$best_valid_scores = NULL
       self$best_state_dict = NULL
+      self$restored_best_weights = FALSE
     },
     on_valid_end = function() {
       if (is.null(self$ctx$last_scores_valid)) {
@@ -21,6 +23,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       if (is.null(self$best_score)) {
         self$best_score = self$ctx$last_scores_valid[[1L]]
         self$epoch_at_best_score = self$ctx$epoch
+        self$best_valid_scores = self$ctx$last_scores_valid
         private$.remember_weights()
         return(NULL)
       }
@@ -43,6 +46,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         self$stagnation = 0
         self$best_score = self$ctx$last_scores_valid[[1L]]
         self$epoch_at_best_score = self$ctx$epoch
+        self$best_valid_scores = self$ctx$last_scores_valid
         private$.remember_weights()
       }
     },
@@ -54,6 +58,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       # far are still the right ones to keep. Callbacks that write the network out run earlier
       # so this does not changes what gets written to disk.
       self$ctx$network$load_state_dict(self$best_state_dict)
+      self$restored_best_weights = TRUE
       invisible(NULL)
     },
     state_dict = function() {
@@ -61,6 +66,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         # `best_epochs` is what the learner reports as its internally tuned `epochs`
         best_epochs = self$epoch_at_best_score,
         best_score = self$best_score,
+        best_valid_scores = self$best_valid_scores,
         stagnation = self$stagnation,
         measure = self$ctx$measures_valid[[1L]]$id
       )
@@ -73,6 +79,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       }
       self$epoch_at_best_score = state_dict$best_epochs
       self$best_score = state_dict$best_score
+      self$best_valid_scores = state_dict$best_valid_scores
       self$stagnation = state_dict$stagnation
       if (self$stagnation >= self$patience) {
         warningf("Early stopping had already ended the run this checkpoint belongs to (stagnation %i, patience %i), so this run trains no epoch and returns the model of the checkpoint, even though 'epochs' is greater. A run that early stopping ended is finished; start a new run to train further.", # nolint
