@@ -494,11 +494,18 @@ LearnerTorch = R6Class("LearnerTorch",
     #' score of the first validation measure.
     #' Unless `restore_best_weights` is `TRUE`, the trained network is the one after the last epoch,
     #' so this can differ from `$internal_valid_scores`.
-    #' Tracking the best epoch requires early stopping to be active (`patience > 0`), otherwise this is an
-    #' empty list.
-    #' Returns `NULL` if the learner is not trained yet or was trained without validation data.
+    #' Tracking the best epoch requires early stopping to be active (`patience > 0`), so this is an
+    #' empty list when it is not, as well as when the learner was trained without validation data --
+    #' no early stopping callback runs in either case, and the two are not told apart.
+    #' Returns `NULL` if the learner is not trained yet.
     best_valid_scores = function() {
-      self$state$best_valid_scores
+      # unlike `$internal_valid_scores` and `$internal_tuned_values`, this is not part of the
+      # `Learner` contract, so `mlr3` does not call an extractor for it and `$state` never holds it.
+      # It is read off the callback's state instead, which the model carries.
+      if (is.null(self$model)) {
+        return(NULL)
+      }
+      private$.extract_best_valid_scores()
     },
     #' @field internal_tuned_values
     #' When early stopping is active, this returns a named list with the early-stopped epochs,
@@ -580,8 +587,11 @@ LearnerTorch = R6Class("LearnerTorch",
       }
     },
     .extract_best_valid_scores = function() {
+      # `$internal_valid_scores` lives in `$state` and so survives marshaling; this is read off the
+      # model, which marshaling nests one level down, so it has to be unwrapped to match
+      model = if (isTRUE(self$marshaled)) self$model$marshaled else self$model
       # the best epoch is only tracked when early stopping is active
-      scores = self$model$callbacks$early_stopping$best_valid_scores
+      scores = model$callbacks$early_stopping$best_valid_scores
       if (is.null(scores)) {
         named_list()
       } else {

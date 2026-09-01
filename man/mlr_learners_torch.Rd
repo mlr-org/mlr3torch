@@ -460,9 +460,10 @@ This is the epoch that is also reported via \verb{$internal_tuned_values}, i.e. 
 score of the first validation measure.
 Unless \code{restore_best_weights} is \code{TRUE}, the trained network is the one after the last epoch,
 so this can differ from \verb{$internal_valid_scores}.
-Tracking the best epoch requires early stopping to be active (\code{patience > 0}), otherwise this is an
-empty list.
-Returns \code{NULL} if the learner is not trained yet or was trained without validation data.}
+Tracking the best epoch requires early stopping to be active (\code{patience > 0}), so this is an
+empty list when it is not, as well as when the learner was trained without validation data --
+no early stopping callback runs in either case, and the two are not told apart.
+Returns \code{NULL} if the learner is not trained yet.}
 
     \item{\code{internal_tuned_values}}{When early stopping is active, this returns a named list with the early-stopped epochs,
 otherwise an empty list is returned.

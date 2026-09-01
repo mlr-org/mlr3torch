@@ -49,6 +49,28 @@ test_that("best_valid_scores are the scores of the best epoch", {
   expect_true(best$classif.acc >= last$classif.acc)
 })
 
+test_that("best_valid_scores survives marshaling, as internal_valid_scores does", {
+  # it is read off the model rather than the state, and marshaling nests the model one level down,
+  # so without unwrapping it silently reported an empty list instead of the scores
+  task = tsk("iris")
+  learner = lrn("classif.mlp", epochs = 3L, batch_size = 50, neurons = 10, validate = 0.3,
+    measures_valid = msrs("classif.acc"), patience = 2L, min_delta = 0)
+  learner$train(task)
+  before = learner$best_valid_scores
+  expect_list(before, types = "numeric", len = 1L)
+
+  learner$marshal()
+  expect_true(learner$marshaled)
+  expect_equal(learner$best_valid_scores, before)
+  # `$internal_valid_scores` already survived marshaling; it is not compared against
+  # `$best_valid_scores` here, since the two describe different epochs unless the best weights
+  # are restored
+  expect_list(learner$internal_valid_scores, types = "numeric", len = 1L)
+
+  learner$unmarshal()
+  expect_equal(learner$best_valid_scores, before)
+})
+
 test_that("no best_valid_scores without early stopping", {
   task = tsk("iris")
   learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, validate = 0.3,
