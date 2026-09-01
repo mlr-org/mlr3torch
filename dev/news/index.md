@@ -135,6 +135,9 @@
 - `lazy_tensor` columns are now again printed correctly inside
   `data.table`s
 - Fixed some links on the pkgdown website and the help pages.
+- `nn("reshape")` with a `function(shape)` target now resolves a `-1`
+  whenever the number of elements per observation is known, i.e. when
+  the batch dimension is the only unknown one.
 - Fixed various other shape inference bugs.
 - `po("torch_model_{regr, classif}")` now resets the parameters of the
   network at the beginning of `$train()` when the network is built from
@@ -212,9 +215,9 @@ CRAN release: 2025-07-07
 - Added `po("nn_fn")` for calling custom functions in a network.
 - Added the FT Transformer model for tabular data.
 - Added encoders for numericals and categoricals
-- `nn("block")` (which allows to repeat the same network segment
-  multiple times) now has an extra argument `trafo`, which allows to
-  modify the parameter values per layer.
+- `nn("block")` (which repeats the same network segment multiple times)
+  now has an extra argument `trafo`, which makes it possible to modify
+  the parameter values per layer.
 
 #### Callbacks:
 
@@ -286,9 +289,9 @@ CRAN release: 2025-02-07
   tutorial](https://torch.mlverse.org/docs/articles/torchscript) for
   more information.
 - Added parameter `num_interop_threads` to `LearnerTorch`.
-- The `tensor_dataset` parameter was added, which allows to stack all
-  batches at the beginning of training to make loading of batches
-  afterwards faster.
+- The `tensor_dataset` parameter was added, which makes it possible to
+  stack all batches at the beginning of training to make loading of
+  batches afterwards faster.
 - Use a faster default image loader.
 
 ### Features

@@ -33,8 +33,8 @@ marshaled `LearnerTorch` into R again, you then need to call
 
 ## Early Stopping and Internal Tuning
 
-In order to prevent overfitting, the `LearnerTorch` class allows to use
-early stopping via the `patience` and `min_delta` parameters, see the
+In order to prevent overfitting, the `LearnerTorch` class supports early
+stopping via the `patience` and `min_delta` parameters, see the
 `Learner`'s parameters. When tuning a `LearnerTorch` it is also possible
 to combine the explicit tuning via `mlr3tuning` and the `LearnerTorch`'s
 internal tuning of the epochs via early stopping. To do so, you just
@@ -198,10 +198,26 @@ impact on the runtime of the learner. These include:
   among the workers instead to avoid oversubscribing the machine.
 
 - `tensor_dataset`: Set this to `TRUE` (or `"device"` if on a GPU) if
-  the dataset fits into memory.
+  the dataset fits into memory. This loads and stacks every batch once
+  up front, so it must not be used with a
+  [`lazy_tensor`](https://mlr3torch.mlr-org.com/dev/reference/lazy_tensor.md)
+  that applies random data augmentation – the augmentation would then be
+  drawn only once.
 
 - `batch_size`: Especially for very small models, choose a larger batch
   size.
+
+- `batch_size_predict`: Prediction has no backward pass and so fits
+  larger batches than training.
+
+- `jit_trace`: Set this to `TRUE` to remove the per-batch R interpreter
+  overhead, but only for a network whose control flow and shapes do not
+  depend on the data. See the parameter's own entry.
+
+- `num_workers`: Load batches in parallel worker processes.
+
+- `pin_memory`: With a GPU, this speeds up the host-to-device copy of
+  each batch.
 
 Also, see the *Early Stopping and Internal Tuning* section for how to
 terminate training early.
@@ -291,6 +307,12 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   [`lazy_tensor`](https://mlr3torch.mlr-org.com/dev/reference/lazy_tensor.md)s
   with random data augmentation, as this augmentation will only be
   applied once at the beginning of training.
+
+- `jit_trace` :: `logical(1)`  
+  Whether to trace the network with
+  [`torch::jit_trace()`](https://torch.mlverse.org/docs/reference/jit_trace.html)
+  once at the start of training and then train the traced module instead
+  of the original one. Not all learners support this.
 
 **Evaluation**:
 
@@ -421,9 +443,9 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `worker_globals` :: [`list()`](https://rdrr.io/r/base/list.html) \|
   [`character()`](https://rdrr.io/r/base/character.html)  
-  When loading data in parallel, this allows to export globals to the
-  workers. If this is a character vector, the objects in the global
-  environment with those names are copied to the workers.
+  When loading data in parallel, this makes it possible to export
+  globals to the workers. If this is a character vector, the objects in
+  the global environment with those names are copied to the workers.
 
 - `worker_packages` ::
   [`character()`](https://rdrr.io/r/base/character.html)  

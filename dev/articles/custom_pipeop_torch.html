@@ -153,9 +153,9 @@ input tensor runs its <code>$forward()</code> method:</p>
 <code class="sourceCode R"><span><span class="va">layer</span> <span class="op">=</span> <span class="fu">nn_my_linear</span><span class="op">(</span>in_features <span class="op">=</span> <span class="fl">4</span>, out_features <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu">layer</span><span class="op">(</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.3006  0.6997</span></span>
-<span><span class="co">#&gt;  1.3579  0.8327</span></span>
-<span><span class="co">#&gt;  0.2128 -0.3728</span></span>
+<span><span class="co">#&gt; -0.1956 -0.6122</span></span>
+<span><span class="co">#&gt; -2.0473 -0.5395</span></span>
+<span><span class="co">#&gt;  0.1037  0.0133</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{3,2} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -240,7 +240,7 @@ set, which by default is inferred from the module’s
 a single tensor. If this is not the case, you can specify the
 <code>out_channels</code> to either be the number of output channels of
 the pipeop or by providing explicit channel names. Also, you can specify
-the parameter set of the <code>PipeOp</code> explicitly, which allows to
+the parameter set of the <code>PipeOp</code> explicitly, which lets you
 annotate their types and admissible ranges.</p>
 <p>While <code>pipeop_torch</code> covers most of the cases, explicitly
 implementing a <code>PipeOpTorch</code> as an <code>R6Class</code> comes

@@ -142,13 +142,7 @@ The id of the measure.</p></dd>
 The scoring function.
 It receives whichever of the arguments <code>truth</code>, <code>response</code>, <code>prob</code>, <code>se</code>, <code>lazy_tensor</code>,
 <code>prediction</code>, <code>task</code>, <code>learner</code>, <code>train_set</code> and <code>weights</code> it declares, and must return a
-single number. Asking for anything else is an error.
-An argument that the prediction does not have – <code>weights</code> on a task without a
-<code>weights_measure</code> column, or <code>prob</code> on a response-only prediction – is not passed at all, so a
-default declared for it is what the function sees.
-<code>weights</code> are also withheld when the measure's <code>$use_weights</code> is set to <code>"ignore"</code>, so give the
-argument a default if the measure should score with and without weights, and none if it cannot
-do without them – asking for weights that do not exist is an error, not a score.</p></dd>
+single number. Asking for anything else is an error.</p></dd>
 
       <dt><code>minimize</code></dt>
 <dd><p>(<code>logical(1)</code>)<br>
@@ -164,6 +158,22 @@ The range of possible scores.</p></dd>
 The predict type the measure requires: <code>"response"</code> (default), <code>"prob"</code>, <code>"se"</code> or
 <code>"lazy_tensor"</code>.
 A measure asking for one it did not declare here still receives it, if the prediction has it.</p></dd>
+
+      <dt><code>properties</code></dt>
+<dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
+Properties of the measure, see <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>.
+The <code>"requires_task"</code>, <code>"requires_learner"</code>, <code>"requires_train_set"</code> and <code>"weights"</code> properties
+are added automatically when <code>fun</code> declares the corresponding argument.</p></dd>
+
+      <dt><code>label</code></dt>
+<dd><p>(<code>character(1)</code>)<br>
+The label of the measure.</p></dd>
+
+      <dt><code>obs_loss</code></dt>
+<dd><p>(<code>function()</code> or <code>NULL</code>)<br>
+The per-observation loss. Declared like <code>fun</code>, except that <code>train_set</code> is not available here,
+and if specified adds the <code>"obs_loss"</code> property.
+It must return one number per observation.</p></dd>
 
 
 </dl><p></p></div>

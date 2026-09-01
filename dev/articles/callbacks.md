@@ -1,9 +1,9 @@
 # Custom Callbacks
 
-The torch callback mechanism allows to customize the training loop of a
-neural network. While `mlr3torch` has some predefined callbacks for
-common use-cases, this vignette will show you how to write your own
-custom callback.
+The torch callback mechanism makes it possible to customize the training
+loop of a neural network. While `mlr3torch` has some predefined
+callbacks for common use-cases, this vignette will show you how to write
+your own custom callback.
 
 ### Building Blocks
 
@@ -157,7 +157,7 @@ custom_logger$generator
     ##     load_state_dict: function (state_dict) 
     ##     on_before_valid: function () 
     ##     on_batch_end: function () 
-    ##   Parent env: <environment: 0x55dd76ae4500>
+    ##   Parent env: <environment: 0x555da6ff69b0>
     ##   Locked objects: FALSE
     ##   Locked class: FALSE
     ##   Portable: TRUE

@@ -117,8 +117,9 @@
 architecture in <code>mlr3torch</code>. We start with the direct route,
 where an existing <code>torch</code> module is turned into an
 <code><a href="https://mlr3.mlr-org.com/reference/Learner.html" class="external-link">mlr3::Learner</a></code>. Afterwards, we show how to build
-architectures as <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">mlr3pipelines::Graph</a></code>s, which allows to
-infer shapes from the task and to tune the architecture itself.</p>
+architectures as <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">mlr3pipelines::Graph</a></code>s, which makes it
+possible to infer shapes from the task and to tune the architecture
+itself.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3torch.mlr-org.com/">mlr3torch</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
@@ -192,9 +193,6 @@ benchmark.</p>
 <span><span class="co">#&gt; • Properties: multiclass</span></span>
 <span><span class="co">#&gt; • Features (1):</span></span>
 <span><span class="co">#&gt;   • lt (1): image</span></span>
-<span><span class="co">#&gt; Downloading <span style="color: #0000BB;">&lt;tiny_imagenet&gt;</span> ...</span></span>
-<span><span class="co">#&gt; Processing <span style="color: #0000BB;">&lt;tiny_imagenet&gt;</span> ...</span></span>
-<span><span class="co">#&gt; Dataset <span style="color: #0000BB;">&lt;tiny_imagenet&gt;</span> downloaded and extracted successfully.</span></span>
 <span><span class="co">#&gt; • Target classes: abacus (0%), academic gown, academic robe, judge's robe (0%),</span></span>
 <span><span class="co">#&gt; acorn (0%), African elephant, Loxodonta africana (0%), albatross, mollymawk</span></span>
 <span><span class="co">#&gt; (0%), alp (0%), altar (0%), American alligator, Alligator mississipiensis (0%),</span></span>

@@ -121,12 +121,12 @@
 regression problem. We assume that you are familiar with the
 <code>mlr3</code> framework, see e.g. the <a href="https://mlr3book.mlr-org.com/" class="external-link">mlr3 book</a>. As a first example,
 we will train a simple multi-layer perceptron (MLP) on the well-known
-“mtcars” task, where the goal is to predict the miles per galleon
-(‘mpg’) of cars. This architecture comes as a predfined learner with
+“mtcars” task, where the goal is to predict the miles per gallon (‘mpg’)
+of cars. This architecture comes as a predefined learner with
 <code>mlr3torch</code>, but you can also easily create new network
 architectures, see the <em>Neural Networks as Graphs</em> vignette for a
-detailed introduoduion. We first set a seed for reproducibility, load
-the library and construct the task.</p>
+detailed introduction. We first set a seed for reproducibility, load the
+library and construct the task.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">314</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3torch.mlr-org.com/">mlr3torch</a></span><span class="op">)</span></span>
@@ -263,8 +263,8 @@ predefined loss functions such as the Mean Squared Error
 represent loss functions using the <code><a href="../reference/TorchLoss.html">mlr3torch::TorchLoss</a></code>
 class. It provides a thin wrapper around the torch loss functions and
 annotates them with meta information, most importantly a
-<code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">paradox::ParamSet</a></code> that allows to configure the loss
-function. Such an object can be constructed using
+<code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">paradox::ParamSet</a></code> that makes the loss function
+configurable. Such an object can be constructed using
 <code>t_loss(&lt;key&gt;)</code>. Below, we construct the L1 loss
 function, which is also known as Mean Absolute Error (MAE). The printed
 output below informs us about the wrapped loss function
@@ -372,10 +372,10 @@ tuned using <a href="https://github.com/mlr-org/mlr3tuning" class="external-link
 <div class="section level3">
 <h3 id="callbacks">Callbacks<a class="anchor" aria-label="anchor" href="#callbacks"></a>
 </h3>
-<p>The third important configuration option are callbacks which allow to
-customize the training process. This allows saving model checkpoints,
-logging metrics, or implementing custom functionality for specific
-training scenarios. For a tutorial on how to implement a custom
+<p>The third important configuration option are callbacks, which make it
+possible to customize the training process. This allows saving model
+checkpoints, logging metrics, or implementing custom functionality for
+specific training scenarios. For a tutorial on how to implement a custom
 callback, see the <em>Custom Callbacks</em> vignette. Here, we will only
 show how to use predefined callbacks. Below, we retrieve the
 <code>"history"</code> callback using <code><a href="../reference/t_clbk.html">t_clbk()</a></code>, which has

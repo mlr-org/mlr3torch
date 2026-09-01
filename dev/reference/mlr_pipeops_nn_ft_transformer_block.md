@@ -12,6 +12,31 @@ Calls
 [`nn_ft_transformer_block()`](https://mlr3torch.mlr-org.com/dev/reference/nn_ft_transformer_block.md)
 when trained.
 
+## Parameters
+
+The parameters of
+[`nn_ft_transformer_block()`](https://mlr3torch.mlr-org.com/dev/reference/nn_ft_transformer_block.md).
+
+|                          |           |         |                 |                  |
+|--------------------------|-----------|---------|-----------------|------------------|
+| Id                       | Type      | Default | Levels          | Range            |
+| attention_n_heads        | integer   | \-      |                 | \\\[1, \infty)\\ |
+| attention_dropout        | numeric   | \-      |                 | \\\[0, 1\]\\     |
+| attention_initialization | character | \-      | kaiming, xavier | \-               |
+| attention_normalization  | untyped   | \-      |                 | \-               |
+| ffn_d_hidden             | integer   | \-      |                 | \\\[1, \infty)\\ |
+| ffn_d_hidden_multiplier  | numeric   | \-      |                 | \\\[0, \infty)\\ |
+| ffn_dropout              | numeric   | \-      |                 | \\\[0, 1\]\\     |
+| ffn_activation           | untyped   | \-      |                 | \-               |
+| ffn_normalization        | untyped   | \-      |                 | \-               |
+| residual_dropout         | numeric   | \-      |                 | \\\[0, 1\]\\     |
+| prenormalization         | logical   | \-      | TRUE, FALSE     | \-               |
+| is_first_layer           | logical   | \-      | TRUE, FALSE     | \-               |
+| query_idx                | untyped   | \-      |                 | \-               |
+| attention_bias           | logical   | \-      | TRUE, FALSE     | \-               |
+| ffn_bias_first           | logical   | \-      | TRUE, FALSE     | \-               |
+| ffn_bias_second          | logical   | \-      | TRUE, FALSE     | \-               |
+
 ## State
 
 The state is the value calculated by the public method `$shapes_out()`.

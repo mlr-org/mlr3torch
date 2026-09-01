@@ -45,9 +45,9 @@ and calling the resulting module on an input tensor runs its
 layer = nn_my_linear(in_features = 4, out_features = 2)
 layer(torch_randn(3, 4))
 #> torch_tensor
-#> -0.3006  0.6997
-#>  1.3579  0.8327
-#>  0.2128 -0.3728
+#> -0.1956 -0.6122
+#> -2.0473 -0.5395
+#>  0.1037  0.0133
 #> [ CPUFloatType{3,2} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -140,7 +140,7 @@ By default, `pipeop_torch` assumes that the module returns a single
 tensor. If this is not the case, you can specify the `out_channels` to
 either be the number of output channels of the pipeop or by providing
 explicit channel names. Also, you can specify the parameter set of the
-`PipeOp` explicitly, which allows to annotate their types and admissible
+`PipeOp` explicitly, which lets you annotate their types and admissible
 ranges.
 
 While `pipeop_torch` covers most of the cases, explicitly implementing a

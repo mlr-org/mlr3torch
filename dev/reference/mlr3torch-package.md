@@ -1,7 +1,7 @@
 # mlr3torch: Deep Learning with 'mlr3'
 
 Deep Learning library that extends the mlr3 framework by building upon
-the 'torch' package. It allows to conveniently build, train, and
+the 'torch' package. It makes it convenient to build, train, and
 evaluate deep learning models without having to worry about low level
 details. Custom architectures can be created using the graph language
 defined in 'mlr3pipelines'.
@@ -10,7 +10,8 @@ defined in 'mlr3pipelines'.
 
 - `mlr3torch.cache`: Whether to cache the downloaded data (`TRUE`) or
   not (`FALSE`, default). This can also be set to a specific folder on
-  the file system to be used as the cache directory.
+  the file system to be used as the cache directory. Without caching,
+  every task that downloads its data fetches it again in each session.
 
 ## See also
 

@@ -29,7 +29,7 @@ More information about installing `torch` can be found
 
 `mlr3torch` is a deep learning framework for the
 [`mlr3`](https://mlr-org.com) ecosystem built on top of
-[`torch`](https://torch.mlverse.org/). It allows to easily build, train
+[`torch`](https://torch.mlverse.org/). It makes it easy to build, train
 and evaluate deep learning models in a few lines of code, without
 needing to worry about low-level details. Off-the-shelf learners are
 readily available, but custom architectures can be defined by connecting
@@ -101,10 +101,10 @@ graph_lrn = as_learner(graph_mlp)
 To work with generic tensors, the `lazy_tensor` type can be used. It
 wraps a
 [`torch::dataset`](https://torch.mlverse.org/docs/reference/dataset.html),
-but allows to preprocess the data (lazily) using `PipeOp` objects.
-Below, we flatten the MNIST task, so we can then train a multi-layer
-perceptron on it. Note that this does *not* transform the data
-in-memory, but is only applied when the data is actually loaded.
+but makes it possible to preprocess the data (lazily) using `PipeOp`
+objects. Below, we flatten the MNIST task, so we can then train a
+multi-layer perceptron on it. Note that this does *not* transform the
+data in-memory, but is only applied when the data is actually loaded.
 
 ``` r
 

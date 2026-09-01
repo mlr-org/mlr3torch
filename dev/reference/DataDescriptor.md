@@ -6,8 +6,8 @@ data type. In essence it is an annotated
 [`torch::dataset`](https://torch.mlverse.org/docs/reference/dataset.html)
 and a preprocessing graph (consisting mosty of
 [`PipeOpModule`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_module.md)
-operators). The additional meta data (e.g. pointer, shapes) allows to
-preprocess
+operators). The additional meta data (e.g. pointer, shapes) makes it
+possible to preprocess
 [`lazy_tensor`](https://mlr3torch.mlr-org.com/dev/reference/lazy_tensor.md)s
 in an
 [`mlr3pipelines::Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)
@@ -218,13 +218,13 @@ dd
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,3,3)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.6e0e8c.x.output
+#> * pointer: nop.8140d9.x.output
 #> * shape: [(NA,3,3)]
 # is the same as using the converter:
 as_data_descriptor(ds, list(x = c(NA, 3, 3)))
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,3,3)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.6e0e8c.x.output
+#> * pointer: nop.8140d9.x.output
 #> * shape: [(NA,3,3)]
 ```

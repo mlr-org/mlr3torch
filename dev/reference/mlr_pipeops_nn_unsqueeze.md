@@ -1,4 +1,4 @@
-# Unqueeze a Tensor
+# Unsqueeze a Tensor
 
 Unsqueezes a tensor by calling
 [`torch::torch_unsqueeze()`](https://torch.mlverse.org/docs/reference/torch_unsqueeze.html)

@@ -1,6 +1,13 @@
 # Create a lazy tensor
 
-Create a lazy tensor.
+Creates a `lazy_tensor` vector. Because it is a vector, it can be stored
+in a `data.table`, which gives mlr3torch the ability to use arbitrary
+tensors in its task. It is 'lazy', because the tensors are not stored
+in-memory, but only loaded when calling
+[`materialize()`](https://mlr3torch.mlr-org.com/dev/reference/materialize.md).
+The vector itself only describes *how* to load the data. It is also
+possible to preprocess lazy_tensors, e.g. via `po("augment_<key>")`, and
+`po("trafo_<key>")`.
 
 ## Usage
 

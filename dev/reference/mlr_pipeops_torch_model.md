@@ -70,6 +70,12 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   with random data augmentation, as this augmentation will only be
   applied once at the beginning of training.
 
+- `jit_trace` :: `logical(1)`  
+  Whether to trace the network with
+  [`torch::jit_trace()`](https://torch.mlverse.org/docs/reference/jit_trace.html)
+  once at the start of training and then train the traced module instead
+  of the original one. Not all learners support this.
+
 **Evaluation**:
 
 - `measures_train` ::
@@ -199,9 +205,9 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `worker_globals` :: [`list()`](https://rdrr.io/r/base/list.html) \|
   [`character()`](https://rdrr.io/r/base/character.html)  
-  When loading data in parallel, this allows to export globals to the
-  workers. If this is a character vector, the objects in the global
-  environment with those names are copied to the workers.
+  When loading data in parallel, this makes it possible to export
+  globals to the workers. If this is a character vector, the objects in
+  the global environment with those names are copied to the workers.
 
 - `worker_packages` ::
   [`character()`](https://rdrr.io/r/base/character.html)  
@@ -214,7 +220,7 @@ for more information.
 ## Input and Output Channels
 
 There is one input channel `"input"` that takes in `ModelDescriptor`
-during traing and a `Task` of the specified `task_type` during
+during training and a `Task` of the specified `task_type` during
 prediction. The output is `NULL` during training and a `Prediction` of
 given `task_type` during prediction.
 

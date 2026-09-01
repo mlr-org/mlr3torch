@@ -148,6 +148,8 @@
 <li>
 <code>lazy_tensor</code> columns are now again printed correctly inside <code>data.table</code>s</li>
 <li>Fixed some links on the pkgdown website and the help pages.</li>
+<li>
+<code>nn("reshape")</code> with a <code>function(shape)</code> target now resolves a <code>-1</code> whenever the number of elements per observation is known, i.e. when the batch dimension is the only unknown one.</li>
 <li>Fixed various other shape inference bugs.</li>
 <li>
 <code>po("torch_model_{regr, classif}")</code> now resets the parameters of the network at the beginning of <code>$train()</code> when the network is built from <code>PipeOpTorch</code> objects, which makes the results reproducible for the set <code>seed</code> parameter.</li>
@@ -202,7 +204,7 @@
 <li>Added the FT Transformer model for tabular data.</li>
 <li>Added encoders for numericals and categoricals</li>
 <li>
-<code>nn("block")</code> (which allows to repeat the same network segment multiple times) now has an extra argument <code>trafo</code>, which allows to modify the parameter values per layer.</li>
+<code>nn("block")</code> (which repeats the same network segment multiple times) now has an extra argument <code>trafo</code>, which makes it possible to modify the parameter values per layer.</li>
 </ul></div>
 <div class="section level4">
 <h4 id="callbacks-0-3-0">Callbacks:<a class="anchor" aria-label="anchor" href="#callbacks-0-3-0"></a></h4>
@@ -254,7 +256,7 @@
 <ul><li>Optimizers now use the faster (‘ignite’) version of the optimizers, which leads to considerable speed improvements.</li>
 <li>The <code>jit_trace</code> parameter was added to <code>LearnerTorch</code>, which when set to <code>TRUE</code> can lead to significant speedups. This should only be enabled for ‘static’ models, see the <a href="https://torch.mlverse.org/docs/articles/torchscript" class="external-link">torch tutorial</a> for more information.</li>
 <li>Added parameter <code>num_interop_threads</code> to <code>LearnerTorch</code>.</li>
-<li>The <code>tensor_dataset</code> parameter was added, which allows to stack all batches at the beginning of training to make loading of batches afterwards faster.</li>
+<li>The <code>tensor_dataset</code> parameter was added, which makes it possible to stack all batches at the beginning of training to make loading of batches afterwards faster.</li>
 <li>Use a faster default image loader.</li>
 </ul></div>
 <div class="section level3">

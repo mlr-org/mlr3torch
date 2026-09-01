@@ -10,7 +10,7 @@ See
 ## Input and Output Channels
 
 There is one input channel `"input"` that takes in `ModelDescriptor`
-during traing and a `Task` of the specified `task_type` during
+during training and a `Task` of the specified `task_type` during
 prediction. The output is `NULL` during training and a `Prediction` of
 given `task_type` during prediction.
 
@@ -180,7 +180,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.048 
+#>   0.049 
 #> 
 #> $task_hash
 #> [1] "c7c4f02878d51895"

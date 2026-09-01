@@ -1,7 +1,12 @@
 # Convert to Lazy Tensor
 
-Convert a object to a
+Converts an object to a
 [`lazy_tensor`](https://mlr3torch.mlr-org.com/dev/reference/lazy_tensor.md).
+A [`dataset`](https://torch.mlverse.org/docs/reference/dataset.html) is
+wrapped as-is, a
+[`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html)
+or a [`numeric()`](https://rdrr.io/r/base/numeric.html) is first turned
+into a dataset whose first dimension indexes the observations.
 
 ## Usage
 

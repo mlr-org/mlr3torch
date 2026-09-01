@@ -43,8 +43,7 @@
 - [`GraphLearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/GraphLearnerTorch.md)
   : Graph Learner for Torch Networks
 - [`replace_head()`](https://mlr3torch.mlr-org.com/dev/reference/replace_head.md)
-  : Replace the head of a network Replaces the head of the network with
-  a linear layer with d_out classes.
+  : Replace the Head of a Network
 
 ## Tasks
 
@@ -321,7 +320,7 @@
   : Tanh Shrink Activation Function
 - [`mlr_pipeops_nn_threshold`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_threshold.md)
   [`PipeOpTorchThreshold`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_threshold.md)
-  : Treshold Activation Function
+  : Threshold Activation Function
 - [`mlr_pipeops_nn_tokenizer_categ`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_tokenizer_categ.md)
   [`PipeOpTorchTokenizerCateg`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_tokenizer_categ.md)
   : Categorical Tokenizer
@@ -333,7 +332,7 @@
   : Transformer Encoder Layer
 - [`mlr_pipeops_nn_unsqueeze`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_unsqueeze.md)
   [`PipeOpTorchUnsqueeze`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_unsqueeze.md)
-  : Unqueeze a Tensor
+  : Unsqueeze a Tensor
 
 ## Preprocessing & Augmentation
 

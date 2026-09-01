@@ -1,6 +1,6 @@
 # Tabular ResNet
 
-Tabular resnet.
+A residual network for tabular data, following Gorishniy (2021).
 
 ## Dictionary
 

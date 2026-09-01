@@ -7,12 +7,11 @@ training a simple neural network on a tabular regression problem. We
 assume that you are familiar with the `mlr3` framework, see e.g. the
 [mlr3 book](https://mlr3book.mlr-org.com/). As a first example, we will
 train a simple multi-layer perceptron (MLP) on the well-known “mtcars”
-task, where the goal is to predict the miles per galleon (‘mpg’) of
-cars. This architecture comes as a predfined learner with `mlr3torch`,
-but you can also easily create new network architectures, see the
-*Neural Networks as Graphs* vignette for a detailed introduoduion. We
-first set a seed for reproducibility, load the library and construct the
-task.
+task, where the goal is to predict the miles per gallon (‘mpg’) of cars.
+This architecture comes as a predefined learner with `mlr3torch`, but
+you can also easily create new network architectures, see the *Neural
+Networks as Graphs* vignette for a detailed introduction. We first set a
+seed for reproducibility, load the library and construct the task.
 
 ``` r
 
@@ -173,7 +172,7 @@ as the Mean Squared Error (`nn_mse_loss`), the Mean Absolute Error
 class. It provides a thin wrapper around the torch loss functions and
 annotates them with meta information, most importantly a
 [`paradox::ParamSet`](https://paradox.mlr-org.com/reference/ParamSet.html)
-that allows to configure the loss function. Such an object can be
+that makes the loss function configurable. Such an object can be
 constructed using `t_loss(<key>)`. Below, we construct the L1 loss
 function, which is also known as Mean Absolute Error (MAE). The printed
 output below informs us about the wrapped loss function `(nn_l1_loss`),
@@ -304,10 +303,10 @@ mlr3torch_optimizers
 
 ### Callbacks
 
-The third important configuration option are callbacks which allow to
-customize the training process. This allows saving model checkpoints,
-logging metrics, or implementing custom functionality for specific
-training scenarios. For a tutorial on how to implement a custom
+The third important configuration option are callbacks, which make it
+possible to customize the training process. This allows saving model
+checkpoints, logging metrics, or implementing custom functionality for
+specific training scenarios. For a tutorial on how to implement a custom
 callback, see the *Custom Callbacks* vignette. Here, we will only show
 how to use predefined callbacks. Below, we retrieve the `"history"`
 callback using

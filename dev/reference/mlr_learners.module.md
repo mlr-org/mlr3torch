@@ -1,6 +1,17 @@
 # Learner Torch Module
 
-Create a torch learner from a torch module.
+Wraps a
+[`torch::nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html)
+into a
+[`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md),
+so an architecture written directly in `torch` can be trained, resampled
+and tuned like any other mlr3 learner without going through a
+[`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html) of
+`PipeOpTorch` operators. This is the shortest path from an existing
+`torch` model to mlr3, and the natural choice for an architecture whose
+forward pass is easier to write as code than to assemble from operators.
+The module receives the task's features as its arguments, which
+`ingress_tokens` maps.
 
 ## Dictionary
 

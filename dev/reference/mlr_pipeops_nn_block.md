@@ -17,7 +17,7 @@ The parameters available for the provided `block`, as well as
   How often to repeat the block.
 
 - `trafo` :: `function(i, param_vals, param_set) -> list()`  
-  A function that allows to transform the parameter values of each layer
+  A function that transforms the parameter values of each layer
   (`block`). Here,
 
   - `i` :: `integer(1)`  

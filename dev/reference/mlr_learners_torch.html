@@ -103,7 +103,7 @@ into a useable state.</p>
     <h2 id="early-stopping-and-internal-tuning">Early Stopping and Internal Tuning<a class="anchor" aria-label="anchor" href="#early-stopping-and-internal-tuning"></a></h2>
 
 
-<p>In order to prevent overfitting, the <code>LearnerTorch</code> class allows to use early stopping via the <code>patience</code>
+<p>In order to prevent overfitting, the <code>LearnerTorch</code> class supports early stopping via the <code>patience</code>
 and <code>min_delta</code> parameters, see the <code>Learner</code>'s parameters.
 When tuning a <code>LearnerTorch</code> it is also possible to combine the explicit tuning via <code>mlr3tuning</code>
 and the <code>LearnerTorch</code>'s internal tuning of the epochs via early stopping.
@@ -206,8 +206,15 @@ These include:</p><ul><li><p><code>device</code>: Use a GPU if possible.</p></li
 <li><p><code>num_threads</code>: Set this to the number of CPU cores available if training on CPU.
 When resampling, benchmarking or tuning in parallel, each worker uses <code>num_threads</code> threads, so
 divide the available cores among the workers instead to avoid oversubscribing the machine.</p></li>
-<li><p><code>tensor_dataset</code>: Set this to <code>TRUE</code> (or <code>"device"</code> if on a GPU) if the dataset fits into memory.</p></li>
+<li><p><code>tensor_dataset</code>: Set this to <code>TRUE</code> (or <code>"device"</code> if on a GPU) if the dataset fits into memory.
+This loads and stacks every batch once up front, so it must not be used with a <code><a href="lazy_tensor.html">lazy_tensor</a></code>
+that applies random data augmentation – the augmentation would then be drawn only once.</p></li>
 <li><p><code>batch_size</code>: Especially for very small models, choose a larger batch size.</p></li>
+<li><p><code>batch_size_predict</code>: Prediction has no backward pass and so fits larger batches than training.</p></li>
+<li><p><code>jit_trace</code>: Set this to <code>TRUE</code> to remove the per-batch R interpreter overhead, but only for a
+network whose control flow and shapes do not depend on the data. See the parameter's own entry.</p></li>
+<li><p><code>num_workers</code>: Load batches in parallel worker processes.</p></li>
+<li><p><code>pin_memory</code>: With a GPU, this speeds up the host-to-device copy of each batch.</p></li>
 </ul><p>Also, see the <em>Early Stopping and Internal Tuning</em> section for how to terminate training early.</p>
     </div>
     <div class="section level2">
@@ -266,6 +273,10 @@ can avoid unnecessary moving of tensors between devices.
 When your dataset fits into memory this will make the loading of batches faster.
 Note that this should not be set for datasets that contain <code><a href="lazy_tensor.html">lazy_tensor</a></code>s with random data augmentation,
 as this augmentation will only be applied once at the beginning of training.</p></li>
+<li><p><code>jit_trace</code> :: <code>logical(1)</code><br>
+Whether to trace the network with <code><a href="https://torch.mlverse.org/docs/reference/jit_trace.html" class="external-link">torch::jit_trace()</a></code> once at the start of training and then
+train the traced module instead of the original one.
+Not all learners support this.</p></li>
 </ul><p><strong>Evaluation</strong>:</p><ul><li><p><code>measures_train</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s<br>
 Measures to be evaluated during training.</p></li>
 <li><p><code>measures_valid</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s<br>
@@ -347,7 +358,7 @@ Negative values mean no timeout and the default is <code>-1</code>.</p></li>
 A function that receives the worker id (in <code>[1, num_workers]</code>) and is executed after seeding
 on the worker but before data loading.</p></li>
 <li><p><code>worker_globals</code> :: <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> | <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
-When loading data in parallel, this allows to export globals to the workers.
+When loading data in parallel, this makes it possible to export globals to the workers.
 If this is a character vector, the objects in the global environment with those names
 are copied to the workers.</p></li>
 <li><p><code>worker_packages</code> :: <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>

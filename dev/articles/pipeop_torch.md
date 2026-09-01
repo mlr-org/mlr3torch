@@ -6,8 +6,8 @@ existing `torch` module is turned into an
 [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html).
 Afterwards, we show how to build architectures as
 [`mlr3pipelines::Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)s,
-which allows to infer shapes from the task and to tune the architecture
-itself.
+which makes it possible to infer shapes from the task and to tune the
+architecture itself.
 
 ``` r
 
@@ -92,9 +92,6 @@ imagenet
 #> • Properties: multiclass
 #> • Features (1):
 #>   • lt (1): image
-#> Downloading <tiny_imagenet> ...
-#> Processing <tiny_imagenet> ...
-#> Dataset <tiny_imagenet> downloaded and extracted successfully.
 #> • Target classes: abacus (0%), academic gown, academic robe, judge's robe (0%),
 #> acorn (0%), African elephant, Loxodonta africana (0%), albatross, mollymawk
 #> (0%), alp (0%), altar (0%), American alligator, Alligator mississipiensis (0%),

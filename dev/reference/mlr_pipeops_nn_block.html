@@ -92,7 +92,7 @@ IDs of the <code>n_blocks</code> layers with the ID of the <code>PipeOpTorchBloc
 <p>The parameters available for the provided <code>block</code>, as well as</p><ul><li><p><code>n_blocks</code> :: <code>integer(1)</code><br>
 How often to repeat the block.</p></li>
 <li><p><code>trafo</code> :: <code>function(i, param_vals, param_set) -&gt; list()</code><br>
-A function that allows to transform the parameter values of each layer (<code>block</code>).
+A function that transforms the parameter values of each layer (<code>block</code>).
 Here,</p><ul><li><p><code>i</code> :: <code>integer(1)</code><br>
 is the index of the layer, ranging from <code>1</code> to <code>n_blocks</code>.</p></li>
 <li><p><code>param_vals</code> :: named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>

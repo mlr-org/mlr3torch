@@ -34,7 +34,7 @@ materialize_internal(x, device = "cpu", cache = NULL, rbind)
 - rbind:
 
   (`logical(1)`)  
-  Whtether to rbind the resulting tensors (`TRUE`) or return them as a
+  Whether to rbind the resulting tensors (`TRUE`) or return them as a
   list of tensors (`FALSE`).
 
 ## Value

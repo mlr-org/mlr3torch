@@ -13,6 +13,13 @@ Calls
 [`nn_ft_cls()`](https://mlr3torch.mlr-org.com/dev/reference/nn_ft_cls.md)
 when trained.
 
+## Parameters
+
+|                |           |         |                 |
+|----------------|-----------|---------|-----------------|
+| Id             | Type      | Default | Levels          |
+| initialization | character | \-      | uniform, normal |
+
 ## State
 
 The state is the value calculated by the public method `$shapes_out()`.

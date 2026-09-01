@@ -1,6 +1,6 @@
 # No Transformation
 
-Does nothing.
+Transforms the input via the identity function.
 
 ## Format
 

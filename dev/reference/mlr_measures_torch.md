@@ -76,15 +76,7 @@ Creates a new instance of this
   The scoring function. It receives whichever of the arguments `truth`,
   `response`, `prob`, `se`, `lazy_tensor`, `prediction`, `task`,
   `learner`, `train_set` and `weights` it declares, and must return a
-  single number. Asking for anything else is an error. An argument that
-  the prediction does not have – `weights` on a task without a
-  `weights_measure` column, or `prob` on a response-only prediction – is
-  not passed at all, so a default declared for it is what the function
-  sees. `weights` are also withheld when the measure's `$use_weights` is
-  set to `"ignore"`, so give the argument a default if the measure
-  should score with and without weights, and none if it cannot do
-  without them – asking for weights that do not exist is an error, not a
-  score.
+  single number. Asking for anything else is an error.
 
 - `minimize`:
 
@@ -103,6 +95,27 @@ Creates a new instance of this
   The predict type the measure requires: `"response"` (default),
   `"prob"`, `"se"` or `"lazy_tensor"`. A measure asking for one it did
   not declare here still receives it, if the prediction has it.
+
+- `properties`:
+
+  ([`character()`](https://rdrr.io/r/base/character.html))  
+  Properties of the measure, see
+  [`Measure`](https://mlr3.mlr-org.com/reference/Measure.html). The
+  `"requires_task"`, `"requires_learner"`, `"requires_train_set"` and
+  `"weights"` properties are added automatically when `fun` declares the
+  corresponding argument.
+
+- `label`:
+
+  (`character(1)`)  
+  The label of the measure.
+
+- `obs_loss`:
+
+  (`function()` or `NULL`)  
+  The per-observation loss. Declared like `fun`, except that `train_set`
+  is not available here, and if specified adds the `"obs_loss"`
+  property. It must return one number per observation.
 
 ------------------------------------------------------------------------
 

@@ -1,7 +1,8 @@
 # Flattens a Tensor
 
-For use with
-[nn_sequential](https://torch.mlverse.org/docs/reference/nn_sequential.html).
+Flattens a contiguous range of dimensions into one, leaving the others
+untouched. With the default `start_dim = 2`, every dimension after the
+batch dimension is collapsed into a single feature dimension.
 
 ## nn_module
 
@@ -12,9 +13,9 @@ when trained.
 ## Parameters
 
 `start_dim` :: `integer(1)`  
-At wich dimension to start flattening. Default is 2. `end_dim` ::
+At which dimension to start flattening. Default is 2. `end_dim` ::
 `integer(1)`  
-At wich dimension to stop flattening. Default is -1.
+At which dimension to stop flattening. Default is -1.
 
 ## Input and Output Channels
 

@@ -204,8 +204,8 @@ learner$param_set$set_values(
 )
 
 learner$train(task)
-#> Epoch 1/5 started (2026-09-01 09:03:20)
-#> Validation for epoch 1 started (2026-09-01 09:03:21)
+#> Epoch 1/5 started (2026-09-01 11:21:17)
+#> Validation for epoch 1 started (2026-09-01 11:21:17)
 #> 
 #> [Summary epoch 1]
 #> ------------------
@@ -215,8 +215,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.78
 #> 
-#> Epoch 2/5 started (2026-09-01 09:03:21)
-#> Validation for epoch 2 started (2026-09-01 09:03:21)
+#> Epoch 2/5 started (2026-09-01 11:21:17)
+#> Validation for epoch 2 started (2026-09-01 11:21:18)
 #> 
 #> [Summary epoch 2]
 #> ------------------
@@ -226,8 +226,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.53
 #> 
-#> Epoch 3/5 started (2026-09-01 09:03:21)
-#> Validation for epoch 3 started (2026-09-01 09:03:22)
+#> Epoch 3/5 started (2026-09-01 11:21:18)
+#> Validation for epoch 3 started (2026-09-01 11:21:18)
 #> 
 #> [Summary epoch 3]
 #> ------------------
@@ -237,8 +237,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.60
 #> 
-#> Epoch 4/5 started (2026-09-01 09:03:22)
-#> Validation for epoch 4 started (2026-09-01 09:03:22)
+#> Epoch 4/5 started (2026-09-01 11:21:18)
+#> Validation for epoch 4 started (2026-09-01 11:21:19)
 #> 
 #> [Summary epoch 4]
 #> ------------------
@@ -248,8 +248,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.60
 #> 
-#> Epoch 5/5 started (2026-09-01 09:03:22)
-#> Validation for epoch 5 started (2026-09-01 09:03:23)
+#> Epoch 5/5 started (2026-09-01 11:21:19)
+#> Validation for epoch 5 started (2026-09-01 11:21:19)
 #> 
 #> [Summary epoch 5]
 #> ------------------
@@ -259,5 +259,5 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.60
 #> 
-#> Finished training for 5 epochs (2026-09-01 09:03:23, 2.3s total)
+#> Finished training for 5 epochs (2026-09-01 11:21:19, 2.2s total)
 ```

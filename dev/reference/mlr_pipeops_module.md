@@ -4,7 +4,8 @@
 [`nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html)
 or `function` that is being called during the `train` phase of this
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html).
-By doing so, this allows to assemble `PipeOpModule`s in a computational
+By doing so, this makes it possible to assemble `PipeOpModule`s in a
+computational
 [`mlr3pipelines::Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)
 that represents either a neural network or a preprocessing graph of a
 [`lazy_tensor`](https://mlr3torch.mlr-org.com/dev/reference/lazy_tensor.md).

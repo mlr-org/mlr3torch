@@ -1,4 +1,4 @@
-# Treshold Activation Function
+# Threshold Activation Function
 
 Thresholds each element of the input Tensor.
 
