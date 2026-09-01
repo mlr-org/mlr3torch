@@ -57,6 +57,10 @@ can avoid unnecessary moving of tensors between devices.
 When your dataset fits into memory this will make the loading of batches faster.
 Note that this should not be set for datasets that contain \code{\link{lazy_tensor}}s with random data augmentation,
 as this augmentation will only be applied once at the beginning of training.
+\item \code{jit_trace} :: \code{logical(1)}\cr
+Whether to trace the network with \code{\link[torch:jit_trace]{torch::jit_trace()}} once at the start of training and then
+train the traced module instead of the original one.
+Not all learners support this.
 }
 
 \strong{Evaluation}:
@@ -154,7 +158,7 @@ Negative values mean no timeout and the default is \code{-1}.
 A function that receives the worker id (in \verb{[1, num_workers]}) and is executed after seeding
 on the worker but before data loading.
 \item \code{worker_globals} :: \code{list()} | \code{character()}\cr
-When loading data in parallel, this allows to export globals to the workers.
+When loading data in parallel, this makes it possible to export globals to the workers.
 If this is a character vector, the objects in the global environment with those names
 are copied to the workers.
 \item \code{worker_packages} :: \code{character()}\cr
@@ -166,7 +170,7 @@ Also see \code{torch::dataloader} for more information.
 
 \section{Input and Output Channels}{
 
-There is one input channel \code{"input"} that takes in \code{ModelDescriptor} during traing and a \code{Task} of the specified
+There is one input channel \code{"input"} that takes in \code{ModelDescriptor} during training and a \code{Task} of the specified
 \code{task_type} during prediction.
 The output is \code{NULL} during training and a \code{Prediction} of given \code{task_type} during prediction.
 }

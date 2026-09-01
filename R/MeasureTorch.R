@@ -8,7 +8,32 @@
 #' Use [`msr_torch()`] to construct one.
 #' See the *Custom Learning Problems* article for how to create and use such measures.
 #'
-#' @template params_measure_torch
+#' @param id (`character(1)`)\cr
+#'   The id of the measure.
+#' @param fun (`function()`)\cr
+#'   The scoring function.
+#'   It receives whichever of the arguments `truth`, `response`, `prob`, `se`, `lazy_tensor`,
+#'   `prediction`, `task`, `learner`, `train_set` and `weights` it declares, and must return a
+#'   single number. Asking for anything else is an error.
+#' @param minimize (`logical(1)`)\cr
+#'   Whether a smaller score is better.
+#'   `NA` (default) means the direction is unknown.
+#' @param range (`numeric(2)`)\cr
+#'   The range of possible scores.
+#' @param predict_type (`character(1)`)\cr
+#'   The predict type the measure requires: `"response"` (default), `"prob"`, `"se"` or
+#'   `"lazy_tensor"`.
+#'   A measure asking for one it did not declare here still receives it, if the prediction has it.
+#' @param properties (`character()`)\cr
+#'   Properties of the measure, see [`Measure`][mlr3::Measure].
+#'   The `"requires_task"`, `"requires_learner"`, `"requires_train_set"` and `"weights"` properties
+#'   are added automatically when `fun` declares the corresponding argument.
+#' @param label (`character(1)`)\cr
+#'   The label of the measure.
+#' @param obs_loss (`function()` or `NULL`)\cr
+#'   The per-observation loss. Declared like `fun`, except that `train_set` is not available here,
+#'   and if specified adds the `"obs_loss"` property.
+#'   It must return one number per observation.
 #'
 #' @family Measure
 #' @export

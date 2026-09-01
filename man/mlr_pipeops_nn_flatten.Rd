@@ -5,7 +5,9 @@
 \alias{PipeOpTorchFlatten}
 \title{Flattens a Tensor}
 \description{
-For use with \link[torch]{nn_sequential}.
+Flattens a contiguous range of dimensions into one, leaving the others untouched.
+With the default \code{start_dim = 2}, every dimension after the batch dimension is collapsed into a
+single feature dimension.
 }
 \section{nn_module}{
 
@@ -15,9 +17,9 @@ Calls \code{\link[torch:nn_flatten]{torch::nn_flatten()}} when trained.
 \section{Parameters}{
 
 \code{start_dim} :: \code{integer(1)}\cr
-At wich dimension to start flattening. Default is 2.
+At which dimension to start flattening. Default is 2.
 \code{end_dim} :: \code{integer(1)}\cr
-At wich dimension to stop flattening. Default is -1.
+At which dimension to stop flattening. Default is -1.
 }
 
 \section{Input and Output Channels}{

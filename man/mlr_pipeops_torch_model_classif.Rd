@@ -13,7 +13,7 @@ Builds a torch classifier and trains it.
 
 \section{Input and Output Channels}{
 
-There is one input channel \code{"input"} that takes in \code{ModelDescriptor} during traing and a \code{Task} of the specified
+There is one input channel \code{"input"} that takes in \code{ModelDescriptor} during training and a \code{Task} of the specified
 \code{task_type} during prediction.
 The output is \code{NULL} during training and a \code{Prediction} of given \code{task_type} during prediction.
 }

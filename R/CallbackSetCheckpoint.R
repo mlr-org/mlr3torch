@@ -97,7 +97,7 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
       # a checkpoint that is already half-written is what a run killed mid-write leaves behind, and
       # the only thing this run is allowed to write over, see $.save()
       private$.overwritable = files$incomplete
-      # In the same checkpoint direction we only allow to increase the number of epochs
+      # In the same checkpoint direction we only allow increasing the number of epochs
       # as otherwise the results are confusing (first writing 1, 5, 10 to then train from 5 -> 7 e.g.)
       trains_something = self$ctx$total_epochs > private$.start_epoch
       if (length(complete) && trains_something && self$ctx$total_epochs <= complete[1L]) {

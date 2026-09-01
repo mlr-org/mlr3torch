@@ -15,6 +15,29 @@ This is used in \code{\link{LearnerTorchFTTransformer}}.
 Calls \code{\link[=nn_ft_transformer_block]{nn_ft_transformer_block()}} when trained.
 }
 
+\section{Parameters}{
+
+The parameters of \code{\link[=nn_ft_transformer_block]{nn_ft_transformer_block()}}.\tabular{lllll}{
+   Id \tab Type \tab Default \tab Levels \tab Range \cr
+   attention_n_heads \tab integer \tab - \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
+   attention_dropout \tab numeric \tab - \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
+   attention_initialization \tab character \tab - \tab kaiming, xavier \tab - \cr
+   attention_normalization \tab untyped \tab - \tab  \tab - \cr
+   ffn_d_hidden \tab integer \tab - \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
+   ffn_d_hidden_multiplier \tab numeric \tab - \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
+   ffn_dropout \tab numeric \tab - \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
+   ffn_activation \tab untyped \tab - \tab  \tab - \cr
+   ffn_normalization \tab untyped \tab - \tab  \tab - \cr
+   residual_dropout \tab numeric \tab - \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
+   prenormalization \tab logical \tab - \tab TRUE, FALSE \tab - \cr
+   is_first_layer \tab logical \tab - \tab TRUE, FALSE \tab - \cr
+   query_idx \tab untyped \tab - \tab  \tab - \cr
+   attention_bias \tab logical \tab - \tab TRUE, FALSE \tab - \cr
+   ffn_bias_first \tab logical \tab - \tab TRUE, FALSE \tab - \cr
+   ffn_bias_second \tab logical \tab - \tab TRUE, FALSE \tab - \cr
+}
+}
+
 \section{State}{
 
 The state is the value calculated by the public method \verb{$shapes_out()}.

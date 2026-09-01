@@ -26,7 +26,9 @@ indicate the batch dimension.}
 Which ids to include in the lazy tensor.}
 }
 \description{
-Convert a object to a \code{\link{lazy_tensor}}.
+Converts an object to a \code{\link{lazy_tensor}}.
+A \code{\link[torch:dataset]{dataset}} is wrapped as-is, a \code{\link[torch:torch_tensor]{torch_tensor}} or a
+\code{numeric()} is first turned into a dataset whose first dimension indexes the observations.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

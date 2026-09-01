@@ -22,7 +22,7 @@
 #' into a useable state.
 #'
 #' @section Early Stopping and Internal Tuning:
-#' In order to prevent overfitting, the `LearnerTorch` class allows to use early stopping via the `patience`
+#' In order to prevent overfitting, the `LearnerTorch` class supports early stopping via the `patience`
 #' and `min_delta` parameters, see the `Learner`'s parameters.
 #' When tuning a `LearnerTorch` it is also possible to combine the explicit tuning via `mlr3tuning`
 #' and the `LearnerTorch`'s internal tuning of the epochs via early stopping.
@@ -127,7 +127,14 @@
 #'   When resampling, benchmarking or tuning in parallel, each worker uses `num_threads` threads, so
 #'   divide the available cores among the workers instead to avoid oversubscribing the machine.
 #' * `tensor_dataset`: Set this to `TRUE` (or `"device"` if on a GPU) if the dataset fits into memory.
+#'   This loads and stacks every batch once up front, so it must not be used with a [`lazy_tensor`]
+#'   that applies random data augmentation -- the augmentation would then be drawn only once.
 #' * `batch_size`: Especially for very small models, choose a larger batch size.
+#' * `batch_size_predict`: Prediction has no backward pass and so fits larger batches than training.
+#' * `jit_trace`: Set this to `TRUE` to remove the per-batch R interpreter overhead, but only for a
+#'   network whose control flow and shapes do not depend on the data. See the parameter's own entry.
+#' * `num_workers`: Load batches in parallel worker processes.
+#' * `pin_memory`: With a GPU, this speeds up the host-to-device copy of each batch.
 #'
 #' Also, see the *Early Stopping and Internal Tuning* section for how to terminate training early.
 #'

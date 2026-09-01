@@ -16,6 +16,7 @@
 #' * `mlr3torch.cache`:
 #'   Whether to cache the downloaded data (`TRUE`) or not (`FALSE`, default).
 #'   This can also be set to a specific folder on the file system to be used as the cache directory.
+#'   Without caching, every task that downloads its data fetches it again in each session.
 #'
 "_PACKAGE"
 

@@ -18,7 +18,7 @@ Whether to cache the (intermediate) results of the materialization.
 This can make data loading faster when multiple \code{lazy_tensor}s reference the same dataset or graph.}
 
 \item{rbind}{(\code{logical(1)})\cr
-Whtether to rbind the resulting tensors (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).}
+Whether to rbind the resulting tensors (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).}
 }
 \value{
 \code{\link[=lazy_tensor]{lazy_tensor()}}

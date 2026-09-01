@@ -47,6 +47,8 @@ nn_ft_cls = nn_module(
 #' @inherit nn_ft_cls description
 #' @section nn_module:
 #' Calls [`nn_ft_cls()`] when trained.
+#' @section Parameters:
+#' `r mlr3torch:::rd_info_param_set(po("nn_ft_cls")$param_set)`
 #' @templateVar id nn_ft_cls
 #' @template pipeop_torch
 #' @template pipeop_torch_example

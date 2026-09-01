@@ -103,7 +103,7 @@ nn("my_linear")
 
 By default, `pipeop_torch` assumes that the module returns a single tensor.
 If this is not the case, you can specify the `out_channels` to either be the number of output channels of the pipeop or by providing explicit channel names.
-Also, you can specify the parameter set of the `PipeOp` explicitly, which allows to annotate their types and admissible ranges.
+Also, you can specify the parameter set of the `PipeOp` explicitly, which lets you annotate their types and admissible ranges.
 
 While `pipeop_torch` covers most of the cases, explicitly implementing a `PipeOpTorch` as an `R6Class` comes with more flexibility, which can come in handy in more complex cases and which we will cover next.
 

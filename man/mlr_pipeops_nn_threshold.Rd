@@ -3,7 +3,7 @@
 \name{mlr_pipeops_nn_threshold}
 \alias{mlr_pipeops_nn_threshold}
 \alias{PipeOpTorchThreshold}
-\title{Treshold Activation Function}
+\title{Threshold Activation Function}
 \description{
 Thresholds each element of the input Tensor.
 }

@@ -701,7 +701,7 @@ PipeOpTorchTanhShrink = R6Class("PipeOpTorchTanhShrink",
 
 register_po("nn_tanhshrink", PipeOpTorchTanhShrink)
 
-#' @title Treshold Activation Function
+#' @title Threshold Activation Function
 #'
 #' @inherit torch::nnf_threshold description
 #' @section nn_module: Calls [`torch::nn_threshold()`] when trained.

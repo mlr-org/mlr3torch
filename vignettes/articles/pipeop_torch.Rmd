@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 In this vignette, we will show two ways to define a neural network architecture in `mlr3torch`.
 We start with the direct route, where an existing `torch` module is turned into an `mlr3::Learner`.
-Afterwards, we show how to build architectures as `mlr3pipelines::Graph`s, which allows to infer shapes from the task and to tune the architecture itself.
+Afterwards, we show how to build architectures as `mlr3pipelines::Graph`s, which makes it possible to infer shapes from the task and to tune the architecture itself.
 
 ```{r, message = FALSE}
 library(mlr3torch)

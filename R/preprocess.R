@@ -260,7 +260,7 @@ register_preproc("trafo_resize", torchvision::transform_resize,
 #' @format [`R6Class`][R6::R6Class] inheriting from [`PipeOpTaskPreprocTorch`].
 #'
 #' @description
-#' Does nothing.
+#' Transforms the input via the identity function.
 register_preproc("trafo_nop", identity, rowwise = FALSE, shapes_out = unchanged_shapes)
 
 #' @title Reshaping Transformation

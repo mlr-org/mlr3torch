@@ -5,7 +5,12 @@
 \alias{LearnerTorchModule}
 \title{Learner Torch Module}
 \description{
-Create a torch learner from a torch module.
+Wraps a \code{\link[torch:nn_module]{torch::nn_module}} into a \code{\link{LearnerTorch}}, so an architecture written directly in
+\code{torch} can be trained, resampled and tuned like any other mlr3 learner without going through a
+\code{\link[mlr3pipelines:Graph]{Graph}} of \code{PipeOpTorch} operators.
+This is the shortest path from an existing \code{torch} model to mlr3, and the natural choice for an
+architecture whose forward pass is easier to write as code than to assemble from operators.
+The module receives the task's features as its arguments, which \code{ingress_tokens} maps.
 }
 \section{Dictionary}{
 

@@ -109,7 +109,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
   )
 )
 
-#' @title Unqueeze a Tensor
+#' @title Unsqueeze a Tensor
 #' @inherit nn_unsqueeze description
 #' @section nn_module:
 #' Calls [`nn_unsqueeze()`] when trained.
@@ -158,14 +158,17 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
 
 
 #' @title Flattens a Tensor
-#' @inherit torch::nn_flatten description
+#' @description
+#' Flattens a contiguous range of dimensions into one, leaving the others untouched.
+#' With the default `start_dim = 2`, every dimension after the batch dimension is collapsed into a
+#' single feature dimension.
 #' @section nn_module:
 #' Calls [`torch::nn_flatten()`] when trained.
 #' @section Parameters:
 #' `start_dim` :: `integer(1)`\cr
-#'   At wich dimension to start flattening. Default is 2.
+#'   At which dimension to start flattening. Default is 2.
 #' `end_dim` :: `integer(1)`\cr
-#'   At wich dimension to stop flattening. Default is -1.
+#'   At which dimension to stop flattening. Default is -1.
 #'
 #' @templateVar id nn_flatten
 #' @template pipeop_torch_channels_default

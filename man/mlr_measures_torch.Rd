@@ -79,13 +79,7 @@ The id of the measure.}
 The scoring function.
 It receives whichever of the arguments \code{truth}, \code{response}, \code{prob}, \code{se}, \code{lazy_tensor},
 \code{prediction}, \code{task}, \code{learner}, \code{train_set} and \code{weights} it declares, and must return a
-single number. Asking for anything else is an error.
-An argument that the prediction does not have -- \code{weights} on a task without a
-\code{weights_measure} column, or \code{prob} on a response-only prediction -- is not passed at all, so a
-default declared for it is what the function sees.
-\code{weights} are also withheld when the measure's \verb{$use_weights} is set to \code{"ignore"}, so give the
-argument a default if the measure should score with and without weights, and none if it cannot
-do without them -- asking for weights that do not exist is an error, not a score.}
+single number. Asking for anything else is an error.}
       \item{\code{minimize}}{(\code{logical(1)})\cr
 Whether a smaller score is better.
 \code{NA} (default) means the direction is unknown.}
@@ -95,6 +89,16 @@ The range of possible scores.}
 The predict type the measure requires: \code{"response"} (default), \code{"prob"}, \code{"se"} or
 \code{"lazy_tensor"}.
 A measure asking for one it did not declare here still receives it, if the prediction has it.}
+      \item{\code{properties}}{(\code{character()})\cr
+Properties of the measure, see \code{\link[mlr3:Measure]{Measure}}.
+The \code{"requires_task"}, \code{"requires_learner"}, \code{"requires_train_set"} and \code{"weights"} properties
+are added automatically when \code{fun} declares the corresponding argument.}
+      \item{\code{label}}{(\code{character(1)})\cr
+The label of the measure.}
+      \item{\code{obs_loss}}{(\verb{function()} or \code{NULL})\cr
+The per-observation loss. Declared like \code{fun}, except that \code{train_set} is not available here,
+and if specified adds the \code{"obs_loss"} property.
+It must return one number per observation.}
     }
     \if{html}{\out{</div>}}
   }

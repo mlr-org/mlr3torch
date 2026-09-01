@@ -42,6 +42,10 @@
 #'   When your dataset fits into memory this will make the loading of batches faster.
 #'   Note that this should not be set for datasets that contain [`lazy_tensor`]s with random data augmentation,
 #'   as this augmentation will only be applied once at the beginning of training.
+#' * `jit_trace` :: `logical(1)`\cr
+#'   Whether to trace the network with [`torch::jit_trace()`] once at the start of training and then
+#'   train the traced module instead of the original one.
+#'    Not all learners support this.
 #'
 #' **Evaluation**:
 #' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s\cr
@@ -124,7 +128,7 @@
 #'   A function that receives the worker id (in `[1, num_workers]`) and is executed after seeding
 #'   on the worker but before data loading.
 #' * `worker_globals` :: `list()` | `character()`\cr
-#'   When loading data in parallel, this allows to export globals to the workers.
+#'   When loading data in parallel, this makes it possible to export globals to the workers.
 #'   If this is a character vector, the objects in the global environment with those names
 #'   are copied to the workers.
 #' * `worker_packages` :: `character()`\cr

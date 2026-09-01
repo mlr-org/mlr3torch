@@ -65,7 +65,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
       groups = lapply(self$ctx$optimizer$param_groups, function(group) group[names(group) != "params"])
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
       # initializing a scheduler also modifies the optimizer's param_group values to certain values
-      # (the ones from the beginning of the schedule); Here, we basically forward the state of the 
+      # (the ones from the beginning of the schedule); Here, we basically forward the state of the
       # param groups to where they were when the checkpoint which we are resuming was written.
       if (!is.null(private$.prev_state)) {
         private$.restore_scheduler_state(groups)

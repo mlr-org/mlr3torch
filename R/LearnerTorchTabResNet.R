@@ -8,7 +8,7 @@
 #' @template learner_example
 #'
 #' @description
-#' Tabular resnet.
+#' A residual network for tabular data, following `r cite_bib("gorishniy2021revisiting")`.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`], as well as:

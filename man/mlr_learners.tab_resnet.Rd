@@ -5,7 +5,7 @@
 \alias{LearnerTorchTabResNet}
 \title{Tabular ResNet}
 \description{
-Tabular resnet.
+A residual network for tabular data, following Gorishniy (2021).
 }
 \section{Dictionary}{
 

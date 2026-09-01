@@ -174,7 +174,7 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 #'   Whether to cache the (intermediate) results of the materialization.
 #'   This can make data loading faster when multiple `lazy_tensor`s reference the same dataset or graph.
 #' @param rbind (`logical(1)`)\cr
-#'   Whtether to rbind the resulting tensors (`TRUE`) or return them as a list of tensors (`FALSE`).
+#'   Whether to rbind the resulting tensors (`TRUE`) or return them as a list of tensors (`FALSE`).
 #' @return [`lazy_tensor()`]
 #' @keywords internal
 materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {

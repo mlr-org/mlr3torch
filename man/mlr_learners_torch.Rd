@@ -31,7 +31,7 @@ into a useable state.
 
 \section{Early Stopping and Internal Tuning}{
 
-In order to prevent overfitting, the \code{LearnerTorch} class allows to use early stopping via the \code{patience}
+In order to prevent overfitting, the \code{LearnerTorch} class supports early stopping via the \code{patience}
 and \code{min_delta} parameters, see the \code{Learner}'s parameters.
 When tuning a \code{LearnerTorch} it is also possible to combine the explicit tuning via \code{mlr3tuning}
 and the \code{LearnerTorch}'s internal tuning of the epochs via early stopping.
@@ -153,7 +153,14 @@ These include:
 When resampling, benchmarking or tuning in parallel, each worker uses \code{num_threads} threads, so
 divide the available cores among the workers instead to avoid oversubscribing the machine.
 \item \code{tensor_dataset}: Set this to \code{TRUE} (or \code{"device"} if on a GPU) if the dataset fits into memory.
+This loads and stacks every batch once up front, so it must not be used with a \code{\link{lazy_tensor}}
+that applies random data augmentation -- the augmentation would then be drawn only once.
 \item \code{batch_size}: Especially for very small models, choose a larger batch size.
+\item \code{batch_size_predict}: Prediction has no backward pass and so fits larger batches than training.
+\item \code{jit_trace}: Set this to \code{TRUE} to remove the per-batch R interpreter overhead, but only for a
+network whose control flow and shapes do not depend on the data. See the parameter's own entry.
+\item \code{num_workers}: Load batches in parallel worker processes.
+\item \code{pin_memory}: With a GPU, this speeds up the host-to-device copy of each batch.
 }
 
 Also, see the \emph{Early Stopping and Internal Tuning} section for how to terminate training early.
@@ -218,6 +225,10 @@ can avoid unnecessary moving of tensors between devices.
 When your dataset fits into memory this will make the loading of batches faster.
 Note that this should not be set for datasets that contain \code{\link{lazy_tensor}}s with random data augmentation,
 as this augmentation will only be applied once at the beginning of training.
+\item \code{jit_trace} :: \code{logical(1)}\cr
+Whether to trace the network with \code{\link[torch:jit_trace]{torch::jit_trace()}} once at the start of training and then
+train the traced module instead of the original one.
+Not all learners support this.
 }
 
 \strong{Evaluation}:
@@ -315,7 +326,7 @@ Negative values mean no timeout and the default is \code{-1}.
 A function that receives the worker id (in \verb{[1, num_workers]}) and is executed after seeding
 on the worker but before data loading.
 \item \code{worker_globals} :: \code{list()} | \code{character()}\cr
-When loading data in parallel, this allows to export globals to the workers.
+When loading data in parallel, this makes it possible to export globals to the workers.
 If this is a character vector, the objects in the global environment with those names
 are copied to the workers.
 \item \code{worker_packages} :: \code{character()}\cr

@@ -3,7 +3,7 @@
 #' @description
 #' A data descriptor is a rather internal data structure used in the [`lazy_tensor`] data type.
 #' In essence it is an annotated [`torch::dataset`] and a preprocessing graph (consisting mosty of [`PipeOpModule`]
-#' operators). The additional meta data (e.g. pointer, shapes) allows to preprocess [`lazy_tensor`]s in an
+#' operators). The additional meta data (e.g. pointer, shapes) makes it possible to preprocess [`lazy_tensor`]s in an
 #' [`mlr3pipelines::Graph`] just like any (non-lazy) data types.
 #' The preprocessing is applied when [`materialize()`] is called on the [`lazy_tensor`].
 #'

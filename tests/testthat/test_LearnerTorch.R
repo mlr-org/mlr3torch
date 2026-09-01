@@ -1602,3 +1602,13 @@ test_that("validation and early stopping work on a generic torch task", {
   learner$train(task)
   expect_number(learner$internal_tuned_values$epochs, lower = 1, upper = 6)
 })
+
+test_that("hash_input() recurses into lists so that nn_modules hash stably", {
+  expect_equal(hash_input(list(a = nn_relu, b = 1)), list(a = hash_input(nn_relu), b = 1))
+  # training instantiates the module, which mutates its environment but must not change the hash
+  l = lrn("classif.mlp", epochs = 1, batch_size = 32, neurons = 5)
+  before = l$hash
+  l$clone(deep = TRUE)$train(tsk("iris"))
+  expect_equal(l$hash, before)
+  expect_equal(l$clone(deep = TRUE)$hash, before)
+})

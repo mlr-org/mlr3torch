@@ -8,5 +8,5 @@
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \description{
-Does nothing.
+Transforms the input via the identity function.
 }

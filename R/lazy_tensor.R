@@ -1,7 +1,14 @@
 #' @title Create a lazy tensor
 #'
 #' @description
-#' Create a lazy tensor.
+#' Creates a `lazy_tensor` vector.
+#' Because it is a vector, it can be stored in a `data.table`, which gives mlr3torch the ability
+#' to use arbitrary tensors in its task.
+#' It is 'lazy', because the tensors are not stored in-memory, but only loaded when calling
+#' [`materialize()`].
+#' The vector itself only describes *how* to load the data.
+#' It is also possible to preprocess lazy_tensors, e.g. via `po("augment_<key>")`,
+#' and `po("trafo_<key>")`.
 #' @param data_descriptor ([`DataDescriptor`] or `NULL`)\cr
 #'   The data descriptor or `NULL` for a lazy tensor of length 0.
 #' @param ids (`integer()`)\cr
@@ -131,7 +138,9 @@ dd = function(x) {
 
 #' @title Convert to Lazy Tensor
 #' @description
-#' Convert a object to a [`lazy_tensor`].
+#' Converts an object to a [`lazy_tensor`].
+#' A [`dataset`][torch::dataset] is wrapped as-is, a [`torch_tensor`][torch::torch_tensor] or a
+#' `numeric()` is first turned into a dataset whose first dimension indexes the observations.
 #'
 #' @param x (any)\cr
 #'   Object to convert to a [`lazy_tensor`]
