@@ -53,6 +53,15 @@
 #'   This is initialized to `1`.
 #'   Note that the final model is always evaluated.
 #'
+#' **Resuming**:
+#' * `resume` :: `character(1)` or `TRUE`\cr
+#'   Continues training from a checkpoint written by
+#'   [`t_clbk("checkpoint")`][mlr_callback_set.checkpoint], either the folder it wrote to or `TRUE`,
+#'   which takes that folder from the checkpoint callback of this learner.
+#'   Note that `epochs` is the *total* number of epochs, i.e. it includes the epochs the checkpoint
+#'   was already trained for: resuming a checkpoint from epoch 5 with `epochs = 8` trains 3 more
+#'   epochs.
+#'
 #' **Early Stopping**:
 #' * `patience` :: `integer(1)`\cr
 #'   This activates early stopping using the validation scores.

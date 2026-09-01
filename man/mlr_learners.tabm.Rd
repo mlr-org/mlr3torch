@@ -71,7 +71,9 @@ or \code{"normal"}. If unset, \code{"normal"} is
 used when \code{num_embeddings} is set and \code{"random-signs"} otherwise.
 }
 
-Parameters of the embeddings for the numerical features:
+Parameters of the embeddings for the numerical features.
+The embedding types are those of Gorishniy (2022), see the
+\emph{References} section for the paper that introduces and compares them:
 \itemize{
 \item \code{num_embeddings} :: \code{character(1)}\cr
 The type of the numerical feature embeddings, one of \code{"none"} (default),
@@ -142,9 +144,16 @@ Wen Y, Tran D, Ba J (2020).
 \dQuote{BatchEnsemble: An Alternative Approach to Efficient Ensemble and Lifelong Learning.}
 In \emph{The Eighth International Conference on Learning Representations (ICLR)}.
 2002.06715, \url{https://openreview.net/forum?id=Sklf1yrYDr}.
+
+Gorishniy Y, Rubachev I, Babenko A (2022).
+\dQuote{On Embeddings for Numerical Features in Tabular Deep Learning.}
+In \emph{Advances in Neural Information Processing Systems 35 (NeurIPS)}.
+2203.05556, \url{https://arxiv.org/abs/2203.05556}.
 }
 \seealso{
 Other Learner:
+\code{\link{GraphLearnerTorch}},
+\code{\link[=as_learner_torch]{as_learner_torch()}},
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},

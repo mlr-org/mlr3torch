@@ -33,7 +33,7 @@ Whether to use a bias. Default is \code{TRUE}.
 \section{Supporting Other Task Types}{
 
 The output dimension is not hard-coded here: \code{PipeOpTorchHead} asks the generic
-\code{\link[=output_dim_for]{output_dim_for()}} how many output neurons the task needs, and \pkg{mlr3torch} implements methods
+\code{\link[=output_dim_for]{output_dim_for()}} how many output neurons the task needs, and \CRANpkg{mlr3torch} implements methods
 for \code{\link[mlr3:TaskClassif]{TaskClassif}} and \code{\link[mlr3:TaskRegr]{TaskRegr}}.
 You can add support to your custom task type by implementing a method for your class.
 }

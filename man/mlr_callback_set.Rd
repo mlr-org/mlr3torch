@@ -29,6 +29,10 @@ This then also requires to implement a \verb{$load_state_dict(state_dict)} metho
 callback state into a different callback.
 Note that the \verb{$state_dict()} should not include the parameter values that were used to initialize the callback.
 
+In order to be able to resume a callback, it needs to work with \code{saveRDS}, so it cannot contain
+external pointers such as \code{\link[torch:torch_tensor]{torch_tensor}}s.
+Convert them to R data, e.g. via \code{as.array()}.
+
 For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
 \code{CallbackSet} and then wraps it in a \code{\link{TorchCallback}}.
 To create a \code{CallbackSet} the convenience function \code{\link[=callback_set]{callback_set()}} can be used.
@@ -156,6 +160,9 @@ This returns \code{NULL} by default.
 \if{latex}{\out{\hypertarget{method-CallbackSet-load_state_dict}{}}}
 \subsection{\code{CallbackSet$load_state_dict()}}{
   Loads the state dict into the callback to continue training.
+A callback that keeps no state inherits this, which has nothing to load and therefore only
+warns when it is handed a state anyway -- a callback that implements \verb{$state_dict()} but not
+this method, so that a resuming run cannot give its state back.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSet$load_state_dict(state_dict)}

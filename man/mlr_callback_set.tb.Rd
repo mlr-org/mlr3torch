@@ -11,6 +11,11 @@ To view them, use TensorBoard with \code{tensorflow::tensorboard()} (requires \c
 \details{
 Logs events at most every epoch.
 }
+\section{Resuming}{
+
+This callback keeps no state of its own so it can trivially be resumed.
+}
+
 \seealso{
 Other Callback:
 \code{\link{TorchCallback}},
@@ -60,7 +65,9 @@ Other Callback:
     \describe{
       \item{\code{path}}{(\code{character(1)})\cr
 The path to a folder where the events are logged.
-Point TensorBoard to this folder to view them.}
+Point TensorBoard to this folder to view them.
+The folder must be new, empty, or one that this callback already logged into, so that a
+resumed run can continue the log of the run it continues.}
       \item{\code{log_train_loss}}{(\code{logical(1)})\cr
 Whether we log the training loss.}
     }

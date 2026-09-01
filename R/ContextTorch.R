@@ -61,7 +61,7 @@ ContextTorch = R6Class("ContextTorch",
       self$total_epochs = assert_integerish(total_epochs, lower = 0, any.missing = FALSE)
       self$last_scores_train = structure(list(), names = character(0))
       self$last_scores_valid = structure(list(), names = character(0))
-      self$prediction_encoder = assert_function(prediction_encoder, args = c("predict_tensor", "task"))
+      self$prediction_encoder = assert_function(prediction_encoder, args = c("network_output", "task"))
       self$eval_freq = assert_int(eval_freq, lower = 1L)
       self$terminate = FALSE
       self$device = torch_device(assert_choice(device, mlr_reflections$torch$devices))
@@ -100,12 +100,14 @@ ContextTorch = R6Class("ContextTorch",
     #'   The total number of epochs the learner is trained for.
     total_epochs = NULL,
     #' @field last_scores_train (named `list()` or `NULL`)\cr
-    #'  The scores from the last training batch. Names are the ids of the training measures.
+    #'  The scores from the last evaluated epoch, calculated over all rows that were trained on in
+    #'  that epoch. Names are the ids of the training measures.
     #'  If [`LearnerTorch`] sets `eval_freq` different from `1`, this is `NULL` in all epochs
     #'  that don't evaluate the model.
     last_scores_train = NULL,
     #' @field last_scores_valid (`list()`)\cr
-    #'   The scores from the last validation batch. Names are the ids of the validation measures.
+    #'   The scores from the last evaluated epoch, calculated over the complete validation task.
+    #'   Names are the ids of the validation measures.
     #'   If [`LearnerTorch`] sets `eval_freq` different from `1`, this is `NULL` in all epochs
     #'   that don't evaluate the model.
     last_scores_valid = NULL,
@@ -113,14 +115,14 @@ ContextTorch = R6Class("ContextTorch",
     #' The loss from the last trainings batch.
     last_loss = NULL,
     #' @field y_hat ([`torch_tensor`][torch::torch_tensor])\cr
-    #' The model's primary prediction for the current batch.
-    #' If the network has auxiliary classifiers, this is the first of the predictions it
-    #' returns, i.e. the one that is scored and returned when predicting.
+    #' The network's output for the current batch, or its first element if the network returns
+    #' more than one tensor. Provided for the most common case where a network returns a single
+    #' tensor.  For the full output, see `y_hats`.
     y_hat = NULL,
     #' @field y_hats ([`torch_tensor`][torch::torch_tensor] or `list()`)\cr
     #' The complete output of the network for the current batch, i.e. what the loss is applied
-    #' to. This is a `list()` of predictions if the network has auxiliary classifiers and
-    #' identical to `y_hat` otherwise.
+    #' to. This is a `list()` if the network returns more than one tensor and identical to
+    #' `y_hat` otherwise.
     y_hats = NULL,
     #' @field epoch (`integer(1)`)\cr
     #'   The current epoch.

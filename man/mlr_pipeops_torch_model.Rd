@@ -6,7 +6,11 @@
 \title{PipeOp Torch Model}
 \description{
 Builds a Torch Learner from a \code{\link{ModelDescriptor}} and trains it with the given parameter specification.
-The task type must be specified during construction.
+
+This is \code{po("torch_model")}, which works on the general-purpose task type of \code{mlr3torch}, see
+\code{\link{TaskTorch}}.
+For classification and regression see \code{\link{PipeOpTorchModelClassif}} and \code{\link{PipeOpTorchModelRegr}}
+respectively.
 }
 \section{Parameters}{
 
@@ -65,6 +69,17 @@ Measures to be evaluated during validation.
 How often the train / validation predictions are evaluated using \code{measures_train} / \code{measures_valid}.
 This is initialized to \code{1}.
 Note that the final model is always evaluated.
+}
+
+\strong{Resuming}:
+\itemize{
+\item \code{resume} :: \code{character(1)} or \code{TRUE}\cr
+Continues training from a checkpoint written by
+\code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}}, either the folder it wrote to or \code{TRUE},
+which takes that folder from the checkpoint callback of this learner.
+Note that \code{epochs} is the \emph{total} number of epochs, i.e. it includes the epochs the checkpoint
+was already trained for: resuming a checkpoint from epoch 5 with \code{epochs = 8} trains 3 more
+epochs.
 }
 
 \strong{Early Stopping}:
@@ -167,6 +182,7 @@ Then the parameters are set according to the parameters specified in \code{PipeO
 its \verb{$train()} method is called on the \code{\link[mlr3:Task]{Task}} stored in the \code{\link{ModelDescriptor}}.
 }
 
+\concept{PipeOps}
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3pipelines:PipeOpLearner]{mlr3pipelines::PipeOpLearner}} -> \code{PipeOpTorchModel}
 }
@@ -192,19 +208,34 @@ its \verb{$train()} method is called on the \code{\link[mlr3:Task]{Task}} stored
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{PipeOpTorchModel$new(task_type, id = "torch_model", param_vals = list())}
+    \preformatted{PipeOpTorchModel$new(
+  task_type = "torch",
+  id = "torch_model",
+  param_vals = list(),
+  target_batchgetter = NULL,
+  predict_types = NULL
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{task_type}}{(\code{character(1)})\cr
-The task type of the model.}
+The task type of the model. Defaults to \code{"torch"}.}
       \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
       \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
+      \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
+Converts the target columns of a batch into the target tensor \code{y} that the loss is applied to.
+Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
+and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
+target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
+If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide, but a \code{\link{TaskTorch}} only if it has no target at all, in which case the batches have no \code{y} element.}
+      \item{\code{predict_types}}{(\code{character()})\cr
+The predict types.
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
     }
     \if{html}{\out{</div>}}
   }

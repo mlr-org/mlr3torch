@@ -9,6 +9,15 @@ Changes the learning rate based on the 1cycle learning rate policy.
 
 Wraps \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}}, where the default values for \code{epochs} and \code{steps_per_epoch} are the number of training epochs and the number of batches per epoch.
 }
+\section{Resuming}{
+
+As for \code{\link{CallbackSetLRScheduler}}, with one additional restriction: the 1cycle policy is defined
+over the total number of steps of the run, so a resumed run must be configured for the same
+number of steps as the one that wrote the checkpoint, i.e. the same \code{epochs} and the same number
+of batches per epoch.
+A run that is not errors before its first epoch rather than somewhere in the middle.
+}
+
 \section{Super classes}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{\link[mlr3torch:CallbackSetLRScheduler]{CallbackSetLRScheduler}} -> \code{CallbackSetLRSchedulerOneCycle}
 }

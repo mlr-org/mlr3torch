@@ -73,10 +73,14 @@ navbar:
         href: articles/callbacks.html
       - text: Non-Tabular Data
         href: articles/lazy_tensor.html
+      - text: Custom Learning Problems
+        href: articles/custom_task_type.html
       - text: ---
       - text: Internals
       - text: Networks as Graphs
         href: articles/internals_pipeop_torch.html
+      - text: Writing your own PipeOpTorch
+        href: articles/custom_pipeop_torch.html
 
 
 reference:
@@ -86,11 +90,20 @@ reference:
   - title: Learners
     contents:
       - starts_with("mlr_learners")
+      - as_learner_torch
+      - GraphLearnerTorch
       - replace_head
   - title: Tasks
     contents:
       - starts_with("mlr_tasks")
       - mlr_backends_lazy
+  - title: Custom Task Types
+    contents:
+      - as_task_torch
+      - PredictionTorch
+      - MeasureTorch
+      - msr_torch
+      - mlr_measures_torch.default
   - title: Network Building Blocks
     contents:
       - ModelDescriptor
@@ -99,6 +112,7 @@ reference:
       - TorchIngressToken
       - starts_with("ingress")
       - mlr_pipeops_torch
+      - pipeop_torch
       - mlr_pipeops_torch_ingress
       - starts_with("mlr_pipeops_torch_model")
       - starts_with("batchgetter")
@@ -168,6 +182,9 @@ reference:
       - task_dataset
       - Select
       - output_dim_for
+      - get_target_batchgetter
+      - get_batch_constructor
+      - encode_prediction
   - title: Shape Inference
     contents:
       - infer_shapes

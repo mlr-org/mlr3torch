@@ -7,7 +7,6 @@
 ^\.github$
 ^LICENSE\.md$
 ^LICENSE$
-^attic$
 ^man-roxygen$
 ^mlr3torch\.Rcheck$
 ^mlr3torch.*\.tar\.gz$

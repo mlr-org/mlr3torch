@@ -8,12 +8,31 @@
   dimensions.
 * The dropout probability `p` of `lrn("classif.mlp")` / `lrn("regr.mlp")` is now initialized to
   `0.1` instead of `0.5`. Set `p = 0.5` explicitly to keep the old behaviour.
+* The `cache` argument of `materialize()` is now a `utils::hashtab()` instead of an `environment()`,
+  which avoids possible hash collisions and raises the R dependency to `>= 4.2.0`.
+* The first argument of the private `.encode_prediction()` method of `LearnerTorch` was renamed
+  from `predict_tensor` to `network_output`, as it can also be a `list()` of tensors.
+* `measures_train` is now calculated from the complete output of the network instead of only its
+  first tensor, which is passed to `.encode_prediction()` unchanged.
 * The `num_interop_threads` parameter of `LearnerTorch` is no longer initialized to `1`, so torch's
   default is left in place unless the parameter is set. Setting it to a value that torch can no
   longer apply is now an error instead of a warning.
 
 ## Features
 
+* New function `as_learner_torch()`, which converts a `Graph` of `PipeOpTorch` operators into a
+  `Learner`. It's advantage over `as_learner()` is that the resulting learner exposes methods like
+  `$network()` and `$dataset()`.
+* `LearnerTorch` and `PipeOpTorchModel` now accept any task type registered in
+  `mlr_reflections$task_types`, via the new generics `get_target_batchgetter()` and `encode_prediction()`.
+* New S3 generic `get_batch_constructor()`, which decides how a whole batch of a task is built,
+  i.e. both the features `x` and the target `y`.
+* Added support for `TaskTorch` to easily go beyond the regression and classification setting,
+  see the *Custom Learning Problems* article for more information.
+* A network can now return a `list()` of tensors in evaluation mode, which is passed to
+  `encode_prediction()` as it is, so a prediction can consist of more than one quantity.
+* New function `pipeop_torch()` that simplifies the creation of `PipeOpTorch` classes.
+* New article *Writing your own PipeOpTorch*.
 * The `$model` of a `LearnerTorch` now has a printer.
 * Added more image learners from {torchvision}.
 * `LearnerTorch` now exposes the validation scores of the epoch that `$internal_tuned_values` reports
@@ -26,10 +45,8 @@
   to customize the construction of the loss function.
 * `LearnerTorch` now has `restore_best_weights` parameter that can be used when
    early stopping is active.
-* A network can now return more than one prediction during training as a list.
-  The first is expected to be the primary prediction.
-  In `ContextTorch`, `$y_hat` is the primary prediction and `$y_hats` contains
-  the complete prediction.
+* A network can now return a `list()` of tensors during training, which the loss is applied to.
+  In `ContextTorch`, `$y_hats` is that complete output and `$y_hat` its first element.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
 * Added multihead attention and transformer encoder pipeops.
 * Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
@@ -38,17 +55,29 @@
 * Exported various helpers useful for implementing shape inference for custom `PipeOpTorch` classes.
 * `ContextTorch` has a new field `$callbacks`, which gives a callback access to the other callbacks
   of the training run.
-* `CallbackSet` has a new field `$weight` that controls when a callback is called within a stage.
-* `t_clbk("checkpoint")` now accepts an existing empty directory as its `path`
+* Callbacks can now be ordered via a `weight` field.
+* A `LearnerTorch` can now be resumed from a checkpoint, which includes resuming the callbacks.
+* `t_clbk("checkpoint")` now also writes the callback states, as well as the class behind each
+  callback id, so a resumed run errors instead of restoring a state into a different callback.
 * The `path` of `t_clbk("checkpoint")` can now be a `function()` that is called at the beginning of
   each training run and returns that run's path.
+* `t_clbk("checkpoint")` now checks each file immediately before writing it, so two runs writing
+  into one folder error instead of mixing their checkpoints.
+* Resuming a checkpoint that is already at `epochs` now returns its model instead of erroring, so a
+  script that restarts itself can be run again after it succeeded.
+* `t_clbk("checkpoint")` now reports its folder in `learner$model$callbacks$<id>$path`, so the
+  folder a `path` function chose can be read off the trained learner.
+* Resuming a run that early stopping had ended now warns and returns its model instead of training
+  further, and `ctx$terminate` is checked before an epoch rather than after it.
+* `t_clbk("progress")` now prints the epoch as `Epoch <n>/<epochs>`, so a resumed run shows how much
+  of it is left.
 
 ## Bug fixes
 
+* `lrn("classif.torch_model")` / `lrn("regr.torch_model")` no longer change their `$hash` when they
+  are trained.
+* Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
-* `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
-  under that epoch's own number, so `network<n>.pt` is now always the
-  network at the *end* of epoch `n` rather than sometimes a half-trained one.
 * `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
     sometimes doubles like `NA`).

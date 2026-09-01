@@ -21,6 +21,11 @@ test_that("Basic checks", {
   expect_error(po("torch_loss", list()))
 })
 
+test_that("The loss is part of the phash", {
+  expect_false(po("torch_loss", "mse")$phash == po("torch_loss", "cross_entropy")$phash)
+  expect_equal(po("torch_loss", "mse")$phash, po("torch_loss", "mse")$phash)
+})
+
 test_that("Correct error message if loss is already configured", {
   task = tsk("iris")
   md = po("torch_ingress_num")$train(list(task))
