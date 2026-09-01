@@ -153,21 +153,28 @@ This activates early stopping using the validation scores.
 If the performance of a model does not improve for <code>patience</code> evaluation steps, training is ended.
 Note that this counts <em>evaluation steps</em>, not epochs: when <code>eval_freq</code> is greater than <code>1</code>,
 <code>patience</code> evaluation steps correspond to <code>patience * eval_freq</code> epochs.
-Note that the final model is stored in the learner, not the best model.
+Note that the final model is stored in the learner, not the best model, unless
+<code>restore_best_weights</code> is set to <code>TRUE</code>.
 This is initialized to <code>0</code>, which means no early stopping.
 The first entry from <code>measures_valid</code> is used as the metric.
 This also requires to specify the <code>$validate</code> field of the Learner, as well as <code>measures_valid</code>.
 If this is set, the epoch after which no improvement was observed, can be accessed via the <code>$internal_tuned_values</code>
-field of the learner.</p></li>
+field of the learner, and the validation scores of that epoch via its <code>$best_valid_scores</code> field.</p></li>
 <li><p><code>min_delta</code> :: <code>double(1)</code><br>
 The minimum improvement threshold for early stopping.
 Is initialized to 0.</p></li>
 <li><p><code>restore_best_weights</code> :: <code>logical(1)</code><br>
 Whether to restore the weights of the best epoch when training ends, instead of keeping those
-of the last epoch that was trained. Is initialized to <code>FALSE</code>, i.e. the network of the last
+of the last epoch that was trained. Like <code>min_delta</code>, this only has an effect when early stopping
+is active, i.e. when <code>patience</code> is greater than <code>0</code>.
+Is initialized to <code>FALSE</code>, i.e. the network of the last
 epoch is stored. Setting this to <code>TRUE</code> makes the stored network the one of the epoch that
 <code>$internal_tuned_values</code> reports, and costs one additional copy of the network's parameters in
-memory. Checkpoints written by <code>t_clbk("checkpoint")</code> are unaffected: they always hold the
+memory. Because <code>$internal_valid_scores</code> describes the network that is stored, it then reports
+the scores of the best epoch, i.e. the same scores as <code>$best_valid_scores</code> – except on a
+resumed run that never beats the score its checkpoint had already reached, which remembers no
+weights to restore and so still ends on those of its last epoch.
+Checkpoints written by <code>t_clbk("checkpoint")</code> are unaffected: they always hold the
 network as training left it.</p></li>
 </ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
 The batch size used by the training and prediction dataloader.

@@ -286,21 +286,28 @@ This activates early stopping using the validation scores.
 If the performance of a model does not improve for <code>patience</code> evaluation steps, training is ended.
 Note that this counts <em>evaluation steps</em>, not epochs: when <code>eval_freq</code> is greater than <code>1</code>,
 <code>patience</code> evaluation steps correspond to <code>patience * eval_freq</code> epochs.
-Note that the final model is stored in the learner, not the best model.
+Note that the final model is stored in the learner, not the best model, unless
+<code>restore_best_weights</code> is set to <code>TRUE</code>.
 This is initialized to <code>0</code>, which means no early stopping.
 The first entry from <code>measures_valid</code> is used as the metric.
 This also requires to specify the <code>$validate</code> field of the Learner, as well as <code>measures_valid</code>.
 If this is set, the epoch after which no improvement was observed, can be accessed via the <code>$internal_tuned_values</code>
-field of the learner.</p></li>
+field of the learner, and the validation scores of that epoch via its <code>$best_valid_scores</code> field.</p></li>
 <li><p><code>min_delta</code> :: <code>double(1)</code><br>
 The minimum improvement threshold for early stopping.
 Is initialized to 0.</p></li>
 <li><p><code>restore_best_weights</code> :: <code>logical(1)</code><br>
 Whether to restore the weights of the best epoch when training ends, instead of keeping those
-of the last epoch that was trained. Is initialized to <code>FALSE</code>, i.e. the network of the last
+of the last epoch that was trained. Like <code>min_delta</code>, this only has an effect when early stopping
+is active, i.e. when <code>patience</code> is greater than <code>0</code>.
+Is initialized to <code>FALSE</code>, i.e. the network of the last
 epoch is stored. Setting this to <code>TRUE</code> makes the stored network the one of the epoch that
 <code>$internal_tuned_values</code> reports, and costs one additional copy of the network's parameters in
-memory. Checkpoints written by <code>t_clbk("checkpoint")</code> are unaffected: they always hold the
+memory. Because <code>$internal_valid_scores</code> describes the network that is stored, it then reports
+the scores of the best epoch, i.e. the same scores as <code>$best_valid_scores</code> – except on a
+resumed run that never beats the score its checkpoint had already reached, which remembers no
+weights to restore and so still ends on those of its last epoch.
+Checkpoints written by <code>t_clbk("checkpoint")</code> are unaffected: they always hold the
 network as training left it.</p></li>
 </ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
 The batch size used by the training and prediction dataloader.
@@ -463,9 +470,31 @@ The ids will be set as the names.</p></dd>
 
 
     <dt><code>internal_valid_scores</code></dt>
-<dd><p>Retrieves the internal validation scores as a named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>.
+<dd><p>Retrieves the internal validation scores of the epoch that the stored network comes from, as a
+named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>.
+This is the <em>last</em> epoch, unless <code>restore_best_weights</code> is <code>TRUE</code> and the best weights were
+actually restored, in which case it is the <em>best</em> epoch and these scores are the same as
+<code>$best_valid_scores</code>.
+A resumed run whose epochs never beat the score its checkpoint had already reached remembers
+no weights to restore, so the two fields describe different epochs even then.
 Specify the <code>$validate</code> field and the <code>measures_valid</code> parameter to configure this.
 Returns <code>NULL</code> if learner is not trained yet.</p></dd>
+
+
+    <dt><code>best_valid_scores</code></dt>
+<dd><p>Retrieves the internal validation scores of the <em>best</em> epoch as a named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>.
+This is the epoch that is also reported via <code>$internal_tuned_values</code>, i.e. the epoch with the best
+score of the first validation measure.
+Unless <code>restore_best_weights</code> is <code>TRUE</code>, the trained network is the one after the last epoch,
+so this can differ from <code>$internal_valid_scores</code>.
+Tracking the best epoch requires early stopping to be active (<code>patience &gt; 0</code>), so this is an
+empty list when it is not, as well as when the learner was trained without validation data –
+no early stopping callback runs in either case, and the two are not told apart.
+Returns <code>NULL</code> if the learner is not trained yet, and also when the model was not stored:
+unlike <code>$internal_valid_scores</code>, this is not part of the <code>Learner</code> contract that <code>mlr3</code>
+snapshots into <code>$state</code>, so it can only be read back off the model.
+After a <code><a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">resample()</a></code> or <code><a href="https://mlr3.mlr-org.com/reference/benchmark.html" class="external-link">benchmark()</a></code> with <code>store_models = FALSE</code> it is therefore <code>NULL</code>
+even though <code>$internal_tuned_values</code> still names the epoch it would describe.</p></dd>
 
 
     <dt><code>internal_tuned_values</code></dt>
