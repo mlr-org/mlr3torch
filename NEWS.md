@@ -35,10 +35,7 @@
 * New article *Writing your own PipeOpTorch*.
 * The `$model` of a `LearnerTorch` now has a printer.
 * Added more image learners from {torchvision}.
-* `LearnerTorch` now exposes the validation scores of the epoch that `$internal_tuned_values` reports
-  via `$best_valid_scores`, which requires early stopping (`patience > 0`).
-* When `restore_best_weights` is `TRUE`, `$internal_valid_scores` now reports the scores of the best
-  epoch, i.e. those of the network that is stored.
+* `LearnerTorch` now implements `$best_valid_scores`.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.
 * `LearnerTorch` now has `.loss_fn(task, param_vals)` private method that allows

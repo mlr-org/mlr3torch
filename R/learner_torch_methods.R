@@ -148,8 +148,6 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   model = train_loop(ctx, callbacks)
 
   if (!is.null(es) && es$restored_best_weights) {
-    # `train_loop()` reports the scores of the last epoch, but the network that is stored is the one
-    # of the best epoch, so the scores that describe it are those of that epoch
     model$internal_valid_scores = es$best_valid_scores
   }
 

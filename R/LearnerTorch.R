@@ -30,7 +30,7 @@
 #' where `<upper>` is the maximally allowed number of epochs, and configure the early stopping.
 #'
 #' @section Checkpointing and Resuming:
-#' It is possible to save intermediate results from a run via the 
+#' It is possible to save intermediate results from a run via the
 #' [`t_clbk("checkpoint")`][mlr_callback_set.checkpoint] callback.
 #' It is then possible to train for more epochs by setting the `resume` parameter of the `LearnerTorch`.
 #' This parameter can either be a path or `TRUE` which will use the path of the provided checkpoint
@@ -479,13 +479,8 @@ LearnerTorch = R6Class("LearnerTorch",
     },
 
     #' @field internal_valid_scores
-    #' Retrieves the internal validation scores of the epoch that the stored network comes from, as a
-    #' named `list()`.
-    #' This is the *last* epoch, unless `restore_best_weights` is `TRUE` and the best weights were
-    #' actually restored, in which case it is the *best* epoch and these scores are the same as
-    #' `$best_valid_scores`.
-    #' A resumed run whose epochs never beat the score its checkpoint had already reached remembers
-    #' no weights to restore, so the two fields describe different epochs even then.
+    #' Retrieves the internal validation scores of the current network as a named `list()`.
+    #' This is the *last* epoch, unless `restore_best_weights` is `TRUE`.
     #' Specify the `$validate` field and the `measures_valid` parameter to configure this.
     #' Returns `NULL` if learner is not trained yet.
     internal_valid_scores = function() {
@@ -493,18 +488,8 @@ LearnerTorch = R6Class("LearnerTorch",
     },
     #' @field best_valid_scores
     #' Retrieves the internal validation scores of the *best* epoch as a named `list()`.
-    #' This is the epoch that is also reported via `$internal_tuned_values`, i.e. the epoch with the best
-    #' score of the first validation measure.
-    #' Unless `restore_best_weights` is `TRUE`, the trained network is the one after the last epoch,
-    #' so this can differ from `$internal_valid_scores`.
-    #' Tracking the best epoch requires early stopping to be active (`patience > 0`), so this is an
-    #' empty list when it is not, as well as when the learner was trained without validation data --
-    #' no early stopping callback runs in either case, and the two are not told apart.
-    #' Returns `NULL` if the learner is not trained yet, and also when the model was not stored:
-    #' unlike `$internal_valid_scores`, this is not part of the `Learner` contract that `mlr3`
-    #' snapshots into `$state`, so it can only be read back off the model.
-    #' After a `resample()` or `benchmark()` with `store_models = FALSE` it is therefore `NULL`
-    #' even though `$internal_tuned_values` still names the epoch it would describe.
+    #' Only available when doing early stopping.
+    #' Note that *best* here means with respect to the metric that was used for early stopping.
     best_valid_scores = function() {
       if (is.null(self$model)) {
         return(NULL)

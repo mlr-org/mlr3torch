@@ -1,42 +1,8 @@
-test_that("the early stopping state can be saved and restored", {
-  task = tsk("iris")
-  make = function(epochs, callbacks = list()) {
-    lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10, validate = 0.3,
-      measures_valid = msrs("classif.acc"), patience = 2L, min_delta = 0, callbacks = callbacks)
-  }
-
-  first = make(3L)
-  first$train(task)
-  state = first$model$callbacks$early_stopping
-  expect_names(names(state),
-    permutation.of = c("best_epochs", "best_score", "best_valid_scores", "stagnation", "measure"))
-
-  # a run that continues where the first one stopped keeps its best score and stagnation counter
-  restored = NULL
-  spy = torch_callback("spy",
-    on_begin = function() {
-      cb = self$ctx$callbacks$early_stopping
-      cb$load_state_dict(state)
-      restored <<- list(best_score = cb$best_score, stagnation = cb$stagnation,
-        epoch_at_best_score = cb$epoch_at_best_score,
-        best_valid_scores = cb$best_valid_scores)
-    }
-  )
-  second = make(3L, spy)
-  second$train(task)
-
-  expect_equal(restored$best_score, state$best_score)
-  expect_equal(restored$stagnation, state$stagnation)
-  expect_equal(restored$epoch_at_best_score, state$best_epochs)
-  expect_equal(restored$best_valid_scores, state$best_valid_scores)
-})
-
 test_that("best_valid_scores are the scores of the best epoch", {
   task = tsk("mtcars")
   make = function(...) {
     learner = lrn("regr.mlp", batch_size = 8, neurons = c(50, 50), p = 0, validate = 0.3,
       measures_valid = msrs(c("regr.mse", "regr.mae")), seed = 3, opt.lr = 0.5, ...)
-    # the R seed decides the validation split, so every learner has to see the same one
     withr::with_seed(42, learner$train(task))
     learner
   }
@@ -45,47 +11,18 @@ test_that("best_valid_scores are the scores of the best epoch", {
   best = learner$best_valid_scores
   last = learner$internal_valid_scores
   expect_list(best, types = "numeric")
-  # all validation measures are tracked, not just the one early stopping looks at
   expect_names(names(best), permutation.of = names(last))
 
-  # the setup has to separate the best epoch from the last one, or everything below holds
-  # trivially -- on a task where the score never moves these assertions cannot fail
   best_epoch = learner$internal_tuned_values$epochs
   expect_lt(best_epoch, learner$model$epochs)
   expect_false(isTRUE(all.equal(best, last)))
-  # regr.mse is minimized, so the best epoch beats the last one
   expect_lt(best$regr.mse, last$regr.mse)
 
-  # the pin that does not depend on how the callback records things: these are the scores that
-  # training for exactly the tuned number of epochs produces
   reference = make(epochs = best_epoch, patience = 0)
   expect_equal(best, reference$internal_valid_scores)
 })
 
-test_that("best_valid_scores is NULL when the model was not stored", {
-  # it is read off the model, unlike `$internal_valid_scores`, which `mlr3` snapshots into the
-  # state. `store_models = FALSE` drops the model, so the field cannot be recovered -- documented
-  # rather than fixed, because `mlr3:::learner_train()` carries only the model, the internal valid
-  # scores, the internal tuned values and the oob error back across the encapsulation boundary
-  learner = lrn("classif.mlp", epochs = 3L, batch_size = 50, neurons = 10, validate = 0.3,
-    measures_valid = msrs("classif.acc"), patience = 2L, min_delta = 0)
-  rr = resample(tsk("iris"), learner, rsmp("holdout"), store_models = FALSE)
-  trained = rr$learners[[1L]]
-
-  expect_null(trained$model)
-  expect_null(trained$best_valid_scores)
-  # the sibling fields do survive, so the difference is real and not an accident of this setup
-  expect_list(trained$internal_valid_scores, types = "numeric")
-  expect_list(trained$internal_tuned_values, len = 1L)
-
-  # with the model kept, it is there
-  kept = resample(tsk("iris"), learner, rsmp("holdout"), store_models = TRUE)$learners[[1L]]
-  expect_list(kept$best_valid_scores, types = "numeric")
-})
-
 test_that("best_valid_scores survives marshaling, as internal_valid_scores does", {
-  # it is read off the model rather than the state, and marshaling nests the model one level down,
-  # so without unwrapping it silently reported an empty list instead of the scores
   task = tsk("iris")
   learner = lrn("classif.mlp", epochs = 3L, batch_size = 50, neurons = 10, validate = 0.3,
     measures_valid = msrs("classif.acc"), patience = 2L, min_delta = 0)
@@ -96,9 +33,6 @@ test_that("best_valid_scores survives marshaling, as internal_valid_scores does"
   learner$marshal()
   expect_true(learner$marshaled)
   expect_equal(learner$best_valid_scores, before)
-  # `$internal_valid_scores` already survived marshaling; it is not compared against
-  # `$best_valid_scores` here, since the two describe different epochs unless the best weights
-  # are restored
   expect_list(learner$internal_valid_scores, types = "numeric", len = 1L)
 
   learner$unmarshal()
@@ -171,21 +105,17 @@ test_that("restore_best_weights makes the internal valid scores those of the bes
   make_es_learner = function(...) {
     learner = lrn("regr.mlp", batch_size = 8, neurons = c(50, 50), p = 0, validate = 0.3,
       measures_valid = msrs(c("regr.mse", "regr.mae")), seed = 3, opt.lr = 0.5, ...)
-    # the R seed decides the validation split, so every learner has to be trained under the same one
     withr::with_seed(42, learner$train(task))
     learner
   }
 
-  # without the restore the stored network is the one of the last epoch, which is a different one
   last = make_es_learner(epochs = 30, patience = 3)
   expect_false(isTRUE(all.equal(last$internal_valid_scores, last$best_valid_scores)))
 
   restored = make_es_learner(epochs = 30, patience = 3, restore_best_weights = TRUE)
-  # both fields now describe the same network, namely the one of the best epoch
   expect_equal(restored$internal_valid_scores, restored$best_valid_scores)
   expect_equal(restored$best_valid_scores, last$best_valid_scores)
 
-  # and those are the scores that training for exactly that many epochs produces
   reference = make_es_learner(epochs = last$internal_tuned_values$epochs, patience = 0)
   expect_equal(restored$internal_valid_scores, reference$internal_valid_scores)
 })

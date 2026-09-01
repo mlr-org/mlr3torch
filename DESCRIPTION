@@ -40,7 +40,7 @@ License: LGPL (>= 3)
 BugReports: https://github.com/mlr-org/mlr3torch/issues
 URL: https://mlr3torch.mlr-org.com/, https://github.com/mlr-org/mlr3torch/
 Depends:
-    mlr3 (>= 1.0.1),
+    mlr3 (>= 1.8.0),
     mlr3pipelines (>= 0.11.0),
     torch (>= 0.16.2),
     R (>= 4.2.0)
