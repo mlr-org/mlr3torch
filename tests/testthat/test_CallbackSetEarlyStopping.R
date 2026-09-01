@@ -18,7 +18,8 @@ test_that("the early stopping state can be saved and restored", {
       cb = self$ctx$callbacks$early_stopping
       cb$load_state_dict(state)
       restored <<- list(best_score = cb$best_score, stagnation = cb$stagnation,
-        epoch_at_best_score = cb$epoch_at_best_score)
+        epoch_at_best_score = cb$epoch_at_best_score,
+        best_valid_scores = cb$best_valid_scores)
     }
   )
   second = make(3L, spy)
@@ -27,26 +28,59 @@ test_that("the early stopping state can be saved and restored", {
   expect_equal(restored$best_score, state$best_score)
   expect_equal(restored$stagnation, state$stagnation)
   expect_equal(restored$epoch_at_best_score, state$best_epochs)
+  expect_equal(restored$best_valid_scores, state$best_valid_scores)
 })
 
 test_that("best_valid_scores are the scores of the best epoch", {
-  task = tsk("iris")
-  learner = lrn("classif.mlp", epochs = 5L, batch_size = 50, neurons = 10, validate = 0.3,
-    measures_valid = msrs(c("classif.acc", "classif.ce")), patience = 2L, min_delta = 0)
-  learner$train(task)
+  task = tsk("mtcars")
+  make = function(...) {
+    learner = lrn("regr.mlp", batch_size = 8, neurons = c(50, 50), p = 0, validate = 0.3,
+      measures_valid = msrs(c("regr.mse", "regr.mae")), seed = 3, opt.lr = 0.5, ...)
+    # the R seed decides the validation split, so every learner has to see the same one
+    withr::with_seed(42, learner$train(task))
+    learner
+  }
+  learner = make(epochs = 30, patience = 3)
 
   best = learner$best_valid_scores
   last = learner$internal_valid_scores
   expect_list(best, types = "numeric")
   # all validation measures are tracked, not just the one early stopping looks at
   expect_names(names(best), permutation.of = names(last))
-  # the first measure is the one early stopping optimizes, so it holds the best score
-  expect_equal(best[[1L]], learner$model$callbacks$early_stopping$best_score)
-  # the best epoch is the one reported as the internally tuned value
-  expect_equal(learner$internal_tuned_values$epochs,
-    learner$model$callbacks$early_stopping$best_epochs)
-  # classif.acc is maximized, so the best epoch is at least as good as the last one
-  expect_true(best$classif.acc >= last$classif.acc)
+
+  # the setup has to separate the best epoch from the last one, or everything below holds
+  # trivially -- on a task where the score never moves these assertions cannot fail
+  best_epoch = learner$internal_tuned_values$epochs
+  expect_lt(best_epoch, learner$model$epochs)
+  expect_false(isTRUE(all.equal(best, last)))
+  # regr.mse is minimized, so the best epoch beats the last one
+  expect_lt(best$regr.mse, last$regr.mse)
+
+  # the pin that does not depend on how the callback records things: these are the scores that
+  # training for exactly the tuned number of epochs produces
+  reference = make(epochs = best_epoch, patience = 0)
+  expect_equal(best, reference$internal_valid_scores)
+})
+
+test_that("best_valid_scores is NULL when the model was not stored", {
+  # it is read off the model, unlike `$internal_valid_scores`, which `mlr3` snapshots into the
+  # state. `store_models = FALSE` drops the model, so the field cannot be recovered -- documented
+  # rather than fixed, because `mlr3:::learner_train()` carries only the model, the internal valid
+  # scores, the internal tuned values and the oob error back across the encapsulation boundary
+  learner = lrn("classif.mlp", epochs = 3L, batch_size = 50, neurons = 10, validate = 0.3,
+    measures_valid = msrs("classif.acc"), patience = 2L, min_delta = 0)
+  rr = resample(tsk("iris"), learner, rsmp("holdout"), store_models = FALSE)
+  trained = rr$learners[[1L]]
+
+  expect_null(trained$model)
+  expect_null(trained$best_valid_scores)
+  # the sibling fields do survive, so the difference is real and not an accident of this setup
+  expect_list(trained$internal_valid_scores, types = "numeric")
+  expect_list(trained$internal_tuned_values, len = 1L)
+
+  # with the model kept, it is there
+  kept = resample(tsk("iris"), learner, rsmp("holdout"), store_models = TRUE)$learners[[1L]]
+  expect_list(kept$best_valid_scores, types = "numeric")
 })
 
 test_that("best_valid_scores survives marshaling, as internal_valid_scores does", {

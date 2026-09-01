@@ -268,7 +268,9 @@ Is initialized to \code{FALSE}, i.e. the network of the last
 epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
 memory. Because \verb{$internal_valid_scores} describes the network that is stored, it then reports
-the scores of the best epoch, i.e. the same scores as \verb{$best_valid_scores}.
+the scores of the best epoch, i.e. the same scores as \verb{$best_valid_scores} -- except on a
+resumed run that never beats the score its checkpoint had already reached, which remembers no
+weights to restore and so still ends on those of its last epoch.
 Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
 network as training left it.
 }
@@ -450,8 +452,11 @@ The ids will be set as the names.}
 
     \item{\code{internal_valid_scores}}{Retrieves the internal validation scores of the epoch that the stored network comes from, as a
 named \code{list()}.
-This is the \emph{last} epoch, unless \code{restore_best_weights} is \code{TRUE}, in which case it is the
-\emph{best} epoch and these scores are the same as \verb{$best_valid_scores}.
+This is the \emph{last} epoch, unless \code{restore_best_weights} is \code{TRUE} and the best weights were
+actually restored, in which case it is the \emph{best} epoch and these scores are the same as
+\verb{$best_valid_scores}.
+A resumed run whose epochs never beat the score its checkpoint had already reached remembers
+no weights to restore, so the two fields describe different epochs even then.
 Specify the \verb{$validate} field and the \code{measures_valid} parameter to configure this.
 Returns \code{NULL} if learner is not trained yet.}
 
@@ -463,7 +468,11 @@ so this can differ from \verb{$internal_valid_scores}.
 Tracking the best epoch requires early stopping to be active (\code{patience > 0}), so this is an
 empty list when it is not, as well as when the learner was trained without validation data --
 no early stopping callback runs in either case, and the two are not told apart.
-Returns \code{NULL} if the learner is not trained yet.}
+Returns \code{NULL} if the learner is not trained yet, and also when the model was not stored:
+unlike \verb{$internal_valid_scores}, this is not part of the \code{Learner} contract that \code{mlr3}
+snapshots into \verb{$state}, so it can only be read back off the model.
+After a \code{resample()} or \code{benchmark()} with \code{store_models = FALSE} it is therefore \code{NULL}
+even though \verb{$internal_tuned_values} still names the epoch it would describe.}
 
     \item{\code{internal_tuned_values}}{When early stopping is active, this returns a named list with the early-stopped epochs,
 otherwise an empty list is returned.

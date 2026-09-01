@@ -481,8 +481,11 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @field internal_valid_scores
     #' Retrieves the internal validation scores of the epoch that the stored network comes from, as a
     #' named `list()`.
-    #' This is the *last* epoch, unless `restore_best_weights` is `TRUE`, in which case it is the
-    #' *best* epoch and these scores are the same as `$best_valid_scores`.
+    #' This is the *last* epoch, unless `restore_best_weights` is `TRUE` and the best weights were
+    #' actually restored, in which case it is the *best* epoch and these scores are the same as
+    #' `$best_valid_scores`.
+    #' A resumed run whose epochs never beat the score its checkpoint had already reached remembers
+    #' no weights to restore, so the two fields describe different epochs even then.
     #' Specify the `$validate` field and the `measures_valid` parameter to configure this.
     #' Returns `NULL` if learner is not trained yet.
     internal_valid_scores = function() {
@@ -497,11 +500,12 @@ LearnerTorch = R6Class("LearnerTorch",
     #' Tracking the best epoch requires early stopping to be active (`patience > 0`), so this is an
     #' empty list when it is not, as well as when the learner was trained without validation data --
     #' no early stopping callback runs in either case, and the two are not told apart.
-    #' Returns `NULL` if the learner is not trained yet.
+    #' Returns `NULL` if the learner is not trained yet, and also when the model was not stored:
+    #' unlike `$internal_valid_scores`, this is not part of the `Learner` contract that `mlr3`
+    #' snapshots into `$state`, so it can only be read back off the model.
+    #' After a `resample()` or `benchmark()` with `store_models = FALSE` it is therefore `NULL`
+    #' even though `$internal_tuned_values` still names the epoch it would describe.
     best_valid_scores = function() {
-      # unlike `$internal_valid_scores` and `$internal_tuned_values`, this is not part of the
-      # `Learner` contract, so `mlr3` does not call an extractor for it and `$state` never holds it.
-      # It is read off the callback's state instead, which the model carries.
       if (is.null(self$model)) {
         return(NULL)
       }

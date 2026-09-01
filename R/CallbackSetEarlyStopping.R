@@ -83,7 +83,11 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       }
       self$epoch_at_best_score = state_dict$best_epochs
       self$best_score = state_dict$best_score
-      self$best_valid_scores = state_dict$best_valid_scores
+      # a checkpoint written before this field existed has none; leaving the value alone keeps it
+      # consistent with the `best_epochs` that is being restored alongside it
+      if (!is.null(state_dict$best_valid_scores)) {
+        self$best_valid_scores = state_dict$best_valid_scores
+      }
       self$stagnation = state_dict$stagnation
       if (self$stagnation >= self$patience) {
         warningf("Early stopping had already ended the run this checkpoint belongs to (stagnation %i, patience %i), so this run trains no epoch and returns the model of the checkpoint, even though 'epochs' is greater. A run that early stopping ended is finished; start a new run to train further.", # nolint

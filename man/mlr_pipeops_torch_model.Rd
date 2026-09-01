@@ -107,7 +107,9 @@ Is initialized to \code{FALSE}, i.e. the network of the last
 epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
 memory. Because \verb{$internal_valid_scores} describes the network that is stored, it then reports
-the scores of the best epoch, i.e. the same scores as \verb{$best_valid_scores}.
+the scores of the best epoch, i.e. the same scores as \verb{$best_valid_scores} -- except on a
+resumed run that never beats the score its checkpoint had already reached, which remembers no
+weights to restore and so still ends on those of its last epoch.
 Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
 network as training left it.
 }
