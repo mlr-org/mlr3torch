@@ -185,8 +185,6 @@ auto_cache_lazy_tensors = function(lts) {
 #' `d_out` output features, so a network trained on some other task can be fine-tuned on this one.
 #' The new layer's input size is read off the layer it replaces, and its weights are newly
 #' initialized while the rest of the network keeps its pretrained weights.
-#' Methods are provided for the torchvision architectures that the `LearnerTorchVision` learners
-#' wrap; the learners call this themselves, so it is only needed when building a network by hand.
 #' @param network ([`torch::nn_module`])\cr
 #'   The network
 #' @param d_out (`integer(1)`)\cr

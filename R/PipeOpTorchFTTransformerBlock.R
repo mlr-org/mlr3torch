@@ -171,8 +171,7 @@ nn_ft_transformer_block = nn_module(
 #' @section nn_module:
 #' Calls [`nn_ft_transformer_block()`] when trained.
 #' @section Parameters:
-#' The parameters of [`nn_ft_transformer_block()`]. That function's documentation describes what
-#' each one does, and names the value this `PipeOp` initializes it to where the two differ.
+#' The parameters of [`nn_ft_transformer_block()`].
 #' `r mlr3torch:::rd_info_param_set(po("nn_ft_transformer_block")$param_set)`
 #' @templateVar id nn_ft_transformer_block
 #' @template pipeop_torch

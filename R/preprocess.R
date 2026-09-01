@@ -260,10 +260,7 @@ register_preproc("trafo_resize", torchvision::transform_resize,
 #' @format [`R6Class`][R6::R6Class] inheriting from [`PipeOpTaskPreprocTorch`].
 #'
 #' @description
-#' The identity transformation: it returns the tensor it is given, unchanged.
-#' It exists so that "no preprocessing" can be written as a `PipeOp` like any other, which is what
-#' makes preprocessing tunable -- a `po("trafo_nop")` branch lets a tuner choose between applying a
-#' transformation and leaving the data alone.
+#' Transforms the input via the identity function.
 register_preproc("trafo_nop", identity, rowwise = FALSE, shapes_out = unchanged_shapes)
 
 #' @title Reshaping Transformation

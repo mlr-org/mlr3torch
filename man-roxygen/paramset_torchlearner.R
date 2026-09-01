@@ -45,16 +45,7 @@
 #' * `jit_trace` :: `logical(1)`\cr
 #'   Whether to trace the network with [`torch::jit_trace()`] once at the start of training and then
 #'   train the traced module instead of the original one.
-#'   This is initialized to `FALSE`, and the parameter only exists for learners whose architecture
-#'   can be traced -- the torchvision learners that cannot (Inception v3 and the vision transformers,
-#'   whose control flow the tracer cannot represent) do not expose it.
-#'   Tracing removes the per-batch overhead of the R interpreter, which can speed up training
-#'   noticeably for small networks, where that overhead is a large share of the work.
-#'   It records the operations of a single example batch, so it is only faithful when the network's
-#'   control flow does not depend on the data and the shapes do not vary between batches.
-#'   A network that branches on tensor *values*, or that changes shape from batch to batch, is traced
-#'   into whichever path the example batch happened to take, silently and without a warning.
-#'   After training, `$model$network` is a `script_module` rather than the module the learner built.
+#'    Not all learners support this.
 #'
 #' **Evaluation**:
 #' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s\cr

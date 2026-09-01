@@ -16,17 +16,7 @@
 #' * `mlr3torch.cache`:
 #'   Whether to cache the downloaded data (`TRUE`) or not (`FALSE`, default).
 #'   This can also be set to a specific folder on the file system to be used as the cache directory.
-#'   Without caching, every task that downloads its data fetches it again in each session, so this is
-#'   worth turning on for any repeated use of the example tasks.
-#'   mlr3torch stamps its cache directory with the dataset versions it wrote, so it will not touch a
-#'   folder it did not create: pointing this option at an existing directory of your own fails with
-#'   `Cache directory '<path>' was not initialized by mlr3torch`. Use an empty or dedicated folder.
-#'   When a dataset's version changes, the affected subdirectory is invalidated and re-downloaded on
-#'   its own; the rest of the cache is kept.
-#' * `mlr3torch.cifar_download_timeout`:
-#'   The timeout in seconds for downloading the CIFAR datasets, `5400` by default.
-#'   These are large files, and R's global `timeout` option is often too small for them, so this
-#'   raises it for the duration of the download only.
+#'   Without caching, every task that downloads its data fetches it again in each session.
 #'
 "_PACKAGE"
 

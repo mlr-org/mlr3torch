@@ -74,26 +74,11 @@
   are trained.
 * Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
-* `t_clbk("checkpoint")` no longer writes an epoch that was interrupted
-  under that epoch's own number, so `network<n>.pt` is now always the
-  network at the *end* of epoch `n` rather than sometimes a half-trained one.
-* `replace_head()` for `mobilenet_v2` and `VGG` now reads the head's `in_features` instead of
-  assuming `1280` / `4096`, which was wrong for a `mobilenet_v2` with a `width_mult` above 1.
-* `resample(..., store_models = TRUE)$learners[[i]]` (and the `benchmark()` equivalent) is now really
-  the learner of iteration `i`. The list was returned in hash order, which for learners holding an
-  `nn_module` hyperparameter -- such as `lrn("classif.mlp")` and its `activation` -- was neither the
-  iteration order nor deterministic. `$score()` and `as.data.table(rr)` were never affected.
-  `hash_input()` for `nn_module` generators is now based on the module's class and methods rather
-  than on `data.table::address()`, and list recursion comes from `mlr3misc`.
-* `t_clbk("lr_reduce_on_plateau")` no longer errors in epochs where no validation is performed,
-  i.e. when `eval_freq > 1` or when no validation is configured.
-* `PipeOpTorch$shapes_out()` now always returns `integer()` shapes. Operators that derive extents
-  arithmetically (such as the convolution and pooling layers) returned `double()`s, which made
-  otherwise equal shapes compare unequal under `identical()` and hashing.
-* `po("torch_model_classif")` and `po("torch_model_regr")` now correctly propagate the package
-  requirements of the `Graph` to the trained `LearnerTorchModel`. This previously had no effect.
-* `lrn("classif.torch_model")$help()` (and the regression counterpart) no longer errors, as the
-  learner pointed to a non-existent help topic.
+* `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
+* `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
+    sometimes doubles like `NA`).
+* `po("torch_model_classif")` and `po("torch_model_regr")` now have the correct
+  `$packages`.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training.
 * Configuration errors that are only caught during `LearnerTorch` no longer
   trigger a fallback learner.

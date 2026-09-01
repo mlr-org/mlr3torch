@@ -1,12 +1,14 @@
 #' @title Create a lazy tensor
 #'
 #' @description
-#' Creates a `lazy_tensor`, the vector type that lets a [`Task`][mlr3::Task] carry tensor-valued
-#' features -- images, or anything else that does not fit a `data.table` cell.
-#' It behaves like an ordinary vector, so it can be subset, combined and stored in a task's data
-#' backend, but it holds only a pointer into a [`DataDescriptor`] plus the row `ids` it selects:
-#' the tensors themselves are read, and any preprocessing applied, when [`materialize()`] is called,
-#' which is what makes it lazy.
+#' Creates a `lazy_tensor` vector.
+#' Because it is a vector, it can be stored in a `data.table`, which gives mlr3torch the ability
+#' to use arbitrary tensors in its task.
+#' It is 'lazy', because the tensors are not stored in-memory, but only loaded when calling
+#' [`materialize()`].
+#' The vector itself only describes *how* to load the data.
+#' It is also possible to preprocess lazy_tensors, e.g. via `po("augment_<key>")`,
+#' and `po("trafo_<key>")`.
 #' @param data_descriptor ([`DataDescriptor`] or `NULL`)\cr
 #'   The data descriptor or `NULL` for a lazy tensor of length 0.
 #' @param ids (`integer()`)\cr

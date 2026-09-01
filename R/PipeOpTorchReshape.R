@@ -161,8 +161,7 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
 #' @description
 #' Flattens a contiguous range of dimensions into one, leaving the others untouched.
 #' With the default `start_dim = 2`, every dimension after the batch dimension is collapsed into a
-#' single feature dimension, which is the usual way to go from the `(batch, channels, height, width)`
-#' output of a convolutional stack to the `(batch, features)` input a linear layer expects.
+#' single feature dimension.
 #' @section nn_module:
 #' Calls [`torch::nn_flatten()`] when trained.
 #' @section Parameters:

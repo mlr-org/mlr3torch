@@ -26,23 +26,6 @@
 #' Resuming with different scheduler arguments, or a different `opt.lr`, which the schedule's base
 #' rates are derived from, therefore silently continues the schedule of the checkpointed run.
 #'
-#' @section Parameters:
-#' The initialization arguments of the wrapped `torch` scheduler, whose help page documents what each
-#' of them does. They are set with the `cb.<id>.` prefix, e.g.
-#' `lrn("classif.mlp", callbacks = t_clbk("lr_step"), cb.lr_step.step_size = 10)`.
-#'
-#' `t_clbk("lr_cosine_annealing")`, wrapping [torch::lr_cosine_annealing()]:
-#' `r mlr3torch:::rd_info_param_set(t_clbk("lr_cosine_annealing")$param_set)`
-#'
-#' `t_clbk("lr_lambda")`, wrapping [torch::lr_lambda()]:
-#' `r mlr3torch:::rd_info_param_set(t_clbk("lr_lambda")$param_set)`
-#'
-#' `t_clbk("lr_multiplicative")`, wrapping [torch::lr_multiplicative()]:
-#' `r mlr3torch:::rd_info_param_set(t_clbk("lr_multiplicative")$param_set)`
-#'
-#' `t_clbk("lr_step")`, wrapping [torch::lr_step()]:
-#' `r mlr3torch:::rd_info_param_set(t_clbk("lr_step")$param_set)`
-#'
 #' @param .scheduler (`lr_scheduler_generator`)\cr
 #'   The `torch` scheduler generator (e.g. `torch::lr_step`).
 #' @param ... (any)\cr
@@ -82,7 +65,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
       groups = lapply(self$ctx$optimizer$param_groups, function(group) group[names(group) != "params"])
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
       # initializing a scheduler also modifies the optimizer's param_group values to certain values
-      # (the ones from the beginning of the schedule); Here, we basically forward the state of the 
+      # (the ones from the beginning of the schedule); Here, we basically forward the state of the
       # param groups to where they were when the checkpoint which we are resuming was written.
       if (!is.null(private$.prev_state)) {
         private$.restore_scheduler_state(groups)
@@ -147,11 +130,6 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 #' of batches per epoch.
 #' A run that is not errors before its first epoch rather than somewhere in the middle.
 #'
-#' @section Parameters:
-#' The initialization arguments of [torch::lr_one_cycle()], whose help page documents what each of
-#' them does. They are set with the `cb.<id>.` prefix.
-#' `r mlr3torch:::rd_info_param_set(t_clbk("lr_one_cycle")$param_set)`
-#'
 #' @param ... (any)\cr
 #'   The scheduler-specific initialization arguments.
 #'
@@ -207,11 +185,6 @@ CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
 #' As for [`CallbackSetLRScheduler`]. For this schedule the restored state includes the best score
 #' seen so far and how long it has been stagnating, so `patience` keeps counting across runs instead
 #' of starting over.
-#'
-#' @section Parameters:
-#' The initialization arguments of [torch::lr_reduce_on_plateau()], whose help page documents what each of
-#' them does. They are set with the `cb.<id>.` prefix.
-#' `r mlr3torch:::rd_info_param_set(t_clbk("lr_reduce_on_plateau")$param_set)`
 #'
 #' @param ... (any)\cr
 #'   The scheduler-specific initialization arguments.
