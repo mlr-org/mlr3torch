@@ -80,13 +80,15 @@ This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
 If this is set, the epoch after which no improvement was observed, can be accessed via the \verb{$internal_tuned_values}
-field of the learner.
+field of the learner, and the validation scores of that epoch via its \verb{$best_valid_scores} field.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
 \item \code{restore_best_weights} :: \code{logical(1)}\cr
 Whether to restore the weights of the best epoch when training ends, instead of keeping those
-of the last epoch that was trained. Is initialized to \code{FALSE}, i.e. the network of the last
+of the last epoch that was trained. Like \code{min_delta}, this only has an effect when early stopping
+is active, i.e. when \code{patience} is greater than \code{0}.
+Is initialized to \code{FALSE}, i.e. the network of the last
 epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
 memory. Because \verb{$internal_valid_scores} describes the network that is stored, it then reports

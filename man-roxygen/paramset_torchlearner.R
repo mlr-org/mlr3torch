@@ -65,13 +65,15 @@
 #'   The first entry from `measures_valid` is used as the metric.
 #'   This also requires to specify the `$validate` field of the Learner, as well as `measures_valid`.
 #'   If this is set, the epoch after which no improvement was observed, can be accessed via the `$internal_tuned_values`
-#'   field of the learner.
+#'   field of the learner, and the validation scores of that epoch via its `$best_valid_scores` field.
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold for early stopping.
 #'   Is initialized to 0.
 #' * `restore_best_weights` :: `logical(1)`\cr
 #'   Whether to restore the weights of the best epoch when training ends, instead of keeping those
-#'   of the last epoch that was trained. Is initialized to `FALSE`, i.e. the network of the last
+#'   of the last epoch that was trained. Like `min_delta`, this only has an effect when early stopping
+#'   is active, i.e. when `patience` is greater than `0`.
+#'   Is initialized to `FALSE`, i.e. the network of the last
 #'   epoch is stored. Setting this to `TRUE` makes the stored network the one of the epoch that
 #'   `$internal_tuned_values` reports, and costs one additional copy of the network's parameters in
 #'   memory. Because `$internal_valid_scores` describes the network that is stored, it then reports

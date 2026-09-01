@@ -412,7 +412,7 @@ LearnerTorch = R6Class("LearnerTorch",
     #' so this can differ from `$internal_valid_scores`.
     #' Tracking the best epoch requires early stopping to be active (`patience > 0`), otherwise this is an
     #' empty list.
-    #' Returns `NULL` if learner is not trained yet.
+    #' Returns `NULL` if the learner is not trained yet or was trained without validation data.
     best_valid_scores = function() {
       self$state$best_valid_scores
     },
