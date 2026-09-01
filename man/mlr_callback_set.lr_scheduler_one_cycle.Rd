@@ -18,26 +18,6 @@ of batches per epoch.
 A run that is not errors before its first epoch rather than somewhere in the middle.
 }
 
-\section{Parameters}{
-
-The initialization arguments of \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}}, whose help page documents what each of
-them does. They are set with the \verb{cb.<id>.} prefix.\tabular{lllll}{
-   Id \tab Type \tab Default \tab Levels \tab Range \cr
-   max_lr \tab untyped \tab - \tab  \tab - \cr
-   total_steps \tab integer \tab NULL \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   epochs \tab integer \tab NULL \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   steps_per_epoch \tab integer \tab NULL \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   pct_start \tab numeric \tab 0.3 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   anneal_strategy \tab character \tab cos \tab cos, linear \tab - \cr
-   cycle_momentum \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
-   base_momentum \tab untyped \tab 0.85 \tab  \tab - \cr
-   max_momentum \tab untyped \tab 0.95 \tab  \tab - \cr
-   div_factor \tab numeric \tab 25 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   final_div_factor \tab numeric \tab 10000 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   verbose \tab logical \tab FALSE \tab TRUE, FALSE \tab - \cr
-}
-}
-
 \section{Super classes}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{\link[mlr3torch:CallbackSetLRScheduler]{CallbackSetLRScheduler}} -> \code{CallbackSetLRSchedulerOneCycle}
 }

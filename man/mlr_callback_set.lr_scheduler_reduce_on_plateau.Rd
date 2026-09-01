@@ -15,23 +15,6 @@ seen so far and how long it has been stagnating, so \code{patience} keeps counti
 of starting over.
 }
 
-\section{Parameters}{
-
-The initialization arguments of \code{\link[torch:lr_reduce_on_plateau]{torch::lr_reduce_on_plateau()}}, whose help page documents what each of
-them does. They are set with the \verb{cb.<id>.} prefix.\tabular{lllll}{
-   Id \tab Type \tab Default \tab Levels \tab Range \cr
-   mode \tab character \tab min \tab min, max \tab - \cr
-   factor \tab numeric \tab 0.1 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   patience \tab integer \tab 10 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   threshold \tab numeric \tab 1e-04 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   threshold_mode \tab character \tab rel \tab rel, abs \tab - \cr
-   cooldown \tab integer \tab 0 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   min_lr \tab untyped \tab 0 \tab  \tab - \cr
-   eps \tab numeric \tab 1e-08 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   verbose \tab logical \tab FALSE \tab TRUE, FALSE \tab - \cr
-}
-}
-
 \section{Super classes}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{\link[mlr3torch:CallbackSetLRScheduler]{CallbackSetLRScheduler}} -> \code{CallbackSetLRSchedulerReduceOnPlateau}
 }

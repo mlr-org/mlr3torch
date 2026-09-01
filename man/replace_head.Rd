@@ -18,7 +18,5 @@ Replaces the last layer of a pretrained network with a fresh \code{\link[torch:n
 \code{d_out} output features, so a network trained on some other task can be fine-tuned on this one.
 The new layer's input size is read off the layer it replaces, and its weights are newly
 initialized while the rest of the network keeps its pretrained weights.
-Methods are provided for the torchvision architectures that the \code{LearnerTorchVision} learners
-wrap; the learners call this themselves, so it is only needed when building a network by hand.
 }
 \keyword{internal}

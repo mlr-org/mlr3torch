@@ -17,8 +17,7 @@ Calls \code{\link[=nn_ft_transformer_block]{nn_ft_transformer_block()}} when tra
 
 \section{Parameters}{
 
-The parameters of \code{\link[=nn_ft_transformer_block]{nn_ft_transformer_block()}}. That function's documentation describes what
-each one does, and names the value this \code{PipeOp} initializes it to where the two differ.\tabular{lllll}{
+The parameters of \code{\link[=nn_ft_transformer_block]{nn_ft_transformer_block()}}.\tabular{lllll}{
    Id \tab Type \tab Default \tab Levels \tab Range \cr
    attention_n_heads \tab integer \tab - \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
    attention_dropout \tab numeric \tab - \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr

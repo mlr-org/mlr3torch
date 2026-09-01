@@ -17,8 +17,7 @@ Calls \code{\link[=nn_ft_cls]{nn_ft_cls()}} when trained.
 }
 
 \section{Parameters}{
-
-The parameters of \code{\link[=nn_ft_cls]{nn_ft_cls()}}, which documents what they do.\tabular{llll}{
+\tabular{llll}{
    Id \tab Type \tab Default \tab Levels \cr
    initialization \tab character \tab - \tab uniform, normal \cr
 }

@@ -31,45 +31,6 @@ Resuming with different scheduler arguments, or a different \code{opt.lr}, which
 rates are derived from, therefore silently continues the schedule of the checkpointed run.
 }
 
-\section{Parameters}{
-
-The initialization arguments of the wrapped \code{torch} scheduler, whose help page documents what each
-of them does. They are set with the \verb{cb.<id>.} prefix, e.g.
-\code{lrn("classif.mlp", callbacks = t_clbk("lr_step"), cb.lr_step.step_size = 10)}.
-
-\code{t_clbk("lr_cosine_annealing")}, wrapping \code{\link[torch:lr_cosine_annealing]{torch::lr_cosine_annealing()}}:\tabular{lllll}{
-   Id \tab Type \tab Default \tab Levels \tab Range \cr
-   T_max \tab integer \tab - \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   eta_min \tab numeric \tab 0 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   last_epoch \tab integer \tab -1 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   verbose \tab logical \tab FALSE \tab TRUE, FALSE \tab - \cr
-}
-
-
-\code{t_clbk("lr_lambda")}, wrapping \code{\link[torch:lr_lambda]{torch::lr_lambda()}}:\tabular{lllll}{
-   Id \tab Type \tab Default \tab Levels \tab Range \cr
-   lr_lambda \tab untyped \tab - \tab  \tab - \cr
-   last_epoch \tab integer \tab -1 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   verbose \tab logical \tab FALSE \tab TRUE, FALSE \tab - \cr
-}
-
-
-\code{t_clbk("lr_multiplicative")}, wrapping \code{\link[torch:lr_multiplicative]{torch::lr_multiplicative()}}:\tabular{lllll}{
-   Id \tab Type \tab Default \tab Levels \tab Range \cr
-   lr_lambda \tab untyped \tab - \tab  \tab - \cr
-   last_epoch \tab integer \tab -1 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   verbose \tab logical \tab FALSE \tab TRUE, FALSE \tab - \cr
-}
-
-
-\code{t_clbk("lr_step")}, wrapping \code{\link[torch:lr_step]{torch::lr_step()}}:\tabular{llll}{
-   Id \tab Type \tab Default \tab Range \cr
-   step_size \tab integer \tab - \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   gamma \tab numeric \tab 0.1 \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   last_epoch \tab integer \tab -1 \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-}
-}
-
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetLRScheduler}
 }
