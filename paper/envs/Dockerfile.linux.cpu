@@ -9,9 +9,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:${PATH}"
 
+# PyTorch version matches the libtorch version used by R torch 0.16.3
 RUN pip  install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir \
-      torch --index-url https://download.pytorch.org/whl/cpu \
+      torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu \
       numpy
 
 # otherwise wrong libicui
@@ -20,5 +21,11 @@ COPY renv.lock .
 
 RUN R -q -e "options(renv.config.repos.override = c(pppm = 'https://packagemanager.posit.co/cran/latest', cran = 'https://cloud.r-project.org/')); renv::restore(lockfile = 'renv.lock', library = .libPaths()[1], prompt = FALSE)"
 RUN R -q -e "torch::install_torch()"
+
+# Install mlr3torch from GitHub (pinned commit for reproducibility).
+# pak only upgrades dependencies from the renv.lock where required by mlr3torch.
+ARG MLR3TORCH_REF=80602b166b6120a61f58901f0b0743ce5b4b963b
+RUN R -q -e "install.packages('pak', repos = sprintf('https://r-lib.github.io/p/pak/stable/%s/%s/%s', .Platform\$pkgType, R.Version()\$os, R.Version()\$arch))"
+RUN R -q -e "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux__/noble/latest')); pak::pkg_install('mlr-org/mlr3torch@${MLR3TORCH_REF}', upgrade = FALSE, ask = FALSE); print(packageVersion('mlr3torch')); print(packageVersion('torch'))"
 
 CMD ["bash"]

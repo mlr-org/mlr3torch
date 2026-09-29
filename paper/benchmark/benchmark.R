@@ -45,6 +45,7 @@ setup = function(reg_path, python_path, work_dir) {
       p,
       optimizer,
       device,
+      n_threads = 1L,
       ...
     ) {
       problem = list(
@@ -58,7 +59,8 @@ setup = function(reg_path, python_path, work_dir) {
           optimizer,
           c("ignite_adamw", "adamw", "sgd", "ignite_sgd")
         ),
-        device = assert_choice(device, c("cuda", "cpu", "mps"))
+        device = assert_choice(device, c("cuda", "cpu", "mps")),
+        n_threads = assert_int(n_threads, lower = 1L)
       )
 
       problem

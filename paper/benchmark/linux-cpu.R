@@ -22,7 +22,8 @@ problem_design = expand.grid(
     batch_size = 32L,
     device = "cpu",
     n_layers = c(0L, 4L, 8L, 12L, 16L),
-    latent = c(100L, 200L, 400L)
+    latent = c(100L, 200L, 400L),
+    n_threads = c(1L, 16L)
   ),
   stringsAsFactors = FALSE
 )

@@ -32,6 +32,7 @@ At the time of writing, the images are also hosted on dockerhub, but this is not
 [https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general](https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general)
 
 The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
+Note that the CPU `Dockerfile` additionally installs `mlr3torch` from GitHub (a pinned commit, see the `MLR3TORCH_REF` argument), as well as the dependency updates this requires.
 
 When downloading the image from zenodo, you can register them with docker as follows:
 
@@ -105,6 +106,9 @@ To run the CPU benchmarks (using the CPU docker image) on linux, run:
 Rscript benchmark/linux-cpu.R
 ```
 
+The CPU benchmark is run both with a single thread and with 16 threads (see the `n_threads` column of the results).
+The machine should therefore have at least 16 physical cores and should not be used by other processes during the benchmark.
+
 To run the benchmark that compares "ignite" with standard optimizers (using the CUDA docker image) on linux, run:
 
 ```bash
@@ -122,6 +126,7 @@ The scripts can, of course, also be run on different machines. The linux names j
 There are also some exemplary slurm scripts that need to be adapted to the specific cluster and job submission system.
 
 * `paper/benchmark/benchmark_gpu.sh`
+* `paper/benchmark/benchmark_cpu.sh`
 * `paper/benchmark/benchmark_gpu_optimizer.sh`
 
 ### Running a subset of the Jobs
@@ -145,6 +150,8 @@ For the main benchmark shown in the paper, run the following command from the `p
 Rscript benchmark/plot_benchmark.R
 Rscript benchmark/plot_optimizer.R
 ```
+
+The main figure `plot_benchmark.png` shows the single-threaded CPU results, while `plot_benchmark_cpu_threads.png` compares the CPU results for 1 and 16 threads.
 
 ## Recreating the Paper Code
 

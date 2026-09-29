@@ -10,10 +10,13 @@ tbl2$os = "linux"
 
 TEXT_SIZE = 12
 
-tbl = rbindlist(list(tbl1, tbl2))
+tbl = rbindlist(list(tbl1, tbl2), fill = TRUE)
 
 tbl_linux_cuda = tbl[device == "cuda" & os == "linux", ]
-tbl_linux_cpu = tbl[device == "cpu" & os == "linux", ]
+tbl_linux_cpu_all = tbl[device == "cpu" & os == "linux", ]
+# The main figure shows the single-threaded CPU results; the multi-threaded
+# results are shown in a separate figure below.
+tbl_linux_cpu = tbl_linux_cpu_all[n_threads == 1L, ]
 
 plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
   tbl = if (os == "linux" && gpu) {
@@ -186,3 +189,27 @@ ggsave(here::here("benchmark", "plot_benchmark_relative.png"),
   plot_combined, width = 12, height = 4, dpi = 300)
 
 tbl_linux_cuda[optimizer == "adamw", mean(median(time_per_batch * 1000))]
+
+# Single-threaded vs. multi-threaded CPU results
+plots_threads = lapply(sort(unique(tbl_linux_cpu_all$n_threads)), function(nt) {
+  tbl_linux_cpu <<- tbl_linux_cpu_all[n_threads == nt, ]
+  suffix = sprintf(" (%i thread%s)", nt, if (nt == 1L) "" else "s")
+  plot_grid(
+    plt("adamw", FALSE, "linux") + ggtitle(paste0("AdamW / CPU", suffix)) +
+      theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
+    plt("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle(paste0("SGD / CPU", suffix)) +
+      theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
+    ncol = 2
+  )
+})
+tbl_linux_cpu = tbl_linux_cpu_all[n_threads == 1L, ]
+legend = get_legend(plt("adamw", FALSE, "linux") + theme(legend.position = "bottom"))
+
+plot_threads = plot_grid(
+  plotlist = c(plots_threads[1L], list(legend), plots_threads[-1L]),
+  ncol = 1,
+  rel_heights = c(1, 0.1, rep(1, length(plots_threads) - 1L))
+)
+
+ggsave(here::here("benchmark", "plot_benchmark_cpu_threads.png"),
+  plot_threads, width = 12, height = 4, dpi = 300)
