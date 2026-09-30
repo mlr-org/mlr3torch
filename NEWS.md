@@ -71,6 +71,12 @@
 
 ## Bug fixes
 
+* `nn("tokenizer_categ")` inferred the cardinalities of the categorical features in alphabetical
+  order, while `po("torch_ingress_categ")` passes the features in the order of
+  `task$feature_names`. For tasks whose features are not in alphabetical order, the features were
+  paired with the wrong embeddings, which either errored with "index out of range" or silently used
+  the embeddings of other features. `ingress_categ()` and the inferred cardinalities now also use the
+  order of `task$feature_names`.
 * `lrn("classif.torch_model")` / `lrn("regr.torch_model")` no longer change their `$hash` when they
   are trained.
 * Fixed some hashing bugs related to R jit compilation.

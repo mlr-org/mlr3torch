@@ -186,7 +186,9 @@ ingress_num = function(shape = NULL) {
 #' @export
 ingress_categ = function(shape = NULL) {
   TorchIngressToken(
-    selector_type(c("factor", "ordered", "logical")),
+    # in the order of `task$feature_names`, like `po("torch_ingress_categ")` and
+    # `categ_cardinalities()`; `selector_type()` alone would sort the features alphabetically
+    selector_intersect(selector_all(), selector_type(c("factor", "ordered", "logical"))),
     batchgetter_categ,
     shape = shape
   )

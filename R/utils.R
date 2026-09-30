@@ -307,16 +307,17 @@ n_categ_features = function(task) {
   sum(task$feature_types$type %in% c("factor", "ordered", "logical"))
 }
 
-# Cardinalities of the categorical features of a task, in the column order that
-# `ingress_categ()` produces.
+# Cardinalities of the categorical features of a task, in the order of `task$feature_names`, which
+# is the column order of the batches that `po("torch_ingress_categ")` and `ingress_categ()` produce.
 # Two things this must get right and that are easy to get wrong:
 #  * `Task$levels()` returns `NULL` for `logical()` features, so their cardinality has to be
 #    supplied explicitly (it is always 2). Taking `lengths(task$levels(...))` alone yields 0.
 #  * `task$feature_names` and `task$feature_types` are not always in the same order (e.g. after
-#    `po("scale")`), so the feature order must come from the ingress token, not from
-#    `task$feature_names`. Otherwise the cardinalities silently desync from the columns.
+#    `po("scale")`, or when the feature column role is set explicitly), so the order must not be
+#    taken from `task$feature_types`. Otherwise the cardinalities silently desync from the columns.
 categ_cardinalities = function(task) {
-  features = ingress_categ()$features(task)
+  categ_types = c("factor", "ordered", "logical")
+  features = intersect(task$feature_names, task$feature_types[get("type") %in% categ_types, get("id")])
   if (!length(features)) {
     return(integer(0))
   }

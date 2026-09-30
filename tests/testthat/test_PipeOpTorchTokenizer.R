@@ -99,3 +99,28 @@ test_that("shape inference agrees with the module for random shapes and paramete
   expect_shape_inference("nn_tokenizer_num", params = function() list(d_token = sample(2:6, 1L)),
     shapes = c(2, 8), generators = gen_shape(2L))
 })
+
+test_that("categorical tokenizer and ingress agree on the feature order (column order not alphabetical)", {
+  # the columns are not in alphabetical order and have different numbers of levels, so that
+  # mismatched cardinalities index outside of the embedding
+  task = as_task_classif(data.table(
+    z = factor(rep(letters[1:2], 10)),
+    a = factor(rep(letters[1:10], 2)),
+    y = factor(rep(c("yes", "no"), each = 10))
+  ), target = "y", id = "order")
+  task$col_roles$feature = c("z", "a")
+  expect_equal(task$feature_names, c("z", "a"))
+
+  # the columns of a batch and the cardinalities are in the same order, for both the ingress PipeOp
+  # (selector_name()) and ingress_categ() (selector_type())
+  md = (po("torch_ingress_categ") %>>% nn("tokenizer_categ", d_token = 2))$train(task)[[1L]]
+  ds = task_dataset(task, md$ingress)
+  expect_equal(ds$feature_ingress_tokens[[1L]]$features, names(categ_cardinalities(task)))
+  ds2 = task_dataset(task, list(x = ingress_categ()))
+  expect_equal(ds2$feature_ingress_tokens[[1L]]$features, names(categ_cardinalities(task)))
+
+  learner = as_learner_torch(po("torch_ingress_categ") %>>% nn("tokenizer_categ", d_token = 2) %>>%
+    nn("flatten") %>>% nn("head") %>>% po("torch_loss", "cross_entropy") %>>%
+    po("torch_optimizer", "adam") %>>% po("torch_model_classif", epochs = 1, batch_size = 20))
+  expect_no_error(learner$train(task))
+})
