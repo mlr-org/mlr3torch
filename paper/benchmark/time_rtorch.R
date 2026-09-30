@@ -118,7 +118,9 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       shuffle = FALSE,
       callbacks = timer,
       jit_trace = jit,
-      tensor_dataset = "device"
+      tensor_dataset = "device",
+      # otherwise mlr3torch resets the number of threads to 1 during training
+      num_threads = n_threads
     )
 
     task = as_task_regr(data.table(
