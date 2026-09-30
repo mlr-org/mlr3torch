@@ -25,6 +25,9 @@ task = as_task_torch(d, target = c("a", "b"), id = "labels",
     prob = as.matrix(torch::nnf_sigmoid(network_output)$cpu())
     colnames(prob) = task$target_names
     list(response = prob > 0.5, prob = if (predict_type == "prob") prob)
+  },
+  default_target_batchgetter = function(data) {
+    torch::torch_tensor(as.matrix(data), dtype = torch::torch_float())
   })
 task
 output_dim_for(task)
@@ -42,6 +45,9 @@ The hash of the task.}
 
     \item{\code{default_encoder}}{(\verb{function()} or \code{NULL})\cr
 The default prediction encoder. Read-only.}
+
+    \item{\code{default_target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
+See the construction argument. Read-only, for the same reason as \code{default_encoder}.}
 
     \item{\code{default_measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
 See the construction argument. Read-only, for the same reason as \code{default_encoder}.}
@@ -65,7 +71,6 @@ Called by \code{\link[=output_dim_for]{output_dim_for()}}.}
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="add_strata"><a href='../../mlr3/html/Task.html#method-Task-add_strata'><code>mlr3::Task$add_strata()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="cbind"><a href='../../mlr3/html/Task.html#method-Task-cbind'><code>mlr3::Task$cbind()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="data"><a href='../../mlr3/html/Task.html#method-Task-data'><code>mlr3::Task$data()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="divide"><a href='../../mlr3/html/Task.html#method-Task-divide'><code>mlr3::Task$divide()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="droplevels"><a href='../../mlr3/html/Task.html#method-Task-droplevels'><code>mlr3::Task$droplevels()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="filter"><a href='../../mlr3/html/Task.html#method-Task-filter'><code>mlr3::Task$filter()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3" data-topic="Task" data-id="format"><a href='../../mlr3/html/Task.html#method-Task-format'><code>mlr3::Task$format()</code></a></span></li>
@@ -98,6 +103,7 @@ Called by \code{\link[=output_dim_for]{output_dim_for()}}.}
   label = NA_character_,
   output_dim = NULL,
   default_encoder = NULL,
+  default_target_batchgetter = NULL,
   default_measure = NULL
 )}
     \if{html}{\out{</div>}}
@@ -123,6 +129,14 @@ May be \code{NULL} (default), in which case any caller of \code{\link[=output_di
 The default prediction encoder for the task. This can be overwritten by a learner's
 private \verb{$.encode_prediction} method.
 See \code{\link{LearnerTorch}} for more information.}
+      \item{\code{default_target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
+The default way to turn the target columns of a batch into the target tensor \code{y}, returned by
+\code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
+Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
+and optionally an argument \code{x}, the named list of feature tensors of the batch.
+What \code{y} has to look like follows from the loss, so this can be overwritten by the
+\code{target_batchgetter} of a learner such as \code{\link[=mlr_learners.module]{lrn("torch.module")}}.
+If \code{NULL} (default), a task with a target has no default and the learner has to provide one.}
       \item{\code{default_measure}}{(\code{\link[mlr3:Measure]{Measure}} or \code{NULL})\cr
 The default measure of the task, i.e. what \code{\link[=mlr_measures_torch.default]{msr("torch.default")}}
 resolves to.}

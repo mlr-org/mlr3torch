@@ -29,6 +29,8 @@
   i.e. both the features `x` and the target `y`.
 * Added support for `TaskTorch` to easily go beyond the regression and classification setting,
   see the *Custom Learning Problems* article for more information.
+  A `TaskTorch` can define a `default_target_batchgetter`, which is used whenever the learner
+  does not specify a `target_batchgetter` itself.
 * A network can now return a `list()` of tensors in evaluation mode, which is passed to
   `encode_prediction()` as it is, so a prediction can consist of more than one quantity.
 * New function `pipeop_torch()` that simplifies the creation of `PipeOpTorch` classes.
@@ -71,12 +73,9 @@
 
 ## Bug fixes
 
-* `nn("tokenizer_categ")` inferred the cardinalities of the categorical features in alphabetical
-  order, while `po("torch_ingress_categ")` passes the features in the order of
-  `task$feature_names`. For tasks whose features are not in alphabetical order, the features were
-  paired with the wrong embeddings, which either errored with "index out of range" or silently used
-  the embeddings of other features. `ingress_categ()` and the inferred cardinalities now also use the
-  order of `task$feature_names`.
+* `nn("tokenizer_categ")` now always infers the cardinalities correctly.
+* `lrn("classif.ft_transformer")` / `lrn("regr.ft_transformer")` now accept `ingress_tokens` with only
+  `num.input` or only `categ.input`.
 * `lrn("classif.torch_model")` / `lrn("regr.torch_model")` no longer change their `$hash` when they
   are trained.
 * Fixed some hashing bugs related to R jit compilation.
