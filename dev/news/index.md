@@ -121,7 +121,7 @@
   for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
 - `PipeOpTorch$shapes_out()` now always returns
   [`integer()`](https://rdrr.io/r/base/integer.html) shapes (and not
-  sometimes doubles like `NA`).
+  sometimes logicals like `NA`).
 - `po("torch_model_classif")` and `po("torch_model_regr")` now have the
   correct `$packages`.
 - The `batch_sampler` parameter can now be used without setting

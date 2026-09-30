@@ -30,10 +30,10 @@
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
     <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
+    <li><a class="dropdown-item" href="../articles/custom_pipeop_torch.html">Writing your own PipeOpTorch</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
     <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
-    <li><a class="dropdown-item" href="../articles/custom_pipeop_torch.html">Writing your own PipeOpTorch</a></li>
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-overview" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Overview</button>
@@ -137,7 +137,7 @@
 <li>
 <code><a href="../reference/replace_head.html">replace_head()</a></code> for <code>mobilenet_v2</code> and <code>VGG</code> works for <code>width_mult</code> above 1.</li>
 <li>
-<code>PipeOpTorch$shapes_out()</code> now always returns <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> shapes (and not sometimes doubles like <code>NA</code>).</li>
+<code>PipeOpTorch$shapes_out()</code> now always returns <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> shapes (and not sometimes logicals like <code>NA</code>).</li>
 <li>
 <code>po("torch_model_classif")</code> and <code>po("torch_model_regr")</code> now have the correct <code>$packages</code>.</li>
 <li>The <code>batch_sampler</code> parameter can now be used without setting <code>batch_size</code> for training.</li>
