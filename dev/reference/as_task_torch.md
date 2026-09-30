@@ -38,7 +38,8 @@ as_task_torch(x, target = NULL, id = deparse(substitute(x))[1L], ...)
   (any)  
   Further arguments passed to
   [`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)`$new()`,
-  such as `output_dim`, `default_encoder` or `default_measure`.
+  such as `output_dim`, `default_encoder`, `default_target_batchgetter`
+  or `default_measure`.
 
 ## Value
 

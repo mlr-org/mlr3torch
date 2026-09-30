@@ -51,7 +51,9 @@
   features `x` and the target `y`.
 - Added support for `TaskTorch` to easily go beyond the regression and
   classification setting, see the *Custom Learning Problems* article for
-  more information.
+  more information. A `TaskTorch` can define a
+  `default_target_batchgetter`, which is used whenever the learner does
+  not specify a `target_batchgetter` itself.
 - A network can now return a
   [`list()`](https://rdrr.io/r/base/list.html) of tensors in evaluation
   mode, which is passed to

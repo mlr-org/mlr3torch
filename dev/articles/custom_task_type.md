@@ -187,6 +187,14 @@ lrn_weather = lrn("torch.module",
 lrn_weather$predict_type = "prob"
 ```
 
+Instead of passing the `target_batchgetter` to the learner, it can also
+be set as the `default_target_batchgetter` of the task. This is useful
+when the target encoding is the same for all learners that are used with
+the task, as it then does not have to be repeated for each of them,
+including your own `LearnerTorch` subclasses. A `target_batchgetter`
+passed to the learner always takes precedence over the default of the
+task.
+
 Next, we train the learner on two thirds of the data and make
 predictions on the remaining observations:
 

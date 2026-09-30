@@ -201,10 +201,10 @@ Creates a new instance of this
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md).
   If `NULL` (default), it is taken from the task via
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md),
-  which the built-in task types provide, but a
+  which the built-in task types provide, and a
   [`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)
-  only if it has no target at all, in which case the batches have no `y`
-  element.
+  only if it has a `default_target_batchgetter` or no target at all, in
+  which case the batches have no `y` element.
 
 ------------------------------------------------------------------------
 

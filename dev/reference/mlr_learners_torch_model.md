@@ -171,10 +171,10 @@ Creates a new instance of this
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md).
   If `NULL` (default), it is taken from the task via
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md),
-  which the built-in task types provide, but a
+  which the built-in task types provide, and a
   [`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)
-  only if it has no target at all, in which case the batches have no `y`
-  element.
+  only if it has a `default_target_batchgetter` or no target at all, in
+  which case the batches have no `y` element.
 
 - `predict_types`:
 
@@ -230,12 +230,12 @@ learner$train(task, ids$train)
 learner$predict(task, ids$test)
 #> 
 #> ── <PredictionClassif> for 50 observations: ────────────────────────────────────
-#>  row_ids     truth   response
-#>        5    setosa versicolor
-#>       12    setosa versicolor
-#>       13    setosa versicolor
-#>      ---       ---        ---
-#>      145 virginica     setosa
-#>      146 virginica     setosa
-#>      150 virginica     setosa
+#>  row_ids     truth response
+#>        5    setosa   setosa
+#>       12    setosa   setosa
+#>       13    setosa   setosa
+#>      ---       ---      ---
+#>      145 virginica   setosa
+#>      146 virginica   setosa
+#>      150 virginica   setosa
 ```

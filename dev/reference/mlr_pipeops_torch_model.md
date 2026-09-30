@@ -118,11 +118,7 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   unless `restore_best_weights` is set to `TRUE`. This is initialized to
   `0`, which means no early stopping. The first entry from
   `measures_valid` is used as the metric. This also requires to specify
-  the `$validate` field of the Learner, as well as `measures_valid`. If
-  this is set, the epoch after which no improvement was observed, can be
-  accessed via the `$internal_tuned_values` field of the learner, and
-  the validation scores of that epoch via its `$best_valid_scores`
-  field.
+  the `$validate` field of the Learner, as well as `measures_valid`.
 
 - `min_delta` :: `double(1)`  
   The minimum improvement threshold for early stopping. Is initialized
@@ -131,18 +127,11 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 - `restore_best_weights` :: `logical(1)`  
   Whether to restore the weights of the best epoch when training ends,
   instead of keeping those of the last epoch that was trained. Like
-  `min_delta`, this only has an effect when early stopping is active,
-  i.e. when `patience` is greater than `0`. Is initialized to `FALSE`,
-  i.e. the network of the last epoch is stored. Setting this to `TRUE`
-  makes the stored network the one of the epoch that
-  `$internal_tuned_values` reports, and costs one additional copy of the
-  network's parameters in memory. Because `$internal_valid_scores`
-  describes the network that is stored, it then reports the scores of
-  the best epoch, i.e. the same scores as `$best_valid_scores` – except
-  on a resumed run that never beats the score its checkpoint had already
-  reached, which remembers no weights to restore and so still ends on
-  those of its last epoch. Checkpoints written by `t_clbk("checkpoint")`
-  are unaffected: they always hold the network as training left it.
+  `min_delta`, this only has an effect when early stopping is active. Is
+  initialized to `FALSE`, i.e. the network of the last epoch is stored.
+  Setting this to `TRUE` makes the stored network the one of the epoch
+  that `$internal_tuned_values` reports, and costs one additional copy
+  of the network's parameters in memory.
 
 **Dataloader**:
 
@@ -312,10 +301,10 @@ Creates a new instance of this
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md).
   If `NULL` (default), it is taken from the task via
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md),
-  which the built-in task types provide, but a
+  which the built-in task types provide, and a
   [`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)
-  only if it has no target at all, in which case the batches have no `y`
-  element.
+  only if it has a `default_target_batchgetter` or no target at all, in
+  which case the batches have no `y` element.
 
 - `predict_types`:
 

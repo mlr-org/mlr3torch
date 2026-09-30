@@ -26,6 +26,12 @@ The price of this flexibility is the loss of some compatibility checks.
   (`function()` or `NULL`)  
   The default prediction encoder. Read-only.
 
+- `default_target_batchgetter`:
+
+  (`function()` or `NULL`)  
+  See the construction argument. Read-only, for the same reason as
+  `default_encoder`.
+
 - `default_measure`:
 
   ([`Measure`](https://mlr3.mlr-org.com/reference/Measure.html) or
@@ -54,7 +60,6 @@ Inherited methods
 - [`mlr3::Task$add_strata()`](https://mlr3.mlr-org.com/reference/Task.html#method-add_strata)
 - [`mlr3::Task$cbind()`](https://mlr3.mlr-org.com/reference/Task.html#method-cbind)
 - [`mlr3::Task$data()`](https://mlr3.mlr-org.com/reference/Task.html#method-data)
-- [`mlr3::Task$divide()`](https://mlr3.mlr-org.com/reference/Task.html#method-divide)
 - [`mlr3::Task$droplevels()`](https://mlr3.mlr-org.com/reference/Task.html#method-droplevels)
 - [`mlr3::Task$filter()`](https://mlr3.mlr-org.com/reference/Task.html#method-filter)
 - [`mlr3::Task$format()`](https://mlr3.mlr-org.com/reference/Task.html#method-format)
@@ -88,6 +93,7 @@ Creates a new instance of this
       label = NA_character_,
       output_dim = NULL,
       default_encoder = NULL,
+      default_target_batchgetter = NULL,
       default_measure = NULL
     )
 
@@ -131,6 +137,22 @@ Creates a new instance of this
   by a learner's private `$.encode_prediction` method. See
   [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)
   for more information.
+
+- `default_target_batchgetter`:
+
+  (`function()` or `NULL`)  
+  The default way to turn the target columns of a batch into the target
+  tensor `y`, returned by
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md).
+  Takes an argument `data`, a
+  [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html)
+  with only the target columns, and optionally an argument `x`, the
+  named list of feature tensors of the batch. What `y` has to look like
+  follows from the loss, so this can be overwritten by the
+  `target_batchgetter` of a learner such as
+  [`lrn("torch.module")`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.module.md).
+  If `NULL` (default), a task with a target has no default and the
+  learner has to provide one.
 
 - `default_measure`:
 
@@ -187,6 +209,9 @@ task = as_task_torch(d, target = c("a", "b"), id = "labels",
     prob = as.matrix(torch::nnf_sigmoid(network_output)$cpu())
     colnames(prob) = task$target_names
     list(response = prob > 0.5, prob = if (predict_type == "prob") prob)
+  },
+  default_target_batchgetter = function(data) {
+    torch::torch_tensor(as.matrix(data), dtype = torch::torch_float())
   })
 task
 #> 

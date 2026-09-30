@@ -356,11 +356,7 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   unless `restore_best_weights` is set to `TRUE`. This is initialized to
   `0`, which means no early stopping. The first entry from
   `measures_valid` is used as the metric. This also requires to specify
-  the `$validate` field of the Learner, as well as `measures_valid`. If
-  this is set, the epoch after which no improvement was observed, can be
-  accessed via the `$internal_tuned_values` field of the learner, and
-  the validation scores of that epoch via its `$best_valid_scores`
-  field.
+  the `$validate` field of the Learner, as well as `measures_valid`.
 
 - `min_delta` :: `double(1)`  
   The minimum improvement threshold for early stopping. Is initialized
@@ -369,18 +365,11 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 - `restore_best_weights` :: `logical(1)`  
   Whether to restore the weights of the best epoch when training ends,
   instead of keeping those of the last epoch that was trained. Like
-  `min_delta`, this only has an effect when early stopping is active,
-  i.e. when `patience` is greater than `0`. Is initialized to `FALSE`,
-  i.e. the network of the last epoch is stored. Setting this to `TRUE`
-  makes the stored network the one of the epoch that
-  `$internal_tuned_values` reports, and costs one additional copy of the
-  network's parameters in memory. Because `$internal_valid_scores`
-  describes the network that is stored, it then reports the scores of
-  the best epoch, i.e. the same scores as `$best_valid_scores` – except
-  on a resumed run that never beats the score its checkpoint had already
-  reached, which remembers no weights to restore and so still ends on
-  those of its last epoch. Checkpoints written by `t_clbk("checkpoint")`
-  are unaffected: they always hold the network as training left it.
+  `min_delta`, this only has an effect when early stopping is active. Is
+  initialized to `FALSE`, i.e. the network of the last epoch is stored.
+  Setting this to `TRUE` makes the stored network the one of the epoch
+  that `$internal_tuned_values` reports, and costs one additional copy
+  of the network's parameters in memory.
 
 **Dataloader**:
 
@@ -643,38 +632,18 @@ Other Learner:
 
 - `internal_valid_scores`:
 
-  Retrieves the internal validation scores of the epoch that the stored
-  network comes from, as a named
-  [`list()`](https://rdrr.io/r/base/list.html). This is the *last*
-  epoch, unless `restore_best_weights` is `TRUE` and the best weights
-  were actually restored, in which case it is the *best* epoch and these
-  scores are the same as `$best_valid_scores`. A resumed run whose
-  epochs never beat the score its checkpoint had already reached
-  remembers no weights to restore, so the two fields describe different
-  epochs even then. Specify the `$validate` field and the
-  `measures_valid` parameter to configure this. Returns `NULL` if
-  learner is not trained yet.
+  Retrieves the internal validation scores of the current network as a
+  named [`list()`](https://rdrr.io/r/base/list.html). This is the *last*
+  epoch, unless `restore_best_weights` is `TRUE`. Specify the
+  `$validate` field and the `measures_valid` parameter to configure
+  this. Returns `NULL` if learner is not trained yet.
 
 - `best_valid_scores`:
 
   Retrieves the internal validation scores of the *best* epoch as a
-  named [`list()`](https://rdrr.io/r/base/list.html). This is the epoch
-  that is also reported via `$internal_tuned_values`, i.e. the epoch
-  with the best score of the first validation measure. Unless
-  `restore_best_weights` is `TRUE`, the trained network is the one after
-  the last epoch, so this can differ from `$internal_valid_scores`.
-  Tracking the best epoch requires early stopping to be active
-  (`patience > 0`), so this is an empty list when it is not, as well as
-  when the learner was trained without validation data – no early
-  stopping callback runs in either case, and the two are not told apart.
-  Returns `NULL` if the learner is not trained yet, and also when the
-  model was not stored: unlike `$internal_valid_scores`, this is not
-  part of the `Learner` contract that `mlr3` snapshots into `$state`, so
-  it can only be read back off the model. After a
-  [`resample()`](https://mlr3.mlr-org.com/reference/resample.html) or
-  [`benchmark()`](https://mlr3.mlr-org.com/reference/benchmark.html)
-  with `store_models = FALSE` it is therefore `NULL` even though
-  `$internal_tuned_values` still names the epoch it would describe.
+  named [`list()`](https://rdrr.io/r/base/list.html). Only available
+  when doing early stopping. Note that *best* here means with respect to
+  the metric that was used for early stopping.
 
 - `internal_tuned_values`:
 

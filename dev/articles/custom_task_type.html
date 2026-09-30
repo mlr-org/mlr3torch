@@ -269,6 +269,14 @@ from the corresponding torch loss:</p>
 <span>  epochs <span class="op">=</span> <span class="fl">5</span>, batch_size <span class="op">=</span> <span class="fl">32</span>, opt.lr <span class="op">=</span> <span class="fl">0.01</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">lrn_weather</span><span class="op">$</span><span class="va">predict_type</span> <span class="op">=</span> <span class="st">"prob"</span></span></code></pre></div>
+<p>Instead of passing the <code>target_batchgetter</code> to the
+learner, it can also be set as the
+<code>default_target_batchgetter</code> of the task. This is useful when
+the target encoding is the same for all learners that are used with the
+task, as it then does not have to be repeated for each of them,
+including your own <code>LearnerTorch</code> subclasses. A
+<code>target_batchgetter</code> passed to the learner always takes
+precedence over the default of the task.</p>
 <p>Next, we train the learner on two thirds of the data and make
 predictions on the remaining observations:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
