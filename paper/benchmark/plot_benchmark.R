@@ -193,7 +193,8 @@ tbl_linux_cuda[optimizer == "adamw", mean(median(time_per_batch * 1000))]
 # Single-threaded vs. multi-threaded CPU results
 plots_threads = lapply(sort(unique(tbl_linux_cpu_all$n_threads)), function(nt) {
   tbl_linux_cpu <<- tbl_linux_cpu_all[n_threads == nt, ]
-  suffix = sprintf(" (%i thread%s)", nt, if (nt == 1L) "" else "s")
+  bs = unique(tbl_linux_cpu$batch_size)
+  suffix = sprintf(" (%i thread%s, batch size %s)", nt, if (nt == 1L) "" else "s", paste(bs, collapse = "/"))
   plot_grid(
     plt("adamw", FALSE, "linux") + ggtitle(paste0("AdamW / CPU", suffix)) +
       theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
