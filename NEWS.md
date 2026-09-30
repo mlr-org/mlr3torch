@@ -71,6 +71,9 @@
 
 ## Bug fixes
 
+* `lrn("classif.ft_transformer")` / `lrn("regr.ft_transformer")` now accept `ingress_tokens` with only
+  `num.input` or only `categ.input`, so tasks whose features are a single numeric or categorical
+  `lazy_tensor` can be used. Previously, both tokens were required.
 * `lrn("classif.torch_model")` / `lrn("regr.torch_model")` no longer change their `$hash` when they
   are trained.
 * Fixed some hashing bugs related to R jit compilation.

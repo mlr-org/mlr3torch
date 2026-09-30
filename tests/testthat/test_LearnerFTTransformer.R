@@ -107,6 +107,42 @@ test_that("works with lazy tensors", {
   expect_learner(learner)
 })
 
+test_that("works with only a numeric lazy tensor", {
+  task = as_task_regr(data.table(
+      x_num = as_lazy_tensor(matrix(runif(200), ncol = 2)),
+      y = rnorm(100)
+    ), target = "y", id = "test")
+
+  learner = make_ft_transformer("regr",
+    ingress_tokens = list(num.input = ingress_ltnsr("x_num"))
+  )
+  learner$train(task)
+
+  expect_learner(learner)
+})
+
+test_that("works with only a categorical lazy tensor", {
+  task = as_task_regr(data.table(
+      x_categ = as_lazy_tensor(matrix(rep(1:10, 20), ncol = 2)),
+      y = rnorm(100)
+    ), target = "y", id = "test")
+
+  learner = make_ft_transformer("regr",
+    ingress_tokens = list(categ.input = ingress_ltnsr("x_categ")),
+    cardinalities = c(10, 10)
+  )
+  learner$train(task)
+
+  expect_learner(learner)
+})
+
+test_that("ingress_tokens must be named num.input or categ.input", {
+  expect_error(
+    lrn("regr.ft_transformer", ingress_tokens = list(input = ingress_ltnsr("x"))),
+    "subset"
+  )
+})
+
 make_ft_transformer_default = function(task_type, ...) {
   params = list(
      epochs = 1L,

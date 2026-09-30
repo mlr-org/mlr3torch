@@ -48,7 +48,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         if (!isTRUE(msg)) {
           return(msg)
         }
-        check_permutation(names(ingress_tokens), c("num.input", "categ.input"))
+        check_subset(names(ingress_tokens), c("num.input", "categ.input"))
       })
 
       private$.param_set_base = ps(
