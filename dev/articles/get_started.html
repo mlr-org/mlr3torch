@@ -189,7 +189,7 @@ of the predictions.</p>
 <span><span class="co"># Compute the mse</span></span>
 <span><span class="va">prediction</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mse </span></span>
-<span><span class="co">#&gt; 247.8626</span></span></code></pre></div>
+<span><span class="co">#&gt; 247.8627</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="scaling-the-features">Scaling the Features<a class="anchor" aria-label="anchor" href="#scaling-the-features"></a>
@@ -226,7 +226,7 @@ features.</p>
 <span><span class="va">mlp_scaled</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">splits</span><span class="op">$</span><span class="va">train</span><span class="op">)</span></span>
 <span><span class="va">mlp_scaled</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, row_ids <span class="op">=</span> <span class="va">splits</span><span class="op">$</span><span class="va">test</span><span class="op">)</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mse </span></span>
-<span><span class="co">#&gt; 26.36343</span></span></code></pre></div>
+<span><span class="co">#&gt; 26.36342</span></span></code></pre></div>
 <p>Because scaling is a property of the data and not of a specific
 architecture, this naturally applies to other learners as well.</p>
 </div>
@@ -458,7 +458,7 @@ lower MAE than the default <code>mlp</code> learner.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prediction_custom</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mae </span></span>
-<span><span class="co">#&gt; 7.107885</span></span>
+<span><span class="co">#&gt; 7.107884</span></span>
 <span><span class="va">prediction</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mae </span></span>
 <span><span class="co">#&gt; 14.04447</span></span></code></pre></div>
@@ -470,10 +470,10 @@ find the validation history in its <code>$model</code> slot:</p>
 <span><span class="co">#&gt;    &lt;num&gt;          &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:     1   4.854304e+06</span></span>
 <span><span class="co">#&gt; 2:     2   6.452428e+01</span></span>
-<span><span class="co">#&gt; 3:     3   4.424063e+02</span></span>
-<span><span class="co">#&gt; 4:     4   1.363021e+01</span></span>
-<span><span class="co">#&gt; 5:     5   3.004845e+02</span></span>
-<span><span class="co">#&gt; 6:     6   1.792240e+01</span></span></code></pre></div>
+<span><span class="co">#&gt; 3:     3   4.424062e+02</span></span>
+<span><span class="co">#&gt; 4:     4   1.363023e+01</span></span>
+<span><span class="co">#&gt; 5:     5   3.004844e+02</span></span>
+<span><span class="co">#&gt; 6:     6   1.792239e+01</span></span></code></pre></div>
 <p>The plot below shows it for the epochs 6 to 30.</p>
 <p><img src="get_started_files/figure-html/unnamed-chunk-23-1.png" class="r-plt" alt="" width="50%" style="display: block; margin: auto;"></p>
 <p>Other important information that is stored in the

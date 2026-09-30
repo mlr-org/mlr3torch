@@ -130,6 +130,8 @@
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
 <ul><li>
+<code>lrn("classif.ft_transformer")</code> / <code>lrn("regr.ft_transformer")</code> now accept <code>ingress_tokens</code> with only <code>num.input</code> or only <code>categ.input</code>, so tasks whose features are a single numeric or categorical <code>lazy_tensor</code> can be used. Previously, both tokens were required.</li>
+<li>
 <code>lrn("classif.torch_model")</code> / <code>lrn("regr.torch_model")</code> no longer change their <code>$hash</code> when they are trained.</li>
 <li>Fixed some hashing bugs related to R jit compilation.</li>
 <li>

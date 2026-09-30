@@ -45,9 +45,9 @@ and calling the resulting module on an input tensor runs its
 layer = nn_my_linear(in_features = 4, out_features = 2)
 layer(torch_randn(3, 4))
 #> torch_tensor
-#>  0.4519  0.1403
-#> -0.5017 -0.6588
-#>  1.2547  0.8850
+#> -1.1010  1.0564
+#> -0.4283  0.6099
+#> -0.2389  0.4658
 #> [ CPUFloatType{3,2} ][ grad_fn = <AddmmBackward0> ]
 ```
 
