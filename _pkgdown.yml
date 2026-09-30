@@ -75,12 +75,12 @@ navbar:
         href: articles/lazy_tensor.html
       - text: Custom Learning Problems
         href: articles/custom_task_type.html
+      - text: Writing your own PipeOpTorch
+        href: articles/custom_pipeop_torch.html
       - text: ---
       - text: Internals
       - text: Networks as Graphs
         href: articles/internals_pipeop_torch.html
-      - text: Writing your own PipeOpTorch
-        href: articles/custom_pipeop_torch.html
 
 
 reference:

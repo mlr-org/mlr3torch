@@ -77,7 +77,7 @@
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 * `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
-    sometimes doubles like `NA`).
+    sometimes logicals like `NA`).
 * `po("torch_model_classif")` and `po("torch_model_regr")` now have the correct
   `$packages`.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training.
