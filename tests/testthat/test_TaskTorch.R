@@ -17,7 +17,7 @@ test_that("nothing about the learning problem is inferred", {
   bare = as_task_torch(d, target = "y", id = "bare")
 
   expect_error(output_dim_for(bare), "has no `output_dim`")
-  expect_error(get_target_batchgetter(bare), "it is the learner that decides")
+  expect_error(get_target_batchgetter(bare), "does not define how its target becomes a tensor")
   expect_error(encode_prediction(bare, torch_randn(2, 1), "response"), "has no `default_encoder`")
 })
 
@@ -71,6 +71,41 @@ test_that("the learner decides how the target becomes a tensor", {
   expect_false(learner$phash == tt_learner(t_loss("mse"))$phash)
 })
 
+test_that("the task can provide a default target batchgetter", {
+  d = tt_data(60L)
+  d$y = d$x1 + rnorm(nrow(d))
+  task = tt_task(d, target = "y", default_target_batchgetter = tt_bg)
+
+  expect_identical(get_target_batchgetter(task), tt_bg)
+  expect_identical(task$default_target_batchgetter, tt_bg)
+  expect_error(task$default_target_batchgetter <- tt_bg, "read-only")
+  expect_error(tt_task(d, target = "y", default_target_batchgetter = function(y) y), "data")
+
+  # learners that cannot be passed a batchgetter now work on the task
+  learner = tt_learner(t_loss("mse"), target_batchgetter = NULL)
+  learner$train(task)
+  expect_numeric(learner$predict(task)$response, len = task$nrow)
+
+  # ... and the learner's batchgetter still takes precedence
+  learner = tt_learner(t_loss("mse"), target_batchgetter = function(data) stop("learner bg"))
+  expect_error(learner$train(task), "learner bg")
+
+  # the graph route, without a batchgetter on the PipeOpTorchModel
+  graph = po("torch_ingress_num") %>>%
+    nn("head") %>>%
+    po("torch_loss", t_loss("mse")) %>>%
+    po("torch_optimizer", "adam") %>>%
+    po("torch_model", batch_size = 16L, epochs = 1L)
+  glrn = as_learner(graph)
+  glrn$train(task)
+  expect_numeric(glrn$predict(task)$response, len = task$nrow)
+
+  # a target-less task may use it too, e.g. to reconstruct the input
+  ae = tt_task(tt_data(20L), default_target_batchgetter = function(data, x) x[[1L]])
+  batch = task_dataset(ae, list(x = ingress_num()), get_target_batchgetter(ae))$.getbatch(1:4)
+  expect_equal(as.matrix(batch$y), as.matrix(batch$x$x))
+})
+
 test_that("the hash covers the fields that define the learning problem", {
   d = tt_data()
   d$y = rnorm(nrow(d))
@@ -80,6 +115,7 @@ test_that("the hash covers the fields that define the learning problem", {
   expect_false(task$hash == tt_task(d, target = "y", id = "t", output_dim = function(task) 5L)$hash)
   expect_false(task$hash == tt_task(d, target = "y", id = "t",
     default_encoder = function(task, network_output, predict_type) list(response = 1))$hash)
+  expect_false(task$hash == tt_task(d, target = "y", id = "t", default_target_batchgetter = tt_bg)$hash)
   expect_equal(task$hash, task$clone(deep = TRUE)$hash)
 })
 
@@ -267,7 +303,7 @@ test_that("a task with no target at all is unsupervised", {
   expect_null(task$truth())
   # with no target there is no `y` to build, so the learner does not have to pass a batchgetter
   expect_null(get_target_batchgetter(task))
-  expect_error(get_target_batchgetter(tt_task(d, target = "x1")), "it is the learner that decides")
+  expect_error(get_target_batchgetter(tt_task(d, target = "x1")), "does not define how its target becomes a tensor")
   # nothing else about the problem is specified by such a task either
   expect_error(output_dim_for(task), "has no `output_dim`")
   expect_error(encode_prediction(task, torch_randn(2, 2), "response"), "has no `default_encoder`")

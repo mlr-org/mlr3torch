@@ -29,6 +29,8 @@
   i.e. both the features `x` and the target `y`.
 * Added support for `TaskTorch` to easily go beyond the regression and classification setting,
   see the *Custom Learning Problems* article for more information.
+  A `TaskTorch` can define a `default_target_batchgetter`, which is used whenever the learner
+  does not specify a `target_batchgetter` itself.
 * A network can now return a `list()` of tensors in evaluation mode, which is passed to
   `encode_prediction()` as it is, so a prediction can consist of more than one quantity.
 * New function `pipeop_torch()` that simplifies the creation of `PipeOpTorch` classes.

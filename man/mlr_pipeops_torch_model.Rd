@@ -98,24 +98,17 @@ Note that the final model is stored in the learner, not the best model, unless
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
-If this is set, the epoch after which no improvement was observed, can be accessed via the \verb{$internal_tuned_values}
-field of the learner, and the validation scores of that epoch via its \verb{$best_valid_scores} field.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
 \item \code{restore_best_weights} :: \code{logical(1)}\cr
 Whether to restore the weights of the best epoch when training ends, instead of keeping those
 of the last epoch that was trained. Like \code{min_delta}, this only has an effect when early stopping
-is active, i.e. when \code{patience} is greater than \code{0}.
+is active.
 Is initialized to \code{FALSE}, i.e. the network of the last
 epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
-memory. Because \verb{$internal_valid_scores} describes the network that is stored, it then reports
-the scores of the best epoch, i.e. the same scores as \verb{$best_valid_scores} -- except on a
-resumed run that never beats the score its checkpoint had already reached, which remembers no
-weights to restore and so still ends on those of its last epoch.
-Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
-network as training left it.
+memory.
 }
 
 \strong{Dataloader}:
@@ -238,7 +231,7 @@ Converts the target columns of a batch into the target tensor \code{y} that the 
 Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
 and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
 target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
-If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide, but a \code{\link{TaskTorch}} only if it has no target at all, in which case the batches have no \code{y} element.}
+If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide, and a \code{\link{TaskTorch}} only if it has a \code{default_target_batchgetter} or no target at all, in which case the batches have no \code{y} element.}
       \item{\code{predict_types}}{(\code{character()})\cr
 The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}

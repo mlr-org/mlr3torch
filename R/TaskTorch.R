@@ -24,6 +24,14 @@
 #'   The default prediction encoder for the task. This can be overwritten by a learner's
 #'   private `$.encode_prediction` method.
 #'   See [`LearnerTorch`] for more information.
+#' @param default_target_batchgetter (`function()` or `NULL`)\cr
+#'   The default way to turn the target columns of a batch into the target tensor `y`, returned by
+#'   [`get_target_batchgetter()`].
+#'   Takes an argument `data`, a [`data.table`][data.table::data.table] with only the target columns,
+#'   and optionally an argument `x`, the named list of feature tensors of the batch.
+#'   What `y` has to look like follows from the loss, so this can be overwritten by the
+#'   `target_batchgetter` of a learner such as [`lrn("torch.module")`][mlr_learners.module].
+#'   If `NULL` (default), a task with a target has no default and the learner has to provide one.
 #' @param default_measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
 #'   The default measure of the task, i.e. what [`msr("torch.default")`][mlr_measures_torch.default]
 #'   resolves to.
@@ -41,6 +49,9 @@
 #'     prob = as.matrix(torch::nnf_sigmoid(network_output)$cpu())
 #'     colnames(prob) = task$target_names
 #'     list(response = prob > 0.5, prob = if (predict_type == "prob") prob)
+#'   },
+#'   default_target_batchgetter = function(data) {
+#'     torch::torch_tensor(as.matrix(data), dtype = torch::torch_float())
 #'   })
 #' task
 #' output_dim_for(task)
@@ -50,7 +61,7 @@ TaskTorch = R6Class("TaskTorch",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, backend, target = NULL, label = NA_character_,
-      output_dim = NULL, default_encoder = NULL, default_measure = NULL) {
+      output_dim = NULL, default_encoder = NULL, default_target_batchgetter = NULL, default_measure = NULL) {
       target = assert_character(target, any.missing = FALSE, unique = TRUE, min.len = 1L, null.ok = TRUE) %??% character(0)
       super$initialize(id = id, task_type = "torch", backend = backend, label = label)
       assert_subset(target, self$col_roles$feature)
@@ -60,6 +71,8 @@ TaskTorch = R6Class("TaskTorch",
       self$output_dim = output_dim
       private$.default_encoder = assert_function(default_encoder,
         args = c("task", "network_output", "predict_type"), null.ok = TRUE)
+      private$.default_target_batchgetter = assert_function(default_target_batchgetter,
+        args = "data", null.ok = TRUE)
       private$.default_measure = assert_r6(default_measure, "Measure", null.ok = TRUE)
     },
     #' @description
@@ -82,13 +95,19 @@ TaskTorch = R6Class("TaskTorch",
     hash = function(rhs) {
       assert_ro_binding(rhs)
       calculate_hash(super$hash, self$default_measure$hash,
-        private$.output_dim, self$default_encoder)
+        private$.output_dim, self$default_encoder, self$default_target_batchgetter)
     },
     #' @field default_encoder (`function()` or `NULL`)\cr
     #'   The default prediction encoder. Read-only.
     default_encoder = function(rhs) {
       assert_ro_binding(rhs)
       private$.default_encoder
+    },
+    #' @field default_target_batchgetter (`function()` or `NULL`)\cr
+    #'   See the construction argument. Read-only, for the same reason as `default_encoder`.
+    default_target_batchgetter = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.default_target_batchgetter
     },
     #' @field default_measure ([`Measure`][mlr3::Measure] or `NULL`)\cr
     #'   See the construction argument. Read-only, for the same reason as `default_encoder`.
@@ -110,6 +129,7 @@ TaskTorch = R6Class("TaskTorch",
   private = list(
     .output_dim = NULL,
     .default_encoder = NULL,
+    .default_target_batchgetter = NULL,
     .default_measure = NULL,
     deep_clone = function(name, value) {
       if (name == ".default_measure" && !is.null(value)) value$clone(deep = TRUE) else super$deep_clone(name, value)
@@ -128,8 +148,8 @@ TaskTorch = R6Class("TaskTorch",
 #'   The data.
 #' @template params_task_torch
 #' @param ... (any)\cr
-#'   Further arguments passed to [`TaskTorch`]`$new()`, such as `output_dim`, `default_encoder`
-#'   or `default_measure`.
+#'   Further arguments passed to [`TaskTorch`]`$new()`, such as `output_dim`, `default_encoder`,
+#'   `default_target_batchgetter` or `default_measure`.
 #' @return [`TaskTorch`]
 #' @export
 #' @examplesIf torch::torch_is_installed()
@@ -162,12 +182,15 @@ output_dim_for.TaskTorch = function(x, ...) { # nolint
 
 #' @export
 get_target_batchgetter.TaskTorch = function(task, ...) { # nolint
+  if (!is.null(task$default_target_batchgetter)) {
+    return(task$default_target_batchgetter)
+  }
   # A task with no target has no `y`: the loss is called as `loss(y_hat)` and there is nothing for a
   # batchgetter to build, so the learner does not have to pass one.
   if (!length(task$target_names)) {
     return(NULL)
   }
-  stopf("Task '%s' does not define how its target becomes a tensor -- what `y` has to look like follows from the loss, so it is the learner that decides. Pass `target_batchgetter` to the learner (e.g. `lrn(\"torch.module\")`) or overwrite the method for your own `LearnerTorch` subclass.", task$id) # nolint
+  stopf("Task '%s' does not define how its target becomes a tensor. Pass `default_target_batchgetter` to the task, or `target_batchgetter` to the learner (e.g. `lrn(\"torch.module\")`), or overwrite the method for your own `LearnerTorch` subclass.", task$id) # nolint
 }
 
 #' @export
