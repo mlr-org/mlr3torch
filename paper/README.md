@@ -127,6 +127,7 @@ There are also some exemplary slurm scripts that need to be adapted to the speci
 
 * `paper/benchmark/benchmark_gpu.sh`
 * `paper/benchmark/benchmark_cpu.sh`
+* `paper/benchmark/benchmark_cpu_coolmuc.sh` (LRZ Linux Cluster, running the CPU image with Apptainer)
 * `paper/benchmark/benchmark_gpu_optimizer.sh`
 
 ### Running a subset of the Jobs
