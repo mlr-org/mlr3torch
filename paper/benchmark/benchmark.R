@@ -1,6 +1,14 @@
 library(batchtools)
 library(mlr3misc)
 
+# Environment for the benchmark subprocesses.
+# torch_set_num_threads() only applies to the calling thread, but (R) torch runs the backward pass in a
+# separate thread, which otherwise uses all available cores. Setting OMP_NUM_THREADS also limits these threads.
+thread_env = function(n_threads) {
+  n_threads = as.character(n_threads)
+  c(callr::rcmd_safe_env(), OMP_NUM_THREADS = n_threads, MKL_NUM_THREADS = n_threads)
+}
+
 setup = function(reg_path, python_path, work_dir) {
 
   print_setup_info(reg_path, python_path, work_dir)
@@ -30,7 +38,8 @@ setup = function(reg_path, python_path, work_dir) {
   source(here::here("benchmark", "time_rtorch.R"))
 
   batchExport(list(
-    time_rtorch = time_rtorch # nolint
+    time_rtorch = time_rtorch, # nolint
+    thread_env = thread_env
   ))
 
   addProblem(
@@ -85,7 +94,7 @@ setup = function(reg_path, python_path, work_dir) {
     }
     args = c(instance, list(seed = job$seed, jit = jit, python_path = python_path))
     #do.call(f, args)
-    callr::r(f, args = args)
+    callr::r(f, args = args, env = thread_env(instance$n_threads))
   })
 
   addAlgorithm("rtorch", fun = function(instance, job, opt_type, jit, ...) {
@@ -95,7 +104,7 @@ setup = function(reg_path, python_path, work_dir) {
       instance$optimizer = paste0("ignite_", instance$optimizer)
     }
     #do.call(time_rtorch, args = c(instance, list(seed = job$seed, jit = jit))) # nolint
-    callr::r(time_rtorch, args = c(instance, list(seed = job$seed, jit = jit))) # nolint
+    callr::r(time_rtorch, args = c(instance, list(seed = job$seed, jit = jit)), env = thread_env(instance$n_threads)) # nolint
   })
 
   addAlgorithm("mlr3torch", fun = function(instance, job, opt_type, jit, ...) {
@@ -105,7 +114,8 @@ setup = function(reg_path, python_path, work_dir) {
     }
     callr::r(
       time_rtorch, # nolint
-      args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit))
+      args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)),
+      env = thread_env(instance$n_threads)
     )
     #do.call(time_rtorch, args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)))
   })
