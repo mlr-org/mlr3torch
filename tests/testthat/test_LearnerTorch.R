@@ -1613,35 +1613,88 @@ test_that("hash_input() recurses into lists so that nn_modules hash stably", {
   expect_equal(l$clone(deep = TRUE)$hash, before)
 })
 
-test_that("the optimizer params and the internal callbacks can be customized", {
-  LearnerTorchHooks = R6Class("LearnerTorchHooks",
+test_that(".setup_training can customize the network, loss, optimizer and callbacks", {
+  seen_optimizer = "not called"
+  LearnerTorchSetup = R6Class("LearnerTorchSetup",
     inherit = LearnerTorchTest1,
     private = list(
-      .optimizer_params = function(network, param_vals) {
-        list(
-          list(params = list(network$weight), lr = 0.5),
-          list(params = list(network$bias))
-        )
-      },
-      .internal_callbacks = function(task, param_vals) {
-        list(internal = torch_callback("internal",
-          on_end = function() self$ctx$learner$state$internal_ran = TRUE,
+      .setup_training = function(ctx, param_vals) {
+        super$.setup_training(ctx, param_vals)
+        seen_optimizer <<- ctx$optimizer
+        ctx$loss_fn = nn_module("wrapped_loss",
+          initialize = function(loss) self$loss = loss,
+          forward = function(input, target) self$loss(input, target)
+        )(ctx$loss_fn)
+        ctx$optimizer = self$optimizer$generate(list(
+          list(params = list(ctx$network$weight), lr = 0.5),
+          list(params = list(ctx$network$bias))
+        ))
+        ctx$callbacks$internal = torch_callback("internal",
           state_dict = function() "internal state",
           load_state_dict = function(state_dict) NULL
-        )$generate())
+        )$generate()
       }
     )
   )
-  learner = LearnerTorchHooks$new(task_type = "classif")
+  learner = LearnerTorchSetup$new(task_type = "classif")
   learner$param_set$set_values(epochs = 1L, batch_size = 50L, bias = TRUE, opt.lr = 0.1)
+  learner$callbacks = t_clbk("history")
   learner$train(tsk("iris"))
+  # the optimizer is created after the setup
+  expect_null(seen_optimizer)
   groups = learner$model$optimizer$param_groups
   expect_length(groups, 2L)
   expect_equal(groups[[1L]]$lr, 0.5)
   expect_equal(groups[[2L]]$lr, 0.1)
   expect_equal(learner$model$callbacks$internal, "internal state")
+  expect_data_table(learner$model$callbacks$history)
+  expect_class(setup_ctx_field(learner, tsk("iris"), "loss_fn"), "wrapped_loss")
 
-  # the ids of the internal callbacks must not clash with the configured ones
+  # the ids of added callbacks must not clash with the configured ones
   learner$callbacks = t_clbk("history", id = "internal")
-  expect_error(learner$train(tsk("iris")), "'internal', which are already in use")
+  expect_error(learner$train(tsk("iris")), "removed or replaced the configured callback")
+})
+
+test_that("the default optimizer is created from the network that .setup_training leaves", {
+  LearnerTorchSwap = R6Class("LearnerTorchSwap",
+    inherit = LearnerTorchTest1,
+    private = list(
+      .setup_training = function(ctx, param_vals) {
+        ctx$network = nn_sequential(nn_linear(4L, 3L))
+      }
+    )
+  )
+  network = optimizer = NULL
+  spy = torch_callback("spy", on_begin = function() {
+    network <<- self$ctx$network
+    optimizer <<- self$ctx$optimizer
+  })
+  learner = LearnerTorchSwap$new(task_type = "classif")
+  learner$param_set$set_values(epochs = 1L, batch_size = 50L)
+  learner$callbacks = spy
+  learner$train(tsk("iris"))
+  expect_class(learner$network, "nn_sequential")
+  params = network$parameters
+  opt_params = unlist(map(optimizer$param_groups, "params"), recursive = FALSE)
+  expect_length(opt_params, length(params))
+  expect_true(all(map_lgl(params, function(p) some(opt_params, function(q) identical(p, q)))))
+})
+
+test_that(".setup_training may only add callbacks", {
+  make_learner = function(setup) {
+    cls = R6Class("LearnerTorchBadSetup", inherit = LearnerTorchTest1,
+      private = list(.setup_training = setup))
+    learner = cls$new(task_type = "classif")
+    learner$param_set$set_values(epochs = 1L, batch_size = 50L)
+    learner$callbacks = t_clbk("history")
+    learner
+  }
+  learner = make_learner(function(ctx, param_vals) ctx$callbacks$history = NULL)
+  expect_error(learner$train(tsk("iris")), "removed or replaced the configured callback\\(s\\) 'history'")
+  learner = make_learner(function(ctx, param_vals) {
+    ctx$callbacks$early_stopping = t_clbk("history")$generate()
+  })
+  expect_error(learner$train(tsk("iris")), "reserved id 'early_stopping'")
+  learner = make_learner(function(ctx, param_vals) ctx$loss_fn = "not a loss")
+  expect_error(learner$train(tsk("iris")), "ctx\\$loss_fn")
 })

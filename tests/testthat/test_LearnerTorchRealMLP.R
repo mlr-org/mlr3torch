@@ -4,6 +4,11 @@ make_realmlp = function(task_type = "classif", ...) {
   invoke(lrn, paste0(task_type, ".realmlp"), .args = args)
 }
 
+wrap_realmlp_loss = function(learner, task) {
+  realmlp_wrap_loss(learner$loss$generate(task), task, learner$loss,
+    learner$param_set$get_values(tags = "train"), learner$id)
+}
+
 # A minimal stand-in for `ContextTorch`, holding what `CallbackSetRealMLP` accesses.
 fake_realmlp_ctx = function(network, optimizer, global_step, total_epochs, n_batches) {
   ctx = new.env()
@@ -403,22 +408,22 @@ test_that("label smoothing is correct", {
 test_that("the learner wraps the configured loss", {
   task = tsk("iris")
   learner = make_realmlp()
-  loss_fn = get_private(learner)$.loss_fn(task, learner$param_set$get_values(tags = "train"))
+  loss_fn = wrap_realmlp_loss(learner, task)
   expect_class(loss_fn, "realmlp_ls_loss")
   expect_equal(loss_fn$eps, 0.1)
 
   learner$param_set$set_values(ls_eps = 0)
-  loss_fn = get_private(learner)$.loss_fn(task, learner$param_set$get_values(tags = "train"))
+  loss_fn = wrap_realmlp_loss(learner, task)
   expect_class(loss_fn, "nn_cross_entropy_loss")
 
   learner = make_realmlp(loss = t_loss("cross_entropy", reduction = "sum"))
-  loss_fn = get_private(learner)$.loss_fn(task, learner$param_set$get_values(tags = "train"))
+  loss_fn = wrap_realmlp_loss(learner, task)
   expect_equal(loss_fn$reduction, "sum")
 
   # regression: the prediction and the target are standardized
   task = tsk("mtcars")
   learner = make_realmlp("regr")
-  loss_fn = get_private(learner)$.loss_fn(task, learner$param_set$get_values(tags = "train"))
+  loss_fn = wrap_realmlp_loss(learner, task)
   expect_class(loss_fn, "realmlp_normalized_loss")
   y = task$truth()
   input = torch_tensor(y[1:5] + 1)$unsqueeze(2L)
@@ -427,7 +432,7 @@ test_that("the learner wraps the configured loss", {
   expect_equal(loss_fn(input, target)$item(), 1 / sd^2, tolerance = 1e-5)
 
   learner$param_set$set_values(normalize_output = FALSE)
-  loss_fn = get_private(learner)$.loss_fn(task, learner$param_set$get_values(tags = "train"))
+  loss_fn = wrap_realmlp_loss(learner, task)
   expect_class(loss_fn, "nn_mse_loss")
 })
 

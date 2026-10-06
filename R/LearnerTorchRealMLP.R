@@ -540,12 +540,22 @@ CallbackSetRealMLP = R6Class("CallbackSetRealMLP",
   )
 )
 
-realmlp_inherits = function(generator, parent) {
-  while (!is.null(generator)) {
-    if (identical(generator, parent)) return(TRUE)
-    generator = generator$get_inherit()
+# Wraps the configured loss with label smoothing (classification) or target standardization
+# (regression).
+realmlp_wrap_loss = function(loss_fn, task, loss, param_vals, learner_id) {
+  if (task$task_type == "classif" && param_vals$ls_eps > 0) {
+    if (loss$id != "cross_entropy") {
+      stopf("Learner '%s': label smoothing (ls_eps > 0) requires the 'cross_entropy' loss, but the loss is '%s'. Set ls_eps = 0 to use a different loss.", learner_id, loss$id) # nolint
+    }
+    loss_fn = realmlp_ls_loss(loss_fn, eps = param_vals$ls_eps,
+      binary = "twoclass" %in% task$properties,
+      reduction = loss$param_set$values$reduction %??% "mean")
   }
-  FALSE
+  if (task$task_type == "regr" && param_vals$normalize_output) {
+    y = task$truth()
+    loss_fn = realmlp_normalized_loss(loss_fn, mean = mean(y), std = sqrt(mean((y - mean(y))^2)))
+  }
+  loss_fn
 }
 
 #' @title RealMLP
@@ -790,38 +800,22 @@ LearnerTorchRealMLP = R6Class("LearnerTorchRealMLP",
         )
       )
     },
-    .optimizer_params = function(network, param_vals) {
-      network$param_groups()
-    },
-    .internal_callbacks = function(task, param_vals) {
-      schedulers = keep(self$callbacks, function(cb) realmlp_inherits(cb$generator, CallbackSetLRScheduler))
+    .setup_training = function(ctx, param_vals) {
+      super$.setup_training(ctx, param_vals)
+      schedulers = keep(ctx$callbacks, function(cb) inherits(cb, "CallbackSetLRScheduler"))
       if (length(schedulers)) {
         stopf("Learner '%s' schedules the learning rate itself (see the parameter 'lr_sched'), so it cannot be combined with the learning rate scheduler callback(s) %s.", # nolint
-          self$id, paste0("'", ids(schedulers), "'", collapse = ", "))
+          self$id, paste0("'", names(schedulers), "'", collapse = ", "))
       }
-      list(realmlp = CallbackSetRealMLP$new(
+      ctx$loss_fn = realmlp_wrap_loss(ctx$loss_fn, ctx$task_train, self$loss, param_vals, self$id)
+      ctx$callbacks$realmlp = CallbackSetRealMLP$new(
         lr_sched = param_vals$lr_sched,
         wd = param_vals$wd,
         wd_sched = param_vals$wd_sched,
         p_drop = param_vals$p_drop,
         p_drop_sched = param_vals$p_drop_sched
-      ))
-    },
-    .loss_fn = function(task, param_vals) {
-      loss = super$.loss_fn(task, param_vals)
-      if (task$task_type == "classif" && param_vals$ls_eps > 0) {
-        if (self$loss$id != "cross_entropy") {
-          stopf("Learner '%s': label smoothing (ls_eps > 0) requires the 'cross_entropy' loss, but the loss is '%s'. Set ls_eps = 0 to use a different loss.", self$id, self$loss$id) # nolint
-        }
-        loss = realmlp_ls_loss(loss, eps = param_vals$ls_eps,
-          binary = "twoclass" %in% task$properties,
-          reduction = self$loss$param_set$values$reduction %??% "mean")
-      }
-      if (task$task_type == "regr" && param_vals$normalize_output) {
-        y = task$truth()
-        loss = realmlp_normalized_loss(loss, mean = mean(y), std = sqrt(mean((y - mean(y))^2)))
-      }
-      loss
+      )
+      ctx$optimizer = self$optimizer$generate(ctx$network$param_groups())
     },
     # like upstream, the batch size is capped at the number of observations, as `drop_last` would
     # otherwise drop all of them

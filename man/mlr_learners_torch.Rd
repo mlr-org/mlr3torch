@@ -88,7 +88,7 @@ expressed by returning one tensor per quantity, which the prediction encoding co
 In both cases the complete output is what the rest of the learner works with:
 \itemize{
 \item The loss is applied to it. Because the configured loss expects a single tensor, a learner
-whose network returns a list has to wrap it by overloading \code{.loss_fn()}, see the list of
+whose network returns a list has to wrap it in \code{.setup_training()}, see the list of
 methods below. \code{\link{ContextTorch}} makes the output available as \code{ctx$y_hats}.
 \item The prediction is encoded from it, both when predicting and when calculating the training and
 validation scores, so \code{.encode_prediction()} always receives the complete network output. Such
@@ -352,23 +352,29 @@ is trained by the learner.
 Note that a specific output shape is expected from the returned network, see section \emph{Network Head and Target Encoding}.
 That section also describes when a network can return more than one tensor.
 You can use \code{\link[=output_dim_for]{output_dim_for()}} to obtain the correct output dimension for a given task.
-\item \code{.loss_fn(task, param_vals)}\cr
-(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:nn_module]{nn_module}}\cr
-Construct the loss that is applied to the output of the network.
-The default implementation generates the loss that was configured by the user, i.e.
-\code{self$loss$generate(task)}.
-Overload this if the network returns more than one prediction and the configured loss has to
-be wrapped, see the \code{aux_logits} parameter of
+\item \code{.setup_training(ctx, param_vals)}\cr
+(\code{\link{ContextTorch}}, \code{list()}) -> \code{NULL}\cr
+Customizes a training run by modifying the context in place; the default does nothing.
+It is called once the data loaders, the network and the configured loss
+(\code{self$loss$generate(task)}) are created, and before training (or resuming) starts.
+At this point, \code{ctx$optimizer} is \code{NULL} and \code{ctx$callbacks} contains the configured callbacks.
+The method may:
+\itemize{
+\item replace \code{ctx$network}. This is also the network that is used for prediction.
+\item replace \code{ctx$loss_fn}, e.g. to wrap the configured loss when the network returns more than
+one prediction, see the \code{aux_logits} parameter of
 \code{\link[=mlr_learners.torchvision]{classif.inception_v3}}.
-\item \code{.optimizer_params(network, param_vals)}\cr
-(\code{\link[torch:nn_module]{nn_module}}, \code{list()}) -> \code{list()}\cr
-Returns what the optimizer is generated from, by default \code{network$parameters}.
-Overload this to return parameter groups, e.g. for parameter-specific learning rates.
-If the optimizer's \code{param_groups} parameter is set, it receives the output of this method.
-\item \code{.internal_callbacks(task, param_vals)}\cr
-(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> named \code{list()} of \code{\link{CallbackSet}}s\cr
-Callbacks that are always added to the training run, by default none.
-Their names must not clash with the ids of the configured callbacks.
+\item set \code{ctx$optimizer}, e.g. to \code{self$optimizer$generate(groups)} with parameter groups for
+parameter-specific learning rates. Otherwise, the optimizer is generated from the final
+\code{ctx$network} afterwards. Use \code{self$optimizer$generate()}, so that the optimizer's parameters
+(including \code{param_groups}) are respected, and set the optimizer after replacing the network.
+\item add callbacks to \code{ctx$callbacks}. The configured callbacks may not be removed or replaced, and
+the id \code{"early_stopping"} is reserved.
+}
+
+Call \code{super$.setup_training(ctx, param_vals)} first. The method must be deterministic given
+\code{param_vals}, so that resuming from a checkpoint can restore the optimizer and callback states.
+With \code{jit_trace = TRUE}, \code{ctx$network} is already traced.
 \item \code{.ingress_tokens(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> named \code{list()} with \code{\link{TorchIngressToken}}s\cr
 Create the \code{\link{TorchIngressToken}}s that are passed to the \code{\link{task_dataset}} constructor.

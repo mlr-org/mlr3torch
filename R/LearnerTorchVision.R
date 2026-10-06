@@ -106,12 +106,11 @@ LearnerTorchVision = R6Class("LearnerTorchVision",
     # With an enabled auxiliary classifier the network returns one prediction per classifier, so
     # the loss that the user configured is wrapped instead of being applied directly. `aux_logits`
     # only exists for the networks that have an auxiliary classifier, so this is a no-op otherwise.
-    .loss_fn = function(task, param_vals) {
-      loss_fn = super$.loss_fn(task, param_vals)
+    .setup_training = function(ctx, param_vals) {
+      super$.setup_training(ctx, param_vals)
       if (isTRUE(param_vals$aux_logits)) {
-        loss_fn = nn_aux_loss(loss_fn, aux_weight = param_vals$aux_weight %??% 0.4)
+        ctx$loss_fn = nn_aux_loss(ctx$loss_fn, aux_weight = param_vals$aux_weight %??% 0.4)
       }
-      loss_fn
     },
     .additional_phash_input = function() {
       list(private$.module_generator, private$.network_args)
@@ -226,7 +225,7 @@ nn_aux_loss = nn_module("nn_aux_loss",
 )
 
 # In training mode, Inception v3 returns a list of (logits, aux_logits) when the auxiliary
-# classifier is enabled, which the learner handles by wrapping the loss, see `.loss_fn()`. The
+# classifier is enabled, which the learner handles by wrapping the loss, see `.setup_training()`. The
 # auxiliary classifier is disabled by default, because it requires 299x299 inputs.
 # When `pretrained` is TRUE, torchvision needs the auxiliary classifier to load the state dict,
 # hence we can only remove it afterwards. Note that assigning `NULL` does not deregister a
@@ -434,7 +433,7 @@ torchvision_bib_keys = function(bib) {
 
 # Parameters that some of the networks have in addition to `pretrained`. `network_args` lists
 # those that are forwarded to the module generator, the remaining ones are interpreted by the
-# learner itself, see the `.network()` and `.loss_fn()` methods of `LearnerTorchVision`.
+# learner itself, see the `.network()` and `.setup_training()` methods of `LearnerTorchVision`.
 # The learners that need more than `LearnerTorchVision` does; all others are registered with the
 # base class itself.
 torchvision_learner_classes = list(

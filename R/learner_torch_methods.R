@@ -58,31 +58,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (isTRUE(param_vals$resume) && !some(self$callbacks, is_checkpoint)) {
     error_config("Learner '%s' has 'resume' set to TRUE, but no 'checkpoint' callback to take the path from. Either add one via t_clbk(\"checkpoint\") or set 'resume' to a checkpoint folder.", self$id) # nolint
   }
-  dataset_train = private$.dataset(task, param_vals)
-  dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
-  loader_train = private$.dataloader(dataset_train, param_vals)
-  if (!length(loader_train)) {
-    stopf("Training Dataloader of Learner '%s' has length 0", self$id)
-  }
-
-  network = private$.network(task, param_vals)
-  network$to(device = param_vals$device)
-  if (isTRUE(param_vals$jit_trace) && !inherits(network, "script_module")) {
-    example = get_example_batch(loader_train)$x
-    example = lapply(example, function(x) x$to(device = param_vals$device))
-    # tracer requires arguments to be passed by name
-    if (length(example) == 1) {
-      network = jit_trace(network, example[[1L]])
-    } else {
-      example = order_named_args(network, example)
-      network = do.call(jit_trace, c(list(network), unname(example)))
-    }
-  }
   if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
-  optimizer = self$optimizer$generate(private$.optimizer_params(network, param_vals))
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
-  loss_fn = private$.loss_fn(task, param_vals)
-  loss_fn$to(device = param_vals$device)
 
   measures_train = normalize_to_list(param_vals$measures_train)
   measures_valid = normalize_to_list(param_vals$measures_valid)
@@ -98,6 +75,13 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     stopf("Learner '%s' uses a validation measure with minimize = NA for early stopping.", self$id)
   }
 
+  dataset_train = private$.dataset(task, param_vals)
+  dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
+  loader_train = private$.dataloader(dataset_train, param_vals)
+  if (!length(loader_train)) {
+    stopf("Training Dataloader of Learner '%s' has length 0", self$id)
+  }
+
   task_valid = task$internal_valid_task
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
     dataset_valid = private$.dataset(task_valid, param_vals)
@@ -109,6 +93,22 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     stopf("Validation Dataloader of Learner '%s' has length 0", self$id)
   }
 
+  network = private$.network(task, param_vals)
+  network$to(device = param_vals$device)
+  if (isTRUE(param_vals$jit_trace) && !inherits(network, "script_module")) {
+    example = get_example_batch(loader_train)$x
+    example = lapply(example, function(x) x$to(device = param_vals$device))
+    # tracer requires arguments to be passed by name
+    if (length(example) == 1) {
+      network = jit_trace(network, example[[1L]])
+    } else {
+      example = order_named_args(network, example)
+      network = do.call(jit_trace, c(list(network), unname(example)))
+    }
+  }
+  loss_fn = self$loss$generate(task)
+  loss_fn$to(device = param_vals$device)
+
   ctx = ContextTorch$new(
     learner = self,
     task_train = task,
@@ -118,7 +118,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     measures_train = measures_train,
     measures_valid = measures_valid,
     network = network,
-    optimizer = optimizer,
+    optimizer = NULL,
     loss_fn = loss_fn,
     total_epochs = param_vals$epochs,
     prediction_encoder = private$.encode_prediction,
@@ -126,23 +126,21 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     device = param_vals$device
   )
 
-  callbacks = set_names(lapply(self$callbacks, function(descriptor) {
+  configured_callbacks = set_names(lapply(self$callbacks, function(descriptor) {
     cb = descriptor$generate()
     cb$ctx = ctx
     cb
   }), ids(self$callbacks))
+  ctx$callbacks = configured_callbacks
 
-  internal_callbacks = private$.internal_callbacks(task, param_vals)
-  if (length(internal_callbacks)) {
-    assert_list(internal_callbacks, types = "CallbackSet", names = "unique")
-    clashes = intersect(names(internal_callbacks), c(names(callbacks), "early_stopping"))
-    if (length(clashes)) {
-      stopf("Learner '%s' adds internal callback(s) with id(s) %s, which are already in use.",
-        self$id, paste0("'", clashes, "'", collapse = ", "))
-    }
-    walk(internal_callbacks, function(cb) cb$ctx = ctx)
-    callbacks = c(callbacks, internal_callbacks)
+  private$.setup_training(ctx, param_vals)
+  check_setup_training(ctx, configured_callbacks, self, param_vals)
+  # the optimizer is created after the setup, so that it belongs to the final network
+  if (is.null(ctx$optimizer)) {
+    ctx$optimizer = self$optimizer$generate(ctx$network$parameters)
   }
+  callbacks = ctx$callbacks
+  walk(callbacks, function(cb) cb$ctx = ctx)
 
   es = NULL
   if (param_vals$patience > 0L) {
@@ -168,6 +166,30 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   structure(model, class = c("learner_torch_model", "list"))
 }
 
+
+# Checks what `LearnerTorch$.setup_training()` left in the context.
+check_setup_training = function(ctx, configured_callbacks, learner, param_vals) {
+  assert_class(ctx$network, "nn_module", .var.name = "ctx$network")
+  assert_class(ctx$loss_fn, "nn_module", .var.name = "ctx$loss_fn")
+  assert_class(ctx$optimizer, "torch_optimizer", null.ok = TRUE, .var.name = "ctx$optimizer")
+  ctx$network$to(device = ctx$device)
+  ctx$loss_fn$to(device = ctx$device)
+  if (isTRUE(param_vals$jit_trace) && !inherits(ctx$network, "script_module")) {
+    stopf("Learner '%s' replaced the network during the setup, but 'jit_trace' is TRUE and the new network is not traced.", learner$id) # nolint
+  }
+  assert_list(ctx$callbacks, types = "CallbackSet", names = "unique", .var.name = "ctx$callbacks")
+  if ("early_stopping" %in% names(ctx$callbacks)) {
+    stopf("Learner '%s' added a callback with the reserved id 'early_stopping' during the setup.", learner$id)
+  }
+  removed = names(configured_callbacks)[!map_lgl(names(configured_callbacks), function(id) {
+    identical(ctx$callbacks[[id]], configured_callbacks[[id]])
+  })]
+  if (length(removed)) {
+    stopf("Learner '%s' removed or replaced the configured callback(s) %s during the setup, which may only add callbacks.", # nolint
+      learner$id, paste0("'", removed, "'", collapse = ", "))
+  }
+  invisible(NULL)
+}
 
 train_loop = function(ctx, cbs) {
   # callbacks are called in the order they were passed, unless they request otherwise via their
