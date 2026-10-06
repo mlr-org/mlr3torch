@@ -141,6 +141,7 @@ Collate:
     'PipeOpTorchModel.R'
     'PipeOpTorchMultiheadAttention.R'
     'PipeOpTorchOptimizer.R'
+    'PipeOpTorchRecurrent.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
     'PipeOpTorchTokenizer.R'
