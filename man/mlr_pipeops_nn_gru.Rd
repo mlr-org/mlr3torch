@@ -62,7 +62,7 @@ pipeop$param_set
 \dontshow{\}) # examplesIf}
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{PipeOpTorch}} -> \code{PipeOpTorchRecurrent} -> \code{PipeOpTorchGRU}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{PipeOpTorch}} -> \code{\link[mlr3torch:PipeOpTorchRecurrent]{PipeOpTorchRecurrent}} -> \code{PipeOpTorchGRU}
 }
 \section{Methods}{
 \subsection{Public methods}{
