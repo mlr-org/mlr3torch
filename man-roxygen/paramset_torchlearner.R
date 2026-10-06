@@ -31,6 +31,9 @@
 #'   Note that by setting the seed during the training phase this will mean that by default (i.e. when `seed` is
 #'   `"random"`), clones of the learner will use a different seed.
 #'   If set to `NULL`, no seeding will be done.
+#'   This parameter only seeds torch's random number generator, it does **not** seed R's.
+#'   Anything that is drawn from R's RNG is therefore unaffected by it, so to make those parts
+#'   reproducible you need to seed R's RNG as well, e.g. via [`set.seed()`].
 #' * `tensor_dataset` :: `logical(1)` | `"device"`\cr
 #'   Whether to load all batches at once at the beginning of training and stack them.
 #'   This is initialized to `FALSE`.
@@ -39,6 +42,10 @@
 #'   When your dataset fits into memory this will make the loading of batches faster.
 #'   Note that this should not be set for datasets that contain [`lazy_tensor`]s with random data augmentation,
 #'   as this augmentation will only be applied once at the beginning of training.
+#' * `jit_trace` :: `logical(1)`\cr
+#'   Whether to trace the network with [`torch::jit_trace()`] once at the start of training and then
+#'   train the traced module instead of the original one.
+#'    Not all learners support this.
 #'
 #' **Evaluation**:
 #' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s\cr
@@ -50,28 +57,37 @@
 #'   This is initialized to `1`.
 #'   Note that the final model is always evaluated.
 #'
+#' **Resuming**:
+#' * `resume` :: `character(1)` or `TRUE`\cr
+#'   Continues training from a checkpoint written by
+#'   [`t_clbk("checkpoint")`][mlr_callback_set.checkpoint], either the folder it wrote to or `TRUE`,
+#'   which takes that folder from the checkpoint callback of this learner.
+#'   Note that `epochs` is the *total* number of epochs, i.e. it includes the epochs the checkpoint
+#'   was already trained for: resuming a checkpoint from epoch 5 with `epochs = 8` trains 3 more
+#'   epochs.
+#'
 #' **Early Stopping**:
 #' * `patience` :: `integer(1)`\cr
 #'   This activates early stopping using the validation scores.
 #'   If the performance of a model does not improve for `patience` evaluation steps, training is ended.
 #'   Note that this counts *evaluation steps*, not epochs: when `eval_freq` is greater than `1`,
 #'   `patience` evaluation steps correspond to `patience * eval_freq` epochs.
-#'   Note that the final model is stored in the learner, not the best model.
+#'   Note that the final model is stored in the learner, not the best model, unless
+#'   `restore_best_weights` is set to `TRUE`.
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.
 #'   This also requires to specify the `$validate` field of the Learner, as well as `measures_valid`.
-#'   If this is set, the epoch after which no improvement was observed, can be accessed via the `$internal_tuned_values`
-#'   field of the learner.
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold for early stopping.
 #'   Is initialized to 0.
 #' * `restore_best_weights` :: `logical(1)`\cr
 #'   Whether to restore the weights of the best epoch when training ends, instead of keeping those
-#'   of the last epoch that was trained. Is initialized to `FALSE`, i.e. the network of the last
+#'   of the last epoch that was trained. Like `min_delta`, this only has an effect when early stopping
+#'   is active.
+#'   Is initialized to `FALSE`, i.e. the network of the last
 #'   epoch is stored. Setting this to `TRUE` makes the stored network the one of the epoch that
 #'   `$internal_tuned_values` reports, and costs one additional copy of the network's parameters in
-#'   memory. Checkpoints written by `t_clbk("checkpoint")` are unaffected: they always hold the
-#'   network as training left it.
+#'   memory.
 #'
 #' **Dataloader**:
 #' * `batch_size` :: `integer(1)`\cr
@@ -112,7 +128,7 @@
 #'   A function that receives the worker id (in `[1, num_workers]`) and is executed after seeding
 #'   on the worker but before data loading.
 #' * `worker_globals` :: `list()` | `character()`\cr
-#'   When loading data in parallel, this allows to export globals to the workers.
+#'   When loading data in parallel, this makes it possible to export globals to the workers.
 #'   If this is a character vector, the objects in the global environment with those names
 #'   are copied to the workers.
 #' * `worker_packages` :: `character()`\cr

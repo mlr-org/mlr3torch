@@ -42,10 +42,6 @@ mdout[[1L]]$optimizer
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other PipeOp:
-\code{\link{mlr_pipeops_module}},
-\code{\link{mlr_pipeops_torch_callbacks}}
-
 Other Model Configuration:
 \code{\link[=ModelDescriptor]{ModelDescriptor()}},
 \code{\link{mlr_pipeops_torch_callbacks}},
@@ -53,7 +49,6 @@ Other Model Configuration:
 \code{\link[=model_descriptor_union]{model_descriptor_union()}}
 }
 \concept{Model Configuration}
-\concept{PipeOp}
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchOptimizer}
 }

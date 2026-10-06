@@ -11,11 +11,14 @@
 Calls \code{\link[torchvision:transform_random_horizontal_flip]{torchvision::transform_random_horizontal_flip}},
 see there for more information on the parameters.
 The preprocessing is applied to each element of a batch individually.
+
+Being an \code{augment_} operator, its \code{stages} parameter starts out as \code{"train"}, so the augmentation is applied while training and not when predicting. Set \code{stages = "both"} to apply it in both phases.
+See \code{\link{PipeOpTaskPreprocTorch}} for the \code{stages} parameter and this naming convention.
 }
 \section{Construction}{
 
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("augment_random_horizontal_flip"")
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("augment_random_horizontal_flip")
 }\if{html}{\out{</div>}}
 }
 

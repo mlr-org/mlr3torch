@@ -26,11 +26,14 @@
 #' callback state into a different callback.
 #' Note that the `$state_dict()` should not include the parameter values that were used to initialize the callback.
 #'
+#' In order to be able to resume a callback, it needs to work with `saveRDS`, so it cannot contain
+#' external pointers such as [`torch_tensor`][torch::torch_tensor]s.
+#' Convert them to R data, e.g. via `as.array()`.
+#'
 #' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
 #' `CallbackSet` and then wraps it in a [`TorchCallback`].
 #' To create a `CallbackSet` the convenience function [`callback_set()`] can be used.
 #' These functions perform checks such as that the stages are not accidentally misspelled.
-#'
 #'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
@@ -90,12 +93,16 @@ CallbackSet = R6Class("CallbackSet",
     },
     #' @description
     #' Loads the state dict into the callback to continue training.
+    #' A callback that keeps no state inherits this, which has nothing to load and therefore only
+    #' warns when it is handed a state anyway -- a callback that implements `$state_dict()` but not
+    #' this method, so that a resuming run cannot give its state back.
     #' @param state_dict (any)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
-      assert_true(is.null(state_dict),
-        .var.name = "state_dict method not implemented and state_dict must hence not be provided")
-      NULL
+      if (!is.null(state_dict)) {
+        warningf("Callback of class <%s> does not implement $load_state_dict(), its state is ignored.", class(self)[[1L]])
+      }
+      invisible(NULL)
     }
   ),
   active = list(
@@ -159,6 +166,8 @@ CallbackSet = R6Class("CallbackSet",
 #' @param weight (`numeric(1)`)\cr
 #'   Controls when the callback is called within a stage, see section *Ordering* of [`CallbackSet`].
 #'   Defaults to `0`.
+#'   The name is reserved for this, so `initialize` must not take a `weight` argument: wrapping such
+#'   a callback in a [`TorchCallback`] is an error.
 #' @param lock_objects (`logical(1)`)\cr
 #'  Whether to lock the objects of the resulting [`R6Class`][R6::R6Class].
 #'  If `FALSE` (default), values can be freely assigned to `self` without declaring them in the

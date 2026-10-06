@@ -9,6 +9,12 @@ Saves the training and validation history during training.
 The history is saved as a data.table where the validation measures are prefixed with \code{"valid."}
 and the training measures are prefixed with \code{"train."}.
 }
+\section{Resuming}{
+
+The epochs of a resumed run are appended to the history of the run it continues.
+A measure that only one of the two runs recorded is \code{NA} for the epochs of the other.
+}
+
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 

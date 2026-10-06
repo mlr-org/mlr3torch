@@ -132,7 +132,9 @@ Overwrites the \verb{$weight} of the generated \code{\link{CallbackSet}}, see it
       \item{\code{callback_generator}}{(\code{R6ClassGenerator})\cr
 The class generator for the callback that is being wrapped.}
       \item{\code{param_set}}{(\code{ParamSet} or \code{NULL})\cr
-The parameter set. If \code{NULL} (default) it is inferred from \code{callback_generator}.}
+The parameter set. If \code{NULL} (default) it is inferred from \code{callback_generator}.
+Whether inferred or given, it must not contain a \code{weight}: that is the callback's ordering
+weight, which is set via the \code{weight} argument.}
       \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
       \item{\code{label}}{(\code{character(1)})\cr

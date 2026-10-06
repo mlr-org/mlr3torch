@@ -71,7 +71,9 @@ The initialization method of the callback.}
 
 \item{weight}{(\code{numeric(1)})\cr
 Controls when the callback is called within a stage, see section \emph{Ordering} of \code{\link{CallbackSet}}.
-Defaults to \code{0}.}
+Defaults to \code{0}.
+The name is reserved for this, so \code{initialize} must not take a \code{weight} argument: wrapping such
+a callback in a \code{\link{TorchCallback}} is an error.}
 
 \item{public, private, active}{(\code{list()})\cr
 Additional public, private, and active fields to add to the callback.}

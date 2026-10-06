@@ -5,6 +5,9 @@
 #' @description
 #' Prints a progress bar and the metrics for training and validation.
 #'
+#' @section Resuming:
+#' This callback can be resumed without any problems.
+#'
 #' @family Callback
 #' @include CallbackSet.R
 #' @param digits `integer(1)`\cr
@@ -31,9 +34,14 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
       self$digits = assert_int(digits, lower = 0)
     },
     #' @description
+    #' Starts this run's timer.
+    on_begin = function() {
+      private$.started = Sys.time()
+    },
+    #' @description
     #' Initializes the progress bar for training.
     on_epoch_begin = function() {
-      catf("Epoch %s started (%s)", self$ctx$epoch, format(Sys.time()))
+      catf("Epoch %s/%s started (%s)", self$ctx$epoch, self$ctx$total_epochs, format(Sys.time()))
       self$pb_train = progress::progress_bar$new(
         total = length(self$ctx$loader_train),
         format = "Training [:bar]"
@@ -84,9 +92,44 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
       cat("\n")
     },
     #' @description
-    #' Prints the time at the end of training.
+    #' Prints the time at the end of training, and how long training took in total.
+    #' A resumed run also reports how much of that total it contributed itself.
     on_end = function() {
-      catf("Finished training for %s epochs (%s)", self$ctx$epoch, format(Sys.time()))
+      total = private$.total_elapsed()
+      if (private$.elapsed == 0) {
+        catf("Finished training for %s epochs (%s, %.1fs total)", self$ctx$epoch,
+          format(Sys.time()), total)
+        return(invisible(NULL))
+      }
+      catf("Finished training for %s epochs (%s, %.1fs total: %.1fs before this run, %.1fs in it)",
+        self$ctx$epoch, format(Sys.time()), total, private$.elapsed, total - private$.elapsed)
+    },
+    #' @description
+    #' Returns the seconds trained so far, so that a resumed run reports the time of all runs
+    #' together rather than only its own.
+    state_dict = function() {
+      list(elapsed = private$.total_elapsed())
+    },
+    #' @description
+    #' Loads the time that the previous runs took.
+    #' @param state_dict (named `list()`)\cr
+    #'   The state dict as retrieved via `$state_dict()`.
+    load_state_dict = function(state_dict) {
+      private$.elapsed = state_dict$elapsed
+      invisible(NULL)
+    }
+  ),
+  private = list(
+    # the seconds the runs before this one took, and when this one started
+    .elapsed = 0,
+    .started = NULL,
+    # `$state_dict()` is also called mid-run -- by the checkpoint callback -- so the time this run
+    # has taken so far is added on every call rather than only at the end
+    .total_elapsed = function() {
+      if (is.null(private$.started)) {
+        return(private$.elapsed)
+      }
+      private$.elapsed + as.numeric(difftime(Sys.time(), private$.started, units = "secs"))
     }
   )
 )

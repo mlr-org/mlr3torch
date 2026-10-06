@@ -11,11 +11,14 @@
 Calls \code{\link[torchvision:transform_adjust_gamma]{torchvision::transform_adjust_gamma}},
 see there for more information on the parameters.
 The preprocessing is applied to each element of a batch individually.
+
+Being a \code{trafo_} operator, its \code{stages} parameter starts out as \code{"both"}, so the transformation is applied both while training and when predicting. Set \code{stages = "train"} to restrict it to training.
+See \code{\link{PipeOpTaskPreprocTorch}} for the \code{stages} parameter and this naming convention.
 }
 \section{Construction}{
 
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("trafo_adjust_gamma"")
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("trafo_adjust_gamma")
 }\if{html}{\out{</div>}}
 }
 

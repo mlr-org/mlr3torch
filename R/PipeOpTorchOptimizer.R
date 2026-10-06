@@ -19,7 +19,6 @@
 #' During training, the optimizer is cloned and added to the [`ModelDescriptor`].
 #' Note that the parameter set of the stored [`TorchOptimizer`] is reference-identical to the parameter set of the
 #' pipeop itself.
-#' @family PipeOp
 #' @family Model Configuration
 #' @export
 #' @examplesIf torch::torch_is_installed()

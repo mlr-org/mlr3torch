@@ -5,7 +5,12 @@
 \alias{LearnerTorchModule}
 \title{Learner Torch Module}
 \description{
-Create a torch learner from a torch module.
+Wraps a \code{\link[torch:nn_module]{torch::nn_module}} into a \code{\link{LearnerTorch}}, so an architecture written directly in
+\code{torch} can be trained, resampled and tuned like any other mlr3 learner without going through a
+\code{\link[mlr3pipelines:Graph]{Graph}} of \code{PipeOpTorch} operators.
+This is the shortest path from an existing \code{torch} model to mlr3, and the natural choice for an
+architecture whose forward pass is easier to write as code than to assemble from operators.
+The module receives the task's features as its arguments, which \code{ingress_tokens} maps.
 }
 \section{Dictionary}{
 
@@ -58,6 +63,8 @@ learner$network
 }
 \seealso{
 Other Learner:
+\code{\link{GraphLearnerTorch}},
+\code{\link[=as_learner_torch]{as_learner_torch()}},
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.tab_resnet}},
@@ -114,7 +121,8 @@ Other Learner:
   callbacks = list(),
   packages = character(0),
   feature_types = NULL,
-  predict_types = NULL
+  predict_types = NULL,
+  target_batchgetter = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -155,6 +163,12 @@ The feature types. Defaults to all available feature types.}
       \item{\code{predict_types}}{(\code{character()})\cr
 The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
+      \item{\code{target_batchgetter}}{(\verb{function()} or \code{NULL})\cr
+Converts the target columns of a batch into the target tensor \code{y} that the loss is applied to.
+Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
+and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
+target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
+If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide, and a \code{\link{TaskTorch}} only if it has a \code{default_target_batchgetter} or no target at all, in which case the batches have no \code{y} element.}
     }
     \if{html}{\out{</div>}}
   }

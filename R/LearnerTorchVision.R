@@ -119,6 +119,19 @@ LearnerTorchVision = R6Class("LearnerTorchVision",
   )
 )
 
+# During training the network outputs an auxiliary prediction for the loss
+LearnerTorchInceptionV3 = R6Class("LearnerTorchInceptionV3",
+  inherit = LearnerTorchVision,
+  private = list(
+    .encode_prediction = function(network_output, task) {
+      if (is.list(network_output)) {
+        network_output = network_output[[1L]]
+      }
+      super$.encode_prediction(network_output = network_output, task = task)
+    }
+  )
+)
+
 #' @export
 replace_head.AlexNet = function(network, d_out) {
   network$classifier$`6` = torch::nn_linear(
@@ -196,12 +209,6 @@ replace_head.vit_model = function(network, d_out) {
   network
 }
 
-# Wraps a loss so that it can be applied to a network that returns more than one prediction. The
-# first prediction is the primary one, the remaining ones come from auxiliary classifiers and are
-# added with weight `aux_weight`.
-# This is only applied during training, where the auxiliary classifiers are active: the loss is
-# not evaluated when predicting, and the validation scores are calculated from the predictions of
-# the network, not from the loss.
 nn_aux_loss = nn_module("nn_aux_loss",
   initialize = function(base_loss, aux_weight = 0.4) {
     self$base_loss = assert_class(base_loss, "nn_module")
@@ -428,6 +435,12 @@ torchvision_bib_keys = function(bib) {
 # Parameters that some of the networks have in addition to `pretrained`. `network_args` lists
 # those that are forwarded to the module generator, the remaining ones are interpreted by the
 # learner itself, see the `.network()` and `.loss_fn()` methods of `LearnerTorchVision`.
+# The learners that need more than `LearnerTorchVision` does; all others are registered with the
+# base class itself.
+torchvision_learner_classes = list(
+  inception_v3 = LearnerTorchInceptionV3
+)
+
 torchvision_extra_params = list(
   inception_v3 = function() {
     list(
@@ -451,10 +464,11 @@ local({
       label = torchvision_models$label[i]
       jittable = torchvision_models$jittable[i]
       extra_params = torchvision_extra_params[[id]]
+      learner_class = torchvision_learner_classes[[id]] %??% LearnerTorchVision
       register_learner(paste0("classif.", id),
         function(loss = NULL, optimizer = NULL, callbacks = list()) {
           extra = if (!is.null(extra_params)) extra_params()
-          LearnerTorchVision$new(id, torchvision_module_generator(generator), label,
+          learner_class$new(id, torchvision_module_generator(generator), label,
             loss = loss, optimizer = optimizer, callbacks = callbacks, jittable = jittable,
             extra_param_set = extra$param_set, network_args = extra$network_args %??% character(0))
         }

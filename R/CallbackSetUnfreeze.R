@@ -5,6 +5,11 @@
 #' @description
 #' Unfreeze some weights (parameters of the network) after some number of steps or epochs.
 #'
+#' @section Resuming:
+#' Which weights are trainable is stored and restored, so a resumed run does not freeze again what
+#' the run it continues had already unfrozen: `starting_weights` is applied first, and the restored
+#' weights are unfrozen on top of it.
+#'
 #' @param starting_weights (`Select`)\cr
 #'  A `Select` denoting the weights that are trainable from the start.
 #' @param unfreeze (`data.table`)\cr
@@ -67,7 +72,6 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       # the network is frozen according to `starting_weights` in $on_begin(), so the weights that
       # were already unfrozen can only be restored afterwards
       private$.prev_state = state_dict
-      if (!is.null(self$ctx) && !is.null(self$ctx$network)) private$.restore_trainable()
       invisible(NULL)
     },
     #' @description
@@ -91,7 +95,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' Unfreezes weights if the training is at the correct batch
     on_batch_begin = function() {
       if (private$.batchwise) {
-        batch_num = (self$ctx$epoch - 1) * length(self$ctx$loader_train) + self$ctx$step
+        batch_num = self$ctx$global_step
         if (batch_num %in% self$unfreeze$batch) {
           weights = (self$unfreeze[get("batch") == batch_num]$weights)[[1]](names(self$ctx$network$parameters))
           if (!length(weights)) {
@@ -112,9 +116,6 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       params = self$ctx$network$parameters
       names(params)[map_lgl(params, function(param) param$requires_grad)]
     },
-    # this is applied both when the state is loaded and at the end of $on_begin(), because the order
-    # the callbacks run in is up to the user (see `$weight` of CallbackSet): whichever of the two
-    # runs last must have the final say, otherwise $on_begin() freezes the weights again
     .restore_trainable = function() {
       if (is.null(private$.prev_state)) return(NULL)
       weights = intersect(private$.prev_state$trainable, names(self$ctx$network$parameters))

@@ -13,7 +13,7 @@
 #'
 #' @examplesIf torch::torch_is_installed()
 #' custom_fn =  function(x, a) x / a
-#' obj = po("nn_fn", fn = custom_fn, a = 2)
+#' obj = nn("fn", fn = custom_fn, a = 2)
 #' obj$param_set
 #'
 #' graph = po("torch_ingress_ltnsr") %>>% obj
@@ -92,7 +92,9 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     .fn = NULL,
     .shapes_out_fn = NULL,
     .additional_phash_input = function() {
-      hash_input(private$.fn)
+      # `shapes_out` is as much a part of what this operator does as `fn` is; the param set too,
+      # since it is inferred from `fn` unless one is passed
+      list(private$.fn, private$.shapes_out_fn, self$param_set$ids())
     }
   )
 )

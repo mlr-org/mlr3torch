@@ -8,6 +8,13 @@
 Reduces the learning rate when the first validation metric stops improving for \code{patience} epochs.
 Wraps \code{\link[torch:lr_reduce_on_plateau]{torch::lr_reduce_on_plateau()}}
 }
+\section{Resuming}{
+
+As for \code{\link{CallbackSetLRScheduler}}. For this schedule the restored state includes the best score
+seen so far and how long it has been stagnating, so \code{patience} keeps counting across runs instead
+of starting over.
+}
+
 \section{Super classes}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{\link[mlr3torch:CallbackSetLRScheduler]{CallbackSetLRScheduler}} -> \code{CallbackSetLRSchedulerReduceOnPlateau}
 }

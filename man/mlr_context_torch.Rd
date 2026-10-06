@@ -62,12 +62,14 @@ The loss function.}
 The total number of epochs the learner is trained for.}
 
     \item{\code{last_scores_train}}{(named \code{list()} or \code{NULL})\cr
-The scores from the last training batch. Names are the ids of the training measures.
+The scores from the last evaluated epoch, calculated over all rows that were trained on in
+that epoch. Names are the ids of the training measures.
 If \code{\link{LearnerTorch}} sets \code{eval_freq} different from \code{1}, this is \code{NULL} in all epochs
 that don't evaluate the model.}
 
     \item{\code{last_scores_valid}}{(\code{list()})\cr
-The scores from the last validation batch. Names are the ids of the validation measures.
+The scores from the last evaluated epoch, calculated over the complete validation task.
+Names are the ids of the validation measures.
 If \code{\link{LearnerTorch}} sets \code{eval_freq} different from \code{1}, this is \code{NULL} in all epochs
 that don't evaluate the model.}
 
@@ -75,14 +77,14 @@ that don't evaluate the model.}
 The loss from the last trainings batch.}
 
     \item{\code{y_hat}}{(\code{\link[torch:torch_tensor]{torch_tensor}})\cr
-The model's primary prediction for the current batch.
-If the network has auxiliary classifiers, this is the first of the predictions it
-returns, i.e. the one that is scored and returned when predicting.}
+The network's output for the current batch, or its first element if the network returns
+more than one tensor. Provided for the most common case where a network returns a single
+tensor.  For the full output, see \code{y_hats}.}
 
     \item{\code{y_hats}}{(\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()})\cr
 The complete output of the network for the current batch, i.e. what the loss is applied
-to. This is a \code{list()} of predictions if the network has auxiliary classifiers and
-identical to \code{y_hat} otherwise.}
+to. This is a \code{list()} if the network returns more than one tensor and identical to
+\code{y_hat} otherwise.}
 
     \item{\code{epoch}}{(\code{integer(1)})\cr
 The current epoch.}

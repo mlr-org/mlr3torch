@@ -14,7 +14,14 @@ The data descriptor or \code{NULL} for a lazy tensor of length 0.}
 The elements of the \code{data_descriptor} to be included in the lazy tensor.}
 }
 \description{
-Create a lazy tensor.
+Creates a \code{lazy_tensor} vector.
+Because it is a vector, it can be stored in a \code{data.table}, which gives mlr3torch the ability
+to use arbitrary tensors in its task.
+It is 'lazy', because the tensors are not stored in-memory, but only loaded when calling
+\code{\link[=materialize]{materialize()}}.
+The vector itself only describes \emph{how} to load the data.
+It is also possible to preprocess lazy_tensors, e.g. via \code{po("augment_<key>")},
+and \code{po("trafo_<key>")}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}

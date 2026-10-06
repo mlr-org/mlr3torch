@@ -18,6 +18,19 @@ As of this writing, the following are available:
 \item Custom schedulers defined with \code{\link[torch:lr_scheduler]{torch::lr_scheduler()}}.
 }
 }
+\section{Resuming}{
+
+The state of the wrapped \code{torch} scheduler is stored and restored, so a resumed run continues the
+schedule instead of starting it over.
+Creating a scheduler resets the optimizer's learning rate to the one the schedule started at, so
+the rate the restored schedule had reached is put back afterwards.
+
+That state contains the scheduler's configuration as well as its progress, and restoring it
+overwrites what the resuming run was configured with.
+Resuming with different scheduler arguments, or a different \code{opt.lr}, which the schedule's base
+rates are derived from, therefore silently continues the schedule of the checkpointed run.
+}
+
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetLRScheduler}
 }

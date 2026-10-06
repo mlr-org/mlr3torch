@@ -6,7 +6,7 @@
 \title{Class for Torch Module Wrappers}
 \description{
 \code{PipeOpModule} wraps an \code{\link[torch:nn_module]{nn_module}} or \code{function} that is being called during the \code{train} phase of this
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}. By doing so, this allows to assemble \code{PipeOpModule}s in a computational
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}. By doing so, this makes it possible to assemble \code{PipeOpModule}s in a computational
 \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} that represents either a neural network or a preprocessing graph of a \code{\link{lazy_tensor}}.
 In most cases it is easier to create such a network by creating a graph that generates this graph.
 
@@ -77,7 +77,7 @@ out = po_module$train(list(x = x, z = z))
 str(out)
 
 # How such a PipeOpModule is usually generated
-graph = po("torch_ingress_num") \%>>\% po("nn_linear", out_features = 10L)
+graph = po("torch_ingress_num") \%>>\% nn("linear", out_features = 10L)
 result = graph$train(tsk("iris"))
 # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph
 result[[1]]$graph
@@ -99,6 +99,7 @@ po_add1$train(input)$output
 Other Graph Network:
 \code{\link[=ModelDescriptor]{ModelDescriptor()}},
 \code{\link[=TorchIngressToken]{TorchIngressToken()}},
+\code{\link[=as_learner_torch]{as_learner_torch()}},
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{mlr_pipeops_torch_ingress}},
@@ -108,14 +109,10 @@ Other Graph Network:
 \code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
 \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
 \code{\link[=model_descriptor_union]{model_descriptor_union()}},
-\code{\link[=nn_graph]{nn_graph()}}
-
-Other PipeOp:
-\code{\link{mlr_pipeops_torch_callbacks}},
-\code{\link{mlr_pipeops_torch_optimizer}}
+\code{\link[=nn_graph]{nn_graph()}},
+\code{\link[=pipeop_torch]{pipeop_torch()}}
 }
 \concept{Graph Network}
-\concept{PipeOp}
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpModule}
 }

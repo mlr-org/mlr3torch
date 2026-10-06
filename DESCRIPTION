@@ -32,7 +32,7 @@ Authors@R:
              email = "carsonzhang4@gmail.com")
              )
 Description: Deep Learning library that extends the mlr3 framework by building
-  upon the 'torch' package. It allows to conveniently build, train,
+  upon the 'torch' package. It makes it convenient to build, train,
   and evaluate deep learning models without having to worry about low level
   details. Custom architectures can be created using the graph language
   defined in 'mlr3pipelines'.
@@ -40,10 +40,10 @@ License: LGPL (>= 3)
 BugReports: https://github.com/mlr-org/mlr3torch/issues
 URL: https://mlr3torch.mlr-org.com/, https://github.com/mlr-org/mlr3torch/
 Depends:
-    mlr3 (>= 1.0.1),
-    mlr3pipelines (>= 0.6.0),
+    mlr3 (>= 1.8.0),
+    mlr3pipelines (>= 0.11.0),
     torch (>= 0.16.2),
-    R (>= 3.5.0)
+    R (>= 4.2.0)
 Imports:
     backports,
     cli,
@@ -52,7 +52,7 @@ Imports:
     data.table,
     lgr,
     methods,
-    mlr3misc (>= 0.19.0),
+    mlr3misc (>= 0.23),
     paradox (>= 1.0.0),
     R6,
     withr
@@ -96,11 +96,14 @@ Collate:
     'DataBackendLazy.R'
     'utils.R'
     'DataDescriptor.R'
-    'LearnerFTTransformer.R'
     'LearnerTorch.R'
+    'GraphLearnerTorch.R'
+    'LearnerFTTransformer.R'
     'LearnerTorchFeatureless.R'
     'LearnerTorchImage.R'
     'LearnerTorchMLP.R'
+    'TorchDescriptor.R'
+    'TorchLoss.R'
     'task_dataset.R'
     'shape.R'
     'PipeOpTorchIngress.R'
@@ -109,6 +112,7 @@ Collate:
     'LearnerTorchTabM.R'
     'LearnerTorchTabResNet.R'
     'LearnerTorchVision.R'
+    'MeasureTorch.R'
     'ModelDescriptor.R'
     'PipeOpModule.R'
     'PipeOpTorch.R'
@@ -133,7 +137,6 @@ Collate:
     'PipeOpTorchIdentity.R'
     'PipeOpTorchLayerNorm.R'
     'PipeOpTorchLinear.R'
-    'TorchLoss.R'
     'PipeOpTorchLoss.R'
     'PipeOpTorchMaxPool.R'
     'PipeOpTorchMerge.R'
@@ -146,13 +149,14 @@ Collate:
     'PipeOpTorchTokenizer.R'
     'PipeOpTorchTransformerEncoderLayer.R'
     'PipeOpTorchUpsample.R'
+    'PredictionTorch.R'
     'Select.R'
     'TaskClassif_cifar.R'
     'TaskClassif_lazy_iris.R'
     'TaskClassif_melanoma.R'
     'TaskClassif_mnist.R'
     'TaskClassif_tiny_imagenet.R'
-    'TorchDescriptor.R'
+    'TaskTorch.R'
     'TorchOptimizer.R'
     'bibentries.R'
     'cache.R'
@@ -164,8 +168,9 @@ Collate:
     'nn.R'
     'nn_graph.R'
     'paramset_torchlearner.R'
+    'pipeop_torch.R'
     'preprocess.R'
     'rd_info.R'
     'with_torch_settings.R'
     'zzz.R'
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0

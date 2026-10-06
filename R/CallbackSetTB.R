@@ -5,12 +5,18 @@
 #' @description
 #' Logs training loss, training measures, and validation measures as events.
 #' To view them, use TensorBoard with `tensorflow::tensorboard()` (requires `tensorflow`) or the CLI.
+#'
+#' @section Resuming:
+#' This callback keeps no state of its own so it can trivially be resumed.
+#'
 #' @details
 #' Logs events at most every epoch.
 #'
 #' @param path (`character(1)`)\cr
 #'   The path to a folder where the events are logged.
 #'   Point TensorBoard to this folder to view them.
+#'   The folder must be new, empty, or one that this callback already logged into, so that a
+#'   resumed run can continue the log of the run it continues.
 #' @param log_train_loss (`logical(1)`)\cr
 #'  Whether we log the training loss.
 #' @family Callback
@@ -23,7 +29,11 @@ CallbackSetTB = R6Class("CallbackSetTB",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(path, log_train_loss) {
-      self$path = assert_path_for_output(path)
+      self$path = if (is_empty_dir(path) || length(list.files(path, pattern = "^events\\.out\\.tfevents\\."))) {
+        path
+      } else {
+        assert_path_for_output(path)
+      }
       if (!dir.exists(path)) {
         dir.create(path, recursive = TRUE)
       }
@@ -64,7 +74,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
     },
     .log_train_loss = function() {
       tfevents::with_logdir(self$path, {
-        tfevents::log_event(train.loss = self$ctx$last_loss)
+        tfevents::log_event(train.loss = self$ctx$last_loss, step = self$ctx$global_step)
       })
     }
   )

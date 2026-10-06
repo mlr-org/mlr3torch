@@ -1,8 +1,9 @@
 #' <% param_vals = if (exists("param_vals", inherits = FALSE)) paste0(", ", param_vals)%>
+#' <% key = sub("^nn_", "", id) %>
 #'
 #' @examplesIf torch::torch_is_installed()
 #' # Construct the PipeOp
-#' pipeop = po("<%=id %>"<%=param_vals%>)
+#' pipeop = nn("<%=key %>"<%=param_vals%>)
 #' pipeop
 #' # The available parameters
 #' pipeop$param_set

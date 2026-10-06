@@ -34,7 +34,7 @@ test_that("Repeated application works", {
   graph2 = obj1 %>>% obj3
   expect_error(graph2$train(md),
     fixed = TRUE,
-    regexp = "Callbacks with IDs 'checkpoint' are already present.",
+    regexp = "Callbacks with IDs 'checkpoint' are already present."
   )
 
   # doing nothing twice works

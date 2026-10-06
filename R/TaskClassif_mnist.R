@@ -81,7 +81,7 @@ load_task_mnist = function(id = "mnist") {
     backend = backend,
     id = "mnist",
     target = "label",
-    label = "MNIST Digit Classification",
+    label = "MNIST Digit Classification"
   )
 
   backend$hash = task$man = "mlr3torch::mlr_tasks_mnist"

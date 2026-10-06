@@ -133,7 +133,7 @@ test_that("Broadcasting is correctly implemented for concatenation", {
     tensor2 = invoke(torch_randn, .args = shape2, device = torch_device("meta"))
 
     out_obs = net_cat(tensor1, tensor2)
-    shape_exp = po_cat$shapes_out(list("..." = tensor1$shape, "..." = tensor2$shape))[[1L]]
+    shape_exp = po_cat$shapes_out(set_names(list(tensor1$shape, tensor2$shape), c("...", "...")))[[1L]]
     expect_true(all(out_obs$shape == shape_exp))
 
   }

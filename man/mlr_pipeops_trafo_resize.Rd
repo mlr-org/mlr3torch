@@ -11,11 +11,14 @@
 Calls \code{\link[torchvision:transform_resize]{torchvision::transform_resize}},
 see there for more information on the parameters.
 The preprocessing is applied to the whole batch.
+
+Being a \code{trafo_} operator, its \code{stages} parameter starts out as \code{"both"}, so the transformation is applied both while training and when predicting. Set \code{stages = "train"} to restrict it to training.
+See \code{\link{PipeOpTaskPreprocTorch}} for the \code{stages} parameter and this naming convention.
 }
 \section{Construction}{
 
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("trafo_resize"")
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("trafo_resize")
 }\if{html}{\out{</div>}}
 }
 

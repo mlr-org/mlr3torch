@@ -40,7 +40,7 @@ More information about installing `torch` can be found
 
 `mlr3torch` is a deep learning framework for the
 [`mlr3`](https://mlr-org.com) ecosystem built on top of
-[`torch`](https://torch.mlverse.org/). It allows to easily build, train
+[`torch`](https://torch.mlverse.org/). It makes it easy to build, train
 and evaluate deep learning models in a few lines of code, without
 needing to worry about low-level details. Off-the-shelf learners are
 readily available, but custom architectures can be defined by connecting
@@ -85,9 +85,9 @@ the network. All subsequent pipeops define the neural network layers.
 
 ``` r
 architecture = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 20) %>>%
-  po("nn_relu") %>>%
-  po("nn_head")
+  nn("linear", out_features = 20) %>>%
+  nn("relu") %>>%
+  nn("head")
 ```
 
 To turn this into a learner, we configure the loss, optimizer, callbacks
@@ -105,8 +105,8 @@ graph_lrn = as_learner(graph_mlp)
 ```
 
 To work with generic tensors, the `lazy_tensor` type can be used. It
-wraps a `torch::dataset`, but allows to preprocess the data (lazily)
-using `PipeOp` objects. Below, we flatten the MNIST task, so we can then
+wraps a `torch::dataset`, but makes it possible to preprocess the data
+(lazily) using `PipeOp` objects. Below, we flatten the MNIST task, so we can then
 train a multi-layer perceptron on it. Note that this does *not*
 transform the data in-memory, but is only applied when the data is
 actually loaded.
@@ -154,9 +154,9 @@ block:
 ``` r
 layer = list(
   po("nop"),
-  po("nn_linear", out_features = 50L) %>>%
-    po("nn_dropout") %>>% po("nn_relu")
-) %>>% po("nn_merge_sum")
+  nn("linear", out_features = 50L) %>>%
+    nn("dropout") %>>% nn("relu")
+) %>>% nn("merge_sum")
 ```
 
 Next, we create a neural network that takes as input a `lazy_tensor`
@@ -167,9 +167,9 @@ the training parameters.
 
 ``` r
 deep_network = po("torch_ingress_ltnsr") %>>%
-  po("nn_linear", out_features = 50L) %>>%
-  po("nn_block", layer, n_blocks = 5L) %>>%
-  po("nn_head") %>>%
+  nn("linear", out_features = 50L) %>>%
+  nn("block", layer, n_blocks = 5L) %>>%
+  nn("head") %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%
   po("torch_optimizer", optimizer = t_opt("adam")) %>>%
   po("torch_model_classif",

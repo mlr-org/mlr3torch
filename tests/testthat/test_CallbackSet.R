@@ -162,11 +162,37 @@ test_that("weight overrides the order within a stage", {
     c("CallbackSetA", "CallbackSetB"))
 })
 
-test_that("the checkpoint callback runs last", {
-  # it has weight Inf, so it saves the network as the other callbacks left it
-  cb = t_clbk("checkpoint", freq = 1, path = tempfile())$generate()
-  expect_equal(cb$weight, Inf)
-  expect_equal(CallbackSet$new()$weight, 0)
+test_that("a stateful callback may not run after the checkpoint callback", {
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 1, path = tempfile()),
+      t_clbk("history", weight = Inf)))
+  expect_error(learner$train(tsk("iris")), "'history'.*run after the 'checkpoint' callback")
+
+  stateless = lrn("classif.mlp", epochs = 1L, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("checkpoint", freq = 1, path = tempfile()),
+      torch_callback("noop", weight = Inf, on_epoch_end = function() NULL)))
+  expect_no_error(stateless$train(tsk("iris")))
+})
+
+test_that("a callback's default weight can be overwritten via the TorchCallback", {
+  expect_equal(CallbackSetCheckpoint$new(path = tempfile(), freq = 1)$weight, Inf)
+  expect_error(CallbackSetCheckpoint$new(path = tempfile(), freq = 1, weight = 3), "unused argument")
+  expect_equal(t_clbk("checkpoint", freq = 1, path = tempfile(), weight = 3)$generate()$weight, 3)
+  expect_error(t_clbk("checkpoint", freq = 1, path = tempfile(), weight = "high"),
+    "Must be of type 'number'")
+
+  expect_equal(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0)$weight, 1000)
+  expect_true(CallbackSetEarlyStopping$new(patience = 1, min_delta = 0)$weight <
+    CallbackSetCheckpoint$new(path = tempfile(), freq = 1)$weight)
+})
+
+test_that("'weight' is reserved and cannot be a parameter", {
+  gen = R6::R6Class("CallbackSetWeight", inherit = CallbackSet,
+    public = list(initialize = function(weight = 1) NULL))
+  # whether the parameter set is inferred from $initialize() ...
+  expect_error(TorchCallback$new(gen), "'weight' is reserved")
+  expect_error(TorchCallback$new(gen, param_set = ps(weight = p_dbl(tags = "train"))),
+    "'weight' is reserved")
 })
 
 test_that("weight is validated", {

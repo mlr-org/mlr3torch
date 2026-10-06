@@ -28,7 +28,6 @@ rd_info_learner_torch = function(name, task_types = "classif, regr") {
 # `mlr3misc::rd_info()` truncates long level lists with a literal `[...]`, which roxygen's
 # markdown parser interprets as a link to a topic named `...`. Escaping the brackets keeps
 # the marker visible without creating a link.
-# jarl-ignore unused_function: called from man-roxygen/preprocess_torchvision.R, which jarl does not scan
 rd_info_param_set = function(param_set) {
   gsub("[...]", "\\[...\\]", mlr3misc::rd_info(param_set), fixed = TRUE)
 }
