@@ -8,6 +8,9 @@ Below is a list of neural network layers that are available in
 | [nn_adaptive_avg_pool1d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool1d.html) | 1D Adaptive Average Pooling |
 | [nn_adaptive_avg_pool2d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool2d.html) | 2D Adaptive Average Pooling |
 | [nn_adaptive_avg_pool3d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool3d.html) | 3D Adaptive Average Pooling |
+| [nn_adaptive_max_pool1d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool1d.html) | 1D Adaptive Max Pooling |
+| [nn_adaptive_max_pool2d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool2d.html) | 2D Adaptive Max Pooling |
+| [nn_adaptive_max_pool3d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool3d.html) | 3D Adaptive Max Pooling |
 | [nn_avg_pool1d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool1d.html) | 1D Average Pooling |
 | [nn_avg_pool2d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool2d.html) | 2D Average Pooling |
 | [nn_avg_pool3d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool3d.html) | 3D Average Pooling |
@@ -23,6 +26,8 @@ Below is a list of neural network layers that are available in
 | [nn_conv_transpose2d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose2d.html) | Transpose 2D Convolution |
 | [nn_conv_transpose3d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose3d.html) | Transpose 3D Convolution |
 | [nn_dropout](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout.html) | Dropout |
+| [nn_dropout2d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout2d.html) | 2D Dropout |
+| [nn_dropout3d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout3d.html) | 3D Dropout |
 | [nn_elu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_elu.html) | ELU Activation Function |
 | [nn_flatten](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_flatten.html) | Flattens a Tensor |
 | [nn_fn](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_fn.html) | Custom Function |
@@ -31,6 +36,7 @@ Below is a list of neural network layers that are available in
 | [nn_geglu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_geglu.html) | GeGLU Activation Function |
 | [nn_gelu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gelu.html) | GELU Activation Function |
 | [nn_glu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_glu.html) | GLU Activation Function |
+| [nn_group_norm](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_group_norm.html) | Group Normalization |
 | [nn_hardshrink](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardshrink.html) | Hard Shrink Activation Function |
 | [nn_hardsigmoid](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardsigmoid.html) | Hard Sigmoid Activation Function |
 | [nn_hardtanh](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardtanh.html) | Hard Tanh Activation Function |
@@ -40,6 +46,7 @@ Below is a list of neural network layers that are available in
 | [nn_leaky_relu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_leaky_relu.html) | Leaky ReLU Activation Function |
 | [nn_linear](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_linear.html) | Linear Layer |
 | [nn_log_sigmoid](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_sigmoid.html) | Log Sigmoid Activation Function |
+| [nn_log_softmax](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_softmax.html) | Log Softmax |
 | [nn_max_pool1d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool1d.html) | 1D Max Pooling |
 | [nn_max_pool2d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool2d.html) | 2D Max Pooling |
 | [nn_max_pool3d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool3d.html) | 3D Max Pooling |
@@ -55,7 +62,10 @@ Below is a list of neural network layers that are available in
 | [nn_rrelu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rrelu.html) | RReLU Activation Function |
 | [nn_selu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_selu.html) | SELU Activation Function |
 | [nn_sigmoid](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_sigmoid.html) | Sigmoid Activation Function |
+| [nn_silu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_silu.html) | SiLU Activation Function |
 | [nn_softmax](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax.html) | Softmax |
+| [nn_softmax2d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax2d.html) | 2D Softmax |
+| [nn_softmin](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmin.html) | Softmin |
 | [nn_softplus](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softplus.html) | SoftPlus Activation Function |
 | [nn_softshrink](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softshrink.html) | Soft Shrink Activation Function |
 | [nn_softsign](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softsign.html) | SoftSign Activation Function |
@@ -66,4 +76,5 @@ Below is a list of neural network layers that are available in
 | [nn_tokenizer_categ](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_categ.html) | Categorical Tokenizer |
 | [nn_tokenizer_num](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_num.html) | Numeric Tokenizer |
 | [nn_transformer_encoder_layer](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_transformer_encoder_layer.html) | Transformer Encoder Layer |
+| [nn_unflatten](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unflatten.html) | Unflattens a Tensor |
 | [nn_unsqueeze](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unsqueeze.html) | Unsqueeze a Tensor |

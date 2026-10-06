@@ -79,6 +79,10 @@
 - New parameter `batch_size_predict` for `LearnerTorch`, which overrides
   `batch_size` for prediction
 - Added multihead attention and transformer encoder pipeops.
+- New layers: `nn("silu")`, `nn("softmin")`, `nn("log_softmax")`,
+  `nn("softmax2d")`, `nn("dropout2d")`, `nn("dropout3d")`,
+  `nn("group_norm")`, `nn("unflatten")` and `nn("adaptive_max_pool1d")`
+  / `nn("adaptive_max_pool2d")` / `nn("adaptive_max_pool3d")`.
 - Any dimension of an input shape can now be unknown (`NA`), not only
   the batch dimension.
 - Improved error messages during `PipeOpTorch`’s shape inference.

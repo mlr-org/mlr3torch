@@ -29,7 +29,7 @@ The state is the value calculated by the public method `$shapes_out()`.
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
 -\>
 [`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
--\> `PipeOpTorchSoftmax`
+-\> `PipeOpTorchSoftmaxDim` -\> `PipeOpTorchSoftmax`
 
 ## Methods
 

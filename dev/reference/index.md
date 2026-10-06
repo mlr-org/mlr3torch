@@ -153,6 +153,15 @@
 - [`mlr_pipeops_nn_adaptive_avg_pool3d`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_adaptive_avg_pool3d.md)
   [`PipeOpTorchAdaptiveAvgPool3D`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_adaptive_avg_pool3d.md)
   : 3D Adaptive Average Pooling
+- [`mlr_pipeops_nn_adaptive_max_pool1d`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_adaptive_max_pool1d.md)
+  [`PipeOpTorchAdaptiveMaxPool1D`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_adaptive_max_pool1d.md)
+  : 1D Adaptive Max Pooling
+- [`mlr_pipeops_nn_adaptive_max_pool2d`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_adaptive_max_pool2d.md)
+  [`PipeOpTorchAdaptiveMaxPool2D`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_adaptive_max_pool2d.md)
+  : 2D Adaptive Max Pooling
+- [`mlr_pipeops_nn_adaptive_max_pool3d`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_adaptive_max_pool3d.md)
+  [`PipeOpTorchAdaptiveMaxPool3D`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_adaptive_max_pool3d.md)
+  : 3D Adaptive Max Pooling
 - [`mlr_pipeops_nn_avg_pool1d`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_avg_pool1d.md)
   [`PipeOpTorchAvgPool1D`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_avg_pool1d.md)
   : 1D Average Pooling
@@ -198,6 +207,12 @@
 - [`mlr_pipeops_nn_dropout`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_dropout.md)
   [`PipeOpTorchDropout`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_dropout.md)
   : Dropout
+- [`mlr_pipeops_nn_dropout2d`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_dropout2d.md)
+  [`PipeOpTorchDropout2D`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_dropout2d.md)
+  : 2D Dropout
+- [`mlr_pipeops_nn_dropout3d`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_dropout3d.md)
+  [`PipeOpTorchDropout3D`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_dropout3d.md)
+  : 3D Dropout
 - [`mlr_pipeops_nn_elu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_elu.md)
   [`PipeOpTorchELU`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_elu.md)
   : ELU Activation Function
@@ -222,6 +237,9 @@
 - [`mlr_pipeops_nn_glu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_glu.md)
   [`PipeOpTorchGLU`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_glu.md)
   : GLU Activation Function
+- [`mlr_pipeops_nn_group_norm`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_group_norm.md)
+  [`PipeOpTorchGroupNorm`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_group_norm.md)
+  : Group Normalization
 - [`mlr_pipeops_nn_hardshrink`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_hardshrink.md)
   [`PipeOpTorchHardShrink`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_hardshrink.md)
   : Hard Shrink Activation Function
@@ -249,6 +267,9 @@
 - [`mlr_pipeops_nn_log_sigmoid`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_log_sigmoid.md)
   [`PipeOpTorchLogSigmoid`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_log_sigmoid.md)
   : Log Sigmoid Activation Function
+- [`mlr_pipeops_nn_log_softmax`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_log_softmax.md)
+  [`PipeOpTorchLogSoftmax`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_log_softmax.md)
+  : Log Softmax
 - [`mlr_pipeops_nn_max_pool1d`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_max_pool1d.md)
   [`PipeOpTorchMaxPool1D`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_max_pool1d.md)
   : 1D Max Pooling
@@ -297,9 +318,18 @@
 - [`mlr_pipeops_nn_sigmoid`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_sigmoid.md)
   [`PipeOpTorchSigmoid`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_sigmoid.md)
   : Sigmoid Activation Function
+- [`mlr_pipeops_nn_silu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_silu.md)
+  [`PipeOpTorchSiLU`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_silu.md)
+  : SiLU Activation Function
 - [`mlr_pipeops_nn_softmax`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_softmax.md)
   [`PipeOpTorchSoftmax`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_softmax.md)
   : Softmax
+- [`mlr_pipeops_nn_softmax2d`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_softmax2d.md)
+  [`PipeOpTorchSoftmax2D`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_softmax2d.md)
+  : 2D Softmax
+- [`mlr_pipeops_nn_softmin`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_softmin.md)
+  [`PipeOpTorchSoftmin`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_softmin.md)
+  : Softmin
 - [`mlr_pipeops_nn_softplus`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_softplus.md)
   [`PipeOpTorchSoftPlus`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_softplus.md)
   : SoftPlus Activation Function
@@ -330,6 +360,9 @@
 - [`mlr_pipeops_nn_transformer_encoder_layer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_transformer_encoder_layer.md)
   [`PipeOpTorchTransformerEncoderLayer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_transformer_encoder_layer.md)
   : Transformer Encoder Layer
+- [`mlr_pipeops_nn_unflatten`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_unflatten.md)
+  [`PipeOpTorchUnflatten`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_unflatten.md)
+  : Unflattens a Tensor
 - [`mlr_pipeops_nn_unsqueeze`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_unsqueeze.md)
   [`PipeOpTorchUnsqueeze`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_unsqueeze.md)
   : Unsqueeze a Tensor
