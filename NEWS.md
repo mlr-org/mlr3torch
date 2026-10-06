@@ -51,6 +51,7 @@
 * New layers: `nn("silu")`, `nn("softmin")`, `nn("log_softmax")`, `nn("softmax2d")`,
   `nn("dropout2d")`, `nn("dropout3d")`, `nn("group_norm")`, `nn("unflatten")` and
   `nn("adaptive_max_pool1d")` / `nn("adaptive_max_pool2d")` / `nn("adaptive_max_pool3d")`.
+* Added `nn("upsample")` and `nn("bilinear")`.
 * Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
 * Improved error messages during `PipeOpTorch`'s shape inference.
 * The `shape` parameter of `nn("reshape")` can now be a `function(shape)` of the input shape.
