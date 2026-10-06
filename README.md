@@ -91,7 +91,8 @@ architecture = po("torch_ingress_num") %>>%
 ```
 
 To turn this into a learner, we configure the loss, optimizer, callbacks
-as well as the training arguments.
+as well as the training arguments, and convert the resulting `Graph` via
+`as_learner_torch()`.
 
 ``` r
 graph_mlp = architecture %>>%
@@ -101,13 +102,13 @@ graph_mlp = architecture %>>%
   po("torch_model_classif",
     batch_size = 16, epochs = 50, device = "cpu")
 
-graph_lrn = as_learner(graph_mlp)
+graph_lrn = as_learner_torch(graph_mlp)
 ```
 
 To work with generic tensors, the `lazy_tensor` type can be used. It
 wraps a `torch::dataset`, but makes it possible to preprocess the data
-(lazily) using `PipeOp` objects. Below, we flatten the MNIST task, so we can then
-train a multi-layer perceptron on it. Note that this does *not*
+(lazily) using `PipeOp` objects. Below, we flatten the MNIST task, so we
+can then train a multi-layer perceptron on it. Note that this does *not*
 transform the data in-memory, but is only applied when the data is
 actually loaded.
 
@@ -181,7 +182,7 @@ Next, we prepend the preprocessing step that flattens the images so we
 can directly apply this learner to the unflattened MNIST task.
 
 ``` r
-deep_learner = as_learner(
+deep_learner = as_learner_torch(
   flattener %>>% deep_network
 )
 deep_learner$id = "deep_network"
@@ -205,19 +206,40 @@ deep_learner$train(mnist)
 
 ## Feature Overview
 
-- Off-the-shelf architectures are readily available as `mlr3::Learner`s.
-- Currently, supervised regression and classification is supported.
-- Custom learners can be defined using the `Graph` language from
-  `mlr3pipelines`.
-- The package supports tabular data, as well as generic tensors via the
-  `lazy_tensor` type.
-- Multi-modal data can be handled conveniently, as `lazy_tensor` objects
-  can be stored alongside tabular data.
-- It is possible to customize the training process via (predefined or
-  custom) callbacks.
-- The package is fully integrated into the `mlr3` ecosystem.
-- Neural network architectures, as well as their hyperparameters can be
-  easily tuned via `mlr3tuning` and friends.
+- **Off-the-shelf learners** are readily available as `mlr3::Learner`s,
+  including the MLP, TabResNet, TabM and FT-Transformer for tabular
+  data, as well as image classifiers from
+  [torchvision](https://github.com/mlverse/torchvision) (e.g. ResNet,
+  EfficientNet, ConvNeXt), which can also be used with pretrained
+  weights.
+- **Custom architectures** can be defined using the `Graph` language
+  from `mlr3pipelines` and turned into a learner via
+  `as_learner_torch()`. Many layers are available as `PipeOpTorch`
+  operators, including multihead attention and transformer encoder
+  layers, and `pipeop_torch()` makes it easy to write your own. Shapes
+  are inferred automatically while the graph is built, which catches
+  mistakes early.
+- **Beyond regression and classification**: Besides supervised
+  regression and classification, custom learning problems
+  (e.g. multi-output or structured prediction) can be defined via
+  `TaskTorch`. Networks may return a `list()` of tensors, both during
+  training and prediction.
+- **Generic data types**: Next to tabular data, the package supports
+  generic tensors via the `lazy_tensor` type. Preprocessing and data
+  augmentation can be applied lazily via `PipeOp`s, and multi-modal data
+  can be handled conveniently, as `lazy_tensor` columns can be stored
+  alongside tabular features.
+- **Customizable training**: The training loop can be customized via
+  (predefined or custom) callbacks, e.g. for logging to TensorBoard,
+  learning rate scheduling, or gradual unfreezing of pretrained weights.
+  Early stopping (optionally restoring the best weights) and validation
+  are supported out of the box.
+- **Checkpointing**: Training runs can be checkpointed and resumed,
+  including the state of all callbacks.
+- **Full `mlr3` integration**: Resampling, benchmarking, and
+  parallelization work as for any other `mlr3` learner. Neural network
+  architectures, as well as their hyperparameters, can be easily tuned
+  via `mlr3tuning` and friends.
 
 ## Documentation
 
