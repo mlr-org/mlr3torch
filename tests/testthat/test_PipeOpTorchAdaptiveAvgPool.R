@@ -66,7 +66,7 @@ sampler_adaptive_avg_pool = function(dim) {
   )
 }
 
-test_that("adaptive_avg_output_shape works", {
+test_that("adaptive_output_shape works", {
   for (dim in 1:3) {
     testcase = sampler_adaptive_avg_pool(dim)
     mg = switch(dim,
@@ -77,13 +77,13 @@ test_that("adaptive_avg_output_shape works", {
 
     m = do.call(mg, testcase[names(testcase) %in% formalArgs(mg)])
     outshape = with_no_grad(m(do.call(torch::torch_randn, args = list(unname(testcase$shape_in)))))$shape
-    expect_true(all(outshape == do.call(adaptive_avg_output_shape, args = testcase)))
+    expect_true(all(outshape == do.call(adaptive_output_shape, args = testcase)))
   }
 })
 
-test_that("adaptive_avg_output_shape requires a batch dimension", {
+test_that("adaptive_output_shape requires a batch dimension", {
   expect_error(
-    adaptive_avg_output_shape(shape_in = c(3, 20, 20), conv_dim = 2, output_size = 5),
+    adaptive_output_shape(shape_in = c(3, 20, 20), conv_dim = 2, output_size = 5),
     "length 4"
   )
 })
