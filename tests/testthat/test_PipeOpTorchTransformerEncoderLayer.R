@@ -292,3 +292,105 @@ test_that("the mask channels work inside a graph", {
   out = with_no_grad(net(torch_randn(3, 4)))
   expect_equal(out$shape, c(3, 1, 4))
 })
+
+# PipeOpTorchTransformerEncoder
+
+test_that("PipeOpTorchTransformerEncoder autotest", {
+  task = tsk("iris")
+  graph = po("torch_ingress_num") %>>%
+    po("nn_unsqueeze", dim = 2) %>>%
+    po("nn_transformer_encoder", nhead = 2, num_layers = 2)
+
+  expect_pipeop_torch(graph, "nn_transformer_encoder", task, "nn_encoder")
+})
+
+test_that("PipeOpTorchTransformerEncoder paramtest", {
+  po_enc = po("nn_transformer_encoder", nhead = 2, num_layers = 2)
+  res = expect_paramset(po_enc, nn_encoder, exclude = c("d_model", "batch_first", "mask_inputs"))
+  expect_paramtest(res)
+})
+
+test_that("PipeOpTorchTransformerEncoder builds a stack of independent layers", {
+  po_enc = po("nn_transformer_encoder", nhead = 2, num_layers = 3, dim_feedforward = 8)
+  module = po_enc$.__enclos_env__$private$.make_module(
+    list(input = c(NA, 5, 4)), po_enc$param_set$get_values(), NULL
+  )
+  expect_class(module, "nn_encoder")
+  expect_equal(length(module$encoder$layers), 3L)
+  expect_true(module$encoder$layers[[1L]]$self_attn$batch_first)
+  # torch copies the layer, so the stack does not share its weights
+  w1 = module$encoder$layers[[1L]]$linear1$weight
+  w2 = module$encoder$layers[[2L]]$linear1$weight
+  with_no_grad(w1$add_(1))
+  expect_false(as.logical(torch_equal(w1, w2)))
+  # no final normalization unless it is asked for
+  expect_null(module$encoder$norm)
+})
+
+test_that("the 'norm' parameter adds a final layer normalization", {
+  po_enc = po("nn_transformer_encoder", nhead = 2, num_layers = 2, dim_feedforward = 8,
+    norm = TRUE, layer_norm_eps = 1e-3)
+  module = po_enc$.__enclos_env__$private$.make_module(
+    list(input = c(NA, 5, 4)), po_enc$param_set$get_values(), NULL
+  )
+  expect_class(module$encoder$norm, "nn_layer_norm")
+  expect_equal(module$encoder$norm$eps, 1e-3)
+  expect_equal(with_no_grad(module(torch_randn(2, 5, 4)))$shape, c(2, 5, 4))
+})
+
+test_that("PipeOpTorchTransformerEncoder shapes_out behaves like the single layer", {
+  po_enc = po("nn_transformer_encoder", nhead = 2, num_layers = 2)
+  expect_equal(po_enc$shapes_out(list(c(NA, 5, 4))), list(output = c(NA, 5, 4)))
+  expect_equal(po_enc$shapes_out(list(c(NA, NA, 4))), list(output = c(NA, NA, 4)))
+  expect_error(po_enc$shapes_out(list(c(NA, 4))), "requires an input with 3 dimensions")
+  expect_error(po_enc$shapes_out(list(c(NA, 5, NA))), "'d_model'")
+  expect_error(po_enc$shapes_out(list(c(NA, 5, 5))), "divisible")
+})
+
+test_that("shape inference matches the operator", {
+  expect_shape_inference("nn_transformer_encoder",
+    list(nhead = 2, num_layers = 2, dim_feedforward = 8), c(2, 7, 16))
+  expect_shape_inference("nn_transformer_encoder",
+    list(nhead = 2, num_layers = 2, dim_feedforward = 8, norm = TRUE),
+    generators = gen_shape(3L))
+})
+
+test_that("the construction arguments determine the input channels of the encoder", {
+  po1 = po("nn_transformer_encoder", nhead = 2, num_layers = 2)
+  expect_equal(po1$input$name, "input")
+  po2 = po("nn_transformer_encoder", nhead = 2, num_layers = 2, src_mask = TRUE,
+    src_key_padding_mask = TRUE)
+  expect_equal(po2$input$name, c("input", "src_mask", "src_key_padding_mask"))
+  expect_false(po1$phash == po2$phash)
+  # a single layer and a stack of one are different operators
+  expect_false(po1$phash == po("nn_transformer_encoder_layer", nhead = 2)$phash)
+})
+
+test_that("the mask inputs reach the wrapped encoder", {
+  # the encoder calls the attention mask `mask`, unlike the single layer, which calls it `src_mask`
+  po_both = po("nn_transformer_encoder", nhead = 2, num_layers = 2, dim_feedforward = 8,
+    dropout = 0, src_mask = TRUE, src_key_padding_mask = TRUE)
+  module = po_both$.__enclos_env__$private$.make_module(
+    list(input = c(NA, 5, 4), src_mask = c(5, 5), src_key_padding_mask = c(NA, 5)),
+    po_both$param_set$get_values(), NULL
+  )
+  module$eval()
+
+  x = torch_randn(2, 5, 4)
+  src_mask = torch_zeros(5, 5, dtype = torch_bool())
+  src_mask[1, 5] = TRUE
+  padding = torch_zeros(2, 5, dtype = torch_bool())
+  padding[1, 5] = TRUE
+
+  observed = with_no_grad(module(x, src_mask, padding))
+  expected = with_no_grad(module$encoder(src = x, mask = src_mask, src_key_padding_mask = padding))
+  expect_true(torch_allclose(observed, expected))
+  expect_false(torch_allclose(observed, with_no_grad(module$encoder(src = x)), atol = 1e-5))
+})
+
+test_that("'is_causal' cannot be combined with the src_mask channel", {
+  expect_error(
+    po("nn_transformer_encoder", nhead = 2, num_layers = 2, is_causal = TRUE,
+      src_mask = TRUE)$shapes_out(list(c(NA, 5, 4), c(5, 5))),
+    "cannot be combined with the 'src_mask' input channel", fixed = TRUE)
+})
