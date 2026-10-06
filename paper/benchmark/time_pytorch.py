@@ -98,7 +98,3 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
 
 
     return {'time': t, 'loss': mean_loss, 'memory': memory}
-
-
-if __name__ == "__main__":
-    print(time_pytorch(epochs=1, batch_size=32, n_layers=1, latent=1, n=2000, p=1000, device='cpu', seed=42, optimizer="sgd", jit = True))
