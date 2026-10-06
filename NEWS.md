@@ -40,6 +40,10 @@
 * `LearnerTorch` now implements `$best_valid_scores`.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.
+* Ported the `RealMLP` tabular learner from Python.
+* `LearnerTorch` now has private methods `.optimizer_params(network, param_vals)` and
+  `.internal_callbacks(task, param_vals)` to customize the optimizer's parameter groups and to add
+  callbacks that are always part of the training run.
 * `LearnerTorch` now has `.loss_fn(task, param_vals)` private method that allows
   to customize the construction of the loss function.
 * `LearnerTorch` now has `restore_best_weights` parameter that can be used when

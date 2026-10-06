@@ -79,7 +79,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     }
   }
   if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
-  optimizer = self$optimizer$generate(network$parameters)
+  optimizer = self$optimizer$generate(private$.optimizer_params(network, param_vals))
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
   loss_fn = private$.loss_fn(task, param_vals)
   loss_fn$to(device = param_vals$device)
@@ -132,6 +132,17 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     cb
   }), ids(self$callbacks))
 
+  internal_callbacks = private$.internal_callbacks(task, param_vals)
+  if (length(internal_callbacks)) {
+    assert_list(internal_callbacks, types = "CallbackSet", names = "unique")
+    clashes = intersect(names(internal_callbacks), c(names(callbacks), "early_stopping"))
+    if (length(clashes)) {
+      stopf("Learner '%s' adds internal callback(s) with id(s) %s, which are already in use.",
+        self$id, paste0("'", clashes, "'", collapse = ", "))
+    }
+    walk(internal_callbacks, function(cb) cb$ctx = ctx)
+    callbacks = c(callbacks, internal_callbacks)
+  }
 
   es = NULL
   if (param_vals$patience > 0L) {

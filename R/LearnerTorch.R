@@ -217,6 +217,15 @@
 #'   Overload this if the network returns more than one prediction and the configured loss has to
 #'   be wrapped, see the `aux_logits` parameter of
 #'   [`classif.inception_v3`][mlr_learners.torchvision].
+#' * `.optimizer_params(network, param_vals)`\cr
+#'   ([`nn_module`][torch::nn_module], `list()`) -> `list()`\cr
+#'   Returns what the optimizer is generated from, by default `network$parameters`.
+#'   Overload this to return parameter groups, e.g. for parameter-specific learning rates.
+#'   If the optimizer's `param_groups` parameter is set, it receives the output of this method.
+#' * `.internal_callbacks(task, param_vals)`\cr
+#'   ([`Task`][mlr3::Task], `list()`) -> named `list()` of [`CallbackSet`]s\cr
+#'   Callbacks that are always added to the training run, by default none.
+#'   Their names must not clash with the ids of the configured callbacks.
 #' * `.ingress_tokens(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> named `list()` with [`TorchIngressToken`]s\cr
 #'   Create the [`TorchIngressToken`]s that are passed to the [`task_dataset`] constructor.
@@ -679,6 +688,12 @@ LearnerTorch = R6Class("LearnerTorch",
     # by the user, see e.g. the auxiliary classifier of `classif.inception_v3`.
     .loss_fn = function(task, param_vals) {
       self$loss$generate(task)
+    },
+    .optimizer_params = function(network, param_vals) {
+      network$parameters
+    },
+    .internal_callbacks = function(task, param_vals) {
+      list()
     },
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.

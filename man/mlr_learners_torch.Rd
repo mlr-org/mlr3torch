@@ -360,6 +360,15 @@ The default implementation generates the loss that was configured by the user, i
 Overload this if the network returns more than one prediction and the configured loss has to
 be wrapped, see the \code{aux_logits} parameter of
 \code{\link[=mlr_learners.torchvision]{classif.inception_v3}}.
+\item \code{.optimizer_params(network, param_vals)}\cr
+(\code{\link[torch:nn_module]{nn_module}}, \code{list()}) -> \code{list()}\cr
+Returns what the optimizer is generated from, by default \code{network$parameters}.
+Overload this to return parameter groups, e.g. for parameter-specific learning rates.
+If the optimizer's \code{param_groups} parameter is set, it receives the output of this method.
+\item \code{.internal_callbacks(task, param_vals)}\cr
+(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> named \code{list()} of \code{\link{CallbackSet}}s\cr
+Callbacks that are always added to the training run, by default none.
+Their names must not clash with the ids of the configured callbacks.
 \item \code{.ingress_tokens(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> named \code{list()} with \code{\link{TorchIngressToken}}s\cr
 Create the \code{\link{TorchIngressToken}}s that are passed to the \code{\link{task_dataset}} constructor.
@@ -428,6 +437,7 @@ Other Learner:
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
+\code{\link{mlr_learners.realmlp}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.tabm}},
 \code{\link{mlr_learners.torch_featureless}},

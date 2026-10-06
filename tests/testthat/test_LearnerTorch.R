@@ -1612,3 +1612,36 @@ test_that("hash_input() recurses into lists so that nn_modules hash stably", {
   expect_equal(l$hash, before)
   expect_equal(l$clone(deep = TRUE)$hash, before)
 })
+
+test_that("the optimizer params and the internal callbacks can be customized", {
+  LearnerTorchHooks = R6Class("LearnerTorchHooks",
+    inherit = LearnerTorchTest1,
+    private = list(
+      .optimizer_params = function(network, param_vals) {
+        list(
+          list(params = list(network$weight), lr = 0.5),
+          list(params = list(network$bias))
+        )
+      },
+      .internal_callbacks = function(task, param_vals) {
+        list(internal = torch_callback("internal",
+          on_end = function() self$ctx$learner$state$internal_ran = TRUE,
+          state_dict = function() "internal state",
+          load_state_dict = function(state_dict) NULL
+        )$generate())
+      }
+    )
+  )
+  learner = LearnerTorchHooks$new(task_type = "classif")
+  learner$param_set$set_values(epochs = 1L, batch_size = 50L, bias = TRUE, opt.lr = 0.1)
+  learner$train(tsk("iris"))
+  groups = learner$model$optimizer$param_groups
+  expect_length(groups, 2L)
+  expect_equal(groups[[1L]]$lr, 0.5)
+  expect_equal(groups[[2L]]$lr, 0.1)
+  expect_equal(learner$model$callbacks$internal, "internal state")
+
+  # the ids of the internal callbacks must not clash with the configured ones
+  learner$callbacks = t_clbk("history", id = "internal")
+  expect_error(learner$train(tsk("iris")), "'internal', which are already in use")
+})
