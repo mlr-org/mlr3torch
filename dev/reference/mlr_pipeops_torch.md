@@ -280,13 +280,6 @@ Other Graph Network:
   wrapped module. By default, there is one output channel for every
   output of the module, unless a subclass restricts them during
   construction, e.g. to leave out the indices of a max pooling.
-  Restricting them leaves out the outputs that are not needed, which
-  otherwise would have to be connected to some other `PipeOp` for the
-  [`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html) to
-  have a single output, e.g.
-  `nn("max_pool2d", kernel_size = 2, outputs = "indices")`. The channels
-  keep the order in which the module returns them. This must be set
-  before the `PipeOp` is connected to other `PipeOp`s.
 
 ## Methods
 
@@ -473,8 +466,8 @@ network
 x = torch_tensor(as.matrix(task$data(1:2, task$feature_names)))
 with_no_grad(network(torch_ingress_num.input = x))
 #> torch_tensor
-#>  0.0480  0.4231 -0.0958
-#>  0.0521  0.4588 -0.1268
+#> -0.6721 -0.3587 -0.8437
+#> -0.6509 -0.3853 -0.7763
 #> [ CPUFloatType{2,3} ]
 
 

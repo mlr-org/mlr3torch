@@ -298,12 +298,7 @@ Do not change this after construction.</p></dd>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The output channels of the <code>PipeOp</code>, a subset of the outputs of the wrapped module.
 By default, there is one output channel for every output of the module, unless a subclass
-restricts them during construction, e.g. to leave out the indices of a max pooling.
-Restricting them leaves out the outputs that are not needed, which otherwise would have to
-be connected to some other <code>PipeOp</code> for the <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code> to have a single
-output, e.g. <code>nn("max_pool2d", kernel_size = 2, outputs = "indices")</code>.
-The channels keep the order in which the module returns them.
-This must be set before the <code>PipeOp</code> is connected to other <code>PipeOp</code>s.</p></dd>
+restricts them during construction, e.g. to leave out the indices of a max pooling.</p></dd>
 
 
 </dl><p></p></div>
@@ -463,8 +458,8 @@ the <code>PipeOp</code>, i.e. <code>$outputs</code>.</p>
 <span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">task</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">task</span><span class="op">$</span><span class="va">feature_names</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/with_no_grad.html" class="external-link">with_no_grad</a></span><span class="op">(</span><span class="fu">network</span><span class="op">(</span>torch_ingress_num.input <span class="op">=</span> <span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0480  0.4231 -0.0958</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0521  0.4588 -0.1268</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6721 -0.3587 -0.8437</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6509 -0.3853 -0.7763</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,3} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
