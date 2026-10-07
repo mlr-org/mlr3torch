@@ -28,9 +28,10 @@ The target output size. Can be a single number or a vector.
 
 \section{Input and Output Channels}{
 
-If \code{return_indices} is \code{FALSE} during construction, there is one input channel 'input' and one
-output channel 'output'.
-If \code{return_indices} is \code{TRUE}, there are two output channels 'output' and 'indices'.
+There is one input channel \code{"input"}.
+The module has two outputs, \code{"output"} and \code{"indices"}, of which only \code{"output"} is an output
+channel by default. Set \verb{$outputs} to also (or only) get the indices, e.g.
+\code{outputs = c("output", "indices")}, which are only computed when they are among \verb{$outputs}.
 For an explanation see \code{\link{PipeOpTorch}}.
 }
 
@@ -71,7 +72,6 @@ pipeop$param_set
     \if{html}{\out{<div class="r">}}
     \preformatted{PipeOpTorchAdaptiveMaxPool3D$new(
   id = "nn_adaptive_max_pool3d",
-  return_indices = FALSE,
   param_vals = list()
 )}
     \if{html}{\out{</div>}}
@@ -81,9 +81,6 @@ pipeop$param_set
     \describe{
       \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
-      \item{\code{return_indices}}{(\code{logical(1)})\cr
-Whether to return the indices.
-If this is \code{TRUE}, there are two output channels \code{"output"} and \code{"indices"}.}
       \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}

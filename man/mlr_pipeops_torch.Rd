@@ -253,10 +253,11 @@ Do not change this after construction.}
   \describe{
     \item{\code{outputs}}{(\code{character()})\cr
 The output channels of the \code{PipeOp}, a subset of the outputs of the wrapped module.
-By default, there is one output channel for every output of the module.
+By default, there is one output channel for every output of the module, unless a subclass
+restricts them during construction, e.g. to leave out the indices of a max pooling.
 Restricting them leaves out the outputs that are not needed, which otherwise would have to
 be connected to some other \code{PipeOp} for the \code{\link[mlr3pipelines:Graph]{Graph}} to have a single
-output, e.g. \code{nn("max_pool2d", kernel_size = 2, return_indices = TRUE, outputs = "indices")}.
+output, e.g. \code{nn("max_pool2d", kernel_size = 2, outputs = "indices")}.
 The channels keep the order in which the module returns them.
 This must be set before the \code{PipeOp} is connected to other \code{PipeOp}s.}
   }

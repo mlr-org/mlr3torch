@@ -8,7 +8,7 @@ test_that("PipeOpTorchAdaptiveMaxPool1D works", {
 })
 
 test_that("PipeOpTorchAdaptiveMaxPool1D paramtest", {
-  # return_indices is a construction argument.
+  # return_indices is set according to `$outputs`.
   res = expect_paramset(po("nn_adaptive_max_pool1d"), nn_adaptive_max_pool1d, exclude = "return_indices")
   expect_paramtest(res)
 })
@@ -30,7 +30,7 @@ test_that("PipeOpTorchAdaptiveMaxPool2D works with a 2d output size", {
 })
 
 test_that("PipeOpTorchAdaptiveMaxPool2D paramtest", {
-  # return_indices is a construction argument.
+  # return_indices is set according to `$outputs`.
   res = expect_paramset(po("nn_adaptive_max_pool2d"), nn_adaptive_max_pool2d, exclude = "return_indices")
   expect_paramtest(res)
 })
@@ -46,18 +46,18 @@ test_that("PipeOpTorchAdaptiveMaxPool3D works", {
 })
 
 test_that("PipeOpTorchAdaptiveMaxPool3D paramtest", {
-  # return_indices is a construction argument.
+  # return_indices is set according to `$outputs`.
   res = expect_paramset(po("nn_adaptive_max_pool3d"), nn_adaptive_max_pool3d, exclude = "return_indices")
   expect_paramtest(res)
 })
 
-test_that("return_indices adds a second output channel", {
-  obj = po("nn_adaptive_max_pool2d", return_indices = TRUE, output_size = 4)
+test_that("the indices can be added as a second output channel", {
+  obj = po("nn_adaptive_max_pool2d", outputs = c("output", "indices"), output_size = 4)
   expect_equal(obj$output$name, c("output", "indices"))
   # the indices say where each maximum came from, so they have the shape of the pooled output
   expect_equal(obj$shapes_out(list(c(NA, 3L, 16L, 16L))),
     list(output = c(NA, 3L, 4L, 4L), indices = c(NA, 3L, 4L, 4L)))
-  # two operators that differ only in `return_indices` are not the same operator
+  # two operators that differ only in their outputs are not the same operator
   expect_false(obj$phash == po("nn_adaptive_max_pool2d", output_size = 4)$phash)
 })
 
@@ -65,7 +65,7 @@ test_that("shape inference matches the operator", {
   expect_shape_inference("nn_adaptive_max_pool1d", list(output_size = 4), c(2, 3, 17))
   expect_shape_inference("nn_adaptive_max_pool2d", list(output_size = c(2, 3)), c(2, 3, 16, 20))
   expect_shape_inference("nn_adaptive_max_pool3d", list(output_size = c(2, 3, 4)), c(2, 3, 5, 7, 9))
-  expect_shape_inference("nn_adaptive_max_pool2d", list(output_size = 2, return_indices = TRUE),
+  expect_shape_inference("nn_adaptive_max_pool2d", list(output_size = 2, outputs = c("output", "indices")),
     c(2, 3, 16, 20))
 })
 

@@ -177,7 +177,7 @@ test_that("NA in second dimension", {
 })
 
 test_that("$outputs restricts the output channels to a subset of the module's outputs", {
-  po_pool = nn("max_pool1d", kernel_size = 2, return_indices = TRUE)
+  po_pool = nn("max_pool1d", kernel_size = 2, outputs = c("output", "indices"))
   expect_equal(po_pool$outputs, c("output", "indices"))
 
   po_pool$outputs = "indices"
@@ -195,13 +195,13 @@ test_that("$outputs restricts the output channels to a subset of the module's ou
 })
 
 test_that("$outputs can be set via nn() and po()", {
-  expect_equal(nn("max_pool1d", kernel_size = 2, return_indices = TRUE, outputs = "indices")$outputs, "indices")
-  expect_equal(po("nn_max_pool1d", kernel_size = 2, return_indices = TRUE, outputs = "indices")$outputs, "indices")
+  expect_equal(nn("max_pool1d", kernel_size = 2, outputs = "indices")$outputs, "indices")
+  expect_equal(po("nn_max_pool1d", kernel_size = 2, outputs = "indices")$outputs, "indices")
 })
 
 test_that("$outputs only enters the hash when outputs are left out", {
-  all_outputs = nn("max_pool1d", kernel_size = 2, return_indices = TRUE)
-  some_outputs = nn("max_pool1d", kernel_size = 2, return_indices = TRUE, outputs = "output")
+  all_outputs = nn("max_pool1d", kernel_size = 2, outputs = c("output", "indices"))
+  some_outputs = nn("max_pool1d", kernel_size = 2, outputs = "output")
   expect_false(all_outputs$hash == some_outputs$hash)
   expect_false(all_outputs$phash == some_outputs$phash)
   some_outputs$outputs = c("output", "indices")
@@ -210,7 +210,7 @@ test_that("$outputs only enters the hash when outputs are left out", {
 })
 
 test_that("$outputs survives cloning", {
-  po_pool = nn("max_pool1d", kernel_size = 2, return_indices = TRUE, outputs = "indices")
+  po_pool = nn("max_pool1d", kernel_size = 2, outputs = "indices")
   expect_equal(po_pool$clone(deep = TRUE)$outputs, "indices")
 })
 
@@ -218,7 +218,7 @@ test_that("a PipeOp with restricted outputs can be chained and trained", {
   task = tsk("iris")
   # without restricting the outputs, the indices of the pooling would need to go somewhere
   graph = po("torch_ingress_num") %>>% nn("unsqueeze", dim = 2) %>>%
-    nn("max_pool1d", kernel_size = 2, return_indices = TRUE, outputs = "output") %>>%
+    nn("max_pool1d", kernel_size = 2, outputs = "output") %>>%
     nn("flatten") %>>% nn("head") %>>% po("torch_loss", "cross_entropy") %>>%
     po("torch_optimizer", "adam") %>>% po("torch_model_classif", epochs = 1L, batch_size = 50L)
   learner = as_learner(graph)
@@ -230,7 +230,7 @@ test_that("an output that is left out is not computed when the module allows for
   task = tsk("iris")
   build = function(...) {
     graph = po("torch_ingress_num") %>>% nn("unsqueeze", dim = 2) %>>%
-      nn("multihead_attention", num_heads = 1, need_weights = TRUE, ...)
+      nn("multihead_attention", num_heads = 1, ...)
     graph$train(task)
   }
   md = build(outputs = "output")
@@ -246,7 +246,7 @@ test_that("an output that is left out is not computed when the module allows for
 
   # torch returns the indices of a max pooling only together with the output
   md = (po("torch_ingress_num") %>>% nn("unsqueeze", dim = 2) %>>%
-    nn("max_pool1d", kernel_size = 2, return_indices = TRUE, outputs = "indices"))$train(task)
+    nn("max_pool1d", kernel_size = 2, outputs = "indices"))$train(task)
   net = model_descriptor_to_module(md[[1L]])
   indices = net(torch_randn(2, 4))
   expect_equal(indices$dtype, torch_long())
@@ -274,17 +274,20 @@ test_that("every PipeOpTorch includes $outputs in its hash", {
   for (key in keys) {
     pipeop = invoke(po, key, .args = required[[key]])
     if (!inherits(pipeop, "PipeOpTorch")) next
+    private = get_private(pipeop)
+    # some operators leave out outputs by default, so start from all of them
+    pipeop$outputs = private$.output_all$name
     phash = pipeop$phash
     # pretend that the module has another output, which is left out
-    private = get_private(pipeop)
     private$.output_all = rbind(private$.output_all,
       data.table(name = "__left_out__", train = "ModelDescriptor", predict = "Task"))
     expect_false(pipeop$phash == phash, info = key)
   }
 })
 
-test_that("the hash of a max pooling reflects return_indices", {
-  expect_false(nn("max_pool1d")$hash == nn("max_pool1d", return_indices = TRUE)$hash)
+test_that("the indices of a max pooling are only an output channel when requested", {
+  expect_equal(nn("max_pool1d")$outputs, "output")
+  expect_false(nn("max_pool1d")$hash == nn("max_pool1d", outputs = c("output", "indices"))$hash)
 })
 
 test_that("$outputs works for a block", {
@@ -302,7 +305,7 @@ test_that("$outputs works for a block", {
 })
 
 test_that("a block is not affected by changes to the graph it was constructed from", {
-  block = as_graph(nn("max_pool1d", kernel_size = 1, return_indices = TRUE))
+  block = as_graph(nn("max_pool1d", kernel_size = 1, outputs = c("output", "indices")))
   po_block = po("nn_block", block = block, n_blocks = 1)
   block$pipeops$max_pool1d$outputs = "indices"
   expect_equal(po_block$outputs, c("max_pool1d.output", "max_pool1d.indices"))
@@ -310,7 +313,7 @@ test_that("a block is not affected by changes to the graph it was constructed fr
 
 test_that("a block with zero repetitions needs as many inputs as outputs", {
   task = tsk("iris")
-  block = as_graph(nn("max_pool1d", kernel_size = 1, return_indices = TRUE))
+  block = as_graph(nn("max_pool1d", kernel_size = 1, outputs = c("output", "indices")))
   graph = po("torch_ingress_num") %>>% nn("unsqueeze", dim = 2) %>>%
     po("nn_block", block = block, n_blocks = 0, outputs = "max_pool1d.indices")
   expect_error(graph$train(task), "1 input\\(s\\) but 2 output\\(s\\)")
