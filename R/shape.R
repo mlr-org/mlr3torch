@@ -100,19 +100,19 @@ assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, 
 
 # The result of `.shapes_out()`, which the operator implements, is checked before it is coerced to
 # `integer()`: `as.integer()` would silently turn anything that is not a shape into `NA`s.
-assert_shapes_out = function(shapes, pipeop) {
-  if (!test_list(shapes) || length(shapes) != nrow(pipeop$output)) {
-    stopf("The `$shapes_out()` of PipeOp with id '%s' must return a list of %i shape(s), one per output channel.", # nolint
-      pipeop$id, nrow(pipeop$output))
+assert_shapes_out = function(shapes, pipeop, channels) {
+  if (!test_list(shapes) || length(shapes) != length(channels)) {
+    stopf("The `$shapes_out()` of PipeOp with id '%s' must return a list of %i shape(s), one per output of its module (%s).", # nolint
+      pipeop$id, length(channels), paste0(channels, collapse = ", "))
   }
-  set_names(pmap(list(shapes, pipeop$output$name), function(shape, channel) {
+  set_names(pmap(list(shapes, channels), function(shape, channel) {
     result = check_shape(shape)
     if (!isTRUE(result)) {
       stopf("The `$shapes_out()` of PipeOp with id '%s' returned an invalid shape for output channel '%s'. %s", # nolint
         pipeop$id, channel, result)
     }
     as.integer(shape)
-  }), pipeop$output$name)
+  }), channels)
 }
 
 #' @title Assert that Dimensions are Known

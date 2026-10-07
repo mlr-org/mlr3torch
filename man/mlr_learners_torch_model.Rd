@@ -49,6 +49,7 @@ Other Learner:
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
+\code{\link{mlr_learners.realmlp}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.tabm}},
 \code{\link{mlr_learners.torch_featureless}},
@@ -143,7 +144,8 @@ A list with ingress tokens that defines how the dataloader will be defined.}
 The task type.}
       \item{\code{properties}}{(\code{NULL} or \code{character()})\cr
 The properties of the learner.
-Defaults to all available properties for the given task type.}
+Defaults to all available properties for the given task type, except for \code{"weights"},
+\code{"new_levels"} and \code{"missings"}.}
       \item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The torch optimizer.}
       \item{\code{loss}}{(\code{\link{TorchLoss}})\cr

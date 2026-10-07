@@ -174,8 +174,8 @@ pipeop_torch_class = function(id, module_generator, shapes_out, param_set = NULL
     }, .parent = topenv()),
     # two operators generated from the same `id` are only the same if they do the same thing
     .additional_phash_input = crate(function() {
-      list(self$input$name, self$output$name, self$param_set$ids(), # nolint
-        private$.shapes_out_fn, self$module_generator) # nolint
+      c(super$.additional_phash_input(), list(self$input$name, self$output$name, # nolint
+        self$param_set$ids(), private$.shapes_out_fn, self$module_generator)) # nolint
     }, .parent = topenv())
   )
 

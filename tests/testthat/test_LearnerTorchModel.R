@@ -150,3 +150,40 @@ test_that("resample() stores and retrieves a graph-built learner's models per it
     )
   }
 })
+
+test_that("a graph-built learner rejects factor levels that differ from the train task", {
+  # the integer codes of a factor depend on its levels, so a predict task with other levels would
+  # silently be encoded differently than the train task
+  task = as_task_regr(data.table(x = factor(rep(letters[1:4], 5)), y = rnorm(20)), target = "y")
+  graph = po("torch_ingress_categ") %>>% nn("tokenizer_categ", d_token = 2) %>>% nn("flatten") %>>%
+    nn("head") %>>% po("torch_loss", "mse") %>>% po("torch_optimizer", "adam") %>>%
+    po("torch_model_regr", epochs = 1L, batch_size = 20L)
+  learner = as_learner(graph)
+  learner$train(task)
+
+  expect_error(learner$predict_newdata(data.table(x = factor(c("a", "d")))), "different column info")
+  expect_error(learner$predict_newdata(data.table(x = factor("e", levels = c(letters[1:5])))),
+    "different column info")
+  # the same levels are fine, even if not all of them occur
+  pred = learner$predict_newdata(data.table(x = factor("d", levels = letters[1:4])))
+  expect_class(pred, "PredictionRegr")
+})
+
+test_that("a graph-built learner rejects missing values at predict time", {
+  task = tsk("mtcars")
+  graph = po("torch_ingress_num") %>>% nn("head") %>>% po("torch_loss", "mse") %>>%
+    po("torch_optimizer", "adam") %>>% po("torch_model_regr", epochs = 1L, batch_size = 32L)
+  learner = as_learner(graph)
+  learner$train(task)
+
+  newdata = task$data(1:2, cols = task$feature_names)
+  newdata$cyl[1L] = NA
+  expect_error(learner$predict_newdata(newdata), "missing")
+})
+
+test_that("LearnerTorchModel does not claim the 'new_levels' and 'missings' properties", {
+  learner = LearnerTorchModel$new(task_type = "regr")
+  expect_false(any(c("new_levels", "missings") %in% learner$properties))
+  learner = LearnerTorchModel$new(task_type = "regr", properties = "missings")
+  expect_true("missings" %in% learner$properties)
+})

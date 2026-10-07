@@ -146,15 +146,15 @@ test_that("inception_v3 wraps the configured loss when aux_logits is enabled", {
   # the user configures an ordinary loss, the learner wraps it
   learner = lrn("classif.inception_v3", pretrained = FALSE, aux_logits = TRUE, epochs = 1L,
     batch_size = 2L, loss = t_loss("cross_entropy"), aux_weight = 0.2, predict_type = "prob")
-  loss_fn = get_private(learner)$.loss_fn(task_aux, learner$param_set$values)
+  loss_fn = setup_ctx_field(learner, task_aux, "loss_fn")
   expect_class(loss_fn, "nn_aux_loss")
   expect_class(loss_fn$base_loss, "nn_cross_entropy_loss")
   expect_equal(loss_fn$aux_weight, 0.2)
 
   # without the auxiliary classifier the loss is left alone
   learner_plain = lrn("classif.inception_v3", pretrained = FALSE, loss = t_loss("cross_entropy"))
-  expect_class(get_private(learner_plain)$.loss_fn(task_aux, learner_plain$param_set$values),
-    "nn_cross_entropy_loss")
+  learner_plain$param_set$set_values(batch_size = 2L)
+  expect_class(setup_ctx_field(learner_plain, task_aux, "loss_fn"), "nn_cross_entropy_loss")
 })
 
 test_that("jittable is forwarded, so jit_trace is available exactly for traceable networks", {

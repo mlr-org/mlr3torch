@@ -198,11 +198,11 @@ test_that("a network with two heads can be trained, scored and predicted", {
         list(x = ingress_num(shape = c(NA, length(task$feature_names))))
       },
       # the configured loss is applied to a single tensor, so it is wrapped to see only the mean
-      .loss_fn = function(task, param_vals) {
-        nn_module("nn_mu_loss",
+      .setup_training = function(ctx, param_vals) {
+        ctx$loss_fn = nn_module("nn_mu_loss",
           initialize = function(loss) self$loss = loss,
           forward = function(input, target) self$loss(input$mu, target)
-        )(super$.loss_fn(task, param_vals))
+        )(ctx$loss_fn)
       },
       .encode_prediction = function(network_output, task) {
         list(response = as.numeric(network_output$mu + torch_exp(network_output$log_sigma)))

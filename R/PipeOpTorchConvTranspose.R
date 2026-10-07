@@ -36,7 +36,7 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
   ),
   private = list(
     .additional_phash_input = function() {
-      list(private$.d)
+      c(super$.additional_phash_input(), list(private$.d))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       # (batch, channel, spatial dims..)
