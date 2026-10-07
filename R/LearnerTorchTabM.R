@@ -1040,8 +1040,9 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
   private = list(
     # The network returns one prediction per ensemble member, so the configured loss is
     # applied to the `k` predictions separately, see the Loss and Prediction section.
-    .loss_fn = function(task, param_vals) {
-      nn_tabm_loss(super$.loss_fn(task, param_vals))
+    .setup_training = function(ctx, param_vals) {
+      super$.setup_training(ctx, param_vals)
+      ctx$loss_fn = nn_tabm_loss(ctx$loss_fn)
     },
     .ingress_tokens = function(task, param_vals) {
       n_num = n_num_features(task)

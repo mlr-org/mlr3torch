@@ -56,7 +56,7 @@ ContextTorch = R6Class("ContextTorch",
       self$measures_valid = assert_list(measures_valid, names = "unique", any.missing = FALSE, types = "Measure",
         null.ok = TRUE) %??% list()
       self$network = assert_class(network, "nn_module")
-      self$optimizer = assert_class(optimizer, "torch_optimizer")
+      self$optimizer = assert_class(optimizer, "torch_optimizer", null.ok = TRUE)
       self$loss_fn = assert_class(loss_fn, "nn_module")
       self$total_epochs = assert_integerish(total_epochs, lower = 0, any.missing = FALSE)
       self$last_scores_train = structure(list(), names = character(0))
