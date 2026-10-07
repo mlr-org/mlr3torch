@@ -152,7 +152,7 @@ element has the shape given above and the first one is the prediction of interes
 <li><p>A prediction that consists of several quantities – e.g. a mean and a standard deviation – is
 expressed by returning one tensor per quantity, which the prediction encoding combines.</p></li>
 </ul><p>In both cases the complete output is what the rest of the learner works with:</p><ul><li><p>The loss is applied to it. Because the configured loss expects a single tensor, a learner
-whose network returns a list has to wrap it by overloading <code>.loss_fn()</code>, see the list of
+whose network returns a list has to wrap it in <code>.setup_training()</code>, see the list of
 methods below. <code><a href="mlr_context_torch.html">ContextTorch</a></code> makes the output available as <code>ctx$y_hats</code>.</p></li>
 <li><p>The prediction is encoded from it, both when predicting and when calculating the training and
 validation scores, so <code>.encode_prediction()</code> always receives the complete network output. Such
@@ -343,6 +343,8 @@ How to merge a list of samples to form a batch.</p></li>
 Whether the dataloader copies tensors into CUDA pinned memory before returning them.</p></li>
 <li><p><code>drop_last</code> :: <code>logical(1)</code><br>
 Whether to drop the last training batch in each epoch during training. Default is <code>FALSE</code>.
+If it is <code>TRUE</code>, the batch size is capped at the number of training observations, so that
+not all of them are dropped.
 It is ignored when a <code>batch_sampler</code> is provided.</p></li>
 <li><p><code>timeout</code> :: <code>numeric(1)</code><br>
 The timeout value for collecting a batch from workers.
@@ -380,14 +382,25 @@ is trained by the learner.
 Note that a specific output shape is expected from the returned network, see section <em>Network Head and Target Encoding</em>.
 That section also describes when a network can return more than one tensor.
 You can use <code><a href="output_dim_for.html">output_dim_for()</a></code> to obtain the correct output dimension for a given task.</p></li>
-<li><p><code>.loss_fn(task, param_vals)</code><br>
-(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code><br>
-Construct the loss that is applied to the output of the network.
-The default implementation generates the loss that was configured by the user, i.e.
-<code>self$loss$generate(task)</code>.
-Overload this if the network returns more than one prediction and the configured loss has to
-be wrapped, see the <code>aux_logits</code> parameter of
+<li><p><code>.setup_training(ctx, param_vals)</code><br>
+(<code><a href="mlr_context_torch.html">ContextTorch</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code>NULL</code><br>
+Customizes a training run by modifying the context in place; the default does nothing.
+It is called once the data loaders, the network and the configured loss
+(<code>self$loss$generate(task)</code>) are created, and before training (or resuming) starts.
+At this point, <code>ctx$optimizer</code> is <code>NULL</code> and <code>ctx$callbacks</code> contains the configured callbacks.
+The method may:</p><ul><li><p>replace <code>ctx$network</code>. This is also the network that is used for prediction.</p></li>
+<li><p>replace <code>ctx$loss_fn</code>, e.g. to wrap the configured loss when the network returns more than
+one prediction, see the <code>aux_logits</code> parameter of
 <code><a href="mlr_learners.torchvision.html">classif.inception_v3</a></code>.</p></li>
+<li><p>set <code>ctx$optimizer</code>, e.g. to <code>self$optimizer$generate(groups)</code> with parameter groups for
+parameter-specific learning rates. Otherwise, the optimizer is generated from the final
+<code>ctx$network</code> afterwards. Use <code>self$optimizer$generate()</code>, so that the optimizer's parameters
+(including <code>param_groups</code>) are respected, and set the optimizer after replacing the network.</p></li>
+<li><p>add callbacks to <code>ctx$callbacks</code>. The configured callbacks may not be removed or replaced, and
+the id <code>"early_stopping"</code> is reserved.</p></li>
+</ul><p>Call <code>super$.setup_training(ctx, param_vals)</code> first. The method must be deterministic given
+<code>param_vals</code>, so that resuming from a checkpoint can restore the optimizer and callback states.
+With <code>jit_trace = TRUE</code>, <code>ctx$network</code> is already traced.</p></li>
 <li><p><code>.ingress_tokens(task, param_vals)</code><br>
 (<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> with <code><a href="TorchIngressToken.html">TorchIngressToken</a></code>s<br>
 Create the <code><a href="TorchIngressToken.html">TorchIngressToken</a></code>s that are passed to the <code><a href="task_dataset.html">task_dataset</a></code> constructor.
@@ -440,6 +453,7 @@ to implement the private <code>$.additional_phash_input()</code>.</p>
 <code><a href="mlr_learners.ft_transformer.html">mlr_learners.ft_transformer</a></code>,
 <code><a href="mlr_learners.mlp.html">mlr_learners.mlp</a></code>,
 <code><a href="mlr_learners.module.html">mlr_learners.module</a></code>,
+<code><a href="mlr_learners.realmlp.html">mlr_learners.realmlp</a></code>,
 <code><a href="mlr_learners.tab_resnet.html">mlr_learners.tab_resnet</a></code>,
 <code><a href="mlr_learners.tabm.html">mlr_learners.tabm</a></code>,
 <code><a href="mlr_learners.torch_featureless.html">mlr_learners.torch_featureless</a></code>,

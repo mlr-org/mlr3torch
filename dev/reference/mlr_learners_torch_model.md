@@ -18,6 +18,7 @@ Other Learner:
 [`mlr_learners.ft_transformer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.ft_transformer.md),
 [`mlr_learners.mlp`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.mlp.md),
 [`mlr_learners.module`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.module.md),
+[`mlr_learners.realmlp`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.realmlp.md),
 [`mlr_learners.tab_resnet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tab_resnet.md),
 [`mlr_learners.tabm`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tabm.md),
 [`mlr_learners.torch_featureless`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torch_featureless.md),
@@ -231,12 +232,12 @@ learner$train(task, ids$train)
 learner$predict(task, ids$test)
 #> 
 #> ── <PredictionClassif> for 50 observations: ────────────────────────────────────
-#>  row_ids     truth response
-#>        5    setosa   setosa
-#>       12    setosa   setosa
-#>       13    setosa   setosa
-#>      ---       ---      ---
-#>      145 virginica   setosa
-#>      146 virginica   setosa
-#>      150 virginica   setosa
+#>  row_ids     truth  response
+#>        1    setosa virginica
+#>        2    setosa virginica
+#>        5    setosa virginica
+#>      ---       ---       ---
+#>      143 virginica virginica
+#>      147 virginica virginica
+#>      148 virginica virginica
 ```

@@ -99,7 +99,7 @@ with:
 
 - The loss is applied to it. Because the configured loss expects a
   single tensor, a learner whose network returns a list has to wrap it
-  by overloading `.loss_fn()`, see the list of methods below.
+  in `.setup_training()`, see the list of methods below.
   [`ContextTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_context_torch.md)
   makes the output available as `ctx$y_hats`.
 
@@ -420,7 +420,9 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `drop_last` :: `logical(1)`  
   Whether to drop the last training batch in each epoch during training.
-  Default is `FALSE`. It is ignored when a `batch_sampler` is provided.
+  Default is `FALSE`. If it is `TRUE`, the batch size is capped at the
+  number of training observations, so that not all of them are dropped.
+  It is ignored when a `batch_sampler` is provided.
 
 - `timeout` :: `numeric(1)`  
   The timeout value for collecting a batch from workers. Negative values
@@ -482,16 +484,38 @@ methods:
   [`output_dim_for()`](https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.md)
   to obtain the correct output dimension for a given task.
 
-- `.loss_fn(task, param_vals)`  
-  ([`Task`](https://mlr3.mlr-org.com/reference/Task.html),
-  [`list()`](https://rdrr.io/r/base/list.html)) -\>
-  [`nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html)  
-  Construct the loss that is applied to the output of the network. The
-  default implementation generates the loss that was configured by the
-  user, i.e. `self$loss$generate(task)`. Overload this if the network
-  returns more than one prediction and the configured loss has to be
-  wrapped, see the `aux_logits` parameter of
-  [`classif.inception_v3`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torchvision.md).
+- `.setup_training(ctx, param_vals)`  
+  ([`ContextTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_context_torch.md),
+  [`list()`](https://rdrr.io/r/base/list.html)) -\> `NULL`  
+  Customizes a training run by modifying the context in place; the
+  default does nothing. It is called once the data loaders, the network
+  and the configured loss (`self$loss$generate(task)`) are created, and
+  before training (or resuming) starts. At this point, `ctx$optimizer`
+  is `NULL` and `ctx$callbacks` contains the configured callbacks. The
+  method may:
+
+  - replace `ctx$network`. This is also the network that is used for
+    prediction.
+
+  - replace `ctx$loss_fn`, e.g. to wrap the configured loss when the
+    network returns more than one prediction, see the `aux_logits`
+    parameter of
+    [`classif.inception_v3`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torchvision.md).
+
+  - set `ctx$optimizer`, e.g. to `self$optimizer$generate(groups)` with
+    parameter groups for parameter-specific learning rates. Otherwise,
+    the optimizer is generated from the final `ctx$network` afterwards.
+    Use `self$optimizer$generate()`, so that the optimizer's parameters
+    (including `param_groups`) are respected, and set the optimizer
+    after replacing the network.
+
+  - add callbacks to `ctx$callbacks`. The configured callbacks may not
+    be removed or replaced, and the id `"early_stopping"` is reserved.
+
+  Call `super$.setup_training(ctx, param_vals)` first. The method must
+  be deterministic given `param_vals`, so that resuming from a
+  checkpoint can restore the optimizer and callback states. With
+  `jit_trace = TRUE`, `ctx$network` is already traced.
 
 - `.ingress_tokens(task, param_vals)`  
   ([`Task`](https://mlr3.mlr-org.com/reference/Task.html),
@@ -596,6 +620,7 @@ Other Learner:
 [`mlr_learners.ft_transformer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.ft_transformer.md),
 [`mlr_learners.mlp`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.mlp.md),
 [`mlr_learners.module`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.module.md),
+[`mlr_learners.realmlp`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.realmlp.md),
 [`mlr_learners.tab_resnet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tab_resnet.md),
 [`mlr_learners.tabm`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tabm.md),
 [`mlr_learners.torch_featureless`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torch_featureless.md),

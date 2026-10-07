@@ -86,47 +86,40 @@
 </ul></div>
 <div class="section level3">
 <h3 id="features-development-version">Features<a class="anchor" aria-label="anchor" href="#features-development-version"></a></h3>
-<ul><li>New function <code><a href="../reference/as_learner_torch.html">as_learner_torch()</a></code>, which converts a <code>Graph</code> of <code>PipeOpTorch</code> operators into a <code>Learner</code>. It’s advantage over <code><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner()</a></code> is that the resulting learner exposes methods like <code>$network()</code> and <code>$dataset()</code>.</li>
-<li>
-<code>LearnerTorch</code> and <code>PipeOpTorchModel</code> now accept any task type registered in <code>mlr_reflections$task_types</code>, via the new generics <code><a href="../reference/get_target_batchgetter.html">get_target_batchgetter()</a></code> and <code><a href="../reference/encode_prediction.html">encode_prediction()</a></code>.</li>
-<li>New S3 generic <code><a href="../reference/get_batch_constructor.html">get_batch_constructor()</a></code>, which decides how a whole batch of a task is built, i.e. both the features <code>x</code> and the target <code>y</code>.</li>
-<li>Added support for <code>TaskTorch</code> to easily go beyond the regression and classification setting, see the <em>Custom Learning Problems</em> article for more information. A <code>TaskTorch</code> can define a <code>default_target_batchgetter</code>, which is used whenever the learner does not specify a <code>target_batchgetter</code> itself.</li>
-<li>A network can now return a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors in evaluation mode, which is passed to <code><a href="../reference/encode_prediction.html">encode_prediction()</a></code> as it is, so a prediction can consist of more than one quantity.</li>
-<li>New function <code><a href="../reference/pipeop_torch.html">pipeop_torch()</a></code> that simplifies the creation of <code>PipeOpTorch</code> classes.</li>
-<li>New article <em>Writing your own PipeOpTorch</em>.</li>
-<li>The <code>$model</code> of a <code>LearnerTorch</code> now has a printer.</li>
-<li>Added more image learners from {torchvision}.</li>
-<li>
-<code>LearnerTorch</code> now implements <code>$best_valid_scores</code>.</li>
-<li>Most <code>LearnerTorchVision</code> are now <code>jittable</code>.</li>
-<li>Ported the <code>TabM</code> tabular learner from Python.</li>
-<li>
-<code>LearnerTorch</code> now has <code>.loss_fn(task, param_vals)</code> private method that allows to customize the construction of the loss function.</li>
-<li>
-<code>LearnerTorch</code> now has <code>restore_best_weights</code> parameter that can be used when early stopping is active.</li>
-<li>A network can now return a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors during training, which the loss is applied to. In <code>ContextTorch</code>, <code>$y_hats</code> is that complete output and <code>$y_hat</code> its first element.</li>
-<li>New parameter <code>batch_size_predict</code> for <code>LearnerTorch</code>, which overrides <code>batch_size</code> for prediction</li>
-<li>Added multihead attention and transformer encoder pipeops.</li>
-<li>New layers: <code>nn("silu")</code>, <code>nn("softmin")</code>, <code>nn("log_softmax")</code>, <code>nn("softmax2d")</code>, <code>nn("dropout2d")</code>, <code>nn("dropout3d")</code>, <code>nn("group_norm")</code>, <code>nn("unflatten")</code> and <code>nn("adaptive_max_pool1d")</code> / <code>nn("adaptive_max_pool2d")</code> / <code>nn("adaptive_max_pool3d")</code>.</li>
-<li>Any dimension of an input shape can now be unknown (<code>NA</code>), not only the batch dimension.</li>
-<li>Improved error messages during <code>PipeOpTorch</code>’s shape inference.</li>
-<li>The <code>shape</code> parameter of <code>nn("reshape")</code> can now be a <code>function(shape)</code> of the input shape.</li>
-<li>Exported various helpers useful for implementing shape inference for custom <code>PipeOpTorch</code> classes.</li>
-<li>
-<code>ContextTorch</code> has a new field <code>$callbacks</code>, which gives a callback access to the other callbacks of the training run.</li>
-<li>Callbacks can now be ordered via a <code>weight</code> field.</li>
-<li>A <code>LearnerTorch</code> can now be resumed from a checkpoint, which includes resuming the callbacks.</li>
-<li>
-<code>t_clbk("checkpoint")</code> now also writes the callback states, as well as the class behind each callback id, so a resumed run errors instead of restoring a state into a different callback.</li>
-<li>The <code>path</code> of <code>t_clbk("checkpoint")</code> can now be a <code>function()</code> that is called at the beginning of each training run and returns that run’s path.</li>
-<li>
-<code>t_clbk("checkpoint")</code> now checks each file immediately before writing it, so two runs writing into one folder error instead of mixing their checkpoints.</li>
-<li>Resuming a checkpoint that is already at <code>epochs</code> now returns its model instead of erroring, so a script that restarts itself can be run again after it succeeded.</li>
-<li>
-<code>t_clbk("checkpoint")</code> now reports its folder in <code>learner$model$callbacks$&lt;id&gt;$path</code>, so the folder a <code>path</code> function chose can be read off the trained learner.</li>
-<li>Resuming a run that early stopping had ended now warns and returns its model instead of training further, and <code>ctx$terminate</code> is checked before an epoch rather than after it.</li>
-<li>
-<code>t_clbk("progress")</code> now prints the epoch as <code>Epoch &lt;n&gt;/&lt;epochs&gt;</code>, so a resumed run shows how much of it is left.</li>
+<ul><li><p>With <code>drop_last = TRUE</code>, <code>LearnerTorch</code> now caps the training batch size at the number of training observations instead of dropping all of them.</p></li>
+<li><p>New function <code><a href="../reference/as_learner_torch.html">as_learner_torch()</a></code>, which converts a <code>Graph</code> of <code>PipeOpTorch</code> operators into a <code>Learner</code>. It’s advantage over <code><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner()</a></code> is that the resulting learner exposes methods like <code>$network()</code> and <code>$dataset()</code>.</p></li>
+<li><p><code>LearnerTorch</code> and <code>PipeOpTorchModel</code> now accept any task type registered in <code>mlr_reflections$task_types</code>, via the new generics <code><a href="../reference/get_target_batchgetter.html">get_target_batchgetter()</a></code> and <code><a href="../reference/encode_prediction.html">encode_prediction()</a></code>.</p></li>
+<li><p>New S3 generic <code><a href="../reference/get_batch_constructor.html">get_batch_constructor()</a></code>, which decides how a whole batch of a task is built, i.e. both the features <code>x</code> and the target <code>y</code>.</p></li>
+<li><p>Added support for <code>TaskTorch</code> to easily go beyond the regression and classification setting, see the <em>Custom Learning Problems</em> article for more information. A <code>TaskTorch</code> can define a <code>default_target_batchgetter</code>, which is used whenever the learner does not specify a <code>target_batchgetter</code> itself.</p></li>
+<li><p>A network can now return a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors in evaluation mode, which is passed to <code><a href="../reference/encode_prediction.html">encode_prediction()</a></code> as it is, so a prediction can consist of more than one quantity.</p></li>
+<li><p>New function <code><a href="../reference/pipeop_torch.html">pipeop_torch()</a></code> that simplifies the creation of <code>PipeOpTorch</code> classes.</p></li>
+<li><p>New article <em>Writing your own PipeOpTorch</em>.</p></li>
+<li><p>The <code>$model</code> of a <code>LearnerTorch</code> now has a printer.</p></li>
+<li><p>Added more image learners from {torchvision}.</p></li>
+<li><p><code>LearnerTorch</code> now implements <code>$best_valid_scores</code>.</p></li>
+<li><p>Most <code>LearnerTorchVision</code> are now <code>jittable</code>.</p></li>
+<li><p>Ported the <code>TabM</code> tabular learner from Python.</p></li>
+<li><p>Ported the <code>RealMLP</code> tabular learner from Python.</p></li>
+<li><p><code>LearnerTorch</code> now has a private <code>.setup_training(ctx, param_vals)</code> method that allows subclasses to customize a training run, e.g. to wrap the loss, create the optimizer from parameter groups or add callbacks.</p></li>
+<li><p><code>LearnerTorch</code> now has <code>restore_best_weights</code> parameter that can be used when early stopping is active.</p></li>
+<li><p>A network can now return a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors during training, which the loss is applied to. In <code>ContextTorch</code>, <code>$y_hats</code> is that complete output and <code>$y_hat</code> its first element.</p></li>
+<li><p>New parameter <code>batch_size_predict</code> for <code>LearnerTorch</code>, which overrides <code>batch_size</code> for prediction</p></li>
+<li><p>Added multihead attention and transformer encoder pipeops.</p></li>
+<li><p>New layers: <code>nn("silu")</code>, <code>nn("softmin")</code>, <code>nn("log_softmax")</code>, <code>nn("softmax2d")</code>, <code>nn("dropout2d")</code>, <code>nn("dropout3d")</code>, <code>nn("group_norm")</code>, <code>nn("unflatten")</code> and <code>nn("adaptive_max_pool1d")</code> / <code>nn("adaptive_max_pool2d")</code> / <code>nn("adaptive_max_pool3d")</code>.</p></li>
+<li><p>Any dimension of an input shape can now be unknown (<code>NA</code>), not only the batch dimension.</p></li>
+<li><p>Improved error messages during <code>PipeOpTorch</code>’s shape inference.</p></li>
+<li><p>The <code>shape</code> parameter of <code>nn("reshape")</code> can now be a <code>function(shape)</code> of the input shape.</p></li>
+<li><p>Exported various helpers useful for implementing shape inference for custom <code>PipeOpTorch</code> classes.</p></li>
+<li><p><code>ContextTorch</code> has a new field <code>$callbacks</code>, which gives a callback access to the other callbacks of the training run.</p></li>
+<li><p>Callbacks can now be ordered via a <code>weight</code> field.</p></li>
+<li><p>A <code>LearnerTorch</code> can now be resumed from a checkpoint, which includes resuming the callbacks.</p></li>
+<li><p><code>t_clbk("checkpoint")</code> now also writes the callback states, as well as the class behind each callback id, so a resumed run errors instead of restoring a state into a different callback.</p></li>
+<li><p>The <code>path</code> of <code>t_clbk("checkpoint")</code> can now be a <code>function()</code> that is called at the beginning of each training run and returns that run’s path.</p></li>
+<li><p><code>t_clbk("checkpoint")</code> now checks each file immediately before writing it, so two runs writing into one folder error instead of mixing their checkpoints.</p></li>
+<li><p>Resuming a checkpoint that is already at <code>epochs</code> now returns its model instead of erroring, so a script that restarts itself can be run again after it succeeded.</p></li>
+<li><p><code>t_clbk("checkpoint")</code> now reports its folder in <code>learner$model$callbacks$&lt;id&gt;$path</code>, so the folder a <code>path</code> function chose can be read off the trained learner.</p></li>
+<li><p>Resuming a run that early stopping had ended now warns and returns its model instead of training further, and <code>ctx$terminate</code> is checked before an epoch rather than after it.</p></li>
+<li><p><code>t_clbk("progress")</code> now prints the epoch as <code>Epoch &lt;n&gt;/&lt;epochs&gt;</code>, so a resumed run shows how much of it is left.</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>

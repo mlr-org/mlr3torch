@@ -17,6 +17,9 @@
 - [`mlr_learners.module`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.module.md)
   [`LearnerTorchModule`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.module.md)
   : Learner Torch Module
+- [`mlr_learners.realmlp`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.realmlp.md)
+  [`LearnerTorchRealMLP`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.realmlp.md)
+  : RealMLP
 - [`mlr_learners.tab_resnet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tab_resnet.md)
   [`LearnerTorchTabResNet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tab_resnet.md)
   : Tabular ResNet

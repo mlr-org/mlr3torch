@@ -33,6 +33,10 @@
 
 ### Features
 
+- With `drop_last = TRUE`, `LearnerTorch` now caps the training batch
+  size at the number of training observations instead of dropping all of
+  them.
+
 - New function
   [`as_learner_torch()`](https://mlr3torch.mlr-org.com/dev/reference/as_learner_torch.md),
   which converts a `Graph` of `PipeOpTorch` operators into a `Learner`.
@@ -40,79 +44,114 @@
   [`as_learner()`](https://mlr3.mlr-org.com/reference/as_learner.html)
   is that the resulting learner exposes methods like `$network()` and
   `$dataset()`.
+
 - `LearnerTorch` and `PipeOpTorchModel` now accept any task type
   registered in `mlr_reflections$task_types`, via the new generics
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md)
   and
   [`encode_prediction()`](https://mlr3torch.mlr-org.com/dev/reference/encode_prediction.md).
+
 - New S3 generic
   [`get_batch_constructor()`](https://mlr3torch.mlr-org.com/dev/reference/get_batch_constructor.md),
   which decides how a whole batch of a task is built, i.e. both the
   features `x` and the target `y`.
+
 - Added support for `TaskTorch` to easily go beyond the regression and
   classification setting, see the *Custom Learning Problems* article for
   more information. A `TaskTorch` can define a
   `default_target_batchgetter`, which is used whenever the learner does
   not specify a `target_batchgetter` itself.
+
 - A network can now return a
   [`list()`](https://rdrr.io/r/base/list.html) of tensors in evaluation
   mode, which is passed to
   [`encode_prediction()`](https://mlr3torch.mlr-org.com/dev/reference/encode_prediction.md)
   as it is, so a prediction can consist of more than one quantity.
+
 - New function
   [`pipeop_torch()`](https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.md)
   that simplifies the creation of `PipeOpTorch` classes.
+
 - New article *Writing your own PipeOpTorch*.
+
 - The `$model` of a `LearnerTorch` now has a printer.
+
 - Added more image learners from {torchvision}.
+
 - `LearnerTorch` now implements `$best_valid_scores`.
+
 - Most `LearnerTorchVision` are now `jittable`.
+
 - Ported the `TabM` tabular learner from Python.
-- `LearnerTorch` now has `.loss_fn(task, param_vals)` private method
-  that allows to customize the construction of the loss function.
+
+- Ported the `RealMLP` tabular learner from Python.
+
+- `LearnerTorch` now has a private `.setup_training(ctx, param_vals)`
+  method that allows subclasses to customize a training run, e.g. to
+  wrap the loss, create the optimizer from parameter groups or add
+  callbacks.
+
 - `LearnerTorch` now has `restore_best_weights` parameter that can be
   used when early stopping is active.
+
 - A network can now return a
   [`list()`](https://rdrr.io/r/base/list.html) of tensors during
   training, which the loss is applied to. In `ContextTorch`, `$y_hats`
   is that complete output and `$y_hat` its first element.
+
 - New parameter `batch_size_predict` for `LearnerTorch`, which overrides
   `batch_size` for prediction
+
 - Added multihead attention and transformer encoder pipeops.
+
 - New layers: `nn("silu")`, `nn("softmin")`, `nn("log_softmax")`,
   `nn("softmax2d")`, `nn("dropout2d")`, `nn("dropout3d")`,
   `nn("group_norm")`, `nn("unflatten")` and `nn("adaptive_max_pool1d")`
   / `nn("adaptive_max_pool2d")` / `nn("adaptive_max_pool3d")`.
+
 - Any dimension of an input shape can now be unknown (`NA`), not only
   the batch dimension.
+
 - Improved error messages during `PipeOpTorch`’s shape inference.
+
 - The `shape` parameter of `nn("reshape")` can now be a
   `function(shape)` of the input shape.
+
 - Exported various helpers useful for implementing shape inference for
   custom `PipeOpTorch` classes.
+
 - `ContextTorch` has a new field `$callbacks`, which gives a callback
   access to the other callbacks of the training run.
+
 - Callbacks can now be ordered via a `weight` field.
+
 - A `LearnerTorch` can now be resumed from a checkpoint, which includes
   resuming the callbacks.
+
 - `t_clbk("checkpoint")` now also writes the callback states, as well as
   the class behind each callback id, so a resumed run errors instead of
   restoring a state into a different callback.
+
 - The `path` of `t_clbk("checkpoint")` can now be a `function()` that is
   called at the beginning of each training run and returns that run’s
   path.
+
 - `t_clbk("checkpoint")` now checks each file immediately before writing
   it, so two runs writing into one folder error instead of mixing their
   checkpoints.
+
 - Resuming a checkpoint that is already at `epochs` now returns its
   model instead of erroring, so a script that restarts itself can be run
   again after it succeeded.
+
 - `t_clbk("checkpoint")` now reports its folder in
   `learner$model$callbacks$<id>$path`, so the folder a `path` function
   chose can be read off the trained learner.
+
 - Resuming a run that early stopping had ended now warns and returns its
   model instead of training further, and `ctx$terminate` is checked
   before an epoch rather than after it.
+
 - `t_clbk("progress")` now prints the epoch as `Epoch <n>/<epochs>`, so
   a resumed run shows how much of it is left.
 

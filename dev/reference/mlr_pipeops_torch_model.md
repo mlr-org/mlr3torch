@@ -182,7 +182,9 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `drop_last` :: `logical(1)`  
   Whether to drop the last training batch in each epoch during training.
-  Default is `FALSE`. It is ignored when a `batch_sampler` is provided.
+  Default is `FALSE`. If it is `TRUE`, the batch size is capped at the
+  number of training observations, so that not all of them are dropped.
+  It is ignored when a `batch_sampler` is provided.
 
 - `timeout` :: `numeric(1)`  
   The timeout value for collecting a batch from workers. Negative values
