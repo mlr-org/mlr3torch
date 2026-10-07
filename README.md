@@ -46,7 +46,7 @@ needing to worry about low-level details. Off-the-shelf learners are
 readily available, but custom architectures can be defined by connecting
 `PipeOpTorch` operators in an `mlr3pipelines::Graph`.
 
-Using predefined learners such as a simple multi layer perceptron (MLP)
+Using predefined learners such as a simple multi-layer perceptron (MLP)
 works just like any other mlr3 `Learner`.
 
 ``` r
@@ -80,7 +80,7 @@ learner_mlp$train(tsk("sonar"))
 ```
 
 Next, we construct the same architecture using `PipeOpTorch` objects.
-The first pipeop – a `PipeOpTorchIngress` – defines the entrypoint of
+The first pipeop – a `PipeOpTorchIngress` – defines the entry point of
 the network. All subsequent pipeops define the neural network layers.
 
 ``` r
@@ -207,33 +207,23 @@ deep_learner$train(mnist)
 ## Feature Overview
 
 - **Off-the-shelf learners** are readily available as `mlr3::Learner`s,
-  including the MLP, TabResNet, TabM and FT-Transformer for tabular
-  data, as well as image classifiers from
-  [torchvision](https://github.com/mlverse/torchvision) (e.g. ResNet,
-  EfficientNet, ConvNeXt), which can also be used with pretrained
-  weights.
+  for both tabular classification and regression, as well as image
+  classification.
 - **Custom architectures** can be defined using the `Graph` language
-  from `mlr3pipelines` and turned into a learner via
-  `as_learner_torch()`. Many layers are available as `PipeOpTorch`
-  operators, including multihead attention and transformer encoder
-  layers, and `pipeop_torch()` makes it easy to write your own. Shapes
-  are inferred automatically while the graph is built, which catches
-  mistakes early.
-- **Beyond regression and classification**: Besides supervised
-  regression and classification, custom learning problems
-  (e.g. multi-output or structured prediction) can be defined via
-  `TaskTorch`. Networks may return a `list()` of tensors, both during
-  training and prediction.
-- **Generic data types**: Next to tabular data, the package supports
-  generic tensors via the `lazy_tensor` type. Preprocessing and data
-  augmentation can be applied lazily via `PipeOp`s, and multi-modal data
-  can be handled conveniently, as `lazy_tensor` columns can be stored
-  alongside tabular features.
+  from `mlr3pipelines` and turned into a learner. Alternatively, you can
+  also simply define your custom architecture as a `torch::nn_module`.
+- **Beyond regression and classification**: The package makes it easy to
+  go beyond classification and regression to tackle other learning
+  problems; see the [Custom Learning
+  Problems](https://mlr3torch.mlr-org.com/dev/articles/custom_task_type.html)
+  article.
+- **Tensor Columns**: The package makes it possible to store arbitrary
+  tensors alongside tabular features via the `lazy_tensor` data type.
+  This means that, in principle, the package can support arbitrary
+  modalities of data, including multi-modal datasets.
 - **Customizable training**: The training loop can be customized via
-  (predefined or custom) callbacks, e.g. for logging to TensorBoard,
-  learning rate scheduling, or gradual unfreezing of pretrained weights.
-  Early stopping (optionally restoring the best weights) and validation
-  are supported out of the box.
+  (predefined or custom) callbacks for logging, learning rate
+  scheduling, or other purposes.
 - **Checkpointing**: Training runs can be checkpointed and resumed,
   including the state of all callbacks.
 - **Full `mlr3` integration**: Resampling, benchmarking, and
@@ -247,12 +237,8 @@ deep_learner$train(mnist)
 - The paper [*mlr3torch: A Deep Learning Framework in R based on mlr3
   and torch*](https://arxiv.org/abs/2604.18152) gives an overview of the
   package.
-- There is a [course on
-  `(mlr3)torch`](https://mlr-org.github.io/mlr3torch-course/).
-- You can check out our [presentation from UseR
-  2024](https://sebffischer.github.io/mlr3torch-UseR-2024/#/).
 
-## Contributing:
+## Contributing
 
 - To run the tests one needs to set the environment variable
   `TEST_TORCH = 1`, e.g. by adding it to `.Renviron`.
@@ -292,6 +278,6 @@ In case of problems / bugs, it is often helpful if you provide a
 about this if the bug is obvious).
 
 Please understand that the resources of the project are limited:
-response may sometimes be delayed by a few days, and some feature
+responses may sometimes be delayed by a few days, and some feature
 suggestions may be rejected if they are deemed too tangential to the
 vision behind the project.
