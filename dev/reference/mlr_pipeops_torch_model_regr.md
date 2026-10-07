@@ -180,7 +180,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.053 
+#>    0.03 
 #> 
 #> $task_hash
 #> [1] "c7c4f02878d51895"
