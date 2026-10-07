@@ -60,8 +60,8 @@ The \code{shapes_in} list indicates the shape of input tensors that will be fed 
 The list has one item per input tensor, typically only one.
 The function should return a list of shapes of tensors that are created by the module.
 The \code{shapes_in} are named after the input channels of the \code{PipeOp} and are in the same order.
-The output shapes are named after or in the same order as the output names given during
-construction, i.e. they include the outputs that are not among \verb{$outputs}.
+It returns one shape per output name given during construction, in that order, regardless of
+\verb{$outputs}: the public \verb{$shapes_out()} keeps those of \verb{$outputs}.
 In case the output shapes depends on the task (as is the case for \code{\link{PipeOpTorchHead}}), the function should return
 valid output shapes (possibly containing \code{NA}s) whether or not the \code{task} argument is provided.
 Any dimension of \code{shapes_in} can be \code{NA}, i.e. unknown, so this method must not assume that a
@@ -354,7 +354,7 @@ The task, which is very rarely used (default is \code{NULL}). An exception is \c
   }
   \subsection{Returns}{
     A named \code{list()} containing the output shapes. The names are the names of the output channels of
-the \code{PipeOp}.
+the \code{PipeOp}, i.e. \verb{$outputs}.
   }
 }
 

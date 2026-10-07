@@ -55,8 +55,8 @@
 #'   The list has one item per input tensor, typically only one.
 #'   The function should return a list of shapes of tensors that are created by the module.
 #'   The `shapes_in` are named after the input channels of the `PipeOp` and are in the same order.
-#'   The output shapes are named after or in the same order as the output names given during
-#'   construction, i.e. they include the outputs that are not among `$outputs`.
+#'   It returns one shape per output name given during construction, in that order, regardless of
+#'   `$outputs`: the public `$shapes_out()` keeps those of `$outputs`.
 #'   In case the output shapes depends on the task (as is the case for [`PipeOpTorchHead`]), the function should return
 #'   valid output shapes (possibly containing `NA`s) whether or not the `task` argument is provided.
 #'   Any dimension of `shapes_in` can be `NA`, i.e. unknown, so this method must not assume that a
@@ -262,7 +262,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'  The task, which is very rarely used (default is `NULL`). An exception is [`PipeOpTorchHead`].
     #' @return
     #'  A named `list()` containing the output shapes. The names are the names of the output channels of
-    #'  the `PipeOp`.
+    #'  the `PipeOp`, i.e. `$outputs`.
     shapes_out = function(shapes_in, task = NULL) {
       assert_r6(task, "Task", null.ok = TRUE)
       if (is.numeric(shapes_in)) shapes_in = list(shapes_in)
@@ -280,8 +280,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
         names(shapes_in) = self$input$name
       }
       shapes_out = private$.shapes_out(shapes_in, self$param_set$get_values(), task = task)
-      # `.shapes_out()` describes all outputs of the module, by name or in their order, of which
-      # `$outputs` are kept
+      # `.shapes_out()` describes all outputs of the module, of which `$outputs` are kept. Named
+      # shapes are matched by name, in case they are not in the order of the outputs.
       outname = private$.output_all$name
       if (test_names(names(shapes_out), "unique") && test_set_equal(names(shapes_out), outname)) {
         shapes_out = shapes_out[outname]
