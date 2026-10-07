@@ -60,8 +60,12 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
     def train_run(epochs):
         for _ in range(epochs):
             for (x, y) in dataloader:
-                # Zero the gradients in place like (R) torch does by default, instead of freeing and re-allocating
-                # them in every step, which can be slow for large networks when PyTorch runs inside of R.
+                # Zero the gradients in place, which is also what (R) torch's zero_grad() does by default.
+                # PyTorch's default (set_to_none=True) frees the gradients here and backward() allocates them again.
+                # When PyTorch runs inside of R via reticulate (as in this benchmark), glibc then returned this memory
+                # to the operating system in every step for networks with more than ~32 MB of parameters. The next
+                # step had to page it in again, which made SGD up to 2x slower with 16 threads. AdamW was not affected
+                # in our measurements, presumably because its optimizer state keeps this memory from being returned.
                 optimizer.zero_grad(set_to_none=False)
                 y_hat = net(x)
                 loss = loss_fn(y_hat, y)
