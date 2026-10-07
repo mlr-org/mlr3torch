@@ -234,6 +234,11 @@ according to the parameters specified in `PipeOpTorchModel` and its
 [`Task`](https://mlr3.mlr-org.com/reference/Task.html) stored in the
 [`ModelDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/ModelDescriptor.md).
 
+## See also
+
+Other PipeOps:
+[`mlr_pipeops_nn_recurrent`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_recurrent.md)
+
 ## Super classes
 
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)

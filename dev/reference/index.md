@@ -243,6 +243,9 @@
 - [`mlr_pipeops_nn_group_norm`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_group_norm.md)
   [`PipeOpTorchGroupNorm`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_group_norm.md)
   : Group Normalization
+- [`mlr_pipeops_nn_gru`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_gru.md)
+  [`PipeOpTorchGRU`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_gru.md)
+  : Gated Recurrent Unit
 - [`mlr_pipeops_nn_hardshrink`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_hardshrink.md)
   [`PipeOpTorchHardShrink`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_hardshrink.md)
   : Hard Shrink Activation Function
@@ -273,6 +276,9 @@
 - [`mlr_pipeops_nn_log_softmax`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_log_softmax.md)
   [`PipeOpTorchLogSoftmax`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_log_softmax.md)
   : Log Softmax
+- [`mlr_pipeops_nn_lstm`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_lstm.md)
+  [`PipeOpTorchLSTM`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_lstm.md)
+  : Long Short-Term Memory
 - [`mlr_pipeops_nn_max_pool1d`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_max_pool1d.md)
   [`PipeOpTorchMaxPool1D`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_max_pool1d.md)
   : 1D Max Pooling
@@ -300,6 +306,9 @@
 - [`mlr_pipeops_nn_prelu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_prelu.md)
   [`PipeOpTorchPReLU`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_prelu.md)
   : PReLU Activation Function
+- [`mlr_pipeops_nn_recurrent`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_recurrent.md)
+  [`PipeOpTorchRecurrent`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_recurrent.md)
+  : Recurrent Layer
 - [`mlr_pipeops_nn_reglu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_reglu.md)
   [`PipeOpTorchReGLU`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_reglu.md)
   : ReGLU Activation Function
@@ -312,6 +321,9 @@
 - [`mlr_pipeops_nn_reshape`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_reshape.md)
   [`PipeOpTorchReshape`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_reshape.md)
   : Reshape a Tensor
+- [`mlr_pipeops_nn_rnn`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_rnn.md)
+  [`PipeOpTorchRNN`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_rnn.md)
+  : Simple Recurrent Layer
 - [`mlr_pipeops_nn_rrelu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_rrelu.md)
   [`PipeOpTorchRReLU`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_rrelu.md)
   : RReLU Activation Function

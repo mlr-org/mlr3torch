@@ -108,6 +108,7 @@
 <li><p>Added multihead attention and transformer encoder pipeops.</p></li>
 <li><p>The new field <code>$outputs</code> of <code>PipeOpTorch</code> restricts the output channels to a subset of the outputs of the wrapped module.</p></li>
 <li><p>New layers: <code>nn("silu")</code>, <code>nn("softmin")</code>, <code>nn("log_softmax")</code>, <code>nn("softmax2d")</code>, <code>nn("dropout2d")</code>, <code>nn("dropout3d")</code>, <code>nn("group_norm")</code>, <code>nn("unflatten")</code> and <code>nn("adaptive_max_pool1d")</code> / <code>nn("adaptive_max_pool2d")</code> / <code>nn("adaptive_max_pool3d")</code>.</p></li>
+<li><p>Added the recurrent layers <code>nn("rnn")</code>, <code>nn("lstm")</code> and <code>nn("gru")</code>.</p></li>
 <li><p>Any dimension of an input shape can now be unknown (<code>NA</code>), not only the batch dimension.</p></li>
 <li><p>Improved error messages during <code>PipeOpTorch</code>’s shape inference.</p></li>
 <li><p>The <code>shape</code> parameter of <code>nn("reshape")</code> can now be a <code>function(shape)</code> of the input shape.</p></li>

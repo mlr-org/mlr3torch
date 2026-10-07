@@ -115,6 +115,8 @@
   `nn("group_norm")`, `nn("unflatten")` and `nn("adaptive_max_pool1d")`
   / `nn("adaptive_max_pool2d")` / `nn("adaptive_max_pool3d")`.
 
+- Added the recurrent layers `nn("rnn")`, `nn("lstm")` and `nn("gru")`.
+
 - Any dimension of an input shape can now be unknown (`NA`), not only
   the batch dimension.
 

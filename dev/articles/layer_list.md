@@ -37,6 +37,7 @@ Below is a list of neural network layers that are available in
 | [nn_gelu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gelu.html) | GELU Activation Function |
 | [nn_glu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_glu.html) | GLU Activation Function |
 | [nn_group_norm](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_group_norm.html) | Group Normalization |
+| [nn_gru](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gru.html) | Gated Recurrent Unit |
 | [nn_hardshrink](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardshrink.html) | Hard Shrink Activation Function |
 | [nn_hardsigmoid](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardsigmoid.html) | Hard Sigmoid Activation Function |
 | [nn_hardtanh](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardtanh.html) | Hard Tanh Activation Function |
@@ -47,6 +48,7 @@ Below is a list of neural network layers that are available in
 | [nn_linear](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_linear.html) | Linear Layer |
 | [nn_log_sigmoid](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_sigmoid.html) | Log Sigmoid Activation Function |
 | [nn_log_softmax](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_softmax.html) | Log Softmax |
+| [nn_lstm](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_lstm.html) | Long Short-Term Memory |
 | [nn_max_pool1d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool1d.html) | 1D Max Pooling |
 | [nn_max_pool2d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool2d.html) | 2D Max Pooling |
 | [nn_max_pool3d](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool3d.html) | 3D Max Pooling |
@@ -59,6 +61,7 @@ Below is a list of neural network layers that are available in
 | [nn_relu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu.html) | ReLU Activation Function |
 | [nn_relu6](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu6.html) | ReLU6 Activation Function |
 | [nn_reshape](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reshape.html) | Reshape a Tensor |
+| [nn_rnn](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rnn.html) | Simple Recurrent Layer |
 | [nn_rrelu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rrelu.html) | RReLU Activation Function |
 | [nn_selu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_selu.html) | SELU Activation Function |
 | [nn_sigmoid](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_sigmoid.html) | Sigmoid Activation Function |

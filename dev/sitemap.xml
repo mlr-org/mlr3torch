@@ -145,6 +145,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_gelu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_glu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_group_norm.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_gru.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_hardshrink.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_hardsigmoid.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_hardtanh.html</loc></url>
@@ -155,6 +156,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_linear.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_log_sigmoid.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_log_softmax.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_lstm.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_max_pool1d.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_max_pool2d.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_max_pool3d.html</loc></url>
@@ -164,10 +166,12 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_merge_sum.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_multihead_attention.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_prelu.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_recurrent.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_reglu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_relu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_relu6.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_reshape.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_rnn.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_rrelu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_selu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_sigmoid.html</loc></url>
