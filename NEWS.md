@@ -76,6 +76,8 @@
 
 ## Bug fixes
 
+* Learners built from a graph via `po("torch_model_regr")` / `po("torch_model_classif")` now error
+  when the predict task's factor levels differ from the train task's.
 * `nn("tokenizer_categ")` now always infers the cardinalities correctly.
 * `lrn("classif.ft_transformer")` / `lrn("regr.ft_transformer")` now accept `ingress_tokens` with only
   `num.input` or only `categ.input`.
