@@ -784,9 +784,72 @@ test_that("dataset works", {
 })
 
 test_that("error when dataloaders have length 0", {
-  learner = lrn("regr.torch_featureless", epochs = 1L, batch_size = 100, drop_last = TRUE)
+  empty_sampler = torch::sampler(
+    "EmptyBatchSampler",
+    initialize = function(data_source) NULL,
+    .iter = function() function() coro::exhausted(),
+    .length = function() 0L
+  )
+  learner = lrn(
+    "regr.torch_featureless",
+    epochs = 1L,
+    batch_sampler = empty_sampler
+  )
   task = tsk("mtcars")
   expect_error({learner$train(task)}, "has length 0") # nolint
+})
+
+test_that("drop_last caps the batch size at the number of observations", {
+  task = tsk("iris")
+  learner = lrn(
+    "classif.torch_featureless",
+    epochs = 1L,
+    batch_size = 64L,
+    drop_last = TRUE
+  )
+  ds = learner$dataset(task)
+  get_dl = function() {
+    get_private(learner)$.dataloader(
+      ds,
+      learner$param_set$get_values(tags = "train")
+    )
+  }
+  # the batch size is kept and the remaining 22 observations are dropped
+  dl = get_dl()
+  expect_equal(dl$batch_sampler$batch_size, 64L)
+  expect_length(dl, 2L)
+
+  # a batch size larger than the training set would drop all observations
+  learner$param_set$set_values(batch_size = 256L)
+  dl = get_dl()
+  expect_equal(dl$batch_sampler$batch_size, 150L)
+  expect_length(dl, 1L)
+
+  # the sampler determines the number of observations
+  first_20 = torch::sampler(
+    "First20Sampler",
+    initialize = function(data_source) NULL,
+    .iter = function() {
+      i = 0L
+      function() {
+        i <<- i + 1L
+        if (i > 20L) {
+          return(coro::exhausted())
+        }
+        i
+      }
+    },
+    .length = function() 20L
+  )
+  learner$param_set$set_values(sampler = first_20)
+  dl = get_dl()
+  expect_equal(dl$batch_sampler$batch_size, 20L)
+  learner$param_set$set_values(sampler = NULL)
+
+  learner$param_set$set_values(drop_last = FALSE, batch_size = 64L)
+  dl = get_dl()
+  expect_equal(dl$batch_sampler$batch_size, 64L)
+  expect_length(dl, 3L)
 })
 
 test_that("can set seed to NULL", {
@@ -1611,4 +1674,90 @@ test_that("hash_input() recurses into lists so that nn_modules hash stably", {
   l$clone(deep = TRUE)$train(tsk("iris"))
   expect_equal(l$hash, before)
   expect_equal(l$clone(deep = TRUE)$hash, before)
+})
+
+test_that(".setup_training can customize the network, loss, optimizer and callbacks", {
+  seen_optimizer = "not called"
+  LearnerTorchSetup = R6Class("LearnerTorchSetup",
+    inherit = LearnerTorchTest1,
+    private = list(
+      .setup_training = function(ctx, param_vals) {
+        super$.setup_training(ctx, param_vals)
+        seen_optimizer <<- ctx$optimizer
+        ctx$loss_fn = nn_module("wrapped_loss",
+          initialize = function(loss) self$loss = loss,
+          forward = function(input, target) self$loss(input, target)
+        )(ctx$loss_fn)
+        ctx$optimizer = self$optimizer$generate(list(
+          list(params = list(ctx$network$weight), lr = 0.5),
+          list(params = list(ctx$network$bias))
+        ))
+        ctx$callbacks$internal = torch_callback("internal",
+          state_dict = function() "internal state",
+          load_state_dict = function(state_dict) NULL
+        )$generate()
+      }
+    )
+  )
+  learner = LearnerTorchSetup$new(task_type = "classif")
+  learner$param_set$set_values(epochs = 1L, batch_size = 50L, bias = TRUE, opt.lr = 0.1)
+  learner$callbacks = t_clbk("history")
+  learner$train(tsk("iris"))
+  # the optimizer is created after the setup
+  expect_null(seen_optimizer)
+  groups = learner$model$optimizer$param_groups
+  expect_length(groups, 2L)
+  expect_equal(groups[[1L]]$lr, 0.5)
+  expect_equal(groups[[2L]]$lr, 0.1)
+  expect_equal(learner$model$callbacks$internal, "internal state")
+  expect_data_table(learner$model$callbacks$history)
+  expect_class(setup_ctx_field(learner, tsk("iris"), "loss_fn"), "wrapped_loss")
+
+  # the ids of added callbacks must not clash with the configured ones
+  learner$callbacks = t_clbk("history", id = "internal")
+  expect_error(learner$train(tsk("iris")), "removed or replaced the configured callback")
+})
+
+test_that("the default optimizer is created from the network that .setup_training leaves", {
+  LearnerTorchSwap = R6Class("LearnerTorchSwap",
+    inherit = LearnerTorchTest1,
+    private = list(
+      .setup_training = function(ctx, param_vals) {
+        ctx$network = nn_sequential(nn_linear(4L, 3L))
+      }
+    )
+  )
+  network = optimizer = NULL
+  spy = torch_callback("spy", on_begin = function() {
+    network <<- self$ctx$network
+    optimizer <<- self$ctx$optimizer
+  })
+  learner = LearnerTorchSwap$new(task_type = "classif")
+  learner$param_set$set_values(epochs = 1L, batch_size = 50L)
+  learner$callbacks = spy
+  learner$train(tsk("iris"))
+  expect_class(learner$network, "nn_sequential")
+  params = network$parameters
+  opt_params = unlist(map(optimizer$param_groups, "params"), recursive = FALSE)
+  expect_length(opt_params, length(params))
+  expect_true(all(map_lgl(params, function(p) some(opt_params, function(q) identical(p, q)))))
+})
+
+test_that(".setup_training may only add callbacks", {
+  make_learner = function(setup) {
+    cls = R6Class("LearnerTorchBadSetup", inherit = LearnerTorchTest1,
+      private = list(.setup_training = setup))
+    learner = cls$new(task_type = "classif")
+    learner$param_set$set_values(epochs = 1L, batch_size = 50L)
+    learner$callbacks = t_clbk("history")
+    learner
+  }
+  learner = make_learner(function(ctx, param_vals) ctx$callbacks$history = NULL)
+  expect_error(learner$train(tsk("iris")), "removed or replaced the configured callback\\(s\\) 'history'")
+  learner = make_learner(function(ctx, param_vals) {
+    ctx$callbacks$early_stopping = t_clbk("history")$generate()
+  })
+  expect_error(learner$train(tsk("iris")), "reserved id 'early_stopping'")
+  learner = make_learner(function(ctx, param_vals) ctx$loss_fn = "not a loss")
+  expect_error(learner$train(tsk("iris")), "ctx\\$loss_fn")
 })

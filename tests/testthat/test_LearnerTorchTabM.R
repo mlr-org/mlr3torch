@@ -375,7 +375,7 @@ test_that("the loss folds the ensemble dimension into the batch dimension", {
 })
 
 test_that("the configured loss is folded over the ensemble dimension at training time", {
-  # `$loss` stays exactly what the user configured; the folding happens in `.loss_fn()`,
+  # `$loss` stays exactly what the user configured; the folding happens in `.setup_training()`,
   # so it applies to the default loss and to one assigned after construction alike
   learner = lrn("regr.tabm", loss = t_loss("l1"), epochs = 1L, batch_size = 16L, k = 3L,
     n_blocks = 1L, d_block = 8L)
@@ -383,17 +383,17 @@ test_that("the configured loss is folded over the ensemble dimension at training
   expect_class(learner$loss$generate(tsk("mtcars")), "nn_l1_loss")
 
   task = tsk("mtcars")
-  loss_fn = get_private(learner)$.loss_fn(task, learner$param_set$values)
+  loss_fn = setup_ctx_field(learner, task, "loss_fn")
   expect_class(loss_fn, "nn_tabm_loss")
   expect_class(loss_fn$loss, "nn_l1_loss")
   expect_error(learner$train(task), regexp = NA)
 
   learner$loss = t_loss("mse")
-  expect_class(get_private(learner)$.loss_fn(task, learner$param_set$values)$loss, "nn_mse_loss")
+  expect_class(setup_ctx_field(learner, task, "loss_fn")$loss, "nn_mse_loss")
 
   # the default loss is folded too, although it never passes through `$loss<-`
   default = lrn("regr.tabm", epochs = 1L, batch_size = 16L, k = 2L, n_blocks = 1L, d_block = 8L)
-  expect_class(get_private(default)$.loss_fn(task, default$param_set$values), "nn_tabm_loss")
+  expect_class(setup_ctx_field(default, task, "loss_fn"), "nn_tabm_loss")
 })
 
 test_that("nn_tabm can be used with lrn('classif.module')", {
