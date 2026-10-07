@@ -65,33 +65,33 @@ PipeOpTorchRecurrent = R6Class("PipeOpTorchRecurrent",
     #' @template param_param_set
     #' @param type (`character(1)`)\cr
     #'   Which recurrent layer to build, one of `"rnn"`, `"lstm"` or `"gru"`.
-    #' @param return_state (`logical(1)`)\cr
-    #'   Whether the final hidden state is returned in addition to the output sequence.
-    initialize = function(id, type, param_set, return_state = FALSE, param_vals = list()) {
+    initialize = function(id, type, param_set, param_vals = list()) {
       private$.type = assert_choice(type, c("rnn", "lstm", "gru"))
-      private$.return_state = assert_flag(return_state)
       super$initialize(
         id = id,
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_recurrent,
-        outname = private$.outnames(),
+        # `nn_lstm()` carries a cell state in addition to the hidden state, the other two do not
+        outname = if (private$.type == "lstm") c("output", "h_n", "c_n") else c("output", "h_n"),
         tags = "abstract"
       )
+      # the final states are only output channels when they are requested
+      self$outputs = "output"
     }
   ),
   private = list(
     .type = NULL,
-    .return_state = NULL,
-    # `nn_lstm()` carries a cell state in addition to the hidden state, the other two do not
-    .outnames = function() {
-      if (!private$.return_state) {
-        return("output")
-      }
-      if (private$.type == "lstm") c("output", "h_n", "c_n") else c("output", "h_n")
+    # whether any of the final states is among `$outputs`, in which case all of them are computed
+    .return_state = function() {
+      !identical(self$output$name, "output")
+    },
+    # torch returns the final states together with the output sequence
+    .module_outputs = function() {
+      if (private$.return_state()) private$.output_all$name else "output"
     },
     .additional_phash_input = function() {
-      list(private$.type, private$.return_state)
+      c(super$.additional_phash_input(), list(private$.type))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
@@ -104,17 +104,15 @@ PipeOpTorchRecurrent = R6Class("PipeOpTorchRecurrent",
       num_layers = param_vals[["num_layers"]] %??% 1L
       # a bidirectional layer concatenates the two directions along the feature dimension
       output = as.integer(c(shape[1:2], hidden_size * directions))
-      if (!private$.return_state) {
-        return(list(output))
-      }
       # the state carries one vector per layer and direction, transposed to be batch-first
       state = as.integer(c(shape[[1L]], num_layers * directions, hidden_size))
-      c(list(output), rep(list(state), length(private$.outnames()) - 1L))
+      c(list(output), rep(list(state), nrow(private$.output_all) - 1L))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$input_size = shapes_in[[1L]][[3L]]
       param_vals$type = private$.type
-      param_vals$return_state = private$.return_state
+      # the final states are only computed when they are among `$outputs`
+      param_vals$return_state = private$.return_state()
       param_vals
     }
   )
@@ -159,11 +157,11 @@ PipeOpTorchRecurrent = R6Class("PipeOpTorchRecurrent",
 #' @section Input and Output Channels:
 #' There is one input channel `"input"`, the sequence to run over.
 #'
-#' The output channels are determined by the construction argument `return_state`:
-#' * `return_state = FALSE` (default): one output channel `"output"`, the output sequence of shape
-#'   `(batch, sequence, hidden_size * directions)`.
-#' * `return_state = TRUE`: an additional output channel `"h_n"` with the final hidden state, of
-#'   shape `(batch, num_layers * directions, hidden_size)`.
+#' The module has two outputs: `"output"`, the output sequence of shape
+#' `(batch, sequence, hidden_size * directions)`, and `"h_n"`, the final hidden state of shape
+#' `(batch, num_layers * directions, hidden_size)`.
+#' Only `"output"` is an output channel by default. Set `$outputs` to also (or only) get the final
+#' state, e.g. `outputs = c("output", "h_n")`.
 #'
 #' For an explanation see [`PipeOpTorch`].
 #'
@@ -178,17 +176,11 @@ PipeOpTorchRNN = R6Class("PipeOpTorchRNN",
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    #' @param return_state (`logical(1)`)\cr
-    #'   Whether the final hidden state is returned in an additional output channel `"h_n"`.
-    #'   This is a *construction* argument (and not a hyperparameter), because it determines the
-    #'   structure of the [`Graph`][mlr3pipelines::Graph].
-    #'   The default is `FALSE`, i.e. only the output sequence is returned.
-    #'   See section *Input and Output Channels* for more information.
-    initialize = function(id = "nn_rnn", return_state = FALSE, param_vals = list()) {
+    initialize = function(id = "nn_rnn", param_vals = list()) {
       param_set = c(paramset_recurrent(), ps(
         nonlinearity = p_fct(default = "tanh", levels = c("tanh", "relu"), tags = "train")
       ))
-      super$initialize(id = id, type = "rnn", param_set = param_set, return_state = return_state,
+      super$initialize(id = id, type = "rnn", param_set = param_set,
         param_vals = param_vals)
     }
   )
@@ -208,12 +200,11 @@ PipeOpTorchRNN = R6Class("PipeOpTorchRNN",
 #' @section Input and Output Channels:
 #' There is one input channel `"input"`, the sequence to run over.
 #'
-#' The output channels are determined by the construction argument `return_state`:
-#' * `return_state = FALSE` (default): one output channel `"output"`, the output sequence of shape
-#'   `(batch, sequence, hidden_size * directions)`.
-#' * `return_state = TRUE`: two additional output channels `"h_n"` and `"c_n"` with the final hidden
-#'   state and the final cell state, both of shape
-#'   `(batch, num_layers * directions, hidden_size)`.
+#' The module has three outputs: `"output"`, the output sequence of shape
+#' `(batch, sequence, hidden_size * directions)`, and `"h_n"` and `"c_n"`, the final hidden state and
+#' the final cell state, both of shape `(batch, num_layers * directions, hidden_size)`.
+#' Only `"output"` is an output channel by default. Set `$outputs` to also (or only) get the final
+#' states, e.g. `outputs = c("output", "h_n", "c_n")`.
 #'
 #' For an explanation see [`PipeOpTorch`].
 #'
@@ -228,16 +219,9 @@ PipeOpTorchLSTM = R6Class("PipeOpTorchLSTM",
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    #' @param return_state (`logical(1)`)\cr
-    #'   Whether the final hidden and cell states are returned in the additional output channels
-    #'   `"h_n"` and `"c_n"`.
-    #'   This is a *construction* argument (and not a hyperparameter), because it determines the
-    #'   structure of the [`Graph`][mlr3pipelines::Graph].
-    #'   The default is `FALSE`, i.e. only the output sequence is returned.
-    #'   See section *Input and Output Channels* for more information.
-    initialize = function(id = "nn_lstm", return_state = FALSE, param_vals = list()) {
+    initialize = function(id = "nn_lstm", param_vals = list()) {
       super$initialize(id = id, type = "lstm", param_set = paramset_recurrent(),
-        return_state = return_state, param_vals = param_vals)
+        param_vals = param_vals)
     }
   )
 )
@@ -263,15 +247,9 @@ PipeOpTorchGRU = R6Class("PipeOpTorchGRU",
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    #' @param return_state (`logical(1)`)\cr
-    #'   Whether the final hidden state is returned in an additional output channel `"h_n"`.
-    #'   This is a *construction* argument (and not a hyperparameter), because it determines the
-    #'   structure of the [`Graph`][mlr3pipelines::Graph].
-    #'   The default is `FALSE`, i.e. only the output sequence is returned.
-    #'   See section *Input and Output Channels* for more information.
-    initialize = function(id = "nn_gru", return_state = FALSE, param_vals = list()) {
+    initialize = function(id = "nn_gru", param_vals = list()) {
       super$initialize(id = id, type = "gru", param_set = paramset_recurrent(),
-        return_state = return_state, param_vals = param_vals)
+        param_vals = param_vals)
     }
   )
 )

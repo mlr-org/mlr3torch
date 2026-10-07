@@ -24,14 +24,11 @@ activation functions an LSTM cell fixes.
 
 There is one input channel \code{"input"}, the sequence to run over.
 
-The output channels are determined by the construction argument \code{return_state}:
-\itemize{
-\item \code{return_state = FALSE} (default): one output channel \code{"output"}, the output sequence of shape
-\verb{(batch, sequence, hidden_size * directions)}.
-\item \code{return_state = TRUE}: two additional output channels \code{"h_n"} and \code{"c_n"} with the final hidden
-state and the final cell state, both of shape
-\verb{(batch, num_layers * directions, hidden_size)}.
-}
+The module has three outputs: \code{"output"}, the output sequence of shape
+\verb{(batch, sequence, hidden_size * directions)}, and \code{"h_n"} and \code{"c_n"}, the final hidden state and
+the final cell state, both of shape \verb{(batch, num_layers * directions, hidden_size)}.
+Only \code{"output"} is an output channel by default. Set \verb{$outputs} to also (or only) get the final
+states, e.g. \code{outputs = c("output", "h_n", "c_n")}.
 
 For an explanation see \code{\link{PipeOpTorch}}.
 }
@@ -88,7 +85,7 @@ pipeop$param_set
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{PipeOpTorchLSTM$new(id = "nn_lstm", return_state = FALSE, param_vals = list())}
+    \preformatted{PipeOpTorchLSTM$new(id = "nn_lstm", param_vals = list())}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -96,13 +93,6 @@ pipeop$param_set
     \describe{
       \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
-      \item{\code{return_state}}{(\code{logical(1)})\cr
-Whether the final hidden and cell states are returned in the additional output channels
-\code{"h_n"} and \code{"c_n"}.
-This is a \emph{construction} argument (and not a hyperparameter), because it determines the
-structure of the \code{\link[mlr3pipelines:Graph]{Graph}}.
-The default is \code{FALSE}, i.e. only the output sequence is returned.
-See section \emph{Input and Output Channels} for more information.}
       \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}

@@ -54,13 +54,7 @@ Other PipeOps:
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{PipeOpTorchRecurrent$new(
-  id,
-  type,
-  param_set,
-  return_state = FALSE,
-  param_vals = list()
-)}
+    \preformatted{PipeOpTorchRecurrent$new(id, type, param_set, param_vals = list())}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -72,8 +66,6 @@ Identifier of the resulting  object.}
 Which recurrent layer to build, one of \code{"rnn"}, \code{"lstm"} or \code{"gru"}.}
       \item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
 The parameter set.}
-      \item{\code{return_state}}{(\code{logical(1)})\cr
-Whether the final hidden state is returned in addition to the output sequence.}
       \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}

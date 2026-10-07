@@ -54,13 +54,11 @@ tensor, and that \code{batch_first} is \emph{not} a parameter either, as it is f
 
 There is one input channel \code{"input"}, the sequence to run over.
 
-The output channels are determined by the construction argument \code{return_state}:
-\itemize{
-\item \code{return_state = FALSE} (default): one output channel \code{"output"}, the output sequence of shape
-\verb{(batch, sequence, hidden_size * directions)}.
-\item \code{return_state = TRUE}: an additional output channel \code{"h_n"} with the final hidden state, of
-shape \verb{(batch, num_layers * directions, hidden_size)}.
-}
+The module has two outputs: \code{"output"}, the output sequence of shape
+\verb{(batch, sequence, hidden_size * directions)}, and \code{"h_n"}, the final hidden state of shape
+\verb{(batch, num_layers * directions, hidden_size)}.
+Only \code{"output"} is an output channel by default. Set \verb{$outputs} to also (or only) get the final
+state, e.g. \code{outputs = c("output", "h_n")}.
 
 For an explanation see \code{\link{PipeOpTorch}}.
 }
@@ -105,7 +103,7 @@ pipeop$param_set
   Creates a new instance of this \link[R6:R6Class]{R6} class.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{PipeOpTorchRNN$new(id = "nn_rnn", return_state = FALSE, param_vals = list())}
+    \preformatted{PipeOpTorchRNN$new(id = "nn_rnn", param_vals = list())}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -113,12 +111,6 @@ pipeop$param_set
     \describe{
       \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
-      \item{\code{return_state}}{(\code{logical(1)})\cr
-Whether the final hidden state is returned in an additional output channel \code{"h_n"}.
-This is a \emph{construction} argument (and not a hyperparameter), because it determines the
-structure of the \code{\link[mlr3pipelines:Graph]{Graph}}.
-The default is \code{FALSE}, i.e. only the output sequence is returned.
-See section \emph{Input and Output Channels} for more information.}
       \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
