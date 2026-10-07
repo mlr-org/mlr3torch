@@ -78,23 +78,17 @@ setup = function(reg_path, python_path, work_dir) {
 
   addAlgorithm("pytorch", fun = function(instance, job, data, jit, ...) {
     print(instance)
-    f = function(..., python_path) {
-      library(reticulate)
-      x = try(
-        {
-          #reticulate::use_python("/opt/homebrew/Caskroom/mambaforge/base/bin/python3", required = TRUE)
-          reticulate::use_python(python_path, required = TRUE)
-          reticulate::source_python(here::here("benchmark", "time_pytorch.py"))
-          print(reticulate::py_config())
-          time_pytorch(...) # nolint
-        },
-        silent = TRUE
-      )
-      print(x)
-    }
-    args = c(instance, list(seed = job$seed, jit = jit, python_path = python_path))
-    #do.call(f, args)
-    callr::r(f, args = args, env = thread_env(instance$n_threads))
+    # PyTorch runs in a separate Python process rather than inside of R (via reticulate), because running it inside of
+    # the R process made it slower in some configurations (e.g. SGD for large networks).
+    args = c(instance, list(seed = job$seed, jit = jit))
+    out = processx::run(
+      python_path,
+      c(here::here("benchmark", "time_pytorch.py"), jsonlite::toJSON(args, auto_unbox = TRUE)),
+      env = c("current", thread_env(instance$n_threads)[c("OMP_NUM_THREADS", "MKL_NUM_THREADS")]),
+      stderr_to_stdout = TRUE
+    )
+    lines = strsplit(out$stdout, "\n")[[1L]]
+    jsonlite::fromJSON(lines[length(lines)])
   })
 
   addAlgorithm("rtorch", fun = function(instance, job, opt_type, jit, ...) {

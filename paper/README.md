@@ -63,7 +63,7 @@ Note that the `.Rprofile` file in `paper` ensures that when running R programs f
 While the benchmark uses `batchtools` for experiment definition, we don't use it for job submission in order to ensure that all GPU and CPU benchmarks respectively are run on the same machine.
 For running the benchmarks, we strongly recommend using the docker images, because we need both PyTorch and (R-)torch, which can be somewhat tricky to setup, especially when using CUDA.
 
-If you want to run it without the docker image, you need to adjust the `PYTHON_PATH` variable in the benchmarking scripts to the path to your Python installation, ensure that `pytorch` is installed and the `"pytorch"` algorithm in `paper/benchmark/benchmark.R` initializes the correct python environment.
+If you want to run it without the docker image, you need to adjust the `PYTHON_PATH` variable in the benchmarking scripts to the path to your Python installation, and ensure that `pytorch` is installed for this Python installation. The `"pytorch"` algorithm in `paper/benchmark/benchmark.R` runs `paper/benchmark/time_pytorch.py` with this Python executable in a separate process.
 But again, we strongly recommend using the provided docker images for the benchmarks.
 
 You can still reproduce the results that compare (R) `torch` with `mlr3torch` without the python environment.

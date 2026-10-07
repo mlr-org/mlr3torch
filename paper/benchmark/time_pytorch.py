@@ -60,13 +60,7 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
     def train_run(epochs):
         for _ in range(epochs):
             for (x, y) in dataloader:
-                # Zero the gradients in place, which is also what (R) torch's zero_grad() does by default.
-                # PyTorch's default (set_to_none=True) frees the gradients here and backward() allocates them again.
-                # When PyTorch runs inside of R via reticulate (as in this benchmark), glibc then returned this memory
-                # to the operating system in every step for networks with more than ~32 MB of parameters. The next
-                # step had to page it in again, which made SGD up to 2x slower with 16 threads. AdamW was not affected
-                # in our measurements, presumably because its optimizer state keeps this memory from being returned.
-                optimizer.zero_grad(set_to_none=False)
+                optimizer.zero_grad()
                 y_hat = net(x)
                 loss = loss_fn(y_hat, y)
                 loss.backward()
@@ -104,3 +98,10 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
 
 
     return {'time': t, 'loss': mean_loss, 'memory': memory}
+
+
+if __name__ == "__main__":
+    # Called from the benchmark (benchmark.R) with the arguments as JSON; the result is printed as JSON on the last line.
+    import json
+    import sys
+    print(json.dumps(time_pytorch(**json.loads(sys.argv[1]))))
