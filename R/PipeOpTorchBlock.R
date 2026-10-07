@@ -58,7 +58,8 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     #'   A graph consisting primarily of [`PipeOpTorch`] objects that is to be
     #'   repeated.
     initialize = function(block, id = "nn_block", param_vals = list()) {
-      private$.block = as_graph(block)
+      # copied, so that changing the graph that was passed does not change this operator
+      private$.block = as_graph(block, clone = TRUE)
       private$.param_set_base = ps(
         n_blocks = p_int(lower = 0L, tags = c("train", "required")),
         trafo = p_uty(tags = "train", custom_check = crate(function(x) {
@@ -146,6 +147,11 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     .train = function(inputs) {
       param_vals = self$param_set$get_values()
       if (param_vals$n_blocks == 0L) {
+        # zero blocks pass their inputs on, which is only possible when every output has an input
+        if (length(inputs) != nrow(private$.output_all)) {
+          stopf("PipeOp '%s' cannot have 'n_blocks' = 0, as its block has %i input(s) but %i output(s).",
+            self$id, length(inputs), nrow(private$.output_all))
+        }
         return(private$.keep_outputs(inputs))
       }
       block = private$.block$clone(deep = TRUE)
@@ -157,7 +163,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     },
     .param_set_base = NULL,
     .additional_phash_input = function() {
-      self$block$phash
+      c(super$.additional_phash_input(), self$block$phash)
     }
   )
 )

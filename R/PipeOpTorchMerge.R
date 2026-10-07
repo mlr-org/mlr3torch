@@ -48,7 +48,7 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
   private = list(
     .innum = NULL,
     .additional_phash_input = function() {
-      list(private$.innum)
+      c(super$.additional_phash_input(), list(private$.innum))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       # note that this slightly deviates from the actual broadcasting rules implemented by torch, i.e. we don't fill

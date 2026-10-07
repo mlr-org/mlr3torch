@@ -172,7 +172,7 @@ PipeOpTorchTransformerEncoderLayer = R6Class("PipeOpTorchTransformerEncoderLayer
       c(if (private$.src_mask) "src_mask", if (private$.src_key_padding_mask) "src_key_padding_mask")
     },
     .additional_phash_input = function() {
-      list(private$.src_mask, private$.src_key_padding_mask)
+      c(super$.additional_phash_input(), list(private$.src_mask, private$.src_key_padding_mask))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]

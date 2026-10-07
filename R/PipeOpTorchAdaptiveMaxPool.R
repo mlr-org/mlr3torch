@@ -29,7 +29,7 @@ PipeOpTorchAdaptiveMaxPool = R6Class("PipeOpTorchAdaptiveMaxPool",
   ),
   private = list(
     .additional_phash_input = function() {
-      list(private$.d, private$.return_indices)
+      c(super$.additional_phash_input(), list(private$.d, private$.return_indices))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`.
@@ -45,7 +45,12 @@ PipeOpTorchAdaptiveMaxPool = R6Class("PipeOpTorchAdaptiveMaxPool",
       if (private$.return_indices) rep(res, 2) else res
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      c(param_vals, list(return_indices = private$.return_indices))
+      # the indices are only computed when they are among `$outputs`
+      c(param_vals, list(return_indices = "indices" %in% self$output$name))
+    },
+    # torch returns the indices together with the output, or the output alone
+    .module_outputs = function() {
+      if ("indices" %in% self$output$name) c("output", "indices") else "output"
     },
     .return_indices = NULL,
     .d = NULL

@@ -55,7 +55,8 @@
 #'   The list has one item per input tensor, typically only one.
 #'   The function should return a list of shapes of tensors that are created by the module.
 #'   The `shapes_in` are named after the input channels of the `PipeOp` and are in the same order.
-#'   The output shapes must be in the same order as the output names of the `PipeOp`.
+#'   The output shapes are named after or in the same order as the output names given during
+#'   construction, i.e. they include the outputs that are not among `$outputs`.
 #'   In case the output shapes depends on the task (as is the case for [`PipeOpTorchHead`]), the function should return
 #'   valid output shapes (possibly containing `NA`s) whether or not the `task` argument is provided.
 #'   Any dimension of `shapes_in` can be `NA`, i.e. unknown, so this method must not assume that a
@@ -72,6 +73,16 @@
 #'   "See also" links on its page.
 #'   There are also [`shape_helpers`], which provide the shape
 #'   arithmetic (broadcasting, resolving negative dimension indices).
+#' * `.module_outputs()`\cr
+#'   () -> `character()`\cr
+#'   The names of the outputs of the module that `.make_module()` creates, in the order in which it
+#'   returns them. By default, these are all output names given during construction.
+#'   A subclass whose module can leave out outputs that are not among `$outputs` (e.g. by not
+#'   computing attention weights) can override this to save computation. It must include `$outputs`.
+#' * `.additional_phash_input()`\cr
+#'   () -> `any`\cr
+#'   See [`PipeOp`][mlr3pipelines::PipeOp]. A subclass that overrides it must include the result of
+#'   `super$.additional_phash_input()`, which reflects `$outputs`.
 #' * `.shape_dependent_params(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`, [`Task`][mlr3::Task] or `NULL`) -> named `list()`\cr
 #'   This private method has the same inputs as `.shapes_out`.
@@ -231,7 +242,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
       private$.only_shape = FALSE
-      private$.outname = outname
+      private$.output_all = output
 
       super$initialize(
         id = id,
@@ -269,8 +280,13 @@ PipeOpTorch = R6Class("PipeOpTorch",
         names(shapes_in) = self$input$name
       }
       shapes_out = private$.shapes_out(shapes_in, self$param_set$get_values(), task = task)
-      # `.shapes_out()` describes everything the module returns, of which `$outputs` are kept
-      assert_shapes_out(shapes_out, self, private$.outname)[self$output$name]
+      # `.shapes_out()` describes all outputs of the module, by name or in their order, of which
+      # `$outputs` are kept
+      outname = private$.output_all$name
+      if (test_names(names(shapes_out), "unique") && test_set_equal(names(shapes_out), outname)) {
+        shapes_out = shapes_out[outname]
+      }
+      assert_shapes_out(shapes_out, self, outname)[self$output$name]
     }
   ),
   active = list(
@@ -286,39 +302,29 @@ PipeOpTorch = R6Class("PipeOpTorch",
       if (missing(rhs)) {
         return(self$output$name)
       }
-      assert_subset(rhs, private$.outname, empty.ok = FALSE, .var.name = "outputs")
-      self$output = data.table(name = intersect(private$.outname, rhs), train = "ModelDescriptor",
-        predict = "Task")
+      assert_subset(rhs, private$.output_all$name, empty.ok = FALSE, .var.name = "outputs")
+      self$output = private$.output_all[get("name") %in% rhs]
       invisible(self)
-    },
-    #' @field hash (`character(1)`)\cr
-    #'   The hash of the `PipeOp`, see [`PipeOp`][mlr3pipelines::PipeOp]. It reflects `$outputs`.
-    hash = function(rhs) {
-      assert_ro_binding(rhs)
-      private$.hash_outputs(super$hash)
-    },
-    #' @field phash (`character(1)`)\cr
-    #'   The hash of the `PipeOp` without its parameter values, see
-    #'   [`PipeOp`][mlr3pipelines::PipeOp]. It reflects `$outputs`.
-    phash = function(rhs) {
-      assert_ro_binding(rhs)
-      private$.hash_outputs(super$phash)
     }
   ),
   private = list(
-    # the names of all outputs of the module, of which `$outputs` are the output channels
-    .outname = NULL,
-    # subclasses override `.additional_phash_input()` without calling the parent method, so the
-    # selected outputs enter the hash here; the hash is unchanged when all outputs are kept
-    .hash_outputs = function(hash) {
-      if (identical(self$output$name, private$.outname)) {
-        return(hash)
-      }
-      calculate_hash(hash, self$output$name)
+    # the output table for all outputs of the module, of which `$outputs` are the output channels
+    .output_all = NULL,
+    # The outputs that the module built by `.make_module()` returns, in their order. They must
+    # include `$outputs`. A subclass that builds a module without the outputs that are left out
+    # overrides this.
+    .module_outputs = function() {
+      private$.output_all$name
+    },
+    # The selected outputs only enter the hash when some are left out, so that the hash of an
+    # operator that keeps all of them does not change. Subclasses that override this must include
+    # `super$.additional_phash_input()`.
+    .additional_phash_input = function() {
+      if (!identical(self$output$name, private$.output_all$name)) self$output$name
     },
     # keeps the elements of a list with one element per output of the module that are output channels
     .keep_outputs = function(x) {
-      x[match(self$output$name, private$.outname)]
+      x[match(self$output$name, private$.output_all$name)]
     },
     .shapes_out = function(shapes_in, param_vals, task) shapes_in,
     .shape_dependent_params = function(shapes_in, param_vals, task) param_vals,
@@ -349,8 +355,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
           id = self$id,
           module = module,
           inname = self$input$name,
-          # outputs that are not output channels are computed, but nothing reads them
-          outname = private$.outname,
+          # outputs that are not output channels may be computed, but nothing reads them
+          outname = private$.module_outputs(),
           packages = self$packages
         )
 

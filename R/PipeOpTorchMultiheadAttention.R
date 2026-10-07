@@ -155,7 +155,7 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
       switch(private$.mode, self = 1L, cross = 2L, general = 3L)
     },
     .additional_phash_input = function() {
-      list(private$.mode, private$.need_weights)
+      c(super$.additional_phash_input(), list(private$.mode, private$.need_weights))
     },
     # the shape of the key input, which for `mode == "self"` is the query itself
     .key_shape = function(shapes_in) {
@@ -213,8 +213,12 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
         param_vals$kdim = tail(shapes_in[[2L]], 1L)
         param_vals$vdim = tail(shapes_in[[private$.value_index()]], 1L)
       }
-      param_vals$need_weights = private$.need_weights
+      # the weights are only computed when they are among `$outputs`
+      param_vals$need_weights = "weights" %in% self$output$name
       param_vals
+    },
+    .module_outputs = function() {
+      if ("weights" %in% self$output$name) c("output", "weights") else "output"
     }
   )
 )

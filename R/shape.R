@@ -100,10 +100,10 @@ assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, 
 
 # The result of `.shapes_out()`, which the operator implements, is checked before it is coerced to
 # `integer()`: `as.integer()` would silently turn anything that is not a shape into `NA`s.
-assert_shapes_out = function(shapes, pipeop, channels = pipeop$output$name) {
+assert_shapes_out = function(shapes, pipeop, channels) {
   if (!test_list(shapes) || length(shapes) != length(channels)) {
-    stopf("The `$shapes_out()` of PipeOp with id '%s' must return a list of %i shape(s), one per output channel.", # nolint
-      pipeop$id, length(channels))
+    stopf("The `$shapes_out()` of PipeOp with id '%s' must return a list of %i shape(s), one per output of its module (%s).", # nolint
+      pipeop$id, length(channels), paste0(channels, collapse = ", "))
   }
   set_names(pmap(list(shapes, channels), function(shape, channel) {
     result = check_shape(shape)

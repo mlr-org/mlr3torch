@@ -51,6 +51,10 @@
 * The new field `$outputs` of `PipeOpTorch` restricts the output channels to a subset of the
   outputs of the wrapped module, e.g. `nn("max_pool2d", return_indices = TRUE, outputs = "indices")`,
   so outputs that are not needed no longer have to be connected to some other `PipeOp`.
+  `nn("max_pool*")`, `nn("adaptive_max_pool*")` and `nn("multihead_attention")` do not compute the
+  indices or attention weights when they are left out.
+  Subclasses of `PipeOpTorch` that override `.additional_phash_input()` must now include
+  `super$.additional_phash_input()`.
 * New layers: `nn("silu")`, `nn("softmin")`, `nn("log_softmax")`, `nn("softmax2d")`,
   `nn("dropout2d")`, `nn("dropout3d")`, `nn("group_norm")`, `nn("unflatten")` and
   `nn("adaptive_max_pool1d")` / `nn("adaptive_max_pool2d")` / `nn("adaptive_max_pool3d")`.
@@ -79,6 +83,9 @@
 
 ## Bug fixes
 
+* The hash of `nn("max_pool*")` now reflects `return_indices`.
+* `nn("block")` now copies the graph it is constructed from, so changing that graph afterwards no
+  longer changes the block.
 * Learners built from a graph via `po("torch_model_regr")` / `po("torch_model_classif")` now error
   when the predict task's factor levels differ from the train task's.
 * `nn("tokenizer_categ")` now always infers the cardinalities correctly.
