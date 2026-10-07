@@ -56,12 +56,7 @@
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
 * Added multihead attention and transformer encoder pipeops.
 * The new field `$outputs` of `PipeOpTorch` restricts the output channels to a subset of the
-  outputs of the wrapped module, e.g. `nn("max_pool2d", outputs = "indices")`,
-  so outputs that are not needed no longer have to be connected to some other `PipeOp`.
-  `nn("max_pool*")`, `nn("adaptive_max_pool*")` and `nn("multihead_attention")` do not compute the
-  indices or attention weights when they are left out.
-  Subclasses of `PipeOpTorch` that override `.additional_phash_input()` must now include
-  `super$.additional_phash_input()`.
+  outputs of the wrapped module.
 * New layers: `nn("silu")`, `nn("softmin")`, `nn("log_softmax")`, `nn("softmax2d")`,
   `nn("dropout2d")`, `nn("dropout3d")`, `nn("group_norm")`, `nn("unflatten")` and
   `nn("adaptive_max_pool1d")` / `nn("adaptive_max_pool2d")` / `nn("adaptive_max_pool3d")`.
