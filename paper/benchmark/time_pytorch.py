@@ -60,7 +60,9 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
     def train_run(epochs):
         for _ in range(epochs):
             for (x, y) in dataloader:
-                optimizer.zero_grad()
+                # Zero the gradients in place like (R) torch does by default, instead of freeing and re-allocating
+                # them in every step, which can be slow for large networks when PyTorch runs inside of R.
+                optimizer.zero_grad(set_to_none=False)
                 y_hat = net(x)
                 loss = loss_fn(y_hat, y)
                 loss.backward()
