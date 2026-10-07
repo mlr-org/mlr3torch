@@ -30,8 +30,8 @@ ContextTorch = R6Class("ContextTorch",
     #'   Measures used for validation.
     #' @param network ([`torch::nn_module`])\cr
     #'   The torch network.
-    #' @param optimizer ([`torch::optimizer`] or `NULL`)\cr
-    #'   The optimizer. It is `NULL` during `LearnerTorch`'s `.setup_training()`.
+    #' @param optimizer ([`torch::optimizer`])\cr
+    #'   The optimizer.
     #' @param loss_fn ([`torch::nn_module`])\cr
     #'   The loss function.
     #' @param total_epochs (`integer(1)`)\cr
@@ -90,8 +90,8 @@ ContextTorch = R6Class("ContextTorch",
     #' @field network ([`torch::nn_module`])\cr
     #'   The torch network.
     network = NULL,
-    #' @field optimizer ([`torch::optimizer`] or `NULL`)\cr
-    #'   The optimizer. It is `NULL` during `LearnerTorch`'s `.setup_training()`.
+    #' @field optimizer ([`torch::optimizer`])\cr
+    #'   The optimizer.
     optimizer = NULL,
     #' @field loss_fn ([`torch::nn_module`])\cr
     #'   The loss function.

@@ -735,6 +735,13 @@ LearnerTorch = R6Class("LearnerTorch",
           args[[param_name]] = param_val(dataset)
         }
       }
+      if (isTRUE(args$drop_last)) {
+        # otherwise, `drop_last` would drop all observations when the batch size exceeds their number
+        n = if (is.null(args$sampler)) length(dataset) else length(args$sampler)
+        if (n > 0L) {
+          args$batch_size = min(args$batch_size, n)
+        }
+      }
       invoke(dataloader, dataset = dataset, .args = args)
     },
     .dataloader_predict = function(dataset, param_vals) {

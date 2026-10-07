@@ -20,6 +20,9 @@
 
 ## Features
 
+* With `drop_last = TRUE`, `LearnerTorch` now caps the training batch size at the number of
+  training observations instead of dropping all of them.
+
 * New function `as_learner_torch()`, which converts a `Graph` of `PipeOpTorch` operators into a
   `Learner`. It's advantage over `as_learner()` is that the resulting learner exposes methods like
   `$network()` and `$dataset()`.

@@ -10,46 +10,10 @@ Holzmüller (2024).
 The learner implements the preprocessing, architecture and training recipe of the reference
 implementation.
 
-\strong{Preprocessing}:
-Numerical features are median-centered, divided by their interquartile range, smoothly clipped
-via \eqn{x / \sqrt{1 + (x / 3)^2}} and embedded with periodic embeddings, see \code{num_emb_type}.
-Categorical features with fewer than \code{max_one_hot_cat_size} levels are one-hot encoded
-(features with one or two levels in a single column) and then scaled like numerical features.
-All other categorical features get learned embeddings.
-The statistics are computed from the training data.
-
-\strong{Architecture}:
-An MLP with \code{n_hidden_layers} hidden layers of width \code{hidden_width}, whose first layer starts
-with a learned elementwise scaling.
-The linear layers use the neural tangent kernel parametrization and a data-dependent
-initialization. Each hidden layer is followed by a (parametric) activation and dropout.
-
-\strong{Training}:
-The learning rate, the dropout probability and the weight decay follow schedules.
-Parameters have different learning rate factors, e.g. the scaling layer is trained with
-\code{scale_lr_factor} times the learning rate.
-The optimizer receives one parameter group per combination of learning rate and weight decay
-factor, and its learning rate \code{opt.lr} is the base learning rate.
-The optimizer's \code{param_groups} parameter must therefore not be set, as the factors are matched
-to the groups by position.
-The weight decay is applied by the learner and should not be configured in the optimizer.
-Parameters that are frozen, e.g. by \code{t_clbk("unfreeze")}, are not decayed.
-Learning rate scheduler callbacks such as \code{t_clbk("lr_step")} cannot be used.
-For classification, the \code{cross_entropy} loss is used with label smoothing.
-For regression, prediction and target are standardized with the training target's mean and
-standard deviation before the loss is applied, and predictions are clamped to the range of the
-training target.
-
-\strong{Differences to the reference implementation}:
-The reference implementation trains on 80\% of the data and restores the epoch with the best
-validation score. To do the same, set \code{validate = 0.2}, \code{measures_valid} (e.g.
-\code{msr("classif.ce")}), \code{patience} to the number of epochs and \code{restore_best_weights = TRUE}.
-Missing values are not supported.
-
-Changed defaults of \code{\link{LearnerTorch}}: \code{epochs = 256}, \code{batch_size = 256},
-\code{batch_size_predict = 1024}, \code{drop_last = TRUE}, and the optimizer is \emph{adam} with
-\code{betas = c(0.9, 0.95)} and \code{lr = 0.04} (classification) or \code{lr = 0.2} (regression).
-With \code{drop_last = TRUE}, the batch size is capped at the number of training observations.
+It is a special learner, as it implements it's own learning rate scheduling per parameter group,
+as well as custom weight decay handling.
+Configuring a custom learning reate scheduler as a callback or setting the weight decay of
+an optimizer will therefore lead to unexpected results.
 }
 \section{Dictionary}{
 
@@ -75,6 +39,17 @@ lrn("regr.realmlp", ...)
 }
 
 \section{Parameters}{
+
+Changed defaults of \code{\link{LearnerTorch}}:
+\itemize{
+\item \code{epochs = 256}
+\item \code{batch_size = 256}
+\item \code{batch_size_predict = 1024}
+\item \code{drop_last = TRUE}
+and the optimizer is \emph{adam} with
+\item \code{betas = c(0.9, 0.95)}
+\item \code{lr = 0.04} (classification) or \code{lr = 0.2} (regression).
+}
 
 Parameters from \code{\link{LearnerTorch}}, as well as:
 \itemize{

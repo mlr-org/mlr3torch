@@ -120,6 +120,8 @@
 #'   Whether the dataloader copies tensors into CUDA pinned memory before returning them.
 #' * `drop_last` :: `logical(1)`\cr
 #'   Whether to drop the last training batch in each epoch during training. Default is `FALSE`.
+#'   If it is `TRUE`, the batch size is capped at the number of training observations, so that
+#'   not all of them are dropped.
 #'   It is ignored when a `batch_sampler` is provided.
 #' * `timeout` :: `numeric(1)`\cr
 #'   The timeout value for collecting a batch from workers.

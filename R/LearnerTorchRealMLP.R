@@ -3,19 +3,12 @@
 # Apache License 2.0). The defaults are those of `RealMLP_TD_CLASS` / `RealMLP_TD_REG` in
 # `models/sklearn/default_params.py`.
 #
-# Upstream behaviour that is kept although it may be surprising:
-#  * One-hot encoded features are median-centered, robustly scaled and clipped like numerical ones.
-#  * The decoupled weight decay multiplies a parameter by `1 - wd * lr * (wd_factor * lr_factor)^2`,
-#    i.e. the factors enter twice (`OptimizerBase.step()` in `models/optim/optimizers.py`).
-#
 # Deviations:
-#  * Binary classification returns the difference of the two logits.
-#  * Target standardization and label smoothing are implemented in the loss.
+#  * Binary classification returns the difference of the two logits. this is mathematically equivalent
+#    to predicting logit per class.
 #  * Missing values are not supported.
 #  * Weights are not rescaled when a pre-activation has zero standard deviation during the
 #    initialization (upstream produces non-finite weights).
-#  * The validation split and best-epoch selection of the sklearn interface, ensembles and
-#    calibration are not ported.
 
 realmlp_schedules = c("coslog4", "flat_cos", "cos", "linear", "constant")
 
@@ -573,48 +566,20 @@ realmlp_wrap_loss = function(loss_fn, task, loss, param_vals, learner_id) {
 #' The learner implements the preprocessing, architecture and training recipe of the reference
 #' implementation.
 #'
-#' **Preprocessing**:
-#' Numerical features are median-centered, divided by their interquartile range, smoothly clipped
-#' via \eqn{x / \sqrt{1 + (x / 3)^2}} and embedded with periodic embeddings, see `num_emb_type`.
-#' Categorical features with fewer than `max_one_hot_cat_size` levels are one-hot encoded
-#' (features with one or two levels in a single column) and then scaled like numerical features.
-#' All other categorical features get learned embeddings.
-#' The statistics are computed from the training data.
-#'
-#' **Architecture**:
-#' An MLP with `n_hidden_layers` hidden layers of width `hidden_width`, whose first layer starts
-#' with a learned elementwise scaling.
-#' The linear layers use the neural tangent kernel parametrization and a data-dependent
-#' initialization. Each hidden layer is followed by a (parametric) activation and dropout.
-#'
-#' **Training**:
-#' The learning rate, the dropout probability and the weight decay follow schedules.
-#' Parameters have different learning rate factors, e.g. the scaling layer is trained with
-#' `scale_lr_factor` times the learning rate.
-#' The optimizer receives one parameter group per combination of learning rate and weight decay
-#' factor, and its learning rate `opt.lr` is the base learning rate.
-#' The optimizer's `param_groups` parameter must therefore not be set, as the factors are matched
-#' to the groups by position.
-#' The weight decay is applied by the learner and should not be configured in the optimizer.
-#' Parameters that are frozen, e.g. by `t_clbk("unfreeze")`, are not decayed.
-#' Learning rate scheduler callbacks such as `t_clbk("lr_step")` cannot be used.
-#' For classification, the `cross_entropy` loss is used with label smoothing.
-#' For regression, prediction and target are standardized with the training target's mean and
-#' standard deviation before the loss is applied, and predictions are clamped to the range of the
-#' training target.
-#'
-#' **Differences to the reference implementation**:
-#' The reference implementation trains on 80% of the data and restores the epoch with the best
-#' validation score. To do the same, set `validate = 0.2`, `measures_valid` (e.g.
-#' `msr("classif.ce")`), `patience` to the number of epochs and `restore_best_weights = TRUE`.
-#' Missing values are not supported.
-#'
-#' Changed defaults of [`LearnerTorch`]: `epochs = 256`, `batch_size = 256`,
-#' `batch_size_predict = 1024`, `drop_last = TRUE`, and the optimizer is *adam* with
-#' `betas = c(0.9, 0.95)` and `lr = 0.04` (classification) or `lr = 0.2` (regression).
-#' With `drop_last = TRUE`, the batch size is capped at the number of training observations.
-#'
+#' It is a special learner, as it implements it's own learning rate scheduling per parameter group,
+#' as well as custom weight decay handling.
+#' Configuring a custom learning reate scheduler as a callback or setting the weight decay of
+#' an optimizer will therefore lead to unexpected results.
 #' @section Parameters:
+#' Changed defaults of [`LearnerTorch`]:
+#' * `epochs = 256`
+#' * `batch_size = 256`
+#' * `batch_size_predict = 1024`
+#' * `drop_last = TRUE`
+#' and the optimizer is *adam* with
+#' * `betas = c(0.9, 0.95)`
+#' * `lr = 0.04` (classification) or `lr = 0.2` (regression).
+#'
 #' Parameters from [`LearnerTorch`], as well as:
 #' * `n_hidden_layers` :: `integer(1)`\cr
 #'   The number of hidden layers. Default is `3`.
@@ -816,15 +781,6 @@ LearnerTorchRealMLP = R6Class("LearnerTorchRealMLP",
         p_drop_sched = param_vals$p_drop_sched
       )
       ctx$optimizer = self$optimizer$generate(ctx$network$param_groups())
-    },
-    # like upstream, the batch size is capped at the number of observations, as `drop_last` would
-    # otherwise drop all of them
-    .dataloader = function(dataset, param_vals) {
-      n = length(dataset)
-      if (isTRUE(param_vals$drop_last) && !is.null(param_vals$batch_size) && n > 0L) {
-        param_vals$batch_size = min(param_vals$batch_size, n)
-      }
-      super$.dataloader(dataset, param_vals)
     }
   )
 )

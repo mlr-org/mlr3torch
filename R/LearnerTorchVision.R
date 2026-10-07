@@ -103,15 +103,6 @@ LearnerTorchVision = R6Class("LearnerTorchVision",
       }
       invoke(private$.module_generator, pretrained = FALSE, num_classes = nout, .args = args)
     },
-    # With an enabled auxiliary classifier the network returns one prediction per classifier, so
-    # the loss that the user configured is wrapped instead of being applied directly. `aux_logits`
-    # only exists for the networks that have an auxiliary classifier, so this is a no-op otherwise.
-    .setup_training = function(ctx, param_vals) {
-      super$.setup_training(ctx, param_vals)
-      if (isTRUE(param_vals$aux_logits)) {
-        ctx$loss_fn = nn_aux_loss(ctx$loss_fn, aux_weight = param_vals$aux_weight %??% 0.4)
-      }
-    },
     .additional_phash_input = function() {
       list(private$.module_generator, private$.network_args)
     }
@@ -122,6 +113,17 @@ LearnerTorchVision = R6Class("LearnerTorchVision",
 LearnerTorchInceptionV3 = R6Class("LearnerTorchInceptionV3",
   inherit = LearnerTorchVision,
   private = list(
+    # With an enabled auxiliary classifier the network returns one prediction per classifier, so
+    # the loss that the user configured is wrapped instead of being applied directly.
+    .setup_training = function(ctx, param_vals) {
+      super$.setup_training(ctx, param_vals)
+      if (isTRUE(param_vals$aux_logits)) {
+        ctx$loss_fn = nn_aux_loss(
+          ctx$loss_fn,
+          aux_weight = param_vals$aux_weight %??% 0.4
+        )
+      }
+    },
     .encode_prediction = function(network_output, task) {
       if (is.list(network_output)) {
         network_output = network_output[[1L]]
@@ -433,7 +435,7 @@ torchvision_bib_keys = function(bib) {
 
 # Parameters that some of the networks have in addition to `pretrained`. `network_args` lists
 # those that are forwarded to the module generator, the remaining ones are interpreted by the
-# learner itself, see the `.network()` and `.setup_training()` methods of `LearnerTorchVision`.
+# learner itself, such as `aux_weight` in `LearnerTorchInceptionV3$.setup_training()`.
 # The learners that need more than `LearnerTorchVision` does; all others are registered with the
 # base class itself.
 torchvision_learner_classes = list(

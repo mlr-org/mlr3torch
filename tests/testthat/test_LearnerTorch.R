@@ -784,9 +784,72 @@ test_that("dataset works", {
 })
 
 test_that("error when dataloaders have length 0", {
-  learner = lrn("regr.torch_featureless", epochs = 1L, batch_size = 100, drop_last = TRUE)
+  empty_sampler = torch::sampler(
+    "EmptyBatchSampler",
+    initialize = function(data_source) NULL,
+    .iter = function() function() coro::exhausted(),
+    .length = function() 0L
+  )
+  learner = lrn(
+    "regr.torch_featureless",
+    epochs = 1L,
+    batch_sampler = empty_sampler
+  )
   task = tsk("mtcars")
   expect_error({learner$train(task)}, "has length 0") # nolint
+})
+
+test_that("drop_last caps the batch size at the number of observations", {
+  task = tsk("iris")
+  learner = lrn(
+    "classif.torch_featureless",
+    epochs = 1L,
+    batch_size = 64L,
+    drop_last = TRUE
+  )
+  ds = learner$dataset(task)
+  get_dl = function() {
+    get_private(learner)$.dataloader(
+      ds,
+      learner$param_set$get_values(tags = "train")
+    )
+  }
+  # the batch size is kept and the remaining 22 observations are dropped
+  dl = get_dl()
+  expect_equal(dl$batch_sampler$batch_size, 64L)
+  expect_length(dl, 2L)
+
+  # a batch size larger than the training set would drop all observations
+  learner$param_set$set_values(batch_size = 256L)
+  dl = get_dl()
+  expect_equal(dl$batch_sampler$batch_size, 150L)
+  expect_length(dl, 1L)
+
+  # the sampler determines the number of observations
+  first_20 = torch::sampler(
+    "First20Sampler",
+    initialize = function(data_source) NULL,
+    .iter = function() {
+      i = 0L
+      function() {
+        i <<- i + 1L
+        if (i > 20L) {
+          return(coro::exhausted())
+        }
+        i
+      }
+    },
+    .length = function() 20L
+  )
+  learner$param_set$set_values(sampler = first_20)
+  dl = get_dl()
+  expect_equal(dl$batch_sampler$batch_size, 20L)
+  learner$param_set$set_values(sampler = NULL)
+
+  learner$param_set$set_values(drop_last = FALSE, batch_size = 64L)
+  dl = get_dl()
+  expect_equal(dl$batch_sampler$batch_size, 64L)
+  expect_length(dl, 3L)
 })
 
 test_that("can set seed to NULL", {

@@ -52,8 +52,8 @@ Measures used for validation.}
     \item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The torch network.}
 
-    \item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}} or \code{NULL})\cr
-The optimizer. It is \code{NULL} during \code{LearnerTorch}'s \code{.setup_training()}.}
+    \item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}})\cr
+The optimizer.}
 
     \item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The loss function.}
@@ -164,8 +164,8 @@ Measures used for training. Default is \code{NULL}.}
 Measures used for validation.}
       \item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The torch network.}
-      \item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}} or \code{NULL})\cr
-The optimizer. It is \code{NULL} during \code{LearnerTorch}'s \code{.setup_training()}.}
+      \item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}})\cr
+The optimizer.}
       \item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The loss function.}
       \item{\code{total_epochs}}{(\code{integer(1)})\cr

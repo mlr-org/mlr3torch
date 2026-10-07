@@ -444,27 +444,6 @@ test_that("label smoothing requires the cross entropy loss", {
   expect_error(learner$train(tsk("iris")), regexp = NA)
 })
 
-test_that("the batch size is capped at the number of observations like upstream", {
-  task = tsk("iris")
-  learner = make_realmlp(batch_size = 64L)
-  ds = learner$dataset(task)
-  # like upstream, the batch size is kept and the remaining 22 observations are dropped
-  dl = get_private(learner)$.dataloader(ds, learner$param_set$get_values(tags = "train"))
-  expect_equal(dl$batch_sampler$batch_size, 64L)
-  expect_length(dl, 2L)
-
-  # a batch size larger than the training set would drop all observations
-  learner$param_set$set_values(batch_size = 256L)
-  dl = get_private(learner)$.dataloader(ds, learner$param_set$get_values(tags = "train"))
-  expect_equal(dl$batch_sampler$batch_size, 150L)
-  expect_length(dl, 1L)
-
-  learner$param_set$set_values(drop_last = FALSE, batch_size = 64L)
-  dl = get_private(learner)$.dataloader(ds, learner$param_set$get_values(tags = "train"))
-  expect_equal(dl$batch_sampler$batch_size, 64L)
-  expect_length(dl, 3L)
-})
-
 test_that("the defaults are those of RealMLP-TD", {
   learner = lrn("classif.realmlp")
   pv = learner$param_set$values

@@ -311,6 +311,8 @@ How to merge a list of samples to form a batch.
 Whether the dataloader copies tensors into CUDA pinned memory before returning them.
 \item \code{drop_last} :: \code{logical(1)}\cr
 Whether to drop the last training batch in each epoch during training. Default is \code{FALSE}.
+If it is \code{TRUE}, the batch size is capped at the number of training observations, so that
+not all of them are dropped.
 It is ignored when a \code{batch_sampler} is provided.
 \item \code{timeout} :: \code{numeric(1)}\cr
 The timeout value for collecting a batch from workers.
