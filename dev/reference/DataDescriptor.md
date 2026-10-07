@@ -218,13 +218,13 @@ dd
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,3,3)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.866f4b.x.output
+#> * pointer: nop.4015a5.x.output
 #> * shape: [(NA,3,3)]
 # is the same as using the converter:
 as_data_descriptor(ds, list(x = c(NA, 3, 3)))
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,3,3)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.866f4b.x.output
+#> * pointer: nop.4015a5.x.output
 #> * shape: [(NA,3,3)]
 ```

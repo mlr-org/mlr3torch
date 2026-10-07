@@ -130,7 +130,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>
+<ul><li>Learners built from a graph via <code>po("torch_model_regr")</code> / <code>po("torch_model_classif")</code> now error when the predict task’s factor levels differ from the train task’s.</li>
+<li>
 <code>nn("tokenizer_categ")</code> now always infers the cardinalities correctly.</li>
 <li>
 <code>lrn("classif.ft_transformer")</code> / <code>lrn("regr.ft_transformer")</code> now accept <code>ingress_tokens</code> with only <code>num.input</code> or only <code>categ.input</code>.</li>

@@ -128,7 +128,8 @@ Creates a new instance of this
 
   (`NULL` or [`character()`](https://rdrr.io/r/base/character.html))  
   The properties of the learner. Defaults to all available properties
-  for the given task type.
+  for the given task type, except for `"weights"`, `"new_levels"` and
+  `"missings"`.
 
 - `optimizer`:
 
@@ -235,7 +236,7 @@ learner$predict(task, ids$test)
 #>       12    setosa virginica
 #>       13    setosa virginica
 #>      ---       ---       ---
-#>      145 virginica virginica
-#>      146 virginica virginica
-#>      150 virginica virginica
+#>      145 virginica    setosa
+#>      146 virginica    setosa
+#>      150 virginica    setosa
 ```
