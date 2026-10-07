@@ -183,6 +183,10 @@ Then the parameters are set according to the parameters specified in \code{PipeO
 its \verb{$train()} method is called on the \code{\link[mlr3:Task]{Task}} stored in the \code{\link{ModelDescriptor}}.
 }
 
+\seealso{
+Other PipeOps:
+\code{\link{mlr_pipeops_nn_recurrent}}
+}
 \concept{PipeOps}
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3pipelines:PipeOpLearner]{mlr3pipelines::PipeOpLearner}} -> \code{PipeOpTorchModel}
