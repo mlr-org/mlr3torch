@@ -22,7 +22,8 @@
 #'   The feature types. Defaults to all available feature types.
 #' @param properties (`NULL` or `character()`)\cr
 #'   The properties of the learner.
-#'   Defaults to all available properties for the given task type.
+#'   Defaults to all available properties for the given task type, except for `"weights"`,
+#'   `"new_levels"` and `"missings"`.
 #' @section Parameters: See [`LearnerTorch`]
 #' @family Learner
 #' @family Graph Network
@@ -77,8 +78,11 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
         assert_subset(feature_types, mlr_reflections$task_feature_types)
       }
       if (is.null(properties)) {
-        # "weights" is opt-in
-        properties = setdiff(mlr_reflections$learner_properties[[task_type]], "weights")
+        # "weights" is opt-in. "new_levels" and "missings" are not claimed: the ingress operators
+        # encode factors by their level codes and cannot handle missing values, and claiming them
+        # would turn off mlr3's checks that the predict task matches the train task in this respect.
+        properties = setdiff(mlr_reflections$learner_properties[[task_type]],
+          c("weights", "new_levels", "missings"))
       } else {
         properties = assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
       }

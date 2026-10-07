@@ -104,6 +104,9 @@ PipeOpTorchHardSigmoid = R6Class("PipeOpTorchHardSigmoid",
 
 register_po("nn_hardsigmoid", PipeOpTorchHardSigmoid)
 
+# `nn_hardswish` is not wrapped: `torch::nnf_hardswish()`, which the module's forward method calls,
+# is a stub that raises "not yet implemented" as of torch 0.17.0.
+
 #' @title Hard Tanh Activation Function
 #'
 #' @inherit torch::nnf_hardtanh description
@@ -523,6 +526,42 @@ PipeOpTorchSigmoid = R6Class("PipeOpTorchSigmoid",
 )
 
 register_po("nn_sigmoid", PipeOpTorchSigmoid)
+
+#' @title SiLU Activation Function
+#'
+#' @inherit torch::nnf_silu description
+#' @section nn_module: Calls [`torch::nn_silu()`] when trained.
+#' @section Parameters:
+#' * `inplace` :: `logical(1)`\cr
+#'   Whether to do the operation in-place. Default: `FALSE`.
+#'
+#' @templateVar id nn_silu
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#' @export
+PipeOpTorchSiLU = R6Class("PipeOpTorchSiLU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_silu", param_vals = list()) {
+      param_set = ps(
+        inplace = p_lgl(default = FALSE, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_silu,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_silu", PipeOpTorchSiLU)
 
 #' @title SoftPlus Activation Function
 #'
