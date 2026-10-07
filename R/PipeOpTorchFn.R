@@ -71,12 +71,12 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         new_shapes = private$.shapes_out_fn(shapes_in = shapes_in, param_vals = param_vals, task = task)
         new_shapes = assert_shapes(assert_list(new_shapes), coerce = TRUE)
         if (!is.null(names(new_shapes))) {
-          assert_subset(names(new_shapes), self$output$name, empty.ok = FALSE)
+          assert_subset(names(new_shapes), private$.outname, empty.ok = FALSE)
         }
         return(new_shapes)
       }
 
-      infer_shapes(shapes_in = shapes_in, param_vals = param_vals, output_names = self$output$name, fn = private$.fn, rowwise = FALSE, id = self$id)
+      infer_shapes(shapes_in = shapes_in, param_vals = param_vals, output_names = private$.outname, fn = private$.fn, rowwise = FALSE, id = self$id)
     },
     .make_module = function(shapes_in, param_vals, task) {
       nn_module("nn_fn",

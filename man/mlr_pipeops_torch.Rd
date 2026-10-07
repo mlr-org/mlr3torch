@@ -237,6 +237,27 @@ Do not change this after construction.}
   }
   \if{html}{\out{</div>}}
 }
+\section{Active bindings}{
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{outputs}}{(\code{character()})\cr
+The output channels of the \code{PipeOp}, a subset of the outputs of the wrapped module.
+By default, there is one output channel for every output of the module.
+Restricting them leaves out the outputs that are not needed, which otherwise would have to
+be connected to some other \code{PipeOp} for the \code{\link[mlr3pipelines:Graph]{Graph}} to have a single
+output, e.g. \code{nn("max_pool2d", kernel_size = 2, return_indices = TRUE, outputs = "indices")}.
+The channels keep the order in which the module returns them.
+This must be set before the \code{PipeOp} is connected to other \code{PipeOp}s.}
+
+    \item{\code{hash}}{(\code{character(1)})\cr
+The hash of the \code{PipeOp}, see \code{\link[mlr3pipelines:PipeOp]{PipeOp}}. It reflects \verb{$outputs}.}
+
+    \item{\code{phash}}{(\code{character(1)})\cr
+The hash of the \code{PipeOp} without its parameter values, see
+\code{\link[mlr3pipelines:PipeOp]{PipeOp}}. It reflects \verb{$outputs}.}
+  }
+  \if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
   \itemize{
@@ -296,7 +317,8 @@ The names of the output channels, \code{"output"} by default. These will be the 
 generated \code{\link{PipeOpModule}} and therefore also the names of the list returned by its \verb{$train()}.
 In case there is more than one output channel, the \code{nn_module} that is constructed by this
 \code{\link[mlr3pipelines:PipeOp]{PipeOp}} during training must return a \code{list()} whose elements are in the
-order of the output channels.}
+order of the output channels.
+The field \verb{$outputs} can restrict the output channels to a subset of these.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{tags}}{(\code{character()})\cr

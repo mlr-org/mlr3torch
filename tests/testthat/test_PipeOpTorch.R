@@ -175,3 +175,74 @@ test_that("NA in second dimension", {
   expect_equal(net(torch_randn(1, 2, 3))$shape, c(1, 2, 10))
   expect_equal(net(torch_randn(2, 1, 3))$shape, c(2, 1, 10))
 })
+
+test_that("$outputs restricts the output channels to a subset of the module's outputs", {
+  po_pool = nn("max_pool1d", kernel_size = 2, return_indices = TRUE)
+  expect_equal(po_pool$outputs, c("output", "indices"))
+
+  po_pool$outputs = "indices"
+  expect_equal(po_pool$output$name, "indices")
+  shapes = po_pool$shapes_out(list(c(NA, 3, 10)))
+  expect_equal(names(shapes), "indices")
+  expect_equal(shapes$indices, c(NA, 3L, 5L))
+
+  # the channels keep the order of the module's outputs
+  po_pool$outputs = c("indices", "output")
+  expect_equal(po_pool$outputs, c("output", "indices"))
+
+  expect_error(po_pool$outputs <- "foo", "subset")
+  expect_error(po_pool$outputs <- character(0), "outputs")
+})
+
+test_that("$outputs can be set via nn() and po()", {
+  expect_equal(nn("max_pool1d", kernel_size = 2, return_indices = TRUE, outputs = "indices")$outputs, "indices")
+  expect_equal(po("nn_max_pool1d", kernel_size = 2, return_indices = TRUE, outputs = "indices")$outputs, "indices")
+})
+
+test_that("$outputs enters the hash only when outputs are left out", {
+  all_outputs = nn("max_pool1d", kernel_size = 2, return_indices = TRUE)
+  some_outputs = nn("max_pool1d", kernel_size = 2, return_indices = TRUE, outputs = "output")
+  expect_false(all_outputs$hash == some_outputs$hash)
+  expect_false(all_outputs$phash == some_outputs$phash)
+  some_outputs$outputs = c("output", "indices")
+  expect_equal(all_outputs$hash, some_outputs$hash)
+  expect_equal(all_outputs$phash, some_outputs$phash)
+})
+
+test_that("$outputs survives cloning", {
+  po_pool = nn("max_pool1d", kernel_size = 2, return_indices = TRUE, outputs = "indices")
+  expect_equal(po_pool$clone(deep = TRUE)$outputs, "indices")
+})
+
+test_that("a PipeOp with restricted outputs can be chained and trained", {
+  task = tsk("iris")
+  # without restricting the outputs, the weights of the attention would need to go somewhere
+  graph = po("torch_ingress_num") %>>% nn("unsqueeze", dim = 2) %>>%
+    nn("multihead_attention", num_heads = 1, need_weights = TRUE, outputs = "output") %>>%
+    nn("flatten") %>>% nn("head") %>>% po("torch_loss", "cross_entropy") %>>%
+    po("torch_optimizer", "adam") %>>% po("torch_model_classif", epochs = 1L, batch_size = 50L)
+  learner = as_learner(graph)
+  learner$train(task)
+  expect_class(learner$predict(task), "PredictionClassif")
+
+  # the network computes the output that was left out, but does not return it
+  md = (po("torch_ingress_num") %>>% nn("unsqueeze", dim = 2) %>>%
+    nn("multihead_attention", num_heads = 1, need_weights = TRUE, outputs = "output"))$train(task)
+  expect_length(md, 1L)
+  net = model_descriptor_to_module(md[[1L]])
+  expect_equal(net(torch_randn(2, 4))$shape, c(2, 1, 4))
+})
+
+test_that("$outputs works for a block", {
+  task = tsk("iris")
+  block = gunion(list(nn("linear_1", out_features = 3), nn("linear_2", out_features = 5)))
+  for (n_blocks in 0:1) {
+    po_block = po("nn_block", block = block, n_blocks = n_blocks, outputs = "linear_2.output")
+    expect_equal(po_block$output$name, "linear_2.output")
+    graph = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2"))) %>>% po_block
+    md = graph$train(task)
+    expect_length(md, 1L)
+    # with zero blocks, the block passes on its second input
+    expect_equal(md[[1L]]$pointer_shape, if (n_blocks) c(NA, 5L) else c(NA, 4L))
+  }
+})

@@ -218,6 +218,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'   In case there is more than one output channel, the `nn_module` that is constructed by this
     #'   [`PipeOp`][mlr3pipelines::PipeOp] during training must return a `list()` whose elements are in the
     #'   order of the output channels.
+    #'   The field `$outputs` can restrict the output channels to a subset of these.
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
       inname = "input", outname = "output", packages = "torch", tags = NULL) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
@@ -230,6 +231,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
       private$.only_shape = FALSE
+      private$.outname = outname
 
       super$initialize(
         id = id,
@@ -267,10 +269,57 @@ PipeOpTorch = R6Class("PipeOpTorch",
         names(shapes_in) = self$input$name
       }
       shapes_out = private$.shapes_out(shapes_in, self$param_set$get_values(), task = task)
-      assert_shapes_out(shapes_out, self)
+      # `.shapes_out()` describes everything the module returns, of which `$outputs` are kept
+      assert_shapes_out(shapes_out, self, private$.outname)[self$output$name]
+    }
+  ),
+  active = list(
+    #' @field outputs (`character()`)\cr
+    #'   The output channels of the `PipeOp`, a subset of the outputs of the wrapped module.
+    #'   By default, there is one output channel for every output of the module.
+    #'   Restricting them leaves out the outputs that are not needed, which otherwise would have to
+    #'   be connected to some other `PipeOp` for the [`Graph`][mlr3pipelines::Graph] to have a single
+    #'   output, e.g. `nn("max_pool2d", kernel_size = 2, return_indices = TRUE, outputs = "indices")`.
+    #'   The channels keep the order in which the module returns them.
+    #'   This must be set before the `PipeOp` is connected to other `PipeOp`s.
+    outputs = function(rhs) {
+      if (missing(rhs)) {
+        return(self$output$name)
+      }
+      assert_subset(rhs, private$.outname, empty.ok = FALSE, .var.name = "outputs")
+      self$output = data.table(name = intersect(private$.outname, rhs), train = "ModelDescriptor",
+        predict = "Task")
+      invisible(self)
+    },
+    #' @field hash (`character(1)`)\cr
+    #'   The hash of the `PipeOp`, see [`PipeOp`][mlr3pipelines::PipeOp]. It reflects `$outputs`.
+    hash = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.hash_outputs(super$hash)
+    },
+    #' @field phash (`character(1)`)\cr
+    #'   The hash of the `PipeOp` without its parameter values, see
+    #'   [`PipeOp`][mlr3pipelines::PipeOp]. It reflects `$outputs`.
+    phash = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.hash_outputs(super$phash)
     }
   ),
   private = list(
+    # the names of all outputs of the module, of which `$outputs` are the output channels
+    .outname = NULL,
+    # subclasses override `.additional_phash_input()` without calling the parent method, so the
+    # selected outputs enter the hash here; the hash is unchanged when all outputs are kept
+    .hash_outputs = function(hash) {
+      if (identical(self$output$name, private$.outname)) {
+        return(hash)
+      }
+      calculate_hash(hash, self$output$name)
+    },
+    # keeps the elements of a list with one element per output of the module that are output channels
+    .keep_outputs = function(x) {
+      x[match(self$output$name, private$.outname)]
+    },
     .shapes_out = function(shapes_in, param_vals, task) shapes_in,
     .shape_dependent_params = function(shapes_in, param_vals, task) param_vals,
     .make_module = function(shapes_in, param_vals, task) {
@@ -300,7 +349,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
           id = self$id,
           module = module,
           inname = self$input$name,
-          outname = self$output$name,
+          # outputs that are not output channels are computed, but nothing reads them
+          outname = private$.outname,
           packages = self$packages
         )
 
