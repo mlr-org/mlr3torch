@@ -104,7 +104,9 @@ classif_mlp2 = function() {
 setup_ctx_field = function(learner, task, field) {
   learner = learner$clone(deep = TRUE)
   value = NULL
-  spy = torch_callback("setup_spy", on_begin = function() value <<- self$ctx[[field]])
+  spy = torch_callback("setup_spy", on_begin = function() {
+    value <<- self$ctx[[field]]
+  })
   learner$callbacks = c(learner$callbacks, list(spy))
   learner$param_set$set_values(epochs = 0L)
   learner$train(task)
