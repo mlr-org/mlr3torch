@@ -27,7 +27,7 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
   ),
   private = list(
     .additional_phash_input = function() {
-      list(private$.d)
+      c(super$.additional_phash_input(), list(private$.d))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       # The first dimension is the batch dimension, so a convolution over `d` dimensions needs

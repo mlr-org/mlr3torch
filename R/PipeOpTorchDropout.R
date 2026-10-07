@@ -64,7 +64,7 @@ PipeOpTorchDropoutNd = R6Class("PipeOpTorchDropoutNd",
   private = list(
     .d = NULL,
     .additional_phash_input = function() {
-      list(private$.d)
+      c(super$.additional_phash_input(), list(private$.d))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       # torch accepts an input with one dimension too few, but only warns that it is guessing which

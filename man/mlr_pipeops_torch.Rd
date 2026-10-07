@@ -60,7 +60,8 @@ The \code{shapes_in} list indicates the shape of input tensors that will be fed 
 The list has one item per input tensor, typically only one.
 The function should return a list of shapes of tensors that are created by the module.
 The \code{shapes_in} are named after the input channels of the \code{PipeOp} and are in the same order.
-The output shapes must be in the same order as the output names of the \code{PipeOp}.
+It returns one shape per output name given during construction, in that order, regardless of
+\verb{$outputs}: the public \verb{$shapes_out()} keeps those of \verb{$outputs}.
 In case the output shapes depends on the task (as is the case for \code{\link{PipeOpTorchHead}}), the function should return
 valid output shapes (possibly containing \code{NA}s) whether or not the \code{task} argument is provided.
 Any dimension of \code{shapes_in} can be \code{NA}, i.e. unknown, so this method must not assume that a
@@ -77,6 +78,16 @@ There are various assertion helpers for common input checks, such as \code{\link
 "See also" links on its page.
 There are also \code{\link{shape_helpers}}, which provide the shape
 arithmetic (broadcasting, resolving negative dimension indices).
+\item \code{.module_outputs()}\cr
+() -> \code{character()}\cr
+The names of the outputs of the module that \code{.make_module()} creates, in the order in which it
+returns them. By default, these are all output names given during construction.
+A subclass whose module can leave out outputs that are not among \verb{$outputs} (e.g. by not
+computing attention weights) can override this to save computation. It must include \verb{$outputs}.
+\item \code{.additional_phash_input()}\cr
+() -> \code{any}\cr
+See \code{\link[mlr3pipelines:PipeOp]{PipeOp}}. A subclass that overrides it must include the result of
+\code{super$.additional_phash_input()}, which reflects \verb{$outputs}.
 \item \code{.shape_dependent_params(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
 This private method has the same inputs as \code{.shapes_out}.
@@ -237,6 +248,21 @@ Do not change this after construction.}
   }
   \if{html}{\out{</div>}}
 }
+\section{Active bindings}{
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{outputs}}{(\code{character()})\cr
+The output channels of the \code{PipeOp}, a subset of the outputs of the wrapped module.
+By default, there is one output channel for every output of the module, unless a subclass
+restricts them during construction, e.g. to leave out the indices of a max pooling.
+Restricting them leaves out the outputs that are not needed, which otherwise would have to
+be connected to some other \code{PipeOp} for the \code{\link[mlr3pipelines:Graph]{Graph}} to have a single
+output, e.g. \code{nn("max_pool2d", kernel_size = 2, outputs = "indices")}.
+The channels keep the order in which the module returns them.
+This must be set before the \code{PipeOp} is connected to other \code{PipeOp}s.}
+  }
+  \if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
   \itemize{
@@ -296,7 +322,8 @@ The names of the output channels, \code{"output"} by default. These will be the 
 generated \code{\link{PipeOpModule}} and therefore also the names of the list returned by its \verb{$train()}.
 In case there is more than one output channel, the \code{nn_module} that is constructed by this
 \code{\link[mlr3pipelines:PipeOp]{PipeOp}} during training must return a \code{list()} whose elements are in the
-order of the output channels.}
+order of the output channels.
+The field \verb{$outputs} can restrict the output channels to a subset of these.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{tags}}{(\code{character()})\cr
@@ -328,7 +355,7 @@ The task, which is very rarely used (default is \code{NULL}). An exception is \c
   }
   \subsection{Returns}{
     A named \code{list()} containing the output shapes. The names are the names of the output channels of
-the \code{PipeOp}.
+the \code{PipeOp}, i.e. \verb{$outputs}.
   }
 }
 

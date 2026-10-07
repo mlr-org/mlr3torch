@@ -45,7 +45,7 @@ Whether to add a new batch of zeros to the key and value sequences at dimension 
 Default is \code{FALSE}.
 \item \code{avg_weights} :: \code{logical(1)}\cr
 Whether the returned attention weights are averaged over the attention heads.
-Default is \code{TRUE}. Only has an effect when the construction argument \code{need_weights} is \code{TRUE}.
+Default is \code{TRUE}. Only has an effect when \code{"weights"} is among \verb{$outputs}.
 }
 
 Note that \code{embed_dim}, \code{kdim} and \code{vdim} are \emph{not} parameters, as they are inferred from the
@@ -65,13 +65,10 @@ i.e. the \code{PipeOp} performs \emph{self-attention}.
 \emph{cross-attention} with separate key and value inputs.
 }
 
-The number of output channels is determined by the construction argument \code{need_weights}:
-\itemize{
-\item \code{need_weights = FALSE} (default): one output channel \code{"output"}, containing the attention
-output.
-\item \code{need_weights = TRUE}: output channels \code{"output"} and \code{"weights"}, where the latter contains
-the attention weights.
-}
+The module has two outputs, \code{"output"}, containing the attention output, and \code{"weights"},
+containing the attention weights, of which only \code{"output"} is an output channel by default.
+Set \verb{$outputs} to also (or only) get the weights, e.g. \code{outputs = c("output", "weights")},
+which are only computed when they are among \verb{$outputs}.
 
 For an explanation see \code{\link{PipeOpTorch}}.
 }
@@ -124,7 +121,6 @@ Vaswani A, Shazeer N, Parmar N, Uszkoreit J, Jones L, Gomez A, Kaiser Ł, Polosu
     \preformatted{PipeOpTorchMultiheadAttention$new(
   id = "nn_multihead_attention",
   mode = "self",
-  need_weights = FALSE,
   param_vals = list()
 )}
     \if{html}{\out{</div>}}
@@ -140,13 +136,6 @@ The attention mode, which determines the input channels. One of \code{"self"}, \
 This is a \emph{construction} argument (and not a hyperparameter), because it determines the
 structure of the \code{\link[mlr3pipelines:Graph]{Graph}}.
 The default is \code{"self"}, which means that the \code{PipeOp} performs self-attention.
-See section \emph{Input and Output Channels} for more information.}
-      \item{\code{need_weights}}{(\code{logical(1)})\cr
-Whether the attention weights are returned in addition to the attention output, i.e. whether
-there is a second output channel \code{"weights"}.
-This is a \emph{construction} argument (and not a hyperparameter), because it determines the
-structure of the \code{\link[mlr3pipelines:Graph]{Graph}}.
-The default is \code{FALSE}, which means that only the attention output is returned.
 See section \emph{Input and Output Channels} for more information.}
       \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would

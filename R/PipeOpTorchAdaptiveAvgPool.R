@@ -19,7 +19,7 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
   ),
   private = list(
     .additional_phash_input = function() {
-      list(private$.d)
+      c(super$.additional_phash_input(), list(private$.d))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       # a pooling operator over `d` dimensions expects `(batch, channels, <d spatial dimensions>)`.
