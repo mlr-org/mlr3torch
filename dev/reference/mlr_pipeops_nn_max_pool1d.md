@@ -32,10 +32,11 @@ during training.
 
 ## Input and Output Channels
 
-If `return_indices` is `FALSE` during construction, there is one input
-channel 'input' and one output channel 'output'. If `return_indices` is
-`TRUE`, there are two output channels 'output' and 'indices'. For an
-explanation see
+There is one input channel `"input"`. The module has two outputs,
+`"output"` and `"indices"`, of which only `"output"` is an output
+channel by default. Set `$outputs` to also (or only) get the indices,
+e.g. `outputs = c("output", "indices")`, which are only computed when
+they are among `$outputs`. For an explanation see
 [`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md).
 
 ## State
@@ -74,11 +75,7 @@ Creates a new instance of this
 
 #### Usage
 
-    PipeOpTorchMaxPool1D$new(
-      id = "nn_max_pool1d",
-      return_indices = FALSE,
-      param_vals = list()
-    )
+    PipeOpTorchMaxPool1D$new(id = "nn_max_pool1d", param_vals = list())
 
 #### Arguments
 
@@ -86,12 +83,6 @@ Creates a new instance of this
 
   (`character(1)`)  
   Identifier of the resulting object.
-
-- `return_indices`:
-
-  (`logical(1)`)  
-  Whether to return the indices. If this is `TRUE`, there are two output
-  channels `"output"` and `"indices"`.
 
 - `param_vals`:
 

@@ -50,8 +50,8 @@ Layout*.
 
 - `avg_weights` :: `logical(1)`  
   Whether the returned attention weights are averaged over the attention
-  heads. Default is `TRUE`. Only has an effect when the construction
-  argument `need_weights` is `TRUE`.
+  heads. Default is `TRUE`. Only has an effect when `"weights"` is among
+  `$outputs`.
 
 Note that `embed_dim`, `kdim` and `vdim` are *not* parameters, as they
 are inferred from the shapes of the input tensors, and that
@@ -74,14 +74,11 @@ The number of input channels is determined by the construction argument
   i.e. the `PipeOp` performs *cross-attention* with separate key and
   value inputs.
 
-The number of output channels is determined by the construction argument
-`need_weights`:
-
-- `need_weights = FALSE` (default): one output channel `"output"`,
-  containing the attention output.
-
-- `need_weights = TRUE`: output channels `"output"` and `"weights"`,
-  where the latter contains the attention weights.
+The module has two outputs, `"output"`, containing the attention output,
+and `"weights"`, containing the attention weights, of which only
+`"output"` is an output channel by default. Set `$outputs` to also (or
+only) get the weights, e.g. `outputs = c("output", "weights")`, which
+are only computed when they are among `$outputs`.
 
 For an explanation see
 [`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md).
@@ -131,7 +128,6 @@ Creates a new instance of this
     PipeOpTorchMultiheadAttention$new(
       id = "nn_multihead_attention",
       mode = "self",
-      need_weights = FALSE,
       param_vals = list()
     )
 
@@ -151,18 +147,6 @@ Creates a new instance of this
   [`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html). The
   default is `"self"`, which means that the `PipeOp` performs
   self-attention. See section *Input and Output Channels* for more
-  information.
-
-- `need_weights`:
-
-  (`logical(1)`)  
-  Whether the attention weights are returned in addition to the
-  attention output, i.e. whether there is a second output channel
-  `"weights"`. This is a *construction* argument (and not a
-  hyperparameter), because it determines the structure of the
-  [`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html). The
-  default is `FALSE`, which means that only the attention output is
-  returned. See section *Input and Output Channels* for more
   information.
 
 - `param_vals`:

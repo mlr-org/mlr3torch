@@ -83,6 +83,7 @@
 <li>
 <code>measures_train</code> is now calculated from the complete output of the network instead of only its first tensor, which is passed to <code>.encode_prediction()</code> unchanged.</li>
 <li>The <code>num_interop_threads</code> parameter of <code>LearnerTorch</code> is no longer initialized to <code>1</code>, so torch’s default is left in place unless the parameter is set. Setting it to a value that torch can no longer apply is now an error instead of a warning.</li>
+<li>The construction argument <code>return_indices</code> of <code>nn("max_pool*")</code> was removed. The indices are now requested via the new field <code>$outputs</code>, e.g. <code>nn("max_pool2d", outputs = c("output", "indices"))</code>.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="features-development-version">Features<a class="anchor" aria-label="anchor" href="#features-development-version"></a></h3>
@@ -105,6 +106,7 @@
 <li><p>A network can now return a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors during training, which the loss is applied to. In <code>ContextTorch</code>, <code>$y_hats</code> is that complete output and <code>$y_hat</code> its first element.</p></li>
 <li><p>New parameter <code>batch_size_predict</code> for <code>LearnerTorch</code>, which overrides <code>batch_size</code> for prediction</p></li>
 <li><p>Added multihead attention and transformer encoder pipeops.</p></li>
+<li><p>The new field <code>$outputs</code> of <code>PipeOpTorch</code> restricts the output channels to a subset of the outputs of the wrapped module.</p></li>
 <li><p>New layers: <code>nn("silu")</code>, <code>nn("softmin")</code>, <code>nn("log_softmax")</code>, <code>nn("softmax2d")</code>, <code>nn("dropout2d")</code>, <code>nn("dropout3d")</code>, <code>nn("group_norm")</code>, <code>nn("unflatten")</code> and <code>nn("adaptive_max_pool1d")</code> / <code>nn("adaptive_max_pool2d")</code> / <code>nn("adaptive_max_pool3d")</code>.</p></li>
 <li><p>Any dimension of an input shape can now be unknown (<code>NA</code>), not only the batch dimension.</p></li>
 <li><p>Improved error messages during <code>PipeOpTorch</code>’s shape inference.</p></li>
@@ -123,7 +125,9 @@
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>Learners built from a graph via <code>po("torch_model_regr")</code> / <code>po("torch_model_classif")</code> now error when the predict task’s factor levels differ from the train task’s.</li>
+<ul><li>
+<code>nn("block")</code> now copies the graph it is constructed from, so changing that graph afterwards no longer changes the block.</li>
+<li>Learners built from a graph via <code>po("torch_model_regr")</code> / <code>po("torch_model_classif")</code> now error when the predict task’s factor levels differ from the train task’s.</li>
 <li>
 <code>nn("tokenizer_categ")</code> now always infers the cardinalities correctly.</li>
 <li>

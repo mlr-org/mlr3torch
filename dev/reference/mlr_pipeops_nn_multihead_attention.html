@@ -123,7 +123,7 @@ Whether to add a new batch of zeros to the key and value sequences at dimension 
 Default is <code>FALSE</code>.</p></li>
 <li><p><code>avg_weights</code> :: <code>logical(1)</code><br>
 Whether the returned attention weights are averaged over the attention heads.
-Default is <code>TRUE</code>. Only has an effect when the construction argument <code>need_weights</code> is <code>TRUE</code>.</p></li>
+Default is <code>TRUE</code>. Only has an effect when <code>"weights"</code> is among <code>$outputs</code>.</p></li>
 </ul><p>Note that <code>embed_dim</code>, <code>kdim</code> and <code>vdim</code> are <em>not</em> parameters, as they are inferred from the
 shapes of the input tensors, and that <code>batch_first</code> is <em>not</em> a parameter either, as it is fixed
 to <code>TRUE</code>, see section <em>Tensor Layout</em>.</p>
@@ -138,11 +138,11 @@ i.e. the <code>PipeOp</code> performs <em>self-attention</em>.</p></li>
 <em>cross-attention</em>, where the second input is used as both key and value.</p></li>
 <li><p><code>mode = "general"</code>: input channels <code>"query"</code>, <code>"key"</code> and <code>"value"</code>, i.e. the <code>PipeOp</code> performs
 <em>cross-attention</em> with separate key and value inputs.</p></li>
-</ul><p>The number of output channels is determined by the construction argument <code>need_weights</code>:</p><ul><li><p><code>need_weights = FALSE</code> (default): one output channel <code>"output"</code>, containing the attention
-output.</p></li>
-<li><p><code>need_weights = TRUE</code>: output channels <code>"output"</code> and <code>"weights"</code>, where the latter contains
-the attention weights.</p></li>
-</ul><p>For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>.</p>
+</ul><p>The module has two outputs, <code>"output"</code>, containing the attention output, and <code>"weights"</code>,
+containing the attention weights, of which only <code>"output"</code> is an output channel by default.
+Set <code>$outputs</code> to also (or only) get the weights, e.g. <code>outputs = c("output", "weights")</code>,
+which are only computed when they are among <code>$outputs</code>.</p>
+<p>For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
@@ -179,7 +179,6 @@ the attention weights.</p></li>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_pipeops_nn_multihead_attention.html">PipeOpTorchMultiheadAttention</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"nn_multihead_attention"</span>,</span>
 <span>  mode <span class="op">=</span> <span class="st">"self"</span>,</span>
-<span>  need_weights <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  param_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -195,15 +194,6 @@ The attention mode, which determines the input channels. One of <code>"self"</co
 This is a <em>construction</em> argument (and not a hyperparameter), because it determines the
 structure of the <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code>.
 The default is <code>"self"</code>, which means that the <code>PipeOp</code> performs self-attention.
-See section <em>Input and Output Channels</em> for more information.</p></dd>
-
-      <dt><code>need_weights</code></dt>
-<dd><p>(<code>logical(1)</code>)<br>
-Whether the attention weights are returned in addition to the attention output, i.e. whether
-there is a second output channel <code>"weights"</code>.
-This is a <em>construction</em> argument (and not a hyperparameter), because it determines the
-structure of the <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code>.
-The default is <code>FALSE</code>, which means that only the attention output is returned.
 See section <em>Input and Output Channels</em> for more information.</p></dd>
 
       <dt><code>param_vals</code></dt>

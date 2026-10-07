@@ -103,9 +103,10 @@ The target output size. Can be a single number or a vector.</p></li>
     <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
 
 
-<p>If <code>return_indices</code> is <code>FALSE</code> during construction, there is one input channel 'input' and one
-output channel 'output'.
-If <code>return_indices</code> is <code>TRUE</code>, there are two output channels 'output' and 'indices'.
+<p>There is one input channel <code>"input"</code>.
+The module has two outputs, <code>"output"</code> and <code>"indices"</code>, of which only <code>"output"</code> is an output
+channel by default. Set <code>$outputs</code> to also (or only) get the indices, e.g.
+<code>outputs = c("output", "indices")</code>, which are only computed when they are among <code>$outputs</code>.
 For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>.</p>
     </div>
     <div class="section level2">
@@ -130,7 +131,6 @@ For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></c
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_pipeops_nn_adaptive_max_pool2d.html">PipeOpTorchAdaptiveMaxPool2D</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"nn_adaptive_max_pool2d"</span>,</span>
-<span>  return_indices <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  param_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -138,11 +138,6 @@ For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></c
 <p></p><div class="arguments"><dl><dt><code>id</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 Identifier of the resulting  object.</p></dd>
-
-      <dt><code>return_indices</code></dt>
-<dd><p>(<code>logical(1)</code>)<br>
-Whether to return the indices.
-If this is <code>TRUE</code>, there are two output channels <code>"output"</code> and <code>"indices"</code>.</p></dd>
 
       <dt><code>param_vals</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>

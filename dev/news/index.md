@@ -30,6 +30,9 @@
   initialized to `1`, so torch’s default is left in place unless the
   parameter is set. Setting it to a value that torch can no longer apply
   is now an error instead of a warning.
+- The construction argument `return_indices` of `nn("max_pool*")` was
+  removed. The indices are now requested via the new field `$outputs`,
+  e.g. `nn("max_pool2d", outputs = c("output", "indices"))`.
 
 ### Features
 
@@ -104,6 +107,9 @@
 
 - Added multihead attention and transformer encoder pipeops.
 
+- The new field `$outputs` of `PipeOpTorch` restricts the output
+  channels to a subset of the outputs of the wrapped module.
+
 - New layers: `nn("silu")`, `nn("softmin")`, `nn("log_softmax")`,
   `nn("softmax2d")`, `nn("dropout2d")`, `nn("dropout3d")`,
   `nn("group_norm")`, `nn("unflatten")` and `nn("adaptive_max_pool1d")`
@@ -157,6 +163,8 @@
 
 ### Bug fixes
 
+- `nn("block")` now copies the graph it is constructed from, so changing
+  that graph afterwards no longer changes the block.
 - Learners built from a graph via `po("torch_model_regr")` /
   `po("torch_model_classif")` now error when the predict task’s factor
   levels differ from the train task’s.

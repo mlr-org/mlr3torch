@@ -99,9 +99,10 @@ methods, or overload `private$.make_module()`.
   tensor, typically only one. The function should return a list of
   shapes of tensors that are created by the module. The `shapes_in` are
   named after the input channels of the `PipeOp` and are in the same
-  order. The output shapes must be in the same order as the output names
-  of the `PipeOp`. In case the output shapes depends on the task (as is
-  the case for
+  order. It returns one shape per output name given during construction,
+  in that order, regardless of `$outputs`: the public `$shapes_out()`
+  keeps those of `$outputs`. In case the output shapes depends on the
+  task (as is the case for
   [`PipeOpTorchHead`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_head.md)),
   the function should return valid output shapes (possibly containing
   `NA`s) whether or not the `task` argument is provided. Any dimension
@@ -121,6 +122,22 @@ methods, or overload `private$.make_module()`.
   [`shape_helpers`](https://mlr3torch.mlr-org.com/dev/reference/shape_helpers.md),
   which provide the shape arithmetic (broadcasting, resolving negative
   dimension indices).
+
+- `.module_outputs()`  
+  () -\> [`character()`](https://rdrr.io/r/base/character.html)  
+  The names of the outputs of the module that `.make_module()` creates,
+  in the order in which it returns them. By default, these are all
+  output names given during construction. A subclass whose module can
+  leave out outputs that are not among `$outputs` (e.g. by not computing
+  attention weights) can override this to save computation. It must
+  include `$outputs`.
+
+- `.additional_phash_input()`  
+  () -\> `any`  
+  See
+  [`PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html). A
+  subclass that overrides it must include the result of
+  `super$.additional_phash_input()`, which reflects `$outputs`.
 
 - `.shape_dependent_params(shapes_in, param_vals, task)`  
   ([`list()`](https://rdrr.io/r/base/list.html),
@@ -254,6 +271,23 @@ Other Graph Network:
   overwritten, see section 'Inheriting'. Do not change this after
   construction.
 
+## Active bindings
+
+- `outputs`:
+
+  ([`character()`](https://rdrr.io/r/base/character.html))  
+  The output channels of the `PipeOp`, a subset of the outputs of the
+  wrapped module. By default, there is one output channel for every
+  output of the module, unless a subclass restricts them during
+  construction, e.g. to leave out the indices of a max pooling.
+  Restricting them leaves out the outputs that are not needed, which
+  otherwise would have to be connected to some other `PipeOp` for the
+  [`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html) to
+  have a single output, e.g.
+  `nn("max_pool2d", kernel_size = 2, outputs = "indices")`. The channels
+  keep the order in which the module returns them. This must be set
+  before the `PipeOp` is connected to other `PipeOp`s.
+
 ## Methods
 
 ### Public methods
@@ -340,7 +374,8 @@ Creates a new instance of this
   [`PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
   during training must return a
   [`list()`](https://rdrr.io/r/base/list.html) whose elements are in the
-  order of the output channels.
+  order of the output channels. The field `$outputs` can restrict the
+  output channels to a subset of these.
 
 - `packages`:
 
@@ -385,7 +420,7 @@ task.
 
 A named [`list()`](https://rdrr.io/r/base/list.html) containing the
 output shapes. The names are the names of the output channels of the
-`PipeOp`.
+`PipeOp`, i.e. `$outputs`.
 
 ------------------------------------------------------------------------
 
@@ -438,8 +473,8 @@ network
 x = torch_tensor(as.matrix(task$data(1:2, task$feature_names)))
 with_no_grad(network(torch_ingress_num.input = x))
 #> torch_tensor
-#>  0.2722 -0.0845  1.6325
-#>  0.2621 -0.1075  1.5473
+#> -0.2421  0.0417 -0.0225
+#> -0.2067  0.0524  0.0141
 #> [ CPUFloatType{2,3} ]
 
 

@@ -173,7 +173,8 @@ The <code>shapes_in</code> list indicates the shape of input tensors that will b
 The list has one item per input tensor, typically only one.
 The function should return a list of shapes of tensors that are created by the module.
 The <code>shapes_in</code> are named after the input channels of the <code>PipeOp</code> and are in the same order.
-The output shapes must be in the same order as the output names of the <code>PipeOp</code>.
+It returns one shape per output name given during construction, in that order, regardless of
+<code>$outputs</code>: the public <code>$shapes_out()</code> keeps those of <code>$outputs</code>.
 In case the output shapes depends on the task (as is the case for <code><a href="mlr_pipeops_nn_head.html">PipeOpTorchHead</a></code>), the function should return
 valid output shapes (possibly containing <code>NA</code>s) whether or not the <code>task</code> argument is provided.
 Any dimension of <code>shapes_in</code> can be <code>NA</code>, i.e. unknown, so this method must not assume that a
@@ -188,6 +189,16 @@ architectures.</p>
 "See also" links on its page.
 There are also <code><a href="shape_helpers.html">shape_helpers</a></code>, which provide the shape
 arithmetic (broadcasting, resolving negative dimension indices).</p></li>
+<li><p><code>.module_outputs()</code><br>
+() -&gt; <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
+The names of the outputs of the module that <code>.make_module()</code> creates, in the order in which it
+returns them. By default, these are all output names given during construction.
+A subclass whose module can leave out outputs that are not among <code>$outputs</code> (e.g. by not
+computing attention weights) can override this to save computation. It must include <code>$outputs</code>.</p></li>
+<li><p><code>.additional_phash_input()</code><br>
+() -&gt; <code>any</code><br>
+See <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code>. A subclass that overrides it must include the result of
+<code>super$.additional_phash_input()</code>, which reflects <code>$outputs</code>.</p></li>
 <li><p><code>.shape_dependent_params(shapes_in, param_vals, task)</code><br>
 (<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code> or <code>NULL</code>) -&gt; named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 This private method has the same inputs as <code>.shapes_out</code>.
@@ -282,6 +293,22 @@ Do not change this after construction.</p></dd>
 </dl><p></p></div>
     </div>
     <div class="section level2">
+    <h2 id="active-bindings">Active bindings<a class="anchor" aria-label="anchor" href="#active-bindings"></a></h2>
+    <p></p><div class="r6-active-bindings"><dl><dt><code>outputs</code></dt>
+<dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
+The output channels of the <code>PipeOp</code>, a subset of the outputs of the wrapped module.
+By default, there is one output channel for every output of the module, unless a subclass
+restricts them during construction, e.g. to leave out the indices of a max pooling.
+Restricting them leaves out the outputs that are not needed, which otherwise would have to
+be connected to some other <code>PipeOp</code> for the <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code> to have a single
+output, e.g. <code>nn("max_pool2d", kernel_size = 2, outputs = "indices")</code>.
+The channels keep the order in which the module returns them.
+This must be set before the <code>PipeOp</code> is connected to other <code>PipeOp</code>s.</p></dd>
+
+
+</dl><p></p></div>
+    </div>
+    <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
@@ -341,7 +368,8 @@ The names of the output channels, <code>"output"</code> by default. These will b
 generated <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code> and therefore also the names of the list returned by its <code>$train()</code>.
 In case there is more than one output channel, the <code>nn_module</code> that is constructed by this
 <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code> during training must return a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> whose elements are in the
-order of the output channels.</p></dd>
+order of the output channels.
+The field <code>$outputs</code> can restrict the output channels to a subset of these.</p></dd>
 
       <dt><code>packages</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
@@ -377,7 +405,7 @@ The task, which is very rarely used (default is <code>NULL</code>). An exception
 </div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>A named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> containing the output shapes. The names are the names of the output channels of
-the <code>PipeOp</code>.</p>
+the <code>PipeOp</code>, i.e. <code>$outputs</code>.</p>
 </div>
 
 </div>
@@ -435,8 +463,8 @@ the <code>PipeOp</code>.</p>
 <span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">task</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">task</span><span class="op">$</span><span class="va">feature_names</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/with_no_grad.html" class="external-link">with_no_grad</a></span><span class="op">(</span><span class="fu">network</span><span class="op">(</span>torch_ingress_num.input <span class="op">=</span> <span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2722 -0.0845  1.6325</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2621 -0.1075  1.5473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2421  0.0417 -0.0225</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2067  0.0524  0.0141</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,3} ]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
