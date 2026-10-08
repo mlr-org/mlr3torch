@@ -2,7 +2,8 @@
 
 Supports FROM (printed as a comment), ENV, ARG, COPY (from /build/context), RUN and CMD (ignored).
 Each RUN is executed with `sh -c`, like Docker; the build stops at the first failing step.
-ENV values are exported and appended to /etc/environment, which enroot reads when the container starts.
+ENV values are exported during the build and appended to /etc/environment at the end (which enroot reads when the
+container starts). Writing them earlier would differ from Docker, e.g. the locales package reads LANG from there.
 """
 import shlex
 import sys
@@ -22,6 +23,7 @@ for line in lines:
     cur = ""
 
 out = ["#!/bin/bash", "set -e", "cd /", ""]
+env_keys = []
 for ins in instructions:
     cmd, _, rest = ins.strip().partition(" ")
     cmd = cmd.upper()
@@ -32,7 +34,7 @@ for ins in instructions:
             k, _, v = kv.partition("=")
             out.append(f'export {k}="{v}"')
             if cmd == "ENV":
-                out.append(f'echo "{k}=${{{k}}}" >> /etc/environment')
+                env_keys.append(k)
     elif cmd == "COPY":
         src, dst = rest.split()
         out.append(f"cp -r /build/context/{src} {dst}")
@@ -43,5 +45,7 @@ for ins in instructions:
         continue
     else:
         sys.exit(f"unsupported instruction: {cmd}")
+for k in dict.fromkeys(env_keys):
+    out.append(f'echo "{k}=${{{k}}}" >> /etc/environment')
 out.append("echo '##### BUILD DONE'")
 print("\n".join(out))
