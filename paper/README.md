@@ -32,7 +32,8 @@ At the time of writing, the images are also hosted on dockerhub, but this is not
 [https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general](https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general)
 
 The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
-Note that the CPU `Dockerfile` additionally installs `mlr3torch` from GitHub (a pinned commit, see the `MLR3TORCH_REF` argument), as well as the dependency updates this requires.
+Note that both `Dockerfile`s additionally install `mlr3torch` from GitHub (a pinned commit, see the `MLR3TORCH_REF` argument), as well as the dependency updates this requires.
+On systems without docker (e.g. a Slurm cluster with enroot), the CUDA image can be built with `paper/envs/build_gpu_image_enroot.sh`, which replays the steps of the `Dockerfile` (translated by `paper/envs/dockerfile2sh.py`) in an enroot container.
 
 When downloading the image from zenodo, you can register them with docker as follows:
 
