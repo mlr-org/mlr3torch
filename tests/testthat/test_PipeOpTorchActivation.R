@@ -366,6 +366,22 @@ test_that("PipeOpTorchSoftmax paramtest", {
 })
 
 
+# PipeOpTorchSiLU
+
+test_that("PipeOpTorchSiLU autotest", {
+  po_test = po("nn_silu")
+  graph = po("torch_ingress_num") %>>% po_test
+  task = tsk("iris")
+
+  expect_pipeop_torch(graph, "nn_silu", task)
+})
+
+test_that("PipeOpTorchSiLU paramtest", {
+  res = expect_paramset(po("nn_silu"), nn_silu)
+  expect_paramtest(res)
+})
+
+
 # PipeOpTorchSoftSign
 
 test_that("PipeOpTorchSoftSign autotest", {
@@ -400,7 +416,7 @@ test_that("PipeOpTorchHardTanh paramtest", {
 
 elementwise_activations = c("nn_celu", "nn_elu", "nn_gelu", "nn_hardshrink", "nn_hardsigmoid",
   "nn_hardtanh", "nn_leaky_relu", "nn_log_sigmoid", "nn_relu", "nn_relu6", "nn_selu", "nn_sigmoid",
-  "nn_softplus", "nn_softshrink", "nn_softsign", "nn_tanh", "nn_tanhshrink")
+  "nn_silu", "nn_softplus", "nn_softshrink", "nn_softsign", "nn_tanh", "nn_tanhshrink")
 
 test_that("shape inference matches the operator for the elementwise activations", {
   for (id in elementwise_activations) {

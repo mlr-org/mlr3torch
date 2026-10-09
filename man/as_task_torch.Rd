@@ -19,8 +19,8 @@ The names of the target columns.
 The id of the task.}
 
 \item{...}{(any)\cr
-Further arguments passed to \code{\link{TaskTorch}}\verb{$new()}, such as \code{output_dim}, \code{default_encoder}
-or \code{default_measure}.}
+Further arguments passed to \code{\link{TaskTorch}}\verb{$new()}, such as \code{output_dim}, \code{default_encoder},
+\code{default_target_batchgetter} or \code{default_measure}.}
 }
 \value{
 \code{\link{TaskTorch}}

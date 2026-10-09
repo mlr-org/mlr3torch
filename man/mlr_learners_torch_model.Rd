@@ -49,6 +49,7 @@ Other Learner:
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
+\code{\link{mlr_learners.realmlp}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.tabm}},
 \code{\link{mlr_learners.torch_featureless}},
@@ -143,7 +144,8 @@ A list with ingress tokens that defines how the dataloader will be defined.}
 The task type.}
       \item{\code{properties}}{(\code{NULL} or \code{character()})\cr
 The properties of the learner.
-Defaults to all available properties for the given task type.}
+Defaults to all available properties for the given task type, except for \code{"weights"},
+\code{"new_levels"} and \code{"missings"}.}
       \item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The torch optimizer.}
       \item{\code{loss}}{(\code{\link{TorchLoss}})\cr
@@ -162,7 +164,7 @@ Converts the target columns of a batch into the target tensor \code{y} that the 
 Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}} with only the target columns,
 and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
 target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
-If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide, but a \code{\link{TaskTorch}} only if it has no target at all, in which case the batches have no \code{y} element.}
+If \code{NULL} (default), it is taken from the task via \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}, which the built-in task types provide, and a \code{\link{TaskTorch}} only if it has a \code{default_target_batchgetter} or no target at all, in which case the batches have no \code{y} element.}
       \item{\code{predict_types}}{(\code{character()})\cr
 The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}

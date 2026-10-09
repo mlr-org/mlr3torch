@@ -373,5 +373,19 @@ bibentries = c(# nolint start
     booktitle = "Proceedings of the European Conference on Computer Vision (ECCV)",
     pages     = "459--479",
     year      = "2022"
+  ),
+  holzmueller2024better = bibentry("inproceedings",
+    title     = "Better by Default: Strong Pre-Tuned MLPs and Boosted Trees on Tabular Data",
+    author    = c(
+      person("David", "Holzm\u00fcller"),
+      person("L\u00e9o", "Grinsztajn"),
+      person("Ingo", "Steinwart")
+    ),
+    booktitle = "Advances in Neural Information Processing Systems (NeurIPS)",
+    volume    = "37",
+    year      = "2024",
+    eprint    = "2407.04491",
+    archivePrefix = "arXiv",
+    primaryClass  = "cs.LG"
   )
 ) # nolint end

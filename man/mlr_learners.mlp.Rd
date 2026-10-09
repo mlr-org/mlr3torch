@@ -90,6 +90,7 @@ Other Learner:
 \code{\link[=as_learner_torch]{as_learner_torch()}},
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.module}},
+\code{\link{mlr_learners.realmlp}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.tabm}},
 \code{\link{mlr_learners.torch_featureless}},

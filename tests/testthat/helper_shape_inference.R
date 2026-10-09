@@ -91,7 +91,7 @@ na_patterns = function(rank) {
 expect_shape_case = function(shape, inferred_shape, true_shape, label) {
   shape = as.integer(shape)
   # Both sides report one shape per output channel, so every channel is compared: an operator such
-  # as `nn_multihead_attention` with `need_weights = TRUE` computes its second shape separately and
+  # as `nn_multihead_attention` with `"weights"` among its outputs computes its second shape separately and
   # would otherwise go unchecked. The inferred shapes are named after the output channels and the
   # ground truth is not, so the comparison is on the shapes alone, in channel order.
   shapes_of = function(x) unname(map(x, as.integer))

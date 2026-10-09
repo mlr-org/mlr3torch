@@ -17,8 +17,13 @@
 * The `num_interop_threads` parameter of `LearnerTorch` is no longer initialized to `1`, so torch's
   default is left in place unless the parameter is set. Setting it to a value that torch can no
   longer apply is now an error instead of a warning.
+* The construction argument `return_indices` of `nn("max_pool*")` was removed. The indices are now
+  requested via the new field `$outputs`, e.g. `nn("max_pool2d", outputs = c("output", "indices"))`.
 
 ## Features
+
+* With `drop_last = TRUE`, `LearnerTorch` now caps the training batch size at the number of
+  training observations instead of dropping all of them.
 
 * New function `as_learner_torch()`, which converts a `Graph` of `PipeOpTorch` operators into a
   `Learner`. It's advantage over `as_learner()` is that the resulting learner exposes methods like
@@ -29,6 +34,8 @@
   i.e. both the features `x` and the target `y`.
 * Added support for `TaskTorch` to easily go beyond the regression and classification setting,
   see the *Custom Learning Problems* article for more information.
+  A `TaskTorch` can define a `default_target_batchgetter`, which is used whenever the learner
+  does not specify a `target_batchgetter` itself.
 * A network can now return a `list()` of tensors in evaluation mode, which is passed to
   `encode_prediction()` as it is, so a prediction can consist of more than one quantity.
 * New function `pipeop_torch()` that simplifies the creation of `PipeOpTorch` classes.
@@ -38,14 +45,22 @@
 * `LearnerTorch` now implements `$best_valid_scores`.
 * Most `LearnerTorchVision` are now `jittable`.
 * Ported the `TabM` tabular learner from Python.
-* `LearnerTorch` now has `.loss_fn(task, param_vals)` private method that allows
-  to customize the construction of the loss function.
+* Ported the `RealMLP` tabular learner from Python.
+* `LearnerTorch` now has a private `.setup_training(ctx, param_vals)` method that allows subclasses
+  to customize a training run, e.g. to wrap the loss, create the optimizer from parameter groups or
+  add callbacks.
 * `LearnerTorch` now has `restore_best_weights` parameter that can be used when
    early stopping is active.
 * A network can now return a `list()` of tensors during training, which the loss is applied to.
   In `ContextTorch`, `$y_hats` is that complete output and `$y_hat` its first element.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
 * Added multihead attention and transformer encoder pipeops.
+* The new field `$outputs` of `PipeOpTorch` restricts the output channels to a subset of the
+  outputs of the wrapped module.
+* New layers: `nn("silu")`, `nn("softmin")`, `nn("log_softmax")`, `nn("softmax2d")`,
+  `nn("dropout2d")`, `nn("dropout3d")`, `nn("group_norm")`, `nn("unflatten")` and
+  `nn("adaptive_max_pool1d")` / `nn("adaptive_max_pool2d")` / `nn("adaptive_max_pool3d")`.
+* Added the recurrent layers `nn("rnn")`, `nn("lstm")` and `nn("gru")`.
 * Any dimension of an input shape can now be unknown (`NA`), not only the batch dimension.
 * Improved error messages during `PipeOpTorch`'s shape inference.
 * The `shape` parameter of `nn("reshape")` can now be a `function(shape)` of the input shape.
@@ -71,13 +86,20 @@
 
 ## Bug fixes
 
+* `nn("block")` now copies the graph it is constructed from, so changing that graph afterwards no
+  longer changes the block.
+* Learners built from a graph via `po("torch_model_regr")` / `po("torch_model_classif")` now error
+  when the predict task's factor levels differ from the train task's.
+* `nn("tokenizer_categ")` now always infers the cardinalities correctly.
+* `lrn("classif.ft_transformer")` / `lrn("regr.ft_transformer")` now accept `ingress_tokens` with only
+  `num.input` or only `categ.input`.
 * `lrn("classif.torch_model")` / `lrn("regr.torch_model")` no longer change their `$hash` when they
   are trained.
 * Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
 * `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
-    sometimes doubles like `NA`).
+    sometimes logicals like `NA`).
 * `po("torch_model_classif")` and `po("torch_model_regr")` now have the correct
   `$packages`.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training.

@@ -88,7 +88,7 @@ expressed by returning one tensor per quantity, which the prediction encoding co
 In both cases the complete output is what the rest of the learner works with:
 \itemize{
 \item The loss is applied to it. Because the configured loss expects a single tensor, a learner
-whose network returns a list has to wrap it by overloading \code{.loss_fn()}, see the list of
+whose network returns a list has to wrap it in \code{.setup_training()}, see the list of
 methods below. \code{\link{ContextTorch}} makes the output available as \code{ctx$y_hats}.
 \item The prediction is encoded from it, both when predicting and when calculating the training and
 validation scores, so \code{.encode_prediction()} always receives the complete network output. Such
@@ -266,24 +266,17 @@ Note that the final model is stored in the learner, not the best model, unless
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
-If this is set, the epoch after which no improvement was observed, can be accessed via the \verb{$internal_tuned_values}
-field of the learner, and the validation scores of that epoch via its \verb{$best_valid_scores} field.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
 \item \code{restore_best_weights} :: \code{logical(1)}\cr
 Whether to restore the weights of the best epoch when training ends, instead of keeping those
 of the last epoch that was trained. Like \code{min_delta}, this only has an effect when early stopping
-is active, i.e. when \code{patience} is greater than \code{0}.
+is active.
 Is initialized to \code{FALSE}, i.e. the network of the last
 epoch is stored. Setting this to \code{TRUE} makes the stored network the one of the epoch that
 \verb{$internal_tuned_values} reports, and costs one additional copy of the network's parameters in
-memory. Because \verb{$internal_valid_scores} describes the network that is stored, it then reports
-the scores of the best epoch, i.e. the same scores as \verb{$best_valid_scores} -- except on a
-resumed run that never beats the score its checkpoint had already reached, which remembers no
-weights to restore and so still ends on those of its last epoch.
-Checkpoints written by \code{t_clbk("checkpoint")} are unaffected: they always hold the
-network as training left it.
+memory.
 }
 
 \strong{Dataloader}:
@@ -318,6 +311,8 @@ How to merge a list of samples to form a batch.
 Whether the dataloader copies tensors into CUDA pinned memory before returning them.
 \item \code{drop_last} :: \code{logical(1)}\cr
 Whether to drop the last training batch in each epoch during training. Default is \code{FALSE}.
+If it is \code{TRUE}, the batch size is capped at the number of training observations, so that
+not all of them are dropped.
 It is ignored when a \code{batch_sampler} is provided.
 \item \code{timeout} :: \code{numeric(1)}\cr
 The timeout value for collecting a batch from workers.
@@ -359,14 +354,29 @@ is trained by the learner.
 Note that a specific output shape is expected from the returned network, see section \emph{Network Head and Target Encoding}.
 That section also describes when a network can return more than one tensor.
 You can use \code{\link[=output_dim_for]{output_dim_for()}} to obtain the correct output dimension for a given task.
-\item \code{.loss_fn(task, param_vals)}\cr
-(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:nn_module]{nn_module}}\cr
-Construct the loss that is applied to the output of the network.
-The default implementation generates the loss that was configured by the user, i.e.
-\code{self$loss$generate(task)}.
-Overload this if the network returns more than one prediction and the configured loss has to
-be wrapped, see the \code{aux_logits} parameter of
+\item \code{.setup_training(ctx, param_vals)}\cr
+(\code{\link{ContextTorch}}, \code{list()}) -> \code{NULL}\cr
+Customizes a training run by modifying the context in place; the default does nothing.
+It is called once the data loaders, the network and the configured loss
+(\code{self$loss$generate(task)}) are created, and before training (or resuming) starts.
+At this point, \code{ctx$optimizer} is \code{NULL} and \code{ctx$callbacks} contains the configured callbacks.
+The method may:
+\itemize{
+\item replace \code{ctx$network}. This is also the network that is used for prediction.
+\item replace \code{ctx$loss_fn}, e.g. to wrap the configured loss when the network returns more than
+one prediction, see the \code{aux_logits} parameter of
 \code{\link[=mlr_learners.torchvision]{classif.inception_v3}}.
+\item set \code{ctx$optimizer}, e.g. to \code{self$optimizer$generate(groups)} with parameter groups for
+parameter-specific learning rates. Otherwise, the optimizer is generated from the final
+\code{ctx$network} afterwards. Use \code{self$optimizer$generate()}, so that the optimizer's parameters
+(including \code{param_groups}) are respected, and set the optimizer after replacing the network.
+\item add callbacks to \code{ctx$callbacks}. The configured callbacks may not be removed or replaced, and
+the id \code{"early_stopping"} is reserved.
+}
+
+Call \code{super$.setup_training(ctx, param_vals)} first. The method must be deterministic given
+\code{param_vals}, so that resuming from a checkpoint can restore the optimizer and callback states.
+With \code{jit_trace = TRUE}, \code{ctx$network} is already traced.
 \item \code{.ingress_tokens(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> named \code{list()} with \code{\link{TorchIngressToken}}s\cr
 Create the \code{\link{TorchIngressToken}}s that are passed to the \code{\link{task_dataset}} constructor.
@@ -435,6 +445,7 @@ Other Learner:
 \code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
+\code{\link{mlr_learners.realmlp}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.tabm}},
 \code{\link{mlr_learners.torch_featureless}},
@@ -461,29 +472,14 @@ The torch optimizer.}
 List of torch callbacks.
 The ids will be set as the names.}
 
-    \item{\code{internal_valid_scores}}{Retrieves the internal validation scores of the epoch that the stored network comes from, as a
-named \code{list()}.
-This is the \emph{last} epoch, unless \code{restore_best_weights} is \code{TRUE} and the best weights were
-actually restored, in which case it is the \emph{best} epoch and these scores are the same as
-\verb{$best_valid_scores}.
-A resumed run whose epochs never beat the score its checkpoint had already reached remembers
-no weights to restore, so the two fields describe different epochs even then.
+    \item{\code{internal_valid_scores}}{Retrieves the internal validation scores of the current network as a named \code{list()}.
+This is the \emph{last} epoch, unless \code{restore_best_weights} is \code{TRUE}.
 Specify the \verb{$validate} field and the \code{measures_valid} parameter to configure this.
 Returns \code{NULL} if learner is not trained yet.}
 
     \item{\code{best_valid_scores}}{Retrieves the internal validation scores of the \emph{best} epoch as a named \code{list()}.
-This is the epoch that is also reported via \verb{$internal_tuned_values}, i.e. the epoch with the best
-score of the first validation measure.
-Unless \code{restore_best_weights} is \code{TRUE}, the trained network is the one after the last epoch,
-so this can differ from \verb{$internal_valid_scores}.
-Tracking the best epoch requires early stopping to be active (\code{patience > 0}), so this is an
-empty list when it is not, as well as when the learner was trained without validation data --
-no early stopping callback runs in either case, and the two are not told apart.
-Returns \code{NULL} if the learner is not trained yet, and also when the model was not stored:
-unlike \verb{$internal_valid_scores}, this is not part of the \code{Learner} contract that \code{mlr3}
-snapshots into \verb{$state}, so it can only be read back off the model.
-After a \code{resample()} or \code{benchmark()} with \code{store_models = FALSE} it is therefore \code{NULL}
-even though \verb{$internal_tuned_values} still names the epoch it would describe.}
+Only available when doing early stopping.
+Note that \emph{best} here means with respect to the metric that was used for early stopping.}
 
     \item{\code{internal_tuned_values}}{When early stopping is active, this returns a named list with the early-stopped epochs,
 otherwise an empty list is returned.

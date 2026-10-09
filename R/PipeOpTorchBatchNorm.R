@@ -31,7 +31,7 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
     .min_dim = NULL,
     .max_dim = NULL,
     .additional_phash_input = function() {
-      list(private$.min_dim, private$.max_dim)
+      c(super$.additional_phash_input(), list(private$.min_dim, private$.max_dim))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       # the number of dimensions is checked first, so that a shape that is too short is not

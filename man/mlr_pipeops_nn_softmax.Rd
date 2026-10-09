@@ -41,7 +41,7 @@ pipeop$param_set
 \dontshow{\}) # examplesIf}
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{PipeOpTorch}} -> \code{PipeOpTorchSoftmax}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{PipeOpTorch}} -> \code{PipeOpTorchSoftmaxDim} -> \code{PipeOpTorchSoftmax}
 }
 \section{Methods}{
 \subsection{Public methods}{

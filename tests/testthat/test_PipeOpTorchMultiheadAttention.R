@@ -9,7 +9,8 @@ test_that("PipeOpTorchMultiheadAttention works for self-attention", {
 
 test_that("PipeOpTorchMultiheadAttention paramtest", {
   po_attention = po("nn_multihead_attention", num_heads = 2)
-  # embed_dim, kdim and vdim are inferred from the input shapes, need_weights is a construction arg
+  # embed_dim, kdim and vdim are inferred from the input shapes, need_weights is set according
+  # to `$outputs`
   res = expect_paramset(po_attention, nn_attention,
     exclude = c("embed_dim", "kdim", "vdim", "need_weights", "batch_first"))
   expect_paramtest(res)
@@ -31,32 +32,29 @@ test_that("PipeOpTorchMultiheadAttention mode determines the input channels", {
   expect_error(po("nn_multihead_attention", mode = "bogus"), "mode")
 })
 
-test_that("PipeOpTorchMultiheadAttention need_weights determines the output channels", {
+test_that("PipeOpTorchMultiheadAttention returns the weights only when requested", {
   po1 = po("nn_multihead_attention", num_heads = 2)
   expect_equal(po1$output$name, "output")
 
-  po2 = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
+  po2 = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2)
   expect_equal(po2$output$name, c("output", "weights"))
 
-  # need_weights is a construction argument and not a hyperparameter
   expect_true("need_weights" %nin% po1$param_set$ids())
-
-  expect_error(po("nn_multihead_attention", need_weights = 2), "need_weights")
 })
 
-test_that("PipeOpTorchMultiheadAttention mode and need_weights influence the phash", {
+test_that("PipeOpTorchMultiheadAttention mode and outputs influence the phash", {
   po1 = po("nn_multihead_attention", num_heads = 2)
   po2 = po("nn_multihead_attention", mode = "cross", num_heads = 2)
   po3 = po("nn_multihead_attention", mode = "general", num_heads = 2)
-  po4 = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
-  po5 = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2)
+  po4 = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2)
+  po5 = po("nn_multihead_attention", mode = "cross", outputs = c("output", "weights"), num_heads = 2)
 
   hashes = c(po1$phash, po2$phash, po3$phash, po4$phash, po5$phash)
   expect_equal(length(unique(hashes)), 5L)
 
   expect_equal(po1$phash, po("nn_multihead_attention", num_heads = 2)$phash)
   expect_equal(po5$phash,
-    po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2)$phash)
+    po("nn_multihead_attention", mode = "cross", outputs = c("output", "weights"), num_heads = 2)$phash)
 })
 
 test_that("PipeOpTorchMultiheadAttention shapes_out for the output channel", {
@@ -91,7 +89,7 @@ test_that("PipeOpTorchMultiheadAttention shapes_out for the output channel", {
 test_that("PipeOpTorchMultiheadAttention shapes_out propagates unknown sequence lengths", {
   # the batch dimension is not the only one that can be unknown, so an unknown sequence length
   # must propagate into both the output and the weights
-  po_bf = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
+  po_bf = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2)
   expect_equal(
     po_bf$shapes_out(list(c(3, NA, 4))),
     list(output = c(3, NA, 4), weights = c(3, NA, NA))
@@ -103,17 +101,17 @@ test_that("PipeOpTorchMultiheadAttention shapes_out propagates unknown sequence 
   )
 
   # an unknown key sequence stays unknown even when add_bias_kv/add_zero_attn extend it
-  po_bias = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
+  po_bias = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2,
     add_bias_kv = TRUE, add_zero_attn = TRUE)
   expect_equal(po_bias$shapes_out(list(c(3, NA, 4)))$weights, c(3, NA, NA))
 
   # cross-attention: query and key sequences are tracked separately
-  po_cross = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2)
+  po_cross = po("nn_multihead_attention", mode = "cross", outputs = c("output", "weights"), num_heads = 2)
   expect_equal(po_cross$shapes_out(list(c(3, 5, 4), c(3, NA, 4)))$weights, c(3, 5, NA))
   expect_equal(po_cross$shapes_out(list(c(3, NA, 4), c(3, 7, 4)))$weights, c(3, NA, 7))
 
   # the head dimension is known even when both sequence lengths are not
-  po_noavg = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
+  po_noavg = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2,
     avg_weights = FALSE)
   expect_equal(po_noavg$shapes_out(list(c(3, NA, 4)))$weights, c(3, 2, NA, NA))
 })
@@ -121,14 +119,14 @@ test_that("PipeOpTorchMultiheadAttention shapes_out propagates unknown sequence 
 test_that("PipeOpTorchMultiheadAttention shapes_out for the weights channel", {
   # Averaged over the heads (the default), the weights are
   # (batch, query_sequence, key_sequence).
-  po_bf = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
+  po_bf = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2)
   expect_equal(
     po_bf$shapes_out(list(c(NA, 5, 4))),
     list(output = c(NA, 5, 4), weights = c(NA, 5, 5))
   )
 
   # not averaged: (batch, num_heads, query_sequence, key_sequence)
-  po_noavg = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
+  po_noavg = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2,
     avg_weights = FALSE)
   expect_equal(
     po_noavg$shapes_out(list(c(NA, 5, 4))),
@@ -136,22 +134,22 @@ test_that("PipeOpTorchMultiheadAttention shapes_out for the weights channel", {
   )
 
   # cross-attention: the key sequence length comes from the key input
-  po_cross = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2)
+  po_cross = po("nn_multihead_attention", mode = "cross", outputs = c("output", "weights"), num_heads = 2)
   expect_equal(
     po_cross$shapes_out(list(c(NA, 5, 4), c(NA, 7, 4))),
     list(output = c(NA, 5, 4), weights = c(NA, 5, 7))
   )
 
   # add_bias_kv and add_zero_attn each add one to the key sequence length
-  po_bias = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
+  po_bias = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2,
     add_bias_kv = TRUE)
   expect_equal(po_bias$shapes_out(list(c(NA, 5, 4)))$weights, c(NA, 5, 6))
 
-  po_zero = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
+  po_zero = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2,
     add_zero_attn = TRUE)
   expect_equal(po_zero$shapes_out(list(c(NA, 5, 4)))$weights, c(NA, 5, 6))
 
-  po_both = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
+  po_both = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2,
     add_bias_kv = TRUE, add_zero_attn = TRUE)
   expect_equal(po_both$shapes_out(list(c(NA, 5, 4)))$weights, c(NA, 5, 7))
 })
@@ -170,8 +168,8 @@ test_that("PipeOpTorchMultiheadAttention self-attention forward works", {
   expect_equal(out$shape, c(3, 1, 4))
 })
 
-test_that("PipeOpTorchMultiheadAttention with need_weights = TRUE returns output and weights", {
-  po_attention = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
+test_that("PipeOpTorchMultiheadAttention with the weights as output returns output and weights", {
+  po_attention = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2)
   shapes_in = list(input = c(NA, 5, 4))
   module = po_attention$.__enclos_env__$private$.make_module(
     shapes_in, po_attention$param_set$get_values(), NULL
@@ -187,11 +185,11 @@ test_that("PipeOpTorchMultiheadAttention with need_weights = TRUE returns output
   )
 })
 
-test_that("PipeOpTorchMultiheadAttention with need_weights = TRUE works inside a graph", {
+test_that("PipeOpTorchMultiheadAttention with the weights as output works inside a graph", {
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>%
     po("nn_unsqueeze", dim = 2) %>>%
-    po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
+    po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2)
 
   mds = graph$train(task)
   expect_equal(length(mds), 2L)
@@ -201,8 +199,8 @@ test_that("PipeOpTorchMultiheadAttention with need_weights = TRUE works inside a
   expect_equal(mds[[2L]]$pointer[[2L]], "weights")
 })
 
-test_that("PipeOpTorchMultiheadAttention with need_weights = TRUE and avg_weights = FALSE", {
-  po_attention = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2,
+test_that("PipeOpTorchMultiheadAttention with the weights as output and avg_weights = FALSE", {
+  po_attention = po("nn_multihead_attention", outputs = c("output", "weights"), num_heads = 2,
     avg_weights = FALSE)
   shapes_in = list(input = c(NA, 5, 4))
   module = po_attention$.__enclos_env__$private$.make_module(
@@ -283,17 +281,17 @@ test_that("shape inference matches the operator", {
 })
 
 test_that("shape inference matches the operator for the weights channel", {
-  # with `need_weights` the operator has a second output channel whose shape is computed separately,
+  # with the weights, the operator has a second output channel whose shape is computed separately,
   # and `avg_weights` decides whether the heads are averaged into it
   for (avg in c(TRUE, FALSE)) {
     expect_shape_inference("nn_multihead_attention",
-      list(need_weights = TRUE, num_heads = 2L, avg_weights = avg),
+      list(outputs = c("output", "weights"), num_heads = 2L, avg_weights = avg),
       shapes = list(c(2, 5, 8), c(1, 1, 4)), generators = gen_shape(3L))
     expect_shape_inference("nn_multihead_attention",
-      list(mode = "cross", need_weights = TRUE, num_heads = 2L, avg_weights = avg),
+      list(mode = "cross", outputs = c("output", "weights"), num_heads = 2L, avg_weights = avg),
       shapes = c(2, 5, 8), generators = gen_shape(3L), n_in = 2L)
     expect_shape_inference("nn_multihead_attention",
-      list(mode = "general", need_weights = TRUE, num_heads = 2L, avg_weights = avg),
+      list(mode = "general", outputs = c("output", "weights"), num_heads = 2L, avg_weights = avg),
       shapes = c(2, 5, 8), generators = gen_shape(3L), n_in = 3L)
   }
 })
