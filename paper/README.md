@@ -107,7 +107,7 @@ To run the CPU benchmarks (using the CPU docker image) on linux, run:
 Rscript benchmark/linux-cpu.R
 ```
 
-The CPU benchmark is run both with a single thread (batch size 32, latent dimensions 100, 200 and 400) and with 16 threads (batch size 256, latent dimensions 400, 800 and 1600), see the `n_threads` and `batch_size` columns of the results.
+The CPU benchmark uses batch size 32 and is run both with a single thread (latent dimensions 100, 200 and 400) and with 16 threads (latent dimensions 800, 1600 and 3200), see the `n_threads` column of the results.
 The machine should therefore have at least 16 physical cores and should not be used by other processes during the benchmark.
 
 To run the benchmark that compares "ignite" with standard optimizers (using the CUDA docker image) on linux, run:

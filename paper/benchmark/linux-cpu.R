@@ -13,14 +13,14 @@ setup(
   here()
 )
 
-make_design = function(n_threads, batch_size, latent) {
+make_design = function(n_threads, latent) {
   expand.grid(
     list(
       n = N,
       p = P,
       epochs = EPOCHS,
       optimizer = c("sgd", "adamw"),
-      batch_size = batch_size,
+      batch_size = 32L,
       device = "cpu",
       n_layers = c(0L, 4L, 8L, 12L, 16L),
       latent = latent,
@@ -30,11 +30,10 @@ make_design = function(n_threads, batch_size, latent) {
   )
 }
 
-# Single-threaded with a small batch size, and multi-threaded with a larger batch size and wider networks,
-# as multi-threading does not pay off for cheap computations.
+# Multi-threaded with wider networks, as multi-threading does not pay off for cheap computations.
 problem_design = rbind(
-  make_design(n_threads = 1L, batch_size = 32L, latent = c(100L, 200L, 400L)),
-  make_design(n_threads = 16L, batch_size = 256L, latent = c(400L, 800L, 1600L))
+  make_design(n_threads = 1L, latent = c(100L, 200L, 400L)),
+  make_design(n_threads = 16L, latent = c(800L, 1600L, 3200L))
 )
 
 addExperiments(
