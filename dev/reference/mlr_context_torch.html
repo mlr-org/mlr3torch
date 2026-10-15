@@ -172,11 +172,6 @@ If <code><a href="mlr_learners_torch.html">LearnerTorch</a></code> sets <code>ev
 that don't evaluate the model.</p></dd>
 
 
-    <dt><code>last_loss</code></dt>
-<dd><p>(<code>numeric(1)</code>)<br>
-The loss from the last trainings batch.</p></dd>
-
-
     <dt><code>y_hat</code></dt>
 <dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>)<br>
 The network's output for the current batch, or its first element if the network returns
@@ -228,6 +223,17 @@ what <code><a href="mlr_callback_set.checkpoint.html">CallbackSetCheckpoint</a><
     <dt><code>device</code></dt>
 <dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/torch_device.html" class="external-link">torch::torch_device</a></code>)<br>
 The device.</p></dd>
+
+
+</dl><p></p></div>
+    </div>
+    <div class="section level2">
+    <h2 id="active-bindings">Active bindings<a class="anchor" aria-label="anchor" href="#active-bindings"></a></h2>
+    <p></p><div class="r6-active-bindings"><dl><dt><code>last_loss</code></dt>
+<dd><p>(<code>numeric(1)</code>)<br>
+The loss from the last training batch.
+The training loop stores the (detached) loss tensor and it is only converted to a number
+when this field is accessed, which avoids synchronizing the device in every step.</p></dd>
 
 
 </dl><p></p></div>

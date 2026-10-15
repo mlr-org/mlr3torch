@@ -466,8 +466,8 @@ network
 x = torch_tensor(as.matrix(task$data(1:2, task$feature_names)))
 with_no_grad(network(torch_ingress_num.input = x))
 #> torch_tensor
-#>  0.8128  0.2215 -0.7315
-#>  0.7971  0.2970 -0.6574
+#> -1.3124  0.3861  0.8865
+#> -1.2403  0.3901  0.8301
 #> [ CPUFloatType{2,3} ]
 
 

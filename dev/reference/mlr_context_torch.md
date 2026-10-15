@@ -99,11 +99,6 @@ Other Callback:
   sets `eval_freq` different from `1`, this is `NULL` in all epochs that
   don't evaluate the model.
 
-- `last_loss`:
-
-  (`numeric(1)`)  
-  The loss from the last trainings batch.
-
 - `y_hat`:
 
   ([`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html))  
@@ -163,6 +158,16 @@ Other Callback:
 
   ([`torch::torch_device`](https://torch.mlverse.org/docs/reference/torch_device.html))  
   The device.
+
+## Active bindings
+
+- `last_loss`:
+
+  (`numeric(1)`)  
+  The loss from the last training batch. The training loop stores the
+  (detached) loss tensor and it is only converted to a number when this
+  field is accessed, which avoids synchronizing the device in every
+  step.
 
 ## Methods
 

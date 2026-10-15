@@ -360,7 +360,7 @@ desc
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,1)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.92213a.x.output
+#> * pointer: nop.eba39d.x.output
 #> * shape: [(NA,1)]
 ```
 
@@ -409,7 +409,7 @@ unclass(lt[[1]])
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,1)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.92213a.x.output
+#> * pointer: nop.eba39d.x.output
 #> * shape: [(NA,1)]
 ```
 
@@ -466,10 +466,10 @@ descout$graph
 #> ── Graph with 2 PipeOps: ───────────────────────────────────────────────────────
 #>            ID         State sccssors    prdcssors
 #>        <char>        <char>   <char>       <char>
-#>  nop.92213a.x        <list>   poly.x             
-#>        poly.x <<UNTRAINED>>          nop.92213a.x
+#>  nop.eba39d.x        <list>   poly.x             
+#>        poly.x <<UNTRAINED>>          nop.eba39d.x
 #> 
-#> ── Pipeline: <INPUT> -> nop.92213a.x -> poly.x -> <OUTPUT>
+#> ── Pipeline: <INPUT> -> nop.eba39d.x -> poly.x -> <OUTPUT>
 ```
 
 We see that the `$graph` has a new pipeop with id `"poly.x"` and the
