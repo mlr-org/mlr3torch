@@ -1,41 +1,12 @@
 #' ```{r setup, include=FALSE}
 #' knitr::opts_chunk$set(cache = FALSE)
 #' ```
-
-# Some setup code
 Sys.time()
 options(mlr3torch.cache = TRUE)
 lgr::get_logger("mlr3")$set_threshold("warn")
-library("mlr3")
-set.seed(42)
-task <- tsk("mtcars")
-learner <- lrn("regr.rpart")
-split <- partition(task, ratio = 2/3)
-learner$train(task, split$train)
-pred <- learner$predict(task, split$test)
-pred$score(msr("regr.rmse"))
-
-# mlr3pipelines
-library("mlr3pipelines")
-graph_learner <- as_learner(po("pca") %>>% lrn("regr.rpart"))
-
-resampling <- rsmp("cv", folds = 3)
-rr <- resample(task, graph_learner, resampling)
-rr$aggregate(msr("regr.rmse"))
-
-# torch
-library("torch")
-torch_manual_seed(42)
-x <- torch_tensor(1, device = "cpu")
-w <- torch_tensor(2, requires_grad = TRUE, device = "cpu")
-y <- w * x
-y$backward()
-w$grad
-
-# 3. Building Blocks
-
-# 3.1 Data representation
 library("mlr3torch")
+set.seed(42)
+torch_manual_seed(42)
 mnist <- tsk("mnist")
 mnist
 
@@ -48,8 +19,7 @@ po_flat <- po("trafo_reshape", shape = c(-1, 28 * 28))
 mnist_flat <- po_flat$train(list(mnist))[[1L]]
 mnist_flat$head(2)
 
-
-# 3.2 The LearnerTorch class
+str(materialize(mnist_flat$head(2)$image))
 
 mlp <- lrn("classif.mlp",
  loss = t_loss("cross_entropy"),
@@ -72,6 +42,10 @@ head(mlp$model$callbacks$history, n = 2)
 pred <- mlp$predict(mnist_flat, row_ids = 1001:1100)
 pred$score(msr("classif.ce"))
 
+mnist_small <- mnist_flat$clone()$filter(1:1000)
+rr <- resample(mnist_small, mlp, rsmp("cv", folds = 3))
+rr$aggregate(msr("classif.ce"))
+
 pth <- tempfile()
 mlp$marshal()
 saveRDS(mlp, pth)
@@ -79,8 +53,6 @@ mlp2 <- readRDS(pth)
 mlp2$unmarshal()
 
 set_validate(mlp, validate = 0.3)
-
-# 3.3 Neural networks as Graphs
 
 nn_simple <- nn_module("nn_simple",
   initialize = function(d_in, d_latent, d_out) {
@@ -107,7 +79,7 @@ net <- nn_graph(module_graph, shapes_in = list(module_1.input = c(NA, 10)))
 net(torch_randn(2, 10))
 
 graph <- po("torch_ingress_ltnsr") %>>%
-  nn("linear", out_features = 10) %>>% nn("relu") %>>% nn("head")
+  nn("linear", out_features = 100) %>>% nn("relu") %>>% nn("head")
 
 md <- graph$train(mnist_flat)[[1L]]
 md
@@ -118,7 +90,7 @@ graph <- graph %>>%
 
 graph <- graph %>>% po("torch_model_classif", epochs = 10, batch_size = 16)
 
-glrn <- as_learner(graph)
+glrn <- as_learner_torch(graph)
 glrn$train(mnist_flat, row_ids = 1:1000)
 
 path_lin <- nn("linear_1")
@@ -137,10 +109,6 @@ graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
 
 blocks <- nn("block", residual_layer, n_blocks = 5)
 
-# 4. Extending the package
-
-# 4.1 Loss and optimizer
-
 nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
   initialize = function(max_loss) {
     self$max_loss <- max_loss
@@ -151,8 +119,6 @@ nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
 )
 tloss <- as_torch_loss(nn_winsorized_mse)
 tloss
-
-# 4.2 Callbacks
 
 gradient_clipper <- torch_callback("gradient_clipper",
   initialize = function(max_norm, norm_type) {
@@ -172,8 +138,6 @@ gradient_clipper <- torch_callback("gradient_clipper",
     self$norms = state_dict
   }
 )
-
-# 4.3 Learners and task types
 
 nn_ffn <- nn_module("nn_ffn",
   initialize = function(task, latent_dim, n_layers) {
@@ -199,21 +163,21 @@ lrn_ffn <- lrn("classif.module",
   ingress_tokens = num_input,
   latent_dim = 100, n_layers = 5)
 
-
-# 5. Use cases
-
-# 5.1 Simple neural architecture search
-
 task <- tsk("mtcars")
 task
 
 ingress <- po("torch_ingress_num")
 
-block <- nn("linear", out_features = 32) %>>%
+embedding <- nn("tokenizer_num", d_token = 8)
+
+block <- nn("multihead_attention", num_heads = 2) %>>%
+  nn("layer_norm", dims = 1) %>>%
+  nn("linear", out_features = 16) %>>%
   ppl("branch", list(relu = nn("relu"), sigmoid = nn("sigmoid"))) %>>%
   nn("dropout")
 
-architecture <- nn("block", block) %>>% nn("head")
+architecture <- embedding %>>% nn("block", block) %>>%
+  nn("flatten") %>>% nn("head")
 
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
@@ -222,13 +186,16 @@ model <- po("torch_model_regr", device = "cpu", batch_size = 32)
 
 pipeline <- ingress %>>%
   architecture %>>% config %>>% model
-learner <- as_learner(pipeline)
-learner$id <- "custom_nn"
+learner <- as_learner_torch(pipeline)
+learner$id <- "attention_nn"
 
 library("mlr3tuning")
 learner$param_set$set_values(
-  block.linear.out_features = to_tune(20, 500),
-  block.n_blocks = to_tune(1, 5),
+  tokenizer_num.d_token = to_tune(c(4, 8, 16)),
+  block.multihead_attention.num_heads = to_tune(c(1, 2, 4)),
+  block.multihead_attention.dropout = to_tune(0, 0.5),
+  block.linear.out_features = to_tune(c(8, 16, 32)),
+  block.n_blocks = to_tune(1, 3),
   block.branch.selection = to_tune(c("relu", "sigmoid")),
   block.dropout.p = to_tune(0.1, 0.9),
   torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE))
@@ -245,13 +212,13 @@ ti <- tune(
   resampling = rsmp("holdout"),
   measure = msr("internal_valid_score", minimize = TRUE),
   learner = learner,
-  term_evals = 30,
+  term_evals = 20,
   task = task)
-pvals <- ti$result_learner_param_vals[1:6]
+tuned <- learner$param_set$search_space()$ids()
+pvals <- lapply(ti$result_learner_param_vals[tuned],
+  function(x) if (is.numeric(x)) signif(x, 3) else x)
 cat(paste("*", names(pvals), "=", pvals,
  collapse = "\n"), "\n")
-
-# 5.2 Fine-tuning an image network
 
 library("torchdatasets")
 dogs_vs_cats_dataset("data", download = TRUE)
@@ -282,27 +249,27 @@ tbl <- data.table(image = lt, class = labels)
 task <- as_task_classif(tbl, target = "class", id = "dogs_vs_cats")
 task
 
-augment <- po("augment_random_vertical_flip", p = 0.5)
+augment <- po("augment_random_horizontal_flip", p = 0.5)
 
 preprocess <- po("trafo_resize", size = c(224, 224))
 
+normalize <- po("trafo_normalize",
+  mean = c(0.485, 0.456, 0.406), std = c(0.229, 0.224, 0.225))
+
 unfreezer <- t_clbk("unfreeze",
-  starting_weights = select_name(c("fc.weight", "fc.bias")),
+  starting_weights = select_name(c("head.weight", "head.bias")),
   unfreeze = data.table(epoch = 3, weights = select_all()))
 
-resnet <- lrn("classif.resnet18",
+convnext <- lrn("classif.convnext_tiny_1k",
   pretrained = TRUE, epochs = 5, device = "cpu", batch_size = 32,
   opt.lr = 1e-4, measures_valid = msr("classif.acc"),
   callbacks = list(unfreezer, t_clbk("history")))
 
-learner <- as_learner(augment %>>% preprocess %>>% resnet)
-learner$id <- "resnet"
+learner <- as_learner(augment %>>% preprocess %>>% normalize %>>% convnext)
+learner$id <- "convnext"
 set_validate(learner, 1 / 3)
-learner$train(task, c(12400:12600))
-learner$model$classif.resnet18$model$callbacks$history
-
-
-# 5.3 Multi-modal data
+learner$train(task, c(12401:12600))
+learner$model$classif.convnext_tiny_1k$model$callbacks$history
 
 task <- tsk("melanoma")
 task
@@ -311,35 +278,36 @@ table(task$truth())
 
 task$missings("age_approx")
 
-block_ffn <- nn("linear", out_features = 500) %>>%
-  nn("relu") %>>% nn("dropout")
 path_tabular <- po("select_1",
     selector = selector_type(c("integer", "factor"))) %>>%
   po("imputehist") %>>%
   po("encode", method = "one-hot") %>>%
   po("torch_ingress_num") %>>%
-  nn("block_1", block = block_ffn, n_blocks = 3)
+  nn("tokenizer_num", d_token = 64)
 
+patchify <- function(x) {
+  nnf_unfold(x, kernel_size = 16, stride = 16)$transpose(2, 3)
+}
 path_image <- po("select_2", selector = selector_name("image")) %>>%
   po("torch_ingress_ltnsr", shape = c(NA, 3, 128, 128)) %>>%
-  nn("conv2d_1", out_channels = 16, kernel_size = 7, stride = 2,
-    padding = 3) %>>%
-  nn("batch_norm2d_1") %>>%
-  nn("relu_1") %>>%
-  nn("max_pool2d_1", kernel_size = 3, stride = 2, padding = 1) %>>%
-  nn("conv2d_2", out_channels = 32, kernel_size = 3, stride = 1,
-    padding = 1) %>>%
-  nn("batch_norm2d_2") %>>%
-  nn("relu_2") %>>%
-  nn("conv2d_3", out_channels = 64, kernel_size = 3, stride = 1,
-    padding = 1) %>>%
-  nn("batch_norm2d_3") %>>%
-  nn("relu_3") %>>%
-  nn("flatten")
+  nn("fn_1", fn = patchify) %>>%
+  nn("linear", out_features = 64)
+
+po_torch_pos_embedding <- pipeop_torch("nn_pos_embedding",
+  initialize = function(shapes_in) {
+    self$weight <- nn_parameter(torch_randn(shapes_in[[1]][-1]) * 0.02)
+  },
+  forward = function(input) input + self$weight,
+  shapes_out = function(shapes_in) shapes_in
+)
+path_image <- path_image %>>% po_torch_pos_embedding$new()
 
 architecture <- list(path_tabular, path_image) %>>%
-  nn("merge_cat") %>>% nn("linear_1", out_features = 500) %>>%
-  nn("relu_4") %>>% nn("dropout_2") %>>% nn("head")
+  nn("merge_cat", dim = 2) %>>%
+  nn("block", nn("transformer_encoder_layer", nhead = 4,
+    dim_feedforward = 128), n_blocks = 2) %>>%
+  nn("fn_2", fn = function(x) x$mean(dim = 2)) %>>%
+  nn("head")
 
 model <- architecture %>>%
   po("torch_loss",
@@ -352,16 +320,25 @@ preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
     adjust = "minor") %>>%
   po("augment_random_horizontal_flip") %>>%
   po("augment_random_vertical_flip") %>>%
-  po("augment_random_crop", size = c(128, 128), pad_if_needed = TRUE)
-glrn <- as_learner(preprocessing %>>% model)
+  po("augment_random_crop", size = c(128, 128), padding = 8)
+glrn <- as_learner_torch(preprocessing %>>% model)
 
-library("mlr3viz")
+library("mlr3learners")
+baseline <- as_learner(
+  po("select",
+    selector = selector_invert(selector_type("lazy_tensor"))) %>>%
+  po("imputehist") %>>% po("encode", method = "treatment") %>>%
+  lrn("classif.log_reg", predict_type = "prob"))
+baseline$id <- "tabular"
 glrn$id <- "multimodal"
 task_subset <- task$clone(deep = TRUE)
 subset <- partition(task_subset, ratio = 0.1)$train
 task_subset$filter(subset)
-rr <- resample(task_subset, glrn, rsmp("holdout"))
-plt <- autoplot(rr, type = "roc")
+design <- benchmark_grid(task_subset, list(glrn, baseline),
+  rsmp("holdout"))
+bmr <- benchmark(design)
+library("mlr3viz")
+plt <- autoplot(bmr, type = "roc")
 
 library("ggplot2")
 plt = plt +
