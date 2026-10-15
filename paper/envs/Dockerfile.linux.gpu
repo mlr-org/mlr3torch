@@ -71,7 +71,7 @@ RUN R -q -e "torch::install_torch()"
 
 # Install mlr3torch from GitHub (pinned commit for reproducibility).
 # pak only upgrades dependencies from the renv.lock where required by mlr3torch.
-ARG MLR3TORCH_REF=80602b166b6120a61f58901f0b0743ce5b4b963b
+ARG MLR3TORCH_REF=b8c59b6b07d08b6e45ae14628ce7a5888b2463f1
 RUN R -q -e "install.packages('pak', repos = sprintf('https://r-lib.github.io/p/pak/stable/%s/%s/%s', .Platform\$pkgType, R.Version()\$os, R.Version()\$arch))"
 RUN R -q -e "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux__/jammy/latest')); pak::pkg_install('mlr-org/mlr3torch@${MLR3TORCH_REF}', upgrade = FALSE, ask = FALSE); print(packageVersion('mlr3torch')); print(packageVersion('torch'))"
 

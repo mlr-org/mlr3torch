@@ -134,7 +134,9 @@ plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = 
   ) +
     geom_line() +
     geom_point(size = 0.8) +
-    facet_wrap(~latent) +
+    # free y-axes that are not anchored at 0, so that small differences between
+    # mlr3torch and torch remain visible
+    facet_wrap(~latent, scales = "free_y") +
     labs(
       y = if (show_y_label) "Time per batch (ms)" else NULL,
       color = "Algorithm",
@@ -142,7 +144,6 @@ plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = 
     ) +
     theme_bw() +
     theme(legend.position = if (!gpu) "left" else "none") +
-    ylim(0, NA) +
     scale_color_manual(
       values = c("rtorch" = "#66C2A5", "mlr3torch" = "#FC8D62")
     )

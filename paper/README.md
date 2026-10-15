@@ -187,7 +187,7 @@ We also added some additional comments to make it easier to associate the code w
 The code shown in the paper downloads various datasets from standard resources.
 In the unlikely but possible event that these datasets are not available anymore, we include:
 
-1. the cache directory for `torch` (MNIST, ResNet-18) and `mlr3torch` (postprocessed MNIST, Melanoma)
+1. the cache directory for `torch` (MNIST, ConvNeXt-T) and `mlr3torch` (postprocessed MNIST, Melanoma)
 2. the dogs-vs-cats dataset
 
 in the Zenodo data.
@@ -213,12 +213,12 @@ If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it in
 
 ### Other errors
 
-When reproducing the results with `knitr` in the docker container, we sometimes encountered issues with the weight downloads for the ResNet-18 model.
+When reproducing the results with `knitr` in the docker container, we sometimes encountered issues with the weight downloads for the ConvNeXt-T model.
 This was not an issue when reproducing without `knitr`.
 If you also encounter this, delete the problematic model file (you can determine the torch cache directory via `rappdirs::user_cache_dir("torch")`) and download it by running.
 
 ```r
-torchvision::model_resnet18(pretrained = TRUE)
+torchvision::model_convnext_tiny_1k(pretrained = TRUE)
 ```
 
 Then, re-run the paper code.
