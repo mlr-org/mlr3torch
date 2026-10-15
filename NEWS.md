@@ -89,6 +89,9 @@
 
 ## Bug fixes
 
+* The shape inference of `po("trafo_rgb_to_grayscale")` now supports `torchvision` 0.10.0, whose
+  `transform_rgb_to_grayscale()` keeps the channel dimension, i.e. an image of shape `(3, H, W)`
+  becomes `(1, H, W)` and not `(H, W)`.
 * `nn("block")` now copies the graph it is constructed from, so changing that graph afterwards no
   longer changes the block.
 * Learners built from a graph via `po("torch_model_regr")` / `po("torch_model_classif")` now error

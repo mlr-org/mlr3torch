@@ -122,15 +122,20 @@ grayscale_shapes = function(shapes_in, param_vals, task) {
   list(shape)
 }
 
-# FIXME(torchvision): `transform_rgb_to_grayscale()` drops the channel dimension instead of
-# setting it to 1, i.e. it changes the rank: (3, 16, 20) becomes (16, 20) where PyTorch returns
-# (1, 16, 20). The inference below follows the actual behaviour, so fixing torchvision means
-# changing this function as well
+# Since torchvision 0.10.0, `transform_rgb_to_grayscale()` keeps the channel dimension and sets it
+# to 1 as in PyTorch, i.e. (3, 16, 20) becomes (1, 16, 20). Earlier versions drop it and return
+# (16, 20), so the inferred shape depends on the installed version.
 rgb_to_grayscale_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   assert_image_shape(shape, self$id)
   assert_rgb_channels(shape, self$id)
-  list(shape[-(length(shape) - 2L)])
+  channel_dim = length(shape) - 2L
+  if (utils::packageVersion("torchvision") >= "0.10.0") {
+    shape[channel_dim] = 1L
+    list(shape)
+  } else {
+    list(shape[-channel_dim])
+  }
 }
 
 crop_shapes = function(shapes_in, param_vals, task) {
