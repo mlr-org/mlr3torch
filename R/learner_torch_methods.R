@@ -280,7 +280,9 @@ train_loop = function(ctx, cbs) {
 
       call("on_after_backward")
 
-      ctx$last_loss = loss$item()
+      # Store the tensor and only convert it to a number when `ctx$last_loss` is accessed.
+      # Calling `$item()` here would synchronize the device in every step.
+      ctx$last_loss = loss$detach()
       if (eval_train) {
         # The complete output is kept, so `.encode_prediction()` sees the same structure that it
         # sees when predicting. Networks whose extra tensors are training-only, such as auxiliary

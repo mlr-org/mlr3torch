@@ -111,9 +111,6 @@ ContextTorch = R6Class("ContextTorch",
     #'   If [`LearnerTorch`] sets `eval_freq` different from `1`, this is `NULL` in all epochs
     #'   that don't evaluate the model.
     last_scores_valid = NULL,
-    #' @field last_loss (`numeric(1)`)\cr
-    #' The loss from the last trainings batch.
-    last_loss = NULL,
     #' @field y_hat ([`torch_tensor`][torch::torch_tensor])\cr
     #' The network's output for the current batch, or its first element if the network returns
     #' more than one tensor. Provided for the most common case where a network returns a single
@@ -149,5 +146,24 @@ ContextTorch = R6Class("ContextTorch",
     #' @field device (`torch::torch_device`)\cr
     #'   The device.
     device = NULL
+  ),
+  active = list(
+    #' @field last_loss (`numeric(1)`)\cr
+    #'   The loss from the last training batch.
+    #'   The training loop stores the (detached) loss tensor and it is only converted to a number
+    #'   when this field is accessed, which avoids synchronizing the device in every step.
+    last_loss = function(rhs) {
+      if (!missing(rhs)) {
+        private$.last_loss = rhs
+        return(invisible(rhs))
+      }
+      if (inherits(private$.last_loss, "torch_tensor")) {
+        private$.last_loss = private$.last_loss$item()
+      }
+      private$.last_loss
+    }
+  ),
+  private = list(
+    .last_loss = NULL
   )
 )
