@@ -22,6 +22,10 @@
 
 ## Features
 
+* The training loop no longer calls `$item()` on the loss in every step, which avoids a device
+  synchronization per batch on the GPU. `ctx$last_loss` is still a `numeric(1)`; it is only
+  converted when a callback accesses it.
+
 * With `drop_last = TRUE`, `LearnerTorch` now caps the training batch size at the number of
   training observations instead of dropping all of them.
 * New function `as_learner_torch()`, which converts a `Graph` of `PipeOpTorch` operators into a

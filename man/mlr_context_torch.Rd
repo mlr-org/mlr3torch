@@ -73,9 +73,6 @@ Names are the ids of the validation measures.
 If \code{\link{LearnerTorch}} sets \code{eval_freq} different from \code{1}, this is \code{NULL} in all epochs
 that don't evaluate the model.}
 
-    \item{\code{last_loss}}{(\code{numeric(1)})\cr
-The loss from the last trainings batch.}
-
     \item{\code{y_hat}}{(\code{\link[torch:torch_tensor]{torch_tensor}})\cr
 The network's output for the current batch, or its first element if the network returns
 more than one tensor. Provided for the most common case where a network returns a single
@@ -110,6 +107,16 @@ what \code{\link{CallbackSetCheckpoint}} does to save them.}
 
     \item{\code{device}}{(\code{torch::torch_device})\cr
 The device.}
+  }
+  \if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{last_loss}}{(\code{numeric(1)})\cr
+The loss from the last training batch.
+The training loop stores the (detached) loss tensor and it is only converted to a number
+when this field is accessed, which avoids synchronizing the device in every step.}
   }
   \if{html}{\out{</div>}}
 }

@@ -25,3 +25,20 @@ test_that("the epoch is 0 during the 'begin' stage", {
 
   expect_equal(epoch, 0L)
 })
+
+test_that("last_loss is the numeric loss of the last batch", {
+  losses = list()
+  expected = numeric()
+  spy = torch_callback("spy", on_batch_end = function() {
+    losses[[length(losses) + 1L]] <<- self$ctx$last_loss
+    expected <<- c(expected, self$ctx$loss_fn(self$ctx$y_hats, self$ctx$batch$y)$item())
+  })
+
+  learner = lrn("classif.mlp", epochs = 2L, batch_size = 50, neurons = 10, callbacks = spy)
+  learner$train(tsk("iris"))
+
+  # iris has 150 observations, so there are 3 batches per epoch
+  expect_length(losses, 6L)
+  for (loss in losses) expect_number(loss)
+  expect_equal(unlist(losses), expected, tolerance = 1e-6)
+})
