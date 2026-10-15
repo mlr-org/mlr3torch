@@ -153,7 +153,7 @@ Rscript benchmark/plot_benchmark.R
 Rscript benchmark/plot_optimizer.R
 ```
 
-The main figure `plot_benchmark.png` shows the single-threaded CPU results, while `plot_benchmark_cpu_threads.png` compares the CPU results for 1 and 16 threads.
+The main figures `plot_benchmark.png` and `plot_benchmark_relative.png` show the CPU results with 16 threads, `plot_benchmark_cpu_single_thread.png` (appendix of the paper) shows the single-threaded CPU results, and `plot_benchmark_cpu_threads.png` compares the CPU results for 1 and 16 threads.
 
 ## Recreating the Paper Code
 
