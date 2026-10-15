@@ -237,7 +237,7 @@ learner$predict(task, ids$test)
 #>        2    setosa virginica
 #>        5    setosa virginica
 #>      ---       ---       ---
-#>      143 virginica virginica
-#>      147 virginica virginica
-#>      148 virginica virginica
+#>      143 virginica    setosa
+#>      147 virginica    setosa
+#>      148 virginica    setosa
 ```
