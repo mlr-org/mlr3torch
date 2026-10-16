@@ -344,6 +344,7 @@ tensor) and \code{\link[=encode_prediction]{encode_prediction()}} (how the netwo
 Such a learner also has to be given a \code{loss} explicitly, unless a default loss is registered for the
 task type by adding the id of a loss from \code{\link{mlr3torch_losses}} to \code{mlr_reflections$torch$default_losses},
 e.g. \code{mlr_reflections$torch$default_losses$surv = "my_surv_loss"}.
+See the \emph{Adding a New Task Type} article for a complete example.
 This class can also be used for custom task types, see \code{\link{TaskTorch}} and the
 \emph{Custom Learning Problems} article for more information.
 

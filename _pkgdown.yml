@@ -75,6 +75,8 @@ navbar:
         href: articles/lazy_tensor.html
       - text: Custom Learning Problems
         href: articles/custom_task_type.html
+      - text: Adding a New Task Type
+        href: articles/new_task_type.html
       - text: Writing your own PipeOpTorch
         href: articles/custom_pipeop_torch.html
       - text: ---

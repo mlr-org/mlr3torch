@@ -200,6 +200,7 @@
 #' Such a learner also has to be given a `loss` explicitly, unless a default loss is registered for the
 #' task type by adding the id of a loss from [`mlr3torch_losses`] to `mlr_reflections$torch$default_losses`,
 #' e.g. `mlr_reflections$torch$default_losses$surv = "my_surv_loss"`.
+#' See the *Adding a New Task Type* article for a complete example.
 #' This class can also be used for custom task types, see [`TaskTorch`] and the
 #' *Custom Learning Problems* article for more information.
 #'

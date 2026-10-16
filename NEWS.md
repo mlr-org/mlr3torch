@@ -24,7 +24,8 @@
 
 * The default loss of `LearnerTorch` for a task type is now taken from
   `mlr_reflections$torch$default_losses`, so extension packages can register a default loss for
-  their own task types.
+  their own task types. The new article "Adding a New Task Type" shows all steps needed to use
+  `LearnerTorch` with a new task type.
 * With `drop_last = TRUE`, `LearnerTorch` now caps the training batch size at the number of
   training observations instead of dropping all of them.
 
