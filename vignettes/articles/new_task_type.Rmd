@@ -23,8 +23,8 @@ This is quick, but the `"torch"` task type cannot tell different learning proble
 The alternative is to register a proper new task type with {mlr3}, as is done, e.g., by {mlr3proba} for survival analysis.
 This article shows the steps that are needed so that the learners of {mlr3torch} can be used for such a task type.
 As a running example, we use a very simple task type `"count"` for count data, i.e., Poisson regression.
-Note that the implementation in this article is only a minimal one that is meant to illustrate the required steps.
-A task type that is used in practice requires more care, e.g., more thorough input checks, support for additional predict types and measures, as well as tests.
+Note that the implementation in this article is only a minimal one that is meant to illustrate the required steps, and it skips some of the checks and functionality that a proper implementation should have.
+A task type that is used in practice requires more care, e.g., input checks (such as that the target is a non-negative integer), support for additional predict types and measures, as well as tests.
 
 ```{r new_task_type-002}
 library(mlr3torch)
