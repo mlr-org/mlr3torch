@@ -249,6 +249,50 @@ head(as.data.table(rr$prediction()))
 learner$train(tsk("mtcars"))
 ```
 
+To compare the network with a baseline in a benchmark experiment, we also add the featureless torch learner for the new task type, which predicts a constant rate.
+We compare both learners on two count tasks with different numbers of observations using 3-fold cross-validation.
+
+```{r new_task_type-017}
+mlr_learners$add("count.torch_featureless", function(...) {
+  LearnerTorchFeatureless$new(task_type = "count", ...)
+})
+featureless = lrn("count.torch_featureless", epochs = 50, batch_size = 32, opt.lr = 0.05)
+
+task_small = TaskCount$new("sim_count_small", backend = dat[1:300], target = "y")
+design = benchmark_grid(list(task, task_small), list(learner, featureless), rsmp("cv", folds = 3))
+bmr = benchmark(design)
+bmr$aggregate(msr("count.deviance"))[, .(task_id, learner_id, count.deviance)]
+```
+
+The learner can also be tuned.
+Below, we tune the number of epochs via early stopping on a validation set, which evaluates the Poisson deviance after every epoch, and jointly tune the learning rate and the number of neurons using random search.
+The tuned learner is then evaluated in a nested resampling.
+
+```{r new_task_type-018}
+library(mlr3tuning)
+
+learner_tune = lrn("count.mlp",
+  batch_size = 32,
+  epochs = to_tune(upper = 100, internal = TRUE),
+  patience = 5,
+  measures_valid = msr("count.deviance"),
+  opt.lr = to_tune(1e-3, 1e-1, logscale = TRUE),
+  neurons = to_tune(c(8, 16, 32)),
+  validate = 0.2
+)
+
+at = auto_tuner(
+  tuner = tnr("random_search"),
+  learner = learner_tune,
+  resampling = rsmp("holdout"),
+  measure = msr("count.deviance"),
+  term_evals = 4
+)
+rr_nested = resample(task, at, rsmp("cv", folds = 3), store_models = TRUE)
+rr_nested$aggregate()
+extract_inner_tuning_results(rr_nested)[, .(iteration, opt.lr, neurons, internal_tuned_values, count.deviance)]
+```
+
 ## Registration in a Package {#sec-package}
 
 In this article, we modified `mlr_reflections`, `mlr_measures`, `mlr3torch_losses`, and `mlr_learners` directly in the global session.
@@ -257,7 +301,7 @@ For example, {mlr3torch} creates `mlr_reflections$torch`, including the `default
 Instead, all registrations should happen in callbacks that are registered in the package's `.onLoad()` function and that are run whenever {mlr3} or {mlr3torch} is loaded.
 This can be done with `mlr3misc::register_namespace_callback()`, which runs the callback immediately if the namespace is already loaded and otherwise once it is loaded:
 
-```{r new_task_type-017, eval = FALSE}
+```{r new_task_type-019, eval = FALSE}
 register_mlr3 = function() {
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
   # register the task type, measures, ... as shown above
