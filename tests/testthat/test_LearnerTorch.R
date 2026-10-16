@@ -1761,3 +1761,18 @@ test_that(".setup_training may only add callbacks", {
   learner = make_learner(function(ctx, param_vals) ctx$loss_fn = "not a loss")
   expect_error(learner$train(tsk("iris")), "ctx\\$loss_fn")
 })
+
+test_that("default loss is taken from mlr_reflections", {
+  expect_equal(LearnerTorchFeatureless$new(task_type = "classif")$loss$id, "cross_entropy")
+  expect_equal(LearnerTorchFeatureless$new(task_type = "regr")$loss$id, "mse")
+  make_learner = function() {
+    LearnerTorchModule$new(module_generator = function(task) nn_linear(1, 1), task_type = "torch",
+      ingress_tokens = list(x = ingress_num()))
+  }
+  expect_error(make_learner(), "no default loss for task type 'torch'")
+
+  old = mlr_reflections$torch$default_losses
+  on.exit({mlr_reflections$torch$default_losses = old}, add = TRUE)
+  mlr_reflections$torch$default_losses$torch = "mse"
+  expect_equal(make_learner()$loss$id, "mse")
+})

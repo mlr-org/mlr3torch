@@ -341,7 +341,9 @@ Support for a task type that \CRANpkg{mlr3torch} does not know is added by imple
 the three S3 generics that hold the task-type-specific behaviour: \code{\link[=output_dim_for]{output_dim_for()}} (how many
 output neurons the network needs), \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} (how the target is turned into a
 tensor) and \code{\link[=encode_prediction]{encode_prediction()}} (how the network's output is turned back into a prediction).
-Such a learner also has to be given a \code{loss} explicitly.
+Such a learner also has to be given a \code{loss} explicitly, unless a default loss is registered for the
+task type by adding the id of a loss from \code{\link{mlr3torch_losses}} to \code{mlr_reflections$torch$default_losses},
+e.g. \code{mlr_reflections$torch$default_losses$surv = "my_surv_loss"}.
 This class can also be used for custom task types, see \code{\link{TaskTorch}} and the
 \emph{Custom Learning Problems} article for more information.
 
@@ -580,9 +582,10 @@ The optimizer to use for training.
 Defaults to adam.}
       \item{\code{loss}}{(\code{NULL} or \code{\link{TorchLoss}})\cr
 The loss to use for training.
-Defaults to MSE for regression and cross entropy for classification.
-For other task types there is no default and the loss has to be given, because which loss is
-appropriate depends on the learning problem.}
+Defaults to the loss registered for the task type in \code{mlr_reflections$torch$default_losses},
+which is MSE for regression and cross entropy for classification.
+For other task types there is no default unless one is registered, and the loss has to be given,
+because which loss is appropriate depends on the learning problem.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{predict_types}}{(\code{character()})\cr

@@ -63,7 +63,10 @@ register_mlr3 = function() {
       "on_epoch_end",
       "on_end",
       "on_exit"
-    )
+    ),
+    # ids of the losses in mlr3torch_losses that LearnerTorch uses when no loss is given;
+    # extension packages can add entries for their own task types
+    default_losses = list(classif = "cross_entropy", regr = "mse")
   )
 
 }
