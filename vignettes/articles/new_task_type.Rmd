@@ -113,6 +113,7 @@ as_prediction.PredictionDataCount = function(x, check = FALSE, ...) {
 
 In a package, these methods would be registered via `S3method()` in the `NAMESPACE` file.
 In this article, we register them manually.
+The registration of the other objects in this article (task type, measures, losses, and learners) is also done manually here; see [Registration in a Package](#sec-package) for how a package should do this.
 
 ```{r new_task_type-005}
 for (generic in c("check_prediction_data", "is_missing_prediction_data",
@@ -247,3 +248,35 @@ head(as.data.table(rr$prediction()))
 ```{r new_task_type-016, error = TRUE}
 learner$train(tsk("mtcars"))
 ```
+
+## Registration in a Package {#sec-package}
+
+In this article, we modified `mlr_reflections`, `mlr_measures`, `mlr3torch_losses`, and `mlr_learners` directly in the global session.
+A third-party package must not do this at the top level of its code, because these objects are created when {mlr3} and {mlr3torch} are loaded, and they are re-created when one of them is reloaded, which would discard the registrations.
+For example, {mlr3torch} creates `mlr_reflections$torch`, including the `default_losses`, in its `.onLoad()` function.
+Instead, all registrations should happen in callbacks that are registered in the package's `.onLoad()` function and that are run whenever {mlr3} or {mlr3torch} is loaded.
+This can be done with `mlr3misc::register_namespace_callback()`, which runs the callback immediately if the namespace is already loaded and otherwise once it is loaded:
+
+```{r new_task_type-017, eval = FALSE}
+register_mlr3 = function() {
+  mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
+  # register the task type, measures, ... as shown above
+}
+
+register_mlr3torch = function() {
+  mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
+  mlr_reflections$torch$default_losses$count = "poisson"
+  mlr3torch::mlr3torch_losses$add("poisson", function() ...)
+  mlr3::mlr_learners$add("count.mlp", function(...) {
+    mlr3torch::LearnerTorchMLP$new(task_type = "count", ...)
+  })
+}
+
+.onLoad = function(libname, pkgname) {
+  mlr3misc::register_namespace_callback(pkgname, "mlr3", register_mlr3)
+  mlr3misc::register_namespace_callback(pkgname, "mlr3torch", register_mlr3torch)
+}
+```
+
+If {mlr3torch} is only a suggested dependency of the package, the second callback ensures that the {mlr3torch}-specific parts are registered only once {mlr3torch} is loaded.
+The package should also undo its registrations in `.onUnload()`.
