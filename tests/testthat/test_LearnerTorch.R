@@ -1101,7 +1101,7 @@ test_that("NA prediction during validation does not cause issues.", {
     callbacks = t_clbk("history")
   )
   task = tsk("mtcars")
-  learner$train(task)
+  expect_warning(learner$train(task), "could not be computed")
   expect_true(
     is.na(learner$model$callbacks$history$valid.regr.mse[1L])
   )
