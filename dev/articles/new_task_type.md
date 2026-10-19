@@ -45,8 +45,12 @@ Instead of hard-coding the task types, {mlr3} looks them up in these
 tables, so registering a new task type there makes it available
 throughout {mlr3}. These are independent of {mlr3torch} and required for
 any new task type in {mlr3}, so we keep them as short as possible here.
-For more information, always consult the documentation of the classes we
-inherit from, such as
+If the task type is already defined by another package, e.g. survival
+tasks in {mlr3survival}, you can skip this section and continue with
+[Supporting the Task Type in
+mlr3torch](#supporting-the-task-type-in-mlr3torch). For more
+information, always consult the documentation of the classes we inherit
+from, such as
 [`?mlr3::TaskSupervised`](https://mlr3.mlr-org.com/reference/TaskSupervised.html),
 [`?mlr3::Prediction`](https://mlr3.mlr-org.com/reference/Prediction.html),
 [`?mlr3::Measure`](https://mlr3.mlr-org.com/reference/Measure.html), and
