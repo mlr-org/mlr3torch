@@ -31,6 +31,9 @@ The id of the learner. Defaults to \code{"<task_type>.graph"}.}
 \description{
 Converts a \code{\link[mlr3pipelines:Graph]{Graph}} representing a deep learning pipeline into a
 \code{\link{GraphLearnerTorch}}.
+The graph either builds the network from \code{PipeOpTorch} operators and ends in a
+\code{\link[=mlr_pipeops_torch_model]{PipeOpTorchModel}}, or its base learner is a \code{\link{LearnerTorch}}, e.g.
+\code{po("scale") \%>>\% lrn("classif.mlp")}.
 The advantage over using \code{\link[mlr3:as_learner]{as_learner()}} is that the resulting learner exposes methods like
 \verb{$dataset()} and fields like \verb{$network}.
 }

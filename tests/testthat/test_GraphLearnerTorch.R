@@ -162,3 +162,39 @@ test_that("the stages of a preprocessing operator are respected", {
   expect_equal(batch_mean(learner$dataset(task, stage = "train"), 10L), 2 * raw)
   expect_equal(batch_mean(learner$dataset(task), 10L), raw)
 })
+
+test_that("graph whose base learner is a LearnerTorch", {
+  task = tsk("iris")
+  mlp = lrn("classif.mlp", epochs = 1, batch_size = 32, neurons = 10,
+    optimizer = t_opt("sgd", lr = 0.1), callbacks = t_clbk("history"))
+  learner = as_learner_torch(po("scale") %>>% mlp)
+
+  expect_class(learner, "GraphLearnerTorch")
+  expect_equal(learner$id, "classif.graph")
+  expect_equal(learner$task_type, "classif")
+  expect_equal(learner$loss$id, "cross_entropy")
+  expect_equal(learner$optimizer$id, "sgd")
+  expect_equal(ids(learner$callbacks), "history")
+  expect_equal(learner$param_set$values$classif.mlp.epochs, 1)
+
+  # the dataset contains the features that the learner receives, i.e. the scaled ones
+  ds = learner$dataset(task)
+  x = ds$.getbatch(seq_len(task$nrow))$x[[1L]]
+  expect_equal(x$shape, c(150, 4))
+  expect_equal(as.numeric(x$mean()), 0, tolerance = 1e-5)
+  # creating the dataset does not train the graph
+  expect_null(learner$model)
+  expect_true(is.null(learner$graph$pipeops$scale$state))
+
+  learner$train(task)
+  expect_class(learner$network, "nn_module")
+  expect_class(learner$predict(task), "PredictionClassif")
+  x_pred = learner$dataset(task, stage = "predict")$.getbatch(seq_len(task$nrow))$x[[1L]]
+  expect_equal(as.numeric(x_pred$mean()), 0, tolerance = 1e-5)
+
+  # a graph that is only the learner and a GraphLearner work as well
+  expect_class(as_learner_torch(as_graph(mlp)), "GraphLearnerTorch")
+  expect_equal(as_learner_torch(as_learner(po("scale") %>>% mlp))$optimizer$id, "sgd")
+
+  expect_error(as_learner_torch(po("scale") %>>% lrn("classif.rpart")), "neither a PipeOpTorchModel")
+})
