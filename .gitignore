@@ -39,5 +39,6 @@ paper/renv/python/
 paper/renv/sandbox/
 paper/renv/staging/
 
+.claude/worktrees/*
 
 TODOS.md

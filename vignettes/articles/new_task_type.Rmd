@@ -19,12 +19,12 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 ```
 
 The [Custom Learning Problems](custom_task_type.html) article shows how to use the generic `TaskTorch` for learning problems beyond classification and regression.
-This is quick, but the `"torch"` task type cannot tell different learning problems apart, so {mlr3} cannot check that learners, tasks, and measures fit together.
-The alternative is to register a proper new task type with {mlr3}, as is done, e.g., by {mlr3proba} for survival analysis.
-This article shows the steps that are needed so that the learners of {mlr3torch} can be used for such a task type.
+This is the best approach for one-off modeling problems that are not supported out of the box by {mlr3torch}.
+If you instead want to create a task type that is fully integrated into the {mlr3} ecosystem, e.g. for creating an extension package, this article will show you how to do that.
+If you want to do so, it is best to get in touch with us to discuss the implementation and provide guidance.
+
 As a running example, we use a very simple task type `"count"` for count data, i.e., Poisson regression.
-Note that the implementation in this article is only a minimal one that is meant to illustrate the required steps, and it skips some of the checks and functionality that a proper implementation should have.
-A task type that is used in practice requires more care, e.g., input checks (such as that the target is a non-negative integer), support for additional predict types and measures, as well as tests.
+Note that we are showing a minimal implementation for illustrative purposes that omits some input checks to keep the example concise.
 
 ```{r new_task_type-002}
 library(mlr3torch)
@@ -34,9 +34,13 @@ library(R6)
 
 ## Registering the Task Type with mlr3
 
-A task type in {mlr3} consists of a `Task`, a `Prediction` and a `Measure` class, which have to be registered in `mlr_reflections`.
-These are independent of {mlr3torch}, so we only keep them as short as possible here.
-For our count task, the target is a single integer column.
+A task type in {mlr3} consists of a `Task`, a `Prediction` and a `Measure` class (and a `Learner`, which we cover afterwards), which have to be registered in `mlr_reflections`.
+`mlr_reflections` is the central registry of {mlr3}: an environment with lookup tables that define what is valid for each task type, e.g., the class names, the column roles, the properties, and the predict types.
+All of its entries are documented in [`mlr_reflections`](https://mlr3.mlr-org.com/reference/mlr_reflections.html).
+Instead of hard-coding the task types, {mlr3} looks them up in these tables, so registering a new task type there makes it available throughout {mlr3}.
+These are independent of {mlr3torch} and required for any new task type in {mlr3}, so we keep them as short as possible here.
+For more information, always consult the documentation of the classes we inherit from, such as `?mlr3::TaskSupervised`, `?mlr3::Prediction`, `?mlr3::Measure`, and `?mlr3torch::LearnerTorch`.
+For our count task, the target is a single integer column and we are inheriting from `TaskSupervised` because it is a supervised learning problem.
 
 ```{r new_task_type-003}
 TaskCount = R6Class("TaskCount", inherit = TaskSupervised,
@@ -50,16 +54,41 @@ TaskCount = R6Class("TaskCount", inherit = TaskSupervised,
 )
 ```
 
-A prediction for this task type contains the predicted rate as the `response`.
-The data of a prediction is stored in an object of class `PredictionData<Type>`, for which a few S3 generics of {mlr3} have to be implemented.
+The only property we need to check for the task's metadata is that the target is a single integer column.
+We do this by implementing `task_check_col_roles.TaskCount()`:
+
+```{r new_task_type-003b}
+task_check_col_roles.TaskCount = function(task, new_roles, ...) {
+  target = new_roles$target
+  if (length(target) > 1L) {
+    stop("Count tasks must have exactly one target column")
+  }
+  if (length(target) && task$col_info[list(target), "type", on = "id"][[1L]] != "integer") {
+    stop(sprintf("Target column '%s' must be an integer column", target))
+  }
+  NextMethod()
+}
+```
+
+Next, we define the structure of the prediction objects for this task type.
+A prediction for this task type contains the predicted rate as the `response`, i.e., the expected count, which is the parameter $\lambda$ of the Poisson distribution.
+For simplicity, we only support this single predict type `"response"`, but a task type can have multiple predict types, e.g., `"response"` and `"se"` for regression.
+
+Internally, {mlr3} mostly works with a lightweight representation of predictions: an S3 object of class `PredictionData<Type>`, i.e., a named list with class `c("PredictionDataCount", "PredictionData")`.
+It is also what is stored in the user-facing `Prediction` object, which is an `R6` class and is returned, e.g., by `learner$predict()`.
+Note that the `$response()` method needs to handle a non-existing target column to support prediction in the inference setting where no ground truth is available.
 
 ```{r new_task_type-004}
+new_prediction_data_count = function(row_ids, truth, response) {
+  structure(list(row_ids = row_ids, truth = truth, response = response),
+    class = c("PredictionDataCount", "PredictionData"))
+}
+
 PredictionCount = R6Class("PredictionCount", inherit = Prediction,
   public = list(
     initialize = function(task = NULL, row_ids = task$row_ids, truth = task$truth(),
       response = NULL, check = TRUE) {
-      pdata = structure(list(row_ids = row_ids, truth = truth, response = response),
-        class = c("PredictionDataCount", "PredictionData"))
+      pdata = new_prediction_data_count(row_ids, truth, response)
       if (check) pdata = check_prediction_data(pdata)
       self$task_type = "count"
       self$data = pdata
@@ -72,7 +101,16 @@ PredictionCount = R6Class("PredictionCount", inherit = Prediction,
     }
   )
 )
+```
 
+For the prediction data, a few S3 generics of {mlr3} have to be implemented: checking, filtering, and combining the prediction data, finding missing predictions, and converting it to a `Prediction`.
+In addition, `create_empty_prediction_data()` creates the prediction data when a learner predicts on a task without rows; it dispatches on the class of the task.
+Their implementations are straightforward, so we hide them below.
+
+<details>
+<summary>Implementation of the S3 methods</summary>
+
+```{r new_task_type-004b}
 as.data.table.PredictionCount = function(x, ...) {
   data.table(row_ids = x$row_ids, truth = x$truth, response = x$response)
 }
@@ -103,17 +141,29 @@ c.PredictionDataCount = function(..., keep_duplicates = TRUE) {
     keep = !duplicated(pdata$row_ids, fromLast = TRUE)
     pdata = lapply(pdata, function(x) x[keep])
   }
-  structure(pdata, class = c("PredictionDataCount", "PredictionData"))
+  new_prediction_data_count(pdata$row_ids, pdata$truth, pdata$response)
 }
 
 as_prediction.PredictionDataCount = function(x, check = FALSE, ...) {
   PredictionCount$new(row_ids = x$row_ids, truth = x$truth, response = x$response, check = check)
 }
+
+create_empty_prediction_data.TaskCount = function(task, learner) {
+  new_prediction_data_count(integer(), integer(), numeric())
+}
 ```
 
-In a package, these methods would be registered via `S3method()` in the `NAMESPACE` file.
-In this article, we register them manually.
-The registration of the other objects in this article (task type, measures, losses, and learners) is also done manually here; see [Registration in a Package](#sec-package) for how a package should do this.
+</details>
+
+Other S3 methods for tasks, such as `head()`, `summary()`, or `partition()`, are inherited from `Task` and need no dedicated implementation in this case.
+A package would usually also provide a converter `as_task_count()`, analogous to `as_task_regr()`, which we omit here.
+To see which methods a complete implementation of a task type should provide, look at an {mlr3} extension package that adds a task type, such as {mlr3survival}.
+
+Because this code is run as an article here, we need to manually register the S3 methods.
+In a package, they are instead declared in the `NAMESPACE` file via `S3method()` (e.g., using roxygen's `@export` tag).
+
+<details>
+<summary>Registration of the S3 methods</summary>
 
 ```{r new_task_type-005}
 for (generic in c("check_prediction_data", "is_missing_prediction_data",
@@ -121,9 +171,14 @@ for (generic in c("check_prediction_data", "is_missing_prediction_data",
   registerS3method(generic, "PredictionDataCount", get(paste0(generic, ".PredictionDataCount")))
 }
 registerS3method("as.data.table", "PredictionCount", as.data.table.PredictionCount)
+for (generic in c("task_check_col_roles", "create_empty_prediction_data")) {
+  registerS3method(generic, "TaskCount", get(paste0(generic, ".TaskCount")))
+}
 ```
 
-As the default measure, we use the Poisson deviance.
+</details>
+
+As the default measure, we use the (mean) Poisson deviance:
 
 ```{r new_task_type-006}
 MeasureCountDeviance = R6Class("MeasureCountDeviance", inherit = Measure,
@@ -144,12 +199,16 @@ MeasureCountDeviance = R6Class("MeasureCountDeviance", inherit = Measure,
 mlr_measures$add("count.deviance", MeasureCountDeviance)
 ```
 
+The last line adds the measure to the dictionary `mlr_measures` under the key `"count.deviance"`, so that it can be constructed via `msr("count.deviance")`.
+The default measure and the default loss of a task type, which we register below, are also specified by their keys and retrieved from these dictionaries.
+
 Finally, we register the task type in `mlr_reflections`.
-For simplicity, we copy most of the settings from the regression task type.
+Because our learner is quite similar to a regression learner and we want to keep things simple here, we reuse many of the settings from the regression task type.
+The `package` column names the package that provides the task type; `"mlr3count"` is a placeholder for the name of your extension package.
 
 ```{r new_task_type-007}
 mlr_reflections$task_types = setkeyv(rbind(mlr_reflections$task_types, data.table(
-  type = "count", package = "countpkg", task = "TaskCount", learner = "Learner",
+  type = "count", package = "mlr3count", task = "TaskCount", learner = "Learner",
   prediction = "PredictionCount", prediction_data = "PredictionDataCount",
   measure = "MeasureCountDeviance"
 ), fill = TRUE), "type")
@@ -167,8 +226,8 @@ mlr_reflections$default_measures$count = "count.deviance"
 The task-type-specific behavior is defined by three S3 generics, which dispatch on the class of the task:
 
 * `output_dim_for()`: How many output units the network needs.
-* `get_target_batchgetter()`: How the target is converted to a tensor.
-* `encode_prediction()`: How the output of the network is converted into the data of a prediction.
+* `get_target_batchgetter()`: How the target is converted to a tensor when loading the data.
+* `encode_prediction()`: How the output of the network (the torch tensor returned by its `$forward()` method) is converted into the data of a prediction.
 
 For Poisson regression, the network has a single output unit, which we interpret as the log-rate.
 
@@ -182,13 +241,21 @@ get_target_batchgetter.TaskCount = function(task, ...) {
 encode_prediction.TaskCount = function(task, network_output, predict_type, ...) {
   list(response = as.numeric(torch_exp(network_output)$cpu()))
 }
+```
 
+<details>
+<summary>Registration of the S3 methods</summary>
+
+```{r new_task_type-008b}
 registerS3method("output_dim_for", "TaskCount", output_dim_for.TaskCount)
 registerS3method("get_target_batchgetter", "TaskCount", get_target_batchgetter.TaskCount)
 registerS3method("encode_prediction", "TaskCount", encode_prediction.TaskCount)
 ```
 
+</details>
+
 Next, we need a loss for the new task type.
+Unlike the measure, which evaluates predictions in {mlr3} (e.g., in resampling or tuning), the loss is a differentiable function of the network output and the target tensor that is minimized during training.
 We add the Poisson negative log-likelihood to the `mlr3torch_losses` dictionary and declare that it can be used for the `"count"` task type.
 
 ```{r new_task_type-009}
@@ -217,9 +284,14 @@ Finally, we add the learners we want to offer for the new task type to the `mlr_
 mlr_learners$add("count.mlp", function(...) LearnerTorchMLP$new(task_type = "count", ...))
 ```
 
+This works for all learners whose architecture is agnostic to the task type, i.e., which only size their output layer via `output_dim_for()`.
+Some learners have task-specific parts, however.
+For example, TabM averages the predictions of its ensemble members differently for classification and regression in its private `$.encode_prediction()` method, so supporting a new task type requires overwriting this method.
+
 ## Using the New Task Type
 
 We simulate some count data, where the rate depends on two features.
+An actual extension package should also provide some example tasks, which are added to the `mlr_tasks` dictionary so that they can be constructed via `tsk()`.
 
 ```{r new_task_type-013}
 set.seed(42)
@@ -230,6 +302,12 @@ task = TaskCount$new("sim_count", backend = dat, target = "y")
 task
 ```
 
+A non-integer target is rejected by `task_check_col_roles()`:
+
+```{r new_task_type-013b, error = TRUE}
+TaskCount$new("invalid", backend = dat, target = "x1")
+```
+
 The learner can now be constructed without specifying the loss, and the measure defaults to the Poisson deviance.
 
 ```{r new_task_type-014}
@@ -237,7 +315,7 @@ learner = lrn("count.mlp", epochs = 50, batch_size = 32, neurons = 16, opt.lr = 
 learner$loss
 ```
 
-Because the task type is registered with {mlr3}, the learner can be resampled, tuned, and benchmarked like any other learner, and a mismatch between task types is caught.
+Because the task type is registered with {mlr3}, everything just works, e.g. the learner can be resampled like any other learner:
 
 ```{r new_task_type-015}
 rr = resample(task, learner, rsmp("holdout"))
@@ -245,32 +323,33 @@ rr$aggregate()
 head(as.data.table(rr$prediction()))
 ```
 
-```{r new_task_type-016, error = TRUE}
-learner$train(tsk("mtcars"))
-```
+```{r new_task_type-016, include = FALSE}
+# not shown: checks that the task type also works with graph architectures, benchmarking and
+# (nested) tuning, and that a mismatch between task types is caught
+err = tryCatch(learner$train(tsk("mtcars")), error = conditionMessage)
+stopifnot(is.character(err), grepl("does not match type 'count'", err))
 
-To compare the network with a baseline in a benchmark experiment, we also add the featureless torch learner for the new task type, which predicts a constant rate.
-We compare both learners on two count tasks with different numbers of observations using 3-fold cross-validation.
+graph = po("torch_ingress_num") %>>%
+  nn("linear", out_features = 16) %>>%
+  nn("relu") %>>%
+  nn("head") %>>%
+  po("torch_loss", "poisson") %>>%
+  po("torch_optimizer", "adam", lr = 0.01) %>>%
+  po("torch_model", task_type = "count", epochs = 50, batch_size = 32)
+glrn = as_learner(graph)
+rr_graph = resample(task, glrn, rsmp("holdout"))
+stopifnot(is.finite(rr_graph$aggregate()))
 
-```{r new_task_type-017}
 mlr_learners$add("count.torch_featureless", function(...) {
   LearnerTorchFeatureless$new(task_type = "count", ...)
 })
 featureless = lrn("count.torch_featureless", epochs = 50, batch_size = 32, opt.lr = 0.05)
-
 task_small = TaskCount$new("sim_count_small", backend = dat[1:300], target = "y")
 design = benchmark_grid(list(task, task_small), list(learner, featureless), rsmp("cv", folds = 3))
 bmr = benchmark(design)
-bmr$aggregate(msr("count.deviance"))[, .(task_id, learner_id, count.deviance)]
-```
+stopifnot(all(is.finite(bmr$aggregate()$count.deviance)))
 
-The learner can also be tuned.
-Below, we tune the number of epochs via early stopping on a validation set, which evaluates the Poisson deviance after every epoch, and jointly tune the learning rate and the number of neurons using random search.
-The tuned learner is then evaluated in a nested resampling.
-
-```{r new_task_type-018}
 library(mlr3tuning)
-
 learner_tune = lrn("count.mlp",
   batch_size = 32,
   epochs = to_tune(upper = 100, internal = TRUE),
@@ -280,7 +359,6 @@ learner_tune = lrn("count.mlp",
   neurons = to_tune(c(8, 16, 32)),
   validate = 0.2
 )
-
 at = auto_tuner(
   tuner = tnr("random_search"),
   learner = learner_tune,
@@ -288,18 +366,13 @@ at = auto_tuner(
   measure = msr("count.deviance"),
   term_evals = 4
 )
-rr_nested = resample(task, at, rsmp("cv", folds = 3), store_models = TRUE)
-rr_nested$aggregate()
-extract_inner_tuning_results(rr_nested)[, .(iteration, opt.lr, neurons, internal_tuned_values, count.deviance)]
+rr_nested = resample(task, at, rsmp("cv", folds = 3))
+stopifnot(is.finite(rr_nested$aggregate()))
 ```
 
 ## Registration in a Package {#sec-package}
 
-In this article, we modified `mlr_reflections`, `mlr_measures`, `mlr3torch_losses`, and `mlr_learners` directly in the global session.
-A third-party package must not do this at the top level of its code, because these objects are created when {mlr3} and {mlr3torch} are loaded, and they are re-created when one of them is reloaded, which would discard the registrations.
-For example, {mlr3torch} creates `mlr_reflections$torch`, including the `default_losses`, in its `.onLoad()` function.
-Instead, all registrations should happen in callbacks that are registered in the package's `.onLoad()` function and that are run whenever {mlr3} or {mlr3torch} is loaded.
-This can be done with `mlr3misc::register_namespace_callback()`, which runs the callback immediately if the namespace is already loaded and otherwise once it is loaded.
-For how to do this in practice, see the `.onLoad()` function of an {mlr3} extension package that adds a task type, such as {mlr3proba} or {mlr3torch} itself (in the file `R/zzz.R`).
-The {mlr3torch}-specific parts, i.e., the default loss, the losses, and the learners, should be registered in a separate callback for {mlr3torch}, which also allows {mlr3torch} to be only a suggested dependency.
-The package should also undo its registrations in `.onUnload()`.
+In this article, we modified the registries `mlr_reflections`, `mlr_measures`, `mlr3torch_losses`, and `mlr_learners` directly.
+If you are working on a package, this should be done in the `.onLoad()` hook instead, see {mlr3survival}'s `.onLoad()` implementation for an example.
+This requires the package whose registries are extended to be in `Imports`.
+If it is only in `Suggests`, e.g., to make {mlr3torch} an optional dependency, it may not be loaded yet when your package is loaded, so the registrations have to be done in a callback that runs once it is loaded, which can be registered via `mlr3misc::register_namespace_callback()`.

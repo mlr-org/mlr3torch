@@ -24,11 +24,10 @@
 
 * The default loss of `LearnerTorch` for a task type is now taken from
   `mlr_reflections$torch$default_losses`, so extension packages can register a default loss for
-  their own task types. The new article "Adding a New Task Type" shows all steps needed to use
-  `LearnerTorch` with a new task type.
+  their own task types.
+* The new article "Adding a New Task Type" shows all steps needed to extend mlr3torch to new task types.
 * With `drop_last = TRUE`, `LearnerTorch` now caps the training batch size at the number of
   training observations instead of dropping all of them.
-
 * New function `as_learner_torch()`, which converts a `Graph` of `PipeOpTorch` operators into a
   `Learner`. It's advantage over `as_learner()` is that the resulting learner exposes methods like
   `$network()` and `$dataset()`.
