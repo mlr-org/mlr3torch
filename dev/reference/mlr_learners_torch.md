@@ -462,8 +462,13 @@ task-type-specific behaviour:
 (how the target is turned into a tensor) and
 [`encode_prediction()`](https://mlr3torch.mlr-org.com/dev/reference/encode_prediction.md)
 (how the network's output is turned back into a prediction). Such a
-learner also has to be given a `loss` explicitly. This class can also be
-used for custom task types, see
+learner also has to be given a `loss` explicitly, unless a default loss
+is registered for the task type by adding the id of a loss from
+[`mlr3torch_losses`](https://mlr3torch.mlr-org.com/dev/reference/mlr3torch_losses.md)
+to `mlr_reflections$torch$default_losses`, e.g.
+`mlr_reflections$torch$default_losses$surv = "my_surv_loss"`. See the
+*Adding a New Task Type* article for a complete example. This class can
+also be used for custom task types, see
 [`TaskTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_torch.md)
 and the *Custom Learning Problems* article for more information.
 
@@ -817,10 +822,12 @@ Creates a new instance of this
 
   (`NULL` or
   [`TorchLoss`](https://mlr3torch.mlr-org.com/dev/reference/TorchLoss.md))  
-  The loss to use for training. Defaults to MSE for regression and cross
-  entropy for classification. For other task types there is no default
-  and the loss has to be given, because which loss is appropriate
-  depends on the learning problem.
+  The loss to use for training. Defaults to the loss registered for the
+  task type in `mlr_reflections$torch$default_losses`, which is MSE for
+  regression and cross entropy for classification. For other task types
+  there is no default unless one is registered, and the loss has to be
+  given, because which loss is appropriate depends on the learning
+  problem.
 
 - `packages`:
 

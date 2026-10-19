@@ -18,6 +18,8 @@
   Tensor](https://mlr3torch.mlr-org.com/dev/articles/lazy_tensor.md):
 - [Loss
   Functions](https://mlr3torch.mlr-org.com/dev/articles/loss_list.md):
+- [Adding a New Task
+  Type](https://mlr3torch.mlr-org.com/dev/articles/new_task_type.md):
 - [Optimizers](https://mlr3torch.mlr-org.com/dev/articles/optimizer_list.md):
 - [Defining an
   Architecture](https://mlr3torch.mlr-org.com/dev/articles/pipeop_torch.md):

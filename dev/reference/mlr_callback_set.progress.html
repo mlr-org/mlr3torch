@@ -30,6 +30,7 @@
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
     <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
+    <li><a class="dropdown-item" href="../articles/new_task_type.html">Adding a New Task Type</a></li>
     <li><a class="dropdown-item" href="../articles/custom_pipeop_torch.html">Writing your own PipeOpTorch</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
@@ -259,8 +260,8 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 1/5 started (2026-10-15 16:37:33)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 1 started (2026-10-15 16:37:34)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 1/5 started (2026-10-19 09:11:38)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 1 started (2026-10-19 09:11:38)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -270,8 +271,8 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.78</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 2/5 started (2026-10-15 16:37:34)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 2 started (2026-10-15 16:37:34)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 2/5 started (2026-10-19 09:11:38)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 2 started (2026-10-19 09:11:39)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 2]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -281,8 +282,8 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.53</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 3/5 started (2026-10-15 16:37:34)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 3 started (2026-10-15 16:37:34)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 3/5 started (2026-10-19 09:11:39)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 3 started (2026-10-19 09:11:39)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 3]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -292,8 +293,8 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.60</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 4/5 started (2026-10-15 16:37:35)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 4 started (2026-10-15 16:37:35)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 4/5 started (2026-10-19 09:11:39)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 4 started (2026-10-19 09:11:40)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 4]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -303,8 +304,8 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.60</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 5/5 started (2026-10-15 16:37:35)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 5 started (2026-10-15 16:37:35)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 5/5 started (2026-10-19 09:11:40)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Validation for epoch 5 started (2026-10-19 09:11:40)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 5]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -314,7 +315,7 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.60</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Finished training for 5 epochs (2026-10-15 16:37:35, 2.3s total)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Finished training for 5 epochs (2026-10-19 09:11:40, 2.4s total)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

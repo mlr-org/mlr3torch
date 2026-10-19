@@ -57,6 +57,7 @@
     <li><a class="dropdown-item" href="articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="articles/lazy_tensor.html">Non-Tabular Data</a></li>
     <li><a class="dropdown-item" href="articles/custom_task_type.html">Custom Learning Problems</a></li>
+    <li><a class="dropdown-item" href="articles/new_task_type.html">Adding a New Task Type</a></li>
     <li><a class="dropdown-item" href="articles/custom_pipeop_torch.html">Writing your own PipeOpTorch</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
@@ -245,7 +246,9 @@
 <li>
 <strong>Custom architectures</strong> can be defined using the <code>Graph</code> language from <code>mlr3pipelines</code> and turned into a learner. Alternatively, you can also simply define your custom architecture as a <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">torch::nn_module</a></code>.</li>
 <li>
-<strong>Beyond regression and classification</strong>: The package makes it easy to go beyond classification and regression to tackle other learning problems; see the <a href="https://mlr3torch.mlr-org.com/dev/articles/custom_task_type.html">Custom Learning Problems</a> article.</li>
+<strong>Beyond regression and classification</strong>: The package makes it easy to go beyond classification and regression to tackle other learning problems; see the <a href="https://mlr3torch.mlr-org.com/dev/articles/custom_task_type.html">Custom Learning Problems</a> article. Third-party packages can also add new task types that reuse the infrastructure of both {mlr3torch} and {mlr3}, see the <a href="https://mlr3torch.mlr-org.com/dev/articles/new_task_type.html">Adding a New Task Type</a> article.</li>
+<li>
+<strong>Extensibility</strong>: All building blocks, i.e., layers, losses, optimizers, callbacks, and learners, can be extended with custom implementations.</li>
 <li>
 <strong>Tensor Columns</strong>: The package makes it possible to store arbitrary tensors alongside tabular features via the <code>lazy_tensor</code> data type. This means that, in principle, the package can support arbitrary modalities of data, including multi-modal datasets.</li>
 <li>

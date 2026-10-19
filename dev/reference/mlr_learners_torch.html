@@ -32,6 +32,7 @@ All torch learners should inherit from this class."><meta property="og:image" co
     <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
     <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
     <li><a class="dropdown-item" href="../articles/custom_task_type.html">Custom Learning Problems</a></li>
+    <li><a class="dropdown-item" href="../articles/new_task_type.html">Adding a New Task Type</a></li>
     <li><a class="dropdown-item" href="../articles/custom_pipeop_torch.html">Writing your own PipeOpTorch</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
@@ -372,7 +373,10 @@ Support for a task type that <a href="https://CRAN.R-project.org/package=mlr3tor
 the three S3 generics that hold the task-type-specific behaviour: <code><a href="output_dim_for.html">output_dim_for()</a></code> (how many
 output neurons the network needs), <code><a href="get_target_batchgetter.html">get_target_batchgetter()</a></code> (how the target is turned into a
 tensor) and <code><a href="encode_prediction.html">encode_prediction()</a></code> (how the network's output is turned back into a prediction).
-Such a learner also has to be given a <code>loss</code> explicitly.
+Such a learner also has to be given a <code>loss</code> explicitly, unless a default loss is registered for the
+task type by adding the id of a loss from <code><a href="mlr3torch_losses.html">mlr3torch_losses</a></code> to <code>mlr_reflections$torch$default_losses</code>,
+e.g. <code>mlr_reflections$torch$default_losses$surv = "my_surv_loss"</code>.
+See the <em>Adding a New Task Type</em> article for a complete example.
 This class can also be used for custom task types, see <code><a href="mlr_tasks_torch.html">TaskTorch</a></code> and the
 <em>Custom Learning Problems</em> article for more information.</p>
 <p>When inheriting from this class, one should overload the following methods:</p><ul><li><p><code>.network(task, param_vals)</code><br>
@@ -618,9 +622,10 @@ Defaults to adam.</p></dd>
       <dt><code>loss</code></dt>
 <dd><p>(<code>NULL</code> or <code><a href="TorchLoss.html">TorchLoss</a></code>)<br>
 The loss to use for training.
-Defaults to MSE for regression and cross entropy for classification.
-For other task types there is no default and the loss has to be given, because which loss is
-appropriate depends on the learning problem.</p></dd>
+Defaults to the loss registered for the task type in <code>mlr_reflections$torch$default_losses</code>,
+which is MSE for regression and cross entropy for classification.
+For other task types there is no default unless one is registered, and the loss has to be given,
+because which loss is appropriate depends on the learning problem.</p></dd>
 
       <dt><code>packages</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>

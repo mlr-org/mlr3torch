@@ -11,13 +11,14 @@ articles:
   articles/layer_list: layer_list.html
   articles/lazy_tensor: lazy_tensor.html
   articles/loss_list: loss_list.html
+  articles/new_task_type: new_task_type.html
   articles/optimizer_list: optimizer_list.html
   articles/pipeop_torch: pipeop_torch.html
   articles/preprocessing_list: preprocessing_list.html
   articles/tabular_learner_list: tabular_learner_list.html
   articles/task_list: task_list.html
   articles/vision_learner_list: vision_learner_list.html
-last_built: 2026-10-15T16:36Z
+last_built: 2026-10-19T09:11Z
 urls:
   reference: https://mlr3torch.mlr-org.com/reference
   article: https://mlr3torch.mlr-org.com/articles

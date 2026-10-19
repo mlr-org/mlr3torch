@@ -221,7 +221,14 @@ deep_learner$train(mnist)
   go beyond classification and regression to tackle other learning
   problems; see the [Custom Learning
   Problems](https://mlr3torch.mlr-org.com/dev/articles/custom_task_type.html)
+  article. Third-party packages can also add new task types that reuse
+  the infrastructure of both {mlr3torch} and {mlr3}, see the [Adding a
+  New Task
+  Type](https://mlr3torch.mlr-org.com/dev/articles/new_task_type.html)
   article.
+- **Extensibility**: All building blocks, i.e., layers, losses,
+  optimizers, callbacks, and learners, can be extended with custom
+  implementations.
 - **Tensor Columns**: The package makes it possible to store arbitrary
   tensors alongside tabular features via the `lazy_tensor` data type.
   This means that, in principle, the package can support arbitrary

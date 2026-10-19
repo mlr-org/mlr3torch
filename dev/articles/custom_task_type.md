@@ -465,4 +465,7 @@ also holds true for measures. As such, the `TaskTorch` is a *quick and
 dirty* way to approach a modeling problem. The alternative is to
 properly create a new task type, which requires implementing sub-classes
 (such as `TaskRegr`, `MeasureRegr`, etc.) and registering the new task
-type with {mlr3}.
+type with {mlr3}. How to do this and make it work with {mlr3torch} is
+shown in the [Adding a New Task
+Type](https://mlr3torch.mlr-org.com/dev/articles/new_task_type.md)
+article.
