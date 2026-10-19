@@ -7,6 +7,11 @@ that
 returns. On top of a `GraphLearner` it has the `$network`, `$loss`,
 `$optimizer` and `$callbacks` fields and the `$dataset()` method of a
 [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md).
+If the graph contains a
+[`PipeOpTorchModel`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_model.md),
+the loss, optimizer and callbacks are those of its configuring
+operators, otherwise those of its base
+[`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md).
 It is not in the
 [`mlr_learners`](https://mlr3.mlr-org.com/reference/mlr_learners.html)
 dictionary, because it cannot be constructed without a graph.
@@ -43,14 +48,18 @@ Other Learner:
 
   ([`TorchLoss`](https://mlr3torch.mlr-org.com/dev/reference/TorchLoss.md))  
   The torch loss, i.e. the one of the graph's
-  [`PipeOpTorchLoss`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_loss.md).
+  [`PipeOpTorchLoss`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_loss.md)
+  or of its base
+  [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md).
   Read-only, the graph configures it.
 
 - `optimizer`:
 
   ([`TorchOptimizer`](https://mlr3torch.mlr-org.com/dev/reference/TorchOptimizer.md))  
   The torch optimizer, i.e. the one of the graph's
-  [`PipeOpTorchOptimizer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_optimizer.md).
+  [`PipeOpTorchOptimizer`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_optimizer.md)
+  or of its base
+  [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md).
   Read-only, the graph configures it.
 
 - `callbacks`:
@@ -58,7 +67,9 @@ Other Learner:
   ([`list()`](https://rdrr.io/r/base/list.html) of
   [`TorchCallback`](https://mlr3torch.mlr-org.com/dev/reference/TorchCallback.md)s)  
   The callbacks, i.e. those of the graph's
-  [`PipeOpTorchCallbacks`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_callbacks.md).
+  [`PipeOpTorchCallbacks`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_callbacks.md)
+  or of its base
+  [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md).
   Read-only, the graph configures them.
 
 ## Methods

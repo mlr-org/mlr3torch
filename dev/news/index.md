@@ -54,7 +54,9 @@
   Its advantage over
   [`as_learner()`](https://mlr3.mlr-org.com/reference/as_learner.html)
   is that the resulting learner exposes methods like `$network()` and
-  `$dataset()`.
+  `$dataset()`. Besides graphs of `PipeOpTorch` operators, it also
+  accepts graphs whose base learner is a `LearnerTorch`,
+  e.g. `po("scale") %>>% lrn("classif.mlp")`.
 - `LearnerTorch` and `PipeOpTorchModel` now accept any task type
   registered in `mlr_reflections$task_types`, via the new generics
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md)

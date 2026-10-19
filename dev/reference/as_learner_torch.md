@@ -4,7 +4,12 @@ Converts a
 [`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)
 representing a deep learning pipeline into a
 [`GraphLearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/GraphLearnerTorch.md).
-The advantage over using
+The graph either builds the network from `PipeOpTorch` operators and
+ends in a
+[`PipeOpTorchModel`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_model.md),
+or its base learner is a
+[`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md),
+e.g. `po("scale") %>>% lrn("classif.mlp")`. The advantage over using
 [`as_learner()`](https://mlr3.mlr-org.com/reference/as_learner.html) is
 that the resulting learner exposes methods like `$dataset()` and fields
 like `$network`.
