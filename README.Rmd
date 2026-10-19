@@ -116,7 +116,7 @@ It wraps a `torch::dataset`, but makes it possible to preprocess the data (lazil
 Below, we flatten the MNIST task, so we can then train a multi-layer perceptron on it.
 Note that this does *not* transform the data in-memory, but is only applied when the data is actually loaded.
 
-```{r}
+```{r, message = FALSE}
 # load the predefined mnist task
 mnist = tsk("mnist")
 mnist$head(3L)
@@ -202,6 +202,9 @@ deep_learner$train(mnist)
   Alternatively, you can also simply define your custom architecture as a `torch::nn_module`.
 * **Beyond regression and classification**: The package makes it easy to go beyond classification and regression
   to tackle other learning problems; see the [Custom Learning Problems](https://mlr3torch.mlr-org.com/dev/articles/custom_task_type.html) article.
+  Third-party packages can also add new task types that reuse the infrastructure of both {mlr3torch} and {mlr3},
+  see the [Adding a New Task Type](https://mlr3torch.mlr-org.com/dev/articles/new_task_type.html) article.
+* **Extensibility**: All building blocks, i.e., layers, losses, optimizers, callbacks, and learners, can be extended with custom implementations.
 * **Tensor Columns**: The package makes it possible to store arbitrary tensors alongside tabular features via the `lazy_tensor` data type.
   This means that, in principle, the package can support arbitrary modalities of data, including multi-modal datasets.
 * **Customizable training**: The training loop can be customized via (predefined or custom) callbacks for logging, learning rate scheduling, or other purposes.

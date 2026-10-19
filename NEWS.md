@@ -22,10 +22,13 @@
 
 ## Features
 
+* The default loss of `LearnerTorch` for a task type is now taken from
+  `mlr_reflections$torch$default_losses`, so extension packages can register a default loss for
+  their own task types.
+* The new article "Adding a New Task Type" shows all steps needed to extend mlr3torch to new task types.
 * The training loop no longer calls `$item()` on the loss in every step, which avoids a device
   synchronization per batch on the GPU. `ctx$last_loss` is still a `numeric(1)`; it is only
   converted when a callback accesses it.
-
 * With `drop_last = TRUE`, `LearnerTorch` now caps the training batch size at the number of
   training observations instead of dropping all of them.
 * New function `as_learner_torch()`, which converts a `Graph` of `PipeOpTorch` operators into a

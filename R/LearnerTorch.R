@@ -161,9 +161,10 @@
 #'   method, see section *Inheriting*.
 #' @param loss (`NULL` or [`TorchLoss`])\cr
 #'   The loss to use for training.
-#'   Defaults to MSE for regression and cross entropy for classification.
-#'   For other task types there is no default and the loss has to be given, because which loss is
-#'   appropriate depends on the learning problem.
+#'   Defaults to the loss registered for the task type in `mlr_reflections$torch$default_losses`,
+#'   which is MSE for regression and cross entropy for classification.
+#'   For other task types there is no default unless one is registered, and the loss has to be given,
+#'   because which loss is appropriate depends on the learning problem.
 #' @param optimizer (`NULL` or [`TorchOptimizer`])\cr
 #'   The optimizer to use for training.
 #'   Defaults to adam.
@@ -196,7 +197,10 @@
 #' the three S3 generics that hold the task-type-specific behaviour: [`output_dim_for()`] (how many
 #' output neurons the network needs), [`get_target_batchgetter()`] (how the target is turned into a
 #' tensor) and [`encode_prediction()`] (how the network's output is turned back into a prediction).
-#' Such a learner also has to be given a `loss` explicitly.
+#' Such a learner also has to be given a `loss` explicitly, unless a default loss is registered for the
+#' task type by adding the id of a loss from [`mlr3torch_losses`] to `mlr_reflections$torch$default_losses`,
+#' e.g. `mlr_reflections$torch$default_losses$surv = "my_surv_loss"`.
+#' See the *Adding a New Task Type* article for a complete example.
 #' This class can also be used for custom task types, see [`TaskTorch`] and the
 #' *Custom Learning Problems* article for more information.
 #'
@@ -346,7 +350,7 @@ LearnerTorch = R6Class("LearnerTorch",
       # loss needs access to the task_type
       self$task_type = task_type
       if (is.null(loss)) {
-        default_loss = switch(task_type, classif = "cross_entropy", regr = "mse", NULL)
+        default_loss = mlr_reflections$torch$default_losses[[task_type]]
         if (is.null(default_loss)) {
           stopf("There is no default loss for task type '%s', pass the `loss` explicitly.", task_type) # nolint
         }
