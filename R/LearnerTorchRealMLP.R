@@ -4,8 +4,10 @@
 # `models/sklearn/default_params.py`.
 #
 # Deviations:
-#  * Binary classification returns the difference of the two logits. this is mathematically equivalent
-#    to predicting logit per class.
+#  * Binary classification uses a single output unit (one logit) instead of one unit per class.
+#    To train like the difference of upstream's two logits, the last layer gets twice the learning
+#    rate and half the weight decay factor, which is exact, and its initialization is scaled by
+#    sqrt(2), which matches the variance.
 #  * Missing values are not supported.
 #  * Weights are not rescaled when a pre-activation has zero standard deviation during the
 #    initialization (upstream produces non-finite weights).
@@ -203,7 +205,8 @@ realmlp_subsample_rows = function(x, n_forward, ram_limit_gb) {
 
 # The RealMLP network including its preprocessing. The preprocessing statistics and the
 # data-dependent initialization are computed from the training data `x_num` / `x_cat` (1-based
-# codes). For binary classification (`d_out = 2`), the difference of the two logits is returned.
+# codes). For binary classification (`binary = TRUE`), the single logit is trained like the
+# difference of two logits, see the deviations above.
 nn_realmlp = nn_module("nn_realmlp",
   initialize = function(x_num = NULL, x_cat = NULL, cat_cardinalities = integer(0), d_out,
     binary = FALSE, y = NULL, normalize_output = FALSE, clamp_output = FALSE,
@@ -218,8 +221,8 @@ nn_realmlp = nn_module("nn_realmlp",
       coerce = TRUE)
     d_out = assert_int(d_out, lower = 1L, coerce = TRUE)
     assert_flag(binary)
-    if (binary && d_out != 2L) {
-      stopf("A binary classification network must have d_out = 2, but has %i.", d_out)
+    if (binary && d_out != 1L) {
+      stopf("A binary classification network must have d_out = 1, but has %i.", d_out)
     }
     n_hidden_layers = assert_int(n_hidden_layers, lower = 0L, coerce = TRUE)
     hidden_width = assert_int(hidden_width, lower = 1L, coerce = TRUE)
@@ -335,8 +338,9 @@ nn_realmlp = nn_module("nn_realmlp",
     }
     rows = subsample(rows, n_forward$embedding)
     if (classification) {
-      # soft labels and label smoothing
-      rows = subsample(subsample(rows, d_out), d_out)
+      # soft labels and label smoothing; upstream has two outputs for binary classification
+      n_classes = if (binary) 2L else d_out
+      rows = subsample(subsample(rows, n_classes), n_classes)
     }
     with_no_grad({
       x = self$embed(
@@ -350,6 +354,11 @@ nn_realmlp = nn_module("nn_realmlp",
         if (!is.null(block$scale)) x = realmlp_subsample_rows(x, block$d_in, init_ram_limit_gb)
         x = block$init_from_data(x)
         if (!is.null(block$act_fn)) x = realmlp_subsample_rows(x, x$shape[2L], init_ram_limit_gb)
+      }
+      if (binary) {
+        last = self$blocks[[length(self$blocks)]]
+        last$weight$mul_(sqrt(2))
+        last$bias$mul_(sqrt(2))
       }
     })
     self$set_dropout(p_drop)
@@ -402,7 +411,6 @@ nn_realmlp = nn_module("nn_realmlp",
     for (i in seq_along(self$blocks)) {
       x = self$blocks[[i]](x)
     }
-    if (self$binary) x = x[, 1:1] - x[, 2:2]
     if (self$normalize_output) x = x * self$y_std + self$y_mean
     if (self$clamp_output && !self$training) {
       x = torch_minimum(torch_maximum(x, self$y_min), self$y_max)
@@ -423,8 +431,10 @@ nn_realmlp = nn_module("nn_realmlp",
       for (i in seq_along(self$blocks)) {
         block = self$blocks[[i]]
         if (!is.null(block$scale)) add(block$scale, lr_factors$scale, 1)
-        add(block$weight, 1, 1)
-        add(block$bias, lr_factors$bias, 0)
+        # a single binary logit is trained like the difference of two logits
+        out_factor = if (self$binary && i == length(self$blocks)) 2 else 1
+        add(block$weight, out_factor, 1 / out_factor)
+        add(block$bias, lr_factors$bias * out_factor, 0)
         if (!is.null(block$act_weight)) add(block$act_weight, lr_factors$act, 1)
       }
       if (length(entries) != length(self$parameters)) {
@@ -739,7 +749,7 @@ LearnerTorchRealMLP = R6Class("LearnerTorchRealMLP",
         x_num = x_num,
         x_cat = x_cat,
         cat_cardinalities = unname(categ_cardinalities(task)),
-        d_out = if (is_regr) 1L else length(task$class_names),
+        d_out = output_dim_for(task),
         binary = !is_regr && "twoclass" %in% task$properties,
         classification = !is_regr,
         y = if (is_regr) task$truth(),

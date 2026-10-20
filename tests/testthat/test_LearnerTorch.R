@@ -1101,7 +1101,7 @@ test_that("NA prediction during validation does not cause issues.", {
     callbacks = t_clbk("history")
   )
   task = tsk("mtcars")
-  learner$train(task)
+  expect_warning(learner$train(task), "could not be computed")
   expect_true(
     is.na(learner$model$callbacks$history$valid.regr.mse[1L])
   )
@@ -1760,4 +1760,29 @@ test_that(".setup_training may only add callbacks", {
   expect_error(learner$train(tsk("iris")), "reserved id 'early_stopping'")
   learner = make_learner(function(ctx, param_vals) ctx$loss_fn = "not a loss")
   expect_error(learner$train(tsk("iris")), "ctx\\$loss_fn")
+})
+
+test_that("default loss is taken from mlr_reflections", {
+  expect_equal(LearnerTorchFeatureless$new(task_type = "classif")$loss$id, "cross_entropy")
+  expect_equal(LearnerTorchFeatureless$new(task_type = "regr")$loss$id, "mse")
+  make_learner = function() {
+    LearnerTorchModule$new(module_generator = function(task) nn_linear(1, 1), task_type = "torch",
+      ingress_tokens = list(x = ingress_num()))
+  }
+  expect_error(make_learner(), "no default loss for task type 'torch'")
+
+  old = mlr_reflections$torch$default_losses
+  on.exit({mlr_reflections$torch$default_losses = old}, add = TRUE)
+  mlr_reflections$torch$default_losses$torch = "mse"
+  expect_equal(make_learner()$loss$id, "mse")
+})
+
+test_that("device with an index can be used for training, prediction and materialize()", {
+  learner = lrn("classif.mlp", device = "cpu:0", epochs = 1L, batch_size = 16L, neurons = 4L)
+  task = tsk("iris")
+  learner$train(task)
+  expect_equal(learner$network$parameters[[1L]]$device$type, "cpu")
+  expect_prediction(learner$predict(task))
+  expect_class(materialize(as_lazy_tensor(1:2), device = "cpu:0", rbind = TRUE), "torch_tensor")
+  expect_error(materialize(as_lazy_tensor(1:2), device = "gpu:0"), "Must be one of")
 })

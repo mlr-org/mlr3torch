@@ -230,16 +230,26 @@ test_that("the initialization does not use dropout", {
   expect_true(net2$training)
 })
 
-test_that("binary classification returns the logit of the first class", {
+test_that("binary classification uses a single logit", {
+  task = tsk("sonar")
+  learner = lrn("classif.realmlp", n_hidden_layers = 1L, hidden_width = 4L, epochs = 1L,
+    batch_size = 50L)
+  learner$train(task)
+  network = learner$network
+  network$eval()
+  x_num = torch_tensor(as.matrix(task$data(rows = 1:5, cols = task$feature_names)))
+  expect_equal(network(x_num)$shape, c(5, 1))
+})
+
+test_that("the binary logit is trained like the difference of two logits", {
   x_num = torch_randn(20, 3)
-  net = nn_realmlp(x_num = x_num, d_out = 2L, binary = TRUE, n_hidden_layers = 1L,
-    hidden_width = 4L)
-  net$eval()
-  out = net(x_num)
-  expect_equal(out$shape, c(20, 1))
-  logits = net$blocks[[2L]](net$blocks[[1L]](net$embed(x_num)))
-  expect_equal(as_array(out[, 1]), as_array(logits[, 1] - logits[, 2]), tolerance = 1e-6)
-  expect_error(nn_realmlp(x_num = x_num, d_out = 3L, binary = TRUE), "must have d_out = 2")
+  args = list(x_num = x_num, d_out = 1L, n_hidden_layers = 1L, hidden_width = 4L)
+  has_out_factors = function(net) {
+    some(net$param_group_factors(), identical, list(lr_factor = 2, wd_factor = 0.5))
+  }
+  expect_true(has_out_factors(do.call(nn_realmlp, c(args, binary = TRUE))))
+  expect_false(has_out_factors(do.call(nn_realmlp, args)))
+  expect_error(nn_realmlp(x_num = x_num, d_out = 2L, binary = TRUE), "must have d_out = 1")
 })
 
 test_that("regression outputs are rescaled and clamped", {

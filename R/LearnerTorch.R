@@ -138,6 +138,45 @@
 #'
 #' Also, see the *Early Stopping and Internal Tuning* section for how to terminate training early.
 #'
+#' @section Multiple GPUs:
+#' A single model is trained on one device. Set `device` to `"cuda"` for the default GPU, or to
+#' `"cuda:<index>"`, e.g. `"cuda:1"`, for a specific one.
+#'
+#' To spread resampling, benchmarking or tuning over several GPUs, start one [`mirai`][mirai::mirai]
+#' daemon per GPU and restrict each daemon to its own GPU with the environment variable
+#' `CUDA_VISIBLE_DEVICES`. Inside a daemon, its GPU is then the only one, so `device = "cuda"` is
+#' correct for every resampling iteration. A device index such as `"cuda:1"` does not help here,
+#' because all iterations share the same parameter values.
+#' mlr3 uses the daemons of the compute profile `"mlr3_parallelization"`, and a daemon inherits the
+#' environment variables of the R session that launches it:
+#' ```r
+#' library(mirai)
+#' gpus = c("0", "1")
+#' daemons(url = local_url(), .compute = "mlr3_parallelization")
+#' for (id in gpus) {
+#'   Sys.setenv(CUDA_VISIBLE_DEVICES = id)
+#'   launch_local(1, .compute = "mlr3_parallelization")
+#' }
+#' Sys.unsetenv("CUDA_VISIBLE_DEVICES")
+#'
+#' learner = lrn("classif.mlp", device = "cuda", epochs = 50, batch_size = 64)
+#' rr = resample(tsk("spam"), learner, rsmp("cv", folds = 10))
+#' daemons(0, .compute = "mlr3_parallelization")
+#' ```
+#' Each resampling iteration goes to the next free daemon, so all GPUs stay busy until fewer
+#' iterations than GPUs remain.
+#'
+#' Things to avoid:
+#' * `daemons(n)` alone: every daemon sees all GPUs, and `"cuda"` is the first GPU in each of them,
+#'   so all iterations share that one GPU.
+#' * Forking a process that has already initialized CUDA, e.g. with `future::plan("multicore")`.
+#' * A high `num_threads`: data loading and preprocessing still run on the CPU in all daemons at
+#'   once, so divide the CPU cores among them.
+#'
+#' Several daemons per GPU only pay off when one model leaves the GPU underused, e.g. because it is
+#' small and training is bound by the per-batch overhead in R. Then all models must also fit into
+#' that GPU's memory together.
+#'
 #' @template param_id
 #' @template param_task_type
 #' @template param_param_vals
@@ -161,9 +200,10 @@
 #'   method, see section *Inheriting*.
 #' @param loss (`NULL` or [`TorchLoss`])\cr
 #'   The loss to use for training.
-#'   Defaults to MSE for regression and cross entropy for classification.
-#'   For other task types there is no default and the loss has to be given, because which loss is
-#'   appropriate depends on the learning problem.
+#'   Defaults to the loss registered for the task type in `mlr_reflections$torch$default_losses`,
+#'   which is MSE for regression and cross entropy for classification.
+#'   For other task types there is no default unless one is registered, and the loss has to be given,
+#'   because which loss is appropriate depends on the learning problem.
 #' @param optimizer (`NULL` or [`TorchOptimizer`])\cr
 #'   The optimizer to use for training.
 #'   Defaults to adam.
@@ -196,7 +236,10 @@
 #' the three S3 generics that hold the task-type-specific behaviour: [`output_dim_for()`] (how many
 #' output neurons the network needs), [`get_target_batchgetter()`] (how the target is turned into a
 #' tensor) and [`encode_prediction()`] (how the network's output is turned back into a prediction).
-#' Such a learner also has to be given a `loss` explicitly.
+#' Such a learner also has to be given a `loss` explicitly, unless a default loss is registered for the
+#' task type by adding the id of a loss from [`mlr3torch_losses`] to `mlr_reflections$torch$default_losses`,
+#' e.g. `mlr_reflections$torch$default_losses$surv = "my_surv_loss"`.
+#' See the *Adding a New Task Type* article for a complete example.
 #' This class can also be used for custom task types, see [`TaskTorch`] and the
 #' *Custom Learning Problems* article for more information.
 #'
@@ -346,7 +389,7 @@ LearnerTorch = R6Class("LearnerTorch",
       # loss needs access to the task_type
       self$task_type = task_type
       if (is.null(loss)) {
-        default_loss = switch(task_type, classif = "cross_entropy", regr = "mse", NULL)
+        default_loss = mlr_reflections$torch$default_losses[[task_type]]
         if (is.null(default_loss)) {
           stopf("There is no default loss for task type '%s', pass the `loss` explicitly.", task_type) # nolint
         }

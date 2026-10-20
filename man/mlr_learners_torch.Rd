@@ -166,6 +166,50 @@ network whose control flow and shapes do not depend on the data. See the paramet
 Also, see the \emph{Early Stopping and Internal Tuning} section for how to terminate training early.
 }
 
+\section{Multiple GPUs}{
+
+A single model is trained on one device. Set \code{device} to \code{"cuda"} for the default GPU, or to
+\code{"cuda:<index>"}, e.g. \code{"cuda:1"}, for a specific one.
+
+To spread resampling, benchmarking or tuning over several GPUs, start one \code{\link[mirai:mirai]{mirai}}
+daemon per GPU and restrict each daemon to its own GPU with the environment variable
+\code{CUDA_VISIBLE_DEVICES}. Inside a daemon, its GPU is then the only one, so \code{device = "cuda"} is
+correct for every resampling iteration. A device index such as \code{"cuda:1"} does not help here,
+because all iterations share the same parameter values.
+mlr3 uses the daemons of the compute profile \code{"mlr3_parallelization"}, and a daemon inherits the
+environment variables of the R session that launches it:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(mirai)
+gpus = c("0", "1")
+daemons(url = local_url(), .compute = "mlr3_parallelization")
+for (id in gpus) \{
+  Sys.setenv(CUDA_VISIBLE_DEVICES = id)
+  launch_local(1, .compute = "mlr3_parallelization")
+\}
+Sys.unsetenv("CUDA_VISIBLE_DEVICES")
+
+learner = lrn("classif.mlp", device = "cuda", epochs = 50, batch_size = 64)
+rr = resample(tsk("spam"), learner, rsmp("cv", folds = 10))
+daemons(0, .compute = "mlr3_parallelization")
+}\if{html}{\out{</div>}}
+
+Each resampling iteration goes to the next free daemon, so all GPUs stay busy until fewer
+iterations than GPUs remain.
+
+Things to avoid:
+\itemize{
+\item \code{daemons(n)} alone: every daemon sees all GPUs, and \code{"cuda"} is the first GPU in each of them,
+so all iterations share that one GPU.
+\item Forking a process that has already initialized CUDA, e.g. with \code{future::plan("multicore")}.
+\item A high \code{num_threads}: data loading and preprocessing still run on the CPU in all daemons at
+once, so divide the CPU cores among them.
+}
+
+Several daemons per GPU only pay off when one model leaves the GPU underused, e.g. because it is
+small and training is bound by the per-batch overhead in R. Then all models must also fit into
+that GPU's memory together.
+}
+
 \section{Model}{
 
 The Model is a list of class \code{"learner_torch_model"} with the following elements:
@@ -192,6 +236,7 @@ prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respe
 The number of epochs.
 \item \code{device} :: \code{character(1)}\cr
 The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"} or other values defined in \code{mlr_reflections$torch$devices}.
+A specific device can be selected by appending its index, e.g. \code{"cuda:1"} for the second GPU.
 The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible, then try \code{"mps"} and otherwise
 fall back to \code{"cpu"}.
 \item \code{num_threads} :: \code{integer(1)}\cr
@@ -341,7 +386,10 @@ Support for a task type that \CRANpkg{mlr3torch} does not know is added by imple
 the three S3 generics that hold the task-type-specific behaviour: \code{\link[=output_dim_for]{output_dim_for()}} (how many
 output neurons the network needs), \code{\link[=get_target_batchgetter]{get_target_batchgetter()}} (how the target is turned into a
 tensor) and \code{\link[=encode_prediction]{encode_prediction()}} (how the network's output is turned back into a prediction).
-Such a learner also has to be given a \code{loss} explicitly.
+Such a learner also has to be given a \code{loss} explicitly, unless a default loss is registered for the
+task type by adding the id of a loss from \code{\link{mlr3torch_losses}} to \code{mlr_reflections$torch$default_losses},
+e.g. \code{mlr_reflections$torch$default_losses$surv = "my_surv_loss"}.
+See the \emph{Adding a New Task Type} article for a complete example.
 This class can also be used for custom task types, see \code{\link{TaskTorch}} and the
 \emph{Custom Learning Problems} article for more information.
 
@@ -580,9 +628,10 @@ The optimizer to use for training.
 Defaults to adam.}
       \item{\code{loss}}{(\code{NULL} or \code{\link{TorchLoss}})\cr
 The loss to use for training.
-Defaults to MSE for regression and cross entropy for classification.
-For other task types there is no default and the loss has to be given, because which loss is
-appropriate depends on the learning problem.}
+Defaults to the loss registered for the task type in \code{mlr_reflections$torch$default_losses},
+which is MSE for regression and cross entropy for classification.
+For other task types there is no default unless one is registered, and the loss has to be given,
+because which loss is appropriate depends on the learning problem.}
       \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
       \item{\code{predict_types}}{(\code{character()})\cr

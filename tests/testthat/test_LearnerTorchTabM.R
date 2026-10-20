@@ -599,3 +599,13 @@ test_that("a frequency_init_scale of 0 is rejected when the network is built", {
   expect_error(learner$param_set$set_values(frequency_init_scale = 0), regexp = NA)
   expect_error(learner$train(tsk("iris")), "sigma")
 })
+
+test_that("other task types are rejected before training", {
+  learner = LearnerTorchTabM$new(task_type = "torch", loss = t_loss("mse"))
+  learner$param_set$set_values(epochs = 1L, batch_size = 10L, k = 2L, n_blocks = 1L, d_block = 8L)
+  d = tt_data(20L)
+  d$y = rnorm(20L)
+  task = as_task_torch(d, target = "y", id = "torch", output_dim = function(task) 1L,
+    default_target_batchgetter = function(data) torch_tensor(data[[1L]])$unsqueeze(2L))
+  expect_error(learner$train(task), "only supports task types 'classif' and 'regr'")
+})

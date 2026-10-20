@@ -22,12 +22,23 @@
 
 ## Features
 
+* The `device` parameter of `LearnerTorch` now accepts an index, e.g. `"cuda:1"`, to train on a
+  specific GPU.
+  The new section *Multiple GPUs* in `?LearnerTorch` shows how to spread resampling over several GPUs
+  with `mirai`.
+* The default loss of `LearnerTorch` for a task type is now taken from
+  `mlr_reflections$torch$default_losses`, so extension packages can register a default loss for
+  their own task types.
+* The new article "Adding a New Task Type" shows all steps needed to extend mlr3torch to new task types.
+* The training loop no longer calls `$item()` on the loss in every step, which avoids a device
+  synchronization per batch on the GPU. `ctx$last_loss` is still a `numeric(1)`; it is only
+  converted when a callback accesses it.
 * With `drop_last = TRUE`, `LearnerTorch` now caps the training batch size at the number of
   training observations instead of dropping all of them.
-
 * New function `as_learner_torch()`, which converts a `Graph` of `PipeOpTorch` operators into a
-  `Learner`. It's advantage over `as_learner()` is that the resulting learner exposes methods like
-  `$network()` and `$dataset()`.
+  `Learner`. Its advantage over `as_learner()` is that the resulting learner exposes methods like
+  `$network()` and `$dataset()`. Besides graphs of `PipeOpTorch` operators, it also accepts graphs
+  whose base learner is a `LearnerTorch`, e.g. `po("scale") %>>% lrn("classif.mlp")`.
 * `LearnerTorch` and `PipeOpTorchModel` now accept any task type registered in
   `mlr_reflections$task_types`, via the new generics `get_target_batchgetter()` and `encode_prediction()`.
 * New S3 generic `get_batch_constructor()`, which decides how a whole batch of a task is built,
@@ -49,12 +60,12 @@
 * `LearnerTorch` now has a private `.setup_training(ctx, param_vals)` method that allows subclasses
   to customize a training run, e.g. to wrap the loss, create the optimizer from parameter groups or
   add callbacks.
-* `LearnerTorch` now has `restore_best_weights` parameter that can be used when
-   early stopping is active.
+* `LearnerTorch` now has a `restore_best_weights` parameter that can be used when
+  early stopping is active.
 * A network can now return a `list()` of tensors during training, which the loss is applied to.
   In `ContextTorch`, `$y_hats` is that complete output and `$y_hat` its first element.
-* New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
-* Added multihead attention and transformer encoder pipeops.
+* New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction.
+* Added multihead attention and transformer encoder `PipeOp`s.
 * The new field `$outputs` of `PipeOpTorch` restricts the output channels to a subset of the
   outputs of the wrapped module.
 * New layers: `nn("silu")`, `nn("softmin")`, `nn("log_softmax")`, `nn("softmax2d")`,
@@ -86,6 +97,11 @@
 
 ## Bug fixes
 
+* Resuming training from a checkpoint (parameter `resume`) on a GPU no longer fails because the
+  optimizer state was loaded onto the CPU.
+* The shape inference of `po("trafo_rgb_to_grayscale")` now supports `torchvision` 0.10.0, whose
+  `transform_rgb_to_grayscale()` keeps the channel dimension, i.e. an image of shape `(3, H, W)`
+  becomes `(1, H, W)` and not `(H, W)`.
 * `nn("block")` now copies the graph it is constructed from, so changing that graph afterwards no
   longer changes the block.
 * Learners built from a graph via `po("torch_model_regr")` / `po("torch_model_classif")` now error
@@ -97,18 +113,18 @@
   are trained.
 * Fixed some hashing bugs related to R jit compilation.
 * `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of `NULL`.
-* `replace_head()` for `mobilenet_v2` and `VGG` works for `width_mult` above 1.
+* `replace_head()` for `mobilenet_v2` and `VGG` now works for `width_mult` above 1.
 * `PipeOpTorch$shapes_out()` now always returns `integer()` shapes (and not
-    sometimes logicals like `NA`).
+  sometimes logicals like `NA`).
 * `po("torch_model_classif")` and `po("torch_model_regr")` now have the correct
   `$packages`.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training.
-* Configuration errors that are only caught during `LearnerTorch` no longer
+* Configuration errors that are only caught during the training of a `LearnerTorch` no longer
   trigger a fallback learner.
 * The `LearnerTorch`'s `sampler` and `batch_sampler` parameters are now not used
   during prediction.
-* `logical()` features are now encoded as 1-based instead of 1-based.
-* `lazy_tensor` columns are now again printed correctly inside `data.table`s
+* `logical()` features are now encoded as 1-based instead of 0-based.
+* `lazy_tensor` columns are now again printed correctly inside `data.table`s.
 * Fixed some links on the pkgdown website and the help pages.
 * `nn("reshape")` with a `function(shape)` target now resolves a `-1` whenever the number of elements
   per observation is known, i.e. when the batch dimension is the only unknown one.
@@ -116,12 +132,12 @@
 * `po("torch_model_{regr, classif}")` now resets the parameters of the network
   at the beginning of `$train()` when the network is built from `PipeOpTorch` objects,
   which makes the results reproducible for the set `seed` parameter.
-* `nn()` now properly interprets `nn("linear_1")` as `po("nn_linear", id = "linear_21")`.
+* `nn()` now properly interprets `nn("linear_1")` as `po("nn_linear", id = "linear_1")`.
 * Fixed some bugs in `FTTransformer`: `attention_initialization` now has an
   effect, `n_blocks = 0` is allowed and the hidden dimension falls back to
   `d_token * 4/3` as in the reference implementation.
 * Fixed some issues in the documentation.
-* Examples, vignettes and the README now use `nn("linear")` instead of the equivalent, but longer
+* Examples, vignettes and the README now use `nn("linear")` instead of the equivalent but longer
   `po("nn_linear")`.
 
 # mlr3torch 0.3.3

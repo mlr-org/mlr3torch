@@ -13,6 +13,6 @@ The device. If not \code{NULL}, is returned as is.}
 \description{
 Resolves the \code{device} parameter of a learner.
 \code{"auto"} becomes \code{"cuda"} when a CUDA device is available and \code{"cpu"} otherwise; any other value
-is returned unchanged, except that an explicit \code{"cuda"} without an available CUDA device is an
-error rather than a failure deep inside libtorch later on.
+is returned unchanged, except that an explicit \code{"cuda"} (or \code{"cuda:<index>"}) without an available
+CUDA device with that index is an error rather than a failure deep inside libtorch later on.
 }

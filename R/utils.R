@@ -2,8 +2,8 @@
 #'
 #' Resolves the `device` parameter of a learner.
 #' `"auto"` becomes `"cuda"` when a CUDA device is available and `"cpu"` otherwise; any other value
-#' is returned unchanged, except that an explicit `"cuda"` without an available CUDA device is an
-#' error rather than a failure deep inside libtorch later on.
+#' is returned unchanged, except that an explicit `"cuda"` (or `"cuda:<index>"`) without an available
+#' CUDA device with that index is an error rather than a failure deep inside libtorch later on.
 #'
 #' @param device (`character(1)`)\cr
 #'   The device. If not `NULL`, is returned as is.
@@ -13,8 +13,14 @@ auto_device = function(device = NULL) {
     device = if (cuda_is_available()) "cuda" else "cpu"
     lg$debug("Auto-detected device '%s'.", device)
   }
-  if (!is.null(device) && device == "cuda" && !cuda_is_available()) {
-    stopf("Device is set to 'cuda', but no CUDA device is available. Set `device` to 'cpu', or to 'auto' to select automatically.") # nolint
+  if (!is.null(device) && startsWith(device, "cuda")) {
+    if (!cuda_is_available()) {
+      stopf("Device is set to '%s', but no CUDA device is available. Set `device` to 'cpu', or to 'auto' to select automatically.", device) # nolint
+    }
+    index = sub("^cuda:?", "", device)
+    if (nzchar(index) && as.integer(index) >= cuda_device_count()) {
+      stopf("Device is set to '%s', but only %i CUDA device(s) are available (indices start at 0).", device, cuda_device_count()) # nolint
+    }
   }
   return(device)
 }

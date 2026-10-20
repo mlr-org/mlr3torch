@@ -1059,7 +1059,16 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
       }
       out
     },
+    # The reduction of the submodels in `.encode_prediction()` is only defined for classification and
+    # regression. A subclass for another task type must overwrite both methods.
+    .check_task_type = function(task) {
+      if (task$task_type %nin% c("classif", "regr")) {
+        stopf("Learner '%s' only supports task types 'classif' and 'regr', but task '%s' has type '%s'.",
+          self$id, task$id, task$task_type)
+      }
+    },
     .network = function(task, param_vals) {
+      private$.check_task_type(task)
       arch_type = param_vals$arch_type %??% "tabm"
       n_num = n_num_features(task)
 
@@ -1095,6 +1104,7 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
     # mapped back to the score scale (log / logit); this roundtrip is exact up to
     # floating point accuracy because softmax(log(p)) == p and sigmoid(logit(p)) == p.
     .encode_prediction = function(network_output, task) {
+      private$.check_task_type(task)
       reduced = with_no_grad({
         if (task$task_type == "regr") {
           network_output$mean(dim = 2L)

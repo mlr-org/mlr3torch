@@ -7,6 +7,8 @@
 The \code{\link[mlr3pipelines:GraphLearner]{GraphLearner}} that \code{\link[=as_learner_torch]{as_learner_torch()}} returns.
 On top of a \code{GraphLearner} it has the \verb{$network}, \verb{$loss}, \verb{$optimizer} and \verb{$callbacks} fields
 and the \verb{$dataset()} method of a \code{\link{LearnerTorch}}.
+If the graph contains a \code{\link[=mlr_pipeops_torch_model]{PipeOpTorchModel}}, the loss, optimizer and
+callbacks are those of its configuring operators, otherwise those of its base \code{\link{LearnerTorch}}.
 It is not in the \code{\link[mlr3:mlr_learners]{mlr_learners}} dictionary, because it cannot be
 constructed without a graph.
 }
@@ -35,17 +37,18 @@ Other Learner:
 The network of the trained learner, i.e. \verb{$base_learner()$network}.}
 
     \item{\code{loss}}{(\code{\link{TorchLoss}})\cr
-The torch loss, i.e. the one of the graph's \code{\link[=mlr_pipeops_torch_loss]{PipeOpTorchLoss}}.
+The torch loss, i.e. the one of the graph's \code{\link[=mlr_pipeops_torch_loss]{PipeOpTorchLoss}}
+or of its base \code{\link{LearnerTorch}}.
 Read-only, the graph configures it.}
 
     \item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The torch optimizer, i.e. the one of the graph's
-\code{\link[=mlr_pipeops_torch_optimizer]{PipeOpTorchOptimizer}}.
+\code{\link[=mlr_pipeops_torch_optimizer]{PipeOpTorchOptimizer}} or of its base \code{\link{LearnerTorch}}.
 Read-only, the graph configures it.}
 
     \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks, i.e. those of the graph's
-\code{\link[=mlr_pipeops_torch_callbacks]{PipeOpTorchCallbacks}}.
+\code{\link[=mlr_pipeops_torch_callbacks]{PipeOpTorchCallbacks}} or of its base \code{\link{LearnerTorch}}.
 Read-only, the graph configures them.}
   }
   \if{html}{\out{</div>}}
