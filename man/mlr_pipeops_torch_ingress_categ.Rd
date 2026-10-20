@@ -6,14 +6,39 @@
 \title{Torch Entry Point for Categorical Features}
 \description{
 Ingress PipeOp that represents a categorical (\code{factor()}, \code{ordered()} and \code{logical()}) entry point to a torch network.
+
+All features of the task are combined into one tensor of shape \verb{(batch, n_features)} and dtype
+\code{torch_long()}, whose columns are in the order of \code{task$feature_names}.
+Each feature is integer-encoded with \strong{1-based} codes:
+\itemize{
+\item A \code{factor()} or \code{ordered()} feature with \code{k} levels is encoded by the positions of its values in its levels,
+i.e. as \verb{1, ..., k}. The ordering of an \code{ordered()} feature is not used otherwise.
+\item A \code{logical()} feature is encoded as \code{1} (\code{FALSE}) and \code{2} (\code{TRUE}).
 }
+
+The task must contain only categorical features and no missing values, see \code{\link{PipeOpTorchIngress}}.
+To handle missing values, \code{\link[mlr3pipelines:mlr_pipeops_imputeoor]{po("imputeoor")}} can be used for \code{factor()} and
+\code{ordered()} features, which encodes them as a new factor level, and e.g.
+\code{\link[mlr3pipelines:mlr_pipeops_imputemode]{po("imputemode")}} for \code{logical()} features.
+}
+\section{Using the Output in a Network}{
+
+The codes only identify the categories and have no numeric meaning, so the output should not be passed directly
+to a layer such as \code{\link[=mlr_pipeops_nn_linear]{nn("linear")}}, which expects a float tensor.
+Instead, the codes are usually mapped to learned embeddings first, e.g. via
+\code{\link[=mlr_pipeops_nn_tokenizer_categ]{nn("tokenizer_categ")}}, which infers the number of levels of each feature from
+the task and outputs a float tensor of shape \verb{(batch, n_features, d_token)}.
+After flattening it via \code{\link[=mlr_pipeops_nn_flatten]{nn("flatten")}}, it can be combined with the output of other
+entry points, see the example in \code{\link{PipeOpTorchIngress}}.
+
+Alternatively, the categorical features can be one-hot encoded via
+\code{\link[mlr3pipelines:mlr_pipeops_encode]{po("encode")}} and then be passed to
+\code{\link[=mlr_pipeops_torch_ingress_num]{po("torch_ingress_num")}}.
+}
+
 \section{Parameters}{
 
-\itemize{
-\item \code{select} :: \code{logical(1)}\cr
-Whether \code{PipeOp} should selected the supported feature types. Otherwise it will err on receiving tasks
-with unsupported feature types.
-}
+No parameters.
 }
 
 \section{Internals}{
@@ -34,13 +59,25 @@ The state is set to the input shape.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
+# We first select the categorical features
 graph = po("select", selector = selector_type("factor")) \%>>\%
   po("torch_ingress_categ")
 task = tsk("german_credit")
 # The output is a model descriptor
 md = graph$train(task)[[1L]]
 ingress = md$ingress[[1L]]
-ingress$batchgetter(task$data(1, ingress$features(task)), "cpu")
+# The batchgetter converts the features into a tensor of integer codes
+batch = task$data(1:3, ingress$features(task))
+ingress$batchgetter(batch, "cpu")
+# Each value is replaced by the position of its level, e.g. for "housing" (4th column):
+batch$housing
+task$levels("housing")
+
+# The codes are usually mapped to embeddings before further processing
+graph = graph \%>>\% nn("tokenizer_categ", d_token = 2)
+md = graph$train(task)[[1L]]
+# One embedding of size 2 for each of the 14 features
+md$pointer_shape
 \dontshow{\}) # examplesIf}
 }
 \seealso{

@@ -7,6 +7,20 @@
 #' Unless you are an advanced user, you should not need to use this directly but [`PipeOpTorchIngressNumeric`],
 #' [`PipeOpTorchIngressCategorical`] or [`PipeOpTorchIngressLazyTensor`].
 #'
+#' An ingress `PipeOp` converts **all** features of the [`Task`][mlr3::Task] that it receives into one input tensor
+#' of the network.
+#' It does not select the features itself: if the task contains features of a type that it cannot handle
+#' (see the field `$feature_types`), an error is thrown, so use [`po("select")`][mlr3pipelines::mlr_pipeops_select]
+#' before it to keep only the supported features.
+#' Missing values are not supported either and have to be imputed beforehand, e.g. via
+#' [`po("imputeoor")`][mlr3pipelines::mlr_pipeops_imputeoor].
+#'
+#' A network can have more than one entry point, e.g. one for the numeric and one for the categorical features
+#' of a task, whose outputs are then combined by an operator such as [`nn("merge_cat")`][mlr_pipeops_nn_merge_cat].
+#' Each ingress `PipeOp` becomes one input of the resulting network, which is named `"<id>.input"`, where `<id>`
+#' is the ID of the `PipeOp`, e.g. `"torch_ingress_num.input"`.
+#' These are also the names to use for the `shapes_in` argument of [`nn_graph()`].
+#'
 #' @section Parameters:
 #' Defined by the construction argument `param_set`.
 #'
@@ -16,11 +30,41 @@
 #'
 #' @section Internals:
 #' Creates an object of class [`TorchIngressToken`] for the given task.
-#' The purpuse of this is to store the information on how to construct the torch dataloader from the task for this
+#' The purpose of this is to store the information on how to construct the torch dataloader from the task for this
 #' entry point of the network.
 #'
 #' @family Graph Network
 #' @export
+#' @examplesIf torch::torch_is_installed()
+#' # A network with two entry points: one for the numeric and one for the
+#' # categorical features of the task
+#' task = tsk("german_credit")
+#'
+#' path_num = po("select", id = "select_num", selector = selector_type(c("numeric", "integer"))) %>>%
+#'   po("torch_ingress_num")
+#'
+#' # The categorical features are integer codes, which we map to embeddings
+#' path_categ = po("select", id = "select_categ", selector = selector_type("factor")) %>>%
+#'   po("torch_ingress_categ") %>>%
+#'   nn("tokenizer_categ", d_token = 3) %>>%
+#'   nn("flatten")
+#'
+#' graph = gunion(list(path_num, path_categ)) %>>%
+#'   nn("merge_cat") %>>%
+#'   nn("head")
+#'
+#' md = graph$train(task)[[1L]]
+#' # One ingress token per entry point, named after the ID of the ingress PipeOp
+#' md$ingress
+#'
+#' # The model descriptor can be turned into a learner by adding a loss, an optimizer
+#' # and the training parameters
+#' learner = as_learner(graph %>>%
+#'   po("torch_loss", t_loss("cross_entropy")) %>>%
+#'   po("torch_optimizer", t_opt("adam")) %>>%
+#'   po("torch_model_classif", epochs = 1, batch_size = 32)
+#' )
+#' learner$train(task)
 PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   inherit = PipeOp,
   public = list(
@@ -256,6 +300,10 @@ print.TorchIngressToken = function(x, ...) {
 #' @description
 #' Ingress PipeOp that represents a numeric (`integer()` and `numeric()`) entry point to a torch network.
 #'
+#' All features of the task are combined into one tensor of shape `(batch, n_features)` and dtype
+#' `torch_float()`, whose columns are in the order of `task$feature_names`.
+#' The task must contain only numeric features and no missing values, see [`PipeOpTorchIngress`].
+#'
 #' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_ingress State
 #' @section Internals:
@@ -264,7 +312,7 @@ print.TorchIngressToken = function(x, ...) {
 #' @export
 #' @family Graph Network
 #' @examplesIf torch::torch_is_installed()
-# We select the numeric features first
+#' # We select the numeric features first
 #' graph = po("select", selector = selector_type(c("numeric", "integer"))) %>>%
 #'   po("torch_ingress_num")
 #' task = tsk("german_credit")
@@ -302,25 +350,59 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 #' @description
 #' Ingress PipeOp that represents a categorical (`factor()`, `ordered()` and `logical()`) entry point to a torch network.
 #'
+#' All features of the task are combined into one tensor of shape `(batch, n_features)` and dtype
+#' `torch_long()`, whose columns are in the order of `task$feature_names`.
+#' Each feature is integer-encoded with **1-based** codes:
+#' * A `factor()` or `ordered()` feature with `k` levels is encoded by the positions of its values in its levels,
+#'   i.e. as `1, ..., k`. The ordering of an `ordered()` feature is not used otherwise.
+#' * A `logical()` feature is encoded as `1` (`FALSE`) and `2` (`TRUE`).
+#'
+#' The task must contain only categorical features and no missing values, see [`PipeOpTorchIngress`].
+#' To handle missing values, [`po("imputeoor")`][mlr3pipelines::mlr_pipeops_imputeoor] can be used for `factor()` and
+#' `ordered()` features, which encodes them as a new factor level, and e.g.
+#' [`po("imputemode")`][mlr3pipelines::mlr_pipeops_imputemode] for `logical()` features.
+#'
+#' @section Using the Output in a Network:
+#' The codes only identify the categories and have no numeric meaning, so the output should not be passed directly
+#' to a layer such as [`nn("linear")`][mlr_pipeops_nn_linear], which expects a float tensor.
+#' Instead, the codes are usually mapped to learned embeddings first, e.g. via
+#' [`nn("tokenizer_categ")`][mlr_pipeops_nn_tokenizer_categ], which infers the number of levels of each feature from
+#' the task and outputs a float tensor of shape `(batch, n_features, d_token)`.
+#' After flattening it via [`nn("flatten")`][mlr_pipeops_nn_flatten], it can be combined with the output of other
+#' entry points, see the example in [`PipeOpTorchIngress`].
+#'
+#' Alternatively, the categorical features can be one-hot encoded via
+#' [`po("encode")`][mlr3pipelines::mlr_pipeops_encode] and then be passed to
+#' [`po("torch_ingress_num")`][mlr_pipeops_torch_ingress_num].
+#'
 #' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_ingress State
 #' @section Parameters:
-#' * `select` :: `logical(1)`\cr
-#'   Whether `PipeOp` should selected the supported feature types. Otherwise it will err on receiving tasks
-#'   with unsupported feature types.
+#' No parameters.
 #' @section Internals:
 #' Uses [`batchgetter_categ()`].
 #' @family Graph Network
 #' @export
 #' @examplesIf torch::torch_is_installed()
-# We first select the categorical features
+#' # We first select the categorical features
 #' graph = po("select", selector = selector_type("factor")) %>>%
 #'   po("torch_ingress_categ")
 #' task = tsk("german_credit")
 #' # The output is a model descriptor
 #' md = graph$train(task)[[1L]]
 #' ingress = md$ingress[[1L]]
-#' ingress$batchgetter(task$data(1, ingress$features(task)), "cpu")
+#' # The batchgetter converts the features into a tensor of integer codes
+#' batch = task$data(1:3, ingress$features(task))
+#' ingress$batchgetter(batch, "cpu")
+#' # Each value is replaced by the position of its level, e.g. for "housing" (4th column):
+#' batch$housing
+#' task$levels("housing")
+#'
+#' # The codes are usually mapped to embeddings before further processing
+#' graph = graph %>>% nn("tokenizer_categ", d_token = 2)
+#' md = graph$train(task)[[1L]]
+#' # One embedding of size 2 for each of the 14 features
+#' md$pointer_shape
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(

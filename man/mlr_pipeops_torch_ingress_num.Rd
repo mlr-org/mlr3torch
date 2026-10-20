@@ -6,6 +6,10 @@
 \title{Torch Entry Point for Numeric Features}
 \description{
 Ingress PipeOp that represents a numeric (\code{integer()} and \code{numeric()}) entry point to a torch network.
+
+All features of the task are combined into one tensor of shape \verb{(batch, n_features)} and dtype
+\code{torch_float()}, whose columns are in the order of \code{task$feature_names}.
+The task must contain only numeric features and no missing values, see \code{\link{PipeOpTorchIngress}}.
 }
 \section{Internals}{
 
@@ -25,6 +29,7 @@ The state is set to the input shape.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
+# We select the numeric features first
 graph = po("select", selector = selector_type(c("numeric", "integer"))) \%>>\%
   po("torch_ingress_num")
 task = tsk("german_credit")

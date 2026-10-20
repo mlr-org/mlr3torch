@@ -97,6 +97,9 @@
 
 ## Bug fixes
 
+* The documentation of `po("torch_ingress_categ")` no longer lists a non-existent `select` parameter
+  and now explains how the categorical features are encoded and how to use them in a network.
+  The documentation of the other ingress operators was also improved (#380).
 * Resuming training from a checkpoint (parameter `resume`) on a GPU no longer fails because the
   optimizer state was loaded onto the CPU.
 * The shape inference of `po("trafo_rgb_to_grayscale")` now supports `torchvision` 0.10.0, whose
