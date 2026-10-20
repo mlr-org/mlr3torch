@@ -219,6 +219,42 @@ network whose control flow and shapes do not depend on the data. See the paramet
 </ul><p>Also, see the <em>Early Stopping and Internal Tuning</em> section for how to terminate training early.</p>
     </div>
     <div class="section level2">
+    <h2 id="multiple-gpus">Multiple GPUs<a class="anchor" aria-label="anchor" href="#multiple-gpus"></a></h2>
+
+
+<p>A single model is trained on one device. Set <code>device</code> to <code>"cuda"</code> for the default GPU, or to
+<code>"cuda:&lt;index&gt;"</code>, e.g. <code>"cuda:1"</code>, for a specific one.</p>
+<p>To spread resampling, benchmarking or tuning over several GPUs, start one <code><a href="https://mirai.r-lib.org/reference/mirai.html" class="external-link">mirai</a></code>
+daemon per GPU and restrict each daemon to its own GPU with the environment variable
+<code>CUDA_VISIBLE_DEVICES</code>. Inside a daemon, its GPU is then the only one, so <code>device = "cuda"</code> is
+correct for every resampling iteration. A device index such as <code>"cuda:1"</code> does not help here,
+because all iterations share the same parameter values.
+mlr3 uses the daemons of the compute profile <code>"mlr3_parallelization"</code>, and a daemon inherits the
+environment variables of the R session that launches it:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mirai.r-lib.org" class="external-link">mirai</a></span><span class="op">)</span></span>
+<span><span class="va">gpus</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0"</span>, <span class="st">"1"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">daemons</a></span><span class="op">(</span>url <span class="op">=</span> <span class="fu"><a href="https://mirai.r-lib.org/reference/host_url.html" class="external-link">local_url</a></span><span class="op">(</span><span class="op">)</span>, .compute <span class="op">=</span> <span class="st">"mlr3_parallelization"</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">id</span> <span class="kw">in</span> <span class="va">gpus</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>CUDA_VISIBLE_DEVICES <span class="op">=</span> <span class="va">id</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://mirai.r-lib.org/reference/launch_local.html" class="external-link">launch_local</a></span><span class="op">(</span><span class="fl">1</span>, .compute <span class="op">=</span> <span class="st">"mlr3_parallelization"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.unsetenv</a></span><span class="op">(</span><span class="st">"CUDA_VISIBLE_DEVICES"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"classif.mlp"</span>, device <span class="op">=</span> <span class="st">"cuda"</span>, epochs <span class="op">=</span> <span class="fl">50</span>, batch_size <span class="op">=</span> <span class="fl">64</span><span class="op">)</span></span>
+<span><span class="va">rr</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">resample</a></span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"spam"</span><span class="op">)</span>, <span class="va">learner</span>, <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"cv"</span>, folds <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://mirai.r-lib.org/reference/daemons.html" class="external-link">daemons</a></span><span class="op">(</span><span class="fl">0</span>, .compute <span class="op">=</span> <span class="st">"mlr3_parallelization"</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>Each resampling iteration goes to the next free daemon, so all GPUs stay busy until fewer
+iterations than GPUs remain.</p>
+<p>Things to avoid:</p><ul><li><p><code>daemons(n)</code> alone: every daemon sees all GPUs, and <code>"cuda"</code> is the first GPU in each of them,
+so all iterations share that one GPU.</p></li>
+<li><p>Forking a process that has already initialized CUDA, e.g. with <code>future::plan("multicore")</code>.</p></li>
+<li><p>A high <code>num_threads</code>: data loading and preprocessing still run on the CPU in all daemons at
+once, so divide the CPU cores among them.</p></li>
+</ul><p>Several daemons per GPU only pay off when one model leaves the GPU underused, e.g. because it is
+small and training is bound by the per-batch overhead in R. Then all models must also fit into
+that GPU's memory together.</p>
+    </div>
+    <div class="section level2">
     <h2 id="model">Model<a class="anchor" aria-label="anchor" href="#model"></a></h2>
 
 
@@ -241,6 +277,7 @@ prefixed with <code>"opt."</code>, <code>"loss."</code> and <code>"cb.&lt;callba
 The number of epochs.</p></li>
 <li><p><code>device</code> :: <code>character(1)</code><br>
 The device. One of <code>"auto"</code>, <code>"cpu"</code>, or <code>"cuda"</code> or other values defined in <code>mlr_reflections$torch$devices</code>.
+A specific device can be selected by appending its index, e.g. <code>"cuda:1"</code> for the second GPU.
 The value is initialized to <code>"auto"</code>, which will select <code>"cuda"</code> if possible, then try <code>"mps"</code> and otherwise
 fall back to <code>"cpu"</code>.</p></li>
 <li><p><code>num_threads</code> :: <code>integer(1)</code><br>

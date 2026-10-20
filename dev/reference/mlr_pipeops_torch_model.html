@@ -101,6 +101,7 @@ prefixed with <code>"opt."</code>, <code>"loss."</code> and <code>"cb.&lt;callba
 The number of epochs.</p></li>
 <li><p><code>device</code> :: <code>character(1)</code><br>
 The device. One of <code>"auto"</code>, <code>"cpu"</code>, or <code>"cuda"</code> or other values defined in <code>mlr_reflections$torch$devices</code>.
+A specific device can be selected by appending its index, e.g. <code>"cuda:1"</code> for the second GPU.
 The value is initialized to <code>"auto"</code>, which will select <code>"cuda"</code> if possible, then try <code>"mps"</code> and otherwise
 fall back to <code>"cpu"</code>.</p></li>
 <li><p><code>num_threads</code> :: <code>integer(1)</code><br>

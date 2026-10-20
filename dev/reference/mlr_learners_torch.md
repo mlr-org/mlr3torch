@@ -222,6 +222,54 @@ impact on the runtime of the learner. These include:
 Also, see the *Early Stopping and Internal Tuning* section for how to
 terminate training early.
 
+## Multiple GPUs
+
+A single model is trained on one device. Set `device` to `"cuda"` for
+the default GPU, or to `"cuda:<index>"`, e.g. `"cuda:1"`, for a specific
+one.
+
+To spread resampling, benchmarking or tuning over several GPUs, start
+one [`mirai`](https://mirai.r-lib.org/reference/mirai.html) daemon per
+GPU and restrict each daemon to its own GPU with the environment
+variable `CUDA_VISIBLE_DEVICES`. Inside a daemon, its GPU is then the
+only one, so `device = "cuda"` is correct for every resampling
+iteration. A device index such as `"cuda:1"` does not help here, because
+all iterations share the same parameter values. mlr3 uses the daemons of
+the compute profile `"mlr3_parallelization"`, and a daemon inherits the
+environment variables of the R session that launches it:
+
+    library(mirai)
+    gpus = c("0", "1")
+    daemons(url = local_url(), .compute = "mlr3_parallelization")
+    for (id in gpus) {
+      Sys.setenv(CUDA_VISIBLE_DEVICES = id)
+      launch_local(1, .compute = "mlr3_parallelization")
+    }
+    Sys.unsetenv("CUDA_VISIBLE_DEVICES")
+
+    learner = lrn("classif.mlp", device = "cuda", epochs = 50, batch_size = 64)
+    rr = resample(tsk("spam"), learner, rsmp("cv", folds = 10))
+    daemons(0, .compute = "mlr3_parallelization")
+
+Each resampling iteration goes to the next free daemon, so all GPUs stay
+busy until fewer iterations than GPUs remain.
+
+Things to avoid:
+
+- `daemons(n)` alone: every daemon sees all GPUs, and `"cuda"` is the
+  first GPU in each of them, so all iterations share that one GPU.
+
+- Forking a process that has already initialized CUDA, e.g. with
+  `future::plan("multicore")`.
+
+- A high `num_threads`: data loading and preprocessing still run on the
+  CPU in all daemons at once, so divide the CPU cores among them.
+
+Several daemons per GPU only pay off when one model leaves the GPU
+underused, e.g. because it is small and training is bound by the
+per-batch overhead in R. Then all models must also fit into that GPU's
+memory together.
+
 ## Model
 
 The Model is a list of class `"learner_torch_model"` with the following
@@ -263,9 +311,10 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `device` :: `character(1)`  
   The device. One of `"auto"`, `"cpu"`, or `"cuda"` or other values
-  defined in `mlr_reflections$torch$devices`. The value is initialized
-  to `"auto"`, which will select `"cuda"` if possible, then try `"mps"`
-  and otherwise fall back to `"cpu"`.
+  defined in `mlr_reflections$torch$devices`. A specific device can be
+  selected by appending its index, e.g. `"cuda:1"` for the second GPU.
+  The value is initialized to `"auto"`, which will select `"cuda"` if
+  possible, then try `"mps"` and otherwise fall back to `"cpu"`.
 
 - `num_threads` :: `integer(1)`  
   The number of threads for intraop parallelization (if `device` is

@@ -25,9 +25,10 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `device` :: `character(1)`  
   The device. One of `"auto"`, `"cpu"`, or `"cuda"` or other values
-  defined in `mlr_reflections$torch$devices`. The value is initialized
-  to `"auto"`, which will select `"cuda"` if possible, then try `"mps"`
-  and otherwise fall back to `"cpu"`.
+  defined in `mlr_reflections$torch$devices`. A specific device can be
+  selected by appending its index, e.g. `"cuda:1"` for the second GPU.
+  The value is initialized to `"auto"`, which will select `"cuda"` if
+  possible, then try `"mps"` and otherwise fall back to `"cpu"`.
 
 - `num_threads` :: `integer(1)`  
   The number of threads for intraop parallelization (if `device` is

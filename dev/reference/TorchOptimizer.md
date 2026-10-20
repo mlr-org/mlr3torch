@@ -248,7 +248,7 @@ learner$param_set
 #>                       id    class lower upper nlevels        default
 #>                   <char>   <char> <num> <num>   <num>         <list>
 #>  1:               epochs ParamInt     0   Inf     Inf <NoDefault[0]>
-#>  2:               device ParamFct    NA    NA      12 <NoDefault[0]>
+#>  2:               device ParamUty    NA    NA     Inf <NoDefault[0]>
 #>  3:          num_threads ParamInt     1   Inf     Inf <NoDefault[0]>
 #>  4:  num_interop_threads ParamInt     1   Inf     Inf <NoDefault[0]>
 #>  5:                 seed ParamInt  -Inf   Inf     Inf <NoDefault[0]>
