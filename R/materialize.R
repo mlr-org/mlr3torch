@@ -44,7 +44,7 @@
 #' materialize(d, rbind = TRUE)
 #' materialize(d, rbind = FALSE)
 materialize = function(x, device = "cpu", rbind = FALSE, ...) {
-  assert_choice(device, mlr_reflections$torch$devices)
+  assert_device(device)
   assert_flag(rbind)
   UseMethod("materialize")
 }

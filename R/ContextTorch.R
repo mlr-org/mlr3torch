@@ -64,7 +64,7 @@ ContextTorch = R6Class("ContextTorch",
       self$prediction_encoder = assert_function(prediction_encoder, args = c("network_output", "task"))
       self$eval_freq = assert_int(eval_freq, lower = 1L)
       self$terminate = FALSE
-      self$device = torch_device(assert_choice(device, mlr_reflections$torch$devices))
+      self$device = torch_device(assert_device(device))
     },
     #' @field learner ([`Learner`][mlr3::Learner])\cr
     #'   The torch learner.

@@ -52,6 +52,7 @@ check_device = function(x) {
   }
   TRUE
 }
+assert_device = makeAssertionFunction(check_device)
 
 check_measures_regr = make_check_measures("regr")
 check_measures_classif = make_check_measures("classif")
