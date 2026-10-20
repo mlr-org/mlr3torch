@@ -22,6 +22,10 @@
 
 ## Features
 
+* The `device` parameter of `LearnerTorch` now accepts an index, e.g. `"cuda:1"`, to train on a
+  specific GPU.
+  The new section *Multiple GPUs* in `?LearnerTorch` shows how to spread resampling over several GPUs
+  with `mirai`.
 * The default loss of `LearnerTorch` for a task type is now taken from
   `mlr_reflections$torch$default_losses`, so extension packages can register a default loss for
   their own task types.
@@ -93,6 +97,8 @@
 
 ## Bug fixes
 
+* Resuming training from a checkpoint (parameter `resume`) on a GPU no longer fails because the
+  optimizer state was loaded onto the CPU.
 * The shape inference of `po("trafo_rgb_to_grayscale")` now supports `torchvision` 0.10.0, whose
   `transform_rgb_to_grayscale()` keeps the channel dimension, i.e. an image of shape `(3, H, W)`
   becomes `(1, H, W)` and not `(H, W)`.

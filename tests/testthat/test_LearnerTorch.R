@@ -1776,3 +1776,13 @@ test_that("default loss is taken from mlr_reflections", {
   mlr_reflections$torch$default_losses$torch = "mse"
   expect_equal(make_learner()$loss$id, "mse")
 })
+
+test_that("device with an index can be used for training, prediction and materialize()", {
+  learner = lrn("classif.mlp", device = "cpu:0", epochs = 1L, batch_size = 16L, neurons = 4L)
+  task = tsk("iris")
+  learner$train(task)
+  expect_equal(learner$network$parameters[[1L]]$device$type, "cpu")
+  expect_prediction(learner$predict(task))
+  expect_class(materialize(as_lazy_tensor(1:2), device = "cpu:0", rbind = TRUE), "torch_tensor")
+  expect_error(materialize(as_lazy_tensor(1:2), device = "gpu:0"), "Must be one of")
+})

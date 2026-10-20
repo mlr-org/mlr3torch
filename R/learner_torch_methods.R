@@ -372,7 +372,8 @@ resume_training = function(ctx, resume_path) {
   }
 
   ctx$network$load_state_dict(torch_load(checkpoint$network))
-  ctx$optimizer$load_state_dict(torch_load(checkpoint$optimizer))
+  # torch_load() puts tensors on the CPU, but the optimizer state must live on the device of the parameters
+  ctx$optimizer$load_state_dict(torch_load(checkpoint$optimizer, device = ctx$device))
   load_callback_states(ctx$callbacks, state)
 
   ctx$epoch = epochs_trained

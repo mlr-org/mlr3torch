@@ -83,6 +83,7 @@ test_that("shape_to_str works", {
 test_that("auto_device() rejects cuda when it is unavailable", {
   skip_if(cuda_is_available(), "CUDA is available")
   expect_error(auto_device("cuda"), "no CUDA device is available")
+  expect_error(auto_device("cuda:0"), "no CUDA device is available")
   expect_equal(auto_device("auto"), "cpu")
   expect_equal(auto_device("cpu"), "cpu")
   expect_null(auto_device(NULL))
@@ -140,4 +141,10 @@ test_that("rbind_arrays keeps the storage type of its elements", {
   expect_type(rbind_arrays(list(array(1.5, c(1L, 2L)), array(2.5, c(1L, 2L)))), "double")
   expect_type(rbind_arrays(list(array(TRUE, c(1L, 2L)), array(FALSE, c(1L, 2L)))), "logical")
   expect_type(rbind_arrays(list(array("a", c(1L, 2L)), array("b", c(1L, 2L)))), "character")
+})
+
+test_that("auto_device() checks the CUDA device index", {
+  skip_if_not(cuda_is_available(), "CUDA is not available")
+  expect_equal(auto_device("cuda:0"), "cuda:0")
+  expect_error(auto_device(sprintf("cuda:%i", cuda_device_count())), "CUDA device\\(s\\) are available")
 })
