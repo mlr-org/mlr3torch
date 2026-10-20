@@ -56,6 +56,17 @@ test_that("target can contain missings for ingress", {
   expect_class(md, "ModelDescriptor")
 })
 
+test_that("features must not contain missings for ingress, but can be imputed", {
+  task = as_task_regr(data.table(y = 1:3, x = factor(c("a", NA, "b"))), target = "y")
+  expect_error(po("torch_ingress_categ")$train(list(task)), "No missing values allowed")
+
+  # as suggested in the documentation, missing values are encoded as a new level
+  md = (po("imputeoor") %>>% po("torch_ingress_categ"))$train(task)[[1L]]
+  ingress = md$ingress[[1L]]
+  batch = ingress$batchgetter(md$task$data(cols = ingress$features(md$task)))
+  expect_equal(as.integer(batch[, 1L]), c(1L, 3L, 2L))
+})
+
 
 test_that("shape of lazy tensor ingress can be inferred", {
   po_ingress = po("torch_ingress_ltnsr", shape = "infer")

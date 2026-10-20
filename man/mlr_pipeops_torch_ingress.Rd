@@ -8,6 +8,20 @@
 Use this as entry-point to mlr3torch-networks.
 Unless you are an advanced user, you should not need to use this directly but \code{\link{PipeOpTorchIngressNumeric}},
 \code{\link{PipeOpTorchIngressCategorical}} or \code{\link{PipeOpTorchIngressLazyTensor}}.
+
+An ingress \code{PipeOp} converts \strong{all} features of the \code{\link[mlr3:Task]{Task}} that it receives into one input tensor
+of the network.
+It does not select the features itself: if the task contains features of a type that it cannot handle
+(see the field \verb{$feature_types}), an error is thrown, so use \code{\link[mlr3pipelines:mlr_pipeops_select]{po("select")}}
+before it to keep only the supported features.
+Missing values are not supported either and have to be imputed beforehand, e.g. via
+\code{\link[mlr3pipelines:mlr_pipeops_imputeoor]{po("imputeoor")}}.
+
+A network can have more than one entry point, e.g. one for the numeric and one for the categorical features
+of a task, whose outputs are then combined by an operator such as \code{\link[=mlr_pipeops_nn_merge_cat]{nn("merge_cat")}}.
+Each ingress \code{PipeOp} becomes one input of the resulting network, which is named \code{"<id>.input"}, where \verb{<id>}
+is the ID of the \code{PipeOp}, e.g. \code{"torch_ingress_num.input"}.
+These are also the names to use for the \code{shapes_in} argument of \code{\link[=nn_graph]{nn_graph()}}.
 }
 \section{Parameters}{
 
@@ -28,10 +42,43 @@ The state is set to the input shape.
 \section{Internals}{
 
 Creates an object of class \code{\link{TorchIngressToken}} for the given task.
-The purpuse of this is to store the information on how to construct the torch dataloader from the task for this
+The purpose of this is to store the information on how to construct the torch dataloader from the task for this
 entry point of the network.
 }
 
+\examples{
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
+# A network with two entry points: one for the numeric and one for the
+# categorical features of the task
+task = tsk("german_credit")
+
+path_num = po("select", id = "select_num", selector = selector_type(c("numeric", "integer"))) \%>>\%
+  po("torch_ingress_num")
+
+# The categorical features are integer codes, which we map to embeddings
+path_categ = po("select", id = "select_categ", selector = selector_type("factor")) \%>>\%
+  po("torch_ingress_categ") \%>>\%
+  nn("tokenizer_categ", d_token = 3) \%>>\%
+  nn("flatten")
+
+graph = gunion(list(path_num, path_categ)) \%>>\%
+  nn("merge_cat") \%>>\%
+  nn("head")
+
+md = graph$train(task)[[1L]]
+# One ingress token per entry point, named after the ID of the ingress PipeOp
+md$ingress
+
+# The model descriptor can be turned into a learner by adding a loss, an optimizer
+# and the training parameters
+learner = as_learner(graph \%>>\%
+  po("torch_loss", t_loss("cross_entropy")) \%>>\%
+  po("torch_optimizer", t_opt("adam")) \%>>\%
+  po("torch_model_classif", epochs = 1, batch_size = 32)
+)
+learner$train(task)
+\dontshow{\}) # examplesIf}
+}
 \seealso{
 Other Graph Network:
 \code{\link[=ModelDescriptor]{ModelDescriptor()}},
