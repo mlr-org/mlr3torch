@@ -23,6 +23,12 @@ test_that("paramset works", {
 
 
   expect_error({param_set_regr$values$device = "opengl"}, regexp = NA) # nolint
+  expect_error(param_set_regr$set_values(device = "cuda:0"), regexp = NA)
+  expect_error(param_set_regr$set_values(device = "cuda:12"), regexp = NA)
+  expect_error(param_set_regr$set_values(device = "auto:0"), regexp = "Must be one of")
+  expect_error(param_set_regr$set_values(device = "cuda:"), regexp = "Must be one of")
+  expect_error(param_set_regr$set_values(device = "gpu"), regexp = "Must be one of")
+  expect_error(param_set_regr$set_values(device = c("cpu", "cuda")), regexp = "length 1")
 })
 
 test_that("make_check_measures works", {

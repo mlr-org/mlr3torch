@@ -22,6 +22,8 @@
 
 ## Features
 
+* The `device` parameter of `LearnerTorch` now accepts an index, e.g. `"cuda:1"`, to train on a
+  specific GPU.
 * The default loss of `LearnerTorch` for a task type is now taken from
   `mlr_reflections$torch$default_losses`, so extension packages can register a default loss for
   their own task types.

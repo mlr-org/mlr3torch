@@ -39,6 +39,20 @@ check_resume = function(x) {
   check_string(x, na.ok = FALSE)
 }
 
+# a device type from mlr_reflections$torch$devices, optionally with an index, e.g. "cuda:1"
+check_device = function(x) {
+  ok = check_string(x)
+  if (!isTRUE(ok)) {
+    return(ok)
+  }
+  parts = regmatches(x, regexec("^([a-z]+)(:[0-9]+)?$", x))[[1L]]
+  if (!length(parts) || parts[2L] %nin% mlr_reflections$torch$devices || (parts[2L] == "auto" && nzchar(parts[3L]))) {
+    return(sprintf("Must be one of %s, optionally followed by an index such as 'cuda:0', but is '%s'",
+      paste0("'", mlr_reflections$torch$devices, "'", collapse = ", "), x))
+  }
+  TRUE
+}
+
 check_measures_regr = make_check_measures("regr")
 check_measures_classif = make_check_measures("classif")
 check_measures = make_check_measures()
@@ -97,7 +111,7 @@ paramset_torchlearner = function(task_type, jittable = FALSE) {
   param_set = ps(
     epochs                = p_int(tags = c("train", "validation", "internal_tuning", "required"), lower = 0L,
       aggr = epochs_aggr, in_tune_fn = epochs_tune_fn, disable_in_tune = list(patience = 0, measures_valid = list())),
-    device                = p_fct(tags = c("train", "predict", "required"), levels = mlr_reflections$torch$devices, init = "auto"),
+    device                = p_uty(tags = c("train", "predict", "required"), custom_check = check_device, init = "auto"),
     num_threads           = p_int(lower = 1L, tags = c("train", "predict", "required", "threads"), init = 1L),
     # deliberately not initialized: torch allows the interop thread count to be set only once per
     # session, so an init would consume that one chance before the user can spend it

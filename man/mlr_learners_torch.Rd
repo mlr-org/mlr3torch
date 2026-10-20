@@ -192,6 +192,7 @@ prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respe
 The number of epochs.
 \item \code{device} :: \code{character(1)}\cr
 The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"} or other values defined in \code{mlr_reflections$torch$devices}.
+A specific device can be selected by appending its index, e.g. \code{"cuda:1"} for the second GPU.
 The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible, then try \code{"mps"} and otherwise
 fall back to \code{"cpu"}.
 \item \code{num_threads} :: \code{integer(1)}\cr
