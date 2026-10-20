@@ -758,9 +758,40 @@
     },
     "future": {
       "Package": "future",
-      "Version": "1.76.0",
+      "Version": "1.80.0",
       "Source": "Repository",
-      "Repository": "CRAN"
+      "Priority": null,
+      "Depends": [
+        "R (>= 3.2.0)"
+      ],
+      "Imports": [
+        "digest",
+        "globals (>= 0.18.0)",
+        "listenv (>= 0.8.0)",
+        "parallel",
+        "parallelly (>= 1.44.0)",
+        "tools",
+        "utils"
+      ],
+      "LinkingTo": [
+        null
+      ],
+      "Suggests": [
+        "methods",
+        "RhpcBLASctl",
+        "R.rsp",
+        "markdown"
+      ],
+      "Enhances": [
+        null
+      ],
+      "License": "Apache License (>= 2)",
+      "License_is_FOSS": null,
+      "License_restricts_use": null,
+      "OS_type": null,
+      "NeedsCompilation": "no",
+      "Repository": "CRAN",
+      "Type": "source"
     },
     "future.apply": {
       "Package": "future.apply",
@@ -1181,12 +1212,65 @@
       "Package": "mlr3torch",
       "Version": "0.3.3.9000",
       "Source": "GitHub",
+      "Title": "Deep Learning with 'mlr3'",
+      "Authors@R": "c(person(given = \"Sebastian\", family = \"Fischer\", role = c(\"cre\", \"aut\"), email = \"sebf.fischer@gmail.com\", comment = c(ORCID = \"0000-0002-9609-3197\")), person(given = \"Bernd\", family = \"Bischl\", role = \"ctb\", email = \"bernd_bischl@gmx.net\", comment = c(ORCID = \"0000-0001-6002-6980\")), person(given = \"Lukas\", family = \"Burk\", role = \"ctb\", email = \"github@quantenbrot.de\", comment = c(ORCID = \"0000-0001-7528-3795\")), person(given = \"Martin\", family = \"Binder\", role = \"aut\", email = \"mlr.developer@mb706.com\"), person(given = \"Florian\", family = \"Pfisterer\", role = \"ctb\", email = \"pfistererf@googlemail.com\", comment = c(ORCID = \"0000-0001-8867-762X\")), person(given = \"Carson\", family = \"Zhang\", role = \"ctb\", email = \"carsonzhang4@gmail.com\") )",
+      "Description": "Deep Learning library that extends the mlr3 framework by building upon the 'torch' package. It makes it convenient to build, train, and evaluate deep learning models without having to worry about low level details. Custom architectures can be created using the graph language defined in 'mlr3pipelines'.",
+      "License": "LGPL (>= 3)",
+      "BugReports": "https://github.com/mlr-org/mlr3torch/issues",
+      "URL": "https://mlr3torch.mlr-org.com/, https://github.com/mlr-org/mlr3torch/",
+      "Depends": [
+        "mlr3 (>= 1.8.0)",
+        "mlr3pipelines (>= 0.11.0)",
+        "torch (>= 0.16.2)",
+        "R (>= 4.2.0)"
+      ],
+      "Imports": [
+        "backports",
+        "cli",
+        "checkmate (>= 2.2.0)",
+        "coro",
+        "data.table",
+        "lgr",
+        "methods",
+        "mlr3misc (>= 0.23)",
+        "paradox (>= 1.0.0)",
+        "R6",
+        "withr"
+      ],
+      "Suggests": [
+        "callr",
+        "curl",
+        "future",
+        "ggplot2",
+        "igraph",
+        "jsonlite",
+        "knitr",
+        "mirai",
+        "mlr3tuning (>= 1.0.0)",
+        "progress",
+        "rmarkdown",
+        "rpart",
+        "viridis",
+        "visNetwork",
+        "testthat (>= 3.0.0)",
+        "tibble",
+        "tfevents",
+        "torchvision (>= 0.6.0)",
+        "waldo"
+      ],
+      "Config/testthat/edition": "3",
+      "NeedsCompilation": "no",
+      "ByteCompile": "yes",
+      "Encoding": "UTF-8",
+      "Roxygen": "list(markdown = TRUE, r6 = TRUE)",
+      "Collate": "'CallbackSet.R' 'aaa.R' 'TorchCallback.R' 'CallbackSetCheckpoint.R' 'CallbackSetEarlyStopping.R' 'CallbackSetHistory.R' 'CallbackSetLRScheduler.R' 'CallbackSetProgress.R' 'CallbackSetTB.R' 'CallbackSetUnfreeze.R' 'ContextTorch.R' 'DataBackendLazy.R' 'utils.R' 'DataDescriptor.R' 'LearnerTorch.R' 'GraphLearnerTorch.R' 'LearnerFTTransformer.R' 'LearnerTorchFeatureless.R' 'LearnerTorchImage.R' 'LearnerTorchMLP.R' 'TorchDescriptor.R' 'TorchLoss.R' 'task_dataset.R' 'shape.R' 'PipeOpTorchIngress.R' 'LearnerTorchModel.R' 'LearnerTorchModule.R' 'LearnerTorchRealMLP.R' 'LearnerTorchTabM.R' 'LearnerTorchTabResNet.R' 'LearnerTorchVision.R' 'MeasureTorch.R' 'ModelDescriptor.R' 'PipeOpModule.R' 'PipeOpTorch.R' 'PipeOpTaskPreprocTorch.R' 'PipeOpTorchActivation.R' 'PipeOpTorchAdaptiveAvgPool.R' 'PipeOpTorchAdaptiveMaxPool.R' 'PipeOpTorchAvgPool.R' 'PipeOpTorchBatchNorm.R' 'PipeOpTorchBlock.R' 'PipeOpTorchCallbacks.R' 'PipeOpTorchConv.R' 'PipeOpTorchConvTranspose.R' 'PipeOpTorchDropout.R' 'PipeOpTorchFTCLS.R' 'PipeOpTorchFTTransformerBlock.R' 'PipeOpTorchFn.R' 'PipeOpTorchGroupNorm.R' 'PipeOpTorchHead.R' 'PipeOpTorchIdentity.R' 'PipeOpTorchLayerNorm.R' 'PipeOpTorchLinear.R' 'PipeOpTorchLoss.R' 'PipeOpTorchMaxPool.R' 'PipeOpTorchMerge.R' 'PipeOpTorchModel.R' 'PipeOpTorchMultiheadAttention.R' 'PipeOpTorchOptimizer.R' 'PipeOpTorchRecurrent.R' 'PipeOpTorchReshape.R' 'PipeOpTorchSoftmax.R' 'PipeOpTorchTokenizer.R' 'PipeOpTorchTransformerEncoderLayer.R' 'PredictionTorch.R' 'Select.R' 'TaskClassif_cifar.R' 'TaskClassif_lazy_iris.R' 'TaskClassif_melanoma.R' 'TaskClassif_mnist.R' 'TaskClassif_tiny_imagenet.R' 'TaskTorch.R' 'TorchOptimizer.R' 'bibentries.R' 'cache.R' 'lazy_tensor.R' 'learner_torch_methods.R' 'materialize.R' 'merge_graphs.R' 'multi_tensor_dataset.R' 'nn.R' 'nn_graph.R' 'paramset_torchlearner.R' 'pipeop_torch.R' 'preprocess.R' 'rd_info.R' 'with_torch_settings.R' 'zzz.R'",
+      "Config/roxygen2/version": "8.1.0",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "mlr-org",
       "RemoteRepo": "mlr3torch",
       "RemoteRef": "main",
-      "RemoteSha": "b8c59b6b07d08b6e45ae14628ce7a5888b2463f1"
+      "RemoteSha": "8b69e64e5a82340e3b8bcc97ab7f4f6599b53807"
     },
     "mlr3tuning": {
       "Package": "mlr3tuning",

@@ -215,7 +215,7 @@ learner$param_set$set_values(
 ti <- tune(
   tuner = tnr("random_search"),
   resampling = rsmp("holdout"),
-  measure = msr("internal_valid_score", minimize = TRUE),
+  measure = msr("best_valid_score", minimize = TRUE),
   learner = learner,
   term_evals = 20,
   task = task)
@@ -270,7 +270,7 @@ convnext <- lrn("classif.convnext_tiny_1k",
   opt.lr = 1e-4, measures_valid = msr("classif.acc"),
   callbacks = list(unfreezer, t_clbk("history")))
 
-learner <- as_learner(
+learner <- as_learner_torch(
   augment %>>% preprocess %>>% normalize %>>% convnext)
 learner$id <- "convnext"
 set_validate(learner, 1 / 3)
@@ -333,7 +333,7 @@ library("mlr3learners")
 baseline <- as_learner(
   po("select",
     selector = selector_invert(selector_type("lazy_tensor"))) %>>%
-  po("imputehist") %>>% po("encode", method = "treatment") %>>%
+  po("imputehist") %>>%
   lrn("classif.log_reg", predict_type = "prob"))
 baseline$id <- "tabular"
 glrn$id <- "multimodal"

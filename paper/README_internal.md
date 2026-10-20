@@ -18,9 +18,12 @@
 * [ ] confirm reproducbibilty of paper results
 * [ ] Update the compute info (hardware description) in the paper
 
+* [ ] update zenodo link in paper
+* [ ] 1. Two footnotes link to /dev/ documentation; switch them after the CRAN release (the release URLs return 404 now).
 * [ ] check that our mechanism for the cache works (when data is no longer available)
 * [ ] Prepare all the additional data etc. (handle Mac weird files, gitignore etc.)
 * [ ] resubmit
+* [ ] check that benchmark still run with final docker images
 
 ## Building and Publishing the Docker Images
 
