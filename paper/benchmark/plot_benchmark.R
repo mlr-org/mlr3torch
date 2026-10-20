@@ -135,9 +135,10 @@ plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = 
   ) +
     geom_line() +
     geom_point(size = 0.8) +
-    # free y-axes that are not anchored at 0, so that small differences between
-    # mlr3torch and torch remain visible
-    facet_wrap(~latent, scales = "free_y") +
+    facet_wrap(~latent) +
+    # the y-axis starts at 0.9 instead of at 0, so that small differences
+    # between mlr3torch and torch remain visible
+    scale_y_continuous(limits = c(0.9, NA)) +
     labs(
       y = if (show_y_label) "Relative median time\n per batch" else NULL,
       color = "Algorithm",

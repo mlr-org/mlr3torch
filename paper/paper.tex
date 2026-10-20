@@ -93,8 +93,8 @@ Runtime benchmarks show that \pkg{mlr3torch} is close to a pure \pkg{torch} impl
 %% - \Keywords{} with LaTeX markup, at least one required
 %% - \Plainkeywords{} without LaTeX markup (if necessary)
 %% - Should be comma-separated and in sentence case.
-\Keywords{deep learning, machine learning, \rlang{}}
-\Plainkeywords{deep learning, machine learning, R}
+\Keywords{deep learning, neural networks, machine learning, \pkg{mlr3}, \pkg{torch}, \rlang{}}
+\Plainkeywords{deep learning, neural networks, machine learning, mlr3, torch, R}
 
 %% - \Address{} of at least one author
 %% - May contain multiple affiliations for each author
@@ -213,7 +213,7 @@ The core idea of \mlrttorch{}\footnote{\url{https://github.com/mlr-org/mlr3torch
 Neural networks become regular \mlrt{} learners that can seamlessly replace other ML models and directly benefit from these features: they can be tuned via \pkg{mlr3tuning} \citep{ref-mlr3tuning2024}, evaluated with nested resampling, and benchmarked against other learners, e.g., on high-performance computing clusters.
 
 To this end, \mlrttorch{} offers ready-to-use learners for classification and regression on tabular data and images, including pretrained image networks for fine-tuning, as well as generic interfaces for custom learning problems.
-Through the \code{lazy\_tensor} type, tensors of arbitrary modalities can be stored and preprocessed like regular columns of a \code{Task}, even when they do not fit into memory.
+Through the \code{lazy_tensor} type, tensors of arbitrary modalities can be stored and preprocessed like regular columns of a \code{Task}, even when they do not fit into memory.
 This allows to naturally handle arbitrary modalities and multimodal data and bridges the gap between \mlrt{}, a tabular ML framework, and \torch{}, a tensor-based DL library.
 Networks can be predefined, written as \torch{} modules, or expressed in the graph language of \mlrtpipelines{}, which represents preprocessing, augmentation, and the architecture in a single graph that can be tuned over.
 Through its modular and customizable design, third-party packages can extend the package, e.g. to add support for new architectures or task types.
@@ -228,6 +228,7 @@ Second, DL is relevant for tabular data, which is the main focus of \mlrt{}.
 While gradient-boosted trees remain strong on tabular data, neural networks perform better on some datasets \citep{ref-mcelfresh2024neural}.
 Moreover, ensembles that combine different model families advance the state of the art in tabular ML \citep{ref-erickson2025tabarena}.
 In \mlrttorch{}, neural networks can be combined with, e.g., gradient-boosted trees via stacking in \mlrtpipelines{}.
+The AutoML system \pkg{mlr3automl} \citep{ref-mlr3automl} already uses the tabular learners of \mlrttorch{} as candidates next to gradient-boosted trees and other learners, and selects and tunes them jointly.
 
 Third, \mlrttorch{} offers infrastructure for developers of packages that provide DL methods for specific tasks or disciplines.
 For example, \pkg{survdnn} \citep{ref-elbadisy2026survdnn}, discussed in \Cref{sec:dl-in-r}, implements its own resampling and tuning code for deep survival models.
@@ -313,7 +314,7 @@ As such, it provides the computational base layer for DL, but none of the higher
 
 \paragraph{\rlang{}-native training frameworks and model packages}
 \luz{} \citep{ref-luz2025}, \pkg{cito} \citep{ref-cito2024}, and \pkg{kindling} \citep{ref-soetewey2026kindling} are higher-level training frameworks for \torch{}.
-Because these are closest in spirit to \pkg{mlr3torch}, \Cref{tab:comparison} contains an in-depth comparison of the four packages.
+Because these are closest in spirit to \pkg{mlr3torch}, \Cref{tab:comparison} contains an in-depth comparison of the four packages (\luz{}~0.5.2, the development version 1.2 of \pkg{cito} on GitHub (commit \code{aec71d5}), \pkg{kindling}~0.3.2, and \mlrttorch{}~0.4.0), all of which run on the CPU and on GPUs and require no \python{}.
 \luz{} encapsulates the training loop into reusable pieces, such as callbacks and metrics, and makes few assumptions about the training setup, which makes it the best fit when maximum flexibility is needed.
 The callback mechanism of \mlrttorch{} was partly inspired by the implementation in \luz{}.
 \pkg{cito} is a focused package that allows fitting MLPs and CNNs through a formula interface. It is easy to use when it covers one's specific use case, but has limited flexibility.
@@ -348,7 +349,7 @@ In addition, the number of epochs can be tuned internally via early stopping, an
 This mechanism was implemented in \mlrt{} as a general mechanism for iterative learners, with \mlrttorch{} as one of its main motivating use cases, and is also used, e.g., by gradient-boosted trees \citep{ref-mlr3book-valid}.
 
 Beyond this integration, \mlrttorch{} combines several features that are not offered together by the other \rlang{} packages.
-First, images and other tensors are stored as \code{lazy\_tensor} columns of a \code{Task}, next to standard tabular features and without being loaded into memory.
+First, images and other tensors are stored as \code{lazy_tensor} columns of a \code{Task}, next to standard tabular features and without being loaded into memory.
 This makes multimodal datasets and datasets that do not fit into memory first-class citizens, and should feel familiar to \rlang{} users who work with data frames or \code{data.table}s.
 In contrast, the \torch{}-based integrations into \tidymodels{} are restricted to tabular data, and non-tabular data can only be passed to \pkg{keras3} models via \pkg{kerasnip}, as arrays that are held in memory.
 Tensor columns are preprocessed and augmented by the same kind of \code{PipeOp}s as tabular features; these transformations are applied lazily when a batch is loaded, and augmentation only during training.
@@ -358,6 +359,7 @@ The graph also defines how the input tensors of each network entry point are con
 Third, users can choose their level of control, from ready-to-use learners over arbitrary \torch{} modules converted to learners to custom architectures in the graph language.
 Fourth, all components, from network layers and preprocessing operators to losses, callbacks, and task types, are represented by classes with well-defined interfaces from which users can inherit, rather than by a fixed set of options exposed as function arguments.
 Other packages can therefore register additional components and reuse the infrastructure of both \mlrt{} and \mlrttorch{} instead of reimplementing it.
+For example, \pkg{mlr3torchAUM} \citep{ref-mlr3torchAUM} adds losses for AUC optimization and batch samplers, \pkg{mlr3tuningspaces} \citep{ref-mlr3tuningspaces} provides published search spaces for the tabular learners of \mlrttorch{}, and \pkg{mlr3automl} \citep{ref-mlr3automl} includes these learners in its AutoML system.
 Finally, \mlrttorch{} requires only native \rlang{} packages and does not depend on any \python{} libraries.
 Taken together, these features make \mlrttorch{} a research toolbox for DL in \rlang{}.
 
@@ -369,12 +371,12 @@ Taken together, these features make \mlrttorch{} a research toolbox for DL in \r
 Aspect & Functionality in \mlrttorch{} \\
 \hline
 Task types & Classification and regression out of the box; one-off custom learning problems available via the generic \code{TaskTorch}. Third-party packages can add support for new task types (\Cref{sec:other-task-types}). \\
-Data modalities & Tabular features and generic tensors via the \code{lazy\_tensor} type (\Cref{sec:lazy-tensor}). Text data is not supported out of the box; tokenization needs to be performed by a third-party package such as \pkg{tok} \citep{ref-tok}. Multimodal architectures combine several entry points of a network graph, e.g., for images and tabular features (\Cref{sec:multimodal}). \\
-Preprocessing and augmentation & 11 preprocessing and 14 augmentation operators based on \pkg{torchvision} \citep{ref-r-torchvision}. Tabular data can be preprocessed via functionality from \pkg{mlr3pipelines} \citep{ref-mlr3pipelines2021}. Custom preprocessing and augmentation methods can be easily added via \code{pipeop\_preproc\_torch()}. \\
+Data modalities & Tabular features and generic tensors via the \code{lazy_tensor} type (\Cref{sec:lazy-tensor}). Text data is not supported out of the box; tokenization needs to be performed by a third-party package such as \pkg{tok} \citep{ref-tok}. Multimodal architectures combine several entry points of a network graph, e.g., for images and tabular features (\Cref{sec:multimodal}). \\
+Preprocessing and augmentation & 11 preprocessing and 21 augmentation operators based on \pkg{torchvision} \citep{ref-r-torchvision}. Tabular data can be preprocessed via functionality from \pkg{mlr3pipelines} \citep{ref-mlr3pipelines2021}. Custom preprocessing and augmentation methods can be easily added via \code{pipeop_preproc_torch()}. \\
 Predefined architectures & Tabular: MLP, residual network (TabResNet), FT-Transformer \citep{ref-gorishniy2021revisiting}, TabM \citep{ref-gorishniy2025tabm}, and RealMLP \citep{ref-holzmuller2024realmlp}. Image: 46 architectures from \pkg{torchvision}, including pretrained weights. \\
-Custom architectures & Arbitrary \code{nn\_module}s via \code{LearnerTorchModule} (\Cref{sec:extending-learner}) or the graph language (\Cref{sec:graphs}), which offers more than 70 layer operators, including convolutional, pooling, normalization, attention, transformer, and recurrent layers, an operator for arbitrary tensor functions, and repeated blocks; custom layers can be created via \code{pipeop\_torch()}. \\
-Training & Losses (cross-entropy, MSE, L1), optimizers (SGD, Adam, AdamW, RMSprop, Adagrad) using the fast ``ignite'' implementations of \torch{} written in \cpp{} (\Cref{sec:benchmarks}), CPU or GPU training, and the number of epochs as an internally tuned hyperparameter. Predefined callbacks support logging (e.g., to TensorBoard), checkpointing (which allows resuming the training), learning rate scheduling, and fine-tuning. Custom callbacks, losses, and optimizers can be created via \code{torch\_callback()}, \code{as\_torch\_loss()}, and \code{as\_torch\_optimizer()}; callbacks can hook into 12 stages of the training loop. \\
-Evaluation and tuning & All \mlrt{} performance measures, which can also be tracked during training and used for early stopping; custom ones via \code{Measure} classes or \code{msr\_torch()}. Resampling, including nested resampling, and benchmarking. Tuning methods such as random search, Bayesian optimization, or Hyperband for all hyperparameters, including the network topology and, internally via early stopping, the number of epochs. Model-agnostic interpretability via \mlrt{} packages such as \pkg{xplainfi} \citep{ref-burk2026xplainfi}. Stacking with other learners and parallel or HPC execution via \pkg{future} \citep{ref-future} and \pkg{mlr3batchmark} \citep{ref-mlr3batchmark}. \\
+Custom architectures & Arbitrary \code{nn_module}s via \code{LearnerTorchModule} (\Cref{sec:extending-learner}) or the graph language (\Cref{sec:graphs}), which offers more than 70 layer operators, including convolutional, pooling, normalization, attention, transformer, and recurrent layers, an operator for arbitrary tensor functions, and repeated blocks; custom layers can be created via \code{pipeop_torch()}. \\
+Training & Losses (cross-entropy, MSE, L1), optimizers (SGD, Adam, AdamW, RMSprop, Adagrad) using the fast ``ignite'' implementations of \torch{} written in \cpp{} (\Cref{sec:benchmarks}), CPU or GPU training, and the number of epochs as an internally tuned hyperparameter. Predefined callbacks support logging (e.g., to TensorBoard), checkpointing (which allows resuming the training), learning rate scheduling, and fine-tuning. Custom callbacks, losses, and optimizers can be created via \code{torch_callback()}, \code{as_torch_loss()}, and \code{as_torch_optimizer()}; callbacks can hook into 12 stages of the training loop. \\
+Evaluation and tuning & All \mlrt{} performance measures, which can also be tracked during training and used for early stopping; custom ones via \code{Measure} classes or \code{msr_torch()}. Resampling, including nested resampling, and benchmarking. Tuning methods such as random search, Bayesian optimization, or Hyperband for all hyperparameters, including the network topology and, internally via early stopping, the number of epochs. Model-agnostic interpretability via \mlrt{} packages such as \pkg{xplainfi} \citep{ref-burk2026xplainfi}. Stacking with other learners and parallel or HPC execution via \pkg{future} \citep{ref-future} and \pkg{mlr3batchmark} \citep{ref-mlr3batchmark}. \\
 Extensibility & Learners, pipeline operators, callbacks, losses, and optimizers are registered in dictionaries and task types via \mlrt{}'s reflections, so components from third-party packages are used exactly like built-in ones (\Cref{sec:extending}). \\
 \hline
 \end{tabular}
@@ -387,37 +389,35 @@ Extensibility & Learners, pipeline operators, callbacks, losses, and optimizers 
 \centering
 \footnotesize
 \setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.0}
 \newcommand{\note}[1]{{\scriptsize(#1)}}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.18\textheight}*{4}{>{\raggedright\arraybackslash}p{0.19\textheight}}@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.16\textheight}*{4}{>{\raggedright\arraybackslash}p{0.195\textheight}}@{}}
 \hline
  & \luz{} & \pkg{cito} & \pkg{kindling} & \mlrttorch{} \\
 \hline
 Framework integration & -- & -- & \tidymodels{} \note{tabular only} & \mlrt{} \\
 Task types & arbitrary & classif., regr., count, multi-label & classif., (multi-output) regr. & classif., regr., custom \\
 Data modalities & arbitrary \note{\code{torch::dataset}} & tabular, fixed-size arrays \note{e.g., images; up to 3D} & arbitrary \note{\tidymodels{} integration only for tabular data} & arbitrary \\
-Preprocessing & in the \code{dataset} & model formula \note{tabular only} & \pkg{recipes} \note{tabular only}; in the \code{dataset} & Via (many predefined or custom) \pkg{PipeOp}s \\
+Preprocessing & in the \code{dataset} & model formula \note{tabular only} & \pkg{recipes} \citep{ref-recipes} \note{tabular only}; in the \code{dataset} & Via (many predefined or custom) \pkg{PipeOp}s \\
 Data augmentation & in the \code{dataset}; mixup callback & 3 built-in or custom & in the \code{dataset} & Via (many predefined or custom) \pkg{PipeOp}s \\
 Multimodal inputs & \checkmark  & (\checkmark) \note{tabular + image via \code{mmn()}} & -- & \checkmark \\
-Ready-to-use tabular architectures & -- & MLP & MLP \note{plus RNNs} & 5 \note{see \Cref{tab:overview}} \\
-Ready-to-use pretrained image models & -- & 20 \note{\pkg{torchvision}} & -- & 46 \note{\pkg{torchvision}} \\
-Custom architectures & \code{nn\_module} & \code{nn\_module} \note{\code{custom} argument} & (\checkmark) \note{templates of one layer type} & \code{nn\_module}, graph language \\
-Early stopping criterion & any metric & loss & loss & any metric \\
-User-defined callbacks & \checkmark{} \note{25 stages, incl. prediction} & (\checkmark) \note{after every epoch; \code{dnn()} only} & -- & \checkmark{} \note{12 stages, training only; predefined ones in \Cref{tab:overview}} \\
+Tabular architectures & -- & MLP & MLP \note{plus RNNs} & 5 \note{see \Cref{tab:overview}} \\
+Pretrained image models & -- & 20 \note{\pkg{torchvision}} & -- & 46 \note{\pkg{torchvision}} \\
+Custom architectures & \code{nn_module} & \code{nn_module} \note{\code{custom} argument} & (\checkmark) \note{templates of one layer type} & \code{nn_module}, graph language \\
+Early stopping metric & any metric & loss & loss & any metric \\
+Custom callbacks & \checkmark{} \note{25 stages, incl. prediction} & (\checkmark) \note{after every epoch; \code{dnn()} only} & -- & \checkmark{} \note{12 stages, training only; predefined ones in \Cref{tab:overview}} \\
 Resuming training & \checkmark{} \note{incl. optimizer and callback states} & (\checkmark) \note{optimizer and scheduler re-initialized} & -- & \checkmark{} \note{incl. optimizer and callback states} \\
-Third-party extensions & \checkmark{} \note{callbacks, metrics} & -- & -- & \checkmark{} \note{basically anything, first-class} \\
-Performance measures & 8; custom via \code{luz\_metric()} & -- \note{loss only} & many via \pkg{yardstick}, custom \note{tabular only} & 50+ \mlrt{} \code{Measure}s; custom \\
-Hyperparameter tuning & -- & random search \note{tabular only} & \pkg{tune} \note{tabular only} & \pkg{mlr3tuning} \\
-Tunability & -- & selected architecture and training settings & selected architecture and training settings & basically anything \\
-Resampling & -- \note{train-validation split only} & k-fold CV for tuning \note{tabular only} & via \pkg{rsample} \note{tabular only; nested via \pkg{nestedtune} \citep{ref-nestedtune}} & also  \\
-Parallelization / HPC & -- & tuning \note{CPU cores, GPUs}, bootstrapping \note{CPU cores}; tabular only & via \tidymodels{} \note{\pkg{future}, \pkg{mirai}; tabular only} & \pkg{future}, HPC via \pkg{mlr3batchmark} \\
+Third-party extensions & \checkmark{} \note{callbacks, metrics} & -- & -- & \checkmark{} \note{all component types, used like built-in ones} \\
+Performance measures & 8; custom via \code{luz_metric()} & -- \note{loss only} & many via \pkg{yardstick} \citep{ref-yardstick}, custom \note{tabular only} & 50+ \mlrt{} \code{Measure}s; custom \\
+Hyperparameter tuning & -- & random search \note{tabular only} & \pkg{tune} \citep{ref-tune} \note{tabular only} & \pkg{mlr3tuning} \\
+Tunability & -- & selected architecture and training settings & selected architecture and training settings & all hyperparameters, incl.\ network topology \\
+Resampling & -- \note{train-validation split only} & k-fold CV for tuning \note{tabular only} & via \pkg{rsample} \citep{ref-rsample} \note{tabular only; nested via \pkg{nestedtune} \citep{ref-nestedtune}} & many schemes, incl.\ nested resampling \\
+Parallelization & -- & tuning \note{CPU cores, GPUs}, bootstrapping \note{CPU cores}; tabular only & via \tidymodels{} \note{\pkg{future} \citep{ref-future}, \pkg{mirai} \citep{ref-mirai}; tabular only} & \pkg{future}, HPC via \pkg{mlr3batchmark} \\
 Interpretability & -- & built-in, model-agnostic and gradient-based & built-in, model-specific; model-agnostic via \tidymodels{} & model-agnostic via \mlrt{} packages \note{e.g., \pkg{xplainfi} \citep{ref-burk2026xplainfi}} \\
 \hline
 \end{tabular}
-\caption{Comparison of general-purpose \rlang{} frameworks for training neural networks with \torch{}
-(\luz{}~0.5.2, the development version 1.2 of \pkg{cito} on GitHub (commit \code{aec71d5}), \pkg{kindling}~0.3.2, and \mlrttorch{}~0.4.0.
-\checkmark: supported; (\checkmark): possible with limitations --: not directly available.
-All packages run on the CPU and on GPUs and require no \python{}.}
+\caption{Comparison of general-purpose \rlang{} frameworks for training neural networks with \torch{}.
+\checkmark: supported; (\checkmark): possible with limitations; --: not directly available.}
 \label{tab:comparison}
 \end{sidewaystable}
 
@@ -497,13 +497,13 @@ One popular method is Adam (adaptive moment estimation) \citep{ref-kingma2015ada
 In this paper, we mostly use AdamW \citep{ref-loshchilov2017decoupled}, a variant of Adam that decouples the weight decay from the adaptive update, which often improves generalization.
 
 For these computations, \pkg{mlr3torch} builds on the \rlang{} package \pkg{torch} \citep{ref-torch2025}, which provides the building blocks for each of the steps described above.
-Its central data structure is the \code{torch\_tensor}, a multi-dimensional array that resides on a device, such as the CPU or a GPU, and which represents the features $\mathbf{x}^{(i)}$, the targets $y^{(i)}$, and the parameters $\theta$.
+Its central data structure is the \code{torch_tensor}, a multi-dimensional array that resides on a device, such as the CPU or a GPU, and which represents the features $\mathbf{x}^{(i)}$, the targets $y^{(i)}$, and the parameters $\theta$.
 Because training neural networks mainly consists of large matrix multiplications and other operations that can be executed in parallel, GPUs can speed up training by orders of magnitude compared to CPUs, which is crucial for larger models and datasets.
-The network $f_\theta$ itself has class \code{nn\_module}, which holds the learnable parameters and defines the forward computation.
-It is created by an object of class \code{nn\_module\_generator}, which is defined via \code{nn\_module()} and which returns a module with initialized parameters when it is called.
+The network $f_\theta$ itself has class \code{nn_module}, which holds the learnable parameters and defines the forward computation.
+It is created by an object of class \code{nn_module_generator}, which is defined via \code{nn_module()} and which returns a module with initialized parameters when it is called.
 Modules are composable, which allows the creation of reusable components for commonly used layers.
 When the loss is computed, the operations on tensors that require gradients are recorded, so that the gradient $g_t$ from \Cref{eq:gradient} can be computed automatically via backpropagation.
-For the optimization routines, \pkg{torch} provides the \code{torch_optimizer} class with various implementations, such as \code{optim\_sgd} or \code{optim\_adamw}.
+For the optimization routines, \pkg{torch} provides the \code{torch_optimizer} class with various implementations, such as \code{optim_sgd} or \code{optim_adamw}.
 Finally, a \code{dataset} defines how to retrieve a single observation $(\mathbf{x}^{(i)}, y^{(i)})$ of $\mathcal{D}$ as tensors, while a \code{dataloader} iterates over a \code{dataset} and combines (shuffled) observations into the mini-batches $B_t$.
 This abstraction is needed because DL datasets are often too large to fit into memory, so mini-batches are loaded one at a time and the whole dataset is never kept in memory at once.
 In \pkg{torch}, these building blocks are combined in a training loop that users write themselves:
@@ -546,13 +546,13 @@ Building on these frameworks, \mlrttorch{} follows the usual \mlrt{} workflow.
 Before we describe it in more detail in the remainder of this section, we first provide a high-level overview.
 As in \pkg{mlr3}, the modeling problem is represented via a \code{Task}.
 Because a \code{Task} usually stores its data in a \code{data.table}, in which every column is a vector, standard tabular features such as numbers or factors can be stored directly, but images or other tensors cannot.
-For this reason, \mlrttorch{} introduces the \code{lazy\_tensor} type, which is essentially a vector of tensors that can be stored as a column of a \code{data.table} (\Cref{sec:lazy-tensor}).
+For this reason, \mlrttorch{} introduces the \code{lazy_tensor} type, which is essentially a vector of tensors that can be stored as a column of a \code{data.table} (\Cref{sec:lazy-tensor}).
 It is lazy in the sense that it does not hold the tensors in memory but only describes how to obtain them, e.g., by loading images from disk.
-Only when they are needed are the tensors created as \code{torch\_tensor}s.
+Only when they are needed are the tensors created as \code{torch_tensor}s.
 This abstraction allows \mlrttorch{} to go beyond tabular modeling problems and support arbitrary data modalities.
 Similarly, \mlrttorch{} goes beyond the classification and regression tasks of \mlrt{}: custom learning problems can be represented via the generic \code{TaskTorch} class and evaluated with the generic \code{MeasureTorch} class, which inherit from \code{Task} and \code{Measure}, respectively (\Cref{sec:other-task-types}).
 
-A \code{lazy\_tensor} can also be preprocessed lazily: transformations and data augmentation are implemented as \code{PipeOpTaskPreprocTorch} objects (a subclass of \code{PipeOpTaskPreproc}) that do not modify the tensors directly but only record the transformation, which is applied when the tensors are materialized (\Cref{sec:preprocessing}).
+A \code{lazy_tensor} can also be preprocessed lazily: transformations and data augmentation are implemented as \code{PipeOpTaskPreprocTorch} objects (a subclass of \code{PipeOpTaskPreproc}) that do not modify the tensors directly but only record the transformation, which is applied when the tensors are materialized (\Cref{sec:preprocessing}).
 Thus, \mlrttorch{} offers a unified interface for preprocessing standard tabular features and generic tensors.
 
 Neural networks are trained by a \code{LearnerTorch}, whose \code{\$train()} method implements the training loop described in \Cref{sec:background} and whose \code{\$predict()} method applies the trained network to mini-batches of new data and then encodes the resulting tensors as a \code{Prediction} object.
@@ -560,18 +560,18 @@ A \code{LearnerTorch} is configured by a loss, an optimizer, and callbacks (\Cre
 These are represented by \code{TorchLoss}, \code{TorchOptimizer}, and \code{TorchCallback} objects, which wrap the corresponding \pkg{torch} objects and make their hyperparameters available to \mlrt{}, e.g., for tuning.
 \mlrttorch{} offers different levels of control over the network architecture of a \code{LearnerTorch}.
 The simplest options are predefined architectures, such as the MLP \code{LearnerTorchMLP}, for which only architectural hyperparameters, such as the number and width of the layers, are configurable (\Cref{sec:learner-torch}).
-Custom architectures can be defined as a \code{nn\_module\_generator} and turned into a \code{Learner} via \code{LearnerTorchModule} (\Cref{sec:extending-learner}).
+Custom architectures can be defined as a \code{nn_module_generator} and turned into a \code{Learner} via \code{LearnerTorchModule} (\Cref{sec:extending-learner}).
 Finally, the architecture can be expressed in the graph language of \mlrtpipelines{}, where each layer is a \code{PipeOpTorch} (\Cref{sec:graphs}).
 As a \code{LearnerTorch} is an \mlrt{} \code{Learner}, it can be resampled, benchmarked, and tuned like any other \code{Learner}.
 \Cref{fig:workflow} gives an overview of the workflow.
-Preprocessing and augmentation operators can be combined with a \code{LearnerTorch} in a \code{Graph}, which is converted via \code{as\_learner\_torch()} into a \code{GraphLearnerTorch}, the subclass of \code{GraphLearner} that \mlrttorch{} provides for graphs containing a neural network (\Cref{fig:workflow}(a)).
+Preprocessing and augmentation operators can be combined with a \code{LearnerTorch} in a \code{Graph}, which is converted via \code{as_learner_torch()} into a \code{GraphLearnerTorch}, the subclass of \code{GraphLearner} that \mlrttorch{} provides for graphs containing a neural network (\Cref{fig:workflow}(a)).
 Alternatively, the architecture and the training configuration can be expressed as operators in the same \code{Graph} (\Cref{fig:workflow}(b) and \Cref{fig:pipeop-torch}).
 In both cases, the hyperparameters of all components can be tuned jointly, and in the latter case, this includes the structure of the architecture (\Cref{sec:tuning}).
 \Cref{tab:classes} gives an overview of the classes.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/workflow_new.pdf}
+\includegraphics[width=\textwidth]{figures/workflow.pdf}
 \caption{Overview of the \mlrttorch{} workflow. A \code{GraphLearnerTorch} combines preprocessing and augmentation operators with either (a) a \code{LearnerTorch} as a single node or (b) an architecture built from \code{nn()} operators, where the operators from \code{torch\_ingress\_*} to \code{torch\_model} take the role of the \code{LearnerTorch}. In each mini-batch, the \code{Task} is converted to tensors: the ingress converts tabular features, and \code{lazy\_tensor}s are materialized, which applies the lazy preprocessing and augmentation. Augmentation is only applied during training. The \code{\$model} contains the trained network and further training state, and during prediction, the network output is converted into a \code{Prediction} via \code{encode\_prediction()}.}
 \label{fig:workflow}
 \end{figure}
@@ -585,20 +585,20 @@ Category & Class & Role \\
 \hline
 Data & \code{mlr3::Task} & Data and metadata of an ML problem \\
  & \code{mlr3torch::TaskTorch} & \code{Task} for custom learning problems \\
- & \code{mlr3torch::lazy\_tensor} & Column of a \code{Task} or \code{data.table} that holds tensors lazily \\
- & \code{torch::torch\_tensor} & In-memory tensor on a device \\
+ & \code{mlr3torch::lazy_tensor} & Column of a \code{Task} or \code{data.table} that holds tensors lazily \\
+ & \code{torch::torch_tensor} & In-memory tensor on a device \\
  & \code{torch::dataset} & Access to individual observations \\
  & \code{torch::dataloader} & Draws mini-batches from a \code{dataset} \\
 Preprocessing & \code{mlr3pipelines::PipeOp} & Single step of a \code{Graph} \\
  & \code{mlr3pipelines::Graph} & Pipeline of connected \code{PipeOp}s \\
  & \code{mlr3pipelines::PipeOpTaskPreproc} & Preprocesses a \code{Task}, e.g., its tabular features \\
- & \code{mlr3torch::PipeOpTaskPreprocTorch} & Preprocesses \code{lazy\_tensor}s \\
-Architecture & \code{torch::nn\_module\_generator} & Creates \code{nn\_module}s \\
- & \code{torch::nn\_module} & Network (or network segment) with its parameters \\
+ & \code{mlr3torch::PipeOpTaskPreprocTorch} & Preprocesses \code{lazy_tensor}s \\
+Architecture & \code{torch::nn_module_generator} & Creates \code{nn_module}s \\
+ & \code{torch::nn_module} & Network (or network segment) with its parameters \\
 Training & \code{mlr3::Learner} & Learns and predicts from a \code{Task} \\
  & \code{mlr3pipelines::GraphLearner} & \code{Learner} that wraps a \code{Graph} \\
  & \code{mlr3torch::GraphLearnerTorch} & \code{GraphLearner} for a \code{Graph} that contains a neural network \\
- & \code{mlr3torch::LearnerTorch} & \code{Learner} that trains an \code{nn\_module} \\
+ & \code{mlr3torch::LearnerTorch} & \code{Learner} that trains an \code{nn_module} \\
  & \code{torch::torch_optimizer} & Parameter update rule \\
  & \code{mlr3torch::TorchLoss} & Wraps a \pkg{torch} loss function \\
  & \code{mlr3torch::TorchOptimizer} & Wraps a \code{torch::torch_optimizer} \\
@@ -618,7 +618,7 @@ Evaluation & \code{mlr3::Prediction} & Output of \code{Learner\$predict()} \\
 \subsubsection[The lazy tensor type]{The \code{lazy\_tensor} type}\label{sec:lazy-tensor}
 
 % Lazy Tensor
-To support not only standard tabular features in a \code{Task} (\Cref{sec:building-blocks}), but also generic \torch{} tensors, \pkg{mlr3torch} defines the \code{lazy\_tensor} type, which represents a vector of tensors with possibly heterogeneous shapes.
+To support not only standard tabular features in a \code{Task} (\Cref{sec:building-blocks}), but also generic \torch{} tensors, \pkg{mlr3torch} defines the \code{lazy_tensor} type, which represents a vector of tensors with possibly heterogeneous shapes.
 It is built upon the \code{torch::dataset} class, and therefore only needs to define how to obtain its elements, but not necessarily store them in memory -- hence the name ``lazy''.We demonstrate this data type using the MNIST digit classification example problem \citep{ref-mnist-2012}, a supervised learning task where the goal is to categorize an image of a handwritten digit into one of the ten classes (0--9).
 To make the results in this paper reproducible, we set the seeds of both \rlang{}'s and \pkg{torch}'s random number generators.
 
@@ -641,7 +641,7 @@ R> mnist
 \end{CodeOutput}
 \end{CodeChunk}
 
-The underlying data includes two columns, one of which is a \code{factor} vector containing the class labels, and the other is a \code{lazy\_tensor} containing grayscale images with $28\times28$ pixels.
+The underlying data includes two columns, one of which is a \code{factor} vector containing the class labels, and the other is a \code{lazy_tensor} containing grayscale images with $28\times28$ pixels.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -656,7 +656,7 @@ R> rows
 \end{CodeOutput}
 \end{CodeChunk}
 
-We can call the \code{materialize()} function to convert a \code{lazy\_tensor} to a list of \code{torch\_tensor}s.
+We can call the \code{materialize()} function to convert a \code{lazy_tensor} to a list of \code{torch_tensor}s.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -669,8 +669,8 @@ List of 2
 \end{CodeOutput}
 \end{CodeChunk}
 
-\Cref{fig:lazy-tensor} illustrates how a \code{lazy\_tensor} works under the hood.
-A \code{lazy\_tensor} can be constructed from a \code{torch::dataset} using the \code{as\_lazy\_tensor()} converter, which is demonstrated in~\Cref{sec:finetuning}.
+\Cref{fig:lazy-tensor} illustrates how a \code{lazy_tensor} works under the hood.
+A \code{lazy_tensor} can be constructed from a \code{torch::dataset} using the \code{as_lazy_tensor()} converter, which is demonstrated in~\Cref{sec:finetuning}.
 
 \begin{figure}[t]
 \centering
@@ -681,7 +681,7 @@ A \code{lazy\_tensor} can be constructed from a \code{torch::dataset} using the 
 
 \subsubsection{Data preprocessing and augmentation}\label{sec:preprocessing}
 
-A core feature of the \code{lazy\_tensor} type is that it can be transformed by \code{PipeOp}s.
+A core feature of the \code{lazy_tensor} type is that it can be transformed by \code{PipeOp}s.
 Below, we flatten the images so they can later be fed into a simple MLP.
 
 \begin{CodeChunk}
@@ -713,10 +713,10 @@ List of 2
 
 The same reshaping would also be applied when calling the \code{\$predict()} method of the \code{PipeOp}.
 Just like loading the data, these preprocessing steps are not applied eagerly, but lazily.
-They build up an internal preprocessing graph that is executed when the \code{lazy\_tensor} is materialized.
+They build up an internal preprocessing graph that is executed when the \code{lazy_tensor} is materialized.
 
-Similarly, data augmentation steps are also available as \code{PipeOp}s, but their identifiers are prefixed with \code{"augment\_"} instead of \code{"trafo\_"}.
-The full list of currently available operators can be found on the package website\footnote{\url{https://mlr3torch.mlr-org.com/articles/preprocessing_list.html}}. However, it is also relatively simple to create custom ones via \code{pipeop\_preproc\_torch()}.
+Similarly, data augmentation steps are also available as \code{PipeOp}s, but their identifiers are prefixed with \code{"augment_"} instead of \code{"trafo_"}.
+The full list of currently available operators can be found on the package website\footnote{\url{https://mlr3torch.mlr-org.com/articles/preprocessing_list.html}}. However, it is also relatively simple to create custom ones via \code{pipeop_preproc_torch()}.
 Both the transformation and augmentation \code{PipeOp}s inherit from \code{PipeOpTaskPreprocTorch}.
 The only difference between them is that preprocessing \code{PipeOp}s apply their transformation during both the train and predict stages, whereas augmentation \code{PipeOp}s are only active during the former.
 
@@ -734,13 +734,13 @@ An \mlrttorch{} \code{Learner} can be configured via construction arguments, hyp
 The standard construction arguments are:
 
 \begin{itemize}
-    \item \code{loss} :: \code{TorchLoss}, which encapsulates a \code{torch::nn\_loss} and represents a loss function for training,
+    \item \code{loss} :: \code{TorchLoss}, which encapsulates a \code{torch::nn_loss} and represents a loss function for training,
     \item \code{optimizer} :: \code{TorchOptimizer}, which wraps a \code{torch_optimizer} and specifies how the network parameters are learned, and
     \item \code{callbacks} :: \code{list()} of \code{TorchCallback}s, which customize the training process.
 \end{itemize}
 
 All of the above objects can themselves be configured via their own hyperparameters, and while \pkg{mlr3torch} comes with predefined, ready-to-use losses, optimizers, and callbacks, its modular design allows for easy customization, as demonstrated in~\Cref{sec:extending}.
-Training can also be resumed: the checkpoint callback \code{t\_clbk("checkpoint")} saves the network, the optimizer state, and the states of all other callbacks, and a subsequent training run continues from such a checkpoint via the \code{resume} hyperparameter.
+Training can also be resumed: the checkpoint callback \code{t_clbk("checkpoint")} saves the network, the optimizer state, and the states of all other callbacks, and a subsequent training run continues from such a checkpoint via the \code{resume} hyperparameter.
 
 Below, we construct a \code{LearnerTorchMLP} classifier which uses AdamW \citep{ref-loshchilov2017decoupled} to minimize the cross-entropy loss and maintains the training history for inspection afterwards:
 
@@ -760,7 +760,7 @@ The hyperparameter space of the constructed \code{Learner} is the union of the \
 To avoid name collisions, the loss, optimizer, and callback parameters are prefixed with \code{"loss."}, \code{"opt."}, and \code{"cb.<cb-id>."}, respectively.
 
 For the MLP, the learner-specific hyperparameters include the latent dimensions (\code{neurons}), the activation function (\code{activation}), and the dropout probability (\code{p}).
-The parameter values can be set using the \code{\$set\_values()} method of the \code{ParamSet}.
+The parameter values can be set using the \code{\$set_values()} method of the \code{ParamSet}.
 Below, we configure several hyperparameters, including the device, the number of epochs, the batch size, the weight decay for the optimizer, and the measures we track during training.
 
 \begin{CodeChunk}
@@ -776,7 +776,7 @@ R> mlp$param_set$set_values(
 The default \code{device = "auto"} trains on a CUDA GPU if one is available; we set \code{"cpu"} here and in the following examples so that the results are reproducible also when running this code on a machine with CUDA support.
 
 Besides construction arguments, \pkg{mlr3torch} \code{Learner}s can be configured through fields, whose main difference from hyperparameters is that they have predefined semantics that are shared between all \code{Learner}s.
-These include the predict type (\code{\$predict\_type}), how to construct the validation data (\code{\$validate}), whether to run the training and prediction in a separate process (\code{\$encapsulation}), and which \code{Learner} to use as a \code{\$fallback} if the primary \code{Learner} fails.
+These include the predict type (\code{\$predict_type}), how to construct the validation data (\code{\$validate}), whether to run the training and prediction in a separate process (\code{\$encapsulation}), and which \code{Learner} to use as a \code{\$fallback} if the primary \code{Learner} fails.
 Below, we configure the \code{Learner} to make probability predictions via the \code{\$configure()} setter, which can set fields and hyperparameters simultaneously.
 
 \begin{CodeChunk}
@@ -799,7 +799,7 @@ R> mlp$train(mnist_flat, row_ids = 1:1000)
 \end{CodeChunk}
 
 After training, we can access the training results via the \code{\$model} field.
-Most importantly, the model contains the trained network (a \code{nn\_module}), the optimizer state, and the states of the callbacks.
+Most importantly, the model contains the trained network (a \code{nn_module}), the optimizer state, and the states of the callbacks.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -825,8 +825,8 @@ R> head(mlp$model$callbacks$history, n = 2)
 \begin{CodeOutput}
    epoch train.classif.logloss
    <num>                 <num>
-1:     1              4.686442
-2:     2              1.344922
+1:     1              4.169792
+2:     2              1.232116
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -841,7 +841,7 @@ R> pred$score(msr("classif.ce"))
 
 \begin{CodeOutput}
 classif.ce
-      0.19
+      0.22
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -856,7 +856,7 @@ R> rr$aggregate(msr("classif.ce"))
 
 \begin{CodeOutput}
 classif.ce
- 0.1570163
+ 0.1719953
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -868,16 +868,16 @@ The available options for these characteristics are defined in the \pkg{mlr3} ba
 They include the task type, prediction types, feature types, and properties.
 
 \begin{itemize}
-    \item The \code{task\_type} defines the type of \code{Task} on which the \code{Learner} operates. \mlrttorch{} provides learners for classification, regression, and the generic \code{"torch"} task type used by \code{TaskTorch}.
-    \item The \code{predict\_types} indicates the types of predictions the \code{Learner} can make. The predefined \mlrttorch{} regression \code{Learner}s make response predictions, while classifiers can make both response and probability predictions. For \code{TaskTorch}, prediction formats and their encoding can be customized.
-    \item The \code{feature\_types} specifies which features the \code{Learner} can handle. Here, \mlrttorch{} extends the available types with the \code{lazy\_tensor}.
+    \item The \code{task_type} defines the type of \code{Task} on which the \code{Learner} operates. \mlrttorch{} provides learners for classification, regression, and the generic \code{"torch"} task type used by \code{TaskTorch}.
+    \item The \code{predict_types} indicates the types of predictions the \code{Learner} can make. The predefined \mlrttorch{} regression \code{Learner}s make response predictions, while classifiers can make both response and probability predictions. For \code{TaskTorch}, prediction formats and their encoding can be customized.
+    \item The \code{feature_types} specifies which features the \code{Learner} can handle. Here, \mlrttorch{} extends the available types with the \code{lazy_tensor}.
     \item The \code{properties} are usually special abilities of a \code{Learner}, such as being able to perform feature selection, but can also be other traits. We cover the selected properties \code{"marshal"} and \code{"validation"}, as well as \code{"internal_tuning"} below.
 \end{itemize}
 
 
 \paragraph{Marshaling} Marshaling is the process of converting an in-memory object so that it can be (de)serialized without loss of information.
 \code{Learner}s with this property require such processing before and after (de)serialization.
-This is necessary for \mlrttorch{} \code{Learner}s because their weights are \code{torch\_tensor}s, which are external pointers that are not natively handled by \rlang{}'s serialization mechanism.
+This is necessary for \mlrttorch{} \code{Learner}s because their weights are \code{torch_tensor}s, which are external pointers that are not natively handled by \rlang{}'s serialization mechanism.
 Before serializing an \mlrttorch{} \code{Learner}, one must therefore call \code{\$marshal()}, and after deserialization call \code{\$unmarshal()}.
 
 \begin{CodeChunk}
@@ -917,10 +917,10 @@ For in-depth coverage of the validation and internal tuning mechanisms, refer to
 
 \subsubsection{Parallelization}\label{sec:parallelization}
 \mlrttorch{} supports parallelization at different levels.
-When training on the CPU, the tensor operations of \torch{} are executed in parallel on multiple threads, whose number can be set via the hyperparameter \code{num\_threads}.
-By \mlrt{}'s convention, \code{num\_threads} is 1, so that training does not oversubscribe the CPU when multiple models are trained in parallel via \mlrt{}'s parallelization.
-Furthermore, the loading of mini-batches can be distributed across multiple background processes via the hyperparameter \code{num\_workers}, which is passed on to \code{torch::dataloader()}.
-This is especially useful when \code{lazy\_tensor}s are loaded from disk and preprocessed, which can be slow.
+When training on the CPU, the tensor operations of \torch{} are executed in parallel on multiple threads, whose number can be set via the hyperparameter \code{num_threads}.
+By \mlrt{}'s convention, \code{num_threads} is 1, so that training does not oversubscribe the CPU when multiple models are trained in parallel via \mlrt{}'s parallelization.
+Furthermore, the loading of mini-batches can be distributed across multiple background processes via the hyperparameter \code{num_workers}, which is passed on to \code{torch::dataloader()}.
+This is especially useful when \code{lazy_tensor}s are loaded from disk and preprocessed, which can be slow.
 Via the hyperparameter \code{device}, the network can instead be trained on a GPU, e.g., \code{"cuda"} for NVIDIA GPUs or \code{"mps"} for Apple Silicon.
 While a single model cannot be trained across multiple GPUs (\Cref{sec:comparison}), several models can be trained simultaneously on different GPUs, e.g., in different resampling iterations or for different hyperparameter configurations.
 Beyond single training runs, \mlrttorch{} benefits from the parallelization capabilities of \mlrt{}:
@@ -930,7 +930,7 @@ For more information on parallelization in \mlrt{}, we refer to \citet{ref-mlr3b
 
 \subsection[Neural networks as Graphs]{Neural networks as \code{Graph}s}\label{sec:graphs}
 
-To create a new \code{nn\_module} (\Cref{sec:background}), one needs to define a constructor method that initializes the network weights and submodules, as well as a \code{\$forward()} method that defines how the weights are used to transform inputs.
+To create a new \code{nn_module} (\Cref{sec:background}), one needs to define a constructor method that initializes the network weights and submodules, as well as a \code{\$forward()} method that defines how the weights are used to transform inputs.
 This allows for great flexibility, but there is little structure to the architecture.
 Below, we create a simple feed-forward network with one hidden layer and ReLU activation.
 
@@ -951,7 +951,7 @@ R> nn_simple <- nn_module("nn_simple",
 \end{CodeInput}
 \end{CodeChunk}
 
-The resulting \code{nn\_simple} is a module generator.
+The resulting \code{nn_simple} is a module generator.
 Below, we create a specific instance of this architecture by providing the necessary arguments for the constructor.
 
 \begin{CodeChunk}
@@ -977,11 +977,11 @@ torch_tensor
 
 \subsubsection[Module Graph]{Module \code{Graph}}
 
-While \pkg{mlr3torch} allows the construction of \code{Learner}s from generic \code{nn\_module}s (see~\Cref{sec:extending-learner}), it also offers a systematic representation via directed acyclic graphs. This representation makes it easier, for example, to inspect or change individual components.
+While \pkg{mlr3torch} allows the construction of \code{Learner}s from generic \code{nn_module}s (see~\Cref{sec:extending-learner}), it also offers a systematic representation via directed acyclic graphs. This representation makes it easier, for example, to inspect or change individual components.
 Such an architecture is built by assembling \code{PipeOpModule}s in an \code{mlr3pipelines::Graph}.
 \Cref{tab:graph-classes} gives an overview of the classes that allow representing neural networks as \code{Graph}s.
 They are introduced in the remainder of this section.
-Each \code{PipeOpModule} wraps an instantiated \code{nn\_module}, and the edges of the \code{Graph} define the data flow between the layers.
+Each \code{PipeOpModule} wraps an instantiated \code{nn_module}, and the edges of the \code{Graph} define the data flow between the layers.
 
 \begin{table}[t]
 \centering
@@ -990,15 +990,15 @@ Each \code{PipeOpModule} wraps an instantiated \code{nn\_module}, and the edges 
 \hline
 Class & Role & Category \\
 \hline
-\code{PipeOpModule} & Node of a module \code{Graph}; wraps an instantiated \code{nn\_module} & Module graph \\
-\code{nn\_graph} & \code{nn\_module} that runs a module \code{Graph} & Module graph \\
-\code{PipeOpTorchIngress} & Entry point of a generating \code{Graph} that creates a \code{TorchIngressToken}, e.g., \code{po("torch\_ingress\_num")} & Generating graph \\
+\code{PipeOpModule} & Node of a module \code{Graph}; wraps an instantiated \code{nn_module} & Module graph \\
+\code{nn_graph} & \code{nn_module} that runs a module \code{Graph} & Module graph \\
+\code{PipeOpTorchIngress} & Entry point of a generating \code{Graph} that creates a \code{TorchIngressToken}, e.g., \code{po("torch_ingress_num")} & Generating graph \\
 \code{TorchIngressToken} & Defines how the input tensor of an entry point is created from a \code{Task} & Generating graph \\
 \code{PipeOpTorch} & Layer of a generating \code{Graph}, created via \code{nn()} & Generating graph \\
 \code{ModelDescriptor} & Network under construction, together with the \code{Task}, the \code{TorchIngressToken}s, and the training configuration (loss, optimizer, callbacks); passed between \code{PipeOpTorch}s & Generating graph \\
-\code{PipeOpTorchLoss} & Configures the loss of a \code{ModelDescriptor}, i.e., \code{po("torch\_loss")} & Generating graph \\
-\code{PipeOpTorchOptimizer} & Configures the optimizer of a \code{ModelDescriptor}, i.e., \code{po("torch\_optimizer")} & Generating graph \\
-\code{PipeOpTorchCallbacks} & Configures the callbacks of a \code{ModelDescriptor}, i.e., \code{po("torch\_callbacks")} & Generating graph \\
+\code{PipeOpTorchLoss} & Configures the loss of a \code{ModelDescriptor}, i.e., \code{po("torch_loss")} & Generating graph \\
+\code{PipeOpTorchOptimizer} & Configures the optimizer of a \code{ModelDescriptor}, i.e., \code{po("torch_optimizer")} & Generating graph \\
+\code{PipeOpTorchCallbacks} & Configures the callbacks of a \code{ModelDescriptor}, i.e., \code{po("torch_callbacks")} & Generating graph \\
 \code{PipeOpTorchModel} & Turns the \code{ModelDescriptor} into a \code{LearnerTorch} and trains it & Generating graph \\
 \hline
 \end{tabular}
@@ -1011,7 +1011,7 @@ Note that this uses \code{Graph} objects in an unusual way, as
 However, the \code{Graph}s built from \code{PipeOpModule}s encode only a single neural network forward pass and are often executed many times per training run on individual batches of samples.
 
 Below, we define a simple feed-forward network with an input dimension of 10, a latent dimension of 100, ReLU activation, and an output layer that returns a scalar value.
-Note that \code{po("module\_1", ...)} is shorthand for \code{po("module", id = "module\_1", ...)} and can represent an arbitrary \torch{} module that is passed via the argument \code{module}.
+Note that \code{po("module_1", ...)} is shorthand for \code{po("module", id = "module_1", ...)} and can represent an arbitrary \torch{} module that is passed via the argument \code{module}.
 The \code{PipeOp}s are connected via the concatenation operator \code{\%\text{>}\text{>}\%} from \mlrtpipelines{}, which connects the output of its left-hand side to the input of its right-hand side.
 
 \begin{CodeChunk}
@@ -1026,9 +1026,9 @@ To perform a forward pass, we can call its \code{\$train()} method.
 In this case, the method expects one input tensor and returns one output tensor.
 Currently, the \code{\$predict()} phase of the \code{Graph} does nothing.
 
-To work with this \code{Graph} using a more familiar interface, we can convert it into an \code{nn\_graph}, which inherits from \code{nn\_module}.
+To work with this \code{Graph} using a more familiar interface, we can convert it into an \code{nn_graph}, which inherits from \code{nn_module}.
 When doing so, we only need to specify the input shapes. Here, \code{NA} marks a dimension of unknown size, in this case the batch dimension.
-The names of \code{shapes\_in} are given by \code{module\_graph\$input}.
+The names of \code{shapes_in} are given by \code{module_graph\$input}.
 Below, we evaluate the resulting module on two randomly generated observations.
 
 \begin{CodeChunk}
@@ -1064,19 +1064,14 @@ While the module \code{Graph} takes in tensors, the generating \code{Graph} oper
 During training, the output type is a list containing a \code{ModelDescriptor} that is initialized by the \code{"torch_ingress_ltnsr"} operator.
 The \code{ModelDescriptor} is the communication object between the different \code{PipeOpTorch} operators.
 It contains the module \code{Graph}, the \code{Task}, the data loading instructions, as well as other metadata.
-The data loading instructions are \code{TorchIngressToken}s, one for each entry point of the network, which are created by the ingress operators.
-A \code{TorchIngressToken} specifies how to generate the \code{torch\_tensor}s for the specific network entry point.
+The data loading instructions are \code{TorchIngressToken}s, created by the ingress operators: each ingress operator is an entry point into the network and specifies how its input tensor is generated from the \code{Task}.
+Different ingress operators exist for numeric, categorical, and \code{lazy_tensor} features; e.g., \code{po("torch_ingress_categ")} converts factors into an integer-valued tensor.
 When the generating \code{Graph} is trained, the network layers (\code{nn("<key>")}) instantiate a \code{PipeOpModule} and attach it to the module \code{Graph}.
 Auxiliary parameters, such as the input dimension of a linear layer, are inferred from the metadata that includes the output shape of the current position in the built-up intermediate network architecture.
 Then, the \code{PipeOpTorch} computes the new output shapes and updates this and other metadata in the \code{ModelDescriptor}, and returns it.
 Shapes are integer vectors whose first entry is the batch dimension, and any dimension whose size is not known in advance is \code{NA}.
 Because the module \code{Graph} is a reference object, parallel branches in the generating \code{Graph} can modify the module \code{Graph} independently.
 Note that the weights of the neural network that is being built up are not yet fit to the data at this point.
-
-Different ingress operators exist for different feature types, including ones for numeric and categorical features as well as for lazy tensors.
-An ingress operator is an entry point into a neural network and specifies how the input tensor for this specific entry point is generated from the \code{Task} during training.
-For instance, \code{po("torch\_ingress\_categ")} loads the categorical features from the \code{Task} and converts them into a label-encoded, integer-valued tensor.
-It is also possible to have more than one entry point into the neural network, as shown later.
 Below, we train the generating \code{Graph} on the flattened MNIST \code{Task} from earlier.
 
 \begin{CodeChunk}
@@ -1096,7 +1091,7 @@ R> md
 \end{CodeChunk}
 
 If we want not only to create the neural network but also to fit its weights, we need to at least configure the optimizer and loss function in the \code{ModelDescriptor}.
-We could also set some callbacks using \code{po("torch\_callbacks")}.
+We could also set some callbacks using \code{po("torch_callbacks")}.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -1127,7 +1122,7 @@ This process is visualized in~\Cref{fig:pipeop-torch}.
     \label{fig:pipeop-torch}
 \end{figure}
 
-The function \code{as\_learner\_torch()} converts this \code{Graph} into an \code{mlr3::Learner}, which makes it interoperable with all other components from the \pkg{mlr3} ecosystem.
+The function \code{as_learner_torch()} converts this \code{Graph} into an \code{mlr3::Learner}, which makes it interoperable with all other components from the \pkg{mlr3} ecosystem.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -1170,7 +1165,7 @@ Here, we show how to build a tabular neural network that accepts both categorica
 First, we implement two independent entry points into the network.
 For the numeric path, we first select the numeric features.
 This is a standard \code{PipeOp} from \mlrtpipelines{}, and it simply outputs a modified \code{Task}.
-Next, \code{po("torch\_ingress\_num")} initializes the \code{ModelDescriptor} that represents the numeric network entry.
+Next, \code{po("torch_ingress_num")} initializes the \code{ModelDescriptor} that represents the numeric network entry.
 Subsequently, we embed the scalar values into a 10-dimensional vector using \code{nn("tokenizer_num")} \citep{ref-gorishniy2021revisiting}.
 The pipeline for the categorical features is defined analogously.
 
@@ -1189,7 +1184,6 @@ R> path_categ <- po("select_2", selector = selector_type("factor")) %>>%
 % Here academic
 The two independent entry points can be combined via another merge operation, in this case by concatenation of tensors along the second dimension.
 The resulting network has two inputs, where the first one expects a floating-point tensor and the second one an integer-valued tensor representing the categorical features.
-Note that the ingress operators also define how the tabular columns from a \code{Task} are converted to their tensor representation, e.g., via integer encoding for factors.
 The graph structures are displayed in~\Cref{fig:multi-inputs}.
 
 \begin{CodeChunk}
@@ -1228,20 +1222,21 @@ R> blocks <- nn("block", residual_layer, n_blocks = 5)
 \end{CodeInput}
 \end{CodeChunk}
 
-As both the number of repetitions (\code{n\_blocks}) and the hyperparameters of the wrapped \code{Graph} are exposed through the \code{PipeOpTorchBlock}'s \code{ParamSet}, both can be tuned over.
+As both the number of repetitions (\code{n_blocks}) and the hyperparameters of the wrapped \code{Graph} are exposed through the \code{PipeOpTorchBlock}'s \code{ParamSet}, both can be tuned over.
 
 
 \section{Extending the package}\label{sec:extending}
 
 While the configuration options shown in the previous section already cover a lot of ground, it is also essential to be able to customize the training and prediction further.
 Consequently, \pkg{mlr3torch} allows users to customize losses, optimizers, callbacks, and complete \code{Learner}s.
+That these extension points also suffice for third-party packages is shown by \pkg{mlr3torchAUM} \citep{ref-mlr3torchAUM}, which adds losses for AUC optimization, an optimizer, batch samplers, and performance measures for imbalanced classification that can be used directly with the \code{Learner}s of \mlrttorch{}.
 
 \subsection{Loss and optimizer}\label{sec:extending-loss-opt}
 
 The loss and optimizer in \mlrttorch{} are represented via the \code{TorchLoss} and \code{TorchOptimizer} classes.
-They wrap a loss generator (such as \code{torch::nn\_mse\_loss}) and an optimizer generator (e.g., \code{torch::optim\_sgd}), respectively, and annotate them with meta-information, most importantly a \code{ParamSet}.
-Constructing a custom loss or optimizer, therefore, requires underlying class generators that are constructible via \code{torch::nn\_module} and \code{imizer}.
-The resulting constructors can be converted to their \mlrttorch{} representation via the functions \code{as\_torch\_loss()} and \code{as\_torch\_optimizer()}.
+They wrap a loss generator (such as \code{torch::nn_mse_loss}) and an optimizer generator (e.g., \code{torch::optim_sgd}), respectively, and annotate them with meta-information, most importantly a \code{ParamSet}.
+Constructing a custom loss or optimizer, therefore, requires underlying class generators that are constructible via \code{torch::nn_module} and \code{imizer}.
+The resulting constructors can be converted to their \mlrttorch{} representation via the functions \code{as_torch_loss()} and \code{as_torch_optimizer()}.
 Without specifying additional arguments, all the meta-information is inferred as precisely as possible.
 It is also possible to provide more specific details, such as the types of hyperparameters and their valid ranges.
 Below, we create a custom \pkg{torch} loss function -- the winsorized MSE -- and convert it to its \mlrttorch{} counterpart:
@@ -1274,18 +1269,18 @@ This object could now be passed as the construction argument \code{loss} when in
 
 The callback mechanism in \mlrttorch{} allows hooking into the training loop without having to write everything from scratch.
 It is implemented via the \pkg{R6} class \code{TorchCallback}, which wraps the \code{CallbackSet} class.
-Analogously to the optimizer and loss, the latter can be converted to the former via \code{as\_torch\_callback()}.
+Analogously to the optimizer and loss, the latter can be converted to the former via \code{as_torch_callback()}.
 The design of the callback mechanism is similar to how it is implemented in frameworks such as \keras{} or \luz{} \citep{ref-chollet2018keras, ref-luz2025}.
 
 A \code{CallbackSet} is a collection of hooks, which are invoked at specific points in the training process.
-The name of the method in the callback defines at which time in the training process it is called, such as \code{on\_after\_backward}.
+The name of the method in the callback defines at which time in the training process it is called, such as \code{on_after_backward}.
 Information from the training loop is communicated to the callback via a \code{ContextTorch}, which stores the network, the current training batch, and many other objects.
 Different callback hooks from a \code{CallbackSet} can communicate with each other by storing information in the \code{CallbackSet} itself.
-A callback can also store information in the \code{Learner} after training by implementing the \code{\$state\_dict()} and \code{\$load\_state\_dict()} methods.
+A callback can also store information in the \code{Learner} after training by implementing the \code{\$state_dict()} and \code{\$load_state_dict()} methods.
 These states are also saved by the checkpoint callback, so that they are restored when training is resumed (\Cref{sec:learner-torch}).
-Further predefined callbacks support, e.g., experiment tracking: \code{t\_clbk("tb")} logs the training loss as well as the training and validation metrics to \pkg{TensorBoard} via the \pkg{tfevents} package \citep{ref-tfevents}.
+Further predefined callbacks support, e.g., experiment tracking: \code{t_clbk("tb")} logs the training loss as well as the training and validation metrics to \pkg{TensorBoard} via the \pkg{tfevents} package \citep{ref-tfevents}.
 
-A \code{TorchCallback} object can be created via \code{torch\_callback()}.
+A \code{TorchCallback} object can be created via \code{torch_callback()}.
 We demonstrate this below by implementing gradient clipping, which has two hyperparameters representing the maximally allowed norm value and the type of norm.
 Besides the methods for its state, it only implements the hook that is run after the backward call.
 After training, it writes the history of norms into the state of the \code{Learner} for inspection.
@@ -1322,15 +1317,15 @@ While it is in principle possible to override the whole training and prediction 
 
 \begin{itemize}
     \item \code{\$initialize(id, loss, optimizer, callbacks, ...)}, the constructor, which defines learner-specific hyperparameters and other metadata, such as the supported feature types or the task type.
-    \item \code{\$.network(task, param\_vals)}, which is the network constructor and must return an \code{nn\_module} for the specified hyperparameters and input \code{Task}.
-    \item \code{\$.ingress\_tokens(task, param\_vals)}, which defines how the task's features are converted into network inputs by returning a named list of \code{TorchIngressToken}s.
-    \item \code{\$.dataset(task, param\_vals)}, which provides an alternative for more control over data construction. It constructs a \code{torch::dataset} for a given task.
-    \item \code{\$.encode\_prediction(network\_output, task)}, which converts the network output into a list suitable for constructing an \code{mlr3::Prediction} object.
+    \item \code{\$.network(task, param_vals)}, which is the network constructor and must return an \code{nn_module} for the specified hyperparameters and input \code{Task}.
+    \item \code{\$.ingress_tokens(task, param_vals)}, which defines how the task's features are converted into network inputs by returning a named list of \code{TorchIngressToken}s.
+    \item \code{\$.dataset(task, param_vals)}, which provides an alternative for more control over data construction. It constructs a \code{torch::dataset} for a given task.
+    \item \code{\$.encode_prediction(network_output, task)}, which converts the network output into a list suitable for constructing an \code{mlr3::Prediction} object.
 \end{itemize}
 
 The help page of \code{LearnerTorch} describes these interfaces in more detail.
 
-If one instead defines the neural network architecture as a \code{Graph} and is missing a specific layer, one can add a new \code{PipeOpTorch} via the \code{pipeop\_torch()} construction function.
+If one instead defines the neural network architecture as a \code{Graph} and is missing a specific layer, one can add a new \code{PipeOpTorch} via the \code{pipeop_torch()} construction function.
 \Cref{sec:multimodal} shows how to use this function.
 The package website contains an article with more details on how to do this\footnote{\url{https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.html}}.
 
@@ -1339,13 +1334,13 @@ The package website contains an article with more details on how to do this\foot
 If one only wants to customize the neural network architecture, it is usually not necessary to create a custom class.
 Instead, one can use the \code{LearnerTorchModule} class, which allows exactly this and has the following additional construction arguments:
 \begin{itemize}
-    \item \code{module\_generator}, which must be an \code{nn\_module\_generator} that takes as construction argument a \code{task} and possibly other parameters.
-    \item \code{ingress\_tokens}, which is a named list of \code{TorchIngressToken}s that define how the data is loaded from the input \code{Task}. The names must correspond to the arguments of the \code{module\_generator}'s \code{\$forward()} method.
+    \item \code{module_generator}, which must be an \code{nn_module_generator} that takes as construction argument a \code{task} and possibly other parameters.
+    \item \code{ingress_tokens}, which is a named list of \code{TorchIngressToken}s that define how the data is loaded from the input \code{Task}. The names must correspond to the arguments of the \code{module_generator}'s \code{\$forward()} method.
 \end{itemize}
 
 We showcase this using a simple MLP with two architecture parameters, namely the latent dimension and the network depth.
 Note that all auxiliary parameters are inferred from the \code{task}.
-In particular, the number of output units is determined by \code{output\_dim\_for()}, which returns the output dimension a network needs for a given task: a single unit for regression and binary classification, and one unit per class for multiclass classification.
+In particular, the number of output units is determined by \code{output_dim_for()}, which returns the output dimension a network needs for a given task: a single unit for regression and binary classification, and one unit per class for multiclass classification.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -1367,7 +1362,7 @@ R> nn_ffn <- nn_module("nn_ffn",
 \end{CodeInput}
 \end{CodeChunk}
 
-Next, we need to define how a \code{Task} is converted to \code{torch\_tensor}s during training and prediction.
+Next, we need to define how a \code{Task} is converted to \code{torch_tensor}s during training and prediction.
 In our case, the model loads all numeric columns and concatenates them into a single tensor that is passed as the argument \code{x} to the network.
 
 \begin{CodeChunk}
@@ -1398,8 +1393,8 @@ We could now proceed and train this object on an \mlrt{} classification \code{Ta
 \subsubsection{Other learning problems}\label{sec:other-task-types}
 
 While regression and classification are supported out of the box in \mlrttorch{}, custom learning problems can also be represented via the generic \code{TaskTorch} class.
-When creating such a task via \code{as\_task\_torch()}, one can specify its default performance measure, the default prediction encoder (how the network outputs are converted to an \code{mlr3::Prediction} object), as well as a network's expected output dimension.
-Performance measures for such a custom learning problem are represented via the generic \code{MeasureTorch} class, which can be constructed using \code{msr\_torch()}.
+When creating such a task via \code{as_task_torch()}, one can specify its default performance measure, the default prediction encoder (how the network outputs are converted to an \code{mlr3::Prediction} object), as well as a network's expected output dimension.
+Performance measures for such a custom learning problem are represented via the generic \code{MeasureTorch} class, which can be constructed using \code{msr_torch()}.
 Creating a \code{LearnerTorch} for such a modeling problem requires specifying the architecture and data loading.
 For a hands-on tutorial on how to do this, see the Custom Learning Problems article on the package website\footnote{\url{https://mlr3torch.mlr-org.com/dev/articles/custom_task_type.html}}, which covers a multi-label classification problem and an unsupervised autoencoder.
 
@@ -1407,7 +1402,7 @@ While the flexibility of these generic classes is convenient, it comes at the co
 If the goal is instead to extend \mlrttorch{} to new task types, two cases can be distinguished.
 If the task type already exists in the \mlrt{} ecosystem, such as survival analysis in \pkg{mlr3proba} \citep{sonabend2021mlr3proba} its \code{Task}, \code{Prediction}, and \code{Measure} classes can be used and only \mlrttorch{} support needs to be added.
 Otherwise, a new task type first has to be registered in \mlrt{} with dedicated \code{Task}, \code{Learner}, \code{Prediction}, and \code{Measure} classes.
-In both cases, \mlrttorch{} then supports the task type once methods for a few generics are implemented, most importantly \code{output\_dim\_for()} for the output dimension of the network, \code{get\_target\_batchgetter()} for loading the target, and \code{encode\_prediction()} for converting the network output into a prediction.
+In both cases, \mlrttorch{} then supports the task type once methods for a few generics are implemented, most importantly \code{output_dim_for()} for the output dimension of the network, \code{get_target_batchgetter()} for loading the target, and \code{encode_prediction()} for converting the network output into a prediction.
 The article Adding a New Task Type on the package website\footnote{\url{https://mlr3torch.mlr-org.com/dev/articles/new_task_type.html}} documents how to properly extend \mlrttorch{} to new task types in third-party packages.
 
 \section{Use cases}\label{sec:use-cases}
@@ -1436,7 +1431,7 @@ R> task
 \end{CodeChunk}
 
 \subsubsection{Defining the learning pipeline}
-The input of our network architecture is a single numeric tensor, so the first step in the learning pipeline is the initialization of a numeric network entry via \code{PipeOpTorchIngressNum}.
+The input of our network architecture is a single numeric tensor, so the first step in the learning pipeline is the initialization of a numeric network entry via \code{PipeOpTorchIngressNumeric}.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -1516,7 +1511,6 @@ The \code{ParamSet} of the \code{GraphLearnerTorch} is the union of the \code{Pa
 In order to tune our \code{Learner}, we need to define the search space.
 We tune the embedding dimension over $\{4, 8, 16\}$, the number of attention heads over $\{1, 2, 4\}$, the attention dropout in $[0, 0.5]$, and the latent dimension of the block's MLP over $\{8, 16, 32\}$.
 Furthermore, we repeat the block between 1 and 3 times, use ReLU or sigmoid, set the dropout ratio to a value in $[0.1, 0.9]$, and search the optimizer's learning rate in the interval $[10^{-4}, 10^{-1}]$ on a logarithmic scale.
-Note that the dimensions on which attention operates must be divisible by the number of attention heads, which is why we restrict the embedding and latent dimensions to powers of two.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -1558,7 +1552,7 @@ R> learner$param_set$set_values(
 \subsubsection{Running the tuning procedure}
 
 As the tuning method, we use random search via the \pkg{mlr3tuning} extension \citep{ref-mlr3tuning2024} for simplicity, but more complex optimization routines such as Bayesian optimization are also supported via the \pkg{mlr3mbo} extension \citep{ref-mlr3mbo, ref-bischl2023hyperparameter}.
-For the evaluation of the hyperparameters, we select holdout resampling (for demonstrative purposes) and use the best validation score -- which we configured via the \code{measures\_valid} hyperparameter -- as the tuning measure.
+For the evaluation of the hyperparameters, we select holdout resampling (for demonstrative purposes) and use the best validation score -- which we configured via the \code{measures_valid} hyperparameter -- as the tuning measure.
 We run the tuning loop for 20 iterations.
 
 \begin{CodeChunk}
@@ -1577,15 +1571,15 @@ R> cat(paste("*", names(pvals), "=", pvals,
 +    collapse = "\n"), "\n")
 \end{CodeInput}
 \begin{CodeOutput}
-* tokenizer_num.d_token = 8
-* block.n_blocks = 3
-* block.multihead_attention.num_heads = 4
-* block.multihead_attention.dropout = 0.287
-* block.linear.out_features = 16
-* block.branch.selection = relu
-* block.dropout.p = 0.175
-* torch_optimizer.lr = 0.0752
-* torch_model_regr.epochs = 2
+* tokenizer_num.d_token = 16
+* block.n_blocks = 1
+* block.multihead_attention.num_heads = 2
+* block.multihead_attention.dropout = 0.0139
+* block.linear.out_features = 32
+* block.branch.selection = sigmoid
+* block.dropout.p = 0.871
+* torch_optimizer.lr = 0.00705
+* torch_model_regr.epochs = 13
 \end{CodeOutput}
 \end{CodeChunk}
 
@@ -1613,9 +1607,9 @@ R> dvc <- dogs_vs_cats_dataset("data", download = TRUE)
 \end{CodeInput}
 \end{CodeChunk}
 
-Next, we create a \code{lazy\_tensor} vector for the images.
+Next, we create a \code{lazy_tensor} vector for the images.
 To do so, we create a custom \code{torch::dataset} class that stores the image paths and loads them from disk.
-Note that \pkg{mlr3torch} requires the \code{\$.getitem()} method to return a named list of \code{torch\_tensor}s.
+Note that \pkg{mlr3torch} requires the \code{\$.getitem()} method to return a named list of \code{torch_tensor}s.
 During data retrieval, we also move the last (channel) dimension of the tensor to the front, as \pkg{torchvision} models expect the RGB channels to be the first dimension.
 
 \begin{CodeChunk}
@@ -1645,7 +1639,7 @@ R> dogs_vs_cats <- ds(paths)
 \end{CodeInput}
 \end{CodeChunk}
 
-To convert this into a \code{lazy\_tensor}, we can use the \code{as\_lazy\_tensor()} converter.
+To convert this into a \code{lazy_tensor}, we can use the \code{as_lazy_tensor()} converter.
 Here we specify the output shapes of the images to be \code{NULL}, which denotes that the items have varying shapes.
 
 \begin{CodeChunk}
@@ -1718,7 +1712,7 @@ R> normalize <- po("trafo_normalize",
 
 For better training performance, we freeze all but the head of the network for the first two epochs and only then train the remaining parameters.
 We achieve this via the \code{"unfreeze"} callback and only need to specify which parameters to train from the beginning and when to unfreeze the other weights.
-The names of the weights (e.g., \code{"head.weight"}) are defined by the underlying \code{nn\_module} and can, for example, be looked up in its source code\footnote{\url{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}}.
+The names of the weights (e.g., \code{"head.weight"}) are defined by the underlying \code{nn_module} and can, for example, be looked up in its source code\footnote{\url{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}}.
 In general, the help page of a predefined \code{Learner} links to the implementation of its architecture if it comes from another package such as \pkg{torchvision}.
 Otherwise, consult the source code of \mlrttorch{} itself.
 
@@ -1747,7 +1741,8 @@ When the \code{Learner} is instructed to use the pretrained weights, \pkg{torchv
 
 Now, we combine these steps into a single new \code{GraphLearnerTorch}, configure its validation data, train it, and print the validation accuracy.
 We conduct the training on only a subset of the data -- 100 rows from each class -- to make the code run quickly.
-Due to the use of pretrained weights, the model quickly reaches a reasonable performance despite being trained on only a few examples.
+Due to the use of pretrained weights, the model quickly reaches a good performance despite being trained on only a few examples.
+Note that the uncertainty of the validation performance is rather high as we only use 1/3 of 200 observations.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -1761,10 +1756,10 @@ R> learner$model$classif.convnext_tiny_1k$model$callbacks$history
 \begin{CodeOutput}
    epoch valid.classif.acc
    <num>             <num>
-1:     1         0.5373134
-2:     2         0.6268657
-3:     3         0.9701493
-4:     4         0.9701493
+1:     1         0.3582090
+2:     2         0.3731343
+3:     3         0.9402985
+4:     4         1.0000000
 5:     5         1.0000000
 \end{CodeOutput}
 \end{CodeChunk}
@@ -1773,7 +1768,7 @@ R> learner$model$classif.convnext_tiny_1k$model$callbacks$history
 
 In this section, we define a network architecture for the \code{"melanoma"} example task, where the goal is to predict whether a tumor is malignant or benign \citep{ref-rotemberg2021melanoma}.
 The dataset contains both images and three tabular features: the approximate age, location, and sex of the individual.
-Furthermore, the data is grouped by \code{patient\_id}, which \pkg{mlr3} automatically respects during resampling.
+Furthermore, the data is grouped by \code{patient_id}, which \pkg{mlr3} automatically respects during resampling.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -1836,7 +1831,7 @@ R> path_tabular <- po("select_1",
 
 For the image column, less preprocessing is required, and we process the image with attention only, following the vision transformer \citep{dosovitskiy2021image}.
 The $128 \times 128$ image is split into a grid of $8 \times 8$ disjoint patches of size $16 \times 16$ that are flattened.
-For this, we use \code{nn("fn")}, which allows using an arbitrary tensor function in a network graph, together with \code{torch::nnf\_unfold()}, which extracts the flattened patches as the columns of a tensor.
+For this, we use \code{nn("fn")}, which allows using an arbitrary tensor function in a network graph, together with \code{torch::nnf_unfold()}, which extracts the flattened patches as the columns of a tensor.
 Each of these 64 patches is embedded using a linear layer with output dimension 64.
 
 \begin{CodeChunk}
@@ -1852,9 +1847,9 @@ R> path_image <- po("select_2", selector = selector_name("image")) %>>%
 \end{CodeChunk}
 
 Because self-attention does not take the order of the tokens into account, we add a learnable positional embedding: one for each image patch.
-Because no predefined \code{PipeOpTorch} exists for this, we create a custom one using \code{pipeop\_torch()}.
-It works similarly to \code{nn\_module()} from \pkg{torch} but additionally requires implementing the shape inference function, which is trivial in this case.
-In general, \code{shapes\_out()} receives the list of input shapes and returns the list of output shapes as integer vectors. Because any input dimension may be \code{NA}, the function must not assume that a dimension it reads is known, and unknown output dimensions are again \code{NA}.
+Because no predefined \code{PipeOpTorch} exists for this, we create a custom one using \code{pipeop_torch()}.
+It works similarly to \code{nn_module()} from \pkg{torch} but additionally requires implementing the shape inference function, which is trivial in this case.
+In general, \code{shapes_out()} receives the list of input shapes and returns the list of output shapes as integer vectors. Because any input dimension may be \code{NA}, the function must not assume that a dimension it reads is known, and unknown output dimensions are again \code{NA}.
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -1912,7 +1907,7 @@ R> glrn <- as_learner_torch(preprocessing %>>% model)
 \end{CodeChunk}
 
 Finally, we compare the multimodal network with a baseline that only uses the tabular features, namely a logistic regression from the \pkg{mlr3learners} package \citep{ref-mlr3learners}, for which we use the same imputation as above.
-With \code{benchmark\_grid()}, we create a design in which both \code{Learner}s are evaluated on the same holdout split, which respects the grouping variable \code{patient\_id}, and run it via \code{benchmark()}.
+With \code{benchmark_grid()}, we create a design in which both \code{Learner}s are evaluated on the same holdout split, which respects the grouping variable \code{patient_id}, and run it via \code{benchmark()}.
 The resulting ROC curves are displayed in \Cref{fig:roc-curve} using \pkg{mlr3viz} \citep{ref-mlr3viz2025, ref-ggplot2}.
 Again, we use only $10\%$ of the data to allow reproducing the code more easily.
 
@@ -1937,6 +1932,8 @@ R> autoplot(bmr, type = "roc")
 \end{CodeInput}
 \end{CodeChunk}
 
+Note that the ROC curves in \Cref{fig:roc-curve} are subject to high uncertainty because we are using little data and the problem is highly imbalanced.
+This also explains why the ROC curve of the tabular baseline partly lies below the diagonal.
 \begin{figure}[t!]
     \centering
     % Placeholder for ROC curve output
@@ -1979,7 +1976,7 @@ Note that we do not vary the number of features because it only influences the c
 We also train the network for four epochs as a warm-up in order to mitigate the impact of constant overheads on our measurements, ensuring that our reported runtimes more accurately reflect long-running training scenarios.
 Every configuration is repeated 10 times.
 On the GPU, we use batches of size 32 and latent dimensions of 1000, 3000, and 9000.
-On the CPU, we use 16 threads, batches of size 32, and latent dimensions of 800, 1600, and 3200, so that the computation per batch is large enough to benefit from multiple threads.
+On the CPU, we use 16 threads, batches of size 32, and latent dimensions of 800, 1600, and 3200.
 The results for a single CPU thread with the same batch size and latent dimensions of 100, 200, and 400 are shown in \Cref{app:single-thread}.
 Further computational details can be found in~\Cref{app:comp-details}.
 
@@ -2020,7 +2017,7 @@ Only when the neural network is relatively small is the relative overhead more n
 When training on the GPU, the relative overhead of \torch{} with respect to \pytorch{} diminishes when increasing the latent dimension.
 This is not always the case when increasing the number of hidden layers.
 For example, for latent dimensions 1000 and 3000, the absolute overhead also increases with more layers, but when the network becomes very large, all three implementations are very similar.
-Surprisingly, \mlrttorch{} is faster than \torch{} for the AdamW optimizer when there are many layers and the latent dimension is 9000 (by around 6\% and 12\% for 12 and 16 hidden layers, respectively), but this is likely an artifact explained by some internal mechanism of \torch{} or \libtorch{}.
+Surprisingly, \mlrttorch{} is slightly faster than \torch{} for the AdamW optimizer when there are many layers and the latent dimension is 9000, but this is likely an artifact explained by some internal mechanism of \torch{} or \libtorch{}.
 
 % CPU
 On the CPU with 16 threads, the relative overhead is largest for networks without hidden layers, where the fixed overhead per batch dominates and \mlrttorch{} is around 5 (AdamW) to 6.6 (SGD) times slower than \pytorch{}.
@@ -2039,7 +2036,6 @@ In this work, we introduced \pkg{mlr3torch}, which equips \pkg{mlr3} with DL cap
 Its design offers different levels of control, from predefined architectures over \torch{} modules converted to learners to custom architectures in the graph language of \mlrtpipelines{}, and all of its components can be extended, e.g., through callbacks or custom task types.
 The use cases showed how this supports neural architecture search, the fine-tuning of pretrained image models, and multimodal learning, and the benchmarks demonstrated a reasonable runtime overhead of \mlrttorch{} compared to a pure \torch{} implementation.
 
-\paragraph{Future work}
 Future development will build on the extension interfaces of \mlrttorch{} to provide learners for additional task types, such as survival analysis, alongside new architectures and further performance improvements.
 Another direction is a closer integration with the Hugging Face Hub.
 The \pkg{mlr3hf} package \citep{ref-mlr3hf}, which is currently in development, makes datasets from the Hugging Face Hub available as \mlrt{} tasks, and could in the future be extended to provide seamless access to pretrained models from the Hub within \mlrttorch{}.
@@ -2072,7 +2068,6 @@ All experiments were run on Linux.
 Code requiring access to a GPU was run on an NVIDIA HGX A100 with 80 GB of GPU memory.
 The CPU was an Intel Xeon Gold 6336Y (2.40 GHz) with 1 TB RAM and 48 physical cores.
 The CPU benchmark was run on a node of the CoolMUC-4 Linux cluster at the Leibniz Supercomputing Centre with two Intel Xeon Platinum 8480+ (Sapphire Rapids) CPUs, i.e., 112 physical cores in total, and 512 GB RAM.
-% TODO: confirm the CPU model and RAM against the lscpu / free output in the job log of the re-run.
 
 % Non-reproducibilility issues
 We were able to exactly reproduce the results from the paper (excluding the runtime benchmark) throughout multiple runs on the same Linux machine using the CPU \pkg{Docker} image.
