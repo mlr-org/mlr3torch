@@ -22,6 +22,10 @@
 
 ## Features
 
+* The new `po("trafo_fn")` and `po("augment_fn")` apply a custom function to lazy tensors without
+  having to create a new class via `pipeop_preproc_torch()`. Like `nn("fn")`, their parameters are
+  inferred from the arguments of the function. They only differ in the initial value of `stages`,
+  which is `"both"` and `"train"` respectively (#368).
 * The `device` parameter of `LearnerTorch` now accepts an index, e.g. `"cuda:1"`, to train on a
   specific GPU.
   The new section *Multiple GPUs* in `?LearnerTorch` shows how to spread resampling over several GPUs
