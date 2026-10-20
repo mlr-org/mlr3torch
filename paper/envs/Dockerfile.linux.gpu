@@ -40,9 +40,9 @@ RUN apt-get update && \
     locale-gen en_US.UTF-8 && \
     rm -rf /var/lib/apt/lists/*
 
-# PyTorch version matches the libtorch version used by R torch 0.16.3
+# PyTorch version matches the libtorch version used by R torch 0.17.0 (libtorch 2.8.0, CUDA 12.6)
 RUN pip3 install \
-    torch==2.7.1 --index-url https://download.pytorch.org/whl/cu126 \
+    torch==2.8.0 --index-url https://download.pytorch.org/whl/cu126 \
     numpy
 
 # -------- install R ----------------------------------
@@ -64,15 +64,19 @@ COPY renv.lock .
 
 RUN R -q -e "options(repos = c(CRAN = 'https://cloud.r-project.org')); install.packages('renv')"
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    liblapack3 libblas3 gfortran && \
+    liblapack3 libblas3 gfortran libuv1-dev && \
     rm -rf /var/lib/apt/lists/*
 RUN R -q -e "options(renv.config.repos.override = c(pppm = 'https://packagemanager.posit.co/cran/latest', cran = 'https://cloud.r-project.org/')); renv::restore(lockfile = 'renv.lock', library = .libPaths()[1], prompt = FALSE)"
-RUN R -q -e "torch::install_torch()"
+# Install the CUDA 12.6 build of libtorch, matching the base image and the PyTorch wheel above
+RUN CUDA=12.6 R -q -e "torch::install_torch()"
 
 # Install mlr3torch from GitHub (pinned commit for reproducibility).
 # pak only upgrades dependencies from the renv.lock where required by mlr3torch.
-ARG MLR3TORCH_REF=b8c59b6b07d08b6e45ae14628ce7a5888b2463f1
+# dependencies = TRUE also installs the suggested packages (e.g., tfevents for the TensorBoard callback),
+# including their system requirements. ?reinstall is needed because renv already installed this mlr3torch
+# commit, and pak would otherwise keep it without resolving its Suggests.
+ARG MLR3TORCH_REF=ae5a990c37fa339e5fb9cd803644735f862d7868
 RUN R -q -e "install.packages('pak', repos = sprintf('https://r-lib.github.io/p/pak/stable/%s/%s/%s', .Platform\$pkgType, R.Version()\$os, R.Version()\$arch))"
-RUN R -q -e "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux__/jammy/latest')); pak::pkg_install('mlr-org/mlr3torch@${MLR3TORCH_REF}', upgrade = FALSE, ask = FALSE); print(packageVersion('mlr3torch')); print(packageVersion('torch'))"
+RUN R -q -e "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux__/jammy/latest')); pak::pkg_install('mlr-org/mlr3torch@${MLR3TORCH_REF}?reinstall', dependencies = TRUE, upgrade = FALSE, ask = FALSE); stopifnot(requireNamespace('tfevents')); print(packageVersion('mlr3torch')); print(packageVersion('torch'))"
 
 CMD ["bash"]

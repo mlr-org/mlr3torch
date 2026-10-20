@@ -2,6 +2,7 @@
 #' knitr::opts_chunk$set(cache = FALSE)
 #' ```
 Sys.time()
+options(width = 70, useFancyQuotes = FALSE)
 options(mlr3torch.cache = TRUE)
 lgr::get_logger("mlr3")$set_threshold("warn")
 library("mlr3torch")
@@ -22,13 +23,14 @@ mnist_flat$head(2)
 str(materialize(mnist_flat$head(2)$image))
 
 mlp <- lrn("classif.mlp",
- loss = t_loss("cross_entropy"),
- optimizer = t_opt("adamw", lr = 0.001),
- callbacks = t_clbk("history"))
+  loss = t_loss("cross_entropy"),
+  optimizer = t_opt("adamw", lr = 0.001),
+  callbacks = t_clbk("history"))
 
 mlp$param_set$set_values(
-  neurons = c(100, 200), activation = torch::nn_relu,
-  p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
+  neurons = c(100, 200), activation = nn_relu,
+  p = 0.3, opt.weight_decay = 0.01,
+  measures_train = msr("classif.logloss"),
   epochs = 10, batch_size = 32, device = "cpu")
 
 mlp$configure(predict_type = "prob")
@@ -56,13 +58,13 @@ set_validate(mlp, validate = 0.3)
 
 nn_simple <- nn_module("nn_simple",
   initialize = function(d_in, d_latent, d_out) {
-    self$linear1 = nn_linear(d_in, d_latent)
-    self$activation = nn_relu()
-    self$linear2 = nn_linear(d_latent, d_out)
+    self$linear1 <- nn_linear(d_in, d_latent)
+    self$activation <- nn_relu()
+    self$linear2 <- nn_linear(d_latent, d_out)
   },
   forward = function(x) {
-    x = self$linear1(x)
-    x = self$activation(x)
+    x <- self$linear1(x)
+    x <- self$activation(x)
     self$linear2(x)
   }
 )
@@ -72,10 +74,11 @@ net <- nn_simple(10, 100, 1)
 net(torch_randn(1, 10))
 
 module_graph <- po("module_1", module = nn_linear(10, 100)) %>>%
- po("module_2", module = nn_relu()) %>>%
- po("module_3", module = nn_linear(100, 1))
+  po("module_2", module = nn_relu()) %>>%
+  po("module_3", module = nn_linear(100, 1))
 
-net <- nn_graph(module_graph, shapes_in = list(module_1.input = c(NA, 10)))
+net <- nn_graph(module_graph,
+  shapes_in = list(module_1.input = c(NA, 10)))
 net(torch_randn(2, 10))
 
 graph <- po("torch_ingress_ltnsr") %>>%
@@ -88,7 +91,8 @@ graph <- graph %>>%
   po("torch_loss", t_loss("cross_entropy")) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.001))
 
-graph <- graph %>>% po("torch_model_classif", epochs = 10, batch_size = 16)
+graph <- graph %>>%
+  po("torch_model_classif", epochs = 10, batch_size = 16, device = "cpu")
 
 glrn <- as_learner_torch(graph)
 glrn$train(mnist_flat, row_ids = 1:1000)
@@ -98,7 +102,8 @@ path_nonlin <- nn("linear_2") %>>% nn("relu")
 
 residual_layer <- list(path_lin, path_nonlin) %>>% nn("merge_sum")
 
-path_num <- po("select_1", selector = selector_type("numeric")) %>>%
+path_num <- po("select_1",
+  selector = selector_type(c("numeric", "integer"))) %>>%
   po("torch_ingress_num") %>>%
   nn("tokenizer_num", d_token = 10)
 path_categ <- po("select_2", selector = selector_type("factor")) %>>%
@@ -114,7 +119,7 @@ nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
     self$max_loss <- max_loss
   },
   forward = function(input, target) {
-    torch_clamp(nnf_mse_loss(input, target), max = self$max_loss)
+    torch_mean(torch_clamp((input - target)^2, max = self$max_loss))
   }
 )
 tloss <- as_torch_loss(nn_winsorized_mse)
@@ -135,14 +140,14 @@ gradient_clipper <- torch_callback("gradient_clipper",
     self$norms
   },
   load_state_dict = function(state_dict) {
-    self$norms = state_dict
+    self$norms <- state_dict
   }
 )
 
 nn_ffn <- nn_module("nn_ffn",
   initialize = function(task, latent_dim, n_layers) {
     dims <- c(task$n_features, rep(latent_dim, n_layers),
-      length(task$class_names))
+      output_dim_for(task))
     modules <- unlist(lapply(seq_len(length(dims) - 1), function(i) {
       if (i < length(dims) - 1) {
         list(nn_linear(dims[i], dims[i + 1]), nn_relu())
@@ -218,10 +223,10 @@ tuned <- learner$param_set$search_space()$ids()
 pvals <- lapply(ti$result_learner_param_vals[tuned],
   function(x) if (is.numeric(x)) signif(x, 3) else x)
 cat(paste("*", names(pvals), "=", pvals,
- collapse = "\n"), "\n")
+  collapse = "\n"), "\n")
 
 library("torchdatasets")
-dogs_vs_cats_dataset("data", download = TRUE)
+dvc <- dogs_vs_cats_dataset("data", download = TRUE)
 
 ds <- torch::dataset("dogs_vs_cats",
   initialize = function(pths) {
@@ -265,10 +270,11 @@ convnext <- lrn("classif.convnext_tiny_1k",
   opt.lr = 1e-4, measures_valid = msr("classif.acc"),
   callbacks = list(unfreezer, t_clbk("history")))
 
-learner <- as_learner(augment %>>% preprocess %>>% normalize %>>% convnext)
+learner <- as_learner(
+  augment %>>% preprocess %>>% normalize %>>% convnext)
 learner$id <- "convnext"
 set_validate(learner, 1 / 3)
-learner$train(task, c(12401:12600))
+learner$train(task, 12401:12600)
 learner$model$classif.convnext_tiny_1k$model$callbacks$history
 
 task <- tsk("melanoma")
@@ -332,8 +338,8 @@ baseline <- as_learner(
 baseline$id <- "tabular"
 glrn$id <- "multimodal"
 task_subset <- task$clone(deep = TRUE)
-subset <- partition(task_subset, ratio = 0.1)$train
-task_subset$filter(subset)
+ids <- partition(task_subset, ratio = 0.1)$train
+task_subset$filter(ids)
 design <- benchmark_grid(task_subset, list(glrn, baseline),
   rsmp("holdout"))
 bmr <- benchmark(design)

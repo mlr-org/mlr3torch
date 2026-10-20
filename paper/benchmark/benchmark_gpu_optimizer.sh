@@ -22,6 +22,9 @@ enroot create --force --name mlr3torch-jss-gpu mlr3torch-jss+gpu.sqsh
 enroot start \
   --mount $DIR:/mnt/data \
   mlr3torch-jss-gpu bash -c "
+  # enroot mounts \$HOME, so ignore the user R library and Python site-packages there, which would
+  # otherwise shadow the packages installed in the image.
+  export R_LIBS_USER=/nonexistent PYTHONNOUSERSITE=1
   cd /mnt/data/paper
   Rscript benchmark/linux-gpu-optimizer.R
 "

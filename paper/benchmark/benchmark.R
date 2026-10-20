@@ -2,8 +2,8 @@ library(batchtools)
 library(mlr3misc)
 
 # Environment for the benchmark subprocesses.
-# torch_set_num_threads() only applies to the calling thread, but (R) torch runs the backward pass in a
-# separate thread, which otherwise uses all available cores. Setting OMP_NUM_THREADS also limits these threads.
+# Workaround for what is already fixed in torch main: https://github.com/mlverse/torch/commit/748ea16dec598db0ebb0f447ade12413606c4ef0
+# Users don't usually hit this because the threads are set once at the beginning
 thread_env = function(n_threads) {
   n_threads = as.character(n_threads)
   c(callr::rcmd_safe_env(), OMP_NUM_THREADS = n_threads, MKL_NUM_THREADS = n_threads)

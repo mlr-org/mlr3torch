@@ -65,6 +65,7 @@ code_lines <- c(
   "#' knitr::opts_chunk$set(cache = FALSE)",
   "#' ```",
   "Sys.time()",
+  "options(width = 70, useFancyQuotes = FALSE)",
   "options(mlr3torch.cache = TRUE)",
   "lgr::get_logger(\"mlr3\")$set_threshold(\"warn\")",
   code_lines,
