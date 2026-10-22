@@ -135,7 +135,8 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
       task_dataset(
         task = task,
         feature_ingress_tokens = private$.ingress_tokens(task, param_vals),
-        target_batchgetter = private$.target_batchgetter %??% get_target_batchgetter(task)
+        target_batchgetter = private$.target_batchgetter %??% get_target_batchgetter(task),
+        cache_data = param_vals$cache_task_data %??% TRUE
       )
     },
 

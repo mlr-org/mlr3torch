@@ -9,6 +9,22 @@ replace_tail = function(shape, values) {
   c(shape[seq_len(length(shape) - length(values))], as.integer(values))
 }
 
+# Applies the torchvision function `name`, which is written for single images, to the whole batch where this was
+# verified to give the same result as applying it to each element (`batch_ok(x, ...)` is `TRUE`), as this is much
+# faster. Otherwise it is applied to each element, like a PipeOp with `rowwise = TRUE` does, so that inputs that
+# fail per element still fail.
+# @param name (`character(1)`) Name of the function in torchvision, which is looked up when it is called.
+# @param batch_ok (`function(x, ...)`) Receives the batch and the parameter values.
+batchwise = function(name, batch_ok) {
+  crate(function(x, ...) {
+    fn = getFromNamespace(name, "torchvision")
+    if (batch_ok(x, ...)) {
+      return(fn(x, ...))
+    }
+    torch_cat(lapply(seq_len(nrow(x)), function(i) fn(x[i, ..], ...)$unsqueeze(1L)), dim = 1L)
+  }, name, batch_ok, .parent = topenv())
+}
+
 # Rejects a shape that is not an image: these operators are applied per row, so the shape needs a
 # batch dimension in front of the image.
 # @param shape (`integer()`) The input shape.
@@ -290,7 +306,7 @@ register_preproc("trafo_reshape", torch_reshape, rowwise = FALSE, shapes_out = r
 #' @title Adjust Gamma Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_gamma
-register_preproc("trafo_adjust_gamma", torchvision::transform_adjust_gamma, packages = "torchvision", shapes_out = unchanged_shapes, rowwise = TRUE,
+register_preproc("trafo_adjust_gamma", batchwise("transform_adjust_gamma", function(x, ...) x$ndim %in% 3:5), packages = "torchvision", shapes_out = unchanged_shapes, rowwise = FALSE,
   param_set = ps(
     gamma = p_dbl(lower = 0, tags = c("train", "required")),
     gain = p_dbl(default = 1, tags = "train")
@@ -331,7 +347,7 @@ register_preproc("trafo_adjust_saturation", torchvision::transform_adjust_satura
 #' @title Grayscale Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_grayscale
-register_preproc("trafo_grayscale", torchvision::transform_grayscale, packages = "torchvision", shapes_out = grayscale_shapes, rowwise = TRUE,
+register_preproc("trafo_grayscale", batchwise("transform_grayscale", function(x, ...) x$ndim == 4L), packages = "torchvision", shapes_out = grayscale_shapes, rowwise = FALSE,
   param_set = ps(
     num_output_channels = p_int(lower = 1L, upper = 3L, tags = c("train", "required"))
   )
@@ -340,14 +356,52 @@ register_preproc("trafo_grayscale", torchvision::transform_grayscale, packages =
 #' @title RGB to Grayscale Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_rgb_to_grayscale
-register_preproc("trafo_rgb_to_grayscale", torchvision::transform_rgb_to_grayscale, packages = "torchvision", shapes_out = rgb_to_grayscale_shapes, rowwise = TRUE,
+register_preproc("trafo_rgb_to_grayscale", batchwise("transform_rgb_to_grayscale", function(x, ...) x$ndim %in% 4:5), packages = "torchvision", shapes_out = rgb_to_grayscale_shapes, rowwise = FALSE,
   param_set = ps()
 )
 
+# Normalizes the channels of a batch. Like torchvision::transform_normalize() does for every element, the channels
+# are the third-to-last dimension, e.g. C in (N, C, H, W) or (N, T, C, H, W), so for these inputs this is the same as
+# calling it on every element, but much faster. For inputs with fewer dimensions, e.g. (N, C) or (N, C, L), the
+# channels are the second dimension.
+normalize_batch = function(x, mean, std) {
+  mean = torch_tensor(mean, dtype = x$dtype, device = x$device)
+  std = torch_tensor(std, dtype = x$dtype, device = x$device)
+  if ((std == 0)$any()$item()) {
+    stopf("Parameter 'std' must not contain zeros, as this leads to a division by zero.")
+  }
+  channel_dim = if (x$ndim >= 4L) x$ndim - 2L else 2L
+  channel_shape = c(rep(1L, channel_dim - 1L), -1L, rep(1L, x$ndim - channel_dim))
+  if (mean$dim() == 1L) mean = mean$view(channel_shape)
+  if (std$dim() == 1L) std = std$view(channel_shape)
+  (x - mean) / std
+}
+
 #' @title Normalization Transformation
-#' @template preprocess_torchvision
-#' @templateVar id trafo_normalize
-register_preproc("trafo_normalize", torchvision::transform_normalize, packages = "torchvision", rowwise = TRUE,
+#' @usage NULL
+#' @name mlr_pipeops_trafo_normalize
+#' @aliases PipeOpPreprocTorchTrafoNormalize
+#' @rdname mlr_pipeops_trafo_normalize
+#' @format [`R6Class`][R6::R6Class] inheriting from [`PipeOpTaskPreprocTorch`].
+#' @section Construction:
+#' ```r
+#' po("trafo_normalize")
+#' ```
+#'
+#' @description
+#' Normalizes the channels by subtracting `mean` and dividing by `std`.
+#' The channels are the third-to-last dimension, e.g. `C` for images of shape `(N, C, H, W)` or videos of shape
+#' `(N, T, C, H, W)`, as in [`torchvision::transform_normalize`], which this is the same as for these inputs.
+#' For inputs with fewer dimensions, e.g. `(N, C)` or `(N, C, L)`, the channels are the second dimension.
+#' The preprocessing is applied to the whole batch.
+#'
+#' Being a `trafo_` operator, its `stages` parameter starts out as `"both"`, so the transformation is applied both
+#' while training and when predicting. Set `stages = "train"` to restrict it to training.
+#' See [`PipeOpTaskPreprocTorch`] for the `stages` parameter and this naming convention.
+#'
+#' @section Parameters:
+#' `r mlr3torch:::rd_info_param_set(po("trafo_normalize")$param_set)`
+register_preproc("trafo_normalize", normalize_batch, rowwise = FALSE,
   param_set = ps(
     mean = p_uty(tags = c("train", "required")),
     std = p_uty(tags = c("train", "required"))
@@ -364,7 +418,10 @@ register_preproc("trafo_normalize", torchvision::transform_normalize, packages =
 #' @title Padding Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_pad
-register_preproc("trafo_pad", torchvision::transform_pad, packages = "torchvision", shapes_out = pad_shapes, rowwise = TRUE,
+register_preproc("trafo_pad", batchwise("transform_pad", function(x, ..., padding_mode = "constant") {
+    # the non-constant modes only work batch-wise for up to 4 dimensions
+    x$ndim %in% 3:5 && (padding_mode == "constant" || x$ndim <= 4L)
+  }), packages = "torchvision", shapes_out = pad_shapes, rowwise = FALSE,
   param_set = ps(
     padding = p_uty(tags = c("train", "required"), custom_check = crate(function(x) check_integerish(x, min.len = 1L, max.len = 4L, any.missing = FALSE))),
     fill = p_uty(default = 0, tags = "train"),
@@ -377,7 +434,7 @@ register_preproc("trafo_pad", torchvision::transform_pad, packages = "torchvisio
 #' @title Resized Crop Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_resized_crop
-register_preproc("augment_resized_crop", torchvision::transform_resized_crop, packages = "torchvision", shapes_out = resized_crop_shapes, rowwise = TRUE,
+register_preproc("augment_resized_crop", batchwise("transform_resized_crop", function(x, ...) x$ndim == 4L), packages = "torchvision", shapes_out = resized_crop_shapes, rowwise = FALSE,
   param_set = ps(
     top = p_int(lower = 1L, tags = c("train", "required")),
     left = p_int(lower = 1L, tags = c("train", "required")),
@@ -424,7 +481,7 @@ register_preproc("augment_random_order", torchvision::transform_random_order, pa
 #' @title Horizontal Flip Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_hflip
-register_preproc("augment_hflip", torchvision::transform_hflip, packages = "torchvision", rowwise = TRUE,
+register_preproc("augment_hflip", batchwise("transform_hflip", function(x, ...) x$ndim %in% 3:5), packages = "torchvision", rowwise = FALSE,
   # a flip reads no dimension of the input, so nothing has to be known about it
   shapes_out = unchanged_shapes,
   param_set = ps()
@@ -444,7 +501,7 @@ register_preproc("augment_random_horizontal_flip", torchvision::transform_random
 #' @title Crop Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_crop
-register_preproc("augment_crop", torchvision::transform_crop, packages = "torchvision", shapes_out = crop_shapes, rowwise = TRUE,
+register_preproc("augment_crop", batchwise("transform_crop", function(x, ...) x$ndim %in% 3:5), packages = "torchvision", shapes_out = crop_shapes, rowwise = FALSE,
   param_set = ps(
     top = p_int(lower = 1L, tags = c("train", "required")),
     left = p_int(lower = 1L, tags = c("train", "required")),
@@ -481,7 +538,7 @@ register_preproc("augment_random_affine", torchvision::transform_random_affine, 
 #' @title Vertical Flip Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_vflip
-register_preproc("augment_vflip", torchvision::transform_vflip, packages = "torchvision", rowwise = TRUE,
+register_preproc("augment_vflip", batchwise("transform_vflip", function(x, ...) x$ndim %in% 3:5), packages = "torchvision", rowwise = FALSE,
   param_set = ps(),
   # a flip reads no dimension of the input, so nothing has to be known about it
   shapes_out = unchanged_shapes
@@ -503,7 +560,7 @@ register_preproc("augment_rotate", torchvision::transform_rotate, packages = "to
 #' @title Center Crop Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_center_crop
-register_preproc("augment_center_crop", torchvision::transform_center_crop, packages = "torchvision", shapes_out = center_crop_shapes, rowwise = TRUE,
+register_preproc("augment_center_crop", batchwise("transform_center_crop", function(x, ...) x$ndim %in% 3:5), packages = "torchvision", shapes_out = center_crop_shapes, rowwise = FALSE,
   param_set = ps(
     size = p_uty(tags = c("train", "required"), custom_check = crate(function(x) check_integerish(x, lower = 1L, min.len = 1L, max.len = 2L, any.missing = FALSE))) # nolint
   )

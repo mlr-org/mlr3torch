@@ -116,7 +116,8 @@ GraphLearnerTorch = R6Class("GraphLearnerTorch",
         task_dataset(
           md$task,
           feature_ingress_tokens = md$ingress,
-          target_batchgetter = get_target_batchgetter(md$task)
+          target_batchgetter = get_target_batchgetter(md$task),
+          cache_data = po_learner$param_set$values$cache_task_data %??% TRUE
         )
       } else {
         if (is.null(self$model)) {

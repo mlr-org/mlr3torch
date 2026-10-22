@@ -270,6 +270,11 @@ can avoid unnecessary moving of tensors between devices.
 When your dataset fits into memory this will make the loading of batches faster.
 Note that this should not be set for datasets that contain \code{\link{lazy_tensor}}s with random data augmentation,
 as this augmentation will only be applied once at the beginning of training.
+\item \code{cache_task_data} :: \code{logical(1)}\cr
+Whether to retrieve the data from the task once and to take the batches from it, instead of retrieving every
+batch from the task, which is slow.
+This is initialized to \code{TRUE}. Set it to \code{FALSE} if a copy of the task data does not fit into memory
+(lazy tensor columns only contain indices and are small).
 \item \code{jit_trace} :: \code{logical(1)}\cr
 Whether to trace the network with \code{\link[torch:jit_trace]{torch::jit_trace()}} once at the start of training and then
 train the traced module instead of the original one.
