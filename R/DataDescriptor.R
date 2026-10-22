@@ -177,8 +177,25 @@ DataDescriptor = R6Class("DataDescriptor",
     #' @field pointer_shape_predict (`integer()` or `NULL`)\cr
     #' Internal use only.
     pointer_shape_predict = NULL
+  ),
+  private = list(
+    # the plan for running the preprocessing graph, see dd_forward_plan()
+    .forward_plan = NULL
   )
 )
+
+# The plan for running the preprocessing graph of a DataDescriptor without `Graph$train()` (see
+# `graph_forward_plan()`). It is created on first use and then reused, which is fine because the graph of a
+# DataDescriptor does not change (its hash is also only calculated once). FALSE if the graph cannot be run like this.
+dd_forward_plan = function(data_descriptor) {
+  private = get_private(data_descriptor)
+  # DataDescriptors created by an older version of mlr3torch do not have this field
+  if (!exists(".forward_plan", envir = private, inherits = FALSE)) return(FALSE)
+  if (is.null(private$.forward_plan)) {
+    private$.forward_plan = graph_forward_plan(data_descriptor$graph) %??% FALSE
+  }
+  private$.forward_plan
+}
 
 #' @title Convert to Data Descriptor
 #' @description

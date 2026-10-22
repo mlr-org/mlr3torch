@@ -78,6 +78,76 @@ test_that("trafo_normalize", {
   )
 })
 
+test_that("operators applied to the whole batch give the same result as applying them to every image", {
+  per_image = function(name, x, args) {
+    fn = getFromNamespace(name, "torchvision")
+    torch_stack(lapply(seq_len(x$shape[1L]), function(i) do.call(fn, c(list(x[i, ..]), args))), dim = 1L)
+  }
+  via_pipeop = function(id, x, args) {
+    task = as_task_regr(data.table(x = as_lazy_tensor(x), y = as.numeric(seq_len(x$shape[1L]))), target = "y")
+    obj = do.call(po, c(list(id), args))
+    materialize(obj$train(list(task))[[1L]]$data(cols = "x")$x, rbind = TRUE)
+  }
+  inputs = list(
+    image = torch_rand(5, 3, 8, 10),
+    channelless = torch_rand(5, 8, 10),
+    five_dim = torch_rand(5, 2, 3, 8, 10)
+  )
+  cases = list(
+    list("trafo_adjust_gamma", "transform_adjust_gamma", list(gamma = 0.5), c("image", "channelless", "five_dim")),
+    list("trafo_adjust_gamma", "transform_adjust_gamma", list(gamma = 2, gain = 0.8), "image"),
+    list("trafo_grayscale", "transform_grayscale", list(num_output_channels = 1L), "image"),
+    list("trafo_grayscale", "transform_grayscale", list(num_output_channels = 3L), "image"),
+    list("trafo_rgb_to_grayscale", "transform_rgb_to_grayscale", list(), c("image", "five_dim")),
+    list("trafo_pad", "transform_pad", list(padding = 2L), c("image", "channelless", "five_dim")),
+    list("trafo_pad", "transform_pad", list(padding = c(1L, 2L, 3L, 4L), fill = 0.5), c("image", "channelless")),
+    list("trafo_pad", "transform_pad", list(padding = 2L, padding_mode = "edge"), c("image", "channelless", "five_dim")),
+    list("trafo_pad", "transform_pad", list(padding = 2L, padding_mode = "reflect"), c("image", "channelless", "five_dim")),
+    list("augment_hflip", "transform_hflip", list(), c("image", "channelless", "five_dim")),
+    list("augment_vflip", "transform_vflip", list(), c("image", "channelless", "five_dim")),
+    list("augment_crop", "transform_crop", list(top = 2L, left = 3L, height = 4L, width = 5L),
+      c("image", "channelless", "five_dim")),
+    list("augment_center_crop", "transform_center_crop", list(size = 4L), c("image", "channelless", "five_dim")),
+    # pads, as the images are smaller than the size
+    list("augment_center_crop", "transform_center_crop", list(size = 12L), c("image", "channelless")),
+    list("augment_resized_crop", "transform_resized_crop",
+      list(top = 1L, left = 2L, height = 6L, width = 6L, size = 4L), c("image", "five_dim")),
+    list("augment_resized_crop", "transform_resized_crop",
+      list(top = 1L, left = 1L, height = 7L, width = 5L, size = c(6L, 4L), interpolation = 0L), "image"),
+    list("augment_resized_crop", "transform_resized_crop",
+      list(top = 1L, left = 1L, height = 7L, width = 5L, size = c(6L, 4L), interpolation = 3L), "image")
+  )
+  for (case in cases) {
+    for (input in case[[4L]]) {
+      x = inputs[[input]]
+      expected = per_image(case[[2L]], x, case[[3L]])
+      out = via_pipeop(case[[1L]], x, case[[3L]])
+      label = sprintf("%s (%s) on input '%s'", case[[1L]], paste(names(case[[3L]]), collapse = ", "), input)
+      expect_equal(out$shape, expected$shape, label = label)
+      expect_true(torch_allclose(out, expected, atol = 1e-6), label = label)
+    }
+  }
+})
+
+test_that("trafo_normalize normalizes a batch like torchvision::transform_normalize() does every image", {
+  x = torch_randn(4, 3, 5, 6)
+  mean = c(0.1, -0.2, 0.3)
+  std = c(1, 2, 0.5)
+  expected = torch_stack(lapply(1:4, function(i) torchvision::transform_normalize(x[i, ..], mean, std)), dim = 1L)
+  expect_true(torch_allclose(normalize_batch(x, mean, std), expected))
+
+  task = as_task_regr(data.table(x = as_lazy_tensor(x), y = rnorm(4)), target = "y")
+  task_out = po("trafo_normalize", mean = mean, std = std)$train(list(task))[[1L]]
+  expect_true(torch_allclose(materialize(task_out$data(cols = "x")$x, rbind = TRUE), expected))
+
+  # without spatial dimensions, every column is a channel
+  z = torch_randn(5, 3)
+  expect_true(torch_allclose(normalize_batch(z, mean, std), (z - torch_tensor(mean)) / torch_tensor(std)))
+  # a single value for all channels
+  expect_true(torch_allclose(normalize_batch(x, 1, 2), (x - 1) / 2))
+  expect_error(normalize_batch(z, 0, c(1, 0, 1)), "must not contain zeros")
+})
+
 test_that("trafo_pad", {
   expect_pipeop_torch_preprocess(
     obj = po("trafo_pad", padding = c(2, 3)),

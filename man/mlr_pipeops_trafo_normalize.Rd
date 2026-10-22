@@ -8,11 +8,12 @@
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \description{
-Calls \code{\link[torchvision:transform_normalize]{torchvision::transform_normalize}},
-see there for more information on the parameters.
-The preprocessing is applied to each element of a batch individually.
+Normalizes the channels (the second dimension, i.e. the first one after the batch dimension) by subtracting \code{mean}
+and dividing by \code{std}. For images, this is the same as \code{\link[torchvision:transform_normalize]{torchvision::transform_normalize}}.
+The preprocessing is applied to the whole batch.
 
-Being a \code{trafo_} operator, its \code{stages} parameter starts out as \code{"both"}, so the transformation is applied both while training and when predicting. Set \code{stages = "train"} to restrict it to training.
+Being a \code{trafo_} operator, its \code{stages} parameter starts out as \code{"both"}, so the transformation is applied both
+while training and when predicting. Set \code{stages = "train"} to restrict it to training.
 See \code{\link{PipeOpTaskPreprocTorch}} for the \code{stages} parameter and this naming convention.
 }
 \section{Construction}{

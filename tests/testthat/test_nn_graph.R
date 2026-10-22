@@ -252,3 +252,73 @@ test_that("non-terminal output", {
   expect_equal(names(xout), "output_nn_head.output")
   expect_true("output_nn_head.output" %in% module$graph$output$name)
 })
+
+forward_plan = function(network) network$.__enclos_env__$private$.forward_plan
+
+test_that("forward plan gives the same result as Graph$train()", {
+  task = tsk("iris")
+  compare = function(network, input) {
+    expected = network$graph$train(unname(input), single_input = FALSE)[network$output_map]
+    if (!network$list_output) expected = expected[[1L]]
+    expect_equal(invoke(network, .args = input), expected)
+    expect_list(forward_plan(network))
+  }
+
+  # a chain with a block, as created by nn() and model_descriptor_to_module()
+  md = (po("torch_ingress_num") %>>% nn("linear", out_features = 8) %>>%
+    nn("block", nn("linear", out_features = 8) %>>% nn("relu"), n_blocks = 2) %>>% nn("head"))$train(task)[[1L]]
+  network = model_descriptor_to_module(md)
+  compare(network, sample_input_from_shapes(network$shapes_in))
+
+  # two inputs and a module with two outputs
+  po_debug = PipeOpTorchDebug$new(param_vals = list(d_out1 = 1, d_out2 = 2))
+  md2 = (list(po("torch_ingress_num_1"), po("torch_ingress_num_2")) %>>% po_debug)$train(task)[[1L]]
+  network2 = nn_graph(md2$graph, shapes_in = map(md2$ingress, "shape"), list_output = TRUE)
+  compare(network2, sample_input_from_shapes(network2$shapes_in))
+
+  # the output of one module is used by two other modules, which are merged via a vararg channel,
+  # and also returned
+  md3 = (po("torch_ingress_num") %>>% nn("linear", out_features = 3) %>>%
+    gunion(list(nn("relu"), nn("sigmoid"))) %>>% nn("merge_sum"))$train(task)[[1L]]
+  network3 = model_descriptor_to_module(md3, list(md3$pointer, c("linear", "output")), list_output = TRUE)
+  compare(network3, sample_input_from_shapes(network3$shapes_in))
+  expect_equal(names(network3(torch_randn(2, 4))), network3$output_map)
+
+  # the output map can be changed after the plan was created
+  network3$output_map = rev(network3$output_map)
+  compare(network3, sample_input_from_shapes(network3$shapes_in))
+})
+
+test_that("nn_graph falls back to Graph$train() for operators other than PipeOpModule and PipeOpNOP", {
+  graph = po("module", id = "linear", module = nn_linear(2, 3)) %>>% po("copy", outnum = 2)
+  network = nn_graph(graph, shapes_in = set_names(list(c(NA, 2)), graph$input$name), list_output = TRUE)
+  out = network(torch_randn(4, 2))
+  expect_false(forward_plan(network))
+  expect_equal(names(out), c("copy.output1", "copy.output2"))
+  expect_equal(out[[1L]], out[[2L]])
+})
+
+test_that("assigning a graph resets the forward plan", {
+  graph = as_graph(po("module", id = "linear", module = nn_linear(2, 3)))
+  network = nn_graph(graph, shapes_in = set_names(list(c(NA, 2)), graph$input$name))
+  x = torch_randn(4, 2)
+  network(x)
+  expect_list(forward_plan(network))
+  network$graph = po("module", id = "linear", module = nn_linear(2, 3)) %>>% po("module", id = "relu", module = nn_relu())
+  expect_null(forward_plan(network))
+  network$output_map = "relu.output"
+  expect_true(all(as_array(network(x)) >= 0))
+  expect_equal(forward_plan(network)$steps[[2L]]$id, "relu")
+})
+
+test_that("forward plan uses the modules of a deep clone", {
+  md = (po("torch_ingress_num") %>>% nn("linear", out_features = 3))$train(tsk("iris"))[[1L]]
+  network = model_descriptor_to_module(md)
+  x = torch_randn(2, 4)
+  network(x)
+  network1 = network$clone(deep = TRUE)
+  expect_equal(network(x), network1(x))
+  with_no_grad(network1$graph$pipeops$linear$module$weight$add_(1))
+  expect_false(torch_equal(network(x), network1(x)))
+  expect_true(torch_equal(network1(x), network1$graph$train(list(x), single_input = FALSE)[[1L]]))
+})

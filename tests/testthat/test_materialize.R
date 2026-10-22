@@ -328,3 +328,21 @@ test_that("materialize()'s cache runs a merged graph once for all of its columns
   maphash(cache, collect_size)
   expect_equal(sort(sizes), c(2L, 4L))
 })
+
+test_that("materialize() runs the preprocessing graph without Graph$train(), with the same result", {
+  x = torch_randn(10, 1, 4, 4)
+  task = as_task_regr(data.table(x = as_lazy_tensor(x), y = rnorm(10)), target = "y")
+  graph = po("trafo_normalize", mean = 1, std = 2) %>>% po("trafo_reshape", shape = c(-1, 16))
+  lt = graph$train(task)[[1L]]$data(cols = "x")$x
+
+  out = materialize(lt, rbind = TRUE)
+  out_list = materialize(lt, rbind = FALSE)
+  expect_list(dd_forward_plan(dd(lt)))
+  expect_true(torch_allclose(out, ((x - 1) / 2)$reshape(c(-1, 16))))
+
+  # the same as running the graph via Graph$train()
+  private = get_private(dd(lt))
+  private$.forward_plan = FALSE
+  expect_equal(materialize(lt, rbind = TRUE), out)
+  expect_equal(materialize(lt, rbind = FALSE), out_list)
+})

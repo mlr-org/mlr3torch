@@ -15,6 +15,10 @@
 #'   Each ingress token defines one item in the `$x` value of a batch with corresponding names.
 #' @templateVar target_batchgetter_null If `NULL` (default), the batches have no `y` element.
 #' @template param_target_batchgetter
+#' @param cache_data (`logical(1)`)\cr
+#'   Whether to retrieve the data from the task once (in `$initialize()`) and to take the batches from it, instead of
+#'   retrieving every batch from the task, which is slow.
+#'   This needs memory for a copy of the task data (lazy tensor columns only contain indices and are small).
 #' @export
 #' @return [`torch::dataset`]
 #' @examplesIf torch::torch_is_installed()
@@ -38,7 +42,7 @@
 #' batch = dataset$.getbatch(1:10)
 #' batch
 task_dataset = dataset("task_dataset",
-  initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL) {
+  initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, cache_data = TRUE) {
     self$task = assert_r6(task$clone(deep = TRUE), "Task")
     assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique", min.len = 1L)
     self$feature_ingress_tokens = set_names(lapply(seq_along(feature_ingress_tokens), function(i) {
@@ -84,11 +88,19 @@ task_dataset = dataset("task_dataset",
       feature_ingress_tokens = self$feature_ingress_tokens,
       target_batchgetter = self$target_batchgetter
     )
+
+    # Retrieving the rows of a batch via `task$data()` is slow, so the data can be retrieved once and the batches
+    # taken from it. The rows are in the order of `task$row_ids`.
+    self$data = if (assert_flag(cache_data)) self$task$data(cols = self$all_features)
   },
   .getbatch = function(index) {
     cache = if (self$cache_lazy_tensors) hashtab()
 
-    datapool = self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
+    datapool = if (is.null(self$data)) {
+      self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
+    } else {
+      self$data[index]
+    }
     batch = self$batch_constructor(data = datapool, cache = cache)
     out = list(x = batch$x, .index = torch_tensor(index, dtype = torch_long()))
     if (!is.null(batch$y)) out$y = batch$y
@@ -176,7 +188,8 @@ dataset_num = function(task, param_vals, argname = "input") {
   task_dataset(
     task = task,
     feature_ingress_tokens = ingress,
-    target_batchgetter = get_target_batchgetter(task)
+    target_batchgetter = get_target_batchgetter(task),
+    cache_data = param_vals$cache_task_data %??% TRUE
   )
 }
 
@@ -198,7 +211,8 @@ dataset_num_categ = function(task, param_vals, argname_num = "num.input", argnam
   task_dataset(
     task,
     feature_ingress_tokens = tokens,
-    target_batchgetter = get_target_batchgetter(task)
+    target_batchgetter = get_target_batchgetter(task),
+    cache_data = param_vals$cache_task_data %??% TRUE
   )
 }
 
