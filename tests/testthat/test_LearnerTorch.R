@@ -830,13 +830,14 @@ test_that("drop_last caps the batch size at the number of observations", {
     "First20Sampler",
     initialize = function(data_source) NULL,
     .iter = function() {
-      i = 0L
+      state = new.env()
+      state$i = 0L
       function() {
-        i <<- i + 1L
-        if (i > 20L) {
+        state$i = state$i + 1L
+        if (state$i > 20L) {
           return(coro::exhausted())
         }
-        i
+        state$i
       }
     },
     .length = function() 20L
@@ -1172,11 +1173,12 @@ test_that("batch_sampler works without batch_size", {
     },
     .iter = function() {
       batches = split(seq_len(length(self$data_source)), rep(1:2, length.out = length(self$data_source)))
-      count = 0L
+      state = new.env()
+      state$count = 0L
       function() {
-        count <<- count + 1L
-        if (count > length(batches)) return(coro::exhausted())
-        batches[[count]]
+        state$count = state$count + 1L
+        if (state$count > length(batches)) return(coro::exhausted())
+        batches[[state$count]]
       }
     },
     .length = function() 2L
@@ -1230,11 +1232,12 @@ test_that("sampler works and is only used during training", {
     },
     .iter = function() {
       ii = rev(seq_len(length(self$data_source)))
-      count = 0L
+      state = new.env()
+      state$count = 0L
       function() {
-        count <<- count + 1L
-        if (count > length(ii)) return(coro::exhausted())
-        ii[count]
+        state$count = state$count + 1L
+        if (state$count > length(ii)) return(coro::exhausted())
+        ii[state$count]
       }
     },
     .length = function() length(self$data_source)
@@ -1301,9 +1304,9 @@ describe("resuming from a checkpoint", {
     path = tempfile()
     first = make_checkpoint(epochs = 2L, path = path)
 
-    restored = NULL
+    state = new.env()
     remember = function() {
-      restored <<- as.numeric(self$ctx$network$parameters[[1L]]$flatten())
+      state$restored = as.numeric(self$ctx$network$parameters[[1L]]$flatten())
     }
     record = torch_callback("record", on_begin = remember)
 
@@ -1311,7 +1314,7 @@ describe("resuming from a checkpoint", {
     resumed = resumer(5L, path, callbacks = record)
     resumed$train(tsk("iris"))
     expect_equal(resumed$model$epochs, 5L)
-    expect_equal(restored, as.numeric(first$network$parameters[[1L]]$flatten()))
+    expect_equal(state$restored, as.numeric(first$network$parameters[[1L]]$flatten()))
 
     expect_error(resumer(4L, path)$train(tsk("sonar")), "was written for task 'iris'")
 
@@ -1396,20 +1399,20 @@ describe("resuming from a checkpoint", {
 
   it("continues the global step across a change of batch size", {
     path = tempfile()
-    seen = NULL
+    state = new.env()
     record = function() {
-      seen <<- c(seen, self$ctx$global_step)
+      state$seen = c(state$seen, self$ctx$global_step)
     }
     spy = torch_callback("spy", on_batch_end = record)
     make_checkpoint(epochs = 2L, path = path, callbacks = list(spy))
-    expect_equal(seen, 1:6)
+    expect_equal(state$seen, 1:6)
     expect_equal(readRDS(file.path(path, "state2.rds"))$global_step, 6)
 
-    seen = NULL
+    state$seen = NULL
     resumed = lrn("classif.mlp", epochs = 3L, batch_size = 150, neurons = 10, callbacks = spy)
     resumed$param_set$set_values(resume = path)
     resumed$train(tsk("iris"))
-    expect_equal(seen, 7L)
+    expect_equal(state$seen, 7L)
   })
 
 
@@ -1677,13 +1680,14 @@ test_that("hash_input() recurses into lists so that nn_modules hash stably", {
 })
 
 test_that(".setup_training can customize the network, loss, optimizer and callbacks", {
-  seen_optimizer = "not called"
+  state = new.env()
+  state$seen_optimizer = "not called"
   LearnerTorchSetup = R6Class("LearnerTorchSetup",
     inherit = LearnerTorchTest1,
     private = list(
       .setup_training = function(ctx, param_vals) {
         super$.setup_training(ctx, param_vals)
-        seen_optimizer <<- ctx$optimizer
+        state$seen_optimizer = ctx$optimizer
         ctx$loss_fn = nn_module("wrapped_loss",
           initialize = function(loss) self$loss = loss,
           forward = function(input, target) self$loss(input, target)
@@ -1704,7 +1708,7 @@ test_that(".setup_training can customize the network, loss, optimizer and callba
   learner$callbacks = t_clbk("history")
   learner$train(tsk("iris"))
   # the optimizer is created after the setup
-  expect_null(seen_optimizer)
+  expect_null(state$seen_optimizer)
   groups = learner$model$optimizer$param_groups
   expect_length(groups, 2L)
   expect_equal(groups[[1L]]$lr, 0.5)
@@ -1727,18 +1731,18 @@ test_that("the default optimizer is created from the network that .setup_trainin
       }
     )
   )
-  network = optimizer = NULL
+  state = new.env()
   spy = torch_callback("spy", on_begin = function() {
-    network <<- self$ctx$network
-    optimizer <<- self$ctx$optimizer
+    state$network = self$ctx$network
+    state$optimizer = self$ctx$optimizer
   })
   learner = LearnerTorchSwap$new(task_type = "classif")
   learner$param_set$set_values(epochs = 1L, batch_size = 50L)
   learner$callbacks = spy
   learner$train(tsk("iris"))
   expect_class(learner$network, "nn_sequential")
-  params = network$parameters
-  opt_params = unlist(map(optimizer$param_groups, "params"), recursive = FALSE)
+  params = state$network$parameters
+  opt_params = unlist(map(state$optimizer$param_groups, "params"), recursive = FALSE)
   expect_length(opt_params, length(params))
   expect_true(all(map_lgl(params, function(p) some(opt_params, function(q) identical(p, q)))))
 })

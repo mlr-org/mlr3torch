@@ -103,12 +103,12 @@ classif_mlp2 = function() {
 # loss that the learner trains with. Trains a clone of the learner for 0 epochs.
 setup_ctx_field = function(learner, task, field) {
   learner = learner$clone(deep = TRUE)
-  value = NULL
+  seen = new.env()
   spy = torch_callback("setup_spy", on_begin = function() {
-    value <<- self$ctx[[field]]
+    seen$value = self$ctx[[field]]
   })
   learner$callbacks = c(learner$callbacks, list(spy))
   learner$param_set$set_values(epochs = 0L)
   learner$train(task)
-  value
+  seen$value
 }

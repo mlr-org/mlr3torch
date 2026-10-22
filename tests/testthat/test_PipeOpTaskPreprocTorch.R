@@ -264,7 +264,7 @@ test_that("pipeop_preproc_torch", {
 
 test_that("can pass variable to fn", {
   fn = function(x, a) x + a
-  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "infer", stages_init = "train", )$new(param_vals = list(a = 1000))
+  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "infer", stages_init = "train")$new(param_vals = list(a = 1000))
   x = po_test$train(list(tsk("lazy_iris")$filter(1)))[[1L]]$data()$x
   expect_true(all(as_array(materialize(x, rbind = TRUE)) >= 50))
 })
