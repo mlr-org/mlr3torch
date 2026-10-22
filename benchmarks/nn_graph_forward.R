@@ -5,11 +5,14 @@ devtools::load_all(".")
 torch_set_num_threads(1)
 torch_manual_seed(1)
 
-ms = function(f, n = 100) {
+# median over 10 rounds of the mean time in ms of `n` calls of `f()`
+ms = function(f, n = 50, rounds = 10) {
   for (i in 1:10) f()
-  t0 = Sys.time()
-  for (i in 1:n) f()
-  1000 * as.numeric(difftime(Sys.time(), t0, units = "secs")) / n
+  median(replicate(rounds, {
+    t0 = Sys.time()
+    for (i in 1:n) f()
+    1000 * as.numeric(difftime(Sys.time(), t0, units = "secs")) / n
+  }))
 }
 report = function(what, value) cat(sprintf("%-60s %7.2f ms\n", what, value))
 
@@ -70,13 +73,14 @@ h = torch_randn(256, d_in, 8)
 mha = nn_multihead_attention(embed_dim = 8, num_heads = 1, batch_first = TRUE)
 report("nn_multihead_attention alone, forward", ms(function() with_no_grad(mha(h, h, h))))
 
-# Results, batch size 256 (before mlr3torch ae5a990c, nn_graph ran Graph$train() in every forward pass):
-# nn_graph, forward via Graph$train()                          121.95 ms (what nn_graph, forward took before)
-# nn_graph, forward                                             13.58 ms
-# plain nn_module, forward                                      12.19 ms
-# nn_graph, forward + backward                                  25.30 ms
-# plain nn_module, forward + backward                           22.86 ms
-# optimizer step, adamw                                         40.15 ms (torch's R implementation)
-# optimizer step, ignite_adamw                                   1.10 ms (used by t_opt("adamw"))
-# nn_graph, training step with ignite_adamw                     26.55 ms
-# nn_multihead_attention alone, forward                          6.80 ms (implemented in R in torch)
+# Results, batch size 256, median over 10 rounds of 50 calls, one pinned CPU core.
+# Before mlr3torch 8b69e64e, nn_graph ran Graph$train() in every forward pass:
+# nn_graph, forward via Graph$train()                          108.16 ms (what nn_graph, forward took before)
+# nn_graph, forward                                             11.32 ms
+# plain nn_module, forward                                      10.57 ms
+# nn_graph, forward + backward                                  22.85 ms
+# plain nn_module, forward + backward                           21.01 ms
+# optimizer step, adamw                                         34.45 ms (torch's R implementation)
+# optimizer step, ignite_adamw                                   0.91 ms (used by t_opt("adamw"))
+# nn_graph, training step with ignite_adamw                     22.89 ms
+# nn_multihead_attention alone, forward                          6.51 ms (implemented in R in torch)

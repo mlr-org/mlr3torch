@@ -10,11 +10,14 @@ torch_manual_seed(1)
 per_element = function(fn, x, args) {
   torch_stack(lapply(seq_len(x$shape[1]), function(i) do.call(fn, c(list(x[i, ..]), args))), dim = 1L)
 }
-ms = function(f, n = 10) {
+# median over 10 rounds of the mean time in ms of `n` calls of `f()`
+ms = function(f, n = 10, rounds = 10) {
   f()
-  t0 = Sys.time()
-  for (i in 1:n) f()
-  1000 * as.numeric(difftime(Sys.time(), t0, units = "secs")) / n
+  median(replicate(rounds, {
+    t0 = Sys.time()
+    for (i in 1:n) f()
+    1000 * as.numeric(difftime(Sys.time(), t0, units = "secs")) / n
+  }))
 }
 
 cases = list(
@@ -39,16 +42,16 @@ for (id in names(cases)) {
     ms(function() per_element(fn, x, args)), ms(function() do.call(fn, c(list(x), args)))))
 }
 
-# Results:
-# trafo_adjust_gamma       same: TRUE  per element  44.57 ms   whole batch  5.14 ms
-# trafo_grayscale          same: TRUE  per element  77.68 ms   whole batch  4.20 ms
-# trafo_rgb_to_grayscale   same: TRUE  per element  73.65 ms   whole batch  4.46 ms
-# trafo_normalize          same: TRUE  per element  70.52 ms   whole batch  3.26 ms
-# trafo_pad                same: TRUE  per element  42.28 ms   whole batch  1.67 ms
-# augment_hflip            same: TRUE  per element  11.73 ms   whole batch  0.54 ms
-# augment_vflip            same: TRUE  per element  11.82 ms   whole batch  1.20 ms
-# augment_crop             same: TRUE  per element  17.04 ms   whole batch  0.40 ms
-# augment_center_crop      same: TRUE  per element  37.82 ms   whole batch  1.00 ms
-# augment_resized_crop     same: TRUE  per element  54.56 ms   whole batch  1.76 ms
+# Results, median over 10 rounds of 10 calls, one pinned CPU core:
+# trafo_adjust_gamma       same: TRUE  per element  35.85 ms   whole batch  5.59 ms
+# trafo_grayscale          same: TRUE  per element  73.24 ms   whole batch  4.87 ms
+# trafo_rgb_to_grayscale   same: TRUE  per element  63.23 ms   whole batch  3.36 ms
+# trafo_normalize          same: TRUE  per element  60.90 ms   whole batch  3.16 ms
+# trafo_pad                same: TRUE  per element  37.72 ms   whole batch  1.96 ms
+# augment_hflip            same: TRUE  per element   9.66 ms   whole batch  0.48 ms
+# augment_vflip            same: TRUE  per element   9.62 ms   whole batch  0.60 ms
+# augment_crop             same: TRUE  per element  15.32 ms   whole batch  0.33 ms
+# augment_center_crop      same: TRUE  per element  37.16 ms   whole batch  0.93 ms
+# augment_resized_crop     same: TRUE  per element  55.54 ms   whole batch  1.64 ms
 # augment_rotate fails on the whole batch (in grid_sampler()) and stays per element.
 # For trafo_normalize, mlr3torch uses its own batch-wise version (normalize_batch()), which also handles e.g. videos.
