@@ -354,13 +354,14 @@ test_that("CallbackSetRealMLP keeps the base learning rate when resuming", {
 
 test_that("the learning rate follows the schedule during training", {
   task = tsk("iris")
-  lrs = list()
+  state = new.env()
+  state$lrs = list()
   record = torch_callback("record", on_after_backward = function() {
-    lrs[[length(lrs) + 1L]] <<- map_dbl(self$ctx$optimizer$param_groups, "lr")
+    state$lrs[[length(state$lrs) + 1L]] = map_dbl(self$ctx$optimizer$param_groups, "lr")
   })
   learner = make_realmlp(epochs = 3L, batch_size = 50L, callbacks = record, opt.lr = 0.5)
   learner$train(task)
-  lrs = do.call(rbind, lrs)
+  lrs = do.call(rbind, state$lrs)
   # 3 batches per epoch
   expect_equal(nrow(lrs), 9L)
   factors = map_dbl(learner$model$network$param_group_factors(), "lr_factor")
@@ -377,19 +378,19 @@ test_that("training continues the schedule when resuming from a checkpoint", {
   make = function(cbs) make_realmlp(epochs = 4L, batch_size = 50L, seed = 1L, callbacks = cbs)
   expect_error(make(list(t_clbk("checkpoint", freq = 1, path = path), crash))$train(task), "crash")
 
-  seen = NULL
+  state = new.env()
   record = function() {
-    if (self$ctx$global_step == 8L) seen <<- map_dbl(self$ctx$optimizer$param_groups, "lr")
+    if (self$ctx$global_step == 8L) state$seen = map_dbl(self$ctx$optimizer$param_groups, "lr")
   }
   resumed = make(list(torch_callback("probe", on_after_backward = record)))
   resumed$param_set$set_values(resume = path)
   resumed$train(task)
-  lr_resumed = seen
+  lr_resumed = state$seen
   expect_false(is.null(lr_resumed))
 
-  seen = NULL
+  state$seen = NULL
   make(list(torch_callback("probe", on_after_backward = record)))$train(task)
-  expect_equal(lr_resumed, seen)
+  expect_equal(lr_resumed, state$seen)
 })
 
 test_that("label smoothing is correct", {

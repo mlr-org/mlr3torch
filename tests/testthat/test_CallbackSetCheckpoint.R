@@ -171,9 +171,9 @@ test_that("a checkpoint is never a half-trained epoch under the previous epoch's
   task = tsk("iris")
   path = tempfile()
   # the weights at the end of epoch 2, to compare the checkpoint against
-  weights = NULL
+  seen = new.env()
   spy = torch_callback("spy", on_epoch_end = function() {
-    if (self$ctx$epoch == 2L) weights <<- as.numeric(self$ctx$network$parameters[[1L]]$flatten())
+    if (self$ctx$epoch == 2L) seen$weights = as.numeric(self$ctx$network$parameters[[1L]]$flatten())
   })
   crash = torch_callback("crash",
     on_batch_end = function() if (self$ctx$epoch == 3L && self$ctx$step == 2L) stop("crash"))
@@ -185,7 +185,7 @@ test_that("a checkpoint is never a half-trained epoch under the previous epoch's
   expect_error(learner$train(task), "crash")
 
   saved = as.numeric(torch_load(file.path(path, "network2.pt"))[[1L]]$flatten())
-  expect_equal(saved, weights)
+  expect_equal(saved, seen$weights)
 })
 
 test_that("ending a run early still saves the epoch that finished", {

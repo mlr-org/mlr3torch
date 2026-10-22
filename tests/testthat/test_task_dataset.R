@@ -250,9 +250,9 @@ test_that("merging of graphs behaves as expected", {
   e = new.env()
   e$a = 0
   fn = crate(function(x) {
-    a <<- a + 1
+    e$a = e$a + 1
     x
-  }, .parent = e)
+  }, e)
   graph = pipeop_preproc_torch("trafo_counter", fn = fn)$new() %>>%
     list(
       po("renamecolumns", renaming = c(x = "x1"), id = "a1") %>>% po("trafo_nop", id = "nop1"),

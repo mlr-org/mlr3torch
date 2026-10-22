@@ -420,22 +420,22 @@ nn_realmlp = nn_module("nn_realmlp",
   private = list(
     group_entries = function() {
       lr_factors = self$lr_factors
+      entry = function(param, lr_factor, wd_factor) {
+        list(list(param = param, lr_factor = lr_factor, wd_factor = wd_factor))
+      }
       entries = list()
-      add = function(param, lr_factor, wd_factor) {
-        entries[[length(entries) + 1L]] <<- list(param = param, lr_factor = lr_factor, wd_factor = wd_factor)
-      }
       if (!is.null(self$plr)) {
-        walk(self$plr$parameters, add, lr_factor = lr_factors$plr, wd_factor = 1)
+        for (param in self$plr$parameters) entries = c(entries, entry(param, lr_factors$plr, 1))
       }
-      if (!is.null(self$emb_weight)) add(self$emb_weight, 1, 1)
+      if (!is.null(self$emb_weight)) entries = c(entries, entry(self$emb_weight, 1, 1))
       for (i in seq_along(self$blocks)) {
         block = self$blocks[[i]]
-        if (!is.null(block$scale)) add(block$scale, lr_factors$scale, 1)
+        if (!is.null(block$scale)) entries = c(entries, entry(block$scale, lr_factors$scale, 1))
         # a single binary logit is trained like the difference of two logits
         out_factor = if (self$binary && i == length(self$blocks)) 2 else 1
-        add(block$weight, out_factor, 1 / out_factor)
-        add(block$bias, lr_factors$bias * out_factor, 0)
-        if (!is.null(block$act_weight)) add(block$act_weight, lr_factors$act, 1)
+        entries = c(entries, entry(block$weight, out_factor, 1 / out_factor),
+          entry(block$bias, lr_factors$bias * out_factor, 0))
+        if (!is.null(block$act_weight)) entries = c(entries, entry(block$act_weight, lr_factors$act, 1))
       }
       if (length(entries) != length(self$parameters)) {
         stopf("Internal error: not all parameters of nn_realmlp are assigned to a parameter group.")
