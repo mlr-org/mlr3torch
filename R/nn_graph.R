@@ -8,7 +8,8 @@
 #'   The graph (consisting primarily of [`PipeOpModule`]s) that is wrapped by the network.
 #'   When it consists only of [`PipeOpModule`]s and [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s, the order in which the
 #'   modules are called is determined once and `$forward()` calls them directly, which is much faster than running
-#'   the graph. Assigning a new graph to this field resets this. Do not modify the graph in place.
+#'   the graph. This is determined anew when a new graph is assigned to this field or when PipeOps are added to or
+#'   removed from it, but not when only its edges are changed, so the graph should not be modified in place.
 #' * `input_map` :: `character()`\cr
 #'   The names of the input arguments of the network.
 #' * `shapes_in` :: `list()`\cr
@@ -79,7 +80,7 @@ nn_graph = nn_module(
 
     # Running the graph via `Graph$train()` is slow, so the plan for calling the modules is created once.
     # It is FALSE if the graph cannot be run without `Graph$train()`.
-    if (is.null(private$.forward_plan)) {
+    if (!forward_plan_is_current(private$.forward_plan, self$graph)) {
       private$.forward_plan = graph_forward_plan(self$graph) %??% FALSE
     }
     outputs = if (isFALSE(private$.forward_plan)) {
@@ -297,7 +298,16 @@ graph_forward_plan = function(graph) {
 
   graph_output = graph$output
   list(steps = steps, input_keys = graph_input$name,
-    output_keys = set_names(key(graph_output$op.id, graph_output$channel.name), graph_output$name))
+    output_keys = set_names(key(graph_output$op.id, graph_output$channel.name), graph_output$name),
+    pipeop_ids = names(pipeops))
+}
+
+# Whether a plan from `graph_forward_plan()` (or FALSE, if the graph cannot be run without `Graph$train()`) can
+# still be used for `graph`. The graph should not be modified in place, but if PipeOps were added, removed or
+# renamed, the plan is created anew instead of silently running the old graph. This is cheap enough to check
+# in every forward pass; changing only the edges of the graph is not detected.
+forward_plan_is_current = function(plan, graph) {
+  !is.null(plan) && (isFALSE(plan) || identical(plan$pipeop_ids, names(graph$pipeops)))
 }
 
 # Runs a plan from `graph_forward_plan()`. The modules are looked up in `pipeops` by id, so that the plan remains

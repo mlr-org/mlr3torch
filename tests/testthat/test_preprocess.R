@@ -145,6 +145,15 @@ test_that("trafo_normalize normalizes a batch like torchvision::transform_normal
   expect_true(torch_allclose(normalize_batch(z, mean, std), (z - torch_tensor(mean)) / torch_tensor(std)))
   # a single value for all channels
   expect_true(torch_allclose(normalize_batch(x, 1, 2), (x - 1) / 2))
+
+  # videos (N, T, C, H, W): the channels are the third-to-last dimension, like for torchvision per element
+  v = torch_randn(2, 4, 3, 5, 6)
+  expected_v = torch_stack(lapply(1:2, function(i) torchvision::transform_normalize(v[i, ..], mean, std)), dim = 1L)
+  expect_true(torch_allclose(normalize_batch(v, mean, std), expected_v))
+  # sequences (N, C, L): the channels are the second dimension
+  s3 = torch_randn(2, 3, 7)
+  expect_true(torch_allclose(normalize_batch(s3, mean, std),
+    (s3 - torch_tensor(mean)$view(c(1, 3, 1))) / torch_tensor(std)$view(c(1, 3, 1))))
   expect_error(normalize_batch(z, 0, c(1, 0, 1)), "must not contain zeros")
 })
 

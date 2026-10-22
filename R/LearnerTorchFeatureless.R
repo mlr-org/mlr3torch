@@ -39,19 +39,25 @@ LearnerTorchFeatureless = R6Class("LearnerTorchFeatureless",
     .network = function(task, param_vals) {
       nn_featureless(nout = output_dim_for(task))
     },
-    .dataset = function(task, dataset) {
-      dataset_featureless(task)
+    .dataset = function(task, param_vals) {
+      dataset_featureless(task, cache_data = param_vals$cache_task_data %??% TRUE)
     }
   )
 )
 
 dataset_featureless = dataset(
-  initialize = function(task) {
+  initialize = function(task, cache_data = TRUE) {
     self$task = task
     self$target_batchgetter = get_target_batchgetter(task)
+    # like in task_dataset(), the target can be retrieved once instead of for every batch
+    self$target = if (assert_flag(cache_data)) task$data(cols = task$target_names)
   },
   .getbatch = function(index) {
-    target = self$task$data(rows = self$task$row_ids[index], cols = self$task$target_names)
+    target = if (is.null(self$target)) {
+      self$task$data(rows = self$task$row_ids[index], cols = self$task$target_names)
+    } else {
+      self$target[index]
+    }
     y = self$target_batchgetter(target)
     list(
       x = list(n = torch_tensor(nrow(target), dtype = torch_long())),

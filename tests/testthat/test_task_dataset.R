@@ -560,3 +560,17 @@ test_that("learners pass cache_task_data to task_dataset", {
     expect_equal(is.null(ds$data), !cache)
   }
 })
+
+test_that("the featureless learner passes cache_task_data to its dataset", {
+  learner = lrn("classif.torch_featureless", batch_size = 16, epochs = 1)
+  task = tsk("iris")$filter(c(150:101, 1:20))
+  index = c(3L, 70L, 1L)
+  batches = lapply(c(TRUE, FALSE), function(cache) {
+    learner$param_set$set_values(cache_task_data = cache)
+    ds = get_private(learner)$.dataset(task, learner$param_set$get_values(tags = "train"))
+    expect_equal(is.null(ds$target), !cache)
+    ds$.getbatch(index)
+  })
+  expect_equal(batches[[1L]], batches[[2L]])
+  expect_equal(as.integer(batches[[1L]]$y), as.integer(task$truth(task$row_ids[index])))
+})

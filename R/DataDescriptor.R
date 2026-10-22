@@ -185,13 +185,14 @@ DataDescriptor = R6Class("DataDescriptor",
 )
 
 # The plan for running the preprocessing graph of a DataDescriptor without `Graph$train()` (see
-# `graph_forward_plan()`). It is created on first use and then reused, which is fine because the graph of a
-# DataDescriptor does not change (its hash is also only calculated once). FALSE if the graph cannot be run like this.
+# `graph_forward_plan()`). It is created on first use and then reused, as the graph of a DataDescriptor does not
+# change (its hash is also only calculated once); it is created anew if PipeOps were added or removed anyway.
+# FALSE if the graph cannot be run like this.
 dd_forward_plan = function(data_descriptor) {
   private = get_private(data_descriptor)
   # DataDescriptors created by an older version of mlr3torch do not have this field
   if (!exists(".forward_plan", envir = private, inherits = FALSE)) return(FALSE)
-  if (is.null(private$.forward_plan)) {
+  if (!forward_plan_is_current(private$.forward_plan, data_descriptor$graph)) {
     private$.forward_plan = graph_forward_plan(data_descriptor$graph) %??% FALSE
   }
   private$.forward_plan

@@ -360,15 +360,18 @@ register_preproc("trafo_rgb_to_grayscale", batchwise("transform_rgb_to_grayscale
   param_set = ps()
 )
 
-# Normalizes the channels, i.e. the second dimension, of a batch. For a batch of images (N, C, H, W) this is
-# the same as calling torchvision::transform_normalize() on every image, but much faster.
+# Normalizes the channels of a batch. Like torchvision::transform_normalize() does for every element, the channels
+# are the third-to-last dimension, e.g. C in (N, C, H, W) or (N, T, C, H, W), so for these inputs this is the same as
+# calling it on every element, but much faster. For inputs with fewer dimensions, e.g. (N, C) or (N, C, L), the
+# channels are the second dimension.
 normalize_batch = function(x, mean, std) {
   mean = torch_tensor(mean, dtype = x$dtype, device = x$device)
   std = torch_tensor(std, dtype = x$dtype, device = x$device)
   if ((std == 0)$any()$item()) {
     stopf("Parameter 'std' must not contain zeros, as this leads to a division by zero.")
   }
-  channel_shape = c(1L, -1L, rep(1L, x$ndim - 2L))
+  channel_dim = if (x$ndim >= 4L) x$ndim - 2L else 2L
+  channel_shape = c(rep(1L, channel_dim - 1L), -1L, rep(1L, x$ndim - channel_dim))
   if (mean$dim() == 1L) mean = mean$view(channel_shape)
   if (std$dim() == 1L) std = std$view(channel_shape)
   (x - mean) / std
@@ -386,8 +389,10 @@ normalize_batch = function(x, mean, std) {
 #' ```
 #'
 #' @description
-#' Normalizes the channels (the second dimension, i.e. the first one after the batch dimension) by subtracting `mean`
-#' and dividing by `std`. For images, this is the same as [`torchvision::transform_normalize`].
+#' Normalizes the channels by subtracting `mean` and dividing by `std`.
+#' The channels are the third-to-last dimension, e.g. `C` for images of shape `(N, C, H, W)` or videos of shape
+#' `(N, T, C, H, W)`, as in [`torchvision::transform_normalize`], which this is the same as for these inputs.
+#' For inputs with fewer dimensions, e.g. `(N, C)` or `(N, C, L)`, the channels are the second dimension.
 #' The preprocessing is applied to the whole batch.
 #'
 #' Being a `trafo_` operator, its `stages` parameter starts out as `"both"`, so the transformation is applied both

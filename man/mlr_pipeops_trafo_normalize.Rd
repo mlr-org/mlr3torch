@@ -8,8 +8,10 @@
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \description{
-Normalizes the channels (the second dimension, i.e. the first one after the batch dimension) by subtracting \code{mean}
-and dividing by \code{std}. For images, this is the same as \code{\link[torchvision:transform_normalize]{torchvision::transform_normalize}}.
+Normalizes the channels by subtracting \code{mean} and dividing by \code{std}.
+The channels are the third-to-last dimension, e.g. \code{C} for images of shape \verb{(N, C, H, W)} or videos of shape
+\verb{(N, T, C, H, W)}, as in \code{\link[torchvision:transform_normalize]{torchvision::transform_normalize}}, which this is the same as for these inputs.
+For inputs with fewer dimensions, e.g. \verb{(N, C)} or \verb{(N, C, L)}, the channels are the second dimension.
 The preprocessing is applied to the whole batch.
 
 Being a \code{trafo_} operator, its \code{stages} parameter starts out as \code{"both"}, so the transformation is applied both

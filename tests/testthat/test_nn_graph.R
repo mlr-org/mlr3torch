@@ -322,3 +322,15 @@ test_that("forward plan uses the modules of a deep clone", {
   expect_false(torch_equal(network(x), network1(x)))
   expect_true(torch_equal(network1(x), network1$graph$train(list(x), single_input = FALSE)[[1L]]))
 })
+
+test_that("the forward plan is created anew when PipeOps are added to the graph in place", {
+  graph = po("module", id = "linear", module = nn_linear(2, 3)) %>>% po("module", id = "relu", module = nn_relu())
+  network = nn_graph(graph, shapes_in = set_names(list(c(NA, 2)), graph$input$name), output_map = "relu.output")
+  x = torch_randn(4, 2)
+  network(x)
+  network$graph$add_pipeop(po("module", id = "double", module = function(x) x * 2))
+  network$graph$add_edge("relu", "double")
+  network$output_map = "double.output"
+  expect_equal(network(x), network$graph$train(list(x), single_input = FALSE)[["double.output"]])
+  expect_equal(forward_plan(network)$pipeop_ids, names(network$graph$pipeops))
+})
