@@ -10,7 +10,7 @@
 \description{
 Calls \code{\link[torchvision:transform_resized_crop]{torchvision::transform_resized_crop}},
 see there for more information on the parameters.
-The preprocessing is applied to each element of a batch individually.
+The preprocessing is applied to the whole batch.
 
 Being an \code{augment_} operator, its \code{stages} parameter starts out as \code{"train"}, so the augmentation is applied while training and not when predicting. Set \code{stages = "both"} to apply it in both phases.
 See \code{\link{PipeOpTaskPreprocTorch}} for the \code{stages} parameter and this naming convention.

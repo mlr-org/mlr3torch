@@ -250,9 +250,9 @@ test_that("merging of graphs behaves as expected", {
   e = new.env()
   e$a = 0
   fn = crate(function(x) {
-    a <<- a + 1
+    e$a = e$a + 1
     x
-  }, .parent = e)
+  }, e)
   graph = pipeop_preproc_torch("trafo_counter", fn = fn)$new() %>>%
     list(
       po("renamecolumns", renaming = c(x = "x1"), id = "a1") %>>% po("trafo_nop", id = "nop1"),
@@ -532,4 +532,45 @@ test_that("get_batch_constructor() default reproduces the ingress/target split",
   batch_constructor = get_batch_constructor(task, feature_ingress_tokens = list(input = token))
   batch = batch_constructor(data = task$data(rows = 1:3), cache = NULL)
   expect_null(batch$y)
+})
+test_that("task_dataset can retrieve the task data once and take the batches from it", {
+  task = tsk("iris")$filter(c(150:101, 1:20))
+  make_dataset = function(cache_data) {
+    task_dataset(task, list(x = ingress_num()), get_target_batchgetter(task), cache_data = cache_data)
+  }
+  ds = make_dataset(TRUE)
+  expect_data_table(ds$data, nrows = 70L)
+  ds_nocache = make_dataset(FALSE)
+  expect_null(ds_nocache$data)
+
+  index = c(3L, 70L, 1L, 25L)
+  batch = ds$.getbatch(index)
+  expect_equal(batch, ds_nocache$.getbatch(index))
+  features = as.matrix(task$data(rows = task$row_ids[index], cols = task$feature_names))
+  expect_equal(as_array(batch$x$x), unname(features), tolerance = 1e-6)
+})
+
+test_that("learners pass cache_task_data to task_dataset", {
+  learner = lrn("classif.mlp", batch_size = 16, epochs = 1)
+  expect_true(learner$param_set$values$cache_task_data)
+  task = tsk("iris")
+  for (cache in c(TRUE, FALSE)) {
+    learner$param_set$set_values(cache_task_data = cache)
+    ds = get_private(learner)$.dataset(task, learner$param_set$get_values(tags = "train"))
+    expect_equal(is.null(ds$data), !cache)
+  }
+})
+
+test_that("the featureless learner passes cache_task_data to its dataset", {
+  learner = lrn("classif.torch_featureless", batch_size = 16, epochs = 1)
+  task = tsk("iris")$filter(c(150:101, 1:20))
+  index = c(3L, 70L, 1L)
+  batches = lapply(c(TRUE, FALSE), function(cache) {
+    learner$param_set$set_values(cache_task_data = cache)
+    ds = get_private(learner)$.dataset(task, learner$param_set$get_values(tags = "train"))
+    expect_equal(is.null(ds$target), !cache)
+    ds$.getbatch(index)
+  })
+  expect_equal(batches[[1L]], batches[[2L]])
+  expect_equal(as.integer(batches[[1L]]$y), as.integer(task$truth(task$row_ids[index])))
 })

@@ -4,7 +4,12 @@
 \alias{task_dataset}
 \title{Create a Dataset from a Task}
 \usage{
-task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL)
+task_dataset(
+  task,
+  feature_ingress_tokens,
+  target_batchgetter = NULL,
+  cache_data = TRUE
+)
 }
 \arguments{
 \item{task}{(\code{\link[mlr3:Task]{Task}})\cr
@@ -19,6 +24,11 @@ Takes an argument \code{data}, a \code{\link[data.table:data.table]{data.table}}
 and optionally an argument \code{x}, the named list of feature tensors of the batch, which is what a
 target that is a function of the input needs, see \code{\link[=get_target_batchgetter]{get_target_batchgetter()}}.
 If \code{NULL} (default), the batches have no \code{y} element.}
+
+\item{cache_data}{(\code{logical(1)})\cr
+Whether to retrieve the data from the task once (in \verb{$initialize()}) and to take the batches from it, instead of
+retrieving every batch from the task, which is slow.
+This needs memory for a copy of the task data (lazy tensor columns only contain indices and are small).}
 }
 \value{
 \code{\link[torch:dataset]{torch::dataset}}

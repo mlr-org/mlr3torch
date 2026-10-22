@@ -154,9 +154,9 @@ test_that("materialize with varying shapes", {
   # depending on whether we apply this per row or per batch, we will get different results
   # (second's sum(abs()) is either zero or non-zero)
   fn = crate(function(x) {
-    a <<- a - 1
-    x * a
-  }, .parent = e)
+    e$a = e$a - 1
+    x * e$a
+  }, e)
   po_test = pipeop_preproc_torch("trafo_test", fn = fn)$new()
   # is processed batch-wise ->
   task2 = po_test$train(list(nano_mnist()$filter(1:2)))[[1L]]
@@ -247,11 +247,10 @@ test_that("materialize()'s cache is keyed by the objects that identify an entry"
 
   # keys are the identifying objects themselves, so `identical()` decides a hit and two distinct
   # keys cannot end up sharing an entry through a digest collision
-  keys = list()
-  collect_key = function(key, value) {
-    keys[[length(keys) + 1L]] <<- key
-  }
-  maphash(cache, collect_key)
+  state = new.env()
+  state$keys = list()
+  maphash(cache, function(key, value) state$keys[[length(state$keys) + 1L]] = key)
+  keys = state$keys
   expect_true(length(keys) > 0L)
   expect_true(every(keys, is.list))
   # the dataset-level key is `list(dataset, ids)` and the graph-level one
@@ -321,10 +320,26 @@ test_that("materialize()'s cache runs a merged graph once for all of its columns
   expect_true(torch_allclose(cached$b, raw * 2))
 
   # one dataset read and one graph run for the two columns, rather than one of each per column
-  sizes = integer()
-  collect_size = function(key, value) {
-    sizes <<- c(sizes, length(key))
-  }
-  maphash(cache, collect_size)
-  expect_equal(sort(sizes), c(2L, 4L))
+  state = new.env()
+  state$sizes = integer()
+  maphash(cache, function(key, value) state$sizes = c(state$sizes, length(key)))
+  expect_equal(sort(state$sizes), c(2L, 4L))
+})
+
+test_that("materialize() runs the preprocessing graph without Graph$train(), with the same result", {
+  x = torch_randn(10, 1, 4, 4)
+  task = as_task_regr(data.table(x = as_lazy_tensor(x), y = rnorm(10)), target = "y")
+  graph = po("trafo_normalize", mean = 1, std = 2) %>>% po("trafo_reshape", shape = c(-1, 16))
+  lt = graph$train(task)[[1L]]$data(cols = "x")$x
+
+  out = materialize(lt, rbind = TRUE)
+  out_list = materialize(lt, rbind = FALSE)
+  expect_list(dd_forward_plan(dd(lt)))
+  expect_true(torch_allclose(out, ((x - 1) / 2)$reshape(c(-1, 16))))
+
+  # the same as running the graph via Graph$train()
+  private = get_private(dd(lt))
+  private$.forward_plan = FALSE
+  expect_equal(materialize(lt, rbind = TRUE), out)
+  expect_equal(materialize(lt, rbind = FALSE), out_list)
 })

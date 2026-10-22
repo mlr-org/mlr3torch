@@ -809,7 +809,8 @@ LearnerTorch = R6Class("LearnerTorch",
         task_dataset(
           task = task,
           feature_ingress_tokens = private$.ingress_tokens(task, param_vals),
-          target_batchgetter = get_target_batchgetter(task)
+          target_batchgetter = get_target_batchgetter(task),
+          cache_data = param_vals$cache_task_data %??% TRUE
         )
       } else {
         stopf("Private method `$.dataset()` or `$.ingress_tokens()` must be implemented.")

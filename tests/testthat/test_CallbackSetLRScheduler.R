@@ -268,22 +268,22 @@ describe("resuming", {
     crashing_run(path, epochs = 6L, fail_at = 3L, callback = t_clbk("lr_one_cycle"),
       values = list(cb.lr_one_cycle.max_lr = 0.1))
 
-    seen = NULL
+    seen = new.env()
     record = function() {
-      if (is.null(seen)) seen <<- self$ctx$optimizer$param_groups[[1L]]$betas[[1L]]
+      if (is.null(seen$beta)) seen$beta = self$ctx$optimizer$param_groups[[1L]]$betas[[1L]]
     }
     resumed = make(list(t_clbk("lr_one_cycle"), torch_callback("probe", on_batch_begin = record)))
     resumed$param_set$set_values(resume = path)
     resumed$train(tsk("iris"))
 
     # what an uninterrupted run has at that same step, i.e. the first batch of epoch 3
-    reference = NULL
+    reference = new.env()
     compare = function() {
-      if (self$ctx$global_step == 7L) reference <<- self$ctx$optimizer$param_groups[[1L]]$betas[[1L]]
+      if (self$ctx$global_step == 7L) reference$beta = self$ctx$optimizer$param_groups[[1L]]$betas[[1L]]
     }
     make(list(t_clbk("lr_one_cycle"), torch_callback("probe2", on_batch_begin = compare)))$train(tsk("iris"))
 
-    expect_equal(seen, reference)
+    expect_equal(seen$beta, reference$beta)
   })
 
   it("every learning rate scheduler continues its schedule", {

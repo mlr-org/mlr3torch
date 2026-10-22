@@ -95,6 +95,13 @@
 * `t_clbk("progress")` now prints the epoch as `Epoch <n>/<epochs>`, so a resumed run shows how much
   of it is left.
 
+## Performance Improvements
+
+* The execution time of `nn_graph` was improved for small networks.
+* Added the parameter `cache_task_data` to `LearnerTorch`, which is `TRUE` by default and speeds up data loading.
+* More preprocessing operators now operate batch-wise.
+* Preprocessed lazy tensors now materialize faster.
+
 ## Bug fixes
 
 * Resuming training from a checkpoint (parameter `resume`) on a GPU no longer fails because the

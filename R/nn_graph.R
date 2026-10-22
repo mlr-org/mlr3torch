@@ -6,6 +6,10 @@
 #' @section Fields:
 #' * `graph` :: [`Graph`][mlr3pipelines::Graph]\cr
 #'   The graph (consisting primarily of [`PipeOpModule`]s) that is wrapped by the network.
+#'   When it consists only of [`PipeOpModule`]s and [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s, the order in which the
+#'   modules are called is determined once and `$forward()` calls them directly, which is much faster than running
+#'   the graph. This is determined anew when a new graph is assigned to this field or when PipeOps are added to or
+#'   removed from it, but not when only its edges are changed, so the graph should not be modified in place.
 #' * `input_map` :: `character()`\cr
 #'   The names of the input arguments of the network.
 #' * `shapes_in` :: `list()`\cr
@@ -72,11 +76,18 @@ nn_graph = nn_module(
   },
   forward = function(...) {
     # this ensures that the arguments are passed in the correct order
-    inputs = self$argument_matcher(...)
+    inputs = unname(self$argument_matcher(...))
 
-    outputs = self$graph$train(unname(inputs), single_input = FALSE)
-
-    outputs = outputs[self$output_map]
+    # Running the graph via `Graph$train()` is slow, so the plan for calling the modules is created once.
+    # It is FALSE if the graph cannot be run without `Graph$train()`.
+    if (!forward_plan_is_current(private$.forward_plan, self$graph)) {
+      private$.forward_plan = graph_forward_plan(self$graph) %??% FALSE
+    }
+    outputs = if (isFALSE(private$.forward_plan)) {
+      self$graph$train(inputs, single_input = FALSE)[self$output_map]
+    } else {
+      run_graph_forward_plan(private$.forward_plan, self$graph$pipeops, inputs, self$output_map)
+    }
 
     if (!self$list_output) outputs = outputs[[1]]
 
@@ -96,7 +107,17 @@ nn_graph = nn_module(
 
     recursive_reset(self)
   },
+  active = list(
+    graph = function(rhs) {
+      if (missing(rhs)) return(private$.graph)
+      private$.graph = rhs
+      # the plan for $forward() is created anew for the new graph
+      private$.forward_plan = NULL
+    }
+  ),
   private = list(
+    .graph = NULL,
+    .forward_plan = NULL,
     finalize_deep_clone = function() {
       # here we need to clone the graph without cloning
       # this assumes that the order of the PipeOps in self$graph does not change
@@ -236,6 +257,75 @@ argument_matcher = function(args) {
   fn = as.function(c(named_list(args, substitute()), quote(as.list(environment()))))
   environment(fn) = topenv()
   fn
+}
+
+# Plan for running a graph of PipeOpModules and PipeOpNOPs without `Graph$train()`, which is slow.
+# Used by nn_graph's $forward() and by materialize() for the preprocessing graph of lazy tensors.
+# Returns NULL if the graph contains other operators, or a vararg channel that is a graph input (which can receive a
+# variable number of inputs).
+# The values passed through the graph are stored under the names of the graph inputs and under
+# "<pipeop id>\t<channel>" for the outputs of the PipeOps. The plan contains the PipeOps in topological order (`steps`,
+# with the keys of their inputs in `sources` and of their outputs in `targets`), the keys of the graph inputs in the
+# order of `graph$input` and the keys of the graph outputs, named by the graph output names.
+graph_forward_plan = function(graph) {
+  pipeops = graph$pipeops
+  if (!all(map_lgl(pipeops, inherits, what = c("PipeOpModule", "PipeOpNOP")))) return(NULL)
+  graph_input = graph$input
+  if ("..." %in% graph_input$channel.name) return(NULL)
+  edges = graph$edges
+  key = function(id, channel) paste0(id, "\t", channel)
+
+  ids = topo_sort(data.table(
+    id = names(pipeops),
+    parents = map(names(pipeops), function(id) unique(edges$src_id[edges$dst_id == id]))
+  ))$id
+
+  steps = map(ids, function(id) {
+    po = pipeops[[id]]
+    # a vararg channel ("...") receives the outputs of all its edges, in the order of `graph$edges`, like in
+    # `Graph$train()`
+    sources = unlist(map(po$input$name, function(channel) {
+      from = edges$dst_id == id & edges$dst_channel == channel
+      if (any(from)) {
+        key(edges$src_id[from], edges$src_channel[from])
+      } else {
+        graph_input$name[graph_input$op.id == id & graph_input$channel.name == channel]
+      }
+    }))
+    list(id = id, nop = inherits(po, "PipeOpNOP"), multi_output = nrow(po$output) > 1L, sources = sources,
+      targets = key(id, po$output$name))
+  })
+
+  graph_output = graph$output
+  list(steps = steps, input_keys = graph_input$name,
+    output_keys = set_names(key(graph_output$op.id, graph_output$channel.name), graph_output$name),
+    pipeop_ids = names(pipeops))
+}
+
+# Whether a plan from `graph_forward_plan()` (or FALSE, if the graph cannot be run without `Graph$train()`) can
+# still be used for `graph`. The graph should not be modified in place, but if PipeOps were added, removed or
+# renamed, the plan is created anew instead of silently running the old graph. This is cheap enough to check
+# in every forward pass; changing only the edges of the graph is not detected.
+forward_plan_is_current = function(plan, graph) {
+  !is.null(plan) && (isFALSE(plan) || identical(plan$pipeop_ids, names(graph$pipeops)))
+}
+
+# Runs a plan from `graph_forward_plan()`. The modules are looked up in `pipeops` by id, so that the plan remains
+# valid when the graph is cloned. `inputs` are in the order of `graph$input`; returns the outputs named by and in the
+# order of `output_map` (names of graph outputs), like `Graph$train()[output_map]`.
+run_graph_forward_plan = function(plan, pipeops, inputs, output_map) {
+  values = set_names(inputs, plan$input_keys)
+  for (step in plan$steps) {
+    args = values[step$sources]
+    values[step$targets] = if (step$nop) {
+      args
+    } else if (step$multi_output) {
+      do.call(pipeops[[step$id]]$module, unname(args))
+    } else {
+      list(do.call(pipeops[[step$id]]$module, unname(args)))
+    }
+  }
+  set_names(values[plan$output_keys[output_map]], output_map)
 }
 
 # make unique ID that starts with 'newid' and appends _1, _2, etc. to avoid collisions

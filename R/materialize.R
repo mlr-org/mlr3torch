@@ -121,13 +121,20 @@ get_input = function(ds, ids, varying_shapes) {
   }
 }
 
-get_output = function(input, graph, varying_shapes, rbind, device) {
+get_output = function(input, graph, varying_shapes, rbind, device, plan = FALSE) {
+  # `input` is named by the graph inputs; with a plan (see `graph_forward_plan()`), the graph is run without the slow
+  # `Graph$train()`
+  run_graph = if (isFALSE(plan)) {
+    function(x) graph$train(x, single_input = FALSE)
+  } else {
+    function(x) run_graph_forward_plan(plan, graph$pipeops, unname(x[plan$input_keys]), names(plan$output_keys))
+  }
   output = if (varying_shapes) {
     # list --graph--> (list or tensor)
-    transpose_list(map(input, function(x) graph$train(x, single_input = FALSE)))
+    transpose_list(map(input, run_graph))
   } else {
     # tensor --graph--> tensor
-    graph$train(input, single_input = FALSE)
+    run_graph(input)
   }
 
   # now we get it in the right output format and convert it to the requested device
@@ -223,7 +230,7 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
     set_names(input[data_descriptor$input_map], data_descriptor$graph_input)
   }
 
-  output = get_output(input, graph, varying_shapes, rbind, device)
+  output = get_output(input, graph, varying_shapes, rbind, device, plan = dd_forward_plan(data_descriptor))
 
   if (do_caching) {
     sethash(cache, output_key, output)

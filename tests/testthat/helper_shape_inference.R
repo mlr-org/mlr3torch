@@ -70,7 +70,8 @@ true_shape_preproc = function(obj, shape) {
   pv$stages = NULL
   pv$affect_columns = NULL
   fn = obj$fn
-  args = pv[intersect(names(pv), names(formals(fn)))]
+  # a function with `...` (e.g. the wrappers created by `batchwise()`) receives all values
+  args = if ("..." %in% names(formals(fn))) pv else pv[intersect(names(pv), names(formals(fn)))]
   f = function(x) mlr3misc::invoke(fn, x, .args = args)
   # a preprocessing operator has exactly one output channel, but the shape is still wrapped in a
   # list so that both kinds of operator report their shapes the same way
