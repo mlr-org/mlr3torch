@@ -97,19 +97,10 @@
 
 ## Performance Improvements
 
-* `nn_graph` determines once in which order the modules are called, instead of running its `Graph` with
-  `$train()` in every forward pass. This makes networks built from `PipeOpTorch` operators (e.g. via `nn()`)
-  considerably faster, e.g. about 4 times for a small attention network on tabular data.
-  Assigning a new graph to `$graph` resets this, so the graph should not be modified in place.
-* The preprocessing graph of a `lazy_tensor` is run in the same way, which makes `materialize()` and therefore
-  training on preprocessed lazy tensors much faster.
-* `po("trafo_normalize")`, `po("trafo_adjust_gamma")`, `po("trafo_grayscale")`, `po("trafo_rgb_to_grayscale")`,
-  `po("trafo_pad")`, `po("augment_hflip")`, `po("augment_vflip")`, `po("augment_crop")`, `po("augment_center_crop")`
-  and `po("augment_resized_crop")` are now applied to the whole batch instead of to each element, which is about
-  10 to 70 times faster and gives the same result.
-* The new parameter `cache_task_data` of `LearnerTorch` (initialized to `TRUE`) and argument `cache_data` of
-  `task_dataset()` retrieve the data from the task once and take the batches from it, instead of retrieving every
-  batch from the task. Set it to `FALSE` if a copy of the task data does not fit into memory.
+* The execution time of `nn_graph` was improved for small networks.
+* Added the parameter `cache_task_data` to `LearnerTorch`, which is `TRUE` by default and speeds up data loading.
+* More preprocessing operators now operate batch-wise.
+* Preprocessed lazy tensors now materialize faster.
 
 ## Bug fixes
 
