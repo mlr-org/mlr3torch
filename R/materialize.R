@@ -185,19 +185,6 @@ get_output = function(input, graph, varying_shapes, rbind, device, plan = FALSE)
 #' @return [`lazy_tensor()`]
 #' @keywords internal
 materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
-  # elements with different DataDescriptors are materialized separately and then put back in their original order,
-  # see dd_groups()
-  groups = dd_groups(x)
-  if (length(groups) > 1L) {
-    outputs = map(groups, function(i) materialize_internal(x[i], device = device, cache = cache, rbind = rbind))
-    reorder = order(unlist(groups))
-    if (rbind) {
-      output = torch_cat(outputs, dim = 1L)
-      return(output$index_select(1L, torch_tensor(reorder, dtype = torch_long(), device = output$device)))
-    }
-    return(unlist(outputs, recursive = FALSE)[reorder])
-  }
-
   do_caching = !is.null(cache)
   ids = map_int(x, 1)
 

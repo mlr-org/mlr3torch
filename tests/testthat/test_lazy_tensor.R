@@ -141,15 +141,6 @@ test_that("transform_lazy_tensor", {
   expect_true(torch_equal(lt1_mat, lt_mat))
 })
 
-test_that("transform_lazy_tensor handles a lazy tensor whose elements have different DataDescriptors", {
-  x1 = torch_randn(2, 3)
-  x2 = torch_randn(2, 3)
-  lt = rbind(data.table(x = as_lazy_tensor(x1)), data.table(x = as_lazy_tensor(x2)))$x[c(3L, 1L, 4L, 2L)]
-  lt_plus = transform_lazy_tensor(lt, po("module", id = "plus", module = function(x) x + 1), c(NA, 3))
-  expected = torch_cat(list(x1, x2), dim = 1L)[c(3L, 1L, 4L, 2L), ] + 1
-  expect_true(torch_allclose(materialize(lt_plus, rbind = TRUE), expected))
-})
-
 test_that("pofu identifies identical columns", {
   dt = data.table(
     y = 1:2,
@@ -221,21 +212,6 @@ test_that("comparison", {
   expect_equal(x[2:1] == x, c(FALSE, FALSE))
   expect_equal(x[c(1, 1)] == x, c(TRUE, FALSE))
   expect_equal(x == y, c(FALSE, FALSE))
-})
-
-test_that("comparison and hash of lazy tensors whose elements have different DataDescriptors", {
-  lt1 = as_lazy_tensor(torch_randn(2, 3))
-  lt2 = as_lazy_tensor(torch_randn(2, 3))
-  lt3 = as_lazy_tensor(torch_randn(2, 3))
-  # rbind() on data.tables does not go through c.lazy_tensor(), these differ only after the first DataDescriptor
-  x = rbind(data.table(x = lt1, y = 1:2), data.table(x = lt2, y = 3:4))
-  y = rbind(data.table(x = lt1, y = 1:2), data.table(x = lt3, y = 3:4))
-
-  expect_identical(x$x == y$x, c(TRUE, TRUE, FALSE, FALSE))
-  expect_identical(x$x == x$x, rep(TRUE, 4L))
-  expect_true(as_task_regr(x, target = "y", id = "t")$hash != as_task_regr(y, target = "y", id = "t")$hash)
-  # unchanged for a lazy tensor with a single DataDescriptor
-  expect_identical(hash_input(lt1), list(map(lt1, 1L), dd(lt1)$hash))
 })
 
 test_that("error messages: no torch tensor or no unique names", {

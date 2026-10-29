@@ -575,21 +575,22 @@ test_that("the featureless learner passes cache_task_data to its dataset", {
   expect_equal(as.integer(batches[[1L]]$y), as.integer(task$truth(task$row_ids[index])))
 })
 
-test_that("task_dataset handles a lazy tensor column whose elements have different DataDescriptors", {
-  x1 = torch_randn(3, 2)
-  x2 = torch_randn(3, 2)
-  lt1 = as_lazy_tensor(x1)
-  # column b shares the dataset with the first elements of column a, so the two are merged
-  d = rbind(
-    data.table(a = lt1, b = lt1, y = 1:3),
-    data.table(a = as_lazy_tensor(x2), b = lt1, y = 4:6)
-  )
-  task = as_task_regr(d, target = "y")
-  for (cache_data in c(TRUE, FALSE)) {
-    ds = task_dataset(task, list(a = ingress_ltnsr("a"), b = ingress_ltnsr("b")), get_target_batchgetter(task),
-      cache_data = cache_data)
-    batch = ds$.getbatch(c(4L, 1L, 6L))
-    expect_true(torch_equal(batch$x$a, torch_cat(list(x1, x2), dim = 1L)[c(4L, 1L, 6L), ]))
-    expect_true(torch_equal(batch$x$b, x1[c(1L, 1L, 3L), ]))
-  }
+test_that("task_dataset errs for a lazy tensor column whose elements have different DataDescriptors", {
+  x = torch_randn(3, 2)
+  lt1 = as_lazy_tensor(x)
+  lt2 = as_lazy_tensor(torch_randn(3, 2))
+  ingress = list(x = TorchIngressToken("x", batchgetter_lazy_tensor, c(NA, 2)))
+
+  # rbind() of data.tables and task$rbind() do not use c(), which checks this
+  task = as_task_regr(rbind(data.table(x = lt1, y = 1:3), data.table(x = lt2, y = 4:6)), target = "y")
+  expect_error(task_dataset(task, ingress), "Lazy tensor column 'x' contains elements of different DataDescriptors")
+  task = as_task_regr(data.table(x = lt1, y = 1:3), target = "y")
+  task$rbind(data.table(x = lt2, y = 4:6))
+  expect_error(task_dataset(task, ingress), "different DataDescriptors")
+
+  # different DataDescriptor objects that describe the same data are fine, as for c()
+  lt3 = lazy_tensor(dd(lt1)$clone(deep = TRUE))
+  expect_class(c(lt1, lt3), "lazy_tensor")
+  task = as_task_regr(rbind(data.table(x = lt1, y = 1:3), data.table(x = lt3, y = 4:6)), target = "y")
+  expect_class(task_dataset(task, ingress), "task_dataset")
 })
