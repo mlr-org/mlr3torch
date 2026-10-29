@@ -148,14 +148,15 @@ test_that("plateau does not step when an epoch has no validation scores", {
 
 # A validation measure whose score improves in every evaluation.
 msr_improving = function(minimize) {
-  n_calls = 0L
+  counter = new.env()
+  counter$n_calls = 0L
   R6Class("MeasureImproving", inherit = mlr3::MeasureClassif,
     public = list(initialize = function() {
       super$initialize(id = "improving", range = c(-Inf, Inf), minimize = minimize)
     }),
     private = list(.score = function(prediction, ...) {
-      n_calls <<- n_calls + 1L
-      if (minimize) -n_calls else n_calls
+      counter$n_calls = counter$n_calls + 1L
+      if (minimize) -counter$n_calls else counter$n_calls
     })
   )$new()
 }
