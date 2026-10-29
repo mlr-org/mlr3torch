@@ -19,15 +19,44 @@ learner_torch_network_output = function(self, private, task, param_vals) {
 
 learner_torch_predict = function(self, private, super, task, param_vals) {
   network_output = learner_torch_network_output(self, private, task, param_vals)
-  encode_network_output(network_output, task, self$predict_type, private$.encode_prediction)
+  encode_network_output(network_output, task, self$predict_type, private$.encode_prediction,
+    class_names = model_class_names(self$model, task))
 }
 
-encode_network_output = function(network_output, task, predict_type, encoder) {
+# The classes of the training task, in the order in which the network was trained to predict them.
+model_class_names = function(model, task) {
+  if (!inherits(task, "TaskClassif")) {
+    return(NULL)
+  }
+  col_info = model$task_col_info
+  col_info$levels[[match(task$target_names, col_info$id)]]
+}
+
+encode_network_output = function(network_output, task, predict_type, encoder, class_names = NULL) {
   # lazy tensors are just simply forwards, irrespective of the provided encoder
   if (predict_type == "lazy_tensor") {
     return(list(lazy_tensor = as_prediction_lazy_tensor(network_output)))
   }
-  check_encoded_prediction(encoder(network_output = network_output, task = task), task)
+  if (is.null(class_names) || identical(class_names, task$class_names)) {
+    return(check_encoded_prediction(encoder(network_output = network_output, task = task), task))
+  }
+  # The network predicts the classes in the order of its training task (`class_names`), see section
+  # 'Network Head and Target Encoding' of `LearnerTorch`. `task` can have them in another order,
+  # e.g. with another positive class, so the encoder gets a copy of `task` with the training order
+  # and the encoded prediction is put back into the order of `task`.
+  if (!test_permutation(class_names, task$class_names)) {
+    stopf("Task '%s' has the classes %s, but the network was trained to predict the classes %s.",
+      task$id, paste0("'", task$class_names, "'", collapse = ", "), paste0("'", class_names, "'", collapse = ", "))
+  }
+  task_train_order = task$clone(deep = TRUE)$set_levels(set_names(list(class_names), task$target_names))
+  encoded = check_encoded_prediction(encoder(network_output = network_output, task = task_train_order), task)
+  if (!is.null(encoded$response)) {
+    encoded$response = factor(encoded$response, levels = task$class_names)
+  }
+  if (!is.null(encoded$prob)) {
+    encoded$prob = encoded$prob[, task$class_names, drop = FALSE]
+  }
+  encoded
 }
 
 as_prediction_lazy_tensor = function(network_output) {
@@ -321,7 +350,9 @@ train_loop = function(ctx, cbs) {
         row_ids = ctx$task_valid$row_ids,
         prediction_encoder = ctx$prediction_encoder,
         train_set = ctx$task_train$row_roles$use,
-        predict_type = ctx$learner$predict_type
+        predict_type = ctx$learner$predict_type,
+        # the validation task can have the classes in another order than the training task
+        class_names = if (inherits(ctx$task_train, "TaskClassif")) ctx$task_train$class_names
       )
       ctx$network$train()
       call("on_valid_end")
@@ -604,6 +635,8 @@ assert_single_head = function(network_output, task) {
 #'
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   The task to predict on.
+#'   For classification, a [`LearnerTorch`] passes it with the classes in the order of its training
+#'   task, which is the order that the columns of `network_output` refer to.
 #' @param network_output ([`torch_tensor`][torch::torch_tensor] or `list()` of them)\cr
 #'   The raw output of the network in evaluation mode.
 #'   A network with more than one head -- e.g. one predicting a mean and a standard deviation --
@@ -627,9 +660,8 @@ encode_prediction.default = function(task, network_output, predict_type, ...) { 
 #' @export
 encode_prediction.TaskClassif = function(task, network_output, predict_type, ...) { # nolint
   network_output = assert_single_head(network_output, task)
-  # here we assume that the levels of the factors are never reordered!
-  # This is important as otherwise all hell breaks loose
-  # Currently this check is done in mlr3torch but should at some point be handled in mlr3 / mlr3pipelines
+  # The network output refers to the classes in the order of `task$class_names`. A `LearnerTorch`
+  # passes a task with the classes in the order of its training task, see `encode_network_output()`.
 
   response = prob = NULL
   if ("multiclass" %in% task$properties) {
@@ -679,12 +711,12 @@ encode_prediction.TaskRegr = function(task, network_output, predict_type, ...) {
 
 
 measure_prediction = function(network_output, measures, task, row_ids, prediction_encoder,
-  train_set = task$row_roles$use, predict_type) {
+  train_set = task$row_roles$use, predict_type, class_names = NULL) {
   if (!length(measures)) {
     return(structure(list(), names = character(0)))
   }
 
-  prediction = encode_network_output(network_output, task, predict_type, prediction_encoder)
+  prediction = encode_network_output(network_output, task, predict_type, prediction_encoder, class_names)
   # tagged at the point of use rather than in `.encode_prediction()`, which a learner may overwrite
   # -- an overwritten one would silently produce a prediction without a truth
   class(prediction) = c("prediction_torch", "list")

@@ -113,6 +113,12 @@ is also ensured to be the first factor level) is \code{1} and the negative class
 \item multi-class classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is a label-encoded
 \code{\link[torch:torch_long]{torch_long}} with shape \code{(batch_size)} where the label-encoding goes from \code{1} to \code{n_classes}.
 }
+
+The network output therefore refers to the classes in the order of the training task.
+A task to predict on (or an internal validation task) can have the same classes in another order, e.g. because
+another class is its \verb{$positive} class. Its predictions are still correct, as the network output is interpreted
+with respect to the order of the training task. A task with other classes than the training task cannot be
+predicted.
 }
 
 \section{Predicting Tensors}{
@@ -472,6 +478,7 @@ To change the predict types, it is possible to overwrite the method below:
 (\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()} of them, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr
 Take in the raw predictions from \code{self$network} (\code{network_output}) and encode them into a
 format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
+For classification, \code{task} has its classes in the order of the training task.
 It is a \code{list()} of tensors when the network returns more than one, see section
 \emph{Network Head and Target Encoding}.
 This method must take \code{self$predict_type} into account.

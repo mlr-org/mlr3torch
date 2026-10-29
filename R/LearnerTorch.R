@@ -94,6 +94,12 @@
 #' * multi-class classification: The `factor` target variable of a [`TaskClassif`][mlr3::TaskClassif] is a label-encoded
 #'   [`torch_long`][torch::torch_long] with shape `(batch_size)` where the label-encoding goes from `1` to `n_classes`.
 #'
+#' The network output therefore refers to the classes in the order of the training task.
+#' A task to predict on (or an internal validation task) can have the same classes in another order, e.g. because
+#' another class is its `$positive` class. Its predictions are still correct, as the network output is interpreted
+#' with respect to the order of the training task. A task with other classes than the training task cannot be
+#' predicted.
+#'
 #' @section Predicting Tensors:
 #' The predict type `"lazy_tensor"`, available for the task type `"torch"`, hands back what the
 #' network produced -- a [`lazy_tensor`] with one element per observation -- instead of asking the
@@ -311,6 +317,7 @@
 #'   ([`torch_tensor`][torch::torch_tensor] or `list()` of them, [`Task`][mlr3::Task]) -> `list()`\cr
 #'   Take in the raw predictions from `self$network` (`network_output`) and encode them into a
 #'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
+#'   For classification, `task` has its classes in the order of the training task.
 #'   It is a `list()` of tensors when the network returns more than one, see section
 #'   *Network Head and Target Encoding*.
 #'   This method must take `self$predict_type` into account.
