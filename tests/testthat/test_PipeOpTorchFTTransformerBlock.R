@@ -176,12 +176,31 @@ test_that("resetting the parameters keeps the configured initialization of the a
   block$reset_parameters()
   expect_lte(block$attention$in_proj_weight$abs()$max()$item(), 1 / sqrt(d_token))
 
-  # the submodules are reset too, so the parameters are determined by the seed
+  # all parameters are reset, so they are determined by the seed
   block1 = make_block()
   torch_manual_seed(1)
   block$reset_parameters()
   torch_manual_seed(1)
   block1$reset_parameters()
-  expect_equal(block1$attention$in_proj_weight, block$attention$in_proj_weight)
-  expect_equal(block1$ffn$linear_first$weight, block$ffn$linear_first$weight)
+  params = block$named_parameters()
+  params1 = block1$named_parameters()
+  expect_identical(names(params1), names(params))
+  for (name in names(params)) {
+    expect_true(torch_equal(params1[[name]], params[[name]]), info = name)
+  }
+  # as at construction, the bias of the attention's output projection is zero
+  expect_true(torch_equal(block$attention$out_proj$bias, torch_zeros(d_token)))
+
+  # hence a learner built from a graph is reproducible from its seed
+  learners = map(1:2, function(i) {
+    learner = as_learner_torch(graph$clone(deep = TRUE))
+    learner$param_set$set_values(torch_model_classif.seed = 1L)
+    learner$train(tsk("iris"))
+  })
+  params = learners[[1L]]$network$named_parameters()
+  params1 = learners[[2L]]$network$named_parameters()
+  expect_identical(names(params1), names(params))
+  for (name in names(params)) {
+    expect_true(torch_equal(params1[[name]], params[[name]]), info = name)
+  }
 })

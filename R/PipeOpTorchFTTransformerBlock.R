@@ -136,7 +136,10 @@ nn_ft_transformer_block = nn_module(
   },
   reset_parameters = function() {
     # the submodules are reset as `nn_graph`'s `$reset_parameters()` would reset them, but resetting the attention
-    # applies torch's default initialization to its projections, which is replaced by the configured one
+    # applies torch's default initialization to its projections, which is replaced by the configured one.
+    # The attention's reset does not re-draw the weight of its output projection, so this is reset first, as at
+    # construction, after which the attention's reset sets the bias to zero again.
+    self$attention$out_proj$reset_parameters()
     reset_children(self)
     self$reset_attention_projection_()
   },
