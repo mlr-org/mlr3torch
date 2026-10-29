@@ -132,7 +132,6 @@ nn_graph = nn_module(
       for (i in seq_along(module_ids)) {
         # `$children` and not `$modules`, which also contains the module list itself and all submodules
         self$graph$pipeops[[module_ids[[i]]]]$module = self$module_list$children[[i]]
-        i = i + 1
       }
       invisible(self)
     }

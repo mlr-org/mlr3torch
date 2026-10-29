@@ -350,12 +350,12 @@ test_that("deep clone uses the cloned modules when they have submodules", {
   network1 = network$clone(deep = TRUE)
   expect_class(network1$graph$pipeops$residual$module, "nn_residual")
   expect_false(identical(network1$graph$pipeops$linear$module, network1$graph$pipeops$residual$module$linear))
-  expect_equal(network1(x), y)
+  expect_true(torch_equal(network1(x), y))
 
   # the clone runs the modules whose parameters it has, and the original is left alone
   with_no_grad(walk(network1$parameters, function(p) p$add_(1)))
   expect_false(torch_equal(network1(x), y))
-  expect_equal(network(x), y)
+  expect_true(torch_equal(network(x), y))
 })
 
 test_that("deep clone of a trained learner whose network has modules with submodules predicts the same", {
