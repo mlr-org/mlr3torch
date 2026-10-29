@@ -664,11 +664,10 @@ test_that("the lazy_tensor predict type hands back the network output", {
   learner$network$eval()
   expected = with_no_grad(learner$network(batch$x$x))
   # one batch of 20 rows and the two batches `$predict()` used do not take the same path through
-  # float32 arithmetic, so this is equal only up to rounding
-  expect_equal(
-    as.numeric(as.matrix(materialize(pred$lazy_tensor, rbind = TRUE)$cpu())),
-    as.numeric(as.matrix(expected$cpu())), tolerance = 1e-6
-  )
+  # float32 arithmetic, so this is equal only up to rounding. The tolerance is absolute: the relative
+  # difference of expect_equal() is computed over the differing elements only, so a rounding
+  # difference in an output close to zero would exceed a relative tolerance.
+  expect_true(torch_allclose(materialize(pred$lazy_tensor, rbind = TRUE)$cpu(), expected$cpu(), rtol = 0, atol = 1e-6))
 
   # ... and it travels through the machinery like any other element
   expect_true("lazy_tensor" %chin% names(as.data.table(pred)))
