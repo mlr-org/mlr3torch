@@ -845,7 +845,10 @@ LearnerTorch = R6Class("LearnerTorch",
             value$model = model
             return(value)
           }
-          model$network = model$network$clone(deep = TRUE)
+          network = model$network
+          model$network = network$clone(deep = TRUE)
+          # the order in which a traced network takes its inputs, see `network_inputs()`
+          attr(model$network, "input_order") = attr(network, "input_order")
           model$loss_fn = clone_recurse(model$loss_fn)
           model$callbacks = map(model$callbacks, function(x) {
               if (is.R6(x)) {

@@ -102,7 +102,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     if (length(example) == 1) {
       network = jit_trace(network, example[[1L]])
     } else {
-      example = order_named_args(network, example)
+      # an nn_graph takes its inputs via `...` and matches unnamed ones in the order of its graph inputs
+      example = if (inherits(network, "nn_graph")) example[network$input_map] else order_named_args(network, example)
       network = do.call(jit_trace, c(list(network), unname(example)))
       # the traced network ignores the names of its arguments, see `network_inputs()`
       attr(network, "input_order") = names(example)
