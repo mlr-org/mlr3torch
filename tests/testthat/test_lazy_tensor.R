@@ -305,3 +305,26 @@ test_that("flexible shape", {
   expect_equal(lazy_shape(lt), c(NA, NA, 5))
 
 })
+
+test_that("lazy tensors whose DataDescriptors only differ in the pointer are different", {
+  x = torch_randn(3, 2)
+  graph = as_graph(po("nop", id = "in"))
+  graph$add_pipeop(po("module", id = "plus", module = function(x) x + 100))
+  graph$add_pipeop(po("module", id = "minus", module = function(x) x - 100))
+  graph$add_edge("in", "plus")
+  graph$add_edge("in", "minus")
+  ds = dd(as_lazy_tensor(x))$dataset
+  dd_plus = DataDescriptor$new(ds, list(x = c(NA, 2)), graph = graph, input_map = "x",
+    pointer = c("plus", "output"), pointer_shape = c(NA, 2), clone_graph = FALSE)
+  dd_minus = DataDescriptor$new(ds, list(x = c(NA, 2)), graph = graph, input_map = "x",
+    pointer = c("minus", "output"), pointer_shape = c(NA, 2), clone_graph = FALSE)
+  lt_plus = as_lazy_tensor(dd_plus)
+  lt_minus = as_lazy_tensor(dd_minus)
+
+  expect_true(dd_plus$hash != dd_minus$hash)
+  expect_error(c(lt_plus, lt_minus), "Can only concatenate")
+  expect_equal(lt_plus == lt_minus, rep(FALSE, 3L))
+  expect_equal(lt_plus == as_lazy_tensor(dd_plus), rep(TRUE, 3L))
+  # the hash of a task's backend also tells them apart
+  expect_true(calculate_hash(data.table(x = lt_plus)) != calculate_hash(data.table(x = lt_minus)))
+})
