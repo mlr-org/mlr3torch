@@ -120,17 +120,17 @@ test_that("restore_best_weights makes the internal valid scores those of the bes
   expect_equal(restored$internal_valid_scores, reference$internal_valid_scores)
 })
 
-# A measure that cannot be computed in its first `n_missing` evaluations, like the precision of a
-# network that does not predict the positive class yet.
-msr_missing_first = function(n_missing) {
+# A measure that cannot be computed in the evaluations `i` for which `is_missing(i)` is `TRUE`, like the precision of
+# a network that does not predict the positive class.
+msr_missing = function(is_missing) {
   n_calls = 0L
-  R6Class("MeasureMissingFirst", inherit = mlr3::MeasureRegr,
+  R6Class("MeasureMissing", inherit = mlr3::MeasureRegr,
     public = list(initialize = function() {
-      super$initialize(id = "mse_missing_first", range = c(0, Inf), minimize = TRUE)
+      super$initialize(id = "mse_missing", range = c(0, Inf), minimize = TRUE)
     }),
     private = list(.score = function(prediction, ...) {
       n_calls <<- n_calls + 1L
-      if (n_calls <= n_missing) NaN else mlr3measures::mse(prediction$truth, prediction$response)
+      if (is_missing(n_calls)) NaN else mlr3measures::mse(prediction$truth, prediction$response)
     })
   )$new()
 }
@@ -145,20 +145,26 @@ test_that("a missing validation score is no improvement, and any score improves 
   }
 
   # the first two scores are missing, which makes neither of them the best score
-  learner = make(msr_missing_first(2L))
+  learner = make(msr_missing(function(i) i <= 2L))
   best_epoch = learner$internal_tuned_values$epochs
   expect_gte(best_epoch, 3L)
   expect_true(is.finite(learner$model$callbacks$early_stopping$best_score))
   # and the run stops `patience` evaluations after the best one, as with any other measure
   expect_equal(learner$model$epochs, best_epoch + 3L)
 
-  restored = make(msr_missing_first(2L), restore_best_weights = TRUE)
+  restored = make(msr_missing(function(i) i <= 2L), restore_best_weights = TRUE)
   expect_equal(restored$internal_tuned_values$epochs, best_epoch)
   expect_true(is.finite(restored$internal_valid_scores[[1L]]))
 
+  # missing scores after the first one count as stagnation, so the run stops `patience` evaluations later
+  missing_later = make(msr_missing(function(i) i > 1L))
+  expect_equal(missing_later$model$epochs, 4L)
+  expect_equal(missing_later$internal_tuned_values$epochs, 1L)
+  expect_true(is.finite(missing_later$model$callbacks$early_stopping$best_score))
+
   # without any score, the run stops after `patience` evaluations and the first one stands in as
   # the best epoch
-  never = make(msr_missing_first(Inf), restore_best_weights = TRUE)
+  never = make(msr_missing(function(i) TRUE), restore_best_weights = TRUE)
   expect_equal(never$model$epochs, 3L)
   expect_equal(never$internal_tuned_values$epochs, 1L)
 })

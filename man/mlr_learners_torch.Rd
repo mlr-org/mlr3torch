@@ -316,6 +316,7 @@ Note that the final model is stored in the learner, not the best model, unless
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 A missing (\code{NA}) score counts as no improvement, and every score improves on a missing one.
+If all scores are missing, the first evaluated epoch is reported as the best one.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
