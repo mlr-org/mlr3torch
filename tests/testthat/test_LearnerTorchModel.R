@@ -181,9 +181,11 @@ test_that("a graph-built learner rejects missing values at predict time", {
   expect_error(learner$predict_newdata(newdata), "missing")
 })
 
-test_that("LearnerTorchModel does not claim the 'new_levels' and 'missings' properties", {
+test_that("LearnerTorchModel only claims the properties of every LearnerTorch by default", {
   learner = LearnerTorchModel$new(task_type = "regr")
-  expect_false(any(c("new_levels", "missings") %in% learner$properties))
+  expect_set_equal(learner$properties, c("marshal", "validation", "internal_tuning"))
+  learner = LearnerTorchModel$new(task_type = "classif")
+  expect_set_equal(learner$properties, c("marshal", "validation", "internal_tuning", "twoclass", "multiclass"))
   learner = LearnerTorchModel$new(task_type = "regr", properties = "missings")
   expect_true("missings" %in% learner$properties)
 })

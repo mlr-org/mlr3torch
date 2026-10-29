@@ -32,7 +32,10 @@
 #'   The feature types. Defaults to all available feature types.
 #' @param properties (`NULL` or `character()`)\cr
 #'   The properties of the learner.
-#'   Defaults to all available properties for the given task type.
+#'   Defaults to the properties that every [`LearnerTorch`] has, i.e. `"marshal"`, `"validation"` and
+#'   `"internal_tuning"` (and `"twoclass"` and `"multiclass"` for classification).
+#'   Other properties such as `"weights"`, `"missings"`, `"new_levels"` or `"offset"` must only be
+#'   claimed if the network and the ingress tokens handle them, as mlr3 then skips its checks for them.
 #' @template param_predict_types
 # @section Parameters: See [`LearnerTorch`] and constructor argument `param_set`.
 #' @family Learner
@@ -90,8 +93,8 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
       }
 
       if (is.null(properties)) {
-        # "weights" is opt-in
-        properties = setdiff(mlr_reflections$learner_properties[[task_type]], "weights")
+        # as for `LearnerTorchModel`, only the properties that `LearnerTorch` adds itself are claimed
+        properties = character()
       } else {
         properties = assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
       }
