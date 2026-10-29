@@ -365,11 +365,12 @@ register_preproc("trafo_rgb_to_grayscale", batchwise("transform_rgb_to_grayscale
 # calling it on every element, but much faster. For inputs with fewer dimensions, e.g. (N, C) or (N, C, L), the
 # channels are the second dimension.
 normalize_batch = function(x, mean, std) {
+  # otherwise, mean and std would be truncated to integers (and unsigned integers would wrap around in x - mean)
+  if (!x$is_floating_point()) {
+    x = x$to(dtype = torch_get_default_dtype())
+  }
   mean = torch_tensor(mean, dtype = x$dtype, device = x$device)
   std = torch_tensor(std, dtype = x$dtype, device = x$device)
-  if ((std == 0)$any()$item()) {
-    stopf("Parameter 'std' must not contain zeros, as this leads to a division by zero.")
-  }
   channel_dim = if (x$ndim >= 4L) x$ndim - 2L else 2L
   channel_shape = c(rep(1L, channel_dim - 1L), -1L, rep(1L, x$ndim - channel_dim))
   if (mean$dim() == 1L) mean = mean$view(channel_shape)
@@ -393,6 +394,8 @@ normalize_batch = function(x, mean, std) {
 #' The channels are the third-to-last dimension, e.g. `C` for images of shape `(N, C, H, W)` or videos of shape
 #' `(N, T, C, H, W)`, as in [`torchvision::transform_normalize`], which this is the same as for these inputs.
 #' For inputs with fewer dimensions, e.g. `(N, C)` or `(N, C, L)`, the channels are the second dimension.
+#' Inputs that are not floating point, e.g. images stored as integers, are converted to the default floating point type
+#' ([`torch_get_default_dtype()`][torch::torch_get_default_dtype]) first.
 #' The preprocessing is applied to the whole batch.
 #'
 #' Being a `trafo_` operator, its `stages` parameter starts out as `"both"`, so the transformation is applied both
