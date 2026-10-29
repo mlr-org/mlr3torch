@@ -123,14 +123,15 @@ test_that("restore_best_weights makes the internal valid scores those of the bes
 # A measure that cannot be computed in the evaluations `i` for which `is_missing(i)` is `TRUE`, like the precision of
 # a network that does not predict the positive class.
 msr_missing = function(is_missing) {
-  n_calls = 0L
+  counter = new.env()
+  counter$n_calls = 0L
   R6Class("MeasureMissing", inherit = mlr3::MeasureRegr,
     public = list(initialize = function() {
       super$initialize(id = "mse_missing", range = c(0, Inf), minimize = TRUE)
     }),
     private = list(.score = function(prediction, ...) {
-      n_calls <<- n_calls + 1L
-      if (is_missing(n_calls)) NaN else mlr3measures::mse(prediction$truth, prediction$response)
+      counter$n_calls = counter$n_calls + 1L
+      if (is_missing(counter$n_calls)) NaN else mlr3measures::mse(prediction$truth, prediction$response)
     })
   )$new()
 }
