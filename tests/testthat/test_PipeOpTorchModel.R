@@ -152,7 +152,17 @@ test_that("marshaling", {
   glrn$train(task)
   model = glrn$model
   glrn$marshal()$unmarshal()
-  expect_equal(model, glrn$model)
+  # the unmarshaled network is a deserialized copy, which differs from the original in torch internals
+  # (e.g. the `..refer_to_state_dict..` field), so we compare its state and the rest of the model
+  without_network = function(m) {
+    m$torch_model_regr$model$network = NULL
+    m
+  }
+  expect_equal(without_network(model), without_network(glrn$model))
+  expect_equal(
+    model$torch_model_regr$model$network$state_dict(),
+    glrn$model$torch_model_regr$model$network$state_dict()
+  )
   pred = glrn$predict(task)
   expect_class(pred, "Prediction")
 })
