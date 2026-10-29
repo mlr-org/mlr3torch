@@ -82,6 +82,7 @@
 #'   `restore_best_weights` is set to `TRUE`.
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.
+#'   A missing (`NA`) score counts as no improvement, and every score improves on a missing one.
 #'   This also requires to specify the `$validate` field of the Learner, as well as `measures_valid`.
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold for early stopping.

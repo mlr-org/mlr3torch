@@ -120,6 +120,49 @@ test_that("restore_best_weights makes the internal valid scores those of the bes
   expect_equal(restored$internal_valid_scores, reference$internal_valid_scores)
 })
 
+# A measure that cannot be computed in its first `n_missing` evaluations, like the precision of a
+# network that does not predict the positive class yet.
+msr_missing_first = function(n_missing) {
+  n_calls = 0L
+  R6Class("MeasureMissingFirst", inherit = mlr3::MeasureRegr,
+    public = list(initialize = function() {
+      super$initialize(id = "mse_missing_first", range = c(0, Inf), minimize = TRUE)
+    }),
+    private = list(.score = function(prediction, ...) {
+      n_calls <<- n_calls + 1L
+      if (n_calls <= n_missing) NaN else mlr3measures::mse(prediction$truth, prediction$response)
+    })
+  )$new()
+}
+
+test_that("a missing validation score is no improvement, and any score improves on it", {
+  task = tsk("mtcars")
+  make = function(measure, ...) {
+    learner = lrn("regr.mlp", batch_size = 8, neurons = c(50, 50), p = 0, validate = 0.3,
+      measures_valid = measure, seed = 3, opt.lr = 0.5, epochs = 30, patience = 3, ...)
+    withr::with_seed(42, learner$train(task))
+    learner
+  }
+
+  # the first two scores are missing, which makes neither of them the best score
+  learner = make(msr_missing_first(2L))
+  best_epoch = learner$internal_tuned_values$epochs
+  expect_gte(best_epoch, 3L)
+  expect_true(is.finite(learner$model$callbacks$early_stopping$best_score))
+  # and the run stops `patience` evaluations after the best one, as with any other measure
+  expect_equal(learner$model$epochs, best_epoch + 3L)
+
+  restored = make(msr_missing_first(2L), restore_best_weights = TRUE)
+  expect_equal(restored$internal_tuned_values$epochs, best_epoch)
+  expect_true(is.finite(restored$internal_valid_scores[[1L]]))
+
+  # without any score, the run stops after `patience` evaluations and the first one stands in as
+  # the best epoch
+  never = make(msr_missing_first(Inf), restore_best_weights = TRUE)
+  expect_equal(never$model$epochs, 3L)
+  expect_equal(never$internal_tuned_values$epochs, 1L)
+})
+
 describe("resuming", {
   it("early stopping continues with the score and stagnation of the previous run", {
     # a fixed validation task and `opt.lr = 0` make the score constant, so no epoch of the resumed
