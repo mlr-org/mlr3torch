@@ -11,7 +11,7 @@ nn_graph(graph, shapes_in, output_map = graph$output$name, list_output = FALSE)
 The \code{\link[mlr3pipelines:Graph]{Graph}} to wrap. Is \strong{not} cloned.}
 
 \item{shapes_in}{(named \code{integer})\cr
-Shape info of tensors that go into \code{graph}. Names must be \code{graph$input$name}, possibly in different order.}
+Shape info of tensors that go into \code{graph}. Names must be \code{graph$input$name}, in the same order.}
 
 \item{output_map}{(\code{character})\cr
 Which of \code{graph}'s outputs to use. Must be a subset of \code{graph$output$name}.}
@@ -36,7 +36,6 @@ the graph. This is determined anew when a new graph is assigned to this field or
 removed from it, but not when only its edges are changed, so the graph should not be modified in place.
 \item \code{input_map} :: \code{character()}\cr
 The names of the input arguments of the network.
-Unnamed arguments of \verb{$forward()} are matched in this order.
 \item \code{shapes_in} :: \code{list()}\cr
 The shapes of the input tensors of the network.
 \item \code{output_map} :: \code{character()}\cr
