@@ -140,21 +140,32 @@ dd = function(x) {
 # do not go through `c.lazy_tensor()` and can combine lazy tensors with different ones.
 # The DataDescriptors are compared by identity and not by their hash.
 dd_groups = function(x) {
-  dds = map(x, 2L)
-  if (length(dds) <= 1L || every(dds, identical, dds[[1L]])) {
+  # every element is list(id, DataDescriptor), so this is the same as taking the second entry of every element,
+  # but much faster than looping over the elements
+  dds = unlist(unclass(x), recursive = FALSE)[c(FALSE, TRUE)]
+  # unique() compares environments by identity (and not their content), match() would not
+  udds = unique(dds)
+  if (length(udds) <= 1L) {
     return(list(seq_along(x)))
   }
-  # hashtab compares the DataDescriptors with identical()
-  groups = hashtab()
-  group = map_int(dds, function(data_descriptor) {
-    i = gethash(groups, data_descriptor)
-    if (is.null(i)) {
-      i = numhash(groups) + 1L
-      sethash(groups, data_descriptor, i)
-    }
-    i
-  })
+  group = integer(length(dds))
+  for (k in seq_along(udds)) {
+    group[vapply(dds, identical, NA, udds[[k]])] = k
+  }
   unname(split(seq_along(x), group))
+}
+
+# The hash of the DataDescriptor of each element of a lazy tensor, or a single hash if all elements share one.
+dd_hashes = function(x) {
+  groups = dd_groups(x)
+  if (length(groups) == 1L) {
+    return(dd(x)$hash)
+  }
+  hashes = character(length(x))
+  for (i in groups) {
+    hashes[i] = dd(x[i])$hash
+  }
+  hashes
 }
 
 
@@ -352,7 +363,8 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
 hash_input.lazy_tensor = function(x) {
   # When the DataBackend calculates the hash of, this function is called
   if (length(x)) {
-    list(map(x, 1L), dd(x)$hash)
+    # elements with different DataDescriptors (see dd_groups()) contribute the hash of each of them
+    list(map(x, 1L), dd_hashes(x))
   } else {
     list()
   }
@@ -375,10 +387,13 @@ hash_input.lazy_tensor = function(x) {
   }
   n = max(length(x), length(y))
 
-  if (dd(x)$hash != dd(y)$hash) {
+  # elements with different DataDescriptors (see dd_groups()) are compared with the hash of their own one
+  hashes_x = dd_hashes(x)
+  hashes_y = dd_hashes(y)
+  if (length(hashes_x) == 1L && length(hashes_y) == 1L && hashes_x != hashes_y) {
     return(rep(FALSE, n))
   }
-  map_int(x, 1L) == map_int(y, 1L)
+  map_int(x, 1L) == map_int(y, 1L) & hashes_x == hashes_y
 }
 
 #' @export
