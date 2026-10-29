@@ -135,6 +135,28 @@ dd = function(x) {
   x[[1L]][[2L]]
 }
 
+# The positions of the elements of a lazy tensor, grouped by their DataDescriptor (in the order of first occurrence).
+# Usually, all elements share one DataDescriptor, but `rbind()` on data.tables, `rbindlist()` and `task$rbind()`
+# do not go through `c.lazy_tensor()` and can combine lazy tensors with different ones.
+# The DataDescriptors are compared by identity and not by their hash.
+dd_groups = function(x) {
+  dds = map(x, 2L)
+  if (length(dds) <= 1L || every(dds, identical, dds[[1L]])) {
+    return(list(seq_along(x)))
+  }
+  # hashtab compares the DataDescriptors with identical()
+  groups = hashtab()
+  group = map_int(dds, function(data_descriptor) {
+    i = gethash(groups, data_descriptor)
+    if (is.null(i)) {
+      i = numhash(groups) + 1L
+      sethash(groups, data_descriptor, i)
+    }
+    i
+  })
+  unname(split(seq_along(x), group))
+}
+
 
 #' @title Convert to Lazy Tensor
 #' @description
@@ -288,6 +310,15 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
   assert_shape(shape, null_ok = TRUE, unknown_batch = TRUE)
   # shape_predict can be NULL if we transform a tensor during `$predict()` in PipeOpTaskPreprocTorch
   assert_shape(shape_predict, null_ok = TRUE, unknown_batch = TRUE)
+
+  # elements with different DataDescriptors are transformed separately, see dd_groups()
+  groups = dd_groups(lt)
+  if (length(groups) > 1L) {
+    parts = map(groups, function(i) unclass(transform_lazy_tensor(lt[i], pipeop, shape, shape_predict)))
+    out = vector("list", length(lt))
+    out[unlist(groups)] = unlist(parts, recursive = FALSE)
+    return(structure(out, class = c("lazy_tensor", "list")))
+  }
 
   data_descriptor = dd(lt)
 

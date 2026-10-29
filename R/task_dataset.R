@@ -113,6 +113,9 @@ task_dataset = dataset("task_dataset",
 
 # This returns a data.table or NULL (if nothing was merged)
 merge_lazy_tensor_graphs = function(lts) {
+  # columns with elements of different DataDescriptors (see dd_groups()) are not merged, because the merged column
+  # would have only one DataDescriptor
+  lts = lts[, map_lgl(lts, function(lt) length(dd_groups(lt)) == 1L), with = FALSE]
   # we only attempt to merge preprocessing graphs that have the same dataset_hash
   hashes = map_chr(lts, function(lt) dd(lt)$dataset_hash)
   # we remove columns that don't share dataset_hash with other columns

@@ -343,3 +343,37 @@ test_that("materialize() runs the preprocessing graph without Graph$train(), wit
   expect_equal(materialize(lt, rbind = TRUE), out)
   expect_equal(materialize(lt, rbind = FALSE), out_list)
 })
+
+test_that("materialize() handles a lazy tensor whose elements have different DataDescriptors", {
+  # rbind() on data.tables does not go through c.lazy_tensor() and can therefore combine them
+  x1 = torch_randn(3, 2)
+  x2 = torch_randn(4, 2)
+  lt = rbind(data.table(x = as_lazy_tensor(x1)), data.table(x = as_lazy_tensor(x2)))$x
+  order = c(4L, 1L, 5L, 2L, 7L, 3L, 6L)
+  lt = lt[order]
+  expected = torch_cat(list(x1, x2), dim = 1L)[order, ]
+
+  expect_true(torch_equal(materialize(lt, rbind = TRUE), expected))
+  out = materialize(lt, rbind = FALSE)
+  expect_list(out, len = 7L)
+  for (i in seq_along(out)) expect_true(torch_equal(out[[i]], expected[i, ]))
+
+  # also with the cache, when another column shares the DataDescriptors
+  out = materialize(data.table(a = lt, b = rev(lt)), rbind = TRUE, cache = hashtab())
+  expect_true(torch_equal(out$a, expected))
+  expect_true(torch_equal(out$b, torch_cat(list(x1, x2), dim = 1L)[rev(order), ]))
+
+  # DataDescriptors that only differ in their pointer are also told apart
+  graph = as_graph(po("nop", id = "in"))
+  graph$add_pipeop(po("module", id = "plus", module = function(x) x + 100))
+  graph$add_pipeop(po("module", id = "minus", module = function(x) x - 100))
+  graph$add_edge("in", "plus")
+  graph$add_edge("in", "minus")
+  ds = dd(as_lazy_tensor(x1))$dataset
+  dd_plus = DataDescriptor$new(ds, list(x = c(NA, 2)), graph = graph, input_map = "x",
+    pointer = c("plus", "output"), pointer_shape = c(NA, 2), clone_graph = FALSE)
+  dd_minus = DataDescriptor$new(ds, list(x = c(NA, 2)), graph = graph, input_map = "x",
+    pointer = c("minus", "output"), pointer_shape = c(NA, 2), clone_graph = FALSE)
+  lt = rbind(data.table(x = as_lazy_tensor(dd_plus)), data.table(x = as_lazy_tensor(dd_minus)))$x
+  expect_true(torch_allclose(materialize(lt, rbind = TRUE), torch_cat(list(x1 + 100, x1 - 100), dim = 1L)))
+})

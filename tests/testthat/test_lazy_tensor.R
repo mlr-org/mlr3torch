@@ -305,3 +305,12 @@ test_that("flexible shape", {
   expect_equal(lazy_shape(lt), c(NA, NA, 5))
 
 })
+
+test_that("transform_lazy_tensor handles a lazy tensor whose elements have different DataDescriptors", {
+  x1 = torch_randn(2, 3)
+  x2 = torch_randn(2, 3)
+  lt = rbind(data.table(x = as_lazy_tensor(x1)), data.table(x = as_lazy_tensor(x2)))$x[c(3L, 1L, 4L, 2L)]
+  lt_plus = transform_lazy_tensor(lt, po("module", id = "plus", module = function(x) x + 1), c(NA, 3))
+  expected = torch_cat(list(x1, x2), dim = 1L)[c(3L, 1L, 4L, 2L), ] + 1
+  expect_true(torch_allclose(materialize(lt_plus, rbind = TRUE), expected))
+})
