@@ -112,6 +112,13 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   }
 
   task_valid = task$internal_valid_task
+  # the network output for the validation task is interpreted with the classes of the training task, see
+  # `encode_network_output()`
+  if (inherits(task_valid, "TaskClassif") && !test_permutation(task_valid$class_names, task$class_names)) {
+    stopf("The internal validation task of task '%s' has the classes %s, but the task has the classes %s.",
+      task$id, paste0("'", task_valid$class_names, "'", collapse = ", "),
+      paste0("'", task$class_names, "'", collapse = ", "))
+  }
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
     dataset_valid = private$.dataset(task_valid, param_vals)
     dataset_valid = as_multi_tensor_dataset(dataset_valid, param_vals)

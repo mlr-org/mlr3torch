@@ -1831,4 +1831,7 @@ test_that("the network output refers to the classes in the order of the training
   # a task with other classes cannot be predicted
   task_other = task$clone(deep = TRUE)$set_levels(list(Class = c("M", "R", "X")))
   expect_error(learner$predict(task_other), "trained to predict the classes 'M', 'R'")
+  # nor be the internal validation task
+  task$internal_valid_task$set_levels(list(Class = c("M", "R", "X")))
+  expect_error(learner$train(task), "internal validation task of task 'sonar' has the classes 'M', 'R', 'X'")
 })
