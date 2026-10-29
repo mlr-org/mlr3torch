@@ -877,6 +877,8 @@ clone_recurse = function(l) {
 #' @export
 marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
   model$jitted = inherits(model$network, "script_module")
+  # the order in which a traced network takes its inputs is not serialized with it, see `network_inputs()`
+  model$input_order = attr(model$network, "input_order")
   model$network = if (model$jitted) {
     jit_serialize(model$network)
   } else {
@@ -897,11 +899,13 @@ unmarshal_model.learner_torch_model_marshaled = function(model, inplace = FALSE,
   model$network = if (isTRUE(model$jitted)) {
     deser = jit_unserialize(model$network)
     deser$to(device = device)
+    attr(deser, "input_order") = model$input_order
     deser
   } else {
     torch_load(model$network, device = device)
   }
   model$jitted = NULL
+  model$input_order = NULL
   model$loss_fn = torch_load(model$loss_fn, device = device)
   model$optimizer = torch_load(model$optimizer, device = device)
   return(model)

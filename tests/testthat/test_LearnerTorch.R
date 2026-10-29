@@ -1011,6 +1011,44 @@ test_that("trace-jitting works", {
   expect_prediction(l1$predict(task))
 })
 
+test_that("a traced network with several inputs receives them by name", {
+  # the arguments of the network are not in the order of the ingress tokens, but a traced network
+  # takes its inputs by position
+  network = nn_module(
+    initialize = function() {
+      self$linear_a = nn_linear(2, 1)
+      self$linear_b = nn_linear(2, 1)
+    },
+    forward = function(b, a) self$linear_a(a) + 10 * self$linear_b(b)
+  )()
+  task = as_task_regr(data.table(a1 = rnorm(30), a2 = rnorm(30), b1 = rnorm(30, mean = 5), b2 = rnorm(30, mean = 5),
+    y = rnorm(30)), target = "y")
+  task$internal_valid_task = task$clone(deep = TRUE)$filter(21:30)
+  task$filter(1:20)
+  ingress_tokens = list(
+    a = TorchIngressToken(c("a1", "a2"), batchgetter_num, c(NA, 2L)),
+    b = TorchIngressToken(c("b1", "b2"), batchgetter_num, c(NA, 2L))
+  )
+  make_learner = function(jit_trace) {
+    lrn("regr.torch_model", network = network, ingress_tokens = ingress_tokens, batch_size = 10L, epochs = 2L,
+      shuffle = FALSE, optimizer = t_opt("sgd", lr = 0.01), jit_trace = jit_trace, validate = "predefined",
+      measures_valid = msr("regr.mse"))
+  }
+  learner = make_learner(FALSE)
+  learner$train(task)
+  learner_jit = make_learner(TRUE)
+  learner_jit$train(task)
+  expect_class(learner_jit$network, "script_module")
+
+  # training, validation and prediction pass the inputs in the order of the network's arguments
+  expect_equal(learner_jit$internal_valid_scores, learner$internal_valid_scores, tolerance = 1e-5)
+  pred = learner$predict(task)$response
+  expect_equal(learner_jit$predict(task)$response, pred, tolerance = 1e-5)
+  learner_jit$marshal()
+  learner_jit$unmarshal()
+  expect_equal(learner_jit$predict(task)$response, pred, tolerance = 1e-5)
+})
+
 test_that("tensor_dataset works", {
   testcb = torch_callback("test",
     state_dict = function() {
