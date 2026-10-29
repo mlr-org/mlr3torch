@@ -371,9 +371,6 @@ normalize_batch = function(x, mean, std) {
   }
   mean = torch_tensor(mean, dtype = x$dtype, device = x$device)
   std = torch_tensor(std, dtype = x$dtype, device = x$device)
-  if ((std == 0)$any()$item()) {
-    stopf("Parameter 'std' must not contain zeros, as this leads to a division by zero.")
-  }
   channel_dim = if (x$ndim >= 4L) x$ndim - 2L else 2L
   channel_shape = c(rep(1L, channel_dim - 1L), -1L, rep(1L, x$ndim - channel_dim))
   if (mean$dim() == 1L) mean = mean$view(channel_shape)

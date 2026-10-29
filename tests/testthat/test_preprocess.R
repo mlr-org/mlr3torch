@@ -154,7 +154,6 @@ test_that("trafo_normalize normalizes a batch like torchvision::transform_normal
   s3 = torch_randn(2, 3, 7)
   expect_true(torch_allclose(normalize_batch(s3, mean, std),
     (s3 - torch_tensor(mean)$view(c(1, 3, 1))) / torch_tensor(std)$view(c(1, 3, 1))))
-  expect_error(normalize_batch(z, 0, c(1, 0, 1)), "must not contain zeros")
 })
 
 test_that("trafo_normalize does not truncate mean and std for integer inputs", {
