@@ -12,6 +12,7 @@
 #'   removed from it, but not when only its edges are changed, so the graph should not be modified in place.
 #' * `input_map` :: `character()`\cr
 #'   The names of the input arguments of the network.
+#'   Unnamed arguments of `$forward()` are matched in this order.
 #' * `shapes_in` :: `list()`\cr
 #'   The shapes of the input tensors of the network.
 #' * `output_map` :: `character()`\cr
@@ -66,7 +67,8 @@ nn_graph = nn_module(
       stopf("If list_output is FALSE, output_map must have length 1.")
     }
 
-    self$argument_matcher = argument_matcher(names(self$shapes_in))
+    # the arguments are matched in the order of the graph inputs, which can differ from the order of `shapes_in`
+    self$argument_matcher = argument_matcher(self$input_map)
 
     # the following is necessary to make torch aware of all the included parameters
     # (some operators in the graph could be different from PipeOpModule, e.g. PipeOpBranch or PipeOpNOP
@@ -75,9 +77,8 @@ nn_graph = nn_module(
     self$module_list = nn_module_list(keep(map(mops, "module"), is, "nn_module"))
   },
   forward = function(...) {
-    # this ensures that the arguments are passed in the correct order: they are matched in the order of
-    # `shapes_in`, but the graph expects them in the order of its inputs
-    inputs = unname(self$argument_matcher(...)[self$input_map])
+    # this ensures that the arguments are passed in the correct order
+    inputs = unname(self$argument_matcher(...))
 
     # Running the graph via `Graph$train()` is slow, so the plan for calling the modules is created once.
     # It is FALSE if the graph cannot be run without `Graph$train()`.

@@ -36,6 +36,7 @@ the graph. This is determined anew when a new graph is assigned to this field or
 removed from it, but not when only its edges are changed, so the graph should not be modified in place.
 \item \code{input_map} :: \code{character()}\cr
 The names of the input arguments of the network.
+Unnamed arguments of \verb{$forward()} are matched in this order.
 \item \code{shapes_in} :: \code{list()}\cr
 The shapes of the input tensors of the network.
 \item \code{output_map} :: \code{character()}\cr

@@ -311,14 +311,37 @@ test_that("nn_graph passes the inputs to the correct graph inputs if shapes_in i
   network = nn_graph(graph, shapes_in = list(b.input = 1, a.input = 1))
   expect_equal(network(a.input = xa, b.input = xb)$item(), expected)
   expect_list(forward_plan(network))
-  # unnamed arguments are matched in the order of shapes_in
-  expect_equal(network(xb, xa)$item(), expected)
+  # unnamed arguments are matched in the order of the graph's inputs
+  expect_equal(network(xa, xb)$item(), expected)
 
   # the same holds when the graph is run via Graph$train()
   graph2 = graph$clone(deep = TRUE) %>>% po("copy", outnum = 1)
   network2 = nn_graph(graph2, shapes_in = list(b.input = 1, a.input = 1))
   expect_equal(network2(a.input = xa, b.input = xb)$item(), expected)
   expect_false(forward_plan(network2))
+})
+
+test_that("a learner with an nn_graph whose shapes_in is in a different order predicts correctly, also with jit", {
+  task = as_task_regr(iris[, 1:3], target = "Petal.Length")
+  # a.input * 10 - b.input
+  graph = gunion(list(po("module", id = "a", module = nn_linear(1, 1)), po("module", id = "b", module = nn_identity()))) %>>%
+    po("module", id = "sub", module = function(input1, input2) input1 * 10 - input2, inname = c("input1", "input2"))
+  token = function(feature) TorchIngressToken(feature, batchgetter_num, c(NA, 1))
+  fit = function(jit_trace) {
+    network = nn_graph(graph$clone(deep = TRUE), shapes_in = list(b.input = c(NA, 1), a.input = c(NA, 1)))
+    learner = LearnerTorchModel$new(network = network, task_type = "regr", optimizer = t_opt("adam"), loss = t_loss("mse"),
+      ingress_tokens = list(a.input = token("Sepal.Length"), b.input = token("Sepal.Width")))
+    learner$param_set$set_values(epochs = 0L, batch_size = 150L, jit_trace = jit_trace, seed = 1L)
+    learner$train(task)
+    learner
+  }
+
+  learner = fit(FALSE)
+  linear = learner$network$graph$pipeops$a$module
+  expected = as_array(with_no_grad(linear(torch_tensor(as.matrix(iris$Sepal.Length)))))[, 1L] * 10 - iris$Sepal.Width
+  expect_equal(learner$predict(task)$response, expected, tolerance = 1e-5)
+  # the traced network receives the inputs by position
+  expect_equal(fit(TRUE)$predict(task)$response, expected, tolerance = 1e-5)
 })
 
 test_that("model_descriptor_to_module passes the inputs to the correct graph inputs", {
