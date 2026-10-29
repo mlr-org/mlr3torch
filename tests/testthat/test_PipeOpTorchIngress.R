@@ -74,14 +74,6 @@ test_that("allow for flexible shapes", {
   ingress = po("torch_ingress_ltnsr", shape = c(NA, NA))
 })
 
-# A task with the features of `task` in the reverse order. `mlr3` accepts it for prediction, as only the order
-# differs, so the learner has to select the columns in the training order.
-reverse_features = function(task) {
-  task = task$clone(deep = TRUE)
-  task$col_roles$feature = rev(task$feature_names)
-  task
-}
-
 test_that("prediction uses the training order of the features: torch_ingress_num", {
   task = as_task_regr(data.table(y = rnorm(20), x1 = rnorm(20), x2 = rnorm(20, mean = 10)), target = "y")
   learner = as_learner(po("torch_ingress_num") %>>% nn("head") %>>% po("torch_loss", "mse") %>>%

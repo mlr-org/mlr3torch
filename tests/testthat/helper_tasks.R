@@ -77,3 +77,11 @@ nano_imagenet = function(id = "nano_imagenet") {
   task = as_task_classif(dat, id = "nano_imagenet", label = "Nano Imagenet", target = "class")
   task
 }
+
+# A task with the features of `task` in the reverse order. `mlr3` accepts it for prediction, as only the order
+# differs, so the learner has to select the columns in the training order.
+reverse_features = function(task) {
+  task = task$clone(deep = TRUE)
+  task$col_roles$feature = rev(task$feature_names)
+  task
+}

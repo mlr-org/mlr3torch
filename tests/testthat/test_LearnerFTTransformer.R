@@ -228,9 +228,7 @@ test_that("prediction and validation use the training order of the features", {
   task = as_task_regr(data.table(
     y = rnorm(40), x = rnorm(40), a = factor(rep(c("p", "q"), 20)), b = factor(rep(c("r", "s", "t", "u"), 10))
   ), target = "y")
-  # `mlr3` accepts a task whose features are only in a different order
-  task_reversed = task$clone(deep = TRUE)
-  task_reversed$col_roles$feature = rev(task$feature_names)
+  task_reversed = reverse_features(task)
 
   learner = make_ft_transformer("regr", seed = 1L)
   learner$train(task)
