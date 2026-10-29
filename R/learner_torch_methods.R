@@ -9,10 +9,31 @@ normalize_to_list = function(x) {
   x
 }
 
+# The ingress tokens select their features from the task, so the columns of a batch follow the order of
+# `task$feature_names`. `mlr3` accepts a prediction task whose features are a permutation of the training features,
+# and the validation task may differ in the same way, so such a task is brought into the training order: otherwise
+# the network silently receives the wrong columns.
+# @param task (`Task`) The task for which the dataset is created.
+# @param feature_names (`character()`) The features of the training task, in their order.
+task_in_train_order = function(task, feature_names) {
+  if (identical(task$feature_names, feature_names) || !test_set_equal(task$feature_names, feature_names)) {
+    return(task)
+  }
+  task = task$clone(deep = TRUE)
+  task$col_roles$feature = feature_names
+  task
+}
+
+# The features of the training task in their order: `task_col_info` contains them first, see `LearnerTorch$.train()`.
+train_feature_names = function(model, task) {
+  setdiff(model$task_col_info$id, task$target_names)
+}
+
 learner_torch_network_output = function(self, private, task, param_vals) {
   # parameter like device "auto" already resolved
   self$network$to(device = param_vals$device)
   self$network$eval()
+  task = task_in_train_order(task, train_feature_names(self$model, task))
   data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
   torch_network_predict(self$network, data_loader, device = param_vals$device)
 }
@@ -83,6 +104,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   }
 
   task_valid = task$internal_valid_task
+  if (!is.null(task_valid)) task_valid = task_in_train_order(task_valid, task$feature_names)
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
     dataset_valid = private$.dataset(task_valid, param_vals)
     dataset_valid = as_multi_tensor_dataset(dataset_valid, param_vals)
@@ -534,6 +556,7 @@ zero_row_network_output = function(learner, task) {
     }
     one_row = task$clone(deep = TRUE)
     one_row$row_roles$use = rows[1L]
+    one_row = task_in_train_order(one_row, train_feature_names(model, task))
     batch = get_private(learner)$.dataset(one_row, param_vals)$.getbatch(1L)
     x = lapply(batch$x, function(tensor) tensor$to(device = param_vals$device))
     output = if (has_one_arg(network)) {

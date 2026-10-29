@@ -222,3 +222,26 @@ test_that("d_token must be a multiple of attention_n_heads", {
     .args = c(base, list(d_token = 7L, attention_n_heads = 1L)))
   expect_no_error(ok$train(tsk("iris")))
 })
+
+test_that("prediction and validation use the training order of the features", {
+  # categorical features with different cardinalities, which `ingress_categ()` selects in the order of the task
+  task = as_task_regr(data.table(
+    y = rnorm(40), x = rnorm(40), a = factor(rep(c("p", "q"), 20)), b = factor(rep(c("r", "s", "t", "u"), 10))
+  ), target = "y")
+  # `mlr3` accepts a task whose features are only in a different order
+  task_reversed = task$clone(deep = TRUE)
+  task_reversed$col_roles$feature = rev(task$feature_names)
+
+  learner = make_ft_transformer("regr", seed = 1L)
+  learner$train(task)
+  expect_equal(learner$predict(task_reversed)$response, learner$predict(task)$response)
+
+  # the internal validation task is not reordered by `mlr3`, so the learner has to do this as well
+  learner = make_ft_transformer("regr", seed = 1L, validate = "predefined", measures_valid = msr("regr.mse"))
+  task$internal_valid_task = task$clone(deep = TRUE)
+  learner$train(task)
+  scores = learner$internal_valid_scores
+  task$internal_valid_task = task_reversed
+  learner$train(task)
+  expect_equal(learner$internal_valid_scores, scores)
+})
