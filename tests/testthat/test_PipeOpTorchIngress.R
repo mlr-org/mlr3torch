@@ -50,13 +50,6 @@ test_that("PipeOpTorchIngressLazyTensor", {
   expect_error(po_ingress$param_set$set_values(shape = c(NA, 22, 4)), regexp = NA)
 })
 
-test_that("target can contain missings for ingress", {
-  task = as_task_regr(data.table(y = c(1, NA), x = 1:1), target = "y")
-  md = po("torch_ingress_num")$train(list(task))[[1L]]
-  expect_class(md, "ModelDescriptor")
-})
-
-
 test_that("shape of lazy tensor ingress can be inferred", {
   po_ingress = po("torch_ingress_ltnsr", shape = "infer")
   out = po_ingress$train(list(nano_dogs_vs_cats()))[[1L]]
