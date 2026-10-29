@@ -298,6 +298,56 @@ test_that("nn_graph falls back to Graph$train() for operators other than PipeOpM
   expect_equal(out[[1L]], out[[2L]])
 })
 
+test_that("nn_graph passes the inputs to the correct graph inputs if shapes_in is in a different order", {
+  graph = gunion(list(
+    po("module", id = "a", module = function(x) x * 10),
+    po("module", id = "b", module = function(x) x * 100)
+  )) %>>% po("module", id = "sub", module = function(input1, input2) input1 - input2, inname = c("input1", "input2"))
+  xa = torch_tensor(1)
+  xb = torch_tensor(2)
+  # a.input * 10 - b.input * 100
+  expected = -190
+
+  network = nn_graph(graph, shapes_in = list(b.input = 1, a.input = 1))
+  expect_equal(network(a.input = xa, b.input = xb)$item(), expected)
+  expect_list(forward_plan(network))
+  # unnamed arguments are matched in the order of shapes_in
+  expect_equal(network(xb, xa)$item(), expected)
+
+  # the same holds when the graph is run via Graph$train()
+  graph2 = graph$clone(deep = TRUE) %>>% po("copy", outnum = 1)
+  network2 = nn_graph(graph2, shapes_in = list(b.input = 1, a.input = 1))
+  expect_equal(network2(a.input = xa, b.input = xb)$item(), expected)
+  expect_false(forward_plan(network2))
+})
+
+test_that("model_descriptor_to_module passes the inputs to the correct graph inputs", {
+  task = tsk("iris")
+  ingress = function(id, feature) {
+    po("select", id = paste0("select_", id), selector = selector_name(feature)) %>>% po("torch_ingress_num", id = id)
+  }
+  graph = gunion(list(ingress("x", "Sepal.Length"), ingress("y", "Sepal.Width"), ingress("z", "Petal.Length")))
+  graph$add_pipeop(po("nn_merge_sum", id = "m1", innum = 2))
+  graph$add_pipeop(po("nn_merge_sum", id = "m2", innum = 2))
+  graph$add_pipeop(po("nn_merge_cat", id = "final", innum = 2))
+  graph$add_edge("x", "m1", dst_channel = "input1")
+  graph$add_edge("y", "m1", dst_channel = "input2")
+  graph$add_edge("x", "m2", dst_channel = "input1")
+  graph$add_edge("z", "m2", dst_channel = "input2")
+  graph$add_edge("m2", "final", dst_channel = "input1")
+  graph$add_edge("m1", "final", dst_channel = "input2")
+
+  md = graph$train(task)[[1L]]
+  # when merging the model descriptors, the ingress of z (via m2) is collected before the ingress of y (via m1),
+  # so the ingress tokens are not in the order of the graph's inputs
+  expect_false(identical(names(md$ingress), md$graph$input$name))
+
+  network = model_descriptor_to_module(md)
+  input = list(x.input = torch_ones(1, 1), y.input = torch_ones(1, 1) * 10, z.input = torch_ones(1, 1) * 100)
+  # cat(x + z, x + y)
+  expect_equal(as_array(invoke(network, .args = input)), matrix(c(101, 11), nrow = 1))
+})
+
 test_that("assigning a graph resets the forward plan", {
   graph = as_graph(po("module", id = "linear", module = nn_linear(2, 3)))
   network = nn_graph(graph, shapes_in = set_names(list(c(NA, 2)), graph$input$name))

@@ -75,8 +75,9 @@ nn_graph = nn_module(
     self$module_list = nn_module_list(keep(map(mops, "module"), is, "nn_module"))
   },
   forward = function(...) {
-    # this ensures that the arguments are passed in the correct order
-    inputs = unname(self$argument_matcher(...))
+    # this ensures that the arguments are passed in the correct order: they are matched in the order of
+    # `shapes_in`, but the graph expects them in the order of its inputs
+    inputs = unname(self$argument_matcher(...)[self$input_map])
 
     # Running the graph via `Graph$train()` is slow, so the plan for calling the modules is created once.
     # It is FALSE if the graph cannot be run without `Graph$train()`.
