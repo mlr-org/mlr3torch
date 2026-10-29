@@ -91,16 +91,8 @@ nn_ft_transformer_block = nn_module(
       batch_first = TRUE
     )
 
-    init_projection = switch(attention_initialization,
-      kaiming = function(x) nn_init_kaiming_uniform_(x, a = sqrt(5)),
-      xavier = function(x) nn_init_xavier_uniform_(x, gain = 1 / sqrt(2))
-    )
-    with_no_grad({
-      self$attention$in_proj_weight$copy_(torch_cat(
-        map(seq_len(3L), function(i) init_projection(torch_empty(d_token, d_token))),
-        dim = 1L
-      ))
-    })
+    self$attention_initialization = attention_initialization
+    self$reset_attention_projection_()
 
     if (is.null(ffn_d_hidden)) {
       assert_numeric(ffn_d_hidden_multiplier, lower = 0,
@@ -126,6 +118,27 @@ nn_ft_transformer_block = nn_module(
     self$ffn_residual_dropout = nn_dropout(residual_dropout)
 
     self$query_idx = query_idx
+  },
+  # initializes the query, key and value projections of the attention according to `attention_initialization`,
+  # instead of torch's default
+  reset_attention_projection_ = function() {
+    init_projection = switch(self$attention_initialization,
+      kaiming = function(x) nn_init_kaiming_uniform_(x, a = sqrt(5)),
+      xavier = function(x) nn_init_xavier_uniform_(x, gain = 1 / sqrt(2))
+    )
+    d_token = self$attention$embed_dim
+    with_no_grad({
+      self$attention$in_proj_weight$copy_(torch_cat(
+        map(seq_len(3L), function(i) init_projection(torch_empty(d_token, d_token))),
+        dim = 1L
+      ))
+    })
+  },
+  reset_parameters = function() {
+    # the submodules are reset as `nn_graph`'s `$reset_parameters()` would reset them, but resetting the attention
+    # applies torch's default initialization to its projections, which is replaced by the configured one
+    reset_children(self)
+    self$reset_attention_projection_()
   },
   start_residual_ = function(stage, x) {
     x_residual = x

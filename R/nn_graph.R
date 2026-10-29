@@ -94,18 +94,7 @@ nn_graph = nn_module(
     outputs
   },
   reset_parameters = function() {
-    # recursively call $reset_parameters()
-    recursive_reset = function(network) {
-      for (child in network$children) {
-        if (is.function(child$reset_parameters)) {
-          child$reset_parameters()
-          next
-        }
-        Recall(child)
-      }
-    }
-
-    recursive_reset(self)
+    reset_children(self)
   },
   active = list(
     graph = function(rhs) {
@@ -326,6 +315,18 @@ run_graph_forward_plan = function(plan, pipeops, inputs, output_map) {
     }
   }
   set_names(values[plan$output_keys[output_map]], output_map)
+}
+
+# Resets the parameters of the submodules of `module`: those that have a `$reset_parameters()` method are reset by
+# it, which is therefore responsible for their own submodules, the others by resetting their submodules in turn.
+reset_children = function(module) {
+  for (child in module$children) {
+    if (is.function(child$reset_parameters)) {
+      child$reset_parameters()
+      next
+    }
+    reset_children(child)
+  }
 }
 
 # make unique ID that starts with 'newid' and appends _1, _2, etc. to avoid collisions

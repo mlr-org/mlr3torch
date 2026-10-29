@@ -146,3 +146,42 @@ test_that("shape inference agrees with the module for random shapes and paramete
     list(attention_n_heads = 2L, ffn_d_hidden = 8L, is_first_layer = TRUE, query_idx = NULL),
     generators = gen_shape(3L))
 })
+
+test_that("resetting the parameters keeps the configured initialization of the attention projections", {
+  # "kaiming" draws from (-1 / sqrt(d_token), 1 / sqrt(d_token)), torch's default for the attention from the larger
+  # interval (-sqrt(1.5 / d_token), sqrt(1.5 / d_token))
+  d_token = 64L
+
+  # a learner built from a graph resets the parameters of its network
+  graph = po("torch_ingress_num") %>>%
+    nn("tokenizer_num", d_token = d_token) %>>%
+    nn("ft_transformer_block", attention_n_heads = 2L, ffn_d_hidden = 8L, is_first_layer = TRUE, query_idx = -1L) %>>%
+    nn("flatten") %>>%
+    nn("head") %>>%
+    po("torch_loss", "cross_entropy") %>>%
+    po("torch_optimizer", "adam") %>>%
+    po("torch_model_classif", epochs = 0L, batch_size = 50L)
+  learner = as_learner_torch(graph)
+  learner$train(tsk("iris"))
+  in_proj_weight = learner$network$graph$pipeops$ft_transformer_block$module$attention$in_proj_weight
+  expect_lte(in_proj_weight$abs()$max()$item(), 1 / sqrt(d_token))
+
+  make_block = function() {
+    nn_ft_transformer_block(d_token = d_token, attention_n_heads = 2L, attention_dropout = 0,
+      attention_initialization = "kaiming", ffn_d_hidden = 8L, ffn_dropout = 0, ffn_activation = nn_reglu,
+      residual_dropout = 0, prenormalization = TRUE, is_first_layer = FALSE, attention_normalization = nn_layer_norm,
+      ffn_normalization = nn_layer_norm, attention_bias = TRUE, ffn_bias_first = TRUE, ffn_bias_second = TRUE)
+  }
+  block = make_block()
+  block$reset_parameters()
+  expect_lte(block$attention$in_proj_weight$abs()$max()$item(), 1 / sqrt(d_token))
+
+  # the submodules are reset too, so the parameters are determined by the seed
+  block1 = make_block()
+  torch_manual_seed(1)
+  block$reset_parameters()
+  torch_manual_seed(1)
+  block1$reset_parameters()
+  expect_equal(block1$attention$in_proj_weight, block$attention$in_proj_weight)
+  expect_equal(block1$ffn$linear_first$weight, block$ffn$linear_first$weight)
+})
