@@ -178,8 +178,17 @@ CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
 #' @name mlr_callback_set.lr_scheduler_reduce_on_plateau
 #'
 #' @description
-#' Reduces the learning rate when the first validation metric stops improving for `patience` epochs.
-#' Wraps [torch::lr_reduce_on_plateau()]
+#' Reduces the learning rate when the first validation measure, i.e. the first entry of the
+#' learner's `measures_valid`, stops improving for `patience` evaluation steps.
+#' Wraps [torch::lr_reduce_on_plateau()].
+#'
+#' Note that `patience` counts *evaluation steps*, not epochs: when the learner's `eval_freq` is
+#' greater than `1`, the scheduler only steps in the epochs in which the validation measures are
+#' evaluated, so `patience` evaluation steps correspond to `patience * eval_freq` epochs.
+#'
+#' Unless `mode` is set, it is derived from the measure: `"min"` if the measure is minimized and
+#' `"max"` if it is maximized. Training fails when `mode` contradicts the measure, or when the
+#' learner has no validation measure for the scheduler to step on.
 #'
 #' @section Resuming:
 #' As for [`CallbackSetLRScheduler`]. For this schedule the restored state includes the best score
@@ -205,13 +214,38 @@ CallbackSetLRSchedulerReduceOnPlateau = R6Class("CallbackSetLRSchedulerReduceOnP
 
       self$on_epoch_end = function() {
         # `last_scores_valid` is NULL in epochs where no validation is performed
-        # (i.e. when `eval_freq > 1`) and for the whole run when no validation is configured.
+        # (i.e. when `eval_freq > 1`).
         scores = self$ctx$last_scores_valid
         if (!length(scores)) {
           return(NULL)
         }
         self$scheduler$step(scores[[1L]])
       }
+    },
+    #' @description
+    #' Creates the scheduler using the optimizer from the context, with the `mode` that fits the
+    #' first validation measure.
+    on_begin = function() {
+      # without a validation measure the scheduler would never step, and torch's default `mode` of
+      # "min" would reduce the learning rate while a measure that is maximized still improves
+      if (!length(self$ctx$measures_valid)) {
+        stopf("The learning rate scheduler 'lr_reduce_on_plateau' steps on the first validation measure, but the learner '%s' has no 'measures_valid'. Configure validation data and set 'measures_valid'.", # nolint
+          self$ctx$learner$id)
+      }
+      measure = self$ctx$measures_valid[[1L]]
+      mode = if (isTRUE(measure$minimize)) "min" else if (isFALSE(measure$minimize)) "max"
+      if (is.null(private$.scheduler_args$mode)) {
+        if (is.null(mode)) {
+          stopf("The learning rate scheduler 'lr_reduce_on_plateau' cannot derive its 'mode' from the validation measure '%s', which has minimize = NA. Set 'mode' explicitly.", # nolint
+            measure$id)
+        }
+        private$.scheduler_args$mode = mode
+      } else if (!is.null(mode) && private$.scheduler_args$mode != mode) {
+        stopf("The learning rate scheduler 'lr_reduce_on_plateau' has mode '%s', but the validation measure '%s' it steps on is %s. Set 'mode' to '%s' or leave it unset.", # nolint
+          private$.scheduler_args$mode, measure$id, if (mode == "min") "minimized" else "maximized", mode)
+      }
+
+      super$on_begin()
     }
   )
 )
@@ -300,7 +334,8 @@ mlr3torch_callbacks$add("lr_reduce_on_plateau", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRSchedulerReduceOnPlateau,
     param_set = ps(
-      mode = p_fct(default = "min", levels = c("min", "max"), tags = "train"),
+      # no default: unless it is set, the mode is derived from the first validation measure
+      mode = p_fct(levels = c("min", "max"), tags = "train"),
       factor = p_dbl(default = 0.1, tags = "train"),
       patience = p_int(default = 10, tags = "train"),
       threshold = p_dbl(default = 1e-04, tags = "train"),
