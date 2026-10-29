@@ -187,8 +187,10 @@ CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
 #' evaluated, so `patience` evaluation steps correspond to `patience * eval_freq` epochs.
 #'
 #' Unless `mode` is set, it is derived from the measure: `"min"` if the measure is minimized and
-#' `"max"` if it is maximized. Training fails when `mode` contradicts the measure, or when the
-#' learner has no validation measure for the scheduler to step on.
+#' `"max"` if it is maximized. Training fails when `mode` contradicts the measure.
+#' When the learner has no validation measure, e.g. in the final fit of an
+#' [`AutoTuner`][mlr3tuning::AutoTuner] that tunes the epochs internally, a warning is given and
+#' the learning rate is not reduced.
 #'
 #' @section Resuming:
 #' As for [`CallbackSetLRScheduler`]. For this schedule the restored state includes the best score
@@ -226,12 +228,14 @@ CallbackSetLRSchedulerReduceOnPlateau = R6Class("CallbackSetLRSchedulerReduceOnP
     #' Creates the scheduler using the optimizer from the context, with the `mode` that fits the
     #' first validation measure.
     on_begin = function() {
-      # without a validation measure the scheduler would never step, and torch's default `mode` of
-      # "min" would reduce the learning rate while a measure that is maximized still improves
+      # without a validation measure the scheduler never steps. This is not an error, as it also happens in the
+      # final fit of an AutoTuner that tunes the epochs internally, which trains without validation.
       if (!length(self$ctx$measures_valid)) {
-        stopf("The learning rate scheduler 'lr_reduce_on_plateau' steps on the first validation measure, but the learner '%s' has no 'measures_valid'. Configure validation data and set 'measures_valid'.", # nolint
+        warningf("The learning rate scheduler 'lr_reduce_on_plateau' steps on the first validation measure, but the learner '%s' has no 'measures_valid', so the learning rate is not reduced.", # nolint
           self$ctx$learner$id)
+        return(super$on_begin())
       }
+      # torch's default `mode` of "min" would reduce the learning rate while a measure that is maximized still improves
       measure = self$ctx$measures_valid[[1L]]
       mode = if (isTRUE(measure$minimize)) "min" else if (isFALSE(measure$minimize)) "max"
       if (is.null(private$.scheduler_args$mode)) {

@@ -14,8 +14,10 @@ greater than \code{1}, the scheduler only steps in the epochs in which the valid
 evaluated, so \code{patience} evaluation steps correspond to \code{patience * eval_freq} epochs.
 
 Unless \code{mode} is set, it is derived from the measure: \code{"min"} if the measure is minimized and
-\code{"max"} if it is maximized. Training fails when \code{mode} contradicts the measure, or when the
-learner has no validation measure for the scheduler to step on.
+\code{"max"} if it is maximized. Training fails when \code{mode} contradicts the measure.
+When the learner has no validation measure, e.g. in the final fit of an
+\code{\link[mlr3tuning:AutoTuner]{AutoTuner}} that tunes the epochs internally, a warning is given and
+the learning rate is not reduced.
 }
 \section{Resuming}{
 
