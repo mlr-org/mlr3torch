@@ -346,7 +346,7 @@ test_that("unmergeable graphs are handled correctly", {
   task_ds = task_dataset(task, c(i1, i2))
 
   batch = task_ds$.getbatch(1)
-  expect_equal(batch$x[[1]], batch$x[[2]] - 1)
+  expect_equal(batch$x[[1]], batch$x[[2]] - 1L)
 })
 
 test_that("merge_lazy_tensors only returns modified columns", {

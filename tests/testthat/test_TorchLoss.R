@@ -165,7 +165,7 @@ test_that("cross entropy", {
   loss_binary$param_set$set_values(class_weight = torch_tensor(1))
   fn = loss_binary$generate(tsk_binary)
   expect_class(fn, "nn_bce_with_logits_loss")
-  expect_equal(fn, nn_bce_with_logits_loss(pos_weight = 1))
+  expect_equal(fn, nn_bce_with_logits_loss(pos_weight = torch_tensor(1)))
 
   loss_binary$param_set$set_values(ignore_index = 1)
   expect_error(loss_binary$generate(tsk_binary), "ignore_index is not supported for binary cross entropy loss")
@@ -184,10 +184,11 @@ test_that("cross entropy", {
   loss_multi$param_set$set_values(ignore_index = 3)
   fn = loss_multi$generate(tsk_multi)
   expect_class(fn, "nn_cross_entropy_loss")
-  expect_equal(fn, nn_cross_entropy_loss(ignore_index = 3))
+  # class_weight from above is still set
+  expect_equal(fn, nn_cross_entropy_loss(weight = 1, ignore_index = 3))
 
   loss_multi$param_set$set_values(ignore_index = NULL, reduction = "sum")
   fn = loss_multi$generate(tsk_multi)
   expect_class(fn, "nn_cross_entropy_loss")
-  expect_equal(fn, nn_cross_entropy_loss(reduction = "sum"))
+  expect_equal(fn, nn_cross_entropy_loss(weight = 1, reduction = "sum"))
 })
