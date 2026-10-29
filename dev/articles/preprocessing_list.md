@@ -25,7 +25,7 @@ are available in `mlr3torch`.
 | [trafo_adjust_saturation](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_trafo_adjust_saturation.html) | Adjust Saturation Transformation | torchvision | lazy_tensor |
 | [trafo_grayscale](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_trafo_grayscale.html) | Grayscale Transformation | torchvision | lazy_tensor |
 | [trafo_nop](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_trafo_nop.html) | No Transformation |  | lazy_tensor |
-| [trafo_normalize](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_trafo_normalize.html) | Normalization Transformation | torchvision | lazy_tensor |
+| [trafo_normalize](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_trafo_normalize.html) | Normalization Transformation |  | lazy_tensor |
 | [trafo_pad](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_trafo_pad.html) | Padding Transformation | torchvision | lazy_tensor |
 | [trafo_reshape](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_trafo_reshape.html) | Reshaping Transformation |  | lazy_tensor |
 | [trafo_resize](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_trafo_resize.html) | Resizing Transformation | torchvision | lazy_tensor |

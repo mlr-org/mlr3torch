@@ -129,8 +129,9 @@ learner$dataset(task, "train")
 #>     batch_constructor: function (data, cache = NULL) 
 #>     cache_lazy_tensors: FALSE
 #>     clone: function (deep = FALSE) 
+#>     data: data.table, data.frame
 #>     feature_ingress_tokens: list
-#>     initialize: function (task, feature_ingress_tokens, target_batchgetter = NULL) 
+#>     initialize: function (task, feature_ingress_tokens, target_batchgetter = NULL, 
 #>     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE) 
 #>     state_dict: function () 
 #>     target_batchgetter: function (data) 

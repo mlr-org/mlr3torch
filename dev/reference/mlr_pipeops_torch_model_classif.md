@@ -171,6 +171,9 @@ po_model$state
 #> $param_vals$tensor_dataset
 #> [1] FALSE
 #> 
+#> $param_vals$cache_task_data
+#> [1] TRUE
+#> 
 #> $param_vals$jit_trace
 #> [1] FALSE
 #> 
@@ -180,7 +183,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.067 
+#>   0.045 
 #> 
 #> $task_hash
 #> [1] "abc694dd29a7a8ce"

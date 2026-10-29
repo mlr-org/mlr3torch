@@ -234,7 +234,7 @@ nn_mse_loss(reduction = "mean")
 learner = lrn("regr.mlp", loss = t_loss("mse"))
 # The parameters of the loss are added to the learner's parameter set
 learner$param_set
-#> <ParamSetCollection(40)>
+#> <ParamSetCollection(41)>
 #>                       id    class lower upper nlevels        default
 #>                   <char>   <char> <num> <num>   <num>         <list>
 #>  1:               epochs ParamInt 0e+00   Inf     Inf <NoDefault[0]>
@@ -263,20 +263,21 @@ learner$param_set
 #> 24:       worker_globals ParamUty    NA    NA     Inf <NoDefault[0]>
 #> 25:      worker_packages ParamUty    NA    NA     Inf <NoDefault[0]>
 #> 26:       tensor_dataset ParamFct    NA    NA       1 <NoDefault[0]>
-#> 27:            jit_trace ParamLgl    NA    NA       2 <NoDefault[0]>
-#> 28:              neurons ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 29:                    p ParamDbl 0e+00     1     Inf <NoDefault[0]>
-#> 30:             n_layers ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#> 31:           activation ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 32:      activation_args ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 33:                shape ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 34:               opt.lr ParamDbl 0e+00   Inf     Inf          0.001
-#> 35:            opt.betas ParamUty    NA    NA     Inf    0.900,0.999
-#> 36:              opt.eps ParamDbl 1e-16   Inf     Inf          1e-08
-#> 37:     opt.weight_decay ParamDbl 0e+00   Inf     Inf              0
-#> 38:          opt.amsgrad ParamLgl    NA    NA       2          FALSE
-#> 39:     opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 40:       loss.reduction ParamFct    NA    NA       2           mean
+#> 27:      cache_task_data ParamLgl    NA    NA       2 <NoDefault[0]>
+#> 28:            jit_trace ParamLgl    NA    NA       2 <NoDefault[0]>
+#> 29:              neurons ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 30:                    p ParamDbl 0e+00     1     Inf <NoDefault[0]>
+#> 31:             n_layers ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#> 32:           activation ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 33:      activation_args ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 34:                shape ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 35:               opt.lr ParamDbl 0e+00   Inf     Inf          0.001
+#> 36:            opt.betas ParamUty    NA    NA     Inf    0.900,0.999
+#> 37:              opt.eps ParamDbl 1e-16   Inf     Inf          1e-08
+#> 38:     opt.weight_decay ParamDbl 0e+00   Inf     Inf              0
+#> 39:          opt.amsgrad ParamLgl    NA    NA       2          FALSE
+#> 40:     opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 41:       loss.reduction ParamFct    NA    NA       2           mean
 #>                       id    class lower upper nlevels        default
 #>                   <char>   <char> <num> <num>   <num>         <list>
 #>            value
@@ -307,13 +308,13 @@ learner$param_set
 #> 24:       [NULL]
 #> 25:       [NULL]
 #> 26:        FALSE
-#> 27:        FALSE
-#> 28:             
-#> 29:          0.1
-#> 30:       [NULL]
-#> 31: <nn_relu[1]>
-#> 32:    <list[0]>
-#> 33:       [NULL]
+#> 27:         TRUE
+#> 28:        FALSE
+#> 29:             
+#> 30:          0.1
+#> 31:       [NULL]
+#> 32: <nn_relu[1]>
+#> 33:    <list[0]>
 #> 34:       [NULL]
 #> 35:       [NULL]
 #> 36:       [NULL]
@@ -321,6 +322,7 @@ learner$param_set
 #> 38:       [NULL]
 #> 39:       [NULL]
 #> 40:       [NULL]
+#> 41:       [NULL]
 #>            value
 #>           <list>
 ```

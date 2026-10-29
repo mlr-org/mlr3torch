@@ -3,7 +3,7 @@
 Calls
 [`torchvision::transform_adjust_gamma`](https://torchvision.mlverse.org/reference/transform_adjust_gamma.html),
 see there for more information on the parameters. The preprocessing is
-applied to each element of a batch individually.
+applied to the whole batch.
 
 Being a `trafo_` operator, its `stages` parameter starts out as
 `"both"`, so the transformation is applied both while training and when

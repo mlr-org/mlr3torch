@@ -54,8 +54,8 @@ mlp
 #> • Parameters: epochs=30, device=cpu, num_threads=1, seed=random, eval_freq=1,
 #> measures_train=<list>, measures_valid=<list>, patience=0, min_delta=0,
 #> restore_best_weights=FALSE, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,
-#> jit_trace=FALSE, neurons=50,50, p=0.1, activation=<nn_relu>,
-#> activation_args=<list>
+#> cache_task_data=TRUE, jit_trace=FALSE, neurons=50,50, p=0.1,
+#> activation=<nn_relu>, activation_args=<list>
 #> • Validate: NULL
 #> • Packages: mlr3, mlr3torch, and torch
 #> • Predict Types: [response]
@@ -378,8 +378,9 @@ mlp_custom
 #> • Parameters: epochs=30, device=cpu, num_threads=1, seed=random, eval_freq=1,
 #> measures_train=<list>, measures_valid=<MeasureRegrSimple>, patience=0,
 #> min_delta=0, restore_best_weights=FALSE, batch_size=32, shuffle=TRUE,
-#> tensor_dataset=FALSE, jit_trace=FALSE, neurons=50,50, p=0.1,
-#> activation=<nn_relu>, activation_args=<list>, opt.lr=0.5, opt.nesterov=FALSE
+#> tensor_dataset=FALSE, cache_task_data=TRUE, jit_trace=FALSE, neurons=50,50,
+#> p=0.1, activation=<nn_relu>, activation_args=<list>, opt.lr=0.5,
+#> opt.nesterov=FALSE
 #> • Validate: 0.3
 #> • Packages: mlr3, mlr3torch, and torch
 #> • Predict Types: [response]

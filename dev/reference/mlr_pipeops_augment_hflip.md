@@ -3,7 +3,7 @@
 Calls
 [`torchvision::transform_hflip`](https://torchvision.mlverse.org/reference/transform_hflip.html),
 see there for more information on the parameters. The preprocessing is
-applied to each element of a batch individually.
+applied to the whole batch.
 
 Being an `augment_` operator, its `stages` parameter starts out as
 `"train"`, so the augmentation is applied while training and not when

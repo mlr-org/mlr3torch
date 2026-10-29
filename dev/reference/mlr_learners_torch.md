@@ -357,6 +357,13 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   with random data augmentation, as this augmentation will only be
   applied once at the beginning of training.
 
+- `cache_task_data` :: `logical(1)`  
+  Whether to retrieve the data from the task once and to take the
+  batches from it, instead of retrieving every batch from the task,
+  which is slow. This is initialized to `TRUE`. Set it to `FALSE` if a
+  copy of the task data does not fit into memory (lazy tensor columns
+  only contain indices and are small).
+
 - `jit_trace` :: `logical(1)`  
   Whether to trace the network with
   [`torch::jit_trace()`](https://torch.mlverse.org/docs/reference/jit_trace.html)

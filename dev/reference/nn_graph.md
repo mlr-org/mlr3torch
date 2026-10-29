@@ -47,7 +47,16 @@ nn_graph(graph, shapes_in, output_map = graph$output$name, list_output = FALSE)
   [`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)  
   The graph (consisting primarily of
   [`PipeOpModule`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_module.md)s)
-  that is wrapped by the network.
+  that is wrapped by the network. When it consists only of
+  [`PipeOpModule`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_module.md)s
+  and
+  [`PipeOpNOP`](https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_nop.html)s,
+  the order in which the modules are called is determined once and
+  `$forward()` calls them directly, which is much faster than running
+  the graph. This is determined anew when a new graph is assigned to
+  this field or when PipeOps are added to or removed from it, but not
+  when only its edges are changed, so the graph should not be modified
+  in place.
 
 - `input_map` ::
   [`character()`](https://rdrr.io/r/base/character.html)  
@@ -105,21 +114,21 @@ x = torch_randn(16, 10)
 
 network(module_1.input = x)
 #> torch_tensor
-#> -0.1231
-#> -0.3407
-#> -0.2371
-#> -0.3369
-#> -0.2580
-#> -0.2090
-#> -0.4082
-#> -0.2123
-#> -0.4355
-#> -0.2411
-#>  0.1181
-#>  0.2072
-#> -0.2285
-#> -0.2170
-#> -0.6558
-#> -0.1944
+#> -0.3290
+#> -0.4324
+#> -0.5125
+#> -0.2265
+#> -0.3226
+#> -0.4851
+#> -0.2946
+#> -0.4058
+#> -0.4121
+#> -0.3189
+#> -0.3593
+#> -0.4330
+#> -0.3802
+#> -0.4496
+#> -0.3183
+#> -0.2162
 #> [ CPUFloatType{16,1} ][ grad_fn = <AddmmBackward0> ]
 ```

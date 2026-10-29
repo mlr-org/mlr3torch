@@ -19,7 +19,12 @@ The data is returned on the device specified by the parameter `device`.
 ## Usage
 
 ``` r
-task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL)
+task_dataset(
+  task,
+  feature_ingress_tokens,
+  target_batchgetter = NULL,
+  cache_data = TRUE
+)
 ```
 
 ## Arguments
@@ -48,6 +53,14 @@ task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL)
   that is a function of the input needs, see
   [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/dev/reference/get_target_batchgetter.md).
   If `NULL` (default), the batches have no `y` element.
+
+- cache_data:
+
+  (`logical(1)`)  
+  Whether to retrieve the data from the task once (in `$initialize()`)
+  and to take the batches from it, instead of retrieving every batch
+  from the task, which is slow. This needs memory for a copy of the task
+  data (lazy tensor columns only contain indices and are small).
 
 ## Value
 
