@@ -483,6 +483,7 @@ which takes the <code>batch_size_predict</code> parameter into account.</p></li>
 (<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of them, <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>) -&gt; <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 Take in the raw predictions from <code>self$network</code> (<code>network_output</code>) and encode them into a
 format that can be converted to valid <code>mlr3</code> predictions using <code><a href="https://mlr3.mlr-org.com/reference/as_prediction_data.html" class="external-link">mlr3::as_prediction_data()</a></code>.
+For classification, <code>task</code> has its classes in the order of the training task.
 It is a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors when the network returns more than one, see section
 <em>Network Head and Target Encoding</em>.
 This method must take <code>self$predict_type</code> into account.</p></li>

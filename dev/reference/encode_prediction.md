@@ -31,7 +31,10 @@ encode_prediction(task, network_output, predict_type, ...)
 - task:
 
   ([`Task`](https://mlr3.mlr-org.com/reference/Task.html))  
-  The task to predict on.
+  The task to predict on. For classification, a
+  [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)
+  passes it with the classes in the order of its training task, which is
+  the order that the columns of `network_output` refer to.
 
 - network_output:
 

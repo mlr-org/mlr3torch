@@ -659,10 +659,11 @@ below:
   encode them into a format that can be converted to valid `mlr3`
   predictions using
   [`mlr3::as_prediction_data()`](https://mlr3.mlr-org.com/reference/as_prediction_data.html).
-  It is a [`list()`](https://rdrr.io/r/base/list.html) of tensors when
-  the network returns more than one, see section *Network Head and
-  Target Encoding*. This method must take `self$predict_type` into
-  account.
+  For classification, `task` has its classes in the order of the
+  training task. It is a [`list()`](https://rdrr.io/r/base/list.html) of
+  tensors when the network returns more than one, see section *Network
+  Head and Target Encoding*. This method must take `self$predict_type`
+  into account.
 
 While it is possible to add parameters by specifying the `param_set`
 construction argument, it is currently not possible to remove existing

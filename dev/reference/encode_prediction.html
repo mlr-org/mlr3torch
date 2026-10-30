@@ -115,7 +115,9 @@ When adding support for a custom task type, implement a method for the correspon
 
 <dl><dt id="arg-task">task<a class="anchor" aria-label="anchor" href="#arg-task"></a></dt>
 <dd><p>(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>)<br>
-The task to predict on.</p></dd>
+The task to predict on.
+For classification, a <code><a href="mlr_learners_torch.html">LearnerTorch</a></code> passes it with the classes in the order of its training
+task, which is the order that the columns of <code>network_output</code> refer to.</p></dd>
 
 
 <dt id="arg-network-output">network_output<a class="anchor" aria-label="anchor" href="#arg-network-output"></a></dt>
