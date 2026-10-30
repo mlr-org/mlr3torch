@@ -199,16 +199,22 @@ center_crop_shapes = function(shapes_in, param_vals, task) {
 }
 
 # `transform_resized_crop()` crops and then resizes, so both rules have to be composed: with a
-# single `size` the aspect ratio of the cropped image decides the output
+# single `size` the aspect ratio of the cropped image decides the output. Since torchvision 0.10.0,
+# `transform_crop()` pads a crop that leaves the image with zeros, so the cropped image always has
+# the requested size, even when the input size is unknown. Earlier versions clamp it to the image.
 resized_crop_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   # only the trailing two dimensions are touched, so a channel-less image is fine
   assert_image_shape(shape, self$id, ndim = 3L)
-  hw = utils::tail(shape, 2L)
-  cropped = c(
-    crop_extent(hw[1L], param_vals[["top"]], param_vals[["height"]]),
-    crop_extent(hw[2L], param_vals[["left"]], param_vals[["width"]])
-  )
+  if (utils::packageVersion("torchvision") >= "0.10.0") {
+    cropped = as.integer(c(param_vals[["height"]], param_vals[["width"]]))
+  } else {
+    hw = utils::tail(shape, 2L)
+    cropped = c(
+      crop_extent(hw[1L], param_vals[["top"]], param_vals[["height"]]),
+      crop_extent(hw[2L], param_vals[["left"]], param_vals[["width"]])
+    )
+  }
   # resizing an empty crop is impossible
   assert_positive_extent(cropped, shape, self$id)
   list(replace_tail(shape, resize_extent(cropped, param_vals[["size"]], self$id)))
