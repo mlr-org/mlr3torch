@@ -207,8 +207,8 @@ test_that("cloning", {
   expect_true(identical(network1$graph$pipeops$nn_linear$module, network1$module_list$modules[[2]]))
 
   expect_deep_clone_mlr3torch(network$graph, network1$graph)
-  network$graph = NULL
-  network1$graph = NULL
+  get_private(network)$.graph = NULL
+  get_private(network1)$.graph = NULL
   expect_deep_clone_mlr3torch(network, network1)
 })
 
@@ -298,17 +298,20 @@ test_that("nn_graph falls back to Graph$train() for operators other than PipeOpM
   expect_equal(out[[1L]], out[[2L]])
 })
 
-test_that("assigning a graph resets the forward plan", {
+test_that("the graph cannot be replaced, and a nested assignment resets the forward plan", {
   graph = as_graph(po("module", id = "linear", module = nn_linear(2, 3)))
   network = nn_graph(graph, shapes_in = set_names(list(c(NA, 2)), graph$input$name))
   x = torch_randn(4, 2)
   network(x)
   expect_list(forward_plan(network))
-  network$graph = po("module", id = "linear", module = nn_linear(2, 3)) %>>% po("module", id = "relu", module = nn_relu())
+  # the parameters of the new graph's modules would not be registered
+  expect_error({
+    network$graph = as_graph(po("module", id = "linear", module = nn_linear(2, 3)))
+  }, "cannot be replaced")
+  expect_list(forward_plan(network))
+  network$graph$pipeops$linear$module = nn_relu()
   expect_null(forward_plan(network))
-  network$output_map = "relu.output"
-  expect_true(all(as_array(network(x)) >= 0))
-  expect_equal(forward_plan(network)$steps[[2L]]$id, "relu")
+  expect_true(torch_equal(network(x), nnf_relu(x)))
 })
 
 test_that("forward plan uses the modules of a deep clone", {
