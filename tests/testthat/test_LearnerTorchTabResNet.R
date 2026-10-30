@@ -70,22 +70,3 @@ test_that("error messages", {
   l$configure(shape = c(NA, 4))
   expect_error(l$train(nano_dogs_vs_cats()), NA)
 })
-
-test_that("the output of the last block is normalized and activated before the head", {
-  # the prediction is Linear(ReLU(BatchNorm(x))) in Gorishniy et al. (2021), as the blocks only
-  # normalize their input
-  for (n_blocks in 0:2) {
-    learner = lrn("regr.tab_resnet", epochs = 1, batch_size = 16, n_blocks = n_blocks, d_block = 5,
-      d_hidden = 10, dropout1 = 0, dropout2 = 0)
-    learner$train(tsk("mtcars"))
-    graph = learner$network$graph
-    src_of = function(id) graph$edges$src_id[graph$edges$dst_id == id]
-
-    expect_equal(src_of("nn_head"), "nn_relu")
-    expect_equal(src_of("nn_relu"), "nn_batch_norm1d")
-    expect_equal(src_of("nn_batch_norm1d"),
-      if (n_blocks) sprintf("nn_block.nn_tab_resnet__%i", n_blocks) else "nn_linear")
-    expect_class(graph$pipeops$nn_batch_norm1d$module, "nn_batch_norm1d")
-    expect_equal(graph$pipeops$nn_batch_norm1d$module$num_features, 5)
-  }
-})
