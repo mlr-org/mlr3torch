@@ -131,7 +131,7 @@ msr_missing = function(is_missing) {
     }),
     private = list(.score = function(prediction, ...) {
       counter$n_calls = counter$n_calls + 1L
-      if (is_missing(counter$n_calls)) NaN else mlr3measures::mse(prediction$truth, prediction$response)
+      if (is_missing(counter$n_calls)) NaN else mean((prediction$truth - prediction$response)^2)
     })
   )$new()
 }
