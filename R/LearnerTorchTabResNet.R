@@ -10,6 +10,12 @@
 #' @description
 #' A residual network for tabular data, following `r cite_bib("gorishniy2021revisiting")`.
 #'
+#' The features are first projected to dimension `d_block` by a linear layer, followed by `n_blocks`
+#' residual blocks.
+#' Each block computes `x + Dropout(Linear(Dropout(ReLU(Linear(BatchNorm(x))))))`, where the two
+#' dropout ratios are `dropout1` and `dropout2`.
+#' The prediction is `Linear(ReLU(BatchNorm(x)))` of the output `x` of the last block.
+#'
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`], as well as:
 #' * `n_blocks` :: `integer(1)`\cr
@@ -87,9 +93,13 @@ LearnerTorchTabResNet = R6Class("LearnerTorchTabResNet",
       } else {
         po("torch_ingress_num", id = "num")
       }
+      # The blocks normalize their input, but not their output, which is why the prediction head
+      # starts with a normalization and an activation
       graph = ingress %>>%
         po("nn_linear", out_features = param_vals$d_block) %>>%
         po("nn_block", private$.block, n_blocks = param_vals$n_blocks) %>>%
+        po("nn_batch_norm1d") %>>%
+        po("nn_relu") %>>%
         po("nn_head")
 
       md = graph$train(task)[[1L]]

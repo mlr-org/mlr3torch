@@ -143,6 +143,8 @@
 * Fixed some bugs in `FTTransformer`: `attention_initialization` now has an
   effect, `n_blocks = 0` is allowed and the hidden dimension falls back to
   `d_token * 4/3` as in the reference implementation.
+* `lrn("classif.tab_resnet")` / `lrn("regr.tab_resnet")` now apply batch normalization and ReLU before
+  the output layer, as in the reference implementation.
 * Fixed some issues in the documentation.
 * Examples, vignettes and the README now use `nn("linear")` instead of the equivalent but longer
   `po("nn_linear")`.
