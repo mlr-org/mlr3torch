@@ -136,7 +136,7 @@ test_that("plateau does not step when an epoch has no validation scores", {
     callbacks = t_clbk("lr_reduce_on_plateau"), epochs = 8, batch_size = 150, neurons = 10, ...)
 
   without_valid = mlp()
-  expect_no_error(without_valid$train(task))
+  expect_warning(without_valid$train(task), "has no 'measures_valid', so the learning rate is not reduced")
   expect_equal(without_valid$model$callbacks$lr_reduce_on_plateau$last_epoch, 0)
   expect_equal(without_valid$model$optimizer$param_groups[[1L]]$lr,
     without_valid$param_set$values$opt.lr %??% formals(optim_ignite_adam)$lr)
@@ -144,6 +144,67 @@ test_that("plateau does not step when an epoch has no validation scores", {
   every_fourth = mlp(validate = 0.2, measures_valid = msrs("classif.ce"), eval_freq = 4)
   expect_no_error(every_fourth$train(task))
   expect_equal(every_fourth$model$callbacks$lr_reduce_on_plateau$last_epoch, 2)
+})
+
+# A validation measure whose score improves in every evaluation.
+msr_improving = function(minimize) {
+  counter = new.env()
+  counter$n_calls = 0L
+  R6Class("MeasureImproving", inherit = mlr3::MeasureClassif,
+    public = list(initialize = function() {
+      super$initialize(id = "improving", range = c(-Inf, Inf), minimize = minimize)
+    }),
+    private = list(.score = function(prediction, ...) {
+      counter$n_calls = counter$n_calls + 1L
+      if (minimize) -counter$n_calls else counter$n_calls
+    })
+  )$new()
+}
+
+test_that("plateau derives its mode from the validation measure", {
+  task = tsk("iris")
+  mlp = function(measure, ...) lrn("classif.mlp",
+    callbacks = t_clbk("lr_reduce_on_plateau", patience = 0L, factor = 0.5, ...),
+    epochs = 5, batch_size = 150, neurons = 10, opt.lr = 0.1, validate = 0.2, measures_valid = measure)
+
+  # the score improves in every epoch, so the learning rate is never reduced -- also for a measure
+  # that is maximized, whose increasing scores the "min" mode that torch defaults to takes for a
+  # plateau
+  for (minimize in c(TRUE, FALSE)) {
+    learner = mlp(msr_improving(minimize))
+    learner$train(task)
+    expect_equal(learner$model$callbacks$lr_reduce_on_plateau$mode, if (minimize) "min" else "max")
+    expect_equal(learner$model$optimizer$param_groups[[1L]]$lr, 0.1)
+  }
+
+  # an explicit mode that contradicts the measure would reduce the learning rate while it improves
+  expect_error(mlp(msr("classif.acc"), mode = "min")$train(task),
+    "has mode 'min', but the validation measure 'classif.acc' it steps on is maximized")
+  agreeing = mlp(msr("classif.acc"), mode = "max")
+  expect_no_error(agreeing$train(task))
+
+  # without a direction, the mode has to be set
+  undirected = msr("classif.ce")
+  undirected$minimize = NA
+  expect_error(mlp(undirected)$train(task), "minimize = NA")
+  expect_no_error(mlp(undirected, mode = "min")$train(task))
+})
+
+test_that("plateau works in an AutoTuner that tunes the epochs internally", {
+  skip_if_not_installed("mlr3tuning")
+  learner = lrn("classif.mlp", callbacks = t_clbk("lr_reduce_on_plateau"), neurons = 10,
+    measures_valid = msr("classif.ce"), validate = "test", patience = 2, epochs = to_tune(upper = 4, internal = TRUE),
+    batch_size = 150)
+  at = mlr3tuning::auto_tuner(
+    learner = learner,
+    resampling = rsmp("holdout"),
+    measure = msr("internal_valid_score", minimize = TRUE),
+    tuner = mlr3tuning::tnr("internal"),
+    term_evals = 1
+  )
+  # the final fit trains without validation data, so the scheduler cannot step there
+  expect_warning(at$train(tsk("iris")), "has no 'measures_valid'")
+  expect_equal(at$model$learner$model$callbacks$lr_reduce_on_plateau$last_epoch, 0)
 })
 
 test_that("1cycle works", {
