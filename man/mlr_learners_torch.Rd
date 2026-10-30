@@ -279,6 +279,10 @@ This is initialized to \code{TRUE}. Set it to \code{FALSE} if a copy of the task
 Whether to trace the network with \code{\link[torch:jit_trace]{torch::jit_trace()}} once at the start of training and then
 train the traced module instead of the original one.
 Not all learners support this.
+A traced network takes its inputs by position and ignores their names
+(\href{https://github.com/mlverse/torch/issues/1495}{mlverse/torch#1495}).
+The learner passes the inputs in the right order, but when calling the traced \verb{$network} of a trained learner
+with several inputs directly, they must be passed by position in the order given by \code{attr(learner$network, "input_order")}.
 }
 
 \strong{Evaluation}:
@@ -315,6 +319,8 @@ Note that the final model is stored in the learner, not the best model, unless
 \code{restore_best_weights} is set to \code{TRUE}.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
+A missing (\code{NA}) score counts as no improvement, and every score improves on a missing one.
+If all scores are missing, the first evaluated epoch is reported as the best one.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
@@ -472,6 +478,7 @@ To change the predict types, it is possible to overwrite the method below:
 (\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()} of them, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr
 Take in the raw predictions from \code{self$network} (\code{network_output}) and encode them into a
 format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
+For classification, \code{task} has its classes in the order of the training task.
 It is a \code{list()} of tensors when the network returns more than one, see section
 \emph{Network Head and Target Encoding}.
 This method must take \code{self$predict_type} into account.

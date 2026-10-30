@@ -144,8 +144,10 @@ A list with ingress tokens that defines how the dataloader will be defined.}
 The task type.}
       \item{\code{properties}}{(\code{NULL} or \code{character()})\cr
 The properties of the learner.
-Defaults to all available properties for the given task type, except for \code{"weights"},
-\code{"new_levels"} and \code{"missings"}.}
+Defaults to the properties that every \code{\link{LearnerTorch}} has, i.e. \code{"marshal"}, \code{"validation"} and
+\code{"internal_tuning"} (and \code{"twoclass"} and \code{"multiclass"} for classification).
+Other properties such as \code{"weights"}, \code{"missings"}, \code{"new_levels"} or \code{"offset"} must only be
+claimed if the network and the ingress tokens handle them, as mlr3 then skips its checks for them.}
       \item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The torch optimizer.}
       \item{\code{loss}}{(\code{\link{TorchLoss}})\cr

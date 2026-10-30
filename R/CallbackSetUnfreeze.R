@@ -15,6 +15,8 @@
 #' @param unfreeze (`data.table`)\cr
 #'  A `data.table` with a column `weights` (a list column of `Select`s) and a column `epoch` or `batch`.
 #'  The selector indicates which parameters to unfreeze, while the `epoch` or `batch` column indicates when to do so.
+#'  Its values must be positive integers: epochs and batches are counted from 1 (batches across epochs), and the
+#'  weights are unfrozen at the start of the given epoch or batch, so they are already trained in it.
 #'
 #' @family Callback
 #' @export
@@ -159,8 +161,8 @@ check_unfreeze_dt = function(x) {
     return("Exactly one of the columns must be named 'epoch' or 'batch'")
   }
   xs = x[["epoch"]] %??% x[["batch"]]
-  if (!test_integerish(xs, lower = 0L) || anyDuplicated(xs)) {
-    return("Column batch/epoch must be a positive integerish vector without duplicates.")
+  if (!test_integerish(xs, lower = 1L) || anyDuplicated(xs)) {
+    return("Column batch/epoch must be a positive integerish vector without duplicates (epochs and batches are counted from 1)")
   }
   if (!test_list(x$weights)) {
     return("The `weights` column should be a list")

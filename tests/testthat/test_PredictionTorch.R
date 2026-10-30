@@ -263,6 +263,30 @@ test_that("the empty prediction never builds an empty batch", {
   expect_length(learner$predict(task, row_ids = integer(0))$row_ids, 0L)
 })
 
+test_that("the empty prediction uses the training order of the features", {
+  # one embedding per categorical feature, sized by its cardinality: the probe row of a task with the
+  # features in another order would index the embedding of `a` (2 levels) with the code of `b` (4 of 4)
+  embeddings = nn_module("embeddings",
+    initialize = function(task) {
+      self$embs = nn_module_list(lapply(lengths(task$levels(task$feature_names)), nn_embedding, embedding_dim = 1L))
+    },
+    forward = function(x) Reduce(`+`, lapply(seq_along(self$embs), function(j) self$embs[[j]](x[, j])))
+  )
+  d = data.table(y = rnorm(20), a = factor(rep(c("p", "q"), 10)), b = factor(rep(c("u", "t", "s", "r"), 5)))
+  task = tt_task(d, target = "y")
+  learner = tt_learner(t_loss("mse"), module_generator = embeddings, ingress_tokens = list(x = ingress_categ()))
+  learner$train(task)
+  task_reversed = reverse_features(task)
+
+  pred = learner$predict(task_reversed, row_ids = integer(0))
+  expect_class(pred, "PredictionTorch")
+  expect_length(pred$row_ids, 0L)
+  expect_numeric(pred$response, len = 0L)
+  # ... and it can be combined with a non-empty prediction, which is in the training order as well
+  combined = c(pred$data, learner$predict(task_reversed)$data)
+  expect_equal(combined$response, learner$predict(task)$response)
+})
+
 test_that("an empty prediction is encoded from what the network really returns", {
   task = tt_task_2head()
   learner = tt_learner(tt_loss_2head(), module_generator = tt_module_2head,
@@ -664,11 +688,10 @@ test_that("the lazy_tensor predict type hands back the network output", {
   learner$network$eval()
   expected = with_no_grad(learner$network(batch$x$x))
   # one batch of 20 rows and the two batches `$predict()` used do not take the same path through
-  # float32 arithmetic, so this is equal only up to rounding
-  expect_equal(
-    as.numeric(as.matrix(materialize(pred$lazy_tensor, rbind = TRUE)$cpu())),
-    as.numeric(as.matrix(expected$cpu())), tolerance = 1e-6
-  )
+  # float32 arithmetic, so this is equal only up to rounding. The tolerance is absolute: the relative
+  # difference of expect_equal() is computed over the differing elements only, so a rounding
+  # difference in an output close to zero would exceed a relative tolerance.
+  expect_true(torch_allclose(materialize(pred$lazy_tensor, rbind = TRUE)$cpu(), expected$cpu(), rtol = 0, atol = 1e-6))
 
   # ... and it travels through the machinery like any other element
   expect_true("lazy_tensor" %chin% names(as.data.table(pred)))

@@ -152,7 +152,10 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
           stopf("PipeOp '%s' cannot have 'n_blocks' = 0, as its block has %i input(s) but %i output(s).",
             self$id, length(inputs), nrow(private$.output_all))
         }
-        return(private$.keep_outputs(inputs))
+        out = private$.keep_outputs(inputs)
+        # without a state, the PipeOp counts as untrained and the graph cannot predict
+        self$state = map(out, "pointer_shape")
+        return(out)
       }
       block = private$.block$clone(deep = TRUE)
       graph = private$.make_graph(block, param_vals$n_blocks)

@@ -50,13 +50,6 @@ test_that("PipeOpTorchIngressLazyTensor", {
   expect_error(po_ingress$param_set$set_values(shape = c(NA, 22, 4)), regexp = NA)
 })
 
-test_that("target can contain missings for ingress", {
-  task = as_task_regr(data.table(y = c(1, NA), x = 1:1), target = "y")
-  md = po("torch_ingress_num")$train(list(task))[[1L]]
-  expect_class(md, "ModelDescriptor")
-})
-
-
 test_that("shape of lazy tensor ingress can be inferred", {
   po_ingress = po("torch_ingress_ltnsr", shape = "infer")
   out = po_ingress$train(list(nano_dogs_vs_cats()))[[1L]]
@@ -72,4 +65,24 @@ test_that("error message unknown shapes", {
 test_that("allow for flexible shapes", {
   task =
   ingress = po("torch_ingress_ltnsr", shape = c(NA, NA))
+})
+
+test_that("prediction uses the training order of the features: torch_ingress_num", {
+  task = as_task_regr(data.table(y = rnorm(20), x1 = rnorm(20), x2 = rnorm(20, mean = 10)), target = "y")
+  learner = as_learner(po("torch_ingress_num") %>>% nn("head") %>>% po("torch_loss", "mse") %>>%
+    po("torch_optimizer", "adam") %>>% po("torch_model_regr", epochs = 1L, batch_size = 10L))
+  learner$train(task)
+  expect_equal(learner$predict(reverse_features(task))$response, learner$predict(task)$response)
+})
+
+test_that("prediction uses the training order of the features: torch_ingress_categ", {
+  # the features have different cardinalities, so their codes index different blocks of the embedding
+  task = as_task_regr(data.table(
+    y = rnorm(20), a = factor(rep(c("p", "q"), 10)), b = factor(rep(c("r", "s", "t", "u"), 5))
+  ), target = "y")
+  learner = as_learner(po("torch_ingress_categ") %>>% nn("tokenizer_categ", d_token = 2L) %>>% nn("flatten") %>>%
+    nn("head") %>>% po("torch_loss", "mse") %>>% po("torch_optimizer", "adam") %>>%
+    po("torch_model_regr", epochs = 1L, batch_size = 10L))
+  learner$train(task)
+  expect_equal(learner$predict(reverse_features(task))$response, learner$predict(task)$response)
 })

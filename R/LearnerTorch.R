@@ -311,6 +311,7 @@
 #'   ([`torch_tensor`][torch::torch_tensor] or `list()` of them, [`Task`][mlr3::Task]) -> `list()`\cr
 #'   Take in the raw predictions from `self$network` (`network_output`) and encode them into a
 #'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
+#'   For classification, `task` has its classes in the order of the training task.
 #'   It is a `list()` of tensors when the network returns more than one, see section
 #'   *Network Head and Target Encoding*.
 #'   This method must take `self$predict_type` into account.
@@ -845,7 +846,10 @@ LearnerTorch = R6Class("LearnerTorch",
             value$model = model
             return(value)
           }
-          model$network = model$network$clone(deep = TRUE)
+          network = model$network
+          model$network = network$clone(deep = TRUE)
+          # the order in which a traced network takes its inputs, see `network_inputs()`
+          attr(model$network, "input_order") = attr(network, "input_order")
           model$loss_fn = clone_recurse(model$loss_fn)
           model$callbacks = map(model$callbacks, function(x) {
               if (is.R6(x)) {
@@ -877,6 +881,8 @@ clone_recurse = function(l) {
 #' @export
 marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
   model$jitted = inherits(model$network, "script_module")
+  # the order in which a traced network takes its inputs is not serialized with it, see `network_inputs()`
+  model$input_order = attr(model$network, "input_order")
   model$network = if (model$jitted) {
     jit_serialize(model$network)
   } else {
@@ -897,11 +903,13 @@ unmarshal_model.learner_torch_model_marshaled = function(model, inplace = FALSE,
   model$network = if (isTRUE(model$jitted)) {
     deser = jit_unserialize(model$network)
     deser$to(device = device)
+    attr(deser, "input_order") = model$input_order
     deser
   } else {
     torch_load(model$network, device = device)
   }
   model$jitted = NULL
+  model$input_order = NULL
   model$loss_fn = torch_load(model$loss_fn, device = device)
   model$optimizer = torch_load(model$optimizer, device = device)
   return(model)

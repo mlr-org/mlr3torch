@@ -138,20 +138,14 @@ grayscale_shapes = function(shapes_in, param_vals, task) {
   list(shape)
 }
 
-# Since torchvision 0.10.0, `transform_rgb_to_grayscale()` keeps the channel dimension and sets it
-# to 1 as in PyTorch, i.e. (3, 16, 20) becomes (1, 16, 20). Earlier versions drop it and return
-# (16, 20), so the inferred shape depends on the installed version.
+# `transform_rgb_to_grayscale()` keeps the channel dimension and sets it to 1 as in PyTorch, i.e.
+# (3, 16, 20) becomes (1, 16, 20)
 rgb_to_grayscale_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   assert_image_shape(shape, self$id)
   assert_rgb_channels(shape, self$id)
-  channel_dim = length(shape) - 2L
-  if (utils::packageVersion("torchvision") >= "0.10.0") {
-    shape[channel_dim] = 1L
-    list(shape)
-  } else {
-    list(shape[-channel_dim])
-  }
+  shape[length(shape) - 2L] = 1L
+  list(shape)
 }
 
 crop_shapes = function(shapes_in, param_vals, task) {
@@ -199,16 +193,14 @@ center_crop_shapes = function(shapes_in, param_vals, task) {
 }
 
 # `transform_resized_crop()` crops and then resizes, so both rules have to be composed: with a
-# single `size` the aspect ratio of the cropped image decides the output
+# single `size` the aspect ratio of the cropped image decides the output. `transform_crop()` pads a
+# crop that leaves the image with zeros, so the cropped image always has the requested size, even
+# when the input size is unknown.
 resized_crop_shapes = function(shapes_in, param_vals, task) {
   shape = shapes_in[[1L]]
   # only the trailing two dimensions are touched, so a channel-less image is fine
   assert_image_shape(shape, self$id, ndim = 3L)
-  hw = utils::tail(shape, 2L)
-  cropped = c(
-    crop_extent(hw[1L], param_vals[["top"]], param_vals[["height"]]),
-    crop_extent(hw[2L], param_vals[["left"]], param_vals[["width"]])
-  )
+  cropped = as.integer(c(param_vals[["height"]], param_vals[["width"]]))
   # resizing an empty crop is impossible
   assert_positive_extent(cropped, shape, self$id)
   list(replace_tail(shape, resize_extent(cropped, param_vals[["size"]], self$id)))
@@ -365,11 +357,12 @@ register_preproc("trafo_rgb_to_grayscale", batchwise("transform_rgb_to_grayscale
 # calling it on every element, but much faster. For inputs with fewer dimensions, e.g. (N, C) or (N, C, L), the
 # channels are the second dimension.
 normalize_batch = function(x, mean, std) {
+  # otherwise, mean and std would be truncated to integers (and unsigned integers would wrap around in x - mean)
+  if (!x$is_floating_point()) {
+    x = x$to(dtype = torch_get_default_dtype())
+  }
   mean = torch_tensor(mean, dtype = x$dtype, device = x$device)
   std = torch_tensor(std, dtype = x$dtype, device = x$device)
-  if ((std == 0)$any()$item()) {
-    stopf("Parameter 'std' must not contain zeros, as this leads to a division by zero.")
-  }
   channel_dim = if (x$ndim >= 4L) x$ndim - 2L else 2L
   channel_shape = c(rep(1L, channel_dim - 1L), -1L, rep(1L, x$ndim - channel_dim))
   if (mean$dim() == 1L) mean = mean$view(channel_shape)
@@ -393,6 +386,8 @@ normalize_batch = function(x, mean, std) {
 #' The channels are the third-to-last dimension, e.g. `C` for images of shape `(N, C, H, W)` or videos of shape
 #' `(N, T, C, H, W)`, as in [`torchvision::transform_normalize`], which this is the same as for these inputs.
 #' For inputs with fewer dimensions, e.g. `(N, C)` or `(N, C, L)`, the channels are the second dimension.
+#' Inputs that are not floating point, e.g. images stored as integers, are converted to the default floating point type
+#' ([`torch_get_default_dtype()`][torch::torch_get_default_dtype]) first.
 #' The preprocessing is applied to the whole batch.
 #'
 #' Being a `trafo_` operator, its `stages` parameter starts out as `"both"`, so the transformation is applied both

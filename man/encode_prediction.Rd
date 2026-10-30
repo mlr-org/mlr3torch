@@ -8,7 +8,9 @@ encode_prediction(task, network_output, predict_type, ...)
 }
 \arguments{
 \item{task}{(\code{\link[mlr3:Task]{Task}})\cr
-The task to predict on.}
+The task to predict on.
+For classification, a \code{\link{LearnerTorch}} passes it with the classes in the order of its training
+task, which is the order that the columns of \code{network_output} refer to.}
 
 \item{network_output}{(\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()} of them)\cr
 The raw output of the network in evaluation mode.

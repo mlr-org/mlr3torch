@@ -964,17 +964,14 @@ test_that("internal tuned values is correct", {
 })
 
 test_that("trace-jitting works", {
-  l1 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = TRUE)
-  l2 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = FALSE)
+  # the learner's `seed` parameter (default "random") reseeds torch during $train(), so it has to be
+  # set for the two runs to be comparable
+  l1 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = TRUE, seed = 1)
+  l2 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = FALSE, seed = 1)
   task = tsk("iris")
 
-  n1 = with_torch_manual_seed({
-    l1$train(task)$network
-  }, seed = 1)
-
-  n2 = with_torch_manual_seed({
-    l2$train(task)$network
-  }, seed = 1)
+  n1 = l1$train(task)$network
+  n2 = l2$train(task)$network
 
   expect_equal(n1$parameters, n2$parameters)
   expect_class(n1, "script_module")
@@ -987,7 +984,7 @@ test_that("trace-jitting works", {
     po("nn_head") %>>%
     po("torch_optimizer") %>>%
     po("torch_loss", "cross_entropy") %>>%
-    po("torch_model_classif", epochs = 1, batch_size = 16, jit_trace = FALSE)
+    po("torch_model_classif", epochs = 1, batch_size = 16, jit_trace = FALSE, seed = 1)
 
   glrn1 = as_learner(graph, clone = TRUE)
   glrn2 = as_learner(graph, clone = TRUE)
@@ -995,13 +992,8 @@ test_that("trace-jitting works", {
     torch_model_classif.jit_trace = TRUE
   )
 
-  n3 = with_torch_manual_seed({
-    glrn1$train(task)$model$torch_model_classif$model$network
-  }, seed = 1)
-
-  n4 = with_torch_manual_seed({
-    glrn2$train(task)$model$torch_model_classif$model$network
-  }, seed = 1)
+  n3 = glrn1$train(task)$model$torch_model_classif$model$network
+  n4 = glrn2$train(task)$model$torch_model_classif$model$network
 
   expect_equal(n3$parameters, n4$parameters)
 
@@ -1009,6 +1001,98 @@ test_that("trace-jitting works", {
   l1$marshal()
   l1$unmarshal()
   expect_prediction(l1$predict(task))
+})
+
+test_that("a traced network with several inputs receives them by name", {
+  # the arguments of the network are not in the order of the ingress tokens, but a traced network
+  # takes its inputs by position
+  network = nn_module(
+    initialize = function() {
+      self$linear_a = nn_linear(2, 1)
+      self$linear_b = nn_linear(2, 1)
+    },
+    forward = function(b, a) self$linear_a(a) + 10 * self$linear_b(b)
+  )()
+  task = as_task_regr(data.table(a1 = rnorm(30), a2 = rnorm(30), b1 = rnorm(30, mean = 5), b2 = rnorm(30, mean = 5),
+    y = rnorm(30)), target = "y")
+  task$internal_valid_task = task$clone(deep = TRUE)$filter(21:30)
+  task$filter(1:20)
+  ingress_tokens = list(
+    a = TorchIngressToken(c("a1", "a2"), batchgetter_num, c(NA, 2L)),
+    b = TorchIngressToken(c("b1", "b2"), batchgetter_num, c(NA, 2L))
+  )
+  make_learner = function(jit_trace) {
+    lrn("regr.torch_model", network = network, ingress_tokens = ingress_tokens, batch_size = 10L, epochs = 2L,
+      shuffle = FALSE, optimizer = t_opt("sgd", lr = 0.01), jit_trace = jit_trace, validate = "predefined",
+      measures_valid = msr("regr.mse"))
+  }
+  learner = make_learner(FALSE)
+  learner$train(task)
+  learner_jit = make_learner(TRUE)
+  learner_jit$train(task)
+  expect_class(learner_jit$network, "script_module")
+
+  # training, validation and prediction pass the inputs in the order of the network's arguments
+  expect_equal(learner_jit$internal_valid_scores, learner$internal_valid_scores, tolerance = 1e-5)
+  pred = learner$predict(task)$response
+  expect_equal(learner_jit$predict(task)$response, pred, tolerance = 1e-5)
+  learner_jit$marshal()
+  learner_jit$unmarshal()
+  expect_equal(learner_jit$predict(task)$response, pred, tolerance = 1e-5)
+
+  # a deep clone keeps the order; a trained LearnerTorchModel cannot be deep cloned, so another learner is used
+  learner = R6Class("LearnerTorchTwoInputs",
+    inherit = LearnerTorch,
+    public = list(
+      initialize = function() {
+        super$initialize(task_type = "regr", id = "regr.two_inputs", param_set = ps(), feature_types = "numeric",
+          label = "Two Inputs", man = "some_man", jittable = TRUE)
+      }
+    ),
+    private = list(
+      .network = function(task, param_vals) network$clone(deep = TRUE),
+      .ingress_tokens = function(task, param_vals) ingress_tokens
+    )
+  )$new()
+  learner$param_set$set_values(batch_size = 10L, epochs = 2L, jit_trace = TRUE)
+  learner$train(task)
+  learner_clone = learner$clone(deep = TRUE)
+  expect_equal(attr(learner_clone$network, "input_order"), c("b", "a"))
+  # FIXME: the deep clone of a traced network is not callable as a function, so `has_one_arg()` warns
+  expect_equal(suppressWarnings(learner_clone$predict(task))$response, learner$predict(task)$response)
+})
+
+test_that("a traced nn_graph receives its inputs in the order of its graph inputs", {
+  # x feeds two merges, m1 = x + y and m2 = x + z, and the output is cat(m2, m1), so the ingress tokens
+  # are in the order x, z, y, while the graph inputs are in the order x, y, z
+  graph = Graph$new()
+  for (nm in c("x", "y", "z")) {
+    graph$add_pipeop(po("select", id = paste0("select_", nm), selector = selector_name(nm)))
+    graph$add_pipeop(po("torch_ingress_num", id = paste0("ingress_", nm)))
+    graph$add_edge(paste0("select_", nm), paste0("ingress_", nm))
+  }
+  graph$add_pipeop(po("nn_merge_sum", id = "m1", innum = 2L))
+  graph$add_pipeop(po("nn_merge_sum", id = "m2", innum = 2L))
+  graph$add_pipeop(po("nn_merge_cat", id = "cat", innum = 2L))
+  graph$add_edge("ingress_x", "m1", dst_channel = "input1")
+  graph$add_edge("ingress_y", "m1", dst_channel = "input2")
+  graph$add_edge("ingress_x", "m2", dst_channel = "input1")
+  graph$add_edge("ingress_z", "m2", dst_channel = "input2")
+  graph$add_edge("m2", "cat", dst_channel = "input1")
+  graph$add_edge("m1", "cat", dst_channel = "input2")
+  task = as_task_regr(data.table(x = c(1, 2), y = c(10, 20), z = c(100, 200), target = c(0, 0)), target = "target")
+  expect_equal(names(graph$train(task)[[1L]]$ingress), c("ingress_x.input", "ingress_z.input", "ingress_y.input"))
+
+  learner = as_learner(graph %>>% nn("linear", out_features = 1L) %>>% po("torch_loss", "mse") %>>%
+    po("torch_optimizer", "sgd", lr = 0) %>>% po("torch_model_regr", epochs = 0L, batch_size = 2L, jit_trace = TRUE))
+  learner$train(task)
+  network = learner$model$torch_model_regr$model$network
+  expect_class(network, "script_module")
+  weight = as.numeric(network$parameters[[1L]])
+  bias = as.numeric(network$parameters[[2L]])
+  # cat(x + z, x + y), followed by the linear layer
+  expected = weight[[1L]] * c(101, 202) + weight[[2L]] * c(11, 22) + bias
+  expect_equal(learner$predict(task)$response, expected, tolerance = 1e-5)
 })
 
 test_that("tensor_dataset works", {
@@ -1789,4 +1873,61 @@ test_that("device with an index can be used for training, prediction and materia
   expect_prediction(learner$predict(task))
   expect_class(materialize(as_lazy_tensor(1:2), device = "cpu:0", rbind = TRUE), "torch_tensor")
   expect_error(materialize(as_lazy_tensor(1:2), device = "gpu:0"), "Must be one of")
+})
+
+test_that("the network output refers to the classes in the order of the training task", {
+  # the network predicts the classes in the order of the training task, while another task can have
+  # them in another order, e.g. with another positive class
+  learner = lrn("classif.mlp", batch_size = 50L, epochs = 10L, neurons = 10L, predict_type = "prob", seed = 1L)
+  task = tsk("sonar")
+  learner$train(task)
+  pred = learner$predict(task)
+  task_reordered = task$clone(deep = TRUE)
+  task_reordered$positive = "R"
+  pred_reordered = learner$predict(task_reordered)
+  expect_equal(colnames(pred_reordered$prob), c("R", "M"))
+  expect_equal(pred_reordered$prob[, c("M", "R")], pred$prob)
+  expect_equal(as.character(pred_reordered$response), as.character(pred$response))
+  learner$predict_type = "response"
+  expect_equal(as.character(learner$predict(task_reordered)$response), as.character(pred$response))
+
+  learner = lrn("classif.mlp", batch_size = 50L, epochs = 10L, neurons = 10L, predict_type = "prob", seed = 1L)
+  task = tsk("iris")
+  learner$train(task)
+  pred = learner$predict(task)
+  task_reordered = task$clone(deep = TRUE)$set_levels(list(Species = c("virginica", "setosa", "versicolor")))
+  pred_reordered = learner$predict(task_reordered)
+  expect_equal(pred_reordered$prob[, task$class_names], pred$prob)
+  expect_equal(as.character(pred_reordered$response), as.character(pred$response))
+
+  # the same holds for the internal validation task
+  learner = lrn("classif.mlp", batch_size = 50L, epochs = 10L, neurons = 10L, predict_type = "prob", seed = 1L,
+    validate = "predefined", measures_valid = msrs(c("classif.logloss", "classif.acc")))
+  task = tsk("sonar")
+  task$internal_valid_task = task$clone(deep = TRUE)$filter(1:60)
+  task$filter(61:208)
+  learner$train(task)
+  scores = learner$internal_valid_scores
+  task$internal_valid_task$positive = "R"
+  learner$train(task)
+  expect_equal(learner$internal_valid_scores, scores)
+
+  # a task with other classes cannot be predicted
+  task_other = task$clone(deep = TRUE)$set_levels(list(Class = c("M", "R", "X")))
+  expect_error(learner$predict(task_other), "trained to predict the classes 'M', 'R'")
+  # nor be the internal validation task
+  task$internal_valid_task$set_levels(list(Class = c("M", "R", "X")))
+  expect_error(learner$train(task), "internal validation task of task 'sonar' has the classes 'M', 'R', 'X'")
+})
+
+test_that("the internal validation task must have the factor levels of the training task", {
+  task = as_task_regr(data.table(x = factor(c("a", "b", "a")), y = c(1, 2, 3)), target = "y")
+  make_valid_task = function(levels) {
+    as_task_regr(data.table(x = factor(c("a", "b", "a"), levels = levels), y = c(1, 2, 3)), target = "y")
+  }
+  learner = lrn("regr.torch_featureless", epochs = 1L, batch_size = 3L, validate = "predefined")
+  task$internal_valid_task = make_valid_task(c("b", "a"))
+  expect_error(learner$train(task), "factor levels differ")
+  task$internal_valid_task = make_valid_task(c("a", "b"))
+  expect_no_error(learner$train(task))
 })

@@ -76,6 +76,14 @@ test_that("input checks work", {
     weights = list(select_all()), epoch = 1L)), NA)
 })
 
+test_that("epoch or batch 0 is rejected", {
+  # epochs and batches are counted from 1, so an entry at 0 would never unfreeze anything
+  expect_error(t_clbk("unfreeze", starting_weights = select_name("a"), unfreeze = data.table(
+    weights = list(select_all()), epoch = 0L)), "counted from 1")
+  expect_error(t_clbk("unfreeze", starting_weights = select_name("a"), unfreeze = data.table(
+    weights = list(select_all()), batch = 0L)), "counted from 1")
+})
+
 describe("resuming", {
   it("the set of trainable weights can be saved and restored", {
     task = tsk("iris")

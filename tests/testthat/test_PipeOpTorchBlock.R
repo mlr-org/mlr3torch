@@ -96,6 +96,14 @@ test_that("0 blocks are possible", {
   expect_equal(mdout$pointer_shape, c(NA, 4))
 })
 
+test_that("0 blocks are trained, so that the graph can predict", {
+  task = tsk("iris")
+  graph = po("torch_ingress_num") %>>% nn("block", nn("linear", out_features = 10), n_blocks = 0)
+  graph$train(task)
+  expect_true(graph$is_trained)
+  expect_equal(graph$predict(task)[[1L]]$data(), task$data())
+})
+
 test_that("trafo works", {
   graph = po("torch_ingress_num") %>>%
     po("nn_block", nn("linear", out_features = 10),

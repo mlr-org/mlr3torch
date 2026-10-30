@@ -52,6 +52,10 @@
 #'   Whether to trace the network with [`torch::jit_trace()`] once at the start of training and then
 #'   train the traced module instead of the original one.
 #'    Not all learners support this.
+#'   A traced network takes its inputs by position and ignores their names
+#'   ([mlverse/torch#1495](https://github.com/mlverse/torch/issues/1495)).
+#'   The learner passes the inputs in the right order, but when calling the traced `$network` of a trained learner
+#'   with several inputs directly, they must be passed by position in the order given by `attr(learner$network, "input_order")`.
 #'
 #' **Evaluation**:
 #' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s\cr
@@ -82,6 +86,8 @@
 #'   `restore_best_weights` is set to `TRUE`.
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.
+#'   A missing (`NA`) score counts as no improvement, and every score improves on a missing one.
+#'   If all scores are missing, the first evaluated epoch is reported as the best one.
 #'   This also requires to specify the `$validate` field of the Learner, as well as `measures_valid`.
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold for early stopping.

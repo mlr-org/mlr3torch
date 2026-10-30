@@ -74,7 +74,7 @@ Suggests:
     testthat (>= 3.0.0),
     tibble,
     tfevents,
-    torchvision (>= 0.6.0),
+    torchvision (>= 0.10.0),
     waldo
 Config/testthat/edition: 3
 NeedsCompilation: no

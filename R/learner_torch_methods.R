@@ -9,25 +9,94 @@ normalize_to_list = function(x) {
   x
 }
 
+# The ingress tokens select their features from the task, so the columns of a batch follow the order of
+# `task$feature_names`. `mlr3` accepts a prediction task whose features are a permutation of the training features,
+# and the validation task may differ in the same way, so such a task is brought into the training order: otherwise
+# the network silently receives the wrong columns.
+# @param task (`Task`) The task for which the dataset is created.
+# @param feature_names (`character()`) The features of the training task, in their order.
+task_in_train_order = function(task, feature_names) {
+  if (identical(task$feature_names, feature_names) || !test_set_equal(task$feature_names, feature_names)) {
+    return(task)
+  }
+  task = task$clone(deep = TRUE)
+  task$col_roles$feature = feature_names
+  task
+}
+
+# The features of the training task in their order: `task_col_info` contains them first, see `LearnerTorch$.train()`.
+train_feature_names = function(model, task) {
+  setdiff(model$task_col_info$id, task$target_names)
+}
+
 learner_torch_network_output = function(self, private, task, param_vals) {
   # parameter like device "auto" already resolved
   self$network$to(device = param_vals$device)
   self$network$eval()
+  task = task_in_train_order(task, train_feature_names(self$model, task))
   data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
   torch_network_predict(self$network, data_loader, device = param_vals$device)
 }
 
 learner_torch_predict = function(self, private, super, task, param_vals) {
+  assert_task_torch_target_levels(task, self$model$task_col_info, sprintf("Task '%s'", task$id))
   network_output = learner_torch_network_output(self, private, task, param_vals)
-  encode_network_output(network_output, task, self$predict_type, private$.encode_prediction)
+  encode_network_output(network_output, task, self$predict_type, private$.encode_prediction,
+    class_names = model_class_names(self$model, task))
 }
 
-encode_network_output = function(network_output, task, predict_type, encoder) {
+# The classes of the training task, in the order in which the network was trained to predict them.
+model_class_names = function(model, task) {
+  if (!inherits(task, "TaskClassif")) {
+    return(NULL)
+  }
+  col_info = model$task_col_info
+  col_info$levels[[match(task$target_names, col_info$id)]]
+}
+
+# A `TaskTorch` encodes its target and decodes the network output itself, which can depend on the order of the
+# levels of a factor target. Unlike for a `TaskClassif`, the network output cannot be reordered, so these levels
+# must be those of the training task, whose column info is `col_info`.
+assert_task_torch_target_levels = function(task, col_info, what) {
+  if (!inherits(task, "TaskTorch")) {
+    return(invisible(NULL))
+  }
+  target_info = task$col_info[list(task$target_names), on = "id"]
+  cols = target_info$id[target_info$type %in% c("factor", "ordered")]
+  differ = discard(cols, function(col) {
+    identical(target_info$levels[[match(col, target_info$id)]], col_info$levels[[match(col, col_info$id)]])
+  })
+  if (length(differ)) {
+    stopf("%s has other levels than the training task (or the same levels in another order) in the target column(s) %s.", what, paste0("'", differ, "'", collapse = ", ")) # nolint
+  }
+  invisible(NULL)
+}
+
+encode_network_output = function(network_output, task, predict_type, encoder, class_names = NULL) {
   # lazy tensors are just simply forwards, irrespective of the provided encoder
   if (predict_type == "lazy_tensor") {
     return(list(lazy_tensor = as_prediction_lazy_tensor(network_output)))
   }
-  check_encoded_prediction(encoder(network_output = network_output, task = task), task)
+  if (is.null(class_names) || identical(class_names, task$class_names)) {
+    return(check_encoded_prediction(encoder(network_output = network_output, task = task), task))
+  }
+  # The network predicts the classes in the order of its training task (`class_names`), because the
+  # targets were encoded in that order during training. `task` can have them in another order,
+  # e.g. with another positive class, so the encoder gets a copy of `task` with the training order
+  # and the encoded prediction is put back into the order of `task`.
+  if (!test_permutation(class_names, task$class_names)) {
+    stopf("Task '%s' has the classes %s, but the network was trained to predict the classes %s.",
+      task$id, paste0("'", task$class_names, "'", collapse = ", "), paste0("'", class_names, "'", collapse = ", "))
+  }
+  task_train_order = task$clone(deep = TRUE)$set_levels(set_names(list(class_names), task$target_names))
+  encoded = check_encoded_prediction(encoder(network_output = network_output, task = task_train_order), task)
+  if (!is.null(encoded$response)) {
+    encoded$response = factor(encoded$response, levels = task$class_names)
+  }
+  if (!is.null(encoded$prob)) {
+    encoded$prob = encoded$prob[, task$class_names, drop = FALSE]
+  }
+  encoded
 }
 
 as_prediction_lazy_tensor = function(network_output) {
@@ -75,6 +144,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     stopf("Learner '%s' uses a validation measure with minimize = NA for early stopping.", self$id)
   }
 
+  assert_valid_task_levels(self, task)
+
   dataset_train = private$.dataset(task, param_vals)
   dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
   loader_train = private$.dataloader(dataset_train, param_vals)
@@ -83,6 +154,18 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   }
 
   task_valid = task$internal_valid_task
+  # the network output for the validation task is interpreted with the classes of the training task, see
+  # `encode_network_output()`
+  if (inherits(task_valid, "TaskClassif") && !test_permutation(task_valid$class_names, task$class_names)) {
+    stopf("The internal validation task of task '%s' has the classes %s, but the task has the classes %s.",
+      task$id, paste0("'", task_valid$class_names, "'", collapse = ", "),
+      paste0("'", task$class_names, "'", collapse = ", "))
+  }
+  if (!is.null(task_valid)) {
+    assert_task_torch_target_levels(task_valid, task$col_info,
+      sprintf("The internal validation task of task '%s'", task$id))
+    task_valid = task_in_train_order(task_valid, task$feature_names)
+  }
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
     dataset_valid = private$.dataset(task_valid, param_vals)
     dataset_valid = as_multi_tensor_dataset(dataset_valid, param_vals)
@@ -98,12 +181,16 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (isTRUE(param_vals$jit_trace) && !inherits(network, "script_module")) {
     example = get_example_batch(loader_train)$x
     example = lapply(example, function(x) x$to(device = param_vals$device))
-    # tracer requires arguments to be passed by name
+    # tracer requires arguments to be passed by position
     if (length(example) == 1) {
       network = jit_trace(network, example[[1L]])
     } else {
-      example = order_named_args(network, example)
+      # an nn_graph takes its inputs via `...` and matches unnamed ones in the order of its graph inputs
+      example = if (inherits(network, "nn_graph")) example[network$input_map] else order_named_args(network, example)
       network = do.call(jit_trace, c(list(network), unname(example)))
+      # the traced network ignores the names of its arguments (https://github.com/mlverse/torch/issues/1495),
+      # see `network_inputs()`
+      attr(network, "input_order") = names(example)
     }
   }
   loss_fn = self$loss$generate(task)
@@ -262,7 +349,7 @@ train_loop = function(ctx, cbs) {
       ctx$y_hats = if (length(ctx$batch$x) == 1L) {
         ctx$network(ctx$batch$x[[1L]])
       } else {
-        do.call(ctx$network, ctx$batch$x)
+        do.call(ctx$network, network_inputs(ctx$network, ctx$batch$x))
       }
       # A network can return more than one tensor, see the section 'Network Head and Target
       # Encoding' of `LearnerTorch`. `y_hats` is that complete output, which the loss is applied
@@ -321,7 +408,9 @@ train_loop = function(ctx, cbs) {
         row_ids = ctx$task_valid$row_ids,
         prediction_encoder = ctx$prediction_encoder,
         train_set = ctx$task_train$row_roles$use,
-        predict_type = ctx$learner$predict_type
+        predict_type = ctx$learner$predict_type,
+        # the validation task can have the classes in another order than the training task
+        class_names = if (inherits(ctx$task_train, "TaskClassif")) ctx$task_train$class_names
       )
       ctx$network$train()
       call("on_valid_end")
@@ -455,12 +544,41 @@ eval_valid_in_epoch = function(ctx) {
   !is.null(ctx$loader_valid) && (!(ctx$epoch %% ctx$eval_freq) || ctx$epoch == ctx$total_epochs)
 }
 
+# Factor features are encoded by the position of their level, e.g. in `batchgetter_categ()`, so the internal
+# validation task must have the same levels in the same order as the training task. `mlr3` checks this for the
+# predict task, but not for the internal validation task.
+assert_valid_task_levels = function(learner, task) {
+  task_valid = task$internal_valid_task
+  if (is.null(task_valid) || "new_levels" %in% learner$properties) {
+    return(invisible(NULL))
+  }
+  cols = task$feature_types[get("type") %in% c("factor", "ordered"), "id"][[1L]]
+  levels_train = task$levels(cols)
+  levels_valid = task_valid$levels(cols)
+  differ = discard(cols, function(col) identical(levels_train[[col]], levels_valid[[col]]))
+  if (length(differ)) {
+    stopf("Learner '%s' received an internal validation task whose factor levels differ from those of the training task (or are in a different order) for the feature(s) %s.", learner$id, paste0("'", differ, "'", collapse = ", ")) # nolint
+  }
+  invisible(NULL)
+}
+
 has_one_arg = function(network) {
   if (inherits(network, "nn_graph")) {
     return(length(network$input_map) == 1L)
   }
   fargs = formalArgs(network)
   length(fargs) == 1L && fargs != "..."
+}
+
+# The inputs `x` (a named `list()` of tensors) in the order in which `network` takes them. A traced
+# network takes its inputs by position and ignores their names: it takes them in the order in which they
+# were passed to the tracer, which is that of the arguments of the original network and was recorded
+# in `learner_torch_train()`. Other networks receive the inputs by name.
+# This is partly a workaround for https://github.com/mlverse/torch/issues/1495: if torch recorded the argument
+# names when tracing and matched named arguments, the inputs could simply be passed by name.
+network_inputs = function(network, x) {
+  input_order = attr(network, "input_order")
+  if (is.null(input_order)) x else x[input_order]
 }
 
 torch_network_predict_valid = function(ctx, callback_receiver = function(step_name) NULL) {
@@ -479,7 +597,7 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
     predictions[[ctx$step_valid]] = if (one_arg) {
       with_no_grad(network$forward(ctx$batch$x[[1L]]))
     } else {
-      with_no_grad(invoke(network$forward, .args = ctx$batch$x))
+      with_no_grad(invoke(network$forward, .args = network_inputs(network, ctx$batch$x)))
     }
 
     callback_receiver("on_batch_valid_end")
@@ -502,7 +620,7 @@ torch_network_predict = function(network, loader, device) {
     predictions[[step]] = if (one_arg) {
       with_no_grad(network$forward(batch$x[[1L]]))
     } else {
-      with_no_grad(invoke(network$forward, .args = batch$x))
+      with_no_grad(invoke(network$forward, .args = network_inputs(network, batch$x)))
     }
 
   }
@@ -534,12 +652,13 @@ zero_row_network_output = function(learner, task) {
     }
     one_row = task$clone(deep = TRUE)
     one_row$row_roles$use = rows[1L]
+    one_row = task_in_train_order(one_row, train_feature_names(model, task))
     batch = get_private(learner)$.dataset(one_row, param_vals)$.getbatch(1L)
     x = lapply(batch$x, function(tensor) tensor$to(device = param_vals$device))
     output = if (has_one_arg(network)) {
       with_no_grad(network$forward(x[[1L]]))
     } else {
-      with_no_grad(invoke(network$forward, .args = x))
+      with_no_grad(invoke(network$forward, .args = network_inputs(network, x)))
     }
     # only the structure is wanted, so the one row is cut away again
     if (is.list(output)) lapply(output, drop_rows) else drop_rows(output)
@@ -604,6 +723,8 @@ assert_single_head = function(network_output, task) {
 #'
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   The task to predict on.
+#'   For classification, a [`LearnerTorch`] passes it with the classes in the order of its training
+#'   task, which is the order that the columns of `network_output` refer to.
 #' @param network_output ([`torch_tensor`][torch::torch_tensor] or `list()` of them)\cr
 #'   The raw output of the network in evaluation mode.
 #'   A network with more than one head -- e.g. one predicting a mean and a standard deviation --
@@ -627,9 +748,8 @@ encode_prediction.default = function(task, network_output, predict_type, ...) { 
 #' @export
 encode_prediction.TaskClassif = function(task, network_output, predict_type, ...) { # nolint
   network_output = assert_single_head(network_output, task)
-  # here we assume that the levels of the factors are never reordered!
-  # This is important as otherwise all hell breaks loose
-  # Currently this check is done in mlr3torch but should at some point be handled in mlr3 / mlr3pipelines
+  # The network output refers to the classes in the order of `task$class_names`. A `LearnerTorch`
+  # passes a task with the classes in the order of its training task, see `encode_network_output()`.
 
   response = prob = NULL
   if ("multiclass" %in% task$properties) {
@@ -679,12 +799,12 @@ encode_prediction.TaskRegr = function(task, network_output, predict_type, ...) {
 
 
 measure_prediction = function(network_output, measures, task, row_ids, prediction_encoder,
-  train_set = task$row_roles$use, predict_type) {
+  train_set = task$row_roles$use, predict_type, class_names = NULL) {
   if (!length(measures)) {
     return(structure(list(), names = character(0)))
   }
 
-  prediction = encode_network_output(network_output, task, predict_type, prediction_encoder)
+  prediction = encode_network_output(network_output, task, predict_type, prediction_encoder, class_names)
   # tagged at the point of use rather than in `.encode_prediction()`, which a learner may overwrite
   # -- an overwritten one would silently produce a prediction without a truth
   class(prediction) = c("prediction_torch", "list")

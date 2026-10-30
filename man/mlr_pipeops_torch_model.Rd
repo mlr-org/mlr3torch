@@ -67,6 +67,10 @@ This is initialized to \code{TRUE}. Set it to \code{FALSE} if a copy of the task
 Whether to trace the network with \code{\link[torch:jit_trace]{torch::jit_trace()}} once at the start of training and then
 train the traced module instead of the original one.
 Not all learners support this.
+A traced network takes its inputs by position and ignores their names
+(\href{https://github.com/mlverse/torch/issues/1495}{mlverse/torch#1495}).
+The learner passes the inputs in the right order, but when calling the traced \verb{$network} of a trained learner
+with several inputs directly, they must be passed by position in the order given by \code{attr(learner$network, "input_order")}.
 }
 
 \strong{Evaluation}:
@@ -103,6 +107,8 @@ Note that the final model is stored in the learner, not the best model, unless
 \code{restore_best_weights} is set to \code{TRUE}.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
+A missing (\code{NA}) score counts as no improvement, and every score improves on a missing one.
+If all scores are missing, the first evaluated epoch is reported as the best one.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.

@@ -99,6 +99,12 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
         ingress_num(shape = c(NA, length(task$feature_names)))
       }
       list(input = token)
+    },
+    .check_train_task = function(task, param_vals) {
+      if ("lazy_tensor" %in% task$feature_types$type && length(task$feature_names) > 1L) {
+        return("The features must either be a single lazy_tensor or one or more numeric columns (but not both).")
+      }
+      TRUE
     }
   )
 )

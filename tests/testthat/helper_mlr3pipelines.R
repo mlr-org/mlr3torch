@@ -7,6 +7,12 @@ library("paradox")
 
 mlr_helpers = list.files(system.file("testthat", package = "mlr3pipelines"), pattern = "^helper.*\\.[rR]", full.names = TRUE)
 lapply(mlr_helpers, FUN = source)
+# mlr3pipelines' helper_compat.R defines expect_equal() in the global env as
+# expect_true(all.equal(...)). all.equal() is TRUE for any two torch tensors, so this made
+# expect_equal() vacuous for tensors. Remove it so that testthat's (waldo-based) version is used.
+if (exists("expect_equal", envir = globalenv(), inherits = FALSE)) {
+  rm("expect_equal", envir = globalenv())
+}
 
 # expect that 'one' is a deep clone of 'two'
 expect_deep_clone_mlr3torch = function(one, two) {

@@ -32,10 +32,13 @@ Represents a neural network using a \code{\link[mlr3pipelines:Graph]{Graph}} tha
 The graph (consisting primarily of \code{\link{PipeOpModule}}s) that is wrapped by the network.
 When it consists only of \code{\link{PipeOpModule}}s and \code{\link[mlr3pipelines:PipeOpNOP]{PipeOpNOP}}s, the order in which the
 modules are called is determined once and \verb{$forward()} calls them directly, which is much faster than running
-the graph. This is determined anew when a new graph is assigned to this field or when PipeOps are added to or
-removed from it, but not when only its edges are changed, so the graph should not be modified in place.
+the graph. This is determined anew when PipeOps are added to or removed from the graph, but not when only its
+edges are changed, so the graph should not be modified in place.
+The field cannot be set to another graph, because the parameters of the modules are registered when the network
+is created. Create a new \code{nn_graph} instead.
 \item \code{input_map} :: \code{character()}\cr
 The names of the input arguments of the network.
+Unnamed arguments of \verb{$forward()} are matched in this order.
 \item \code{shapes_in} :: \code{list()}\cr
 The shapes of the input tensors of the network.
 \item \code{output_map} :: \code{character()}\cr
