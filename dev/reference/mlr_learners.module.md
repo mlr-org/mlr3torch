@@ -153,8 +153,13 @@ Creates a new instance of this
 - `properties`:
 
   (`NULL` or [`character()`](https://rdrr.io/r/base/character.html))  
-  The properties of the learner. Defaults to all available properties
-  for the given task type.
+  The properties of the learner. Defaults to the properties that every
+  [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)
+  has, i.e. `"marshal"`, `"validation"` and `"internal_tuning"` (and
+  `"twoclass"` and `"multiclass"` for classification). Other properties
+  such as `"weights"`, `"missings"`, `"new_levels"` or `"offset"` must
+  only be claimed if the network and the ingress tokens handle them, as
+  mlr3 then skips its checks for them.
 
 - `optimizer`:
 

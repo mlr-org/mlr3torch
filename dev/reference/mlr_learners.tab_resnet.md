@@ -2,6 +2,12 @@
 
 A residual network for tabular data, following Gorishniy (2021).
 
+The features are first projected to dimension `d_block` by a linear
+layer, followed by `n_blocks` residual blocks. Each block computes
+`x + Dropout(Linear(Dropout(ReLU(Linear(BatchNorm(x))))))`, where the
+two dropout ratios are `dropout1` and `dropout2`. The prediction is
+`Linear(ReLU(BatchNorm(x)))` of the output `x` of the last block.
+
 ## Dictionary
 
 This [Learner](https://mlr3.mlr-org.com/reference/Learner.html) can be

@@ -201,7 +201,10 @@ The task type.</p></dd>
       <dt><code>properties</code></dt>
 <dd><p>(<code>NULL</code> or <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The properties of the learner.
-Defaults to all available properties for the given task type.</p></dd>
+Defaults to the properties that every <code><a href="mlr_learners_torch.html">LearnerTorch</a></code> has, i.e. <code>"marshal"</code>, <code>"validation"</code> and
+<code>"internal_tuning"</code> (and <code>"twoclass"</code> and <code>"multiclass"</code> for classification).
+Other properties such as <code>"weights"</code>, <code>"missings"</code>, <code>"new_levels"</code> or <code>"offset"</code> must only be
+claimed if the network and the ingress tokens handle them, as mlr3 then skips its checks for them.</p></dd>
 
       <dt><code>optimizer</code></dt>
 <dd><p>(<code><a href="TorchOptimizer.html">TorchOptimizer</a></code>)<br>

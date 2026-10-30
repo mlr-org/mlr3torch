@@ -183,6 +183,8 @@
 <li>
 <code><a href="../reference/nn.html">nn()</a></code> now properly interprets <code>nn("linear_1")</code> as <code>po("nn_linear", id = "linear_1")</code>.</li>
 <li>Fixed some bugs in <code>FTTransformer</code>: <code>attention_initialization</code> now has an effect, <code>n_blocks = 0</code> is allowed and the hidden dimension falls back to <code>d_token * 4/3</code> as in the reference implementation.</li>
+<li>
+<code>lrn("classif.tab_resnet")</code> / <code>lrn("regr.tab_resnet")</code> now apply batch normalization and ReLU before the output layer, as in the reference implementation.</li>
 <li>Fixed some issues in the documentation.</li>
 <li>Examples, vignettes and the README now use <code>nn("linear")</code> instead of the equivalent but longer <code>po("nn_linear")</code>.</li>
 </ul></div>

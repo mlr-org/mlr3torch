@@ -5,9 +5,27 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Reduce On Plateau Learning Rate Scheduler — mlr_callback_set.lr_scheduler_reduce_on_plateau"><meta name="description" content="Reduces the learning rate when the first validation metric stops improving for patience epochs.
-Wraps torch::lr_reduce_on_plateau()"><meta property="og:description" content="Reduces the learning rate when the first validation metric stops improving for patience epochs.
-Wraps torch::lr_reduce_on_plateau()"><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Reduce On Plateau Learning Rate Scheduler — mlr_callback_set.lr_scheduler_reduce_on_plateau"><meta name="description" content="Reduces the learning rate when the first validation measure, i.e. the first entry of the
+learner's measures_valid, stops improving for patience evaluation steps.
+Wraps torch::lr_reduce_on_plateau().
+Note that patience counts evaluation steps, not epochs: when the learner's eval_freq is
+greater than 1, the scheduler only steps in the epochs in which the validation measures are
+evaluated, so patience evaluation steps correspond to patience * eval_freq epochs.
+Unless mode is set, it is derived from the measure: &quot;min&quot; if the measure is minimized and
+&quot;max&quot; if it is maximized. Training fails when mode contradicts the measure.
+When the learner has no validation measure, e.g. in the final fit of an
+AutoTuner that tunes the epochs internally, a warning is given and
+the learning rate is not reduced."><meta property="og:description" content="Reduces the learning rate when the first validation measure, i.e. the first entry of the
+learner's measures_valid, stops improving for patience evaluation steps.
+Wraps torch::lr_reduce_on_plateau().
+Note that patience counts evaluation steps, not epochs: when the learner's eval_freq is
+greater than 1, the scheduler only steps in the epochs in which the validation measures are
+evaluated, so patience evaluation steps correspond to patience * eval_freq epochs.
+Unless mode is set, it is derived from the measure: &quot;min&quot; if the measure is minimized and
+&quot;max&quot; if it is maximized. Training fails when mode contradicts the measure.
+When the learner has no validation measure, e.g. in the final fit of an
+AutoTuner that tunes the epochs internally, a warning is given and
+the learning rate is not reduced."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -76,8 +94,17 @@ Wraps torch::lr_reduce_on_plateau()"><meta property="og:image" content="https://
     </div>
 
     <div class="ref-description section level2">
-    <p>Reduces the learning rate when the first validation metric stops improving for <code>patience</code> epochs.
-Wraps <code><a href="https://torch.mlverse.org/docs/reference/lr_reduce_on_plateau.html" class="external-link">torch::lr_reduce_on_plateau()</a></code></p>
+    <p>Reduces the learning rate when the first validation measure, i.e. the first entry of the
+learner's <code>measures_valid</code>, stops improving for <code>patience</code> evaluation steps.
+Wraps <code><a href="https://torch.mlverse.org/docs/reference/lr_reduce_on_plateau.html" class="external-link">torch::lr_reduce_on_plateau()</a></code>.</p>
+<p>Note that <code>patience</code> counts <em>evaluation steps</em>, not epochs: when the learner's <code>eval_freq</code> is
+greater than <code>1</code>, the scheduler only steps in the epochs in which the validation measures are
+evaluated, so <code>patience</code> evaluation steps correspond to <code>patience * eval_freq</code> epochs.</p>
+<p>Unless <code>mode</code> is set, it is derived from the measure: <code>"min"</code> if the measure is minimized and
+<code>"max"</code> if it is maximized. Training fails when <code>mode</code> contradicts the measure.
+When the learner has no validation measure, e.g. in the final fit of an
+<code><a href="https://mlr3tuning.mlr-org.com/reference/AutoTuner.html" class="external-link">AutoTuner</a></code> that tunes the epochs internally, a warning is given and
+the learning rate is not reduced.</p>
     </div>
 
 
@@ -99,10 +126,10 @@ of starting over.</p>
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 <p></p><ul><li><p><a href="#method-CallbackSetLRSchedulerReduceOnPlateau-initialize"><code>CallbackSetLRSchedulerReduceOnPlateau$new()</code></a></p></li>
+<li><p><a href="#method-CallbackSetLRSchedulerReduceOnPlateau-on_begin"><code>CallbackSetLRSchedulerReduceOnPlateau$on_begin()</code></a></p></li>
 <li><p><a href="#method-CallbackSetLRSchedulerReduceOnPlateau-clone"><code>CallbackSetLRSchedulerReduceOnPlateau$clone()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>CallbackSet$print()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="load_state_dict"><a href="CallbackSetLRScheduler.html#method-load_state_dict"><code>CallbackSetLRScheduler$load_state_dict()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="on_begin"><a href="CallbackSetLRScheduler.html#method-on_begin"><code>CallbackSetLRScheduler$on_begin()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="state_dict"><a href="CallbackSetLRScheduler.html#method-state_dict"><code>CallbackSetLRScheduler$state_dict()</code></a></span></li>
 </ul></details></p><hr><a id="method-CallbackSetLRSchedulerReduceOnPlateau-initialize"></a><div class="section">
 <h3 id="callbacksetlrschedulerreduceonplateau-new-"><code>CallbackSetLRSchedulerReduceOnPlateau$new()</code><a class="anchor" aria-label="anchor" href="#callbacksetlrschedulerreduceonplateau-new-"></a></h3>
@@ -121,10 +148,20 @@ The scheduler-specific initialization arguments.</p></dd>
 
 </div>
 
+<p></p><hr><a id="method-CallbackSetLRSchedulerReduceOnPlateau-on_begin"></a><div class="section">
+<h3 id="callbacksetlrschedulerreduceonplateau-on-begin-"><code>CallbackSetLRSchedulerReduceOnPlateau$on_begin()</code><a class="anchor" aria-label="anchor" href="#callbacksetlrschedulerreduceonplateau-on-begin-"></a></h3>
+<p>Creates the scheduler using the optimizer from the context, with the <code>mode</code> that fits the
+first validation measure.</p><div class="section">
+<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetLRSchedulerReduceOnPlateau</span><span class="op">$</span><span class="fu">on_begin</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+</div>
+
 <p></p><hr><a id="method-CallbackSetLRSchedulerReduceOnPlateau-clone"></a><div class="section">
 <h3 id="callbacksetlrschedulerreduceonplateau-clone-"><code>CallbackSetLRSchedulerReduceOnPlateau$clone()</code><a class="anchor" aria-label="anchor" href="#callbacksetlrschedulerreduceonplateau-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetLRSchedulerReduceOnPlateau</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
