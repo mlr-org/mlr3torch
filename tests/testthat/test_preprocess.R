@@ -379,7 +379,7 @@ test_that("shape inference matches the operator", {
   expect_equal(po("augment_center_crop", size = 32)$shapes_out(list(c(2L, 3L, 16L, 20L)),
     stage = "train")[[1L]], c(2L, 3L, NA, NA))
   expect_shape_inference("augment_resized_crop", list(top = 1, left = 1, height = 8, width = 8, size = c(4, 4)), c(2, 3, 16, 20))
-  # the crop leaves the image, which torchvision pads since 0.10.0 and clamps before
+  # the crop leaves the image, which torchvision pads with zeros
   expect_shape_inference("augment_resized_crop", list(top = 10, left = 15, height = 10, width = 8, size = 5), c(2, 3, 16, 20))
   expect_shape_inference("trafo_grayscale", list(num_output_channels = 1), c(2, 3, 16, 20))
   expect_shape_inference("trafo_grayscale", list(num_output_channels = 3), c(2, 3, 16, 20))
