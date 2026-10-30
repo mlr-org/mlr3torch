@@ -334,3 +334,36 @@ test_that("the forward plan is created anew when PipeOps are added to the graph 
   expect_equal(network(x), network$graph$train(list(x), single_input = FALSE)[["double.output"]])
   expect_equal(forward_plan(network)$pipeop_ids, names(network$graph$pipeops))
 })
+
+test_that("deep clone uses the cloned modules when they have submodules", {
+  nn_residual = nn_module("nn_residual",
+    initialize = function(d) self$linear = nn_linear(d, d),
+    forward = function(x) x + self$linear(x)
+  )
+  # the module after the one with a submodule has the same shapes as that submodule
+  graph = po("module", id = "residual", module = nn_residual(3)) %>>%
+    po("module", id = "linear", module = nn_linear(3, 3))
+  network = nn_graph(graph, shapes_in = list(residual.input = c(NA, 3)))
+  x = torch_randn(2, 3)
+  y = network(x)
+
+  network1 = network$clone(deep = TRUE)
+  expect_class(network1$graph$pipeops$residual$module, "nn_residual")
+  expect_false(identical(network1$graph$pipeops$linear$module, network1$graph$pipeops$residual$module$linear))
+  expect_true(torch_equal(network1(x), y))
+
+  # the clone runs the modules whose parameters it has, and the original is left alone
+  with_no_grad(walk(network1$parameters, function(p) p$add_(1)))
+  expect_false(torch_equal(network1(x), y))
+  expect_true(torch_equal(network(x), y))
+})
+
+test_that("deep clone of a trained learner whose network has modules with submodules predicts the same", {
+  learner = lrn("classif.tab_resnet", n_blocks = 2, d_block = 5, d_hidden = 10, dropout1 = 0, dropout2 = 0,
+    epochs = 1, batch_size = 50, predict_type = "prob")
+  task = tsk("iris")
+  learner$train(task)
+  learner1 = learner$clone(deep = TRUE)
+  expect_false(identical(learner1$network, learner$network))
+  expect_equal(learner1$predict(task)$prob, learner$predict(task)$prob)
+})
