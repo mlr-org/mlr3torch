@@ -17,8 +17,8 @@ We start by sampling some input tensor: 2 batches with 3 features:
 input = torch_randn(2, 3)
 input
 #> torch_tensor
-#>  1.1801 -1.5721 -0.9126
-#>  1.0925  0.0820 -1.0412
+#> -1.1215  0.3402  0.2919
+#> -0.3419 -1.2819 -0.3430
 #> [ CPUFloatType{2,3} ]
 ```
 
@@ -37,8 +37,8 @@ Applying this module gives a 2-batch of 4 units:
 output = module_1(input)
 output
 #> torch_tensor
-#> -0.1143 -0.3880 -0.7909  0.2583
-#>  0.2165  0.2221 -0.5324 -0.6822
+#> -0.1647  0.5084 -0.2580 -0.0830
+#> -0.0255  0.6306 -0.4553  0.7459
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -62,8 +62,8 @@ output = module_2(output)
 output = softmax(output)
 output
 #> torch_tensor
-#>  0.4750  0.3249  0.2001
-#>  0.4708  0.3586  0.1706
+#>  0.3232  0.3974  0.2795
+#>  0.3383  0.4087  0.2530
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -106,8 +106,8 @@ We can use the generated `PipeOp` in the familiar way:
 output = po_module_1$train(list(input))[[1]]
 output
 #> torch_tensor
-#> -0.1143 -0.3880 -0.7909  0.2583
-#>  0.2165  0.2221 -0.5324 -0.6822
+#> -0.1647  0.5084 -0.2580 -0.0830
+#> -0.0255  0.6306 -0.4553  0.7459
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -139,8 +139,8 @@ the whole `Graph`.
 output = module_graph$train(input)[[1]]
 output
 #> torch_tensor
-#>  0.4750  0.3249  0.2001
-#>  0.4708  0.3586  0.1706
+#>  0.3232  0.3974  0.2795
+#>  0.3383  0.4087  0.2530
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -198,8 +198,8 @@ And it can be used to transform tensors just as any other
 
 graph_module(input)
 #> torch_tensor
-#>  0.4750  0.3249  0.2001
-#>  0.4708  0.3586  0.1706
+#>  0.3232  0.3974  0.2795
+#>  0.3383  0.4087  0.2530
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -335,8 +335,8 @@ small_module = model_descriptor_to_module(md, list(md$pointer))
 
 small_module(input)
 #> torch_tensor
-#> -0.4455 -1.3572 -1.0089 -1.0578
-#> -0.8029 -0.4963 -0.0499 -0.8028
+#>  0.4855 -0.1158 -0.3260 -0.3293
+#> -0.0892 -0.2771 -0.2453 -0.2565
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -408,9 +408,9 @@ batch
 
 small_module(batch$x[[1]])
 #> torch_tensor
-#> -1.8771  4.0933  1.9408  1.7275
-#> -1.8447  3.7912  1.9258  1.5131
-#> -1.7751  3.7377  1.7624  1.5478
+#> -0.3303  0.3602 -1.1051  0.4049
+#> -0.2228  0.2289 -0.9850  0.4978
+#> -0.2999  0.3029 -1.0367  0.3813
 #> [ CPUFloatType{3,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -440,8 +440,8 @@ graph_module = model_descriptor_to_module(md_sequential, list(md_sequential$poin
 
 graph_module(input)
 #> torch_tensor
-#>  0.4067  0.2994  0.2940
-#>  0.4752  0.2739  0.2509
+#>  0.2417  0.5257  0.2326
+#>  0.2763  0.5050  0.2187
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -675,14 +675,14 @@ We make multiple observations here:
     )
     #> $lin_out.output
     #> torch_tensor
-    #> -1.2851
-    #> -1.2608
+    #>  0.5941
+    #>  0.6165
     #> [ CPUFloatType{2,1} ][ grad_fn = <AddmmBackward0> ]
     #> 
     #> $softmax.output
     #> torch_tensor
-    #>  0.7996  0.1152  0.0851
-    #>  0.8046  0.1123  0.0830
+    #>  0.6091  0.2076  0.1833
+    #>  0.6129  0.2046  0.1824
     #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
     ```
 

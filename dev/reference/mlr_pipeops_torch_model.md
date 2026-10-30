@@ -82,7 +82,13 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   Whether to trace the network with
   [`torch::jit_trace()`](https://torch.mlverse.org/docs/reference/jit_trace.html)
   once at the start of training and then train the traced module instead
-  of the original one. Not all learners support this.
+  of the original one. Not all learners support this. A traced network
+  takes its inputs by position and ignores their names
+  ([mlverse/torch#1495](https://github.com/mlverse/torch/issues/1495)).
+  The learner passes the inputs in the right order, but when calling the
+  traced `$network` of a trained learner with several inputs directly,
+  they must be passed by position in the order given by
+  `attr(learner$network, "input_order")`.
 
 **Evaluation**:
 

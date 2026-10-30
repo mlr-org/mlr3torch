@@ -143,7 +143,11 @@ This is initialized to <code>TRUE</code>. Set it to <code>FALSE</code> if a copy
 <li><p><code>jit_trace</code> :: <code>logical(1)</code><br>
 Whether to trace the network with <code><a href="https://torch.mlverse.org/docs/reference/jit_trace.html" class="external-link">torch::jit_trace()</a></code> once at the start of training and then
 train the traced module instead of the original one.
-Not all learners support this.</p></li>
+Not all learners support this.
+A traced network takes its inputs by position and ignores their names
+(<a href="https://github.com/mlverse/torch/issues/1495" class="external-link">mlverse/torch#1495</a>).
+The learner passes the inputs in the right order, but when calling the traced <code>$network</code> of a trained learner
+with several inputs directly, they must be passed by position in the order given by <code>attr(learner$network, "input_order")</code>.</p></li>
 </ul><p><strong>Evaluation</strong>:</p><ul><li><p><code>measures_train</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s<br>
 Measures to be evaluated during training.</p></li>
 <li><p><code>measures_valid</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s<br>
