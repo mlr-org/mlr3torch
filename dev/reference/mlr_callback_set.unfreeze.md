@@ -77,7 +77,10 @@ Creates a new instance of this
   A `data.table` with a column `weights` (a list column of `Select`s)
   and a column `epoch` or `batch`. The selector indicates which
   parameters to unfreeze, while the `epoch` or `batch` column indicates
-  when to do so.
+  when to do so. Its values must be positive integers: epochs and
+  batches are counted from 1 (batches across epochs), and the weights
+  are unfrozen at the start of the given epoch or batch, so they are
+  already trained in it.
 
 ------------------------------------------------------------------------
 

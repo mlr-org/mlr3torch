@@ -133,7 +133,9 @@ A <code>Select</code> denoting the weights that are trainable from the start.</p
       <dt><code>unfreeze</code></dt>
 <dd><p>(<code>data.table</code>)<br>
 A <code>data.table</code> with a column <code>weights</code> (a list column of <code>Select</code>s) and a column <code>epoch</code> or <code>batch</code>.
-The selector indicates which parameters to unfreeze, while the <code>epoch</code> or <code>batch</code> column indicates when to do so.</p></dd>
+The selector indicates which parameters to unfreeze, while the <code>epoch</code> or <code>batch</code> column indicates when to do so.
+Its values must be positive integers: epochs and batches are counted from 1 (batches across epochs), and the
+weights are unfrozen at the start of the given epoch or batch, so they are already trained in it.</p></dd>
 
 
 </dl><p></p></div>
