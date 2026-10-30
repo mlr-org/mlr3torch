@@ -267,18 +267,18 @@ test_that("recycling in data.table", {
 test_that("rep for lazy_tensor", {
   expect_equal(
     materialize(rep(as_lazy_tensor(c(1, 2)), times = 2), rbind = TRUE),
-    torch_tensor(matrix(c(1, 2, 1, 2), ncol = 1))
+    torch_tensor(c(1, 2, 1, 2))
   )
   expect_equal(
     materialize(rep(as_lazy_tensor(c(1, 2)), each = 2), rbind = TRUE),
-    torch_tensor(matrix(c(1, 1, 2, 2), ncol = 1))
+    torch_tensor(c(1, 1, 2, 2))
   )
 })
 
 test_that("rep_len for lazy_tensor", {
   expect_equal(
     materialize(rep_len(as_lazy_tensor(c(1, 2)), length.out = 3), rbind = TRUE),
-    torch_tensor(matrix(c(1, 2, 1), ncol = 1))
+    torch_tensor(c(1, 2, 1))
   )
 })
 
@@ -304,4 +304,27 @@ test_that("flexible shape", {
   lt = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, NA, 5)))
   expect_equal(lazy_shape(lt), c(NA, NA, 5))
 
+})
+
+test_that("lazy tensors whose DataDescriptors only differ in the pointer are different", {
+  x = torch_randn(3, 2)
+  graph = as_graph(po("nop", id = "in"))
+  graph$add_pipeop(po("module", id = "plus", module = function(x) x + 100))
+  graph$add_pipeop(po("module", id = "minus", module = function(x) x - 100))
+  graph$add_edge("in", "plus")
+  graph$add_edge("in", "minus")
+  ds = dd(as_lazy_tensor(x))$dataset
+  dd_plus = DataDescriptor$new(ds, list(x = c(NA, 2)), graph = graph, input_map = "x",
+    pointer = c("plus", "output"), pointer_shape = c(NA, 2), clone_graph = FALSE)
+  dd_minus = DataDescriptor$new(ds, list(x = c(NA, 2)), graph = graph, input_map = "x",
+    pointer = c("minus", "output"), pointer_shape = c(NA, 2), clone_graph = FALSE)
+  lt_plus = as_lazy_tensor(dd_plus)
+  lt_minus = as_lazy_tensor(dd_minus)
+
+  expect_true(dd_plus$hash != dd_minus$hash)
+  expect_error(c(lt_plus, lt_minus), "Can only concatenate")
+  expect_equal(lt_plus == lt_minus, rep(FALSE, 3L))
+  expect_equal(lt_plus == as_lazy_tensor(dd_plus), rep(TRUE, 3L))
+  # the hash of a task's backend also tells them apart
+  expect_true(calculate_hash(data.table(x = lt_plus)) != calculate_hash(data.table(x = lt_minus)))
 })

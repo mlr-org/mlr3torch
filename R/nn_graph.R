@@ -8,8 +8,10 @@
 #'   The graph (consisting primarily of [`PipeOpModule`]s) that is wrapped by the network.
 #'   When it consists only of [`PipeOpModule`]s and [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s, the order in which the
 #'   modules are called is determined once and `$forward()` calls them directly, which is much faster than running
-#'   the graph. This is determined anew when a new graph is assigned to this field or when PipeOps are added to or
-#'   removed from it, but not when only its edges are changed, so the graph should not be modified in place.
+#'   the graph. This is determined anew when PipeOps are added to or removed from the graph, but not when only its
+#'   edges are changed, so the graph should not be modified in place.
+#'   The field cannot be set to another graph, because the parameters of the modules are registered when the network
+#'   is created. Create a new `nn_graph` instead.
 #' * `input_map` :: `character()`\cr
 #'   The names of the input arguments of the network.
 #' * `shapes_in` :: `list()`\cr
@@ -51,7 +53,7 @@
 nn_graph = nn_module(
   "nn_graph",
   initialize = function(graph, shapes_in, output_map = graph$output$name, list_output = FALSE) {
-    self$graph = as_graph(graph, clone = FALSE)
+    private$.graph = as_graph(graph, clone = FALSE)
     self$input_map = graph$input$name  # cache this, it is expensive
 
     # we do NOT verify the input and type of the graph to be `"torch_tensor"`.
@@ -95,24 +97,18 @@ nn_graph = nn_module(
     outputs
   },
   reset_parameters = function() {
-    # recursively call $reset_parameters()
-    recursive_reset = function(network) {
-      for (child in network$children) {
-        if (is.function(child$reset_parameters)) {
-          child$reset_parameters()
-          next
-        }
-        Recall(child)
-      }
-    }
-
-    recursive_reset(self)
+    reset_children(self)
   },
   active = list(
     graph = function(rhs) {
       if (missing(rhs)) return(private$.graph)
-      private$.graph = rhs
-      # the plan for $forward() is created anew for the new graph
+      # the parameters of the modules are registered in `$module_list` when the network is created, so another
+      # graph cannot be assigned. A nested assignment such as `network$graph$pipeops$a$module = ...` assigns the
+      # same graph.
+      if (!identical(rhs, private$.graph)) {
+        stopf("The graph of an nn_graph cannot be replaced, create a new nn_graph instead.")
+      }
+      # the nested assignment may have changed the graph, so the plan for $forward() is created anew
       private$.forward_plan = NULL
     }
   ),
@@ -129,11 +125,11 @@ nn_graph = nn_module(
         po$module = NULL
         po$id
       }))
-      self$graph = self$graph$clone(deep = TRUE)
+      private$.graph = self$graph$clone(deep = TRUE)
+      private$.forward_plan = NULL
       for (i in seq_along(module_ids)) {
-        # the first module is self
-        self$graph$pipeops[[module_ids[[i]]]]$module = self$module_list$modules[[i + 1]]
-        i = i + 1
+        # `$children` and not `$modules`, which also contains the module list itself and all submodules
+        self$graph$pipeops[[module_ids[[i]]]]$module = self$module_list$children[[i]]
       }
       invisible(self)
     }
@@ -327,6 +323,18 @@ run_graph_forward_plan = function(plan, pipeops, inputs, output_map) {
     }
   }
   set_names(values[plan$output_keys[output_map]], output_map)
+}
+
+# Resets the parameters of the submodules of `module`: those that have a `$reset_parameters()` method are reset by
+# it, which is therefore responsible for their own submodules, the others by resetting their submodules in turn.
+reset_children = function(module) {
+  for (child in module$children) {
+    if (is.function(child$reset_parameters)) {
+      child$reset_parameters()
+      next
+    }
+    reset_children(child)
+  }
 }
 
 # make unique ID that starts with 'newid' and appends _1, _2, etc. to avoid collisions

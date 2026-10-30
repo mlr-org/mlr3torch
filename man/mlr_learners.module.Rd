@@ -148,7 +148,10 @@ The task type, either \verb{"classif}" or \code{"regr"}.}
 The task type.}
       \item{\code{properties}}{(\code{NULL} or \code{character()})\cr
 The properties of the learner.
-Defaults to all available properties for the given task type.}
+Defaults to the properties that every \code{\link{LearnerTorch}} has, i.e. \code{"marshal"}, \code{"validation"} and
+\code{"internal_tuning"} (and \code{"twoclass"} and \code{"multiclass"} for classification).
+Other properties such as \code{"weights"}, \code{"missings"}, \code{"new_levels"} or \code{"offset"} must only be
+claimed if the network and the ingress tokens handle them, as mlr3 then skips its checks for them.}
       \item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The optimizer to use for training.
 Per default, \emph{adam} is used.}

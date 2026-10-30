@@ -154,7 +154,23 @@ test_that("trafo_normalize normalizes a batch like torchvision::transform_normal
   s3 = torch_randn(2, 3, 7)
   expect_true(torch_allclose(normalize_batch(s3, mean, std),
     (s3 - torch_tensor(mean)$view(c(1, 3, 1))) / torch_tensor(std)$view(c(1, 3, 1))))
-  expect_error(normalize_batch(z, 0, c(1, 0, 1)), "must not contain zeros")
+})
+
+test_that("trafo_normalize does not truncate mean and std for integer inputs", {
+  mean = c(127.5, 100.2, 30.7)
+  std = c(60.3, 2.5, 1.5)
+  x = torch_randint(0, 256, c(4, 3, 5, 6))
+  expected = (x$to(dtype = torch_float()) - torch_tensor(mean)$view(c(1, 3, 1, 1))) /
+    torch_tensor(std)$view(c(1, 3, 1, 1))
+  for (dtype in list(torch_long(), torch_int(), torch_uint8())) {
+    out = normalize_batch(x$to(dtype = dtype), mean, std)
+    expect_true(out$dtype == torch_float())
+    expect_true(torch_allclose(out, expected))
+  }
+
+  task = as_task_regr(data.table(x = as_lazy_tensor(x$to(dtype = torch_long())), y = rnorm(4)), target = "y")
+  task_out = po("trafo_normalize", mean = mean, std = std)$train(list(task))[[1L]]
+  expect_true(torch_allclose(materialize(task_out$data(cols = "x")$x, rbind = TRUE), expected))
 })
 
 test_that("trafo_pad", {

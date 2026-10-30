@@ -58,7 +58,7 @@ test_that("nn_realmlp_plr works for all variants", {
           densenet = densenet, cos_bias = cos_bias)
         out = plr(x)
         expect_equal(out$shape, c(7, 15))
-        if (densenet) expect_equal(out[, 13:15], x)
+        if (densenet) expect_equal(out[, 13:15]$detach(), x)
         if (!densenet && activation == "relu") expect_true(as.logical((out >= 0)$all()))
       }
     }

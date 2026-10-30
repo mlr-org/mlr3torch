@@ -6,6 +6,12 @@
 \title{Tabular ResNet}
 \description{
 A residual network for tabular data, following Gorishniy (2021).
+
+The features are first projected to dimension \code{d_block} by a linear layer, followed by \code{n_blocks}
+residual blocks.
+Each block computes \code{x + Dropout(Linear(Dropout(ReLU(Linear(BatchNorm(x))))))}, where the two
+dropout ratios are \code{dropout1} and \code{dropout2}.
+The prediction is \code{Linear(ReLU(BatchNorm(x)))} of the output \code{x} of the last block.
 }
 \section{Dictionary}{
 

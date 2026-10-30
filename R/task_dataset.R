@@ -68,6 +68,7 @@ task_dataset = dataset("task_dataset",
     lazy_tensor_features = self$task$feature_types[get("type") == "lazy_tensor"][[1L]]
 
     data = self$task$data(cols = lazy_tensor_features)
+    iwalk(data, assert_single_data_descriptor)
 
     # Here, we could have multiple `lazy_tensor` columns that share parts of the graph
     # we only try to merge those with the same DataDescriptor, this is a restriction which we might want to
@@ -110,6 +111,15 @@ task_dataset = dataset("task_dataset",
     self$task$nrow
   }
 )
+
+# All elements of a lazy tensor are loaded with the DataDescriptor of its first element.
+# `c()` ensures that they all have the same one, but `rbind()` of data.tables and `task$rbind()` do not use `c()`.
+assert_single_data_descriptor = function(lt, name) {
+  dds = unique(unlist(unclass(lt), recursive = FALSE)[c(FALSE, TRUE)])
+  if (length(unique(map_chr(dds, "hash"))) > 1L) {
+    stopf("Lazy tensor column '%s' contains elements of different DataDescriptors, which is not supported. This happens e.g. when lazy tensors of different datasets are combined via rbind() or task$rbind().", name) # nolint
+  }
+}
 
 # This returns a data.table or NULL (if nothing was merged)
 merge_lazy_tensor_graphs = function(lts) {

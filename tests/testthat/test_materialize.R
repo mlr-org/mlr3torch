@@ -295,7 +295,7 @@ test_that("materialize()'s cache runs a merged graph once for all of its columns
   # `merge_compatible_lazy_tensor_graphs()` merges the columns that share a dataset into one graph
   # and hands each of them a `DataDescriptor` over that same graph object, differing only in
   # `pointer`. That is what the output-level cache is for, and why the graph is in the key as the
-  # object rather than as `$hash`.
+  # object rather than as `$hash`, which also contains the pointer.
   ds = dataset(
     initialize = function() self$x = torch_randn(10, 3),
     .getbatch = function(i) list(x = self$x[i, , drop = FALSE]),
@@ -310,7 +310,7 @@ test_that("materialize()'s cache runs a merged graph once for all of its columns
 
   merged = merge_lazy_tensor_graphs(task$data(cols = c("a", "b")))
   expect_true(identical(dd(merged$a)$graph, dd(merged$b)$graph))
-  expect_equal(dd(merged$a)$hash, dd(merged$b)$hash)
+  expect_true(dd(merged$a)$hash != dd(merged$b)$hash)
 
   cache = hashtab()
   cached = materialize(merged, rbind = TRUE, cache = cache)
