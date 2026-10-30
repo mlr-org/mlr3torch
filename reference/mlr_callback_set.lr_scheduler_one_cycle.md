@@ -7,18 +7,29 @@ Wraps
 where the default values for `epochs` and `steps_per_epoch` are the
 number of training epochs and the number of batches per epoch.
 
+## Resuming
+
+As for
+[`CallbackSetLRScheduler`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.lr_scheduler.md),
+with one additional restriction: the 1cycle policy is defined over the
+total number of steps of the run, so a resumed run must be configured
+for the same number of steps as the one that wrote the checkpoint, i.e.
+the same `epochs` and the same number of batches per epoch. A run that
+is not errors before its first epoch rather than somewhere in the
+middle.
+
 ## Super classes
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)
 -\>
-[`mlr3torch::CallbackSetLRScheduler`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.lr_scheduler.md)
+[`CallbackSetLRScheduler`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.lr_scheduler.md)
 -\> `CallbackSetLRSchedulerOneCycle`
 
 ## Methods
 
 ### Public methods
 
-- [`CallbackSetLRSchedulerOneCycle$new()`](#method-CallbackSetLRSchedulerOneCycle-new)
+- [`CallbackSetLRSchedulerOneCycle$new()`](#method-CallbackSetLRSchedulerOneCycle-initialize)
 
 - [`CallbackSetLRSchedulerOneCycle$on_begin()`](#method-CallbackSetLRSchedulerOneCycle-on_begin)
 
@@ -26,13 +37,13 @@ number of training epochs and the number of batches per epoch.
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-load_state_dict)
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-print)
-- [`mlr3torch::CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-print)
+- [`CallbackSetLRScheduler$load_state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSetLRScheduler.html#method-load_state_dict)
+- [`CallbackSetLRScheduler$state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSetLRScheduler.html#method-state_dict)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CallbackSetLRSchedulerOneCycle$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -50,7 +61,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `on_begin()`
+### `CallbackSetLRSchedulerOneCycle$on_begin()`
 
 Creates the scheduler using the optimizer from the context
 
@@ -60,7 +71,7 @@ Creates the scheduler using the optimizer from the context
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetLRSchedulerOneCycle$clone()`
 
 The objects of this class are cloneable with this method.
 

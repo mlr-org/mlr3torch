@@ -2,8 +2,16 @@
 
 Builds a Torch Learner from a
 [`ModelDescriptor`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md)
-and trains it with the given parameter specification. The task type must
-be specified during construction.
+and trains it with the given parameter specification.
+
+This is `po("torch_model")`, which works on the general-purpose task
+type of `mlr3torch`, see
+[`TaskTorch`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_torch.md).
+For classification and regression see
+[`PipeOpTorchModelClassif`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model_classif.md)
+and
+[`PipeOpTorchModelRegr`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model_regr.md)
+respectively.
 
 ## Parameters
 
@@ -17,19 +25,26 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `device` :: `character(1)`  
   The device. One of `"auto"`, `"cpu"`, or `"cuda"` or other values
-  defined in `mlr_reflections$torch$devices`. The value is initialized
-  to `"auto"`, which will select `"cuda"` if possible, then try `"mps"`
-  and otherwise fall back to `"cpu"`.
+  defined in `mlr_reflections$torch$devices`. A specific device can be
+  selected by appending its index, e.g. `"cuda:1"` for the second GPU.
+  The value is initialized to `"auto"`, which will select `"cuda"` if
+  possible, then try `"mps"` and otherwise fall back to `"cpu"`.
 
 - `num_threads` :: `integer(1)`  
-  The number of threads for intraop pararallelization (if `device` is
-  `"cpu"`). This value is initialized to 1.
+  The number of threads for intraop parallelization (if `device` is
+  `"cpu"`). This value is initialized to 1. When resampling,
+  benchmarking or tuning in parallel, each worker uses this many
+  threads, so divide the available cores among the workers instead of
+  setting this to the number of cores.
 
 - `num_interop_threads` :: `integer(1)`  
-  The number of threads for intraop and interop pararallelization (if
-  `device` is `"cpu"`). This value is initialized to 1. Note that this
-  can only be set once during a session and changing the value within an
-  R session will raise a warning.
+  The number of threads for interop parallelization (if `device` is
+  `"cpu"`). Note that this can only be set **once** per session, so
+  setting this for one learner also changes the behavior of other
+  learners, and a later learner asking for a different value errors.
+  `NULL` (default) uses whatever is set. In order to use different
+  values for this parameter, use encapsulation to train the learners in
+  separate R sessions.
 
 - `seed` :: `integer(1)` or `"random"` or `NULL`  
   The torch seed that is used during training and prediction. This value
@@ -39,7 +54,11 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   used during prediction. Note that by setting the seed during the
   training phase this will mean that by default (i.e. when `seed` is
   `"random"`), clones of the learner will use a different seed. If set
-  to `NULL`, no seeding will be done.
+  to `NULL`, no seeding will be done. This parameter only seeds torch's
+  random number generator, it does **not** seed R's. Anything that is
+  drawn from R's RNG is therefore unaffected by it, so to make those
+  parts reproducible you need to seed R's RNG as well, e.g. via
+  [`set.seed()`](https://rdrr.io/r/base/Random.html).
 
 - `tensor_dataset` :: `logical(1)` \| `"device"`  
   Whether to load all batches at once at the beginning of training and
@@ -51,6 +70,25 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   [`lazy_tensor`](https://mlr3torch.mlr-org.com/reference/lazy_tensor.md)s
   with random data augmentation, as this augmentation will only be
   applied once at the beginning of training.
+
+- `cache_task_data` :: `logical(1)`  
+  Whether to retrieve the data from the task once and to take the
+  batches from it, instead of retrieving every batch from the task,
+  which is slow. This is initialized to `TRUE`. Set it to `FALSE` if a
+  copy of the task data does not fit into memory (lazy tensor columns
+  only contain indices and are small).
+
+- `jit_trace` :: `logical(1)`  
+  Whether to trace the network with
+  [`torch::jit_trace()`](https://torch.mlverse.org/docs/reference/jit_trace.html)
+  once at the start of training and then train the traced module instead
+  of the original one. Not all learners support this. A traced network
+  takes its inputs by position and ignores their names
+  ([mlverse/torch#1495](https://github.com/mlverse/torch/issues/1495)).
+  The learner passes the inputs in the right order, but when calling the
+  traced `$network` of a trained learner with several inputs directly,
+  they must be passed by position in the order given by
+  `attr(learner$network, "input_order")`.
 
 **Evaluation**:
 
@@ -71,39 +109,81 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   `measures_train` / `measures_valid`. This is initialized to `1`. Note
   that the final model is always evaluated.
 
+**Resuming**:
+
+- `resume` :: `character(1)` or `TRUE`  
+  Continues training from a checkpoint written by
+  [`t_clbk("checkpoint")`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.checkpoint.md),
+  either the folder it wrote to or `TRUE`, which takes that folder from
+  the checkpoint callback of this learner. Note that `epochs` is the
+  *total* number of epochs, i.e. it includes the epochs the checkpoint
+  was already trained for: resuming a checkpoint from epoch 5 with
+  `epochs = 8` trains 3 more epochs.
+
 **Early Stopping**:
 
 - `patience` :: `integer(1)`  
   This activates early stopping using the validation scores. If the
   performance of a model does not improve for `patience` evaluation
-  steps, training is ended. Note that the final model is stored in the
-  learner, not the best model. This is initialized to `0`, which means
-  no early stopping. The first entry from `measures_valid` is used as
-  the metric. This also requires to specify the `$validate` field of the
-  Learner, as well as `measures_valid`. If this is set, the epoch after
-  which no improvement was observed, can be accessed via the
-  `$internal_tuned_values` field of the learner.
+  steps, training is ended. Note that this counts *evaluation steps*,
+  not epochs: when `eval_freq` is greater than `1`, `patience`
+  evaluation steps correspond to `patience * eval_freq` epochs. Note
+  that the final model is stored in the learner, not the best model,
+  unless `restore_best_weights` is set to `TRUE`. This is initialized to
+  `0`, which means no early stopping. The first entry from
+  `measures_valid` is used as the metric. A missing (`NA`) score counts
+  as no improvement, and every score improves on a missing one. If all
+  scores are missing, the first evaluated epoch is reported as the best
+  one. This also requires to specify the `$validate` field of the
+  Learner, as well as `measures_valid`.
 
 - `min_delta` :: `double(1)`  
   The minimum improvement threshold for early stopping. Is initialized
   to 0.
 
+- `restore_best_weights` :: `logical(1)`  
+  Whether to restore the weights of the best epoch when training ends,
+  instead of keeping those of the last epoch that was trained. Like
+  `min_delta`, this only has an effect when early stopping is active. Is
+  initialized to `FALSE`, i.e. the network of the last epoch is stored.
+  Setting this to `TRUE` makes the stored network the one of the epoch
+  that `$internal_tuned_values` reports, and costs one additional copy
+  of the network's parameters in memory.
+
 **Dataloader**:
 
 - `batch_size` :: `integer(1)`  
-  The batch size (required).
+  The batch size used by the training and prediction dataloader. It is
+  required for training (unless a `batch_sampler` is provided, which
+  already determines the batches) and it is required for prediction
+  (unless `batch_size_predict` is set).
+
+- `batch_size_predict` :: `integer(1)`  
+  The batch size used by the prediction dataloader (this includes the
+  validation data during training). When set, it overrides `batch_size`
+  for prediction. The batch size does not change the predictions, but
+  smaller batches take longer and require less memory.
 
 - `shuffle` :: `logical(1)`  
   Whether to shuffle the instances in the dataset. This is initialized
-  to `TRUE`, which differs from the default (`FALSE`).
+  to `TRUE`, which differs from the default (`FALSE`). It is ignored
+  when a `sampler` or `batch_sampler` is provided.
 
 - `sampler` ::
   [`torch::sampler`](https://torch.mlverse.org/docs/reference/sampler.html)  
-  Object that defines how the dataloader draw samples.
+  Object that defines how the dataloader draws samples, i.e. the order
+  in which the observations are drawn. This must be the sampler
+  *generator* (as returned by
+  [`torch::sampler()`](https://torch.mlverse.org/docs/reference/sampler.html)),
+  not an instance, as it is instantiated with the training dataset
+  internally.
 
 - `batch_sampler` ::
   [`torch::sampler`](https://torch.mlverse.org/docs/reference/sampler.html)  
-  Object that defines how the dataloader draws batches.
+  Object that defines how the dataloader draws batches. As for
+  `sampler`, this must be the generator. When it is provided, the
+  parameters `batch_size`, `shuffle` and `drop_last` are ignored during
+  training, because the batch sampler already determines the batches.
 
 - `num_workers` :: `integer(1)`  
   The number of workers for data loading (batches are loaded in
@@ -119,7 +199,9 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `drop_last` :: `logical(1)`  
   Whether to drop the last training batch in each epoch during training.
-  Default is `FALSE`.
+  Default is `FALSE`. If it is `TRUE`, the batch size is capped at the
+  number of training observations, so that not all of them are dropped.
+  It is ignored when a `batch_sampler` is provided.
 
 - `timeout` :: `numeric(1)`  
   The timeout value for collecting a batch from workers. Negative values
@@ -127,24 +209,26 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `worker_init_fn` :: `function(id)`  
   A function that receives the worker id (in `[1, num_workers]`) and is
-  exectued after seeding on the worker but before data loading.
+  executed after seeding on the worker but before data loading.
 
 - `worker_globals` :: [`list()`](https://rdrr.io/r/base/list.html) \|
   [`character()`](https://rdrr.io/r/base/character.html)  
-  When loading data in parallel, this allows to export globals to the
-  workers. If this is a character vector, the objects in the global
-  environment with those names are copied to the workers.
+  When loading data in parallel, this makes it possible to export
+  globals to the workers. If this is a character vector, the objects in
+  the global environment with those names are copied to the workers.
 
 - `worker_packages` ::
   [`character()`](https://rdrr.io/r/base/character.html)  
   Which packages to load on the workers.
 
-Also see `torch::dataloder` for more information.
+Also see
+[`torch::dataloader`](https://torch.mlverse.org/docs/reference/dataloader.html)
+for more information.
 
 ## Input and Output Channels
 
 There is one input channel `"input"` that takes in `ModelDescriptor`
-during traing and a `Task` of the specified `task_type` during
+during training and a `Task` of the specified `task_type` during
 prediction. The output is `NULL` during training and a `Prediction` of
 given `task_type` during prediction.
 
@@ -163,78 +247,14 @@ on the provided
 [`ModelDescriptor`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md)
 that is received through the input channel. Then the parameters are set
 according to the parameters specified in `PipeOpTorchModel` and its
-'\$train()` method is called on the [`Task`][mlr3::Task] stored in the [`ModelDescriptor\`\].
+`$train()` method is called on the
+[`Task`](https://mlr3.mlr-org.com/reference/Task.html) stored in the
+[`ModelDescriptor`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md).
 
 ## See also
 
 Other PipeOps:
-[`mlr_pipeops_nn_adaptive_avg_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool1d.md),
-[`mlr_pipeops_nn_adaptive_avg_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool2d.md),
-[`mlr_pipeops_nn_adaptive_avg_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool3d.md),
-[`mlr_pipeops_nn_avg_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool1d.md),
-[`mlr_pipeops_nn_avg_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool2d.md),
-[`mlr_pipeops_nn_avg_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool3d.md),
-[`mlr_pipeops_nn_batch_norm1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm1d.md),
-[`mlr_pipeops_nn_batch_norm2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm2d.md),
-[`mlr_pipeops_nn_batch_norm3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm3d.md),
-[`mlr_pipeops_nn_block`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_block.md),
-[`mlr_pipeops_nn_celu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_celu.md),
-[`mlr_pipeops_nn_conv1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv1d.md),
-[`mlr_pipeops_nn_conv2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv2d.md),
-[`mlr_pipeops_nn_conv3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv3d.md),
-[`mlr_pipeops_nn_conv_transpose1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose1d.md),
-[`mlr_pipeops_nn_conv_transpose2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose2d.md),
-[`mlr_pipeops_nn_conv_transpose3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose3d.md),
-[`mlr_pipeops_nn_dropout`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout.md),
-[`mlr_pipeops_nn_elu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_elu.md),
-[`mlr_pipeops_nn_flatten`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_flatten.md),
-[`mlr_pipeops_nn_ft_cls`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_ft_cls.md),
-[`mlr_pipeops_nn_ft_transformer_block`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_ft_transformer_block.md),
-[`mlr_pipeops_nn_geglu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_geglu.md),
-[`mlr_pipeops_nn_gelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gelu.md),
-[`mlr_pipeops_nn_glu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_glu.md),
-[`mlr_pipeops_nn_hardshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardshrink.md),
-[`mlr_pipeops_nn_hardsigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardsigmoid.md),
-[`mlr_pipeops_nn_hardtanh`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardtanh.md),
-[`mlr_pipeops_nn_head`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_head.md),
-[`mlr_pipeops_nn_identity`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_identity.md),
-[`mlr_pipeops_nn_layer_norm`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_layer_norm.md),
-[`mlr_pipeops_nn_leaky_relu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_leaky_relu.md),
-[`mlr_pipeops_nn_linear`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_linear.md),
-[`mlr_pipeops_nn_log_sigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_sigmoid.md),
-[`mlr_pipeops_nn_max_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool1d.md),
-[`mlr_pipeops_nn_max_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool2d.md),
-[`mlr_pipeops_nn_max_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool3d.md),
-[`mlr_pipeops_nn_merge`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge.md),
-[`mlr_pipeops_nn_merge_cat`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_cat.md),
-[`mlr_pipeops_nn_merge_prod`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_prod.md),
-[`mlr_pipeops_nn_merge_sum`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_sum.md),
-[`mlr_pipeops_nn_prelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_prelu.md),
-[`mlr_pipeops_nn_reglu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reglu.md),
-[`mlr_pipeops_nn_relu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu.md),
-[`mlr_pipeops_nn_relu6`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu6.md),
-[`mlr_pipeops_nn_reshape`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reshape.md),
-[`mlr_pipeops_nn_rrelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rrelu.md),
-[`mlr_pipeops_nn_selu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_selu.md),
-[`mlr_pipeops_nn_sigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_sigmoid.md),
-[`mlr_pipeops_nn_softmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax.md),
-[`mlr_pipeops_nn_softplus`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softplus.md),
-[`mlr_pipeops_nn_softshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softshrink.md),
-[`mlr_pipeops_nn_softsign`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softsign.md),
-[`mlr_pipeops_nn_squeeze`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_squeeze.md),
-[`mlr_pipeops_nn_tanh`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tanh.md),
-[`mlr_pipeops_nn_tanhshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tanhshrink.md),
-[`mlr_pipeops_nn_threshold`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_threshold.md),
-[`mlr_pipeops_nn_tokenizer_categ`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_categ.md),
-[`mlr_pipeops_nn_tokenizer_num`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_num.md),
-[`mlr_pipeops_nn_unsqueeze`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unsqueeze.md),
-[`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md),
-[`mlr_pipeops_torch_ingress_categ`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_categ.md),
-[`mlr_pipeops_torch_ingress_ltnsr`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_ltnsr.md),
-[`mlr_pipeops_torch_ingress_num`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_num.md),
-[`mlr_pipeops_torch_loss`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_loss.md),
-[`mlr_pipeops_torch_model_classif`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model_classif.md),
-[`mlr_pipeops_torch_model_regr`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model_regr.md)
+[`mlr_pipeops_nn_recurrent`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_recurrent.md)
 
 ## Super classes
 
@@ -247,7 +267,7 @@ Other PipeOps:
 
 ### Public methods
 
-- [`PipeOpTorchModel$new()`](#method-PipeOpTorchModel-new)
+- [`PipeOpTorchModel$new()`](#method-PipeOpTorchModel-initialize)
 
 - [`PipeOpTorchModel$clone()`](#method-PipeOpTorchModel-clone)
 
@@ -260,21 +280,27 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchModel$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
 
 #### Usage
 
-    PipeOpTorchModel$new(task_type, id = "torch_model", param_vals = list())
+    PipeOpTorchModel$new(
+      task_type = "torch",
+      id = "torch_model",
+      param_vals = list(),
+      target_batchgetter = NULL,
+      predict_types = NULL
+    )
 
 #### Arguments
 
 - `task_type`:
 
   (`character(1)`)  
-  The task type of the model.
+  The task type of the model. Defaults to `"torch"`.
 
 - `id`:
 
@@ -287,9 +313,33 @@ Creates a new instance of this
   List of hyperparameter settings, overwriting the hyperparameter
   settings that would otherwise be set during construction.
 
+- `target_batchgetter`:
+
+  (`function()` or `NULL`)  
+  Converts the target columns of a batch into the target tensor `y` that
+  the loss is applied to. Takes an argument `data`, a
+  [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html)
+  with only the target columns, and optionally an argument `x`, the
+  named list of feature tensors of the batch, which is what a target
+  that is a function of the input needs, see
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md).
+  If `NULL` (default), it is taken from the task via
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md),
+  which the built-in task types provide, and a
+  [`TaskTorch`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_torch.md)
+  only if it has a `default_target_batchgetter` or no target at all, in
+  which case the batches have no `y` element.
+
+- `predict_types`:
+
+  ([`character()`](https://rdrr.io/r/base/character.html))  
+  The predict types. See
+  [`mlr_reflections$learner_predict_types`](https://mlr3.mlr-org.com/reference/mlr_reflections.html)
+  for available values.
+
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchModel$clone()`
 
 The objects of this class are cloneable with this method.
 

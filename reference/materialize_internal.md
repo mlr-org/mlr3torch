@@ -26,8 +26,7 @@ materialize_internal(x, device = "cpu", cache = NULL, rbind)
 
 - cache:
 
-  (`NULL` or
-  [`environment()`](https://rdrr.io/r/base/environment.html))  
+  (`NULL` or [`hashtab()`](https://rdrr.io/r/utils/hashtab.html))  
   Whether to cache the (intermediate) results of the materialization.
   This can make data loading faster when multiple `lazy_tensor`s
   reference the same dataset or graph.
@@ -35,7 +34,7 @@ materialize_internal(x, device = "cpu", cache = NULL, rbind)
 - rbind:
 
   (`logical(1)`)  
-  Whtether to rbind the resulting tensors (`TRUE`) or return them as a
+  Whether to rbind the resulting tensors (`TRUE`) or return them as a
   list of tensors (`FALSE`).
 
 ## Value
@@ -61,10 +60,13 @@ Materializing a lazy tensor consists of:
 When materializing multiple
 [`lazy_tensor`](https://mlr3torch.mlr-org.com/reference/lazy_tensor.md)
 columns, caching can be useful because: a) Output(s) from the dataset
-might be input to multiple graphs. (in task_dataset this is shoudl
-rarely be the case because because we try to merge them). b) Different
-lazy tensors might be outputs from the same graph.
+might be input to multiple graphs. (in task_dataset this should rarely
+be the case because we try to merge them). b) Different lazy tensors
+might be outputs from the same graph.
 
-For this reason it is possible to provide a cache environment. The hash
-key for a) is the hash of the indices and the dataset. The hash key for
-b) is the hash of the indices dataset and preprocessing graph.
+For this reason it is possible to provide a cache, which is a
+[`hashtab()`](https://rdrr.io/r/utils/hashtab.html). The key for a) is
+`list(dataset, indices)`, the key for b) is
+`list(indices, dataset, graph, input_map)`. The dataset and the graph go
+into the key as the objects themselves, not as their hashes, so they are
+compared with [`identical()`](https://rdrr.io/r/base/identical.html).

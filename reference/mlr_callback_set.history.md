@@ -4,9 +4,15 @@ Saves the training and validation history during training. The history
 is saved as a data.table where the validation measures are prefixed with
 `"valid."` and the training measures are prefixed with `"train."`.
 
+## Resuming
+
+The epochs of a resumed run are appended to the history of the run it
+continues. A measure that only one of the two runs recorded is `NA` for
+the epochs of the other.
+
 ## Super class
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)
 -\> `CallbackSetHistory`
 
 ## Methods
@@ -27,11 +33,11 @@ is saved as a data.table where the validation measures are prefixed with
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-print)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `on_begin()`
+### `CallbackSetHistory$on_begin()`
 
 Initializes lists where the train and validation metrics are stored.
 
@@ -41,7 +47,7 @@ Initializes lists where the train and validation metrics are stored.
 
 ------------------------------------------------------------------------
 
-### Method `state_dict()`
+### `CallbackSetHistory$state_dict()`
 
 Converts the lists to data.tables.
 
@@ -51,10 +57,10 @@ Converts the lists to data.tables.
 
 ------------------------------------------------------------------------
 
-### Method [`load_state_dict()`](https://torch.mlverse.org/docs/reference/load_state_dict.html)
+### `CallbackSetHistory$load_state_dict()`
 
-Sets the field `$train` and `$valid` to those contained in the state
-dict.
+Remembers the history contained in the state dict, so that the epochs of
+the current run are appended to it by `$state_dict()`.
 
 #### Usage
 
@@ -69,7 +75,7 @@ dict.
 
 ------------------------------------------------------------------------
 
-### Method `on_before_valid()`
+### `CallbackSetHistory$on_before_valid()`
 
 Add the latest training scores to the history.
 
@@ -79,7 +85,7 @@ Add the latest training scores to the history.
 
 ------------------------------------------------------------------------
 
-### Method `on_epoch_end()`
+### `CallbackSetHistory$on_epoch_end()`
 
 Add the latest validation scores to the history.
 
@@ -89,7 +95,7 @@ Add the latest validation scores to the history.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetHistory$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -106,6 +112,7 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+
 cb = t_clbk("history")
 task = tsk("iris")
 
@@ -121,7 +128,7 @@ print(learner$model$callbacks$history)
 #> Key: <epoch>
 #>    epoch train.classif.acc train.classif.ce valid.classif.ce
 #>    <num>             <num>            <num>            <num>
-#> 1:     1         0.6666667        0.3333333        0.3333333
-#> 2:     2         0.6571429        0.3428571        0.3555556
-#> 3:     3         0.5904762        0.4095238        0.2888889
+#> 1:     1         0.3714286        0.6285714        0.7111111
+#> 2:     2         0.5333333        0.4666667        0.3555556
+#> 3:     3         0.5714286        0.4285714        0.3555556
 ```

@@ -28,6 +28,6 @@ nn_ft_cls(d_token, initialization)
 
 ## References
 
-Devlin, Jacob, Chang, Ming-Wei, Lee, Kenton, Toutanova, Kristina (2018).
-“Bert: Pre-training of deep bidirectional transformers for language
-understanding.” *arXiv preprint arXiv:1810.04805*.
+Devlin J, Chang M, Lee K, Toutanova K (2018). “Bert: Pre-training of
+deep bidirectional transformers for language understanding.” *arXiv
+preprint arXiv:1810.04805*.

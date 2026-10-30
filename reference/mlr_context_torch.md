@@ -83,8 +83,9 @@ Other Callback:
 - `last_scores_train`:
 
   (named [`list()`](https://rdrr.io/r/base/list.html) or `NULL`)  
-  The scores from the last training batch. Names are the ids of the
-  training measures. If
+  The scores from the last evaluated epoch, calculated over all rows
+  that were trained on in that epoch. Names are the ids of the training
+  measures. If
   [`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
   sets `eval_freq` different from `1`, this is `NULL` in all epochs that
   don't evaluate the model.
@@ -92,21 +93,28 @@ Other Callback:
 - `last_scores_valid`:
 
   ([`list()`](https://rdrr.io/r/base/list.html))  
-  The scores from the last validation batch. Names are the ids of the
-  validation measures. If
+  The scores from the last evaluated epoch, calculated over the complete
+  validation task. Names are the ids of the validation measures. If
   [`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
   sets `eval_freq` different from `1`, this is `NULL` in all epochs that
   don't evaluate the model.
 
-- `last_loss`:
-
-  (`numeric(1)`)  
-  The loss from the last trainings batch.
-
 - `y_hat`:
 
-  (`torch_tensor`)  
-  The model's prediction for the current batch.
+  ([`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html))  
+  The network's output for the current batch, or its first element if
+  the network returns more than one tensor. Provided for the most common
+  case where a network returns a single tensor. For the full output, see
+  `y_hats`.
+
+- `y_hats`:
+
+  ([`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html)
+  or [`list()`](https://rdrr.io/r/base/list.html))  
+  The complete output of the network for the current batch, i.e. what
+  the loss is applied to. This is a
+  [`list()`](https://rdrr.io/r/base/list.html) if the network returns
+  more than one tensor and identical to `y_hat` otherwise.
 
 - `epoch`:
 
@@ -116,7 +124,9 @@ Other Callback:
 - `step`:
 
   (`integer(1)`)  
-  The current iteration.
+  The current iteration, i.e. the index of the batch within the current
+  epoch. This is reset to `0` at the beginning of every epoch, so a
+  globally unique step is `(epoch - 1) * length(loader_train) + step`.
 
 - `prediction_encoder`:
 
@@ -134,22 +144,42 @@ Other Callback:
   (`logical(1)`)  
   If this field is set to `TRUE` at the end of an epoch, training stops.
 
+- `callbacks`:
+
+  (named [`list()`](https://rdrr.io/r/base/list.html) of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)s)  
+  The callbacks that are active during training, named by their ids.
+  This allows a callback to access the state of the other callbacks,
+  which is for example what
+  [`CallbackSetCheckpoint`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.checkpoint.md)
+  does to save them.
+
 - `device`:
 
   ([`torch::torch_device`](https://torch.mlverse.org/docs/reference/torch_device.html))  
   The device.
 
+## Active bindings
+
+- `last_loss`:
+
+  (`numeric(1)`)  
+  The loss from the last training batch. The training loop stores the
+  (detached) loss tensor and it is only converted to a number when this
+  field is accessed, which avoids synchronizing the device in every
+  step.
+
 ## Methods
 
 ### Public methods
 
-- [`ContextTorch$new()`](#method-ContextTorch-new)
+- [`ContextTorch$new()`](#method-ContextTorch-initialize)
 
 - [`ContextTorch$clone()`](#method-ContextTorch-clone)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `ContextTorch$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -253,7 +283,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `ContextTorch$clone()`
 
 The objects of this class are cloneable with this method.
 

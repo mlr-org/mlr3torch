@@ -22,9 +22,23 @@ As of this writing, the following are available:
 - Custom schedulers defined with
   [`torch::lr_scheduler()`](https://torch.mlverse.org/docs/reference/lr_scheduler.html).
 
+## Resuming
+
+The state of the wrapped `torch` scheduler is stored and restored, so a
+resumed run continues the schedule instead of starting it over. Creating
+a scheduler resets the optimizer's learning rate to the one the schedule
+started at, so the rate the restored schedule had reached is put back
+afterwards.
+
+That state contains the scheduler's configuration as well as its
+progress, and restoring it overwrites what the resuming run was
+configured with. Resuming with different scheduler arguments, or a
+different `opt.lr`, which the schedule's base rates are derived from,
+therefore silently continues the schedule of the checkpointed run.
+
 ## Super class
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)
 -\> `CallbackSetLRScheduler`
 
 ## Public fields
@@ -43,21 +57,23 @@ As of this writing, the following are available:
 
 ### Public methods
 
-- [`CallbackSetLRScheduler$new()`](#method-CallbackSetLRScheduler-new)
+- [`CallbackSetLRScheduler$new()`](#method-CallbackSetLRScheduler-initialize)
 
 - [`CallbackSetLRScheduler$on_begin()`](#method-CallbackSetLRScheduler-on_begin)
+
+- [`CallbackSetLRScheduler$state_dict()`](#method-CallbackSetLRScheduler-state_dict)
+
+- [`CallbackSetLRScheduler$load_state_dict()`](#method-CallbackSetLRScheduler-load_state_dict)
 
 - [`CallbackSetLRScheduler$clone()`](#method-CallbackSetLRScheduler-clone)
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-load_state_dict)
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-print)
-- [`mlr3torch::CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CallbackSetLRScheduler$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -86,7 +102,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `on_begin()`
+### `CallbackSetLRScheduler$on_begin()`
 
 Creates the scheduler using the optimizer from the context
 
@@ -96,7 +112,36 @@ Creates the scheduler using the optimizer from the context
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetLRScheduler$state_dict()`
+
+Returns the state of the wrapped `torch` scheduler, so that a later run
+can continue the schedule instead of starting it over. Returns `NULL` if
+the scheduler was not created yet, i.e. before the training loop began.
+
+#### Usage
+
+    CallbackSetLRScheduler$state_dict()
+
+------------------------------------------------------------------------
+
+### `CallbackSetLRScheduler$load_state_dict()`
+
+Loads the state of the wrapped `torch` scheduler.
+
+#### Usage
+
+    CallbackSetLRScheduler$load_state_dict(state_dict)
+
+#### Arguments
+
+- `state_dict`:
+
+  (named [`list()`](https://rdrr.io/r/base/list.html))  
+  The state dict as retrieved via `$state_dict()`.
+
+------------------------------------------------------------------------
+
+### `CallbackSetLRScheduler$clone()`
 
 The objects of this class are cloneable with this method.
 

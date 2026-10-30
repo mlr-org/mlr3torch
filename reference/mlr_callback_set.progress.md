@@ -2,6 +2,10 @@
 
 Prints a progress bar and the metrics for training and validation.
 
+## Resuming
+
+This callback can be resumed without any problems.
+
 ## See also
 
 Other Callback:
@@ -20,14 +24,16 @@ Other Callback:
 
 ## Super class
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)
 -\> `CallbackSetProgress`
 
 ## Methods
 
 ### Public methods
 
-- [`CallbackSetProgress$new()`](#method-CallbackSetProgress-new)
+- [`CallbackSetProgress$new()`](#method-CallbackSetProgress-initialize)
+
+- [`CallbackSetProgress$on_begin()`](#method-CallbackSetProgress-on_begin)
 
 - [`CallbackSetProgress$on_epoch_begin()`](#method-CallbackSetProgress-on_epoch_begin)
 
@@ -41,17 +47,19 @@ Other Callback:
 
 - [`CallbackSetProgress$on_end()`](#method-CallbackSetProgress-on_end)
 
+- [`CallbackSetProgress$state_dict()`](#method-CallbackSetProgress-state_dict)
+
+- [`CallbackSetProgress$load_state_dict()`](#method-CallbackSetProgress-load_state_dict)
+
 - [`CallbackSetProgress$clone()`](#method-CallbackSetProgress-clone)
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-load_state_dict)
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-print)
-- [`mlr3torch::CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CallbackSetProgress$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -69,7 +77,17 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `on_epoch_begin()`
+### `CallbackSetProgress$on_begin()`
+
+Starts this run's timer.
+
+#### Usage
+
+    CallbackSetProgress$on_begin()
+
+------------------------------------------------------------------------
+
+### `CallbackSetProgress$on_epoch_begin()`
 
 Initializes the progress bar for training.
 
@@ -79,7 +97,7 @@ Initializes the progress bar for training.
 
 ------------------------------------------------------------------------
 
-### Method `on_batch_end()`
+### `CallbackSetProgress$on_batch_end()`
 
 Increments the training progress bar.
 
@@ -89,7 +107,7 @@ Increments the training progress bar.
 
 ------------------------------------------------------------------------
 
-### Method `on_before_valid()`
+### `CallbackSetProgress$on_before_valid()`
 
 Creates the progress bar for validation.
 
@@ -99,7 +117,7 @@ Creates the progress bar for validation.
 
 ------------------------------------------------------------------------
 
-### Method `on_batch_valid_end()`
+### `CallbackSetProgress$on_batch_valid_end()`
 
 Increments the validation progress bar.
 
@@ -109,7 +127,7 @@ Increments the validation progress bar.
 
 ------------------------------------------------------------------------
 
-### Method `on_epoch_end()`
+### `CallbackSetProgress$on_epoch_end()`
 
 Prints a summary of the training and validation process.
 
@@ -119,9 +137,11 @@ Prints a summary of the training and validation process.
 
 ------------------------------------------------------------------------
 
-### Method `on_end()`
+### `CallbackSetProgress$on_end()`
 
-Prints the time at the end of training.
+Prints the time at the end of training, and how long training took in
+total. A resumed run also reports how much of that total it contributed
+itself.
 
 #### Usage
 
@@ -129,7 +149,35 @@ Prints the time at the end of training.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetProgress$state_dict()`
+
+Returns the seconds trained so far, so that a resumed run reports the
+time of all runs together rather than only its own.
+
+#### Usage
+
+    CallbackSetProgress$state_dict()
+
+------------------------------------------------------------------------
+
+### `CallbackSetProgress$load_state_dict()`
+
+Loads the time that the previous runs took.
+
+#### Usage
+
+    CallbackSetProgress$load_state_dict(state_dict)
+
+#### Arguments
+
+- `state_dict`:
+
+  (named [`list()`](https://rdrr.io/r/base/list.html))  
+  The state dict as retrieved via `$state_dict()`.
+
+------------------------------------------------------------------------
+
+### `CallbackSetProgress$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -156,60 +204,60 @@ learner$param_set$set_values(
 )
 
 learner$train(task)
-#> Epoch 1 started (2026-03-03 07:22:26)
-#> Validation for epoch 1 started (2026-03-03 07:22:27)
+#> Epoch 1/5 started (2026-10-30 16:50:01)
+#> Validation for epoch 1 started (2026-10-30 16:50:01)
 #> 
 #> [Summary epoch 1]
 #> ------------------
 #> Measures (Train):
-#>  * classif.acc = 0.36
-#>  * classif.ce = 0.64
+#>  * classif.acc = 0.23
+#>  * classif.ce = 0.77
 #> Measures (Valid):
-#>  * classif.ce = 0.73
+#>  * classif.ce = 0.78
 #> 
-#> Epoch 2 started (2026-03-03 07:22:27)
-#> Validation for epoch 2 started (2026-03-03 07:22:27)
+#> Epoch 2/5 started (2026-10-30 16:50:01)
+#> Validation for epoch 2 started (2026-10-30 16:50:01)
 #> 
 #> [Summary epoch 2]
 #> ------------------
 #> Measures (Train):
-#>  * classif.acc = 0.36
-#>  * classif.ce = 0.64
+#>  * classif.acc = 0.62
+#>  * classif.ce = 0.38
 #> Measures (Valid):
-#>  * classif.ce = 0.73
+#>  * classif.ce = 0.53
 #> 
-#> Epoch 3 started (2026-03-03 07:22:27)
-#> Validation for epoch 3 started (2026-03-03 07:22:28)
+#> Epoch 3/5 started (2026-10-30 16:50:01)
+#> Validation for epoch 3 started (2026-10-30 16:50:02)
 #> 
 #> [Summary epoch 3]
 #> ------------------
 #> Measures (Train):
-#>  * classif.acc = 0.36
-#>  * classif.ce = 0.64
+#>  * classif.acc = 0.70
+#>  * classif.ce = 0.30
 #> Measures (Valid):
-#>  * classif.ce = 0.73
+#>  * classif.ce = 0.60
 #> 
-#> Epoch 4 started (2026-03-03 07:22:28)
-#> Validation for epoch 4 started (2026-03-03 07:22:28)
+#> Epoch 4/5 started (2026-10-30 16:50:02)
+#> Validation for epoch 4 started (2026-10-30 16:50:02)
 #> 
 #> [Summary epoch 4]
 #> ------------------
 #> Measures (Train):
-#>  * classif.acc = 0.36
-#>  * classif.ce = 0.64
+#>  * classif.acc = 0.60
+#>  * classif.ce = 0.40
 #> Measures (Valid):
-#>  * classif.ce = 0.73
+#>  * classif.ce = 0.60
 #> 
-#> Epoch 5 started (2026-03-03 07:22:28)
-#> Validation for epoch 5 started (2026-03-03 07:22:29)
+#> Epoch 5/5 started (2026-10-30 16:50:02)
+#> Validation for epoch 5 started (2026-10-30 16:50:03)
 #> 
 #> [Summary epoch 5]
 #> ------------------
 #> Measures (Train):
-#>  * classif.acc = 0.36
-#>  * classif.ce = 0.64
+#>  * classif.acc = 0.72
+#>  * classif.ce = 0.28
 #> Measures (Valid):
-#>  * classif.ce = 0.73
+#>  * classif.ce = 0.60
 #> 
-#> Finished training for 5 epochs (2026-03-03 07:22:29)
+#> Finished training for 5 epochs (2026-10-30 16:50:03, 2.2s total)
 ```

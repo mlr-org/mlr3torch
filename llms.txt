@@ -8,6 +8,7 @@ Deep Learning with torch and mlr3.
 ## Installation
 
 ``` r
+
 # Install from CRAN
 install.packages("mlr3torch")
 # Install the development version from GitHub:
@@ -17,6 +18,7 @@ pak::pak("mlr-org/mlr3torch")
 Afterwards, you also need to run the command below:
 
 ``` r
+
 torch::install_torch()
 ```
 
@@ -27,17 +29,18 @@ More information about installing `torch` can be found
 
 `mlr3torch` is a deep learning framework for the
 [`mlr3`](https://mlr-org.com) ecosystem built on top of
-[`torch`](https://torch.mlverse.org/). It allows to easily build, train
-and evaluate deep learning models in a few lines of codes, without
+[`torch`](https://torch.mlverse.org/). It makes it easy to build, train
+and evaluate deep learning models in a few lines of code, without
 needing to worry about low-level details. Off-the-shelf learners are
 readily available, but custom architectures can be defined by connecting
 `PipeOpTorch` operators in an
 [`mlr3pipelines::Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html).
 
-Using predefined learners such as a simple multi layer perceptron (MLP)
+Using predefined learners such as a simple multi-layer perceptron (MLP)
 works just like any other mlr3 `Learner`.
 
 ``` r
+
 library(mlr3torch)
 learner_mlp = lrn("classif.mlp",
   # defining network parameters
@@ -64,24 +67,28 @@ learner_mlp = lrn("classif.mlp",
 Below, we train this learner on the sonar example task:
 
 ``` r
+
 learner_mlp$train(tsk("sonar"))
 ```
 
 Next, we construct the same architecture using `PipeOpTorch` objects.
-The first pipeop – a `PipeOpTorchIngress` – defines the entrypoint of
+The first pipeop – a `PipeOpTorchIngress` – defines the entry point of
 the network. All subsequent pipeops define the neural network layers.
 
 ``` r
+
 architecture = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 20) %>>%
-  po("nn_relu") %>>%
-  po("nn_head")
+  nn("linear", out_features = 20) %>>%
+  nn("relu") %>>%
+  nn("head")
 ```
 
 To turn this into a learner, we configure the loss, optimizer, callbacks
-as well as the training arguments.
+as well as the training arguments, and convert the resulting `Graph` via
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md).
 
 ``` r
+
 graph_mlp = architecture %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%
   po("torch_optimizer", optimizer = t_opt("adam", lr = 0.1)) %>>%
@@ -89,18 +96,19 @@ graph_mlp = architecture %>>%
   po("torch_model_classif",
     batch_size = 16, epochs = 50, device = "cpu")
 
-graph_lrn = as_learner(graph_mlp)
+graph_lrn = as_learner_torch(graph_mlp)
 ```
 
 To work with generic tensors, the `lazy_tensor` type can be used. It
 wraps a
 [`torch::dataset`](https://torch.mlverse.org/docs/reference/dataset.html),
-but allows to preprocess the data (lazily) using `PipeOp` objects.
-Below, we flatten the MNIST task, so we can then train a multi-layer
-perceptron on it. Note that this does *not* transform the data
-in-memory, but is only applied when the data is actually loaded.
+but makes it possible to preprocess the data (lazily) using `PipeOp`
+objects. Below, we flatten the MNIST task, so we can then train a
+multi-layer perceptron on it. Note that this does *not* transform the
+data in-memory, but is only applied when the data is actually loaded.
 
 ``` r
+
 # load the predefined mnist task
 mnist = tsk("mnist")
 mnist$head(3L)
@@ -127,6 +135,7 @@ To actually access the tensors, we can call
 We only show a slice of the resulting tensor for readability:
 
 ``` r
+
 materialize(
   mnist_flat$data(1:2, cols = "image")[[1L]],
   rbind = TRUE
@@ -142,26 +151,26 @@ which is a `lazy_tensor`. For that, we first define a single residual
 block:
 
 ``` r
+
 layer = list(
   po("nop"),
-  po("nn_linear", out_features = 50L) %>>%
-    po("nn_dropout") %>>% po("nn_relu")
-) %>>% po("nn_merge_sum")
+  nn("linear", out_features = 50L) %>>%
+    nn("dropout") %>>% nn("relu")
+) %>>% nn("merge_sum")
 ```
 
 Next, we create a neural network that takes as input a `lazy_tensor`
 (`po("torch_ingress_ltnsr")`). It first applies a linear layer and then
 repeats the above layer using the special `PipeOpTorchBlock`, followed
 by the network’s head. After that, we configure the loss, optimizer and
-the training parameters. Note that `po("nn_linear_0")` is equivalent to
-`po("nn_linear", id = "nn_linear_0")` and we need this here to avoid ID
-clashes with the linear layer from `po("nn_block")`.
+the training parameters.
 
 ``` r
+
 deep_network = po("torch_ingress_ltnsr") %>>%
-  po("nn_linear", out_features = 50L) %>>%
-  po("nn_block", layer, n_blocks = 5L) %>>%
-  po("nn_head") %>>%
+  nn("linear", out_features = 50L) %>>%
+  nn("block", layer, n_blocks = 5L) %>>%
+  nn("head") %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%
   po("torch_optimizer", optimizer = t_opt("adam")) %>>%
   po("torch_model_classif",
@@ -173,7 +182,8 @@ Next, we prepend the preprocessing step that flattens the images so we
 can directly apply this learner to the unflattened MNIST task.
 
 ``` r
-deep_learner = as_learner(
+
+deep_learner = as_learner_torch(
   flattener %>>% deep_network
 )
 deep_learner$id = "deep_network"
@@ -183,6 +193,7 @@ In order to keep track of the performance during training, we use 20% of
 the data and evaluate it using classification accuracy.
 
 ``` r
+
 set_validate(deep_learner, 0.2)
 deep_learner$param_set$set_values(
   torch_model_classif.measures_valid = msr("classif.acc")
@@ -192,35 +203,54 @@ deep_learner$param_set$set_values(
 All that is left is to train the learner:
 
 ``` r
+
 deep_learner$train(mnist)
 ```
 
 ## Feature Overview
 
-- Off-the-shelf architectures are readily available as
-  [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html)s.
-- Currently, supervised regression and classification is supported.
-- Custom learners can be defined using the `Graph` language from
-  `mlr3pipelines`.
-- The package supports tabular data, as well as generic tensors via the
-  `lazy_tensor` type.
-- Multi-modal data can be handled conveniently, as `lazy_tensor` objects
-  can be stored alongside tabular data.
-- It is possible to customize the training process via (predefined or
-  custom) callbacks.
-- The package is fully integrated into the `mlr3` ecosystem.
-- Neural network architectures, as well as their hyperparameters can be
-  easily tuned via `mlr3tuning` and friends.
+- **Off-the-shelf learners** are readily available as
+  [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html)s,
+  for both tabular classification and regression, as well as image
+  classification.
+- **Custom architectures** can be defined using the `Graph` language
+  from `mlr3pipelines` and turned into a learner. Alternatively, you can
+  also simply define your custom architecture as a
+  [`torch::nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html).
+- **Beyond regression and classification**: The package makes it easy to
+  go beyond classification and regression to tackle other learning
+  problems; see the [Custom Learning
+  Problems](https://mlr3torch.mlr-org.com/dev/articles/custom_task_type.html)
+  article. Third-party packages can also add new task types that reuse
+  the infrastructure of both {mlr3torch} and {mlr3}, see the [Adding a
+  New Task
+  Type](https://mlr3torch.mlr-org.com/dev/articles/new_task_type.html)
+  article.
+- **Extensibility**: All building blocks, i.e., layers, losses,
+  optimizers, callbacks, and learners, can be extended with custom
+  implementations.
+- **Tensor Columns**: The package makes it possible to store arbitrary
+  tensors alongside tabular features via the `lazy_tensor` data type.
+  This means that, in principle, the package can support arbitrary
+  modalities of data, including multi-modal datasets.
+- **Customizable training**: The training loop can be customized via
+  (predefined or custom) callbacks for logging, learning rate
+  scheduling, or other purposes.
+- **Checkpointing**: Training runs can be checkpointed and resumed,
+  including the state of all callbacks.
+- **Full `mlr3` integration**: Resampling, benchmarking, and
+  parallelization work as for any other `mlr3` learner. Neural network
+  architectures, as well as their hyperparameters, can be easily tuned
+  via `mlr3tuning` and friends.
 
 ## Documentation
 
 - Start by reading one of the vignettes on the package website!
-- There is a [course on
-  `(mlr3)torch`](https://mlr-org.github.io/mlr3torch-course/).
-- You can check out our [presentation from UseR
-  2024](https://sebffischer.github.io/mlr3torch-UseR-2024/#/).
+- The paper [*mlr3torch: A Deep Learning Framework in R based on mlr3
+  and torch*](https://arxiv.org/abs/2604.18152) gives an overview of the
+  package.
 
-## Contributing:
+## Contributing
 
 - To run the tests one needs to set the environment variable
   `TEST_TORCH = 1`, e.g. by adding it to `.Renviron`.
@@ -237,6 +267,19 @@ deep_learner$train(mnist)
 - This R package is developed as part of the [Mathematical Research Data
   Initiative](https://www.mardi4nfdi.de/about/mission).
 
+## Citation
+
+If you use `mlr3torch` in a scientific publication, please cite it as:
+
+``` R
+@article{fischer2026mlr3torch,
+  title={mlr3torch: A Deep Learning Framework in R based on mlr3 and torch},
+  author={Fischer, Sebastian and Burk, Lukas and Zhang, Carson and Bischl, Bernd and Binder, Martin},
+  journal={arXiv preprint arXiv:2604.18152},
+  year={2026}
+}
+```
+
 ## Bugs, Questions, Feedback
 
 *mlr3torch* is a free and open source software project that encourages
@@ -249,7 +292,7 @@ In case of problems / bugs, it is often helpful if you provide a
 about this if the bug is obvious).
 
 Please understand that the resources of the project are limited:
-response may sometimes be delayed by a few days, and some feature
+responses may sometimes be delayed by a few days, and some feature
 suggestions may be rejected if they are deemed too tangential to the
 vision behind the project.
 
@@ -272,15 +315,21 @@ vision behind the project.
 - [`mlr_learners.module`](https://mlr3torch.mlr-org.com/reference/mlr_learners.module.md)
   [`LearnerTorchModule`](https://mlr3torch.mlr-org.com/reference/mlr_learners.module.md)
   : Learner Torch Module
+- [`mlr_learners.realmlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.realmlp.md)
+  [`LearnerTorchRealMLP`](https://mlr3torch.mlr-org.com/reference/mlr_learners.realmlp.md)
+  : RealMLP
 - [`mlr_learners.tab_resnet`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tab_resnet.md)
   [`LearnerTorchTabResNet`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tab_resnet.md)
   : Tabular ResNet
+- [`mlr_learners.tabm`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tabm.md)
+  [`LearnerTorchTabM`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tabm.md)
+  : TabM
 - [`mlr_learners.torch_featureless`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torch_featureless.md)
   [`LearnerTorchFeatureless`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torch_featureless.md)
   : Featureless Torch Learner
 - [`mlr_learners.torchvision`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torchvision.md)
   [`LearnerTorchVision`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torchvision.md)
-  : AlexNet Image Classifier
+  : Image Classification Networks from torchvision
 - [`mlr_learners_torch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
   [`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
   : Base Class for Torch Learners
@@ -290,6 +339,12 @@ vision behind the project.
 - [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md)
   [`LearnerTorchModel`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md)
   : Learner Torch Model
+- [`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md)
+  : Convert a Graph to a Torch Learner
+- [`GraphLearnerTorch`](https://mlr3torch.mlr-org.com/reference/GraphLearnerTorch.md)
+  : Graph Learner for Torch Networks
+- [`replace_head()`](https://mlr3torch.mlr-org.com/reference/replace_head.md)
+  : Replace the Head of a Network
 
 ## Tasks
 
@@ -305,9 +360,27 @@ vision behind the project.
   : MNIST Image classification
 - [`mlr_tasks_tiny_imagenet`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_tiny_imagenet.md)
   : Tiny ImageNet Classification Task
+- [`mlr_tasks_torch`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_torch.md)
+  [`TaskTorch`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_torch.md)
+  : Generic Torch Task
 - [`mlr_backends_lazy`](https://mlr3torch.mlr-org.com/reference/mlr_backends_lazy.md)
   [`DataBackendLazy`](https://mlr3torch.mlr-org.com/reference/mlr_backends_lazy.md)
   : Lazy Data Backend
+
+## Custom Task Types
+
+- [`as_task_torch()`](https://mlr3torch.mlr-org.com/reference/as_task_torch.md)
+  : Create a Generic Torch Task
+- [`PredictionTorch`](https://mlr3torch.mlr-org.com/reference/PredictionTorch.md)
+  : Prediction Object for a Generic Torch Task
+- [`mlr_measures_torch`](https://mlr3torch.mlr-org.com/reference/mlr_measures_torch.md)
+  [`MeasureTorch`](https://mlr3torch.mlr-org.com/reference/mlr_measures_torch.md)
+  : Measure for a Generic Torch Task
+- [`msr_torch()`](https://mlr3torch.mlr-org.com/reference/msr_torch.md)
+  : Create a Measure for a Generic Torch Task
+- [`mlr_measures_torch.default`](https://mlr3torch.mlr-org.com/reference/mlr_measures_torch.default.md)
+  [`MeasureTorchDefault`](https://mlr3torch.mlr-org.com/reference/mlr_measures_torch.default.md)
+  : Default Measure of a Generic Torch Task
 
 ## Network Building Blocks
 
@@ -333,6 +406,8 @@ vision behind the project.
 - [`mlr_pipeops_torch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.md)
   [`PipeOpTorch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.md)
   : Base Class for Torch Module Constructor Wrappers
+- [`pipeop_torch()`](https://mlr3torch.mlr-org.com/reference/pipeop_torch.md)
+  : Create a PipeOpTorch
 - [`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md)
   [`PipeOpTorchIngress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md)
   : Entrypoint to Torch Network
@@ -379,6 +454,15 @@ vision behind the project.
 - [`mlr_pipeops_nn_adaptive_avg_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool3d.md)
   [`PipeOpTorchAdaptiveAvgPool3D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool3d.md)
   : 3D Adaptive Average Pooling
+- [`mlr_pipeops_nn_adaptive_max_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool1d.md)
+  [`PipeOpTorchAdaptiveMaxPool1D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool1d.md)
+  : 1D Adaptive Max Pooling
+- [`mlr_pipeops_nn_adaptive_max_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool2d.md)
+  [`PipeOpTorchAdaptiveMaxPool2D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool2d.md)
+  : 2D Adaptive Max Pooling
+- [`mlr_pipeops_nn_adaptive_max_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool3d.md)
+  [`PipeOpTorchAdaptiveMaxPool3D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool3d.md)
+  : 3D Adaptive Max Pooling
 - [`mlr_pipeops_nn_avg_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool1d.md)
   [`PipeOpTorchAvgPool1D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool1d.md)
   : 1D Average Pooling
@@ -424,6 +508,12 @@ vision behind the project.
 - [`mlr_pipeops_nn_dropout`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout.md)
   [`PipeOpTorchDropout`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout.md)
   : Dropout
+- [`mlr_pipeops_nn_dropout2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout2d.md)
+  [`PipeOpTorchDropout2D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout2d.md)
+  : 2D Dropout
+- [`mlr_pipeops_nn_dropout3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout3d.md)
+  [`PipeOpTorchDropout3D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout3d.md)
+  : 3D Dropout
 - [`mlr_pipeops_nn_elu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_elu.md)
   [`PipeOpTorchELU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_elu.md)
   : ELU Activation Function
@@ -448,6 +538,12 @@ vision behind the project.
 - [`mlr_pipeops_nn_glu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_glu.md)
   [`PipeOpTorchGLU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_glu.md)
   : GLU Activation Function
+- [`mlr_pipeops_nn_group_norm`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_group_norm.md)
+  [`PipeOpTorchGroupNorm`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_group_norm.md)
+  : Group Normalization
+- [`mlr_pipeops_nn_gru`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gru.md)
+  [`PipeOpTorchGRU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gru.md)
+  : Gated Recurrent Unit
 - [`mlr_pipeops_nn_hardshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardshrink.md)
   [`PipeOpTorchHardShrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardshrink.md)
   : Hard Shrink Activation Function
@@ -475,6 +571,12 @@ vision behind the project.
 - [`mlr_pipeops_nn_log_sigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_sigmoid.md)
   [`PipeOpTorchLogSigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_sigmoid.md)
   : Log Sigmoid Activation Function
+- [`mlr_pipeops_nn_log_softmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_softmax.md)
+  [`PipeOpTorchLogSoftmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_softmax.md)
+  : Log Softmax
+- [`mlr_pipeops_nn_lstm`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_lstm.md)
+  [`PipeOpTorchLSTM`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_lstm.md)
+  : Long Short-Term Memory
 - [`mlr_pipeops_nn_max_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool1d.md)
   [`PipeOpTorchMaxPool1D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool1d.md)
   : 1D Max Pooling
@@ -496,9 +598,15 @@ vision behind the project.
 - [`mlr_pipeops_nn_merge_sum`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_sum.md)
   [`PipeOpTorchMergeSum`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_sum.md)
   : Merge by Summation
+- [`mlr_pipeops_nn_multihead_attention`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_multihead_attention.md)
+  [`PipeOpTorchMultiheadAttention`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_multihead_attention.md)
+  : Multi-Head Attention
 - [`mlr_pipeops_nn_prelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_prelu.md)
   [`PipeOpTorchPReLU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_prelu.md)
   : PReLU Activation Function
+- [`mlr_pipeops_nn_recurrent`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_recurrent.md)
+  [`PipeOpTorchRecurrent`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_recurrent.md)
+  : Recurrent Layer
 - [`mlr_pipeops_nn_reglu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reglu.md)
   [`PipeOpTorchReGLU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reglu.md)
   : ReGLU Activation Function
@@ -511,6 +619,9 @@ vision behind the project.
 - [`mlr_pipeops_nn_reshape`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reshape.md)
   [`PipeOpTorchReshape`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reshape.md)
   : Reshape a Tensor
+- [`mlr_pipeops_nn_rnn`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rnn.md)
+  [`PipeOpTorchRNN`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rnn.md)
+  : Simple Recurrent Layer
 - [`mlr_pipeops_nn_rrelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rrelu.md)
   [`PipeOpTorchRReLU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rrelu.md)
   : RReLU Activation Function
@@ -520,9 +631,18 @@ vision behind the project.
 - [`mlr_pipeops_nn_sigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_sigmoid.md)
   [`PipeOpTorchSigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_sigmoid.md)
   : Sigmoid Activation Function
+- [`mlr_pipeops_nn_silu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_silu.md)
+  [`PipeOpTorchSiLU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_silu.md)
+  : SiLU Activation Function
 - [`mlr_pipeops_nn_softmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax.md)
   [`PipeOpTorchSoftmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax.md)
   : Softmax
+- [`mlr_pipeops_nn_softmax2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax2d.md)
+  [`PipeOpTorchSoftmax2D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax2d.md)
+  : 2D Softmax
+- [`mlr_pipeops_nn_softmin`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmin.md)
+  [`PipeOpTorchSoftmin`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmin.md)
+  : Softmin
 - [`mlr_pipeops_nn_softplus`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softplus.md)
   [`PipeOpTorchSoftPlus`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softplus.md)
   : SoftPlus Activation Function
@@ -543,16 +663,22 @@ vision behind the project.
   : Tanh Shrink Activation Function
 - [`mlr_pipeops_nn_threshold`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_threshold.md)
   [`PipeOpTorchThreshold`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_threshold.md)
-  : Treshold Activation Function
+  : Threshold Activation Function
 - [`mlr_pipeops_nn_tokenizer_categ`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_categ.md)
   [`PipeOpTorchTokenizerCateg`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_categ.md)
   : Categorical Tokenizer
 - [`mlr_pipeops_nn_tokenizer_num`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_num.md)
   [`PipeOpTorchTokenizerNum`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_num.md)
   : Numeric Tokenizer
+- [`mlr_pipeops_nn_transformer_encoder_layer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_transformer_encoder_layer.md)
+  [`PipeOpTorchTransformerEncoderLayer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_transformer_encoder_layer.md)
+  : Transformer Encoder Layer
+- [`mlr_pipeops_nn_unflatten`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unflatten.md)
+  [`PipeOpTorchUnflatten`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unflatten.md)
+  : Unflattens a Tensor
 - [`mlr_pipeops_nn_unsqueeze`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unsqueeze.md)
   [`PipeOpTorchUnsqueeze`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unsqueeze.md)
-  : Unqueeze a Tensor
+  : Unsqueeze a Tensor
 
 ## Preprocessing & Augmentation
 
@@ -686,6 +812,8 @@ vision behind the project.
   : Check for lazy tensor
 - [`materialize()`](https://mlr3torch.mlr-org.com/reference/materialize.md)
   : Materialize Lazy Tensor Columns
+- [`` `==`( ``*`<lazy_tensor>`*`)`](https://mlr3torch.mlr-org.com/reference/equals-.lazy_tensor.md)
+  : Compare lazy tensors
 
 ## Loss
 
@@ -709,8 +837,8 @@ vision behind the project.
 - [`t_opt()`](https://mlr3torch.mlr-org.com/reference/t_opt.md)
   [`t_opts()`](https://mlr3torch.mlr-org.com/reference/t_opt.md) :
   Optimizers Quick Access
-- [`TorchLoss`](https://mlr3torch.mlr-org.com/reference/TorchLoss.md) :
-  Torch Loss
+- [`TorchOptimizer`](https://mlr3torch.mlr-org.com/reference/TorchOptimizer.md)
+  : Torch Optimizer
 - [`mlr_pipeops_torch_optimizer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_optimizer.md)
   [`PipeOpTorchOptimizer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_optimizer.md)
   : Optimizer Configuration
@@ -786,6 +914,8 @@ vision behind the project.
   : Base Class for Torch Descriptors
 - [`auto_device()`](https://mlr3torch.mlr-org.com/reference/auto_device.md)
   : Auto Device
+- [`get_batch_size()`](https://mlr3torch.mlr-org.com/reference/get_batch_size.md)
+  : Extract the Batch Size for a Given Phase
 - [`task_dataset()`](https://mlr3torch.mlr-org.com/reference/task_dataset.md)
   : Create a Dataset from a Task
 - [`select_all()`](https://mlr3torch.mlr-org.com/reference/Select.md)
@@ -796,8 +926,41 @@ vision behind the project.
   : Selector Functions for Character Vectors
 - [`output_dim_for()`](https://mlr3torch.mlr-org.com/reference/output_dim_for.md)
   : Network Output Dimension
+- [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md)
+  : Target Batchgetter for a Task
+- [`get_batch_constructor()`](https://mlr3torch.mlr-org.com/reference/get_batch_constructor.md)
+  : Batch Constructor for a Task
+- [`encode_prediction()`](https://mlr3torch.mlr-org.com/reference/encode_prediction.md)
+  : Encode the Network Output as a Prediction
+
+## Shape Inference
+
 - [`infer_shapes()`](https://mlr3torch.mlr-org.com/reference/infer_shapes.md)
   : Infer Shapes
+- [`shape_to_str()`](https://mlr3torch.mlr-org.com/reference/shape_helpers.md)
+  [`broadcast_shapes()`](https://mlr3torch.mlr-org.com/reference/shape_helpers.md)
+  [`resolve_dim()`](https://mlr3torch.mlr-org.com/reference/shape_helpers.md)
+  : Helpers for Shape Inference
+- [`reshape_output_shape()`](https://mlr3torch.mlr-org.com/reference/reshape_output_shape.md)
+  : Output Shape of a Reshape
+- [`assert_shape()`](https://mlr3torch.mlr-org.com/reference/assert_shape.md)
+  : Assert a Shape
+- [`assert_shapes()`](https://mlr3torch.mlr-org.com/reference/assert_shapes.md)
+  : Assert a List of Shapes
+- [`assert_known_dims()`](https://mlr3torch.mlr-org.com/reference/assert_known_dims.md)
+  : Assert that Dimensions are Known
+- [`assert_ndim()`](https://mlr3torch.mlr-org.com/reference/assert_ndim.md)
+  : Assert the Number of Dimensions of a Shape
+- [`assert_same_ndim()`](https://mlr3torch.mlr-org.com/reference/assert_same_ndim.md)
+  : Assert that Shapes have the Same Number of Dimensions
+- [`assert_same_batch_size()`](https://mlr3torch.mlr-org.com/reference/assert_same_batch_size.md)
+  : Assert that Shapes have the Same Batch Size
+- [`assert_dim_in_range()`](https://mlr3torch.mlr-org.com/reference/assert_dim_in_range.md)
+  : Assert that a Dimension Exists
+- [`assert_not_batch_dim()`](https://mlr3torch.mlr-org.com/reference/assert_not_batch_dim.md)
+  : Assert that a Dimension is not the Batch Dimension
+- [`assert_positive_extent()`](https://mlr3torch.mlr-org.com/reference/assert_positive_extent.md)
+  : Assert that a Computed Output Size is Positive
 
 # Articles
 
@@ -806,12 +969,18 @@ vision behind the project.
 - [Callbacks](https://mlr3torch.mlr-org.com/articles/callback_list.md):
 - [Custom
   Callbacks](https://mlr3torch.mlr-org.com/articles/callbacks.md):
+- [Writing your own
+  PipeOpTorch](https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.md):
+- [Custom Learning
+  Problems](https://mlr3torch.mlr-org.com/articles/custom_task_type.md):
 - [Get Started](https://mlr3torch.mlr-org.com/articles/get_started.md):
 - [Internals](https://mlr3torch.mlr-org.com/articles/internals_pipeop_torch.md):
 - [Network
   Layers](https://mlr3torch.mlr-org.com/articles/layer_list.md):
 - [Lazy Tensor](https://mlr3torch.mlr-org.com/articles/lazy_tensor.md):
 - [Loss Functions](https://mlr3torch.mlr-org.com/articles/loss_list.md):
+- [Adding a New Task
+  Type](https://mlr3torch.mlr-org.com/articles/new_task_type.md):
 - [Optimizers](https://mlr3torch.mlr-org.com/articles/optimizer_list.md):
 - [Defining an
   Architecture](https://mlr3torch.mlr-org.com/articles/pipeop_torch.md):

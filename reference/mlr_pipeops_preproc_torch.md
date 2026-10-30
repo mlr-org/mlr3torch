@@ -21,16 +21,26 @@ output shapes are assumed to be unknown (`NULL`).
 
 - `.shapes_out(shapes_in, param_vals, task)`  
   ([`list()`](https://rdrr.io/r/base/list.html),
-  `list(), `Task`or`NULL`) -> `list()`\cr This private method calculates the output shapes of the lazy tensor columns that are created from applying the preprocessing function with the provided parameter values (`param_vals`). The `task`is very rarely needed, but if it is it should be checked that it is not`NULL\`.
+  [`list()`](https://rdrr.io/r/base/list.html), `Task` or `NULL`) -\>
+  [`list()`](https://rdrr.io/r/base/list.html)  
+  This private method calculates the output shapes of the lazy tensor
+  columns that are created from applying the preprocessing function with
+  the provided parameter values (`param_vals`). The `task` is very
+  rarely needed, but if it is it should be checked that it is not
+  `NULL`.
 
   This private method only has the responsibility to calculate the
   output shapes for one input column, i.e. the input `shapes_in` can be
   assumed to have exactly one shape vector for which it must calculate
   the output shapes and return it as a
   [`list()`](https://rdrr.io/r/base/list.html) of length 1. It can also
-  be assumed that the shape is not `NULL` (i.e. unknown). Also, the
-  first dimension can be `NA`, i.e. is unknown (as for the batch
-  dimension).
+  be assumed that the shape is not `NULL` (i.e. unknown). Any dimension
+  of that shape can be `NA`, i.e. unknown, not only the first (batch)
+  one, so it must handle `NA`s and assert those dimensions it actually
+  needs to be known, see
+  [`assert_known_dims()`](https://mlr3torch.mlr-org.com/reference/assert_known_dims.md)
+  and the "Shape Inference" section of
+  [`PipeOpTorch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.md).
 
 ## Input and Output Channels
 
@@ -117,7 +127,7 @@ construct.
 
 ### Public methods
 
-- [`PipeOpTaskPreprocTorch$new()`](#method-PipeOpTaskPreprocTorch-new)
+- [`PipeOpTaskPreprocTorch$new()`](#method-PipeOpTaskPreprocTorch-initialize)
 
 - [`PipeOpTaskPreprocTorch$shapes_out()`](#method-PipeOpTaskPreprocTorch-shapes_out)
 
@@ -132,7 +142,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTaskPreprocTorch$new()`
 
 Creates a new instance of this
 [`R6`](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -175,9 +185,9 @@ Creates a new instance of this
 - `param_set`:
 
   ([`ParamSet`](https://paradox.mlr-org.com/reference/ParamSet.html))  
-  In case the function `fn` takes additional parameter besides a
+  In case the function `fn` takes additional parameters besides a
   [`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html)
-  they can be specfied as parameters. None of the parameters can have
+  they can be specified as parameters. None of the parameters can have
   the `"predict"` tag. All tags should include `"train"`.
 
 - `packages`:
@@ -204,7 +214,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `shapes_out()`
+### `PipeOpTaskPreprocTorch$shapes_out()`
 
 Calculates the output shapes that would result in applying the
 preprocessing to one or more lazy tensor columns with the provided
@@ -221,8 +231,9 @@ values that are currently set.
 
   ([`list()`](https://rdrr.io/r/base/list.html) of
   ([`integer()`](https://rdrr.io/r/base/integer.html) or `NULL`))  
-  The input input shapes of the lazy tensors. `NULL` indicates that the
-  shape is unknown. First dimension must be `NA` (if it is not `NULL`).
+  The input shapes of the lazy tensors. `NULL` indicates that the shape
+  is unknown. If it is not `NULL`, the first (batch) dimension must be
+  `NA`; any of the other dimensions may be `NA` as well.
 
 - `stage`:
 
@@ -241,7 +252,7 @@ values that are currently set.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTaskPreprocTorch$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -285,30 +296,30 @@ taskout_train = po_simple$train(list(taskin))[[1L]]
 materialize(taskout_train$data(cols = c("x1", "x2")), rbind = TRUE)
 #> $x1
 #> torch_tensor
-#>   98.8255
-#>   98.2403
-#>  100.0584
-#>  101.1645
-#>  100.3376
-#>   98.9455
-#>  100.6608
-#>   99.1766
-#>  100.4370
-#>  100.3724
+#>   99.4341
+#>  100.1418
+#>  100.3539
+#>  100.7196
+#>  101.1680
+#>   99.1361
+#>  101.0914
+#>  100.4433
+#>   97.4375
+#>  102.2846
 #> [ CPUFloatType{10,1} ]
 #> 
 #> $x2
 #> torch_tensor
-#>   98.3532
-#>   98.0764
-#>  100.3808
-#>  101.3757
-#>  100.8259
-#>   99.5839
-#>  100.9821
-#>  100.2422
-#>   99.0621
-#>  101.5059
+#>  100.0679
+#>  100.3732
+#>  100.1218
+#>  100.5824
+#>  101.0828
+#>  100.7202
+#>  100.0866
+#>  101.3939
+#>   99.7042
+#>   99.4888
 #> [ CPUFloatType{10,1} ]
 #> 
 
@@ -316,30 +327,30 @@ taskout_predict_noaug = po_simple$predict(list(taskin))[[1L]]
 materialize(taskout_predict_noaug$data(cols = c("x1", "x2")), rbind = TRUE)
 #> $x1
 #> torch_tensor
-#>   98.8255
-#>   98.2403
-#>  100.0584
-#>  101.1645
-#>  100.3376
-#>   98.9455
-#>  100.6608
-#>   99.1766
-#>  100.4370
-#>  100.3724
+#>   99.4341
+#>  100.1418
+#>  100.3539
+#>  100.7196
+#>  101.1680
+#>   99.1361
+#>  101.0914
+#>  100.4433
+#>   97.4375
+#>  102.2846
 #> [ CPUFloatType{10,1} ]
 #> 
 #> $x2
 #> torch_tensor
-#>   98.3532
-#>   98.0764
-#>  100.3808
-#>  101.3757
-#>  100.8259
-#>   99.5839
-#>  100.9821
-#>  100.2422
-#>   99.0621
-#>  101.5059
+#>  100.0679
+#>  100.3732
+#>  100.1218
+#>  100.5824
+#>  101.0828
+#>  100.7202
+#>  100.0866
+#>  101.3939
+#>   99.7042
+#>   99.4888
 #> [ CPUFloatType{10,1} ]
 #> 
 
@@ -352,30 +363,30 @@ taskout_predict_aug = po_simple$predict(list(taskin))[[1L]]
 materialize(taskout_predict_aug$data(cols = c("x1", "x2")), rbind = TRUE)
 #> $x1
 #> torch_tensor
-#>   98.8255
-#>   98.2403
-#>  100.0584
-#>  101.1645
-#>  100.3376
-#>   98.9455
-#>  100.6608
-#>   99.1766
-#>  100.4370
-#>  100.3724
+#>   99.4341
+#>  100.1418
+#>  100.3539
+#>  100.7196
+#>  101.1680
+#>   99.1361
+#>  101.0914
+#>  100.4433
+#>   97.4375
+#>  102.2846
 #> [ CPUFloatType{10,1} ]
 #> 
 #> $x2
 #> torch_tensor
-#>   98.3532
-#>   98.0764
-#>  100.3808
-#>  101.3757
-#>  100.8259
-#>   99.5839
-#>  100.9821
-#>  100.2422
-#>   99.0621
-#>  101.5059
+#>  100.0679
+#>  100.3732
+#>  100.1218
+#>  100.5824
+#>  101.0828
+#>  100.7202
+#>  100.0866
+#>  101.3939
+#>   99.7042
+#>   99.4888
 #> [ CPUFloatType{10,1} ]
 #> 
 

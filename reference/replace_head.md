@@ -1,7 +1,11 @@
-# Replace the head of a network Replaces the head of the network with a linear layer with d_out classes.
+# Replace the Head of a Network
 
-Replace the head of a network Replaces the head of the network with a
-linear layer with d_out classes.
+Replaces the last layer of a pretrained network with a fresh
+[`torch::nn_linear`](https://torch.mlverse.org/docs/reference/nn_linear.html)
+that has `d_out` output features, so a network trained on some other
+task can be fine-tuned on this one. The new layer's input size is read
+off the layer it replaces, and its weights are newly initialized while
+the rest of the network keeps its pretrained weights.
 
 ## Usage
 

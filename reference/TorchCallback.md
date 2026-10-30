@@ -20,8 +20,8 @@ To conveniently retrieve a `TorchCallback`, use
 
 Defined by the constructor argument `param_set`. If no parameter set is
 provided during construction, the parameter set is constructed by
-creating a parameter for each argument of the wrapped loss function,
-where the parametes are then of type `ParamUty`.
+creating a parameter for each argument of the wrapped callback, where
+the parameters are then of type `ParamUty`.
 
 ## See also
 
@@ -54,26 +54,36 @@ Other Torch Descriptor:
 
 ## Super class
 
-[`mlr3torch::TorchDescriptor`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.md)
+[`TorchDescriptor`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.md)
 -\> `TorchCallback`
+
+## Active bindings
+
+- `weight`:
+
+  (`numeric(1)` or `NULL`)  
+  Overwrites the `$weight` of the generated
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md),
+  see its section *Ordering*.
 
 ## Methods
 
 ### Public methods
 
-- [`TorchCallback$new()`](#method-TorchCallback-new)
+- [`TorchCallback$new()`](#method-TorchCallback-initialize)
+
+- [`TorchCallback$generate()`](#method-TorchCallback-generate)
 
 - [`TorchCallback$clone()`](#method-TorchCallback-clone)
 
 Inherited methods
 
-- [`mlr3torch::TorchDescriptor$generate()`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.html#method-generate)
-- [`mlr3torch::TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.html#method-help)
-- [`mlr3torch::TorchDescriptor$print()`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.html#method-print)
+- [`TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.html#method-help)
+- [`TorchDescriptor$print()`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `TorchCallback$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -87,7 +97,8 @@ Creates a new instance of this
       label = NULL,
       packages = NULL,
       man = NULL,
-      additional_args = NULL
+      additional_args = NULL,
+      weight = NULL
     )
 
 #### Arguments
@@ -101,7 +112,9 @@ Creates a new instance of this
 
   (`ParamSet` or `NULL`)  
   The parameter set. If `NULL` (default) it is inferred from
-  `callback_generator`.
+  `callback_generator`. Whether inferred or given, it must not contain a
+  `weight`: that is the callback's ordering weight, which is set via the
+  `weight` argument.
 
 - `id`:
 
@@ -131,9 +144,29 @@ Creates a new instance of this
   Additional arguments if necessary. For learning rate schedulers, this
   is the torch::LRScheduler.
 
+- `weight`:
+
+  (`numeric(1)` or `NULL`)  
+  Overwrites the `$weight` of the generated
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md),
+  see its section *Ordering*. If `NULL` (default), the callback's own
+  weight is kept.
+
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `TorchCallback$generate()`
+
+Generates the
+[`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md),
+applying `$weight` if it is set.
+
+#### Usage
+
+    TorchCallback$generate()
+
+------------------------------------------------------------------------
+
+### `TorchCallback$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -154,12 +187,11 @@ The objects of this class are cloneable with this method.
 torch_callback = TorchCallback$new(CallbackSetCheckpoint)
 # The parameters are inferred
 torch_callback$param_set
-#> <ParamSet(3)>
-#>           id    class lower upper nlevels        default  value
-#>       <char>   <char> <num> <num>   <num>         <list> <list>
-#> 1:      path ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
-#> 2:      freq ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
-#> 3: freq_type ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
+#> <ParamSet(2)>
+#>        id    class lower upper nlevels        default  value
+#>    <char>   <char> <num> <num>   <num>         <list> <list>
+#> 1:   path ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
+#> 2:   freq ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
 
 # Retrieve a torch callback from the dictionary
 torch_callback = t_clbk("checkpoint",
@@ -168,7 +200,7 @@ torch_callback = t_clbk("checkpoint",
 torch_callback
 #> <TorchCallback:checkpoint> Checkpoint
 #> * Generator: CallbackSetCheckpoint
-#> * Parameters: path=/tmp/RtmpveWHw0/file2bd12b586d94, freq=1
+#> * Parameters: path=/tmp/Rtmp64OPRq/file1ca356ca8b6f, freq=1
 #> * Packages: mlr3torch,torch
 torch_callback$label
 #> [1] "Checkpoint"
@@ -182,80 +214,83 @@ torch_callback$id
 callback = torch_callback$generate()
 callback
 #> <CallbackSetCheckpoint>
-#> * Stages: on_batch_end, on_epoch_end, on_exit
+#> * Stages: on_begin, on_epoch_end, on_end
 # is the same as
 CallbackSetCheckpoint$new(
   path = tempfile(), freq = 1
 )
 #> <CallbackSetCheckpoint>
-#> * Stages: on_batch_end, on_epoch_end, on_exit
+#> * Stages: on_begin, on_epoch_end, on_end
 
 # Use in a learner
 learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
 # the parameters of the callback are added to the learner's parameter set
 learner$param_set
-#> <ParamSetCollection(40)>
-#>                          id    class lower upper nlevels        default
-#>                      <char>   <char> <num> <num>   <num>         <list>
-#>  1:                  epochs ParamInt 0e+00   Inf     Inf <NoDefault[0]>
-#>  2:                  device ParamFct    NA    NA      12 <NoDefault[0]>
-#>  3:             num_threads ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#>  4:     num_interop_threads ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#>  5:                    seed ParamInt  -Inf   Inf     Inf <NoDefault[0]>
-#>  6:               eval_freq ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#>  7:          measures_train ParamUty    NA    NA     Inf <NoDefault[0]>
-#>  8:          measures_valid ParamUty    NA    NA     Inf <NoDefault[0]>
-#>  9:                patience ParamInt 0e+00   Inf     Inf <NoDefault[0]>
-#> 10:               min_delta ParamDbl 0e+00   Inf     Inf <NoDefault[0]>
-#> 11:              batch_size ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#> 12:                 shuffle ParamLgl    NA    NA       2          FALSE
-#> 13:                 sampler ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 14:           batch_sampler ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 15:             num_workers ParamInt 0e+00   Inf     Inf              0
-#> 16:              collate_fn ParamUty    NA    NA     Inf         [NULL]
-#> 17:              pin_memory ParamLgl    NA    NA       2          FALSE
-#> 18:               drop_last ParamLgl    NA    NA       2          FALSE
-#> 19:                 timeout ParamDbl  -Inf   Inf     Inf             -1
-#> 20:          worker_init_fn ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 21:          worker_globals ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 22:         worker_packages ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 23:          tensor_dataset ParamFct    NA    NA       1 <NoDefault[0]>
-#> 24:               jit_trace ParamLgl    NA    NA       2 <NoDefault[0]>
-#> 25:                 neurons ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 26:                       p ParamDbl 0e+00 1e+00     Inf <NoDefault[0]>
-#> 27:                n_layers ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#> 28:              activation ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 29:         activation_args ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 30:                   shape ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 31:                  opt.lr ParamDbl 0e+00   Inf     Inf          0.001
-#> 32:               opt.betas ParamUty    NA    NA     Inf    0.900,0.999
-#> 33:                 opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08
-#> 34:        opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0
-#> 35:             opt.amsgrad ParamLgl    NA    NA       2          FALSE
-#> 36:        opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 37:          loss.reduction ParamFct    NA    NA       2           mean
-#> 38:      cb.checkpoint.path ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 39:      cb.checkpoint.freq ParamInt 1e+00   Inf     Inf <NoDefault[0]>
-#> 40: cb.checkpoint.freq_type ParamFct    NA    NA       2          epoch
-#>                          id    class lower upper nlevels        default
-#>                      <char>   <char> <num> <num>   <num>         <list>
+#> <ParamSetCollection(43)>
+#>                       id    class lower upper nlevels        default
+#>                   <char>   <char> <num> <num>   <num>         <list>
+#>  1:               epochs ParamInt 0e+00   Inf     Inf <NoDefault[0]>
+#>  2:               device ParamUty    NA    NA     Inf <NoDefault[0]>
+#>  3:          num_threads ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#>  4:  num_interop_threads ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#>  5:                 seed ParamInt  -Inf   Inf     Inf <NoDefault[0]>
+#>  6:               resume ParamUty    NA    NA     Inf         [NULL]
+#>  7:            eval_freq ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#>  8:       measures_train ParamUty    NA    NA     Inf <NoDefault[0]>
+#>  9:       measures_valid ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 10:             patience ParamInt 0e+00   Inf     Inf <NoDefault[0]>
+#> 11:            min_delta ParamDbl 0e+00   Inf     Inf <NoDefault[0]>
+#> 12: restore_best_weights ParamLgl    NA    NA       2 <NoDefault[0]>
+#> 13:           batch_size ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#> 14:   batch_size_predict ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#> 15:              shuffle ParamLgl    NA    NA       2          FALSE
+#> 16:              sampler ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 17:        batch_sampler ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 18:          num_workers ParamInt 0e+00   Inf     Inf              0
+#> 19:           collate_fn ParamUty    NA    NA     Inf         [NULL]
+#> 20:           pin_memory ParamLgl    NA    NA       2          FALSE
+#> 21:            drop_last ParamLgl    NA    NA       2          FALSE
+#> 22:              timeout ParamDbl  -Inf   Inf     Inf             -1
+#> 23:       worker_init_fn ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 24:       worker_globals ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 25:      worker_packages ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 26:       tensor_dataset ParamFct    NA    NA       1 <NoDefault[0]>
+#> 27:      cache_task_data ParamLgl    NA    NA       2 <NoDefault[0]>
+#> 28:            jit_trace ParamLgl    NA    NA       2 <NoDefault[0]>
+#> 29:              neurons ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 30:                    p ParamDbl 0e+00     1     Inf <NoDefault[0]>
+#> 31:             n_layers ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#> 32:           activation ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 33:      activation_args ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 34:                shape ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 35:               opt.lr ParamDbl 0e+00   Inf     Inf          0.001
+#> 36:            opt.betas ParamUty    NA    NA     Inf    0.900,0.999
+#> 37:              opt.eps ParamDbl 1e-16   Inf     Inf          1e-08
+#> 38:     opt.weight_decay ParamDbl 0e+00   Inf     Inf              0
+#> 39:          opt.amsgrad ParamLgl    NA    NA       2          FALSE
+#> 40:     opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 41:       loss.reduction ParamFct    NA    NA       2           mean
+#> 42:   cb.checkpoint.path ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 43:   cb.checkpoint.freq ParamInt 1e+00   Inf     Inf <NoDefault[0]>
+#>                       id    class lower upper nlevels        default
+#>                   <char>   <char> <num> <num>   <num>         <list>
 #>            value
 #>           <list>
 #>  1:       [NULL]
 #>  2:         auto
 #>  3:            1
-#>  4:            1
+#>  4:       [NULL]
 #>  5:       random
-#>  6:            1
-#>  7:    <list[0]>
+#>  6:       [NULL]
+#>  7:            1
 #>  8:    <list[0]>
-#>  9:            0
+#>  9:    <list[0]>
 #> 10:            0
-#> 11:       [NULL]
-#> 12:         TRUE
+#> 11:            0
+#> 12:        FALSE
 #> 13:       [NULL]
 #> 14:       [NULL]
-#> 15:       [NULL]
+#> 15:         TRUE
 #> 16:       [NULL]
 #> 17:       [NULL]
 #> 18:       [NULL]
@@ -263,17 +298,17 @@ learner$param_set
 #> 20:       [NULL]
 #> 21:       [NULL]
 #> 22:       [NULL]
-#> 23:        FALSE
-#> 24:        FALSE
-#> 25:             
-#> 26:          0.5
-#> 27:       [NULL]
-#> 28: <nn_relu[1]>
-#> 29:    <list[0]>
-#> 30:       [NULL]
+#> 23:       [NULL]
+#> 24:       [NULL]
+#> 25:       [NULL]
+#> 26:        FALSE
+#> 27:         TRUE
+#> 28:        FALSE
+#> 29:             
+#> 30:          0.1
 #> 31:       [NULL]
-#> 32:       [NULL]
-#> 33:       [NULL]
+#> 32: <nn_relu[1]>
+#> 33:    <list[0]>
 #> 34:       [NULL]
 #> 35:       [NULL]
 #> 36:       [NULL]
@@ -281,6 +316,9 @@ learner$param_set
 #> 38:       [NULL]
 #> 39:       [NULL]
 #> 40:       [NULL]
+#> 41:       [NULL]
+#> 42:       [NULL]
+#> 43:       [NULL]
 #>            value
 #>           <list>
 ```

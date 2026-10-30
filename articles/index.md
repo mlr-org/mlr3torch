@@ -5,12 +5,18 @@
 - [Callbacks](https://mlr3torch.mlr-org.com/articles/callback_list.md):
 - [Custom
   Callbacks](https://mlr3torch.mlr-org.com/articles/callbacks.md):
+- [Writing your own
+  PipeOpTorch](https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.md):
+- [Custom Learning
+  Problems](https://mlr3torch.mlr-org.com/articles/custom_task_type.md):
 - [Get Started](https://mlr3torch.mlr-org.com/articles/get_started.md):
 - [Internals](https://mlr3torch.mlr-org.com/articles/internals_pipeop_torch.md):
 - [Network
   Layers](https://mlr3torch.mlr-org.com/articles/layer_list.md):
 - [Lazy Tensor](https://mlr3torch.mlr-org.com/articles/lazy_tensor.md):
 - [Loss Functions](https://mlr3torch.mlr-org.com/articles/loss_list.md):
+- [Adding a New Task
+  Type](https://mlr3torch.mlr-org.com/articles/new_task_type.md):
 - [Optimizers](https://mlr3torch.mlr-org.com/articles/optimizer_list.md):
 - [Defining an
   Architecture](https://mlr3torch.mlr-org.com/articles/pipeop_torch.md):

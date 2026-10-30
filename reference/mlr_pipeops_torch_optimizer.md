@@ -29,10 +29,6 @@ is reference-identical to the parameter set of the pipeop itself.
 
 ## See also
 
-Other PipeOp:
-[`mlr_pipeops_module`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md),
-[`mlr_pipeops_torch_callbacks`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_callbacks.md)
-
 Other Model Configuration:
 [`ModelDescriptor()`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md),
 [`mlr_pipeops_torch_callbacks`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_callbacks.md),
@@ -48,7 +44,7 @@ Other Model Configuration:
 
 ### Public methods
 
-- [`PipeOpTorchOptimizer$new()`](#method-PipeOpTorchOptimizer-new)
+- [`PipeOpTorchOptimizer$new()`](#method-PipeOpTorchOptimizer-initialize)
 
 - [`PipeOpTorchOptimizer$clone()`](#method-PipeOpTorchOptimizer-clone)
 
@@ -61,7 +57,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchOptimizer$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -96,7 +92,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchOptimizer$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -121,7 +117,7 @@ po_opt$param_set
 #> 1:           lr ParamDbl     0   Inf     Inf <NoDefault[0]>   0.01
 #> 2:     momentum ParamDbl     0     1     Inf              0 [NULL]
 #> 3:    dampening ParamDbl     0     1     Inf              0 [NULL]
-#> 4: weight_decay ParamDbl     0     1     Inf              0 [NULL]
+#> 4: weight_decay ParamDbl     0   Inf     Inf              0 [NULL]
 #> 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]
 #> 6: param_groups ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))

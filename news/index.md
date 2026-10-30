@@ -1,6 +1,198 @@
 # Changelog
 
-## mlr3torch (development version)
+## mlr3torch 0.4.0
+
+### Breaking changes
+
+- The `freq_type` parameter of `t_clbk("checkpoint")` was removed and
+  checkpointing is always per epoch.
+- The construction argument `only_batch_unknown` of `PipeOpTorch` was
+  removed, as shape inference functions are now expected to handle
+  multiple unknown dimensions.
+- The dropout probability `p` of `lrn("classif.mlp")` /
+  `lrn("regr.mlp")` is now initialized to `0.1` instead of `0.5`. Set
+  `p = 0.5` explicitly to keep the old behaviour.
+- The `cache` argument of
+  [`materialize()`](https://mlr3torch.mlr-org.com/reference/materialize.md)
+  is now a [`utils::hashtab()`](https://rdrr.io/r/utils/hashtab.html)
+  instead of an
+  [`environment()`](https://rdrr.io/r/base/environment.html), which
+  avoids possible hash collisions and raises the R dependency to
+  `>= 4.2.0`.
+- The first argument of the private `.encode_prediction()` method of
+  `LearnerTorch` was renamed from `predict_tensor` to `network_output`,
+  as it can also be a [`list()`](https://rdrr.io/r/base/list.html) of
+  tensors.
+- `measures_train` is now calculated from the complete output of the
+  network instead of only its first tensor, which is passed to
+  `.encode_prediction()` unchanged.
+- The `num_interop_threads` parameter of `LearnerTorch` is no longer
+  initialized to `1`, so torch’s default is left in place unless the
+  parameter is set. Setting it to a value that torch can no longer apply
+  is now an error instead of a warning.
+- The construction argument `return_indices` of `nn("max_pool*")` was
+  removed. The indices are now requested via the new field `$outputs`,
+  e.g. `nn("max_pool2d", outputs = c("output", "indices"))`.
+
+### Features
+
+- The `device` parameter of `LearnerTorch` now accepts an index,
+  e.g. `"cuda:1"`, to train on a specific GPU. The new section *Multiple
+  GPUs* in
+  [`?LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
+  shows how to spread resampling over several GPUs with `mirai`.
+- The default loss of `LearnerTorch` for a task type is now taken from
+  `mlr_reflections$torch$default_losses`, so extension packages can
+  register a default loss for their own task types.
+- The new article “Adding a New Task Type” shows all steps needed to
+  extend mlr3torch to new task types.
+- With `drop_last = TRUE`, `LearnerTorch` now caps the training batch
+  size at the number of training observations instead of dropping all of
+  them.
+- New function
+  [`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
+  which converts a `Graph` of `PipeOpTorch` operators into a `Learner`.
+  Its advantage over
+  [`as_learner()`](https://mlr3.mlr-org.com/reference/as_learner.html)
+  is that the resulting learner exposes methods like `$network()` and
+  `$dataset()`. Besides graphs of `PipeOpTorch` operators, it also
+  accepts graphs whose base learner is a `LearnerTorch`,
+  e.g. `po("scale") %>>% lrn("classif.mlp")`.
+- `LearnerTorch` and `PipeOpTorchModel` now accept any task type
+  registered in `mlr_reflections$task_types`, via the new generics
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md)
+  and
+  [`encode_prediction()`](https://mlr3torch.mlr-org.com/reference/encode_prediction.md).
+- New S3 generic
+  [`get_batch_constructor()`](https://mlr3torch.mlr-org.com/reference/get_batch_constructor.md),
+  which decides how a whole batch of a task is built, i.e. both the
+  features `x` and the target `y`.
+- Added support for `TaskTorch` to easily go beyond the regression and
+  classification setting, see the *Custom Learning Problems* article for
+  more information. A `TaskTorch` can define a
+  `default_target_batchgetter`, which is used whenever the learner does
+  not specify a `target_batchgetter` itself.
+- A network can now return a
+  [`list()`](https://rdrr.io/r/base/list.html) of tensors in evaluation
+  mode, which is passed to
+  [`encode_prediction()`](https://mlr3torch.mlr-org.com/reference/encode_prediction.md)
+  as it is, so a prediction can consist of more than one quantity.
+- New function
+  [`pipeop_torch()`](https://mlr3torch.mlr-org.com/reference/pipeop_torch.md)
+  that simplifies the creation of `PipeOpTorch` classes.
+- New article *Writing your own PipeOpTorch*.
+- The `$model` of a `LearnerTorch` now has a printer.
+- Added more image learners from {torchvision}.
+- `LearnerTorch` now implements `$best_valid_scores`.
+- Most `LearnerTorchVision` are now `jittable`.
+- Ported the `TabM` tabular learner from Python.
+- Ported the `RealMLP` tabular learner from Python.
+- `LearnerTorch` now has a private `.setup_training(ctx, param_vals)`
+  method that allows subclasses to customize a training run, e.g. to
+  wrap the loss, create the optimizer from parameter groups or add
+  callbacks.
+- `LearnerTorch` now has a `restore_best_weights` parameter that can be
+  used when early stopping is active.
+- A network can now return a
+  [`list()`](https://rdrr.io/r/base/list.html) of tensors during
+  training, which the loss is applied to. In `ContextTorch`, `$y_hats`
+  is that complete output and `$y_hat` its first element.
+- New parameter `batch_size_predict` for `LearnerTorch`, which overrides
+  `batch_size` for prediction.
+- Added multihead attention and transformer encoder `PipeOp`s.
+- The new field `$outputs` of `PipeOpTorch` restricts the output
+  channels to a subset of the outputs of the wrapped module.
+- New layers: `nn("silu")`, `nn("softmin")`, `nn("log_softmax")`,
+  `nn("softmax2d")`, `nn("dropout2d")`, `nn("dropout3d")`,
+  `nn("group_norm")`, `nn("unflatten")` and `nn("adaptive_max_pool1d")`
+  / `nn("adaptive_max_pool2d")` / `nn("adaptive_max_pool3d")`.
+- Added the recurrent layers `nn("rnn")`, `nn("lstm")` and `nn("gru")`.
+- Improved error messages during `PipeOpTorch`’s shape inference.
+- The `shape` parameter of `nn("reshape")` can now be a
+  `function(shape)` of the input shape.
+- Exported various helpers useful for implementing shape inference for
+  custom `PipeOpTorch` classes.
+- `ContextTorch` has a new field `$callbacks`, which gives a callback
+  access to the other callbacks of the training run.
+- Callbacks can now be ordered via a `weight` field.
+- A `LearnerTorch` can now be resumed from a checkpoint, which includes
+  resuming the callbacks.
+- The `path` of `t_clbk("checkpoint")` can now be a `function()` that is
+  called at the beginning of each training run and returns that run’s
+  path.
+- `t_clbk("checkpoint")` now reports its folder in
+  `learner$model$callbacks$<id>$path`, so the folder a `path` function
+  chose can be read off the trained learner.
+- Resuming a run that early stopping had ended now warns and returns its
+  model instead of training further, and `ctx$terminate` is checked
+  before an epoch rather than after it.
+- Hardened internal checks to prevent more user errors.
+
+### Performance Improvements
+
+- Improved the performance of the training loop.
+- The execution time of `nn_graph` was improved for small networks.
+- Added the parameter `cache_task_data` to `LearnerTorch`, which is
+  `TRUE` by default and speeds up data loading.
+- More preprocessing operators now operate batch-wise.
+- Preprocessed lazy tensors now materialize faster.
+
+### Bug fixes
+
+- Resuming a checkpoint that is already at `epochs` now returns its
+  model instead of erroring.
+- Resuming training from a checkpoint (parameter `resume`) on a GPU no
+  longer fails because the optimizer state was loaded onto the CPU.
+- Updated the `torchvision` preprocessing/augmentation pipeops to work
+  with `torchvision` version 0.10.0.
+- `nn("block")` now copies the graph it is constructed from, so changing
+  that graph afterwards no longer changes the block.
+- Learners built from a graph via `po("torch_model_regr")` /
+  `po("torch_model_classif")` now error when the predict task’s factor
+  levels differ from the train task’s.
+- `nn("tokenizer_categ")` now always infers the cardinalities correctly.
+- `lrn("classif.ft_transformer")` / `lrn("regr.ft_transformer")` now
+  accept `ingress_tokens` with only `num.input` or only `categ.input`.
+- `lrn("classif.torch_model")` / `lrn("regr.torch_model")` no longer
+  change their `$hash` when they are trained.
+- Fixed some hashing bugs related to R jit compilation.
+- `ContextTorch$epoch` is now `0` during the `on_begin` stage instead of
+  `NULL`.
+- [`replace_head()`](https://mlr3torch.mlr-org.com/reference/replace_head.md)
+  for `mobilenet_v2` and `VGG` now works for `width_mult` above 1.
+- `po("torch_model_classif")` and `po("torch_model_regr")` now have the
+  correct `$packages`.
+- The `batch_sampler` parameter can now be used without setting
+  `batch_size` for training.
+- Configuration errors that are only caught during the training of a
+  `LearnerTorch` no longer trigger a fallback learner.
+- The `LearnerTorch`’s `sampler` and `batch_sampler` parameters are now
+  not used during prediction.
+- [`logical()`](https://rdrr.io/r/base/logical.html) features are now
+  encoded as 1-based instead of 0-based.
+- `lazy_tensor` columns are now again printed correctly inside
+  `data.table`s.
+- Fixed some links on the pkgdown website and the help pages.
+- `nn("reshape")` with a `function(shape)` target now resolves a `-1`
+  whenever the number of elements per observation is known, i.e. when
+  the batch dimension is the only unknown one.
+- Fixed various other shape inference bugs.
+- `po("torch_model_{regr, classif}")` now resets the parameters of the
+  network at the beginning of `$train()` when the network is built from
+  `PipeOpTorch` objects, which makes the results reproducible for the
+  set `seed` parameter.
+- [`nn()`](https://mlr3torch.mlr-org.com/reference/nn.md) now properly
+  interprets `nn("linear_1")` as `po("nn_linear", id = "linear_1")`.
+- Fixed some bugs in `FTTransformer`: `attention_initialization` now has
+  an effect, `n_blocks = 0` is allowed and the hidden dimension falls
+  back to `d_token * 4/3` as in the reference implementation.
+- `lrn("classif.tab_resnet")` / `lrn("regr.tab_resnet")` now apply batch
+  normalization and ReLU before the output layer, as in the reference
+  implementation.
+- Fixed some issues in the documentation.
+- Examples, vignettes and the README now use `nn("linear")` instead of
+  the equivalent but longer `po("nn_linear")`.
+- Various other bug fixes.
 
 ## mlr3torch 0.3.3
 
@@ -64,9 +256,9 @@ CRAN release: 2025-07-07
 - Added `po("nn_fn")` for calling custom functions in a network.
 - Added the FT Transformer model for tabular data.
 - Added encoders for numericals and categoricals
-- `nn("block")` (which allows to repeat the same network segment
-  multiple times) now has an extra argument `trafo`, which allows to
-  modify the parameter values per layer.
+- `nn("block")` (which repeats the same network segment multiple times)
+  now has an extra argument `trafo`, which makes it possible to modify
+  the parameter values per layer.
 
 #### Callbacks:
 
@@ -122,7 +314,6 @@ CRAN release: 2025-02-07
 ### Breaking Changes
 
 - Removed some optimizers for which no fast (‘ignite’) variant exists.
-- The default optimizer is now AdamW instead of Adam.
 - The private `LearnerTorch$.dataloader()` method now operates no longer
   on the `task` but on the `dataset` generated by the private
   `LearnerTorch$.dataset()` method.
@@ -139,9 +330,9 @@ CRAN release: 2025-02-07
   tutorial](https://torch.mlverse.org/docs/articles/torchscript) for
   more information.
 - Added parameter `num_interop_threads` to `LearnerTorch`.
-- The `tensor_dataset` parameter was added, which allows to stack all
-  batches at the beginning of training to make loading of batches
-  afterwards faster.
+- The `tensor_dataset` parameter was added, which makes it possible to
+  stack all batches at the beginning of training to make loading of
+  batches afterwards faster.
 - Use a faster default image loader.
 
 ### Features

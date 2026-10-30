@@ -1,6 +1,17 @@
 # Learner Torch Module
 
-Create a torch learner from a torch module.
+Wraps a
+[`torch::nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html)
+into a
+[`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md),
+so an architecture written directly in `torch` can be trained, resampled
+and tuned like any other mlr3 learner without going through a
+[`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html) of
+`PipeOpTorch` operators. This is the shortest path from an existing
+`torch` model to mlr3, and the natural choice for an architecture whose
+forward pass is easier to write as code than to assemble from operators.
+The module receives the task's features as its arguments, which
+`ingress_tokens` maps.
 
 ## Dictionary
 
@@ -31,18 +42,13 @@ instantiated using the sugar function
 ## See also
 
 Other Learner:
+[`GraphLearnerTorch`](https://mlr3torch.mlr-org.com/reference/GraphLearnerTorch.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
 [`mlr_learners.ft_transformer`](https://mlr3torch.mlr-org.com/reference/mlr_learners.ft_transformer.md),
 [`mlr_learners.mlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.mlp.md),
+[`mlr_learners.realmlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.realmlp.md),
 [`mlr_learners.tab_resnet`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tab_resnet.md),
-[`mlr_learners.torch_featureless`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torch_featureless.md),
-[`mlr_learners_torch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md),
-[`mlr_learners_torch_image`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_image.md),
-[`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md)
-
-Other Learner:
-[`mlr_learners.ft_transformer`](https://mlr3torch.mlr-org.com/reference/mlr_learners.ft_transformer.md),
-[`mlr_learners.mlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.mlp.md),
-[`mlr_learners.tab_resnet`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tab_resnet.md),
+[`mlr_learners.tabm`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tabm.md),
 [`mlr_learners.torch_featureless`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torch_featureless.md),
 [`mlr_learners_torch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md),
 [`mlr_learners_torch_image`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_image.md),
@@ -51,14 +57,14 @@ Other Learner:
 ## Super classes
 
 [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html) -\>
-[`mlr3torch::LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
+[`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
 -\> `LearnerTorchModule`
 
 ## Methods
 
 ### Public methods
 
-- [`LearnerTorchModule$new()`](#method-LearnerTorchModule-new)
+- [`LearnerTorchModule$new()`](#method-LearnerTorchModule-initialize)
 
 - [`LearnerTorchModule$clone()`](#method-LearnerTorchModule-clone)
 
@@ -73,15 +79,15 @@ Inherited methods
 - [`mlr3::Learner$reset()`](https://mlr3.mlr-org.com/reference/Learner.html#method-reset)
 - [`mlr3::Learner$selected_features()`](https://mlr3.mlr-org.com/reference/Learner.html#method-selected_features)
 - [`mlr3::Learner$train()`](https://mlr3.mlr-org.com/reference/Learner.html#method-train)
-- [`mlr3torch::LearnerTorch$dataset()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-dataset)
-- [`mlr3torch::LearnerTorch$format()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-format)
-- [`mlr3torch::LearnerTorch$marshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-marshal)
-- [`mlr3torch::LearnerTorch$print()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-print)
-- [`mlr3torch::LearnerTorch$unmarshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-unmarshal)
+- [`LearnerTorch$dataset()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-dataset)
+- [`LearnerTorch$format()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-format)
+- [`LearnerTorch$marshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-marshal)
+- [`LearnerTorch$print()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-print)
+- [`LearnerTorch$unmarshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-unmarshal)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LearnerTorchModule$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -99,7 +105,8 @@ Creates a new instance of this
       callbacks = list(),
       packages = character(0),
       feature_types = NULL,
-      predict_types = NULL
+      predict_types = NULL,
+      target_batchgetter = NULL
     )
 
 #### Arguments
@@ -146,8 +153,13 @@ Creates a new instance of this
 - `properties`:
 
   (`NULL` or [`character()`](https://rdrr.io/r/base/character.html))  
-  The properties of the learner. Defaults to all available properties
-  for the given task type.
+  The properties of the learner. Defaults to the properties that every
+  [`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
+  has, i.e. `"marshal"`, `"validation"` and `"internal_tuning"` (and
+  `"twoclass"` and `"multiclass"` for classification). Other properties
+  such as `"weights"`, `"missings"`, `"new_levels"` or `"offset"` must
+  only be claimed if the network and the ingress tokens handle them, as
+  mlr3 then skips its checks for them.
 
 - `optimizer`:
 
@@ -183,9 +195,26 @@ Creates a new instance of this
   [`mlr_reflections$learner_predict_types`](https://mlr3.mlr-org.com/reference/mlr_reflections.html)
   for available values.
 
+- `target_batchgetter`:
+
+  (`function()` or `NULL`)  
+  Converts the target columns of a batch into the target tensor `y` that
+  the loss is applied to. Takes an argument `data`, a
+  [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html)
+  with only the target columns, and optionally an argument `x`, the
+  named list of feature tensors of the batch, which is what a target
+  that is a function of the input needs, see
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md).
+  If `NULL` (default), it is taken from the task via
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md),
+  which the built-in task types provide, and a
+  [`TaskTorch`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_torch.md)
+  only if it has a `default_target_batchgetter` or no target at all, in
+  which case the batches have no `y` element.
+
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `LearnerTorchModule$clone()`
 
 The objects of this class are cloneable with this method.
 

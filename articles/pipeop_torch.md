@@ -1,24 +1,105 @@
 # Defining an Architecture
 
-In this vignette, we will show how to build neural network architectures
-as `mlr3pipelines::Graphs`s. We will create a simple CNN for the
-tiny-imagenet task, which is a subset of well-known Imagenet benchmark.
+In this vignette, we will show two ways to define a neural network
+architecture in `mlr3torch`. We start with the direct route, where an
+existing `torch` module is turned into an
+[`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html).
+Afterwards, we show how to build architectures as
+[`mlr3pipelines::Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)s,
+which makes it possible to infer shapes from the task and to tune the
+architecture itself.
 
 ``` r
+
 library(mlr3torch)
+```
+
+## From a `torch` Module to a `Learner`
+
+If you already have a
+[`torch::nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html),
+or want to write one yourself, `lrn("classif.module")` (or
+`lrn("regr.module")` for regression) wraps it into an
+[`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html). This
+gives you the training loop, resampling and tuning infrastructure of
+`mlr3torch` without having to express the architecture as a `Graph`.
+
+The module generator needs to take `task` as an argument, so that
+dimensions that depend on the data – such as the number of features or
+classes – can be inferred during `$train()`. Its remaining arguments
+become hyperparameters of the resulting `Learner`.
+
+``` r
+
+nn_one_layer = nn_module("nn_one_layer",
+  initialize = function(task, size_hidden) {
+    self$first = nn_linear(task$n_features, size_hidden)
+    self$second = nn_linear(size_hidden, output_dim_for(task))
+  },
+  # the argument x corresponds to the ingress token x below
+  forward = function(x) {
+    self$second(nnf_relu(self$first(x)))
+  }
+)
+```
+
+The second ingredient are the `ingress_tokens`, which specify how the
+features of the task are converted into the tensors that are passed to
+the module’s `forward()` method. Their names must match the arguments of
+`forward()`, so here
+[`ingress_num()`](https://mlr3torch.mlr-org.com/reference/ingress_num.md)
+collects all numeric features into a single tensor `x`.
+
+``` r
+
+module_learner = lrn("classif.module",
+  module_generator = nn_one_layer,
+  ingress_tokens = list(x = ingress_num()),
+  size_hidden = 20,
+  epochs = 10,
+  batch_size = 16
+)
+module_learner$train(tsk("iris"))
+module_learner$network
+#> An `nn_module` containing 163 parameters.
+#> 
+#> ── Modules ─────────────────────────────────────────────────────────────────────
+#> • first: <nn_linear> #100 parameters
+#> • second: <nn_linear> #63 parameters
+```
+
+Note that the parameters of the module generator are by default inferred
+as untyped (`ParamUty`). To make them tunable, pass an explicit
+`param_set` to `lrn("classif.module")` that describes them,
+e.g. `paradox::ps(size_hidden = paradox::p_int(1L, tags = "train"))`.
+
+## Building an Architecture as a `Graph`
+
+Writing the module directly gives you full control, but the architecture
+is then a black box: its layer sizes are fixed in R code and cannot be
+tuned, and the input dimensions have to be derived from the task by
+hand. Building the network as a `Graph` instead addresses both points.
+To show this, we create a simple CNN for the tiny-imagenet task, which
+is a subset of the well-known Imagenet benchmark.
+
+``` r
+
 imagenet = tsk("tiny_imagenet")
 imagenet
 #> 
 #> ── <TaskClassif> (110000x2): ImageNet Subset ───────────────────────────────────
 #> • Target: class
+#> • Properties: multiclass
+#> • Features (1):
+#>   • lt (1): image
+#> Downloading <tiny_imagenet> ...
+#> Processing <tiny_imagenet> ...
+#> Dataset <tiny_imagenet> downloaded and extracted successfully.
 #> • Target classes: abacus (0%), academic gown, academic robe, judge's robe (0%),
 #> acorn (0%), African elephant, Loxodonta africana (0%), albatross, mollymawk
 #> (0%), alp (0%), altar (0%), American alligator, Alligator mississipiensis (0%),
 #> American lobster, Northern lobster, Maine lobster, Homarus americanus (0%),
 #> apron (0%) + 190 more
-#> • Properties: multiclass
-#> • Features (1):
-#>   • lt (1): image
 ```
 
 The central ingredients for creating such graphs are `PipeOpTorch`
@@ -35,12 +116,13 @@ Because the imagenet task contains only one feature of type
 `lazy_tensor`, we go for the last option:
 
 ``` r
+
 architecture = po("torch_ingress_ltnsr")
 ```
 
 We now define a relatively simple convolutional neural network. Note
 that in the code below `po("nn_relu_1")` is equivalent to
-`po("nn_relu", id = "nn_linear_1")`. This is needed, because
+`nn("relu", id = "nn_relu_1")`. This is needed, because
 [`mlr3pipelines::Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)s
 require that each `PipeOp` has a unique ID.
 
@@ -51,45 +133,50 @@ tasks with different image sizes, each time building up the correct
 network structure.
 
 ``` r
+
 architecture = architecture %>>%
-  po("nn_conv2d_1", out_channels = 64, kernel_size = 11, stride = 4, padding = 2) %>>%
-  po("nn_relu_1", inplace = TRUE) %>>%
-  po("nn_max_pool2d_1", kernel_size = 3, stride = 2) %>>%
-  po("nn_conv2d_2", out_channels = 192, kernel_size = 5, padding = 2) %>>%
-  po("nn_relu_2", inplace = TRUE) %>>%
-  po("nn_max_pool2d_2", kernel_size = 3, stride = 2)
+  nn("conv2d_1", out_channels = 64, kernel_size = 11, stride = 4, padding = 2) %>>%
+  nn("relu_1") %>>%
+  nn("max_pool2d_1", kernel_size = 3, stride = 2) %>>%
+  nn("conv2d_2", out_channels = 192, kernel_size = 5, padding = 2) %>>%
+  nn("relu_2") %>>%
+  nn("max_pool2d_2", kernel_size = 3, stride = 2)
 ```
 
 We can now continue with specifying the classification part of the
 network, which is a dense network that repeats a layer twice:
 
 ``` r
-dense_layer = po("nn_dropout") %>>%
-  po("nn_linear", out_features = 4096) %>>%
-  po("nn_relu_6")
+
+dense_layer = nn("dropout") %>>%
+  nn("linear", out_features = 4096) %>>%
+  nn("relu_6")
 ```
 
 In order to repeat a segment from a network multiple times, we can use
-`po("nn_block")`, which we here repeat twice. Then, we follow with the
+`nn("block")`, which we here repeat twice. Then, we follow with the
 output head of the network, where we don’t have to specify the number of
 classes, as they can also be inferred from the task
 
 ``` r
-classifier = po("nn_block", dense_layer, n_blocks = 2L) %>>%
-  po("nn_head")
+
+classifier = nn("block", dense_layer, n_blocks = 2L) %>>%
+  nn("head")
 ```
 
 Next, we can combine the convolutional part with the dense head:
 
 ``` r
+
 architecture = architecture %>>%
-  po("nn_flatten") %>>%
+  nn("flatten") %>>%
   classifier
 ```
 
 Below, we display the network:
 
 ``` r
+
 architecture$plot(html = TRUE)
 ```
 
@@ -100,11 +187,12 @@ training arguments, which we do now: We use the standard cross-entropy
 loss, SGD as the optimizer and checkpoint our model every 20 epochs.
 
 ``` r
+
 checkpoint = tempfile()
 architecture = architecture %>>%
   po("torch_loss", t_loss("cross_entropy")) %>>%
-  po("torch_optimizer", t_opt("sgd", lr=0.01)) %>>%
-  po("torch_callbacks", 
+  po("torch_optimizer", t_opt("sgd", lr = 0.01)) %>>%
+  po("torch_callbacks",
     t_clbk("checkpoint", freq = 20, path = checkpoint)) %>>%
   po("torch_model_classif",
     batch_size = 32, epochs = 100L, device = "cuda")
@@ -118,12 +206,13 @@ individual `PipeOp`s in its `$param_set`, from which we show only a
 subset for readability:
 
 ``` r
+
 as.data.table(cnn$param_set)[c(32, 34, 42), 1:4]
-#>                       id    class lower upper
-#>                   <char>   <char> <num> <num>
-#> 1:     nn_block.n_blocks ParamInt     0   Inf
-#> 2: nn_block.nn_dropout.p ParamDbl     0     1
-#> 3:  torch_loss.reduction ParamFct    NA    NA
+#>                      id    class lower upper
+#>                  <char>   <char> <num> <num>
+#> 1:       block.n_blocks ParamInt     0   Inf
+#> 2:      block.dropout.p ParamDbl     0     1
+#> 3: torch_loss.reduction ParamFct    NA    NA
 ```
 
 We can still change them, or if we wanted to, even tune them! Below, we
@@ -131,9 +220,10 @@ increase the number of blocks and latent dimension of the dense part, as
 well as change the learning rate of the SGD optimizer.
 
 ``` r
+
 cnn$param_set$set_values(
-  nn_block.n_blocks = 4L,
-  nn_block.nn_linear.out_features = 4096 * 2,
+  block.n_blocks = 4L,
+  block.linear.out_features = 4096 * 2,
   torch_optimizer.lr = 0.2
 )
 ```
@@ -141,5 +231,6 @@ cnn$param_set$set_values(
 Finally, we train the learner on the task:
 
 ``` r
+
 cnn$train(imagenet)
 ```

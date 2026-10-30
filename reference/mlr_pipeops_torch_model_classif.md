@@ -10,7 +10,7 @@ See
 ## Input and Output Channels
 
 There is one input channel `"input"` that takes in `ModelDescriptor`
-during traing and a `Task` of the specified `task_type` during
+during training and a `Task` of the specified `task_type` during
 prediction. The output is `NULL` during training and a `Prediction` of
 given `task_type` during prediction.
 
@@ -29,78 +29,9 @@ on the provided
 [`ModelDescriptor`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md)
 that is received through the input channel. Then the parameters are set
 according to the parameters specified in `PipeOpTorchModel` and its
-'\$train()` method is called on the [`Task`][mlr3::Task] stored in the [`ModelDescriptor\`\].
-
-## See also
-
-Other PipeOps:
-[`mlr_pipeops_nn_adaptive_avg_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool1d.md),
-[`mlr_pipeops_nn_adaptive_avg_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool2d.md),
-[`mlr_pipeops_nn_adaptive_avg_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool3d.md),
-[`mlr_pipeops_nn_avg_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool1d.md),
-[`mlr_pipeops_nn_avg_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool2d.md),
-[`mlr_pipeops_nn_avg_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool3d.md),
-[`mlr_pipeops_nn_batch_norm1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm1d.md),
-[`mlr_pipeops_nn_batch_norm2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm2d.md),
-[`mlr_pipeops_nn_batch_norm3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm3d.md),
-[`mlr_pipeops_nn_block`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_block.md),
-[`mlr_pipeops_nn_celu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_celu.md),
-[`mlr_pipeops_nn_conv1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv1d.md),
-[`mlr_pipeops_nn_conv2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv2d.md),
-[`mlr_pipeops_nn_conv3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv3d.md),
-[`mlr_pipeops_nn_conv_transpose1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose1d.md),
-[`mlr_pipeops_nn_conv_transpose2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose2d.md),
-[`mlr_pipeops_nn_conv_transpose3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose3d.md),
-[`mlr_pipeops_nn_dropout`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout.md),
-[`mlr_pipeops_nn_elu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_elu.md),
-[`mlr_pipeops_nn_flatten`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_flatten.md),
-[`mlr_pipeops_nn_ft_cls`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_ft_cls.md),
-[`mlr_pipeops_nn_ft_transformer_block`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_ft_transformer_block.md),
-[`mlr_pipeops_nn_geglu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_geglu.md),
-[`mlr_pipeops_nn_gelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gelu.md),
-[`mlr_pipeops_nn_glu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_glu.md),
-[`mlr_pipeops_nn_hardshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardshrink.md),
-[`mlr_pipeops_nn_hardsigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardsigmoid.md),
-[`mlr_pipeops_nn_hardtanh`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardtanh.md),
-[`mlr_pipeops_nn_head`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_head.md),
-[`mlr_pipeops_nn_identity`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_identity.md),
-[`mlr_pipeops_nn_layer_norm`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_layer_norm.md),
-[`mlr_pipeops_nn_leaky_relu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_leaky_relu.md),
-[`mlr_pipeops_nn_linear`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_linear.md),
-[`mlr_pipeops_nn_log_sigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_sigmoid.md),
-[`mlr_pipeops_nn_max_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool1d.md),
-[`mlr_pipeops_nn_max_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool2d.md),
-[`mlr_pipeops_nn_max_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool3d.md),
-[`mlr_pipeops_nn_merge`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge.md),
-[`mlr_pipeops_nn_merge_cat`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_cat.md),
-[`mlr_pipeops_nn_merge_prod`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_prod.md),
-[`mlr_pipeops_nn_merge_sum`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_sum.md),
-[`mlr_pipeops_nn_prelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_prelu.md),
-[`mlr_pipeops_nn_reglu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reglu.md),
-[`mlr_pipeops_nn_relu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu.md),
-[`mlr_pipeops_nn_relu6`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu6.md),
-[`mlr_pipeops_nn_reshape`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reshape.md),
-[`mlr_pipeops_nn_rrelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rrelu.md),
-[`mlr_pipeops_nn_selu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_selu.md),
-[`mlr_pipeops_nn_sigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_sigmoid.md),
-[`mlr_pipeops_nn_softmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax.md),
-[`mlr_pipeops_nn_softplus`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softplus.md),
-[`mlr_pipeops_nn_softshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softshrink.md),
-[`mlr_pipeops_nn_softsign`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softsign.md),
-[`mlr_pipeops_nn_squeeze`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_squeeze.md),
-[`mlr_pipeops_nn_tanh`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tanh.md),
-[`mlr_pipeops_nn_tanhshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tanhshrink.md),
-[`mlr_pipeops_nn_threshold`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_threshold.md),
-[`mlr_pipeops_nn_tokenizer_categ`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_categ.md),
-[`mlr_pipeops_nn_tokenizer_num`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_num.md),
-[`mlr_pipeops_nn_unsqueeze`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unsqueeze.md),
-[`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md),
-[`mlr_pipeops_torch_ingress_categ`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_categ.md),
-[`mlr_pipeops_torch_ingress_ltnsr`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_ltnsr.md),
-[`mlr_pipeops_torch_ingress_num`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_num.md),
-[`mlr_pipeops_torch_loss`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_loss.md),
-[`mlr_pipeops_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model.md),
-[`mlr_pipeops_torch_model_regr`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model_regr.md)
+`$train()` method is called on the
+[`Task`](https://mlr3.mlr-org.com/reference/Task.html) stored in the
+[`ModelDescriptor`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md).
 
 ## Super classes
 
@@ -108,14 +39,14 @@ Other PipeOps:
 -\>
 [`mlr3pipelines::PipeOpLearner`](https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_learner.html)
 -\>
-[`mlr3torch::PipeOpTorchModel`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model.md)
+[`PipeOpTorchModel`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model.md)
 -\> `PipeOpTorchModelClassif`
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorchModelClassif$new()`](#method-PipeOpTorchModelClassif-new)
+- [`PipeOpTorchModelClassif$new()`](#method-PipeOpTorchModelClassif-initialize)
 
 - [`PipeOpTorchModelClassif$clone()`](#method-PipeOpTorchModelClassif-clone)
 
@@ -128,7 +59,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchModelClassif$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -152,7 +83,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchModelClassif$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -173,7 +104,7 @@ The objects of this class are cloneable with this method.
 
 # configure the model descriptor
 md = as_graph(po("torch_ingress_num") %>>%
-  po("nn_head") %>>%
+  nn("head") %>>%
   po("torch_loss", "cross_entropy") %>>%
   po("torch_optimizer", "adam"))$train(tsk("iris"))[[1L]]
 
@@ -184,7 +115,7 @@ print(md)
 #> * Callbacks:  N/A
 #> * Optimizer:  Adaptive Moment Estimation
 #> * Loss:  Cross Entropy
-#> * pointer:  nn_head.output [(NA,3)]
+#> * pointer:  head.output [(NA,3)]
 
 # build the learner from the model descriptor and train it
 po_model = po("torch_model_classif", batch_size = 50, epochs = 1)
@@ -194,117 +125,11 @@ po_model$train(list(md))
 #> 
 po_model$state
 #> $model
-#> $network
-#> An `nn_module` containing 15 parameters.
-#> 
-#> ── Modules ─────────────────────────────────────────────────────────────────────
-#> • module_list: <nn_module_list> #15 parameters
-#> 
-#> $internal_valid_scores
-#> NULL
-#> 
-#> $loss_fn
-#> list()
-#> 
-#> $optimizer
-#> $optimizer$param_groups
-#> $optimizer$param_groups[[1]]
-#> $optimizer$param_groups[[1]]$params
-#> [1] 1 2
-#> 
-#> $optimizer$param_groups[[1]]$lr
-#> [1] 0.001
-#> 
-#> $optimizer$param_groups[[1]]$weight_decay
-#> [1] 0
-#> 
-#> $optimizer$param_groups[[1]]$betas
-#> [1] 0.900 0.999
-#> 
-#> $optimizer$param_groups[[1]]$eps
-#> [1] 1e-08
-#> 
-#> $optimizer$param_groups[[1]]$amsgrad
-#> [1] FALSE
-#> 
-#> 
-#> 
-#> $optimizer$state
-#> $optimizer$state$`1`
-#> $optimizer$state$`1`$exp_avg
-#> torch_tensor
-#>  0.0497  0.0370 -0.1621 -0.1511
-#> -0.3646 -0.1140 -0.4976 -0.2277
-#>  0.3149  0.0770  0.6597  0.3788
-#> [ CPUFloatType{3,4} ]
-#> 
-#> $optimizer$state$`1`$exp_avg_sq
-#> torch_tensor
-#> 0.01 *
-#>  0.0109  0.0056  0.1123  0.0945
-#>   0.5600  0.0547  1.0476  0.2214
-#>   0.4205  0.0261  1.8015  0.5912
-#> [ CPUFloatType{3,4} ]
-#> 
-#> $optimizer$state$`1`$max_exp_avg_sq
-#> torch_tensor
-#> [ CPUFloatType{0} ]
-#> 
-#> $optimizer$state$`1`$step
-#> torch_tensor
-#>  3
-#> [ CPULongType{1} ]
-#> 
-#> 
-#> $optimizer$state$`2`
-#> $optimizer$state$`2`$exp_avg
-#> torch_tensor
-#> -0.0396
-#> -0.0831
-#>  0.1227
-#> [ CPUFloatType{3} ]
-#> 
-#> $optimizer$state$`2`$exp_avg_sq
-#> torch_tensor
-#> 0.0001 *
-#>  0.6505
-#>  2.9394
-#>  6.2196
-#> [ CPUFloatType{3} ]
-#> 
-#> $optimizer$state$`2`$max_exp_avg_sq
-#> torch_tensor
-#> [ CPUFloatType{0} ]
-#> 
-#> $optimizer$state$`2`$step
-#> torch_tensor
-#>  3
-#> [ CPULongType{1} ]
-#> 
-#> 
-#> 
-#> 
-#> $epochs
-#> [1] 1
-#> 
-#> $callbacks
-#> named list()
-#> 
-#> $seed
-#> [1] 415631006
-#> 
-#> $task_col_info
-#> Key: <id>
-#>              id    type                      levels
-#>          <char>  <char>                      <list>
-#> 1: Petal.Length numeric                      [NULL]
-#> 2:  Petal.Width numeric                      [NULL]
-#> 3: Sepal.Length numeric                      [NULL]
-#> 4:  Sepal.Width numeric                      [NULL]
-#> 5:      Species  factor setosa,versicolor,virginica
-#> 
-#> attr(,"class")
-#> [1] "learner_torch_model" "list"               
+#> <learner_torch_model> trained for 1 epoch
+#> * Network:  <nn_graph> with 15 parameters
+#> * Callbacks:  -
+#> * Fields:  network, internal_valid_scores, loss_fn, optimizer, epochs,
+#>   callbacks, seed, task_col_info
 #> 
 #> $param_vals
 #> $param_vals$epochs
@@ -314,9 +139,6 @@ po_model$state
 #> [1] "auto"
 #> 
 #> $param_vals$num_threads
-#> [1] 1
-#> 
-#> $param_vals$num_interop_threads
 #> [1] 1
 #> 
 #> $param_vals$seed
@@ -337,6 +159,9 @@ po_model$state
 #> $param_vals$min_delta
 #> [1] 0
 #> 
+#> $param_vals$restore_best_weights
+#> [1] FALSE
+#> 
 #> $param_vals$batch_size
 #> [1] 50
 #> 
@@ -345,6 +170,9 @@ po_model$state
 #> 
 #> $param_vals$tensor_dataset
 #> [1] FALSE
+#> 
+#> $param_vals$cache_task_data
+#> [1] TRUE
 #> 
 #> $param_vals$jit_trace
 #> [1] FALSE
@@ -355,10 +183,10 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.074 
+#>   0.029 
 #> 
 #> $task_hash
-#> [1] "57242622e0015f6a"
+#> [1] "abc694dd29a7a8ce"
 #> 
 #> $feature_names
 #> [1] "Petal.Length" "Petal.Width"  "Sepal.Length" "Sepal.Width" 
@@ -367,7 +195,7 @@ po_model$state
 #> NULL
 #> 
 #> $mlr3_version
-#> [1] ‘1.5.0’
+#> [1] ‘1.8.0’
 #> 
 #> $internal_tuned_values
 #> named list()
@@ -375,17 +203,14 @@ po_model$state
 #> $data_prototype
 #> Empty data.table (0 rows and 5 cols): Species,Petal.Length,Petal.Width,Sepal.Length,Sepal.Width
 #> 
-#> $task_prototype
-#> Empty data.table (0 rows and 5 cols): Species,Petal.Length,Petal.Width,Sepal.Length,Sepal.Width
-#> 
 #> $train_task
 #> 
 #> ── <TaskClassif> (150x5): Iris Flowers ─────────────────────────────────────────
 #> • Target: Species
-#> • Target classes: setosa, versicolor, virginica
 #> • Properties: multiclass
 #> • Features (4):
 #>   • dbl (4): Petal.Length, Petal.Width, Sepal.Length, Sepal.Width
+#> • Target classes: setosa, versicolor, virginica
 #> 
 #> attr(,"class")
 #> [1] "learner_state" "list"         

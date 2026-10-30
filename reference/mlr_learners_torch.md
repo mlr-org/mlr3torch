@@ -33,14 +33,40 @@ marshaled `LearnerTorch` into R again, you then need to call
 
 ## Early Stopping and Internal Tuning
 
-In order to prevent overfitting, the `LearnerTorch` class allows to use
-early stopping via the `patience` and `min_delta` parameters, see the
+In order to prevent overfitting, the `LearnerTorch` class supports early
+stopping via the `patience` and `min_delta` parameters, see the
 `Learner`'s parameters. When tuning a `LearnerTorch` it is also possible
 to combine the explicit tuning via `mlr3tuning` and the `LearnerTorch`'s
 internal tuning of the epochs via early stopping. To do so, you just
 need to include `epochs = to_tune(upper = <upper>, internal = TRUE)` in
 the search space, where `<upper>` is the maximally allowed number of
 epochs, and configure the early stopping.
+
+## Checkpointing and Resuming
+
+It is possible to save intermediate results from a run via the
+[`t_clbk("checkpoint")`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.checkpoint.md)
+callback. It is then possible to train for more epochs by setting the
+`resume` parameter of the `LearnerTorch`. This parameter can either be a
+path or `TRUE` which will use the path of the provided checkpoint
+callback. Only the number of epochs should be changed between resumed
+runs, other parameter changes are considered undefined behavior. Also,
+make sure to use the same train-validation split. When the latest
+written checkpoint was for `n1` epochs, the learner needs to be
+configured to be trained for `n >= n1` epochs and the training will run
+for `n2 = n - n1` epochs. With `n = n1` the checkpointed run is already
+finished, so nothing is trained and the model of the checkpoint is
+returned – which is what lets a script that restarts itself be run again
+after it succeeded, and what recovers the model of a run that was killed
+after its last epoch. Configuring `n < n1` is an error. Resuming will
+load the network weights, optimizer states and callback states. For some
+callbacks, training for `n1` and then `n2` epochs via resuming is not
+the same as training for `n` epochs from the start. This is for example
+the case for learning rate schedulers that depend on the total number of
+epochs to train for. The callbacks document their behavior under a
+corresponding *Resuming* section in their documentation. Furthermore,
+rng states are not restored, which constitutes another difference
+between a full and a resumed training run.
 
 ## Network Head and Target Encoding
 
@@ -53,6 +79,45 @@ Torch learners are expected to have the following output:
   logits for all classes.
 
 - regression: `(batch_size, 1)` representing the response prediction.
+
+A network may return more than one tensor, in which case it returns a
+[`list()`](https://rdrr.io/r/base/list.html) of them. There are two
+typical reasons for this:
+
+- Networks with auxiliary classifiers such as
+  [`Inception v3`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torchvision.md)
+  return additional predictions that only exist to contribute to the
+  loss during training. Here, every element has the shape given above
+  and the first one is the prediction of interest.
+
+- A prediction that consists of several quantities – e.g. a mean and a
+  standard deviation – is expressed by returning one tensor per
+  quantity, which the prediction encoding combines.
+
+In both cases the complete output is what the rest of the learner works
+with:
+
+- The loss is applied to it. Because the configured loss expects a
+  single tensor, a learner whose network returns a list has to wrap it
+  in `.setup_training()`, see the list of methods below.
+  [`ContextTorch`](https://mlr3torch.mlr-org.com/reference/mlr_context_torch.md)
+  makes the output available as `ctx$y_hats`.
+
+- The prediction is encoded from it, both when predicting and when
+  calculating the training and validation scores, so
+  `.encode_prediction()` always receives the complete network output.
+  Such a learner needs an
+  [`encode_prediction()`](https://mlr3torch.mlr-org.com/reference/encode_prediction.md)
+  method for its task type, or has to overload the private
+  `.encode_prediction()` method, because the encodings of the built-in
+  task types expect a single tensor.
+
+Note that the complete output is whatever the network returned in the
+mode it was called in, so a network whose extra tensors exist only
+during training – as auxiliary classifiers do – returns a different
+structure during training than during prediction, and
+`.encode_prediction()` has to handle both. `classif.inception_v3` does
+this by encoding only the prediction of the main classifier.
 
 Furthermore, the target encoding is expected to be as follows:
 
@@ -77,6 +142,49 @@ Furthermore, the target encoding is expected to be as follows:
   with shape `(batch_size)` where the label-encoding goes from `1` to
   `n_classes`.
 
+## Predicting Tensors
+
+The predict type `"lazy_tensor"`, available for the task type `"torch"`,
+hands back what the network produced – a
+[`lazy_tensor`](https://mlr3torch.mlr-org.com/reference/lazy_tensor.md)
+with one element per observation – instead of asking the task's
+`default_encoder` to turn it into a response. It is how to get at the
+logits of a classifier or the reconstruction of an autoencoder, and a
+task predicted this way needs no encoder at all. Unlike `"prob"` and
+`"se"` it is not opt-in: every learner for this task type has it among
+its `$predict_types`, because handing the output back does not depend on
+how the learner encodes a prediction. Set
+`learner$predict_type = "lazy_tensor"` to use it. A network with more
+than one head hands back one
+[`lazy_tensor`](https://mlr3torch.mlr-org.com/reference/lazy_tensor.md)
+per head, held in a
+[`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html) with
+one column per head so that the prediction is still one row per
+observation;
+[`as.data.table()`](https://rdrr.io/pkg/data.table/man/as.data.table.html)
+spreads it into `lazy_tensor.<head>` columns.
+
+Two things to know before using it:
+
+- **Such a prediction does not survive
+  [`saveRDS()`](https://rdrr.io/r/base/readRDS.html).** It holds `torch`
+  tensors, which are external pointers: saving *succeeds*, and the
+  object then fails with *external pointer is not valid* the next time
+  the tensors are touched, in this session or in another. This applies
+  to a
+  [`ResampleResult`](https://mlr3.mlr-org.com/reference/ResampleResult.html)
+  holding one as well – its row ids and scores survive, its tensors do
+  not.
+
+- Nothing about it is lazy. A
+  [`lazy_tensor`](https://mlr3torch.mlr-org.com/reference/lazy_tensor.md)
+  built from a tensor holds that tensor, so a prediction of this type is
+  the network's output in memory, and
+  [`resample()`](https://mlr3.mlr-org.com/reference/resample.html) holds
+  every fold's – combining the folds concatenates them, since lazy
+  tensors from different networks share no data descriptor and cannot be
+  concatenated lazily.
+
 ## Important Runtime Considerations
 
 There are a few hyperparameters settings that can have a considerable
@@ -85,16 +193,82 @@ impact on the runtime of the learner. These include:
 - `device`: Use a GPU if possible.
 
 - `num_threads`: Set this to the number of CPU cores available if
-  training on CPU.
+  training on CPU. When resampling, benchmarking or tuning in parallel,
+  each worker uses `num_threads` threads, so divide the available cores
+  among the workers instead to avoid oversubscribing the machine.
 
 - `tensor_dataset`: Set this to `TRUE` (or `"device"` if on a GPU) if
-  the dataset fits into memory.
+  the dataset fits into memory. This loads and stacks every batch once
+  up front, so it must not be used with a
+  [`lazy_tensor`](https://mlr3torch.mlr-org.com/reference/lazy_tensor.md)
+  that applies random data augmentation – the augmentation would then be
+  drawn only once.
 
 - `batch_size`: Especially for very small models, choose a larger batch
   size.
 
+- `batch_size_predict`: Prediction has no backward pass and so fits
+  larger batches than training.
+
+- `jit_trace`: Set this to `TRUE` to remove the per-batch R interpreter
+  overhead, but only for a network whose control flow and shapes do not
+  depend on the data. See the parameter's own entry.
+
+- `num_workers`: Load batches in parallel worker processes.
+
+- `pin_memory`: With a GPU, this speeds up the host-to-device copy of
+  each batch.
+
 Also, see the *Early Stopping and Internal Tuning* section for how to
 terminate training early.
+
+## Multiple GPUs
+
+A single model is trained on one device. Set `device` to `"cuda"` for
+the default GPU, or to `"cuda:<index>"`, e.g. `"cuda:1"`, for a specific
+one.
+
+To spread resampling, benchmarking or tuning over several GPUs, start
+one [`mirai`](https://mirai.r-lib.org/reference/mirai.html) daemon per
+GPU and restrict each daemon to its own GPU with the environment
+variable `CUDA_VISIBLE_DEVICES`. Inside a daemon, its GPU is then the
+only one, so `device = "cuda"` is correct for every resampling
+iteration. A device index such as `"cuda:1"` does not help here, because
+all iterations share the same parameter values. mlr3 uses the daemons of
+the compute profile `"mlr3_parallelization"`, and a daemon inherits the
+environment variables of the R session that launches it:
+
+    library(mirai)
+    gpus = c("0", "1")
+    daemons(url = local_url(), .compute = "mlr3_parallelization")
+    for (id in gpus) {
+      Sys.setenv(CUDA_VISIBLE_DEVICES = id)
+      launch_local(1, .compute = "mlr3_parallelization")
+    }
+    Sys.unsetenv("CUDA_VISIBLE_DEVICES")
+
+    learner = lrn("classif.mlp", device = "cuda", epochs = 50, batch_size = 64)
+    rr = resample(tsk("spam"), learner, rsmp("cv", folds = 10))
+    daemons(0, .compute = "mlr3_parallelization")
+
+Each resampling iteration goes to the next free daemon, so all GPUs stay
+busy until fewer iterations than GPUs remain.
+
+Things to avoid:
+
+- `daemons(n)` alone: every daemon sees all GPUs, and `"cuda"` is the
+  first GPU in each of them, so all iterations share that one GPU.
+
+- Forking a process that has already initialized CUDA, e.g. with
+  `future::plan("multicore")`.
+
+- A high `num_threads`: data loading and preprocessing still run on the
+  CPU in all daemons at once, so divide the CPU cores among them.
+
+Several daemons per GPU only pay off when one model leaves the GPU
+underused, e.g. because it is small and training is bound by the
+per-batch overhead in R. Then all models must also fit into that GPU's
+memory together.
 
 ## Model
 
@@ -137,19 +311,26 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `device` :: `character(1)`  
   The device. One of `"auto"`, `"cpu"`, or `"cuda"` or other values
-  defined in `mlr_reflections$torch$devices`. The value is initialized
-  to `"auto"`, which will select `"cuda"` if possible, then try `"mps"`
-  and otherwise fall back to `"cpu"`.
+  defined in `mlr_reflections$torch$devices`. A specific device can be
+  selected by appending its index, e.g. `"cuda:1"` for the second GPU.
+  The value is initialized to `"auto"`, which will select `"cuda"` if
+  possible, then try `"mps"` and otherwise fall back to `"cpu"`.
 
 - `num_threads` :: `integer(1)`  
-  The number of threads for intraop pararallelization (if `device` is
-  `"cpu"`). This value is initialized to 1.
+  The number of threads for intraop parallelization (if `device` is
+  `"cpu"`). This value is initialized to 1. When resampling,
+  benchmarking or tuning in parallel, each worker uses this many
+  threads, so divide the available cores among the workers instead of
+  setting this to the number of cores.
 
 - `num_interop_threads` :: `integer(1)`  
-  The number of threads for intraop and interop pararallelization (if
-  `device` is `"cpu"`). This value is initialized to 1. Note that this
-  can only be set once during a session and changing the value within an
-  R session will raise a warning.
+  The number of threads for interop parallelization (if `device` is
+  `"cpu"`). Note that this can only be set **once** per session, so
+  setting this for one learner also changes the behavior of other
+  learners, and a later learner asking for a different value errors.
+  `NULL` (default) uses whatever is set. In order to use different
+  values for this parameter, use encapsulation to train the learners in
+  separate R sessions.
 
 - `seed` :: `integer(1)` or `"random"` or `NULL`  
   The torch seed that is used during training and prediction. This value
@@ -159,7 +340,11 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   used during prediction. Note that by setting the seed during the
   training phase this will mean that by default (i.e. when `seed` is
   `"random"`), clones of the learner will use a different seed. If set
-  to `NULL`, no seeding will be done.
+  to `NULL`, no seeding will be done. This parameter only seeds torch's
+  random number generator, it does **not** seed R's. Anything that is
+  drawn from R's RNG is therefore unaffected by it, so to make those
+  parts reproducible you need to seed R's RNG as well, e.g. via
+  [`set.seed()`](https://rdrr.io/r/base/Random.html).
 
 - `tensor_dataset` :: `logical(1)` \| `"device"`  
   Whether to load all batches at once at the beginning of training and
@@ -171,6 +356,25 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   [`lazy_tensor`](https://mlr3torch.mlr-org.com/reference/lazy_tensor.md)s
   with random data augmentation, as this augmentation will only be
   applied once at the beginning of training.
+
+- `cache_task_data` :: `logical(1)`  
+  Whether to retrieve the data from the task once and to take the
+  batches from it, instead of retrieving every batch from the task,
+  which is slow. This is initialized to `TRUE`. Set it to `FALSE` if a
+  copy of the task data does not fit into memory (lazy tensor columns
+  only contain indices and are small).
+
+- `jit_trace` :: `logical(1)`  
+  Whether to trace the network with
+  [`torch::jit_trace()`](https://torch.mlverse.org/docs/reference/jit_trace.html)
+  once at the start of training and then train the traced module instead
+  of the original one. Not all learners support this. A traced network
+  takes its inputs by position and ignores their names
+  ([mlverse/torch#1495](https://github.com/mlverse/torch/issues/1495)).
+  The learner passes the inputs in the right order, but when calling the
+  traced `$network` of a trained learner with several inputs directly,
+  they must be passed by position in the order given by
+  `attr(learner$network, "input_order")`.
 
 **Evaluation**:
 
@@ -191,39 +395,81 @@ The parameters of the optimizer, loss and callbacks, prefixed with
   `measures_train` / `measures_valid`. This is initialized to `1`. Note
   that the final model is always evaluated.
 
+**Resuming**:
+
+- `resume` :: `character(1)` or `TRUE`  
+  Continues training from a checkpoint written by
+  [`t_clbk("checkpoint")`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.checkpoint.md),
+  either the folder it wrote to or `TRUE`, which takes that folder from
+  the checkpoint callback of this learner. Note that `epochs` is the
+  *total* number of epochs, i.e. it includes the epochs the checkpoint
+  was already trained for: resuming a checkpoint from epoch 5 with
+  `epochs = 8` trains 3 more epochs.
+
 **Early Stopping**:
 
 - `patience` :: `integer(1)`  
   This activates early stopping using the validation scores. If the
   performance of a model does not improve for `patience` evaluation
-  steps, training is ended. Note that the final model is stored in the
-  learner, not the best model. This is initialized to `0`, which means
-  no early stopping. The first entry from `measures_valid` is used as
-  the metric. This also requires to specify the `$validate` field of the
-  Learner, as well as `measures_valid`. If this is set, the epoch after
-  which no improvement was observed, can be accessed via the
-  `$internal_tuned_values` field of the learner.
+  steps, training is ended. Note that this counts *evaluation steps*,
+  not epochs: when `eval_freq` is greater than `1`, `patience`
+  evaluation steps correspond to `patience * eval_freq` epochs. Note
+  that the final model is stored in the learner, not the best model,
+  unless `restore_best_weights` is set to `TRUE`. This is initialized to
+  `0`, which means no early stopping. The first entry from
+  `measures_valid` is used as the metric. A missing (`NA`) score counts
+  as no improvement, and every score improves on a missing one. If all
+  scores are missing, the first evaluated epoch is reported as the best
+  one. This also requires to specify the `$validate` field of the
+  Learner, as well as `measures_valid`.
 
 - `min_delta` :: `double(1)`  
   The minimum improvement threshold for early stopping. Is initialized
   to 0.
 
+- `restore_best_weights` :: `logical(1)`  
+  Whether to restore the weights of the best epoch when training ends,
+  instead of keeping those of the last epoch that was trained. Like
+  `min_delta`, this only has an effect when early stopping is active. Is
+  initialized to `FALSE`, i.e. the network of the last epoch is stored.
+  Setting this to `TRUE` makes the stored network the one of the epoch
+  that `$internal_tuned_values` reports, and costs one additional copy
+  of the network's parameters in memory.
+
 **Dataloader**:
 
 - `batch_size` :: `integer(1)`  
-  The batch size (required).
+  The batch size used by the training and prediction dataloader. It is
+  required for training (unless a `batch_sampler` is provided, which
+  already determines the batches) and it is required for prediction
+  (unless `batch_size_predict` is set).
+
+- `batch_size_predict` :: `integer(1)`  
+  The batch size used by the prediction dataloader (this includes the
+  validation data during training). When set, it overrides `batch_size`
+  for prediction. The batch size does not change the predictions, but
+  smaller batches take longer and require less memory.
 
 - `shuffle` :: `logical(1)`  
   Whether to shuffle the instances in the dataset. This is initialized
-  to `TRUE`, which differs from the default (`FALSE`).
+  to `TRUE`, which differs from the default (`FALSE`). It is ignored
+  when a `sampler` or `batch_sampler` is provided.
 
 - `sampler` ::
   [`torch::sampler`](https://torch.mlverse.org/docs/reference/sampler.html)  
-  Object that defines how the dataloader draw samples.
+  Object that defines how the dataloader draws samples, i.e. the order
+  in which the observations are drawn. This must be the sampler
+  *generator* (as returned by
+  [`torch::sampler()`](https://torch.mlverse.org/docs/reference/sampler.html)),
+  not an instance, as it is instantiated with the training dataset
+  internally.
 
 - `batch_sampler` ::
   [`torch::sampler`](https://torch.mlverse.org/docs/reference/sampler.html)  
-  Object that defines how the dataloader draws batches.
+  Object that defines how the dataloader draws batches. As for
+  `sampler`, this must be the generator. When it is provided, the
+  parameters `batch_size`, `shuffle` and `drop_last` are ignored during
+  training, because the batch sampler already determines the batches.
 
 - `num_workers` :: `integer(1)`  
   The number of workers for data loading (batches are loaded in
@@ -239,7 +485,9 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `drop_last` :: `logical(1)`  
   Whether to drop the last training batch in each epoch during training.
-  Default is `FALSE`.
+  Default is `FALSE`. If it is `TRUE`, the batch size is capped at the
+  number of training observations, so that not all of them are dropped.
+  It is ignored when a `batch_sampler` is provided.
 
 - `timeout` :: `numeric(1)`  
   The timeout value for collecting a batch from workers. Negative values
@@ -247,26 +495,47 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `worker_init_fn` :: `function(id)`  
   A function that receives the worker id (in `[1, num_workers]`) and is
-  exectued after seeding on the worker but before data loading.
+  executed after seeding on the worker but before data loading.
 
 - `worker_globals` :: [`list()`](https://rdrr.io/r/base/list.html) \|
   [`character()`](https://rdrr.io/r/base/character.html)  
-  When loading data in parallel, this allows to export globals to the
-  workers. If this is a character vector, the objects in the global
-  environment with those names are copied to the workers.
+  When loading data in parallel, this makes it possible to export
+  globals to the workers. If this is a character vector, the objects in
+  the global environment with those names are copied to the workers.
 
 - `worker_packages` ::
   [`character()`](https://rdrr.io/r/base/character.html)  
   Which packages to load on the workers.
 
-Also see `torch::dataloder` for more information.
+Also see
+[`torch::dataloader`](https://torch.mlverse.org/docs/reference/dataloader.html)
+for more information.
 
 ## Inheriting
 
-There are no seperate classes for classification and regression to
+There are no separate classes for classification and regression to
 inherit from. Instead, the `task_type` must be specified as a
-construction argument. Currently, only classification and regression are
-supported.
+construction argument. Any task type that is registered in
+[`mlr_reflections$task_types`](https://mlr3.mlr-org.com/reference/mlr_reflections.html)
+can be used. Support for a task type that
+[mlr3torch](https://CRAN.R-project.org/package=mlr3torch) does not know
+is added by implementing methods for the three S3 generics that hold the
+task-type-specific behaviour:
+[`output_dim_for()`](https://mlr3torch.mlr-org.com/reference/output_dim_for.md)
+(how many output neurons the network needs),
+[`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md)
+(how the target is turned into a tensor) and
+[`encode_prediction()`](https://mlr3torch.mlr-org.com/reference/encode_prediction.md)
+(how the network's output is turned back into a prediction). Such a
+learner also has to be given a `loss` explicitly, unless a default loss
+is registered for the task type by adding the id of a loss from
+[`mlr3torch_losses`](https://mlr3torch.mlr-org.com/reference/mlr3torch_losses.md)
+to `mlr_reflections$torch$default_losses`, e.g.
+`mlr_reflections$torch$default_losses$surv = "my_surv_loss"`. See the
+*Adding a New Task Type* article for a complete example. This class can
+also be used for custom task types, see
+[`TaskTorch`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_torch.md)
+and the *Custom Learning Problems* article for more information.
 
 When inheriting from this class, one should overload the following
 methods:
@@ -280,9 +549,43 @@ methods:
   object for the given task and parameter values, i.e. the neural
   network that is trained by the learner. Note that a specific output
   shape is expected from the returned network, see section *Network Head
-  and Target Encoding*. You can use
+  and Target Encoding*. That section also describes when a network can
+  return more than one tensor. You can use
   [`output_dim_for()`](https://mlr3torch.mlr-org.com/reference/output_dim_for.md)
   to obtain the correct output dimension for a given task.
+
+- `.setup_training(ctx, param_vals)`  
+  ([`ContextTorch`](https://mlr3torch.mlr-org.com/reference/mlr_context_torch.md),
+  [`list()`](https://rdrr.io/r/base/list.html)) -\> `NULL`  
+  Customizes a training run by modifying the context in place; the
+  default does nothing. It is called once the data loaders, the network
+  and the configured loss (`self$loss$generate(task)`) are created, and
+  before training (or resuming) starts. At this point, `ctx$optimizer`
+  is `NULL` and `ctx$callbacks` contains the configured callbacks. The
+  method may:
+
+  - replace `ctx$network`. This is also the network that is used for
+    prediction.
+
+  - replace `ctx$loss_fn`, e.g. to wrap the configured loss when the
+    network returns more than one prediction, see the `aux_logits`
+    parameter of
+    [`classif.inception_v3`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torchvision.md).
+
+  - set `ctx$optimizer`, e.g. to `self$optimizer$generate(groups)` with
+    parameter groups for parameter-specific learning rates. Otherwise,
+    the optimizer is generated from the final `ctx$network` afterwards.
+    Use `self$optimizer$generate()`, so that the optimizer's parameters
+    (including `param_groups`) are respected, and set the optimizer
+    after replacing the network.
+
+  - add callbacks to `ctx$callbacks`. The configured callbacks may not
+    be removed or replaced, and the id `"early_stopping"` is reserved.
+
+  Call `super$.setup_training(ctx, param_vals)` first. The method must
+  be deterministic given `param_vals`, so that resuming from a
+  checkpoint can restore the optimizer and callback states. With
+  `jit_trace = TRUE`, `ctx$network` is already traced.
 
 - `.ingress_tokens(task, param_vals)`  
   ([`Task`](https://mlr3.mlr-org.com/reference/Task.html),
@@ -335,31 +638,38 @@ This must respect the dataloader parameters from the
 [`ParamSet`](https://paradox.mlr-org.com/reference/ParamSet.html).
 
 - `.dataloader(dataset, param_vals)`  
-  ([`Task`](https://mlr3.mlr-org.com/reference/Task.html),
+  ([`dataset`](https://torch.mlverse.org/docs/reference/dataset.html),
   [`list()`](https://rdrr.io/r/base/list.html)) -\>
   [`torch::dataloader`](https://torch.mlverse.org/docs/reference/dataloader.html)  
-  Create a dataloader from the task. Needs to respect at least
+  Create a dataloader from the dataset. Needs to respect at least
   `batch_size` and `shuffle` (otherwise predictions will be incorrectly
-  ordered).
+  ordered). Use `get_batch_size(param_vals, "train")` to obtain the
+  batch size for the respective phase, which takes the
+  `batch_size_predict` parameter into account.
 
 To change the predict types, it is possible to overwrite the method
 below:
 
-- `.encode_prediction(predict_tensor, task)`  
-  ([`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html),
+- `.encode_prediction(network_output, task)`  
+  ([`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html)
+  or [`list()`](https://rdrr.io/r/base/list.html) of them,
   [`Task`](https://mlr3.mlr-org.com/reference/Task.html)) -\>
   [`list()`](https://rdrr.io/r/base/list.html)  
-  Take in the raw predictions from `self$network` (`predict_tensor`) and
+  Take in the raw predictions from `self$network` (`network_output`) and
   encode them into a format that can be converted to valid `mlr3`
   predictions using
   [`mlr3::as_prediction_data()`](https://mlr3.mlr-org.com/reference/as_prediction_data.html).
-  This method must take `self$predict_type` into account.
+  For classification, `task` has its classes in the order of the
+  training task. It is a [`list()`](https://rdrr.io/r/base/list.html) of
+  tensors when the network returns more than one, see section *Network
+  Head and Target Encoding*. This method must take `self$predict_type`
+  into account.
 
 While it is possible to add parameters by specifying the `param_set`
 construction argument, it is currently not possible to remove existing
 parameters, i.e. those listed in section *Parameters*. None of the
 parameters provided in `param_set` can have an id that starts with
-`"loss."`, `"opt.", or `"cb."\`, as these are preserved for the
+`"loss."`, `"opt."`, or `"cb."`, as these are preserved for the
 dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.
 
@@ -376,10 +686,14 @@ the hash of a learner, it is required to implement the private
 ## See also
 
 Other Learner:
+[`GraphLearnerTorch`](https://mlr3torch.mlr-org.com/reference/GraphLearnerTorch.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
 [`mlr_learners.ft_transformer`](https://mlr3torch.mlr-org.com/reference/mlr_learners.ft_transformer.md),
 [`mlr_learners.mlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.mlp.md),
 [`mlr_learners.module`](https://mlr3torch.mlr-org.com/reference/mlr_learners.module.md),
+[`mlr_learners.realmlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.realmlp.md),
 [`mlr_learners.tab_resnet`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tab_resnet.md),
+[`mlr_learners.tabm`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tabm.md),
 [`mlr_learners.torch_featureless`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torch_featureless.md),
 [`mlr_learners_torch_image`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_image.md),
 [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md)
@@ -414,10 +728,18 @@ Other Learner:
 
 - `internal_valid_scores`:
 
-  Retrieves the internal validation scores as a named
-  [`list()`](https://rdrr.io/r/base/list.html). Specify the `$validate`
-  field and the `measures_valid` parameter to configure this. Returns
-  `NULL` if learner is not trained yet.
+  Retrieves the internal validation scores of the current network as a
+  named [`list()`](https://rdrr.io/r/base/list.html). This is the *last*
+  epoch, unless `restore_best_weights` is `TRUE`. Specify the
+  `$validate` field and the `measures_valid` parameter to configure
+  this. Returns `NULL` if learner is not trained yet.
+
+- `best_valid_scores`:
+
+  Retrieves the internal validation scores of the *best* epoch as a
+  named [`list()`](https://rdrr.io/r/base/list.html). Only available
+  when doing early stopping. Note that *best* here means with respect to
+  the metric that was used for early stopping.
 
 - `internal_tuned_values`:
 
@@ -456,7 +778,7 @@ Other Learner:
 
 ### Public methods
 
-- [`LearnerTorch$new()`](#method-LearnerTorch-new)
+- [`LearnerTorch$new()`](#method-LearnerTorch-initialize)
 
 - [`LearnerTorch$format()`](#method-LearnerTorch-format)
 
@@ -484,7 +806,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LearnerTorch$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -566,8 +888,12 @@ Creates a new instance of this
 
   (`NULL` or
   [`TorchLoss`](https://mlr3torch.mlr-org.com/reference/TorchLoss.md))  
-  The loss to use for training. Defaults to MSE for regression and cross
-  entropy for classification.
+  The loss to use for training. Defaults to the loss registered for the
+  task type in `mlr_reflections$torch$default_losses`, which is MSE for
+  regression and cross entropy for classification. For other task types
+  there is no default unless one is registered, and the loss has to be
+  given, because which loss is appropriate depends on the learning
+  problem.
 
 - `packages`:
 
@@ -580,9 +906,11 @@ Creates a new instance of this
   The predict types. See
   [`mlr_reflections$learner_predict_types`](https://mlr3.mlr-org.com/reference/mlr_reflections.html)
   for available values. For regression, the default is `"response"`. For
-  classification, this defaults to `"response"` and `"prob"`. To deviate
-  from the defaults, it is necessary to overwrite the private
-  `$.encode_prediction()` method, see section *Inheriting*.
+  classification, this defaults to `"response"` and `"prob"`. For the
+  task type `"torch"`, it defaults to `"response"`. For other task
+  types, it defaults to all predict types that are registered for the
+  task type. To deviate from the defaults, it is necessary to overwrite
+  the private `$.encode_prediction()` method, see section *Inheriting*.
 
 - `callbacks`:
 
@@ -590,7 +918,10 @@ Creates a new instance of this
   [`TorchCallback`](https://mlr3torch.mlr-org.com/reference/TorchCallback.md)s)  
   The callbacks to use for training. Defaults to an
   empty` `[`list()`](https://rdrr.io/r/base/list.html), i.e. no
-  callbacks.
+  callbacks. Within a stage they are called in the order in which they
+  are provided, unless a callback requests otherwise via its `$weight`,
+  see section *Ordering* of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md).
 
 - `jittable`:
 
@@ -599,7 +930,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method [`format()`](https://rdrr.io/r/base/format.html)
+### `LearnerTorch$format()`
 
 Helper for print outputs.
 
@@ -615,7 +946,7 @@ Helper for print outputs.
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `LearnerTorch$print()`
 
 Prints the object.
 
@@ -632,7 +963,7 @@ Prints the object.
 
 ------------------------------------------------------------------------
 
-### Method `marshal()`
+### `LearnerTorch$marshal()`
 
 Marshal the learner.
 
@@ -653,7 +984,7 @@ self
 
 ------------------------------------------------------------------------
 
-### Method `unmarshal()`
+### `LearnerTorch$unmarshal()`
 
 Unmarshal the learner.
 
@@ -674,7 +1005,7 @@ self
 
 ------------------------------------------------------------------------
 
-### Method [`dataset()`](https://torch.mlverse.org/docs/reference/dataset.html)
+### `LearnerTorch$dataset()`
 
 Create the dataset for a task.
 
@@ -695,7 +1026,7 @@ Create the dataset for a task.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `LearnerTorch$clone()`
 
 The objects of this class are cloneable with this method.
 

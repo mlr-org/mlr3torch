@@ -12,11 +12,6 @@ conveniently retrieving optimizers. Can be converted to a
 mlr3torch_optimizers
 ```
 
-## Format
-
-An object of class `DictionaryMlr3torchOptimizers` (inherits from
-`Dictionary`, `R6`) of length 12.
-
 ## Available Optimizers
 
 adagrad, adam, adamw, rmsprop, sgd

@@ -7,14 +7,14 @@ training a simple neural network on a tabular regression problem. We
 assume that you are familiar with the `mlr3` framework, see e.g. the
 [mlr3 book](https://mlr3book.mlr-org.com/). As a first example, we will
 train a simple multi-layer perceptron (MLP) on the well-known “mtcars”
-task, where the goal is to predict the miles per galleon (‘mpg’) of
-cars. This architecture comes as a predfined learner with `mlr3torch`,
-but you can also easily create new network architectures, see the
-*Neural Networks as Graphs* vignette for a detailed introduoduion. We
-first set a seed for reproducibility, load the library and construct the
-task.
+task, where the goal is to predict the miles per gallon (‘mpg’) of cars.
+This architecture comes as a predefined learner with `mlr3torch`, but
+you can also easily create new network architectures, see the *Neural
+Networks as Graphs* vignette for a detailed introduction. We first set a
+seed for reproducibility, load the library and construct the task.
 
 ``` r
+
 set.seed(314)
 library(mlr3torch)
 task = tsk("mtcars")
@@ -40,6 +40,7 @@ available parameters see
 [`?mlr3torch::LearnerTorchMLP`](https://mlr3torch.mlr-org.com/reference/mlr_learners.mlp.md).
 
 ``` r
+
 mlp = lrn("regr.mlp",
   # architecture parameters
   neurons = c(50, 50),
@@ -50,18 +51,18 @@ mlp
 #> 
 #> ── <LearnerTorchMLP> (regr.mlp): Multi Layer Perceptron ────────────────────────
 #> • Model: -
-#> • Parameters: epochs=30, device=cpu, num_threads=1, num_interop_threads=1,
-#> seed=random, eval_freq=1, measures_train=<list>, measures_valid=<list>,
-#> patience=0, min_delta=0, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,
-#> jit_trace=FALSE, neurons=50,50, p=0.5, activation=<nn_relu>,
-#> activation_args=<list>
+#> • Parameters: epochs=30, device=cpu, num_threads=1, seed=random, eval_freq=1,
+#> measures_train=<list>, measures_valid=<list>, patience=0, min_delta=0,
+#> restore_best_weights=FALSE, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,
+#> cache_task_data=TRUE, jit_trace=FALSE, neurons=50,50, p=0.1,
+#> activation=<nn_relu>, activation_args=<list>
 #> • Validate: NULL
 #> • Packages: mlr3, mlr3torch, and torch
 #> • Predict Types: [response]
 #> • Feature Types: integer, numeric, and lazy_tensor
 #> • Encapsulation: none (fallback: -)
 #> • Properties: internal_tuning, marshal, and validation
-#> • Other settings: use_weights = 'error'
+#> • Other settings: use_weights = 'error', predict_raw = 'FALSE'
 #> • Optimizer: adam
 #> • Loss: mse
 #> • Callbacks: -
@@ -74,6 +75,7 @@ for the test set. Finally, we compute the mean squared error of the
 predictions.
 
 ``` r
+
 # Split the obersevations into training and test set
 splits = partition(task)
 # Train the learner on the train set
@@ -83,8 +85,57 @@ prediction = mlp$predict(task, row_ids = splits$test)
 # Compute the mse
 prediction$score(msr("regr.mse"))
 #> regr.mse 
-#> 289.5967
+#> 247.8627
 ```
+
+## Scaling the Features
+
+Neural networks are sensitive to the scale of their inputs: when the
+features live on very different scales, training is slower and less
+stable. The “mtcars” task is a good example of this, its features range
+from `drat`, which is around 4, to `disp`, which is in the hundreds:
+
+``` r
+
+sapply(task$data(cols = task$feature_names), range)
+#>      am carb cyl  disp drat gear  hp qsec vs    wt
+#> [1,]  0    1   4  71.1 2.76    3  52 14.5  0 1.513
+#> [2,]  1    8   8 472.0 4.93    5 335 22.9  1 5.424
+```
+
+We therefore recommend to standardize the features before they enter the
+network. This is a preprocessing step like any other in `mlr3`, i.e. we
+prepend `po("scale")` to the learner and thereby obtain a
+`GraphLearner`.
+
+``` r
+
+mlp_scaled = as_learner(po("scale") %>>% lrn("regr.mlp",
+  neurons = c(50, 50), batch_size = 32, epochs = 100, device = "cpu"
+))
+```
+
+Below, we compare it with the same network trained on the unscaled
+features.
+
+``` r
+
+mlp_unscaled = lrn("regr.mlp",
+  neurons = c(50, 50), batch_size = 32, epochs = 100, device = "cpu"
+)
+mlp_unscaled$train(task, row_ids = splits$train)
+mlp_unscaled$predict(task, row_ids = splits$test)$score(msr("regr.mse"))
+#> regr.mse 
+#> 144.6317
+
+mlp_scaled$train(task, row_ids = splits$train)
+mlp_scaled$predict(task, row_ids = splits$test)$score(msr("regr.mse"))
+#> regr.mse 
+#> 26.36342
+```
+
+Because scaling is a property of the data and not of a specific
+architecture, this naturally applies to other learners as well.
 
 ## Configuring a Learner
 
@@ -121,7 +172,7 @@ as the Mean Squared Error (`nn_mse_loss`), the Mean Absolute Error
 class. It provides a thin wrapper around the torch loss functions and
 annotates them with meta information, most importantly a
 [`paradox::ParamSet`](https://paradox.mlr-org.com/reference/ParamSet.html)
-that allows to configure the loss function. Such an object can be
+that makes the loss function configurable. Such an object can be
 constructed using `t_loss(<key>)`. Below, we construct the L1 loss
 function, which is also known as Mean Absolute Error (MAE). The printed
 output below informs us about the wrapped loss function `(nn_l1_loss`),
@@ -129,19 +180,21 @@ the configured parameters, the packages it depends on and for which task
 types it can be used.
 
 ``` r
+
 l1 = t_loss("l1")
 l1
 #> <TorchLoss:l1> Absolute Error
 #> * Generator: nn_l1_loss
 #> * Parameters: list()
 #> * Packages: torch,mlr3torch
-#> * Task Types: regr
+#> * Task Types: regr,torch
 ```
 
 Its `ParamSet` contains only one parameter, namely `reduction`, which
 specifies how the loss is reduced over the batch.
 
 ``` r
+
 # the paradox::ParamSet of the loss
 l1$param_set
 #> <ParamSet(1)>
@@ -155,6 +208,7 @@ of the learner. The parameters of the loss are added to the learner’s
 `ParamSet`, prefixed with `"loss."`.
 
 ``` r
+
 mlp_l1 = lrn("regr.mlp", loss = l1)
 mlp_l1$param_set$values$loss.reduction
 #> NULL
@@ -164,6 +218,7 @@ All predefined loss functions are stored in the `mlr3torch_losses`
 dictionary, from which they can be retrieved using `t_loss(<key>)`.
 
 ``` r
+
 mlr3torch_losses
 #> <DictionaryMlr3torchLosses> with 3 stored values
 #> Keys: cross_entropy, l1, mse
@@ -181,6 +236,7 @@ can be constructed using `t_opt(<key>)`. For optimizers, the associated
 `ParamSet` is more interesting as we see below:
 
 ``` r
+
 sgd = t_opt("sgd")
 sgd
 #> <TorchOptimizer:sgd> Stochastic Gradient Descent
@@ -195,7 +251,7 @@ sgd$param_set
 #> 1:           lr ParamDbl     0   Inf     Inf <NoDefault[0]> [NULL]
 #> 2:     momentum ParamDbl     0     1     Inf              0 [NULL]
 #> 3:    dampening ParamDbl     0     1     Inf              0 [NULL]
-#> 4: weight_decay ParamDbl     0     1     Inf              0 [NULL]
+#> 4: weight_decay ParamDbl     0   Inf     Inf              0 [NULL]
 #> 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]
 #> 6: param_groups ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
 ```
@@ -206,6 +262,7 @@ construction, or afterwards using the `$set_values()` method of the
 parameter set.
 
 ``` r
+
 sgd$param_set$set_values(
   lr = 0.5, # increase learning rate
   nesterov = FALSE # no nesterov momentum
@@ -217,6 +274,7 @@ Below we see that the optimizer’s parameters are added to the learner’s
 values we specified.
 
 ``` r
+
 mlp_sgd = lrn("regr.mlp", optimizer = sgd)
 as.data.table(mlp_sgd$param_set)[
   startsWith(id, "opt.")][[1L]]
@@ -237,6 +295,7 @@ All available optimizers are stored in the `mlr3torch_optimizers`
 dictionary.
 
 ``` r
+
 mlr3torch_optimizers
 #> <DictionaryMlr3torchOptimizers> with 5 stored values
 #> Keys: adagrad, adam, adamw, rmsprop, sgd
@@ -244,10 +303,10 @@ mlr3torch_optimizers
 
 ### Callbacks
 
-The third important configuration option are callbacks which allow to
-customize the training process. This allows saving model checkpoints,
-logging metrics, or implementing custom functionality for specific
-training scenarios. For a tutorial on how to implement a custom
+The third important configuration option are callbacks, which make it
+possible to customize the training process. This allows saving model
+checkpoints, logging metrics, or implementing custom functionality for
+specific training scenarios. For a tutorial on how to implement a custom
 callback, see the *Custom Callbacks* vignette. Here, we will only show
 how to use predefined callbacks. Below, we retrieve the `"history"`
 callback using
@@ -256,6 +315,7 @@ has no parameters and merely saves the training and validation history
 in the learner so it can be accessed afterwards.
 
 ``` r
+
 history = t_clbk("history")
 history
 #> <TorchCallback:history> History
@@ -269,6 +329,7 @@ help page of the wrapped object using the `$help()` method. Note that
 this is also possible for the loss and optimizer.
 
 ``` r
+
 history$help()
 ```
 
@@ -276,6 +337,7 @@ All predefined callbacks are stored in the `mlr3torch_callbacks`
 dictionary.
 
 ``` r
+
 mlr3torch_callbacks
 #> <DictionaryMlr3torchCallbacks> with 11 stored values
 #> Keys: checkpoint, history, lr_cosine_annealing, lr_lambda,
@@ -294,6 +356,7 @@ parameters of `LearnerTorch` take common
 whereas the loss function must be a `TorchLoss`.
 
 ``` r
+
 mlp_custom = lrn("regr.mlp",
   # construction arguments
   optimizer = sgd, loss = l1, callbacks = history,
@@ -312,18 +375,19 @@ mlp_custom
 #> 
 #> ── <LearnerTorchMLP> (regr.mlp): Multi Layer Perceptron ────────────────────────
 #> • Model: -
-#> • Parameters: epochs=30, device=cpu, num_threads=1, num_interop_threads=1,
-#> seed=random, eval_freq=1, measures_train=<list>,
-#> measures_valid=<MeasureRegrSimple>, patience=0, min_delta=0, batch_size=32,
-#> shuffle=TRUE, tensor_dataset=FALSE, jit_trace=FALSE, neurons=50,50, p=0.5,
-#> activation=<nn_relu>, activation_args=<list>, opt.lr=0.5, opt.nesterov=FALSE
+#> • Parameters: epochs=30, device=cpu, num_threads=1, seed=random, eval_freq=1,
+#> measures_train=<list>, measures_valid=<MeasureRegrSimple>, patience=0,
+#> min_delta=0, restore_best_weights=FALSE, batch_size=32, shuffle=TRUE,
+#> tensor_dataset=FALSE, cache_task_data=TRUE, jit_trace=FALSE, neurons=50,50,
+#> p=0.1, activation=<nn_relu>, activation_args=<list>, opt.lr=0.5,
+#> opt.nesterov=FALSE
 #> • Validate: 0.3
 #> • Packages: mlr3, mlr3torch, and torch
 #> • Predict Types: [response]
 #> • Feature Types: integer, numeric, and lazy_tensor
 #> • Encapsulation: none (fallback: -)
 #> • Properties: internal_tuning, marshal, and validation
-#> • Other settings: use_weights = 'error'
+#> • Other settings: use_weights = 'error', predict_raw = 'FALSE'
 #> • Optimizer: sgd
 #> • Loss: l1
 #> • Callbacks: history
@@ -333,6 +397,7 @@ We now train the learner on the “mtcars” task again and use the same
 train-test split as before.
 
 ``` r
+
 mlp_custom$train(task, row_ids = splits$train)
 prediction_custom = mlp_custom$predict(task, row_ids = splits$test)
 ```
@@ -343,32 +408,34 @@ the learning rate, our configured `mlp_custom` learner has a lower MAE
 than the default `mlp` learner.
 
 ``` r
+
 prediction_custom$score(msr("regr.mae"))
 #> regr.mae 
-#> 13.14184
+#> 7.107884
 prediction$score(msr("regr.mae"))
 #> regr.mae 
-#> 15.44357
+#> 14.04447
 ```
 
 Because we configured the learner to use the history callback, we can
 find the validation history in its `$model` slot:
 
 ``` r
+
 head(mlp_custom$model$callbacks$history)
 #>    epoch valid.regr.mae
 #>    <num>          <num>
-#> 1:     1   1.952632e+04
-#> 2:     2   1.480274e+10
-#> 3:     3   1.907161e+09
-#> 4:     4   6.248891e+04
-#> 5:     5   8.702154e+01
-#> 6:     6   3.612310e+01
+#> 1:     1   4.854304e+06
+#> 2:     2   6.452428e+01
+#> 3:     3   4.424062e+02
+#> 4:     4   1.363023e+01
+#> 5:     5   3.004844e+02
+#> 6:     6   1.792239e+01
 ```
 
 The plot below shows it for the epochs 6 to 30.
 
-![](get_started_files/figure-html/unnamed-chunk-20-1.png)
+![](get_started_files/figure-html/unnamed-chunk-23-1.png)
 
 Other important information that is stored in the `Learner`’s model is
 the `$network`, which is the underlying `nn_module`. For a full

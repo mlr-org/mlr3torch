@@ -19,9 +19,30 @@ Items from this dictionary can be retrieved using
 
 Defined by the constructor argument `param_set`. If no parameter set is
 provided during construction, the parameter set is constructed by
-creating a parameter for each argument of the wrapped loss function,
-where the parameters are then of type
+creating a parameter for each argument of the wrapped optimizer, where
+the parameters are then of type
 [`ParamUty`](https://paradox.mlr-org.com/reference/Domain.html).
+
+In addition, every `TorchOptimizer` has the parameter:
+
+- `param_groups` :: `function(params) -> list()`  
+  A function that receives the named
+  [`list()`](https://rdrr.io/r/base/list.html) of network parameters and
+  returns a [`list()`](https://rdrr.io/r/base/list.html) of parameter
+  groups, in the format expected by the wrapped `torch` optimizer. This
+  makes it possible to optimize different parts of the network
+  differently, e.g. to give the first layer a different learning rate
+  than the rest:
+
+      param_groups = function(params) list(
+        list(params = params[startsWith(names(params), "0.")], lr = 0.9),
+        list(params = params[!startsWith(names(params), "0.")], lr = 0.001)
+      )
+
+  When a
+  [`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
+  is configured, this is reachable as `opt.param_groups`. Default is
+  `NULL`, i.e. all parameters form a single group.
 
 ## See also
 
@@ -40,14 +61,14 @@ Other Torch Descriptor:
 
 ## Super class
 
-[`mlr3torch::TorchDescriptor`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.md)
+[`TorchDescriptor`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.md)
 -\> `TorchOptimizer`
 
 ## Methods
 
 ### Public methods
 
-- [`TorchOptimizer$new()`](#method-TorchOptimizer-new)
+- [`TorchOptimizer$new()`](#method-TorchOptimizer-initialize)
 
 - [`TorchOptimizer$generate()`](#method-TorchOptimizer-generate)
 
@@ -55,12 +76,12 @@ Other Torch Descriptor:
 
 Inherited methods
 
-- [`mlr3torch::TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.html#method-help)
-- [`mlr3torch::TorchDescriptor$print()`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.html#method-print)
+- [`TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.html#method-help)
+- [`TorchDescriptor$print()`](https://mlr3torch.mlr-org.com/reference/TorchDescriptor.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `TorchOptimizer$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -113,7 +134,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `generate()`
+### `TorchOptimizer$generate()`
 
 Instantiates the optimizer.
 
@@ -135,7 +156,7 @@ Instantiates the optimizer.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `TorchOptimizer$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -188,7 +209,7 @@ torch_opt$param_set
 #> 1:           lr ParamDbl     0   Inf     Inf <NoDefault[0]>    0.1
 #> 2:     momentum ParamDbl     0     1     Inf              0 [NULL]
 #> 3:    dampening ParamDbl     0     1     Inf              0 [NULL]
-#> 4: weight_decay ParamDbl     0     1     Inf              0 [NULL]
+#> 4: weight_decay ParamDbl     0   Inf     Inf              0 [NULL]
 #> 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]
 #> 6: param_groups ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
 torch_opt$label
@@ -223,65 +244,69 @@ optim_sgd(net$parameters, lr = 0.1)
 learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
 # The parameters of the optimizer are added to the learner's parameter set
 learner$param_set
-#> <ParamSetCollection(37)>
-#>                      id    class lower upper nlevels        default
-#>                  <char>   <char> <num> <num>   <num>         <list>
-#>  1:              epochs ParamInt     0   Inf     Inf <NoDefault[0]>
-#>  2:              device ParamFct    NA    NA      12 <NoDefault[0]>
-#>  3:         num_threads ParamInt     1   Inf     Inf <NoDefault[0]>
-#>  4: num_interop_threads ParamInt     1   Inf     Inf <NoDefault[0]>
-#>  5:                seed ParamInt  -Inf   Inf     Inf <NoDefault[0]>
-#>  6:           eval_freq ParamInt     1   Inf     Inf <NoDefault[0]>
-#>  7:      measures_train ParamUty    NA    NA     Inf <NoDefault[0]>
-#>  8:      measures_valid ParamUty    NA    NA     Inf <NoDefault[0]>
-#>  9:            patience ParamInt     0   Inf     Inf <NoDefault[0]>
-#> 10:           min_delta ParamDbl     0   Inf     Inf <NoDefault[0]>
-#> 11:          batch_size ParamInt     1   Inf     Inf <NoDefault[0]>
-#> 12:             shuffle ParamLgl    NA    NA       2          FALSE
-#> 13:             sampler ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 14:       batch_sampler ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 15:         num_workers ParamInt     0   Inf     Inf              0
-#> 16:          collate_fn ParamUty    NA    NA     Inf         [NULL]
-#> 17:          pin_memory ParamLgl    NA    NA       2          FALSE
-#> 18:           drop_last ParamLgl    NA    NA       2          FALSE
-#> 19:             timeout ParamDbl  -Inf   Inf     Inf             -1
-#> 20:      worker_init_fn ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 21:      worker_globals ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 22:     worker_packages ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 23:      tensor_dataset ParamFct    NA    NA       1 <NoDefault[0]>
-#> 24:           jit_trace ParamLgl    NA    NA       2 <NoDefault[0]>
-#> 25:             neurons ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 26:                   p ParamDbl     0     1     Inf <NoDefault[0]>
-#> 27:            n_layers ParamInt     1   Inf     Inf <NoDefault[0]>
-#> 28:          activation ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 29:     activation_args ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 30:               shape ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 31:              opt.lr ParamDbl     0   Inf     Inf <NoDefault[0]>
-#> 32:        opt.momentum ParamDbl     0     1     Inf              0
-#> 33:       opt.dampening ParamDbl     0     1     Inf              0
-#> 34:    opt.weight_decay ParamDbl     0     1     Inf              0
-#> 35:        opt.nesterov ParamLgl    NA    NA       2          FALSE
-#> 36:    opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
-#> 37:      loss.reduction ParamFct    NA    NA       2           mean
-#>                      id    class lower upper nlevels        default
-#>                  <char>   <char> <num> <num>   <num>         <list>
+#> <ParamSetCollection(41)>
+#>                       id    class lower upper nlevels        default
+#>                   <char>   <char> <num> <num>   <num>         <list>
+#>  1:               epochs ParamInt     0   Inf     Inf <NoDefault[0]>
+#>  2:               device ParamUty    NA    NA     Inf <NoDefault[0]>
+#>  3:          num_threads ParamInt     1   Inf     Inf <NoDefault[0]>
+#>  4:  num_interop_threads ParamInt     1   Inf     Inf <NoDefault[0]>
+#>  5:                 seed ParamInt  -Inf   Inf     Inf <NoDefault[0]>
+#>  6:               resume ParamUty    NA    NA     Inf         [NULL]
+#>  7:            eval_freq ParamInt     1   Inf     Inf <NoDefault[0]>
+#>  8:       measures_train ParamUty    NA    NA     Inf <NoDefault[0]>
+#>  9:       measures_valid ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 10:             patience ParamInt     0   Inf     Inf <NoDefault[0]>
+#> 11:            min_delta ParamDbl     0   Inf     Inf <NoDefault[0]>
+#> 12: restore_best_weights ParamLgl    NA    NA       2 <NoDefault[0]>
+#> 13:           batch_size ParamInt     1   Inf     Inf <NoDefault[0]>
+#> 14:   batch_size_predict ParamInt     1   Inf     Inf <NoDefault[0]>
+#> 15:              shuffle ParamLgl    NA    NA       2          FALSE
+#> 16:              sampler ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 17:        batch_sampler ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 18:          num_workers ParamInt     0   Inf     Inf              0
+#> 19:           collate_fn ParamUty    NA    NA     Inf         [NULL]
+#> 20:           pin_memory ParamLgl    NA    NA       2          FALSE
+#> 21:            drop_last ParamLgl    NA    NA       2          FALSE
+#> 22:              timeout ParamDbl  -Inf   Inf     Inf             -1
+#> 23:       worker_init_fn ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 24:       worker_globals ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 25:      worker_packages ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 26:       tensor_dataset ParamFct    NA    NA       1 <NoDefault[0]>
+#> 27:      cache_task_data ParamLgl    NA    NA       2 <NoDefault[0]>
+#> 28:            jit_trace ParamLgl    NA    NA       2 <NoDefault[0]>
+#> 29:              neurons ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 30:                    p ParamDbl     0     1     Inf <NoDefault[0]>
+#> 31:             n_layers ParamInt     1   Inf     Inf <NoDefault[0]>
+#> 32:           activation ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 33:      activation_args ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 34:                shape ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 35:               opt.lr ParamDbl     0   Inf     Inf <NoDefault[0]>
+#> 36:         opt.momentum ParamDbl     0     1     Inf              0
+#> 37:        opt.dampening ParamDbl     0     1     Inf              0
+#> 38:     opt.weight_decay ParamDbl     0   Inf     Inf              0
+#> 39:         opt.nesterov ParamLgl    NA    NA       2          FALSE
+#> 40:     opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
+#> 41:       loss.reduction ParamFct    NA    NA       2           mean
+#>                       id    class lower upper nlevels        default
+#>                   <char>   <char> <num> <num>   <num>         <list>
 #>            value
 #>           <list>
 #>  1:       [NULL]
 #>  2:         auto
 #>  3:            1
-#>  4:            1
+#>  4:       [NULL]
 #>  5:       random
-#>  6:            1
-#>  7:    <list[0]>
+#>  6:       [NULL]
+#>  7:            1
 #>  8:    <list[0]>
-#>  9:            0
+#>  9:    <list[0]>
 #> 10:            0
-#> 11:       [NULL]
-#> 12:         TRUE
+#> 11:            0
+#> 12:        FALSE
 #> 13:       [NULL]
 #> 14:       [NULL]
-#> 15:       [NULL]
+#> 15:         TRUE
 #> 16:       [NULL]
 #> 17:       [NULL]
 #> 18:       [NULL]
@@ -289,21 +314,25 @@ learner$param_set
 #> 20:       [NULL]
 #> 21:       [NULL]
 #> 22:       [NULL]
-#> 23:        FALSE
-#> 24:        FALSE
-#> 25:             
-#> 26:          0.5
-#> 27:       [NULL]
-#> 28: <nn_relu[1]>
-#> 29:    <list[0]>
-#> 30:       [NULL]
+#> 23:       [NULL]
+#> 24:       [NULL]
+#> 25:       [NULL]
+#> 26:        FALSE
+#> 27:         TRUE
+#> 28:        FALSE
+#> 29:             
+#> 30:          0.1
 #> 31:       [NULL]
-#> 32:       [NULL]
-#> 33:       [NULL]
+#> 32: <nn_relu[1]>
+#> 33:    <list[0]>
 #> 34:       [NULL]
 #> 35:       [NULL]
 #> 36:       [NULL]
 #> 37:       [NULL]
+#> 38:       [NULL]
+#> 39:       [NULL]
+#> 40:       [NULL]
+#> 41:       [NULL]
 #>            value
 #>           <list>
 ```

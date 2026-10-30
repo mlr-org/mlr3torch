@@ -13,10 +13,14 @@ See
 ## See also
 
 Other Learner:
+[`GraphLearnerTorch`](https://mlr3torch.mlr-org.com/reference/GraphLearnerTorch.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
 [`mlr_learners.ft_transformer`](https://mlr3torch.mlr-org.com/reference/mlr_learners.ft_transformer.md),
 [`mlr_learners.mlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.mlp.md),
 [`mlr_learners.module`](https://mlr3torch.mlr-org.com/reference/mlr_learners.module.md),
+[`mlr_learners.realmlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.realmlp.md),
 [`mlr_learners.tab_resnet`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tab_resnet.md),
+[`mlr_learners.tabm`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tabm.md),
 [`mlr_learners.torch_featureless`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torch_featureless.md),
 [`mlr_learners_torch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md),
 [`mlr_learners_torch_image`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_image.md)
@@ -24,6 +28,7 @@ Other Learner:
 Other Graph Network:
 [`ModelDescriptor()`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md),
 [`TorchIngressToken()`](https://mlr3torch.mlr-org.com/reference/TorchIngressToken.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
 [`mlr_pipeops_module`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md),
 [`mlr_pipeops_torch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.md),
 [`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md),
@@ -33,12 +38,13 @@ Other Graph Network:
 [`model_descriptor_to_learner()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_learner.md),
 [`model_descriptor_to_module()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_module.md),
 [`model_descriptor_union()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_union.md),
-[`nn_graph()`](https://mlr3torch.mlr-org.com/reference/nn_graph.md)
+[`nn_graph()`](https://mlr3torch.mlr-org.com/reference/nn_graph.md),
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/reference/pipeop_torch.md)
 
 ## Super classes
 
 [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html) -\>
-[`mlr3torch::LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
+[`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
 -\> `LearnerTorchModel`
 
 ## Active bindings
@@ -53,7 +59,7 @@ Other Graph Network:
 
 ### Public methods
 
-- [`LearnerTorchModel$new()`](#method-LearnerTorchModel-new)
+- [`LearnerTorchModel$new()`](#method-LearnerTorchModel-initialize)
 
 - [`LearnerTorchModel$clone()`](#method-LearnerTorchModel-clone)
 
@@ -68,15 +74,15 @@ Inherited methods
 - [`mlr3::Learner$reset()`](https://mlr3.mlr-org.com/reference/Learner.html#method-reset)
 - [`mlr3::Learner$selected_features()`](https://mlr3.mlr-org.com/reference/Learner.html#method-selected_features)
 - [`mlr3::Learner$train()`](https://mlr3.mlr-org.com/reference/Learner.html#method-train)
-- [`mlr3torch::LearnerTorch$dataset()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-dataset)
-- [`mlr3torch::LearnerTorch$format()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-format)
-- [`mlr3torch::LearnerTorch$marshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-marshal)
-- [`mlr3torch::LearnerTorch$print()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-print)
-- [`mlr3torch::LearnerTorch$unmarshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-unmarshal)
+- [`LearnerTorch$dataset()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-dataset)
+- [`LearnerTorch$format()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-format)
+- [`LearnerTorch$marshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-marshal)
+- [`LearnerTorch$print()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-print)
+- [`LearnerTorch$unmarshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-unmarshal)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LearnerTorchModel$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -92,7 +98,9 @@ Creates a new instance of this
       loss = NULL,
       callbacks = list(),
       packages = character(0),
-      feature_types = NULL
+      feature_types = NULL,
+      target_batchgetter = NULL,
+      predict_types = NULL
     )
 
 #### Arguments
@@ -120,8 +128,13 @@ Creates a new instance of this
 - `properties`:
 
   (`NULL` or [`character()`](https://rdrr.io/r/base/character.html))  
-  The properties of the learner. Defaults to all available properties
-  for the given task type.
+  The properties of the learner. Defaults to the properties that every
+  [`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
+  has, i.e. `"marshal"`, `"validation"` and `"internal_tuning"` (and
+  `"twoclass"` and `"multiclass"` for classification). Other properties
+  such as `"weights"`, `"missings"`, `"new_levels"` or `"offset"` must
+  only be claimed if the network and the ingress tokens handle them, as
+  mlr3 then skips its checks for them.
 
 - `optimizer`:
 
@@ -138,7 +151,9 @@ Creates a new instance of this
   ([`list()`](https://rdrr.io/r/base/list.html) of
   [`TorchCallback`](https://mlr3torch.mlr-org.com/reference/TorchCallback.md)s)  
   The callbacks used during training. Must have unique ids. They are
-  executed in the order in which they are provided
+  executed in the order in which they are provided, unless a callback
+  requests otherwise via its `$weight`, see section *Ordering* of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md).
 
 - `packages`:
 
@@ -150,9 +165,33 @@ Creates a new instance of this
   (`NULL` or [`character()`](https://rdrr.io/r/base/character.html))  
   The feature types. Defaults to all available feature types.
 
+- `target_batchgetter`:
+
+  (`function()` or `NULL`)  
+  Converts the target columns of a batch into the target tensor `y` that
+  the loss is applied to. Takes an argument `data`, a
+  [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html)
+  with only the target columns, and optionally an argument `x`, the
+  named list of feature tensors of the batch, which is what a target
+  that is a function of the input needs, see
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md).
+  If `NULL` (default), it is taken from the task via
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md),
+  which the built-in task types provide, and a
+  [`TaskTorch`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_torch.md)
+  only if it has a `default_target_batchgetter` or no target at all, in
+  which case the batches have no `y` element.
+
+- `predict_types`:
+
+  ([`character()`](https://rdrr.io/r/base/character.html))  
+  The predict types. See
+  [`mlr_reflections$learner_predict_types`](https://mlr3.mlr-org.com/reference/mlr_reflections.html)
+  for available values.
+
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `LearnerTorchModel$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -197,12 +236,12 @@ learner$train(task, ids$train)
 learner$predict(task, ids$test)
 #> 
 #> ── <PredictionClassif> for 50 observations: ────────────────────────────────────
-#>  row_ids     truth response
-#>        2    setosa   setosa
-#>        4    setosa   setosa
-#>        8    setosa   setosa
-#>      ---       ---      ---
-#>      144 virginica   setosa
-#>      146 virginica   setosa
-#>      148 virginica   setosa
+#>  row_ids     truth   response
+#>        1    setosa versicolor
+#>        2    setosa versicolor
+#>        5    setosa versicolor
+#>      ---       ---        ---
+#>      143 virginica versicolor
+#>      147 virginica versicolor
+#>      148 virginica versicolor
 ```

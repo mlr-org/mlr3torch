@@ -3,8 +3,8 @@
 Creates a torch
 [dataset](https://torch.mlverse.org/docs/reference/dataset.html) from an
 mlr3 [`Task`](https://mlr3.mlr-org.com/reference/Task.html). The
-resulting dataset's `$.get_batch()` method returns a list with elements
-`x`, `y` and `index`:
+resulting dataset's `$.getbatch()` method returns a list with elements
+`x`, `y` and `.index`:
 
 - `x` is a list with tensors, whose content is defined by the parameter
   `feature_ingress_tokens`.
@@ -19,7 +19,12 @@ The data is returned on the device specified by the parameter `device`.
 ## Usage
 
 ``` r
-task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL)
+task_dataset(
+  task,
+  feature_ingress_tokens,
+  target_batchgetter = NULL,
+  cache_data = TRUE
+)
 ```
 
 ## Arguments
@@ -39,12 +44,23 @@ task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL)
 
 - target_batchgetter:
 
-  (`function(data, device)`)  
-  A function taking in arguments `data`, which is a `data.table`
-  containing only the target variable, and `device`. It must return the
-  target as a torch
-  [tensor](https://torch.mlverse.org/docs/reference/torch_tensor.html)
-  on the selected device.
+  (`function()` or `NULL`)  
+  Converts the target columns of a batch into the target tensor `y` that
+  the loss is applied to. Takes an argument `data`, a
+  [`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html)
+  with only the target columns, and optionally an argument `x`, the
+  named list of feature tensors of the batch, which is what a target
+  that is a function of the input needs, see
+  [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md).
+  If `NULL` (default), the batches have no `y` element.
+
+- cache_data:
+
+  (`logical(1)`)  
+  Whether to retrieve the data from the task once (in `$initialize()`)
+  and to take the batches from it, instead of retrieving every batch
+  from the task, which is slow. This needs memory for a copy of the task
+  data (lazy tensor columns only contain indices and are small).
 
 ## Value
 

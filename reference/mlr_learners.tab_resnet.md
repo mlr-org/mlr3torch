@@ -1,6 +1,12 @@
 # Tabular ResNet
 
-Tabular resnet.
+A residual network for tabular data, following Gorishniy (2021).
+
+The features are first projected to dimension `d_block` by a linear
+layer, followed by `n_blocks` residual blocks. Each block computes
+`x + Dropout(Linear(Dropout(ReLU(Linear(BatchNorm(x))))))`, where the
+two dropout ratios are `dropout1` and `dropout2`. The prediction is
+`Linear(ReLU(BatchNorm(x)))` of the output `x` of the last block.
 
 ## Dictionary
 
@@ -65,9 +71,13 @@ Learning for Tabular Data.” *arXiv*, **2106.11959**.
 ## See also
 
 Other Learner:
+[`GraphLearnerTorch`](https://mlr3torch.mlr-org.com/reference/GraphLearnerTorch.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
 [`mlr_learners.ft_transformer`](https://mlr3torch.mlr-org.com/reference/mlr_learners.ft_transformer.md),
 [`mlr_learners.mlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.mlp.md),
 [`mlr_learners.module`](https://mlr3torch.mlr-org.com/reference/mlr_learners.module.md),
+[`mlr_learners.realmlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.realmlp.md),
+[`mlr_learners.tabm`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tabm.md),
 [`mlr_learners.torch_featureless`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torch_featureless.md),
 [`mlr_learners_torch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md),
 [`mlr_learners_torch_image`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_image.md),
@@ -76,14 +86,14 @@ Other Learner:
 ## Super classes
 
 [`mlr3::Learner`](https://mlr3.mlr-org.com/reference/Learner.html) -\>
-[`mlr3torch::LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
+[`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
 -\> `LearnerTorchTabResNet`
 
 ## Methods
 
 ### Public methods
 
-- [`LearnerTorchTabResNet$new()`](#method-LearnerTorchTabResNet-new)
+- [`LearnerTorchTabResNet$new()`](#method-LearnerTorchTabResNet-initialize)
 
 - [`LearnerTorchTabResNet$clone()`](#method-LearnerTorchTabResNet-clone)
 
@@ -98,15 +108,15 @@ Inherited methods
 - [`mlr3::Learner$reset()`](https://mlr3.mlr-org.com/reference/Learner.html#method-reset)
 - [`mlr3::Learner$selected_features()`](https://mlr3.mlr-org.com/reference/Learner.html#method-selected_features)
 - [`mlr3::Learner$train()`](https://mlr3.mlr-org.com/reference/Learner.html#method-train)
-- [`mlr3torch::LearnerTorch$dataset()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-dataset)
-- [`mlr3torch::LearnerTorch$format()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-format)
-- [`mlr3torch::LearnerTorch$marshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-marshal)
-- [`mlr3torch::LearnerTorch$print()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-print)
-- [`mlr3torch::LearnerTorch$unmarshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-unmarshal)
+- [`LearnerTorch$dataset()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-dataset)
+- [`LearnerTorch$format()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-format)
+- [`LearnerTorch$marshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-marshal)
+- [`LearnerTorch$print()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-print)
+- [`LearnerTorch$unmarshal()`](https://mlr3torch.mlr-org.com/reference/LearnerTorch.html#method-unmarshal)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LearnerTorchTabResNet$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -146,7 +156,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `LearnerTorchTabResNet$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -185,5 +195,5 @@ predictions = learner$predict(task, row_ids = ids$test)
 # Score the predictions
 predictions$score()
 #> classif.ce 
-#>       0.68 
+#>       0.56 
 ```

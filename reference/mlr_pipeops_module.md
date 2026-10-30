@@ -4,7 +4,8 @@
 [`nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html)
 or `function` that is being called during the `train` phase of this
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html).
-By doing so, this allows to assemble `PipeOpModule`s in a computational
+By doing so, this makes it possible to assemble `PipeOpModule`s in a
+computational
 [`mlr3pipelines::Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)
 that represents either a neural network or a preprocessing graph of a
 [`lazy_tensor`](https://mlr3torch.mlr-org.com/reference/lazy_tensor.md).
@@ -47,6 +48,7 @@ channels are defined. Arguments are **not** matched by name.
 Other Graph Network:
 [`ModelDescriptor()`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md),
 [`TorchIngressToken()`](https://mlr3torch.mlr-org.com/reference/TorchIngressToken.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
 [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md),
 [`mlr_pipeops_torch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.md),
 [`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md),
@@ -56,11 +58,8 @@ Other Graph Network:
 [`model_descriptor_to_learner()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_learner.md),
 [`model_descriptor_to_module()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_module.md),
 [`model_descriptor_union()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_union.md),
-[`nn_graph()`](https://mlr3torch.mlr-org.com/reference/nn_graph.md)
-
-Other PipeOp:
-[`mlr_pipeops_torch_callbacks`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_callbacks.md),
-[`mlr_pipeops_torch_optimizer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_optimizer.md)
+[`nn_graph()`](https://mlr3torch.mlr-org.com/reference/nn_graph.md),
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/reference/pipeop_torch.md)
 
 ## Super class
 
@@ -78,7 +77,7 @@ Other PipeOp:
 
 ### Public methods
 
-- [`PipeOpModule$new()`](#method-PipeOpModule-new)
+- [`PipeOpModule$new()`](#method-PipeOpModule-initialize)
 
 - [`PipeOpModule$clone()`](#method-PipeOpModule-clone)
 
@@ -91,7 +90,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpModule$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -149,7 +148,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpModule$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -209,37 +208,26 @@ str(out)
 #>  $ out2:Float [1:1, 1:2]
 
 # How such a PipeOpModule is usually generated
-graph = po("torch_ingress_num") %>>% po("nn_linear", out_features = 10L)
+graph = po("torch_ingress_num") %>>% nn("linear", out_features = 10L)
 result = graph$train(tsk("iris"))
 # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph
 result[[1]]$graph
 #> 
 #> ── Graph with 2 PipeOps: ───────────────────────────────────────────────────────
-#>                 ID         State  sccssors         prdcssors
-#>             <char>        <char>    <char>            <char>
-#>  torch_ingress_num <<UNTRAINED>> nn_linear                  
-#>          nn_linear <<UNTRAINED>>           torch_ingress_num
+#>                 ID         State sccssors         prdcssors
+#>             <char>        <char>   <char>            <char>
+#>  torch_ingress_num <<UNTRAINED>>   linear                  
+#>             linear <<UNTRAINED>>          torch_ingress_num
 #> 
-#> ── Pipeline: <INPUT> -> torch_ingress_num -> nn_linear -> <OUTPUT> 
+#> ── Pipeline: <INPUT> -> torch_ingress_num -> linear -> <OUTPUT> 
 linear_module = result[[1L]]$graph$pipeops$nn_linear
 linear_module
-#> 
-#> ── PipeOp <nn_linear>: not trained ─────────────────────────────────────────────
-#> Values: list()
-#> 
-#> ── Input channels: 
-#>    name        train predict
-#>  <char>       <char>  <char>
-#>   input torch_tensor    NULL
-#> 
-#> ── Output channels: 
-#>    name        train predict
-#>  <char>       <char>  <char>
-#>  output torch_tensor    NULL
+#> NULL
 formalArgs(linear_module$module)
-#> [1] "input"
+#> Warning: argument is not a function
+#> NULL
 linear_module$input$name
-#> [1] "input"
+#> NULL
 
 # Constructing a PipeOpModule using a simple function
 po_add1 = po("module",

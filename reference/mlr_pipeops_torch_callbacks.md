@@ -32,10 +32,6 @@ Other Model Configuration:
 [`mlr_pipeops_torch_optimizer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_optimizer.md),
 [`model_descriptor_union()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_union.md)
 
-Other PipeOp:
-[`mlr_pipeops_module`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md),
-[`mlr_pipeops_torch_optimizer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_optimizer.md)
-
 ## Super class
 
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
@@ -45,7 +41,7 @@ Other PipeOp:
 
 ### Public methods
 
-- [`PipeOpTorchCallbacks$new()`](#method-PipeOpTorchCallbacks-new)
+- [`PipeOpTorchCallbacks$new()`](#method-PipeOpTorchCallbacks-initialize)
 
 - [`PipeOpTorchCallbacks$clone()`](#method-PipeOpTorchCallbacks-clone)
 
@@ -58,7 +54,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchCallbacks$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -94,7 +90,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchCallbacks$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -113,12 +109,11 @@ The objects of this class are cloneable with this method.
 ``` r
 po_cb = po("torch_callbacks", "checkpoint")
 po_cb$param_set
-#> <ParamSetCollection(3)>
-#>                      id    class lower upper nlevels        default  value
-#>                  <char>   <char> <num> <num>   <num>         <list> <list>
-#> 1:      checkpoint.path ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
-#> 2:      checkpoint.freq ParamInt     1   Inf     Inf <NoDefault[0]> [NULL]
-#> 3: checkpoint.freq_type ParamFct    NA    NA       2          epoch [NULL]
+#> <ParamSetCollection(2)>
+#>                 id    class lower upper nlevels        default  value
+#>             <char>   <char> <num> <num>   <num>         <list> <list>
+#> 1: checkpoint.path ParamUty    NA    NA     Inf <NoDefault[0]> [NULL]
+#> 2: checkpoint.freq ParamInt     1   Inf     Inf <NoDefault[0]> [NULL]
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))
 mdin[[1L]]$callbacks
 #> named list()

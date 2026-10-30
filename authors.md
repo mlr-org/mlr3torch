@@ -20,15 +20,15 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/mlr-org/mlr3torch/blob/v0.3.3/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/mlr-org/mlr3torch/blob/main/DESCRIPTION)
 
 Fischer S, Binder M (2026). *mlr3torch: Deep Learning with 'mlr3'*. R
-package version 0.3.3, <https://mlr3torch.mlr-org.com/>.
+package version 0.4.0, <https://mlr3torch.mlr-org.com/>.
 
     @Manual{,
       title = {mlr3torch: Deep Learning with 'mlr3'},
       author = {Sebastian Fischer and Martin Binder},
       year = {2026},
-      note = {R package version 0.3.3},
+      note = {R package version 0.4.0},
       url = {https://mlr3torch.mlr-org.com/},
     }

@@ -3,7 +3,13 @@
 Calls
 [`torchvision::transform_grayscale`](https://torchvision.mlverse.org/reference/transform_grayscale.html),
 see there for more information on the parameters. The preprocessing is
-applied to each element of a batch individually.
+applied to the whole batch.
+
+Being a `trafo_` operator, its `stages` parameter starts out as
+`"both"`, so the transformation is applied both while training and when
+predicting. Set `stages = "train"` to restrict it to training. See
+[`PipeOpTaskPreprocTorch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_preproc_torch.md)
+for the `stages` parameter and this naming convention.
 
 ## Format
 
@@ -12,13 +18,13 @@ applied to each element of a batch individually.
 
 ## Construction
 
-    po("trafo_grayscale"")
+    po("trafo_grayscale")
 
 ## Parameters
 
-|                     |           |                |                      |              |
-|---------------------|-----------|----------------|----------------------|--------------|
-| Id                  | Type      | Default        | Levels               | Range        |
-| num_output_channels | integer   | \-             |                      | \\\[1, 3\]\\ |
-| stages              | character | \-             | train, predict, both | \-           |
-| affect_columns      | untyped   | selector_all() |                      | \-           |
+|  |  |  |  |  |
+|----|----|----|----|----|
+| Id | Type | Default | Levels | Range |
+| num_output_channels | integer | \- |  | \\\[1, 3\]\\ |
+| stages | character | \- | train, predict, both | \- |
+| affect_columns | untyped | selector_all() |  | \- |

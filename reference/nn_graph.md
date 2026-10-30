@@ -47,11 +47,22 @@ nn_graph(graph, shapes_in, output_map = graph$output$name, list_output = FALSE)
   [`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)  
   The graph (consisting primarily of
   [`PipeOpModule`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md)s)
-  that is wrapped by the network.
+  that is wrapped by the network. When it consists only of
+  [`PipeOpModule`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md)s
+  and
+  [`PipeOpNOP`](https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_nop.html)s,
+  the order in which the modules are called is determined once and
+  `$forward()` calls them directly, which is much faster than running
+  the graph. This is determined anew when PipeOps are added to or
+  removed from the graph, but not when only its edges are changed, so
+  the graph should not be modified in place. The field cannot be set to
+  another graph, because the parameters of the modules are registered
+  when the network is created. Create a new `nn_graph` instead.
 
 - `input_map` ::
   [`character()`](https://rdrr.io/r/base/character.html)  
-  The names of the input arguments of the network.
+  The names of the input arguments of the network. Unnamed arguments of
+  `$forward()` are matched in this order.
 
 - `shapes_in` :: [`list()`](https://rdrr.io/r/base/list.html)  
   The shapes of the input tensors of the network.
@@ -76,6 +87,7 @@ nn_graph(graph, shapes_in, output_map = graph$output$name, list_output = FALSE)
 Other Graph Network:
 [`ModelDescriptor()`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md),
 [`TorchIngressToken()`](https://mlr3torch.mlr-org.com/reference/TorchIngressToken.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
 [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md),
 [`mlr_pipeops_module`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md),
 [`mlr_pipeops_torch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.md),
@@ -85,7 +97,8 @@ Other Graph Network:
 [`mlr_pipeops_torch_ingress_num`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_num.md),
 [`model_descriptor_to_learner()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_learner.md),
 [`model_descriptor_to_module()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_module.md),
-[`model_descriptor_union()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_union.md)
+[`model_descriptor_union()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_union.md),
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/reference/pipeop_torch.md)
 
 ## Examples
 
@@ -103,21 +116,21 @@ x = torch_randn(16, 10)
 
 network(module_1.input = x)
 #> torch_tensor
-#> -0.4839
-#> -0.2942
-#> -0.3967
-#> -0.2938
-#>  0.3064
-#> -0.7715
-#> -0.0449
-#> -0.7143
-#> -0.0424
-#> -0.2236
-#> -0.1669
-#> -0.2965
-#> -0.6596
-#> -0.6084
-#> -0.5093
-#> -0.3439
+#> -0.0063
+#>  0.1409
+#>  0.6368
+#>  0.2813
+#>  0.1395
+#>  0.2881
+#>  0.3388
+#>  0.1418
+#>  0.2660
+#> -0.1557
+#>  0.2773
+#>  0.1306
+#>  0.0053
+#>  0.3154
+#>  0.0982
+#>  0.1858
 #> [ CPUFloatType{16,1} ][ grad_fn = <AddmmBackward0> ]
 ```

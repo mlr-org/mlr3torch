@@ -33,6 +33,7 @@ torch_callback(
   state_dict = NULL,
   load_state_dict = NULL,
   initialize = NULL,
+  weight = NULL,
   public = NULL,
   private = NULL,
   active = NULL,
@@ -101,6 +102,17 @@ torch_callback(
   (`function()`)  
   The initialization method of the callback.
 
+- weight:
+
+  (`numeric(1)`)  
+  Controls when the callback is called within a stage, see section
+  *Ordering* of
+  [`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md).
+  Defaults to `0`. The name is reserved for this, so `initialize` must
+  not take a `weight` argument: wrapping such a callback in a
+  [`TorchCallback`](https://mlr3torch.mlr-org.com/reference/TorchCallback.md)
+  is an error.
+
 - public, private, active:
 
   ([`list()`](https://rdrr.io/r/base/list.html))  
@@ -145,13 +157,15 @@ that can be passed to a torch learner.
 
 - `begin` :: Run before the training loop begins.
 
-- `epoch_begin` :: Run he beginning of each epoch.
+- `epoch_begin` :: Run at the beginning of each epoch.
 
 - `batch_begin` :: Run before the forward call.
 
 - `after_backward` :: Run after the backward call.
 
 - `batch_end` :: Run after the optimizer step.
+
+- `before_valid` :: Run before the validation loop begins.
 
 - `batch_valid_begin` :: Run before the forward call in the validation
   loop.
@@ -165,8 +179,20 @@ that can be passed to a torch learner.
 
 - `end` :: Run after last epoch.
 
-- `exit` :: Run at last, using
+- `exit` :: Run last, using
   [`on.exit()`](https://rdrr.io/r/base/on.exit.html).
+
+## Ordering
+
+Within a stage, callbacks are called in the order in which they were
+passed to the learner. A callback can override this via its `$weight`
+field: callbacks with a higher weight are called after those with a
+lower one, and callbacks with the same weight keep the order in which
+they were passed. The default weight is `0`. This matters for callbacks
+that observe what the others did, which is why
+[`CallbackSetCheckpoint`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.checkpoint.md)
+has weight `Inf`: it always runs last and therefore saves the network
+and optimizer as the other callbacks left them at the end of the stage.
 
 ## See also
 

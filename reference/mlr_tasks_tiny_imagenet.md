@@ -42,10 +42,9 @@ as the cache directory.
 
 ## References
 
-Deng, Jia, Dong, Wei, Socher, Richard, Li, Li-Jia, Li, Kai, Fei-Fei, Li
-(2009). “Imagenet: A large-scale hierarchical image database.” In *2009
-IEEE conference on computer vision and pattern recognition*, 248–255.
-IEEE.
+Deng J, Dong W, Socher R, Li L, Li K, Fei-Fei L (2009). “Imagenet: A
+large-scale hierarchical image database.” In *2009 IEEE conference on
+computer vision and pattern recognition*, 248–255. IEEE.
 
 ## Examples
 

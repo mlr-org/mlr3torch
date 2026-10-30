@@ -3,7 +3,13 @@
 Calls
 [`torchvision::transform_resized_crop`](https://torchvision.mlverse.org/reference/transform_resized_crop.html),
 see there for more information on the parameters. The preprocessing is
-applied to each element of a batch individually.
+applied to the whole batch.
+
+Being an `augment_` operator, its `stages` parameter starts out as
+`"train"`, so the augmentation is applied while training and not when
+predicting. Set `stages = "both"` to apply it in both phases. See
+[`PipeOpTaskPreprocTorch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_preproc_torch.md)
+for the `stages` parameter and this naming convention.
 
 ## Format
 
@@ -12,18 +18,18 @@ applied to each element of a batch individually.
 
 ## Construction
 
-    po("augment_resized_crop"")
+    po("augment_resized_crop")
 
 ## Parameters
 
-|                |           |                |                      |                       |
-|----------------|-----------|----------------|----------------------|-----------------------|
-| Id             | Type      | Default        | Levels               | Range                 |
-| top            | integer   | \-             |                      | \\(-\infty, \infty)\\ |
-| left           | integer   | \-             |                      | \\(-\infty, \infty)\\ |
-| height         | integer   | \-             |                      | \\(-\infty, \infty)\\ |
-| width          | integer   | \-             |                      | \\(-\infty, \infty)\\ |
-| size           | untyped   | \-             |                      | \-                    |
-| interpolation  | integer   | 2              |                      | \\\[0, 3\]\\          |
-| stages         | character | \-             | train, predict, both | \-                    |
-| affect_columns | untyped   | selector_all() |                      | \-                    |
+|  |  |  |  |  |
+|----|----|----|----|----|
+| Id | Type | Default | Levels | Range |
+| top | integer | \- |  | \\\[1, \infty)\\ |
+| left | integer | \- |  | \\\[1, \infty)\\ |
+| height | integer | \- |  | \\\[0, \infty)\\ |
+| width | integer | \- |  | \\\[0, \infty)\\ |
+| size | untyped | \- |  | \- |
+| interpolation | integer | 2 |  | \\\[0, 3\]\\ |
+| stages | character | \- | train, predict, both | \- |
+| affect_columns | untyped | selector_all() |  | \- |

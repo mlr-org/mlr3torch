@@ -1,7 +1,12 @@
 # Convert to Lazy Tensor
 
-Convert a object to a
+Converts an object to a
 [`lazy_tensor`](https://mlr3torch.mlr-org.com/reference/lazy_tensor.md).
+A [`dataset`](https://torch.mlverse.org/docs/reference/dataset.html) is
+wrapped as-is, a
+[`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html)
+or a [`numeric()`](https://rdrr.io/r/base/numeric.html) is first turned
+into a dataset whose first dimension indexes the observations.
 
 ## Usage
 
@@ -73,10 +78,10 @@ as_lazy_tensor(iris_ds2, dataset_shapes = list(x = c(NA, 4L)))[1:5]
 lt = as_lazy_tensor(matrix(rnorm(100), nrow = 20))
 materialize(lt[1:5], rbind = TRUE)
 #> torch_tensor
-#> -0.2442 -0.8268  0.1182  0.4886  0.4339
-#> -0.2827 -1.5124 -1.9117 -1.6995 -0.3820
-#> -0.5537  0.9354  0.8621 -1.4707  0.4242
-#>  0.6290  0.1765 -0.2432  0.2842  1.0631
-#>  2.0650  0.2437 -0.2061  1.3373  1.0487
+#>  0.9354  0.8621 -1.4707  0.4242 -0.2089
+#>  0.1765 -0.2432  0.2842  1.0631 -1.3994
+#>  0.2437 -0.2061  1.3373  1.0487  0.2585
+#>  1.6235  0.0192  0.2367 -0.0381 -0.4418
+#>  0.1120  0.0296  1.3183  0.4861  0.5686
 #> [ CPUFloatType{5,5} ]
 ```

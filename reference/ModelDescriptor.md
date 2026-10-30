@@ -71,7 +71,7 @@ ModelDescriptor(
 
   ([`Task`](https://mlr3.mlr-org.com/reference/Task.html))  
   (Training)-Task for which the model is being built. May be necessary
-  for for some aspects of what loss to use etc.
+  for some aspects of what loss to use etc.
 
 - optimizer:
 
@@ -118,6 +118,7 @@ Other Model Configuration:
 
 Other Graph Network:
 [`TorchIngressToken()`](https://mlr3torch.mlr-org.com/reference/TorchIngressToken.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
 [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md),
 [`mlr_pipeops_module`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md),
 [`mlr_pipeops_torch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.md),
@@ -128,4 +129,5 @@ Other Graph Network:
 [`model_descriptor_to_learner()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_learner.md),
 [`model_descriptor_to_module()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_module.md),
 [`model_descriptor_union()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_union.md),
-[`nn_graph()`](https://mlr3torch.mlr-org.com/reference/nn_graph.md)
+[`nn_graph()`](https://mlr3torch.mlr-org.com/reference/nn_graph.md),
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/reference/pipeop_torch.md)

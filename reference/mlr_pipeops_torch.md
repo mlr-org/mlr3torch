@@ -3,7 +3,11 @@
 `PipeOpTorch` is the base class for all
 [`PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)s
 that represent neural network layers in a
-[`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html).
+[`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html). If
+you want to create your own `PipeOpTorch`, check out the
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/reference/pipeop_torch.md)
+helper function and the article [Writing your own
+PipeOpTorch](https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.html).
 During **training**, it generates a
 [`PipeOpModule`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md)
 that wraps an
@@ -14,6 +18,18 @@ consisting mostly of
 [`PipeOpModule`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md)s
 an
 [`PipeOpNOP`](https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_nop.html)s.
+
+The convenient way to construct such a `PipeOp` is the
+[`nn()`](https://mlr3torch.mlr-org.com/reference/nn.md) helper, which
+prefixes the given key with `"nn_"` to look it up in the
+[`mlr_pipeops`](https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops.html)
+dictionary and uses the unprefixed key as the id of the resulting
+`PipeOp`: `nn("linear", out_features = 10)` is equivalent to
+`po("nn_linear", id = "linear", out_features = 10)`. Because ids must be
+unique within a
+[`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html),
+repeated layers can be disambiguated with a `_<n>` suffix, e.g.
+`nn("linear_1")` and `nn("linear_2")`.
 
 While the former
 [`Graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html)
@@ -60,7 +76,9 @@ methods, or overload `private$.make_module()`.
 
 - `.make_module(shapes_in, param_vals, task)`  
   ([`list()`](https://rdrr.io/r/base/list.html),
-  [`list()`](https://rdrr.io/r/base/list.html)) -\> `nn_module`  
+  [`list()`](https://rdrr.io/r/base/list.html),
+  [`Task`](https://mlr3.mlr-org.com/reference/Task.html) or `NULL`) -\>
+  `nn_module`  
   This private method is called to generate the `nn_module` that is
   passed as argument `module` to
   [`PipeOpModule`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md).
@@ -76,23 +94,56 @@ methods, or overload `private$.make_module()`.
   This private method gets a list of `integer` vectors (`shapes_in`),
   the parameter values (`param_vals`), as well as an (optional)
   [`Task`](https://mlr3.mlr-org.com/reference/Task.html). The
-  `shapes_in` can be assumed to be in the same order as the input names
-  of the `PipeOp`. The output shapes must be in the same order as the
-  output names of the `PipeOp`. In case the output shapes depends on the
+  `shapes_in` list indicates the shape of input tensors that will be fed
+  to the module's `$forward()` function. The list has one item per input
+  tensor, typically only one. The function should return a list of
+  shapes of tensors that are created by the module. The `shapes_in` are
+  named after the input channels of the `PipeOp` and are in the same
+  order. It returns one shape per output name given during construction,
+  in that order, regardless of `$outputs`: the public `$shapes_out()`
+  keeps those of `$outputs`. In case the output shapes depends on the
   task (as is the case for
   [`PipeOpTorchHead`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_head.md)),
   the function should return valid output shapes (possibly containing
-  `NA`s) if the `task` argument is provided or not. It is important to
-  properly handle the presence of `NA`s in the input shapes. By default
-  (if construction argument `only_batch_unknown` is `TRUE`), only the
-  batch dimension can be `NA`. If you set this to `FALSE`, you need to
-  take other unknown dimensions into account. The method can also throw
-  an error if the input shapes violate some assumptions.
+  `NA`s) whether or not the `task` argument is provided. Any dimension
+  of `shapes_in` can be `NA`, i.e. unknown, so this method must not
+  assume that a dimension it reads is known. It has to assert the
+  dimensions it actually needs and propagate the `NA`s it can live with.
+
+  The inference should generally be **permissive**. For example,
+  applying a convolutional layer to an input of shape `c(NA, 3, NA, NA)`
+  should assume that the last two dimensions are big enough for the
+  given kernel size. This can sometimes lead to runtime errors but this
+  is preferable over rejecting valid architectures.
+
+  There are various assertion helpers for common input checks, such as
+  [`assert_known_dims()`](https://mlr3torch.mlr-org.com/reference/assert_known_dims.md)
+  and the "See also" links on its page. There are also
+  [`shape_helpers`](https://mlr3torch.mlr-org.com/reference/shape_helpers.md),
+  which provide the shape arithmetic (broadcasting, resolving negative
+  dimension indices).
+
+- `.module_outputs()`  
+  () -\> [`character()`](https://rdrr.io/r/base/character.html)  
+  The names of the outputs of the module that `.make_module()` creates,
+  in the order in which it returns them. By default, these are all
+  output names given during construction. A subclass whose module can
+  leave out outputs that are not among `$outputs` (e.g. by not computing
+  attention weights) can override this to save computation. It must
+  include `$outputs`.
+
+- `.additional_phash_input()`  
+  () -\> `any`  
+  See
+  [`PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html). A
+  subclass that overrides it must include the result of
+  `super$.additional_phash_input()`, which reflects `$outputs`.
 
 - `.shape_dependent_params(shapes_in, param_vals, task)`  
   ([`list()`](https://rdrr.io/r/base/list.html),
-  [`list()`](https://rdrr.io/r/base/list.html)) -\> named
-  [`list()`](https://rdrr.io/r/base/list.html)  
+  [`list()`](https://rdrr.io/r/base/list.html),
+  [`Task`](https://mlr3.mlr-org.com/reference/Task.html) or `NULL`) -\>
+  named [`list()`](https://rdrr.io/r/base/list.html)  
   This private method has the same inputs as `.shapes_out`. If
   `.make_module()` is not overwritten, it constructs the arguments
   passed to `module_generator`. Usually this means that it must infer
@@ -105,6 +156,32 @@ During *training*, all inputs and outputs are of class
 [`ModelDescriptor`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md).
 During *prediction*, all input and output channels are of class
 [`Task`](https://mlr3.mlr-org.com/reference/Task.html).
+
+## Shape Inference
+
+A network is assembled without any data flowing through it, so
+[mlr3torch](https://CRAN.R-project.org/package=mlr3torch) tracks the
+shape of the tensors instead: it starts from the shape the ingress
+announces and hands each `PipeOp` the shapes of its inputs, which is how
+auxiliary parameters such as `in_features` of
+[`nn_linear`](https://torch.mlverse.org/docs/reference/nn_linear.html)
+are filled in automatically.
+
+A shape is an [`integer()`](https://rdrr.io/r/base/integer.html) whose
+first entry is the batch dimension, e.g. `c(NA, 3, 32, 32)` for a batch
+of RGB images of 32 by 32 pixels. A dimension whose size is not known in
+advance is `NA`, and any dimension can be `NA`, not only the batch
+dimension: the sequence length of a transformer or the height and width
+of an image may equally well vary.
+
+The public `$shapes_out()` method answers the same question for a single
+`PipeOp`, without building a network around it, which is the quickest
+way to see what an operator makes of a given input shape. It is also
+what reports the problem when an operator needs a dimension that is
+unknown, naming the `PipeOp` and the shape it was given.
+
+Implementing a `PipeOp` that computes its own output shapes is described
+under `.shapes_out()` in the "Inheriting" section above.
 
 ## State
 
@@ -136,9 +213,9 @@ first
 [`PipeOpModule`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md)
 is added to the
 [`graph`](https://mlr3pipelines.mlr-org.com/reference/Graph.html) slot
-of this union and the the edges that connect the sending `PipeOpModule`s
-to the input channel of this `PipeOpModule` are addeded to the graph.
-This is possible because every incoming
+of this union and the edges that connect the sending `PipeOpModule`s to
+the input channel of this `PipeOpModule` are addeded to the graph. This
+is possible because every incoming
 [`ModelDescriptor`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md)
 contains the information about the `id` and the `channel` name of the
 sending `PipeOp` in the slot `pointer`.
@@ -166,6 +243,7 @@ code.
 Other Graph Network:
 [`ModelDescriptor()`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md),
 [`TorchIngressToken()`](https://mlr3torch.mlr-org.com/reference/TorchIngressToken.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
 [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md),
 [`mlr_pipeops_module`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md),
 [`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md),
@@ -175,7 +253,8 @@ Other Graph Network:
 [`model_descriptor_to_learner()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_learner.md),
 [`model_descriptor_to_module()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_module.md),
 [`model_descriptor_union()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_union.md),
-[`nn_graph()`](https://mlr3torch.mlr-org.com/reference/nn_graph.md)
+[`nn_graph()`](https://mlr3torch.mlr-org.com/reference/nn_graph.md),
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/reference/pipeop_torch.md)
 
 ## Super class
 
@@ -189,14 +268,24 @@ Other Graph Network:
   (`nn_module_generator` or `NULL`)  
   The module generator wrapped by this `PipeOpTorch`. If `NULL`, the
   private method `private$.make_module(shapes_in, param_vals)` must be
-  overwritte, see section 'Inheriting'. Do not change this after
+  overwritten, see section 'Inheriting'. Do not change this after
   construction.
+
+## Active bindings
+
+- `outputs`:
+
+  ([`character()`](https://rdrr.io/r/base/character.html))  
+  The output channels of the `PipeOp`, a subset of the outputs of the
+  wrapped module. By default, there is one output channel for every
+  output of the module, unless a subclass restricts them during
+  construction, e.g. to leave out the indices of a max pooling.
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorch$new()`](#method-PipeOpTorch-new)
+- [`PipeOpTorch$new()`](#method-PipeOpTorch-initialize)
 
 - [`PipeOpTorch$shapes_out()`](#method-PipeOpTorch-shapes_out)
 
@@ -211,7 +300,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorch$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -226,8 +315,7 @@ Creates a new instance of this
       inname = "input",
       outname = "output",
       packages = "torch",
-      tags = NULL,
-      only_batch_unknown = TRUE
+      tags = NULL
     )
 
 #### Arguments
@@ -258,31 +346,29 @@ Creates a new instance of this
   ([`character()`](https://rdrr.io/r/base/character.html))  
   The names of the
   [`PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)'s
-  input channels. These will be the input channels of the generated
+  input channels, `"input"` by default. These will be the input channels
+  of the generated
   [`PipeOpModule`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md).
-  Unless the wrapped `module_generator`'s forward method (if present)
-  has the argument `...`, `inname` must be identical to those argument
-  names in order to avoid any ambiguity.  
-  If the forward method has the argument `...`, the order of the input
-  channels determines how the tensors will be passed to the wrapped
-  `nn_module`.  
-  If left as `NULL` (default), the argument `module_generator` must be
-  given and the argument names of the `modue_generator`'s forward
-  function are set as `inname`.
+  The tensors are passed to the wrapped `nn_module` by position, i.e.
+  the order of the input channels determines which argument of the
+  forward method they end up in. Unless the forward method has the
+  argument `...`, naming the input channels after its arguments is
+  therefore recommended, as it avoids any ambiguity.
 
 - `outname`:
 
   ([`character()`](https://rdrr.io/r/base/character.html))  
-  The names of the output channels channels. These will be the ouput
-  channels of the generated
+  The names of the output channels, `"output"` by default. These will be
+  the ouput channels of the generated
   [`PipeOpModule`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md)
   and therefore also the names of the list returned by its `$train()`.
   In case there is more than one output channel, the `nn_module` that is
   constructed by this
   [`PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
-  during training must return a named
-  [`list()`](https://rdrr.io/r/base/list.html), where the names of the
-  list are the names out the output channels. The default is `"output"`.
+  during training must return a
+  [`list()`](https://rdrr.io/r/base/list.html) whose elements are in the
+  order of the output channels. The field `$outputs` can restrict the
+  output channels to a subset of these.
 
 - `packages`:
 
@@ -296,15 +382,9 @@ Creates a new instance of this
   [`PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html).
   The tags `"torch"` is always added.
 
-- `only_batch_unknown`:
-
-  (`logical(1)`)  
-  Whether only the batch dimension can be missing in the input shapes or
-  whether other dimensions can also be unknown. Default is `TRUE`.
-
 ------------------------------------------------------------------------
 
-### Method `shapes_out()`
+### `PipeOpTorch$shapes_out()`
 
 Calculates the output shapes for the given input shapes, parameters and
 task.
@@ -319,8 +399,8 @@ task.
 
   ([`list()`](https://rdrr.io/r/base/list.html) of
   [`integer()`](https://rdrr.io/r/base/integer.html))  
-  The input input shapes, which must be in the same order as the input
-  channel names of the `PipeOp`.
+  The input shapes, which must be in the same order as the input channel
+  names of the `PipeOp`.
 
 - `task`:
 
@@ -333,11 +413,11 @@ task.
 
 A named [`list()`](https://rdrr.io/r/base/list.html) containing the
 output shapes. The names are the names of the output channels of the
-`PipeOp`.
+`PipeOp`, i.e. `$outputs`.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorch$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -354,105 +434,51 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
-## Creating a neural network
-# In torch
-
+# A `PipeOpTorch` does not compute anything itself: it adds a module to the network that is
+# being assembled, and reports the shape of the tensors that module will produce.
 task = tsk("iris")
 
-network_generator = torch::nn_module(
-  initialize = function(task, d_hidden) {
-    d_in = length(task$feature_names)
-    self$linear = torch::nn_linear(d_in, d_hidden)
-    self$output = if (task$task_type == "regr") {
-      torch::nn_linear(d_hidden, 1)
-    } else if (task$task_type == "classif") {
-      torch::nn_linear(d_hidden, output_dim_for(task))
-    }
-  },
-  forward = function(x) {
-    x = self$linear(x)
-    x = torch::nnf_relu(x)
-    self$output(x)
-  }
-)
+po_linear = po("nn_linear", out_features = 10)
 
-network = network_generator(task, d_hidden = 50)
-x = torch::torch_tensor(as.matrix(task$data(1, task$feature_names)))
-y = torch::with_no_grad(network(x))
+# what the operator makes of an input shape, without building a network around it.
+# `NA` is an unknown dimension -- the batch size here -- and any dimension may be unknown.
+po_linear$shapes_out(list(c(NA, 4)))
+#> $output
+#> [1] NA 10
+#> 
 
+# a dimension the operator does need is reported, naming the PipeOp and the shape it was given
+try(po_linear$shapes_out(list(c(NA, NA))))
+#> Error : PipeOp 'nn_linear' requires the last dimension (the number of input features) of the input shape to be known, but got shape (NA,NA).
 
-# In mlr3torch
-network_generator = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 50) %>>%
-  po("nn_head")
-md = network_generator$train(task)[[1L]]
+# the graph of `PipeOpTorch`s describes the network, `model_descriptor_to_module()` builds it.
+# `in_features` of the linear layer was inferred from the task, `out_features` of the head from
+# the number of classes.
+graph = po("torch_ingress_num") %>>% po_linear %>>% po("nn_relu") %>>% po("nn_head")
+md = graph$train(task)[[1L]]
 network = model_descriptor_to_module(md)
-y = torch::with_no_grad(network(torch_ingress_num.input = x))
+network
+#> An `nn_module` containing 83 parameters.
+#> 
+#> ── Modules ─────────────────────────────────────────────────────────────────────
+#> • module_list: <nn_module_list> #83 parameters
+
+x = torch_tensor(as.matrix(task$data(1:2, task$feature_names)))
+with_no_grad(network(torch_ingress_num.input = x))
+#> torch_tensor
+#> -0.1241 -0.2658 -0.5327
+#> -0.1047 -0.2840 -0.4743
+#> [ CPUFloatType{2,3} ]
 
 
+## What happens during training
 
-## Implementing a custom PipeOpTorch
-
-# defining a custom module
-nn_custom = nn_module("nn_custom",
-  initialize = function(d_in1, d_in2, d_out1, d_out2, bias = TRUE) {
-    self$linear1 = nn_linear(d_in1, d_out1, bias)
-    self$linear2 = nn_linear(d_in2, d_out2, bias)
-  },
-  forward = function(input1, input2) {
-    output1 = self$linear1(input1)
-    output2 = self$linear1(input2)
-
-    list(output1 = output1, output2 = output2)
-  }
-)
-
-# wrapping the module into a custom PipeOpTorch
-
-library(paradox)
-
-PipeOpTorchCustom = R6::R6Class("PipeOpTorchCustom",
-  inherit = PipeOpTorch,
-  public = list(
-    initialize = function(id = "nn_custom", param_vals = list()) {
-      param_set = ps(
-        d_out1 = p_int(lower = 1, tags = c("required", "train")),
-        d_out2 = p_int(lower = 1, tags = c("required", "train")),
-        bias = p_lgl(default = TRUE, tags = "train")
-      )
-      super$initialize(
-        id = id,
-        param_vals = param_vals,
-        param_set = param_set,
-        inname = c("input1", "input2"),
-        outname = c("output1", "output2"),
-        module_generator = nn_custom
-      )
-    }
-  ),
-  private = list(
-    .shape_dependent_params = function(shapes_in, param_vals, task) {
-      c(param_vals,
-        list(d_in1 = tail(shapes_in[["input1"]], 1)), d_in2 = tail(shapes_in[["input2"]], 1)
-      )
-    },
-    .shapes_out = function(shapes_in, param_vals, task) {
-      list(
-        input1 = c(head(shapes_in[["input1"]], -1), param_vals$d_out1),
-        input2 = c(head(shapes_in[["input2"]], -1), param_vals$d_out2)
-      )
-    }
-  )
-)
-
-## Training
-
-# generate input
-task = tsk("iris")
+# A `PipeOpTorch` operates on `ModelDescriptor`s, which we here build by hand: two networks that
+# each start from one half of the iris task.
 task1 = task$clone()$select(paste0("Sepal.", c("Length", "Width")))
 task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
-graph = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))
-mds_in = graph$train(list(task1, task2), single_input = FALSE)
+ingress = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))
+mds_in = ingress$train(list(task1, task2), single_input = FALSE)
 
 mds_in[[1L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #> $graph
@@ -468,10 +494,10 @@ mds_in[[1L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #> 
 #> ── <TaskClassif> (150x3): Iris Flowers ─────────────────────────────────────────
 #> • Target: Species
-#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> • Properties: multiclass
 #> • Features (2):
 #>   • dbl (2): Sepal.Length, Sepal.Width
+#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> 
 #> $ingress
 #> $ingress$torch_ingress_num_1.input
@@ -498,10 +524,10 @@ mds_in[[2L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #> 
 #> ── <TaskClassif> (150x3): Iris Flowers ─────────────────────────────────────────
 #> • Target: Species
-#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> • Properties: multiclass
 #> • Features (2):
 #>   • dbl (2): Petal.Length, Petal.Width
+#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> 
 #> $ingress
 #> $ingress$torch_ingress_num_2.input
@@ -515,47 +541,31 @@ mds_in[[2L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #> [1] NA  2
 #> 
 
-# creating the PipeOpTorch and training it
-po_torch = PipeOpTorchCustom$new()
-po_torch$param_set$values = list(d_out1 = 10, d_out2 = 20)
-train_input = list(input1 = mds_in[[1L]], input2 = mds_in[[2L]])
-mds_out = do.call(po_torch$train, args = list(input = train_input))
-po_torch$state
-#> $output1
-#> [1] NA 10
-#> 
-#> $output2
-#> [1] NA 20
-#> 
+# Training a `PipeOpTorch` on them creates the `PipeOpModule` that wraps the constructed
+# `nn_module`, adds it to the network and connects it to both ingress operators.
+po_merge = nn("merge_cat", innum = 2)
+md_out = po_merge$train(list(input1 = mds_in[[1L]], input2 = mds_in[[2L]]))[[1L]]
 
-# the new model descriptors
-
-# the resulting graphs are identical
-identical(mds_out[[1L]]$graph, mds_out[[2L]]$graph)
+# Note that, for efficiency, the graph of the first input is modified in-place.
+identical(md_out$graph, mds_in[[1L]]$graph)
 #> [1] TRUE
-# note that as a side-effect, also one of the input graphs is modified in-place for efficiency
-mds_in[[1L]]$graph$edges
+md_out$graph$edges
 #>                 src_id src_channel    dst_id dst_channel
 #>                 <char>      <char>    <char>      <char>
-#> 1: torch_ingress_num_1      output nn_custom      input1
-#> 2: torch_ingress_num_2      output nn_custom      input2
+#> 1: torch_ingress_num_1      output merge_cat      input1
+#> 2: torch_ingress_num_2      output merge_cat      input2
 
-# The new task has both Sepal and Petal features
-identical(mds_out[[1L]]$task, mds_out[[2L]]$task)
-#> [1] TRUE
-mds_out[[2L]]$task
+# The task is the feature union of the incoming tasks and `ingress` collects the ingress tokens
+# of all incoming `ModelDescriptor`s.
+md_out$task
 #> 
 #> ── <TaskClassif> (150x5): Iris Flowers ─────────────────────────────────────────
 #> • Target: Species
-#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> • Properties: multiclass
 #> • Features (4):
 #>   • dbl (4): Petal.Length, Petal.Width, Sepal.Length, Sepal.Width
-
-# The new ingress slot contains all ingressors
-identical(mds_out[[1L]]$ingress, mds_out[[2L]]$ingress)
-#> [1] TRUE
-mds_out[[1L]]$ingress
+#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
+md_out$ingress
 #> $torch_ingress_num_1.input
 #> Ingress: Task[selector_name(c("Sepal.Length", "Sepal.Width"), assert_present = TRUE)] --> Tensor(NA, 2)
 #> 
@@ -563,20 +573,23 @@ mds_out[[1L]]$ingress
 #> Ingress: Task[selector_name(c("Petal.Length", "Petal.Width"), assert_present = TRUE)] --> Tensor(NA, 2)
 #> 
 
-# The pointer and pointer_shape slots are different
-mds_out[[1L]]$pointer
-#> [1] "nn_custom" "output1"  
-mds_out[[2L]]$pointer
-#> [1] "nn_custom" "output2"  
+# `pointer` and `pointer_shape` now refer to the output of the new module.
+md_out$pointer
+#> [1] "merge_cat" "output"   
+md_out$pointer_shape
+#> [1] NA  4
 
-mds_out[[1L]]$pointer_shape
-#> [1] NA 10
-mds_out[[2L]]$pointer_shape
-#> [1] NA 20
+# During prediction, no network is built: the `PipeOpTorch` receives a `Task` in each channel
+# and outputs their feature union.
+po_merge$predict(list(input1 = task1, input2 = task2))[[1L]]
+#> 
+#> ── <TaskClassif> (150x5): Iris Flowers ─────────────────────────────────────────
+#> • Target: Species
+#> • Properties: multiclass
+#> • Features (4):
+#>   • dbl (4): Petal.Length, Petal.Width, Sepal.Length, Sepal.Width
+#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 
-## Prediction
-predict_input = list(input1 = task1, input2 = task2)
-tasks_out = do.call(po_torch$predict, args = list(input = predict_input))
-identical(tasks_out[[1L]], tasks_out[[2L]])
-#> [1] TRUE
+# Writing an operator of your own is described in the article "Writing your own PipeOpTorch" on
+# the package website and in the section 'Inheriting' above.
 ```

@@ -17,15 +17,21 @@
 - [`mlr_learners.module`](https://mlr3torch.mlr-org.com/reference/mlr_learners.module.md)
   [`LearnerTorchModule`](https://mlr3torch.mlr-org.com/reference/mlr_learners.module.md)
   : Learner Torch Module
+- [`mlr_learners.realmlp`](https://mlr3torch.mlr-org.com/reference/mlr_learners.realmlp.md)
+  [`LearnerTorchRealMLP`](https://mlr3torch.mlr-org.com/reference/mlr_learners.realmlp.md)
+  : RealMLP
 - [`mlr_learners.tab_resnet`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tab_resnet.md)
   [`LearnerTorchTabResNet`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tab_resnet.md)
   : Tabular ResNet
+- [`mlr_learners.tabm`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tabm.md)
+  [`LearnerTorchTabM`](https://mlr3torch.mlr-org.com/reference/mlr_learners.tabm.md)
+  : TabM
 - [`mlr_learners.torch_featureless`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torch_featureless.md)
   [`LearnerTorchFeatureless`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torch_featureless.md)
   : Featureless Torch Learner
 - [`mlr_learners.torchvision`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torchvision.md)
   [`LearnerTorchVision`](https://mlr3torch.mlr-org.com/reference/mlr_learners.torchvision.md)
-  : AlexNet Image Classifier
+  : Image Classification Networks from torchvision
 - [`mlr_learners_torch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
   [`LearnerTorch`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.md)
   : Base Class for Torch Learners
@@ -35,6 +41,12 @@
 - [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md)
   [`LearnerTorchModel`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md)
   : Learner Torch Model
+- [`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md)
+  : Convert a Graph to a Torch Learner
+- [`GraphLearnerTorch`](https://mlr3torch.mlr-org.com/reference/GraphLearnerTorch.md)
+  : Graph Learner for Torch Networks
+- [`replace_head()`](https://mlr3torch.mlr-org.com/reference/replace_head.md)
+  : Replace the Head of a Network
 
 ## Tasks
 
@@ -50,9 +62,27 @@
   : MNIST Image classification
 - [`mlr_tasks_tiny_imagenet`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_tiny_imagenet.md)
   : Tiny ImageNet Classification Task
+- [`mlr_tasks_torch`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_torch.md)
+  [`TaskTorch`](https://mlr3torch.mlr-org.com/reference/mlr_tasks_torch.md)
+  : Generic Torch Task
 - [`mlr_backends_lazy`](https://mlr3torch.mlr-org.com/reference/mlr_backends_lazy.md)
   [`DataBackendLazy`](https://mlr3torch.mlr-org.com/reference/mlr_backends_lazy.md)
   : Lazy Data Backend
+
+## Custom Task Types
+
+- [`as_task_torch()`](https://mlr3torch.mlr-org.com/reference/as_task_torch.md)
+  : Create a Generic Torch Task
+- [`PredictionTorch`](https://mlr3torch.mlr-org.com/reference/PredictionTorch.md)
+  : Prediction Object for a Generic Torch Task
+- [`mlr_measures_torch`](https://mlr3torch.mlr-org.com/reference/mlr_measures_torch.md)
+  [`MeasureTorch`](https://mlr3torch.mlr-org.com/reference/mlr_measures_torch.md)
+  : Measure for a Generic Torch Task
+- [`msr_torch()`](https://mlr3torch.mlr-org.com/reference/msr_torch.md)
+  : Create a Measure for a Generic Torch Task
+- [`mlr_measures_torch.default`](https://mlr3torch.mlr-org.com/reference/mlr_measures_torch.default.md)
+  [`MeasureTorchDefault`](https://mlr3torch.mlr-org.com/reference/mlr_measures_torch.default.md)
+  : Default Measure of a Generic Torch Task
 
 ## Network Building Blocks
 
@@ -78,6 +108,8 @@
 - [`mlr_pipeops_torch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.md)
   [`PipeOpTorch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.md)
   : Base Class for Torch Module Constructor Wrappers
+- [`pipeop_torch()`](https://mlr3torch.mlr-org.com/reference/pipeop_torch.md)
+  : Create a PipeOpTorch
 - [`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md)
   [`PipeOpTorchIngress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md)
   : Entrypoint to Torch Network
@@ -124,6 +156,15 @@
 - [`mlr_pipeops_nn_adaptive_avg_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool3d.md)
   [`PipeOpTorchAdaptiveAvgPool3D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool3d.md)
   : 3D Adaptive Average Pooling
+- [`mlr_pipeops_nn_adaptive_max_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool1d.md)
+  [`PipeOpTorchAdaptiveMaxPool1D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool1d.md)
+  : 1D Adaptive Max Pooling
+- [`mlr_pipeops_nn_adaptive_max_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool2d.md)
+  [`PipeOpTorchAdaptiveMaxPool2D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool2d.md)
+  : 2D Adaptive Max Pooling
+- [`mlr_pipeops_nn_adaptive_max_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool3d.md)
+  [`PipeOpTorchAdaptiveMaxPool3D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_max_pool3d.md)
+  : 3D Adaptive Max Pooling
 - [`mlr_pipeops_nn_avg_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool1d.md)
   [`PipeOpTorchAvgPool1D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool1d.md)
   : 1D Average Pooling
@@ -169,6 +210,12 @@
 - [`mlr_pipeops_nn_dropout`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout.md)
   [`PipeOpTorchDropout`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout.md)
   : Dropout
+- [`mlr_pipeops_nn_dropout2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout2d.md)
+  [`PipeOpTorchDropout2D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout2d.md)
+  : 2D Dropout
+- [`mlr_pipeops_nn_dropout3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout3d.md)
+  [`PipeOpTorchDropout3D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout3d.md)
+  : 3D Dropout
 - [`mlr_pipeops_nn_elu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_elu.md)
   [`PipeOpTorchELU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_elu.md)
   : ELU Activation Function
@@ -193,6 +240,12 @@
 - [`mlr_pipeops_nn_glu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_glu.md)
   [`PipeOpTorchGLU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_glu.md)
   : GLU Activation Function
+- [`mlr_pipeops_nn_group_norm`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_group_norm.md)
+  [`PipeOpTorchGroupNorm`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_group_norm.md)
+  : Group Normalization
+- [`mlr_pipeops_nn_gru`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gru.md)
+  [`PipeOpTorchGRU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gru.md)
+  : Gated Recurrent Unit
 - [`mlr_pipeops_nn_hardshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardshrink.md)
   [`PipeOpTorchHardShrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardshrink.md)
   : Hard Shrink Activation Function
@@ -220,6 +273,12 @@
 - [`mlr_pipeops_nn_log_sigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_sigmoid.md)
   [`PipeOpTorchLogSigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_sigmoid.md)
   : Log Sigmoid Activation Function
+- [`mlr_pipeops_nn_log_softmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_softmax.md)
+  [`PipeOpTorchLogSoftmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_softmax.md)
+  : Log Softmax
+- [`mlr_pipeops_nn_lstm`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_lstm.md)
+  [`PipeOpTorchLSTM`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_lstm.md)
+  : Long Short-Term Memory
 - [`mlr_pipeops_nn_max_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool1d.md)
   [`PipeOpTorchMaxPool1D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool1d.md)
   : 1D Max Pooling
@@ -241,9 +300,15 @@
 - [`mlr_pipeops_nn_merge_sum`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_sum.md)
   [`PipeOpTorchMergeSum`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_sum.md)
   : Merge by Summation
+- [`mlr_pipeops_nn_multihead_attention`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_multihead_attention.md)
+  [`PipeOpTorchMultiheadAttention`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_multihead_attention.md)
+  : Multi-Head Attention
 - [`mlr_pipeops_nn_prelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_prelu.md)
   [`PipeOpTorchPReLU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_prelu.md)
   : PReLU Activation Function
+- [`mlr_pipeops_nn_recurrent`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_recurrent.md)
+  [`PipeOpTorchRecurrent`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_recurrent.md)
+  : Recurrent Layer
 - [`mlr_pipeops_nn_reglu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reglu.md)
   [`PipeOpTorchReGLU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reglu.md)
   : ReGLU Activation Function
@@ -256,6 +321,9 @@
 - [`mlr_pipeops_nn_reshape`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reshape.md)
   [`PipeOpTorchReshape`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reshape.md)
   : Reshape a Tensor
+- [`mlr_pipeops_nn_rnn`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rnn.md)
+  [`PipeOpTorchRNN`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rnn.md)
+  : Simple Recurrent Layer
 - [`mlr_pipeops_nn_rrelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rrelu.md)
   [`PipeOpTorchRReLU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rrelu.md)
   : RReLU Activation Function
@@ -265,9 +333,18 @@
 - [`mlr_pipeops_nn_sigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_sigmoid.md)
   [`PipeOpTorchSigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_sigmoid.md)
   : Sigmoid Activation Function
+- [`mlr_pipeops_nn_silu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_silu.md)
+  [`PipeOpTorchSiLU`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_silu.md)
+  : SiLU Activation Function
 - [`mlr_pipeops_nn_softmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax.md)
   [`PipeOpTorchSoftmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax.md)
   : Softmax
+- [`mlr_pipeops_nn_softmax2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax2d.md)
+  [`PipeOpTorchSoftmax2D`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax2d.md)
+  : 2D Softmax
+- [`mlr_pipeops_nn_softmin`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmin.md)
+  [`PipeOpTorchSoftmin`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmin.md)
+  : Softmin
 - [`mlr_pipeops_nn_softplus`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softplus.md)
   [`PipeOpTorchSoftPlus`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softplus.md)
   : SoftPlus Activation Function
@@ -288,16 +365,22 @@
   : Tanh Shrink Activation Function
 - [`mlr_pipeops_nn_threshold`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_threshold.md)
   [`PipeOpTorchThreshold`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_threshold.md)
-  : Treshold Activation Function
+  : Threshold Activation Function
 - [`mlr_pipeops_nn_tokenizer_categ`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_categ.md)
   [`PipeOpTorchTokenizerCateg`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_categ.md)
   : Categorical Tokenizer
 - [`mlr_pipeops_nn_tokenizer_num`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_num.md)
   [`PipeOpTorchTokenizerNum`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_num.md)
   : Numeric Tokenizer
+- [`mlr_pipeops_nn_transformer_encoder_layer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_transformer_encoder_layer.md)
+  [`PipeOpTorchTransformerEncoderLayer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_transformer_encoder_layer.md)
+  : Transformer Encoder Layer
+- [`mlr_pipeops_nn_unflatten`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unflatten.md)
+  [`PipeOpTorchUnflatten`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unflatten.md)
+  : Unflattens a Tensor
 - [`mlr_pipeops_nn_unsqueeze`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unsqueeze.md)
   [`PipeOpTorchUnsqueeze`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unsqueeze.md)
-  : Unqueeze a Tensor
+  : Unsqueeze a Tensor
 
 ## Preprocessing & Augmentation
 
@@ -431,6 +514,8 @@
   : Check for lazy tensor
 - [`materialize()`](https://mlr3torch.mlr-org.com/reference/materialize.md)
   : Materialize Lazy Tensor Columns
+- [`` `==`( ``*`<lazy_tensor>`*`)`](https://mlr3torch.mlr-org.com/reference/equals-.lazy_tensor.md)
+  : Compare lazy tensors
 
 ## Loss
 
@@ -454,8 +539,8 @@
 - [`t_opt()`](https://mlr3torch.mlr-org.com/reference/t_opt.md)
   [`t_opts()`](https://mlr3torch.mlr-org.com/reference/t_opt.md) :
   Optimizers Quick Access
-- [`TorchLoss`](https://mlr3torch.mlr-org.com/reference/TorchLoss.md) :
-  Torch Loss
+- [`TorchOptimizer`](https://mlr3torch.mlr-org.com/reference/TorchOptimizer.md)
+  : Torch Optimizer
 - [`mlr_pipeops_torch_optimizer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_optimizer.md)
   [`PipeOpTorchOptimizer`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_optimizer.md)
   : Optimizer Configuration
@@ -531,6 +616,8 @@
   : Base Class for Torch Descriptors
 - [`auto_device()`](https://mlr3torch.mlr-org.com/reference/auto_device.md)
   : Auto Device
+- [`get_batch_size()`](https://mlr3torch.mlr-org.com/reference/get_batch_size.md)
+  : Extract the Batch Size for a Given Phase
 - [`task_dataset()`](https://mlr3torch.mlr-org.com/reference/task_dataset.md)
   : Create a Dataset from a Task
 - [`select_all()`](https://mlr3torch.mlr-org.com/reference/Select.md)
@@ -541,5 +628,38 @@
   : Selector Functions for Character Vectors
 - [`output_dim_for()`](https://mlr3torch.mlr-org.com/reference/output_dim_for.md)
   : Network Output Dimension
+- [`get_target_batchgetter()`](https://mlr3torch.mlr-org.com/reference/get_target_batchgetter.md)
+  : Target Batchgetter for a Task
+- [`get_batch_constructor()`](https://mlr3torch.mlr-org.com/reference/get_batch_constructor.md)
+  : Batch Constructor for a Task
+- [`encode_prediction()`](https://mlr3torch.mlr-org.com/reference/encode_prediction.md)
+  : Encode the Network Output as a Prediction
+
+## Shape Inference
+
 - [`infer_shapes()`](https://mlr3torch.mlr-org.com/reference/infer_shapes.md)
   : Infer Shapes
+- [`shape_to_str()`](https://mlr3torch.mlr-org.com/reference/shape_helpers.md)
+  [`broadcast_shapes()`](https://mlr3torch.mlr-org.com/reference/shape_helpers.md)
+  [`resolve_dim()`](https://mlr3torch.mlr-org.com/reference/shape_helpers.md)
+  : Helpers for Shape Inference
+- [`reshape_output_shape()`](https://mlr3torch.mlr-org.com/reference/reshape_output_shape.md)
+  : Output Shape of a Reshape
+- [`assert_shape()`](https://mlr3torch.mlr-org.com/reference/assert_shape.md)
+  : Assert a Shape
+- [`assert_shapes()`](https://mlr3torch.mlr-org.com/reference/assert_shapes.md)
+  : Assert a List of Shapes
+- [`assert_known_dims()`](https://mlr3torch.mlr-org.com/reference/assert_known_dims.md)
+  : Assert that Dimensions are Known
+- [`assert_ndim()`](https://mlr3torch.mlr-org.com/reference/assert_ndim.md)
+  : Assert the Number of Dimensions of a Shape
+- [`assert_same_ndim()`](https://mlr3torch.mlr-org.com/reference/assert_same_ndim.md)
+  : Assert that Shapes have the Same Number of Dimensions
+- [`assert_same_batch_size()`](https://mlr3torch.mlr-org.com/reference/assert_same_batch_size.md)
+  : Assert that Shapes have the Same Batch Size
+- [`assert_dim_in_range()`](https://mlr3torch.mlr-org.com/reference/assert_dim_in_range.md)
+  : Assert that a Dimension Exists
+- [`assert_not_batch_dim()`](https://mlr3torch.mlr-org.com/reference/assert_not_batch_dim.md)
+  : Assert that a Dimension is not the Batch Dimension
+- [`assert_positive_extent()`](https://mlr3torch.mlr-org.com/reference/assert_positive_extent.md)
+  : Assert that a Computed Output Size is Positive

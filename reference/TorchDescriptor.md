@@ -80,7 +80,7 @@ Other Torch Descriptor:
 
 ### Public methods
 
-- [`TorchDescriptor$new()`](#method-TorchDescriptor-new)
+- [`TorchDescriptor$new()`](#method-TorchDescriptor-initialize)
 
 - [`TorchDescriptor$print()`](#method-TorchDescriptor-print)
 
@@ -92,7 +92,7 @@ Other Torch Descriptor:
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `TorchDescriptor$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -150,7 +150,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `TorchDescriptor$print()`
 
 Prints the object
 
@@ -166,7 +166,7 @@ Prints the object
 
 ------------------------------------------------------------------------
 
-### Method `generate()`
+### `TorchDescriptor$generate()`
 
 Calls the generator with the given parameter values.
 
@@ -176,7 +176,7 @@ Calls the generator with the given parameter values.
 
 ------------------------------------------------------------------------
 
-### Method [`help()`](https://rdrr.io/r/utils/help.html)
+### `TorchDescriptor$help()`
 
 Displays the help file of the wrapped object.
 
@@ -186,7 +186,7 @@ Displays the help file of the wrapped object.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `TorchDescriptor$clone()`
 
 The objects of this class are cloneable with this method.
 

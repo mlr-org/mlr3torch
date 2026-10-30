@@ -8,6 +8,10 @@ events. To view them, use TensorBoard with `tensorflow::tensorboard()`
 
 Logs events at most every epoch.
 
+## Resuming
+
+This callback keeps no state of its own so it can trivially be resumed.
+
 ## See also
 
 Other Callback:
@@ -26,14 +30,14 @@ Other Callback:
 
 ## Super class
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/reference/mlr_callback_set.md)
 -\> `CallbackSetTB`
 
 ## Methods
 
 ### Public methods
 
-- [`CallbackSetTB$new()`](#method-CallbackSetTB-new)
+- [`CallbackSetTB$new()`](#method-CallbackSetTB-initialize)
 
 - [`CallbackSetTB$on_epoch_end()`](#method-CallbackSetTB-on_epoch_end)
 
@@ -41,13 +45,13 @@ Other Callback:
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-load_state_dict)
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-print)
-- [`mlr3torch::CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-load_state_dict)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-print)
+- [`CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/reference/CallbackSet.html#method-state_dict)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CallbackSetTB$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -62,7 +66,9 @@ Creates a new instance of this
 
   (`character(1)`)  
   The path to a folder where the events are logged. Point TensorBoard to
-  this folder to view them.
+  this folder to view them. The folder must be new, empty, or one that
+  this callback already logged into, so that a resumed run can continue
+  the log of the run it continues.
 
 - `log_train_loss`:
 
@@ -71,7 +77,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `on_epoch_end()`
+### `CallbackSetTB$on_epoch_end()`
 
 Logs the training loss, training measures, and validation measures as
 TensorBoard events.
@@ -82,7 +88,7 @@ TensorBoard events.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetTB$clone()`
 
 The objects of this class are cloneable with this method.
 

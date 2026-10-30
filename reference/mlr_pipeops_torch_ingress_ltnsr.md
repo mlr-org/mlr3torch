@@ -30,78 +30,10 @@ The state is set to the input shape.
 
 ## See also
 
-Other PipeOps:
-[`mlr_pipeops_nn_adaptive_avg_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool1d.md),
-[`mlr_pipeops_nn_adaptive_avg_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool2d.md),
-[`mlr_pipeops_nn_adaptive_avg_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool3d.md),
-[`mlr_pipeops_nn_avg_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool1d.md),
-[`mlr_pipeops_nn_avg_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool2d.md),
-[`mlr_pipeops_nn_avg_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool3d.md),
-[`mlr_pipeops_nn_batch_norm1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm1d.md),
-[`mlr_pipeops_nn_batch_norm2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm2d.md),
-[`mlr_pipeops_nn_batch_norm3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm3d.md),
-[`mlr_pipeops_nn_block`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_block.md),
-[`mlr_pipeops_nn_celu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_celu.md),
-[`mlr_pipeops_nn_conv1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv1d.md),
-[`mlr_pipeops_nn_conv2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv2d.md),
-[`mlr_pipeops_nn_conv3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv3d.md),
-[`mlr_pipeops_nn_conv_transpose1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose1d.md),
-[`mlr_pipeops_nn_conv_transpose2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose2d.md),
-[`mlr_pipeops_nn_conv_transpose3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose3d.md),
-[`mlr_pipeops_nn_dropout`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout.md),
-[`mlr_pipeops_nn_elu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_elu.md),
-[`mlr_pipeops_nn_flatten`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_flatten.md),
-[`mlr_pipeops_nn_ft_cls`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_ft_cls.md),
-[`mlr_pipeops_nn_ft_transformer_block`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_ft_transformer_block.md),
-[`mlr_pipeops_nn_geglu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_geglu.md),
-[`mlr_pipeops_nn_gelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gelu.md),
-[`mlr_pipeops_nn_glu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_glu.md),
-[`mlr_pipeops_nn_hardshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardshrink.md),
-[`mlr_pipeops_nn_hardsigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardsigmoid.md),
-[`mlr_pipeops_nn_hardtanh`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardtanh.md),
-[`mlr_pipeops_nn_head`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_head.md),
-[`mlr_pipeops_nn_identity`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_identity.md),
-[`mlr_pipeops_nn_layer_norm`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_layer_norm.md),
-[`mlr_pipeops_nn_leaky_relu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_leaky_relu.md),
-[`mlr_pipeops_nn_linear`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_linear.md),
-[`mlr_pipeops_nn_log_sigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_sigmoid.md),
-[`mlr_pipeops_nn_max_pool1d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool1d.md),
-[`mlr_pipeops_nn_max_pool2d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool2d.md),
-[`mlr_pipeops_nn_max_pool3d`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool3d.md),
-[`mlr_pipeops_nn_merge`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge.md),
-[`mlr_pipeops_nn_merge_cat`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_cat.md),
-[`mlr_pipeops_nn_merge_prod`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_prod.md),
-[`mlr_pipeops_nn_merge_sum`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_sum.md),
-[`mlr_pipeops_nn_prelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_prelu.md),
-[`mlr_pipeops_nn_reglu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reglu.md),
-[`mlr_pipeops_nn_relu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu.md),
-[`mlr_pipeops_nn_relu6`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu6.md),
-[`mlr_pipeops_nn_reshape`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reshape.md),
-[`mlr_pipeops_nn_rrelu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rrelu.md),
-[`mlr_pipeops_nn_selu`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_selu.md),
-[`mlr_pipeops_nn_sigmoid`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_sigmoid.md),
-[`mlr_pipeops_nn_softmax`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax.md),
-[`mlr_pipeops_nn_softplus`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softplus.md),
-[`mlr_pipeops_nn_softshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softshrink.md),
-[`mlr_pipeops_nn_softsign`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softsign.md),
-[`mlr_pipeops_nn_squeeze`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_squeeze.md),
-[`mlr_pipeops_nn_tanh`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tanh.md),
-[`mlr_pipeops_nn_tanhshrink`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tanhshrink.md),
-[`mlr_pipeops_nn_threshold`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_threshold.md),
-[`mlr_pipeops_nn_tokenizer_categ`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_categ.md),
-[`mlr_pipeops_nn_tokenizer_num`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tokenizer_num.md),
-[`mlr_pipeops_nn_unsqueeze`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_unsqueeze.md),
-[`mlr_pipeops_torch_ingress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md),
-[`mlr_pipeops_torch_ingress_categ`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_categ.md),
-[`mlr_pipeops_torch_ingress_num`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_num.md),
-[`mlr_pipeops_torch_loss`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_loss.md),
-[`mlr_pipeops_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model.md),
-[`mlr_pipeops_torch_model_classif`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model_classif.md),
-[`mlr_pipeops_torch_model_regr`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model_regr.md)
-
 Other Graph Network:
 [`ModelDescriptor()`](https://mlr3torch.mlr-org.com/reference/ModelDescriptor.md),
 [`TorchIngressToken()`](https://mlr3torch.mlr-org.com/reference/TorchIngressToken.md),
+[`as_learner_torch()`](https://mlr3torch.mlr-org.com/reference/as_learner_torch.md),
 [`mlr_learners_torch_model`](https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.md),
 [`mlr_pipeops_module`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.md),
 [`mlr_pipeops_torch`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.md),
@@ -111,20 +43,21 @@ Other Graph Network:
 [`model_descriptor_to_learner()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_learner.md),
 [`model_descriptor_to_module()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_to_module.md),
 [`model_descriptor_union()`](https://mlr3torch.mlr-org.com/reference/model_descriptor_union.md),
-[`nn_graph()`](https://mlr3torch.mlr-org.com/reference/nn_graph.md)
+[`nn_graph()`](https://mlr3torch.mlr-org.com/reference/nn_graph.md),
+[`pipeop_torch()`](https://mlr3torch.mlr-org.com/reference/pipeop_torch.md)
 
 ## Super classes
 
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
 -\>
-[`mlr3torch::PipeOpTorchIngress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md)
+[`PipeOpTorchIngress`](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.md)
 -\> `PipeOpTorchIngressLazyTensor`
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorchIngressLazyTensor$new()`](#method-PipeOpTorchIngressLazyTensor-new)
+- [`PipeOpTorchIngressLazyTensor$new()`](#method-PipeOpTorchIngressLazyTensor-initialize)
 
 - [`PipeOpTorchIngressLazyTensor$clone()`](#method-PipeOpTorchIngressLazyTensor-clone)
 
@@ -137,7 +70,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchIngressLazyTensor$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -164,7 +97,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchIngressLazyTensor$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -216,8 +149,8 @@ task_unknown_resize = po_resize$train(list(task_unknown))[[1L]]
 task_unknown_resize$data(1:2, "x")
 #>                x
 #>    <lazy_tensor>
-#> 1:     <list[2]>
-#> 2:     <list[2]>
+#> 1:     <tnsr[?]>
+#> 2:     <tnsr[?]>
 po_ingress$param_set$set_values(shape = c(NA, 3, 6, 6))
 
 md2 = po_ingress$train(list(task_unknown_resize))[[1L]]
@@ -231,35 +164,35 @@ x_batch2 = ingress2[[1L]]$batchgetter(
 x_batch2
 #> torch_tensor
 #> (1,1,.,.) = 
-#>   0.0411 -1.3649 -0.4863  0.3710 -0.8779  0.0273
-#>  -0.3228  0.4848  0.2250  1.4265 -1.4304 -1.9719
-#>  -0.3326 -0.7930 -0.4461  0.1632  0.6546  0.7266
-#>  -0.3402  0.1802 -0.1464 -0.2615 -0.1985 -0.7621
-#>   1.3062 -1.4964 -0.3238  0.9297  0.0384 -0.9767
-#>  -0.6814 -1.3683  0.7867  0.1555  0.1683  0.0884
+#>  1.2235 -0.8693  0.1291  0.2971 -0.1966 -0.4186
+#>   0.0244 -0.7857  0.7135  0.6353 -1.3863  1.5637
+#>   0.6914  0.2129 -0.4089 -0.3645 -0.8534  0.1113
+#>  -0.3689 -0.4175  0.1535  0.2489 -0.3538 -0.2283
+#>   0.9414 -1.2836  0.2585 -0.9097  1.6400  0.4045
+#>   0.4778 -0.5797 -0.2215 -0.5831 -0.8346 -0.6123
 #> 
 #> (2,1,.,.) = 
-#>   0.0078  0.2874  0.7613 -0.1718 -0.2722  0.9439
-#>   0.8306 -0.0877 -0.5931 -0.8042  0.5395  0.1787
-#>  -0.3169 -0.4677 -0.4461 -0.3794 -0.9251  0.5454
-#>   1.1518 -0.2466  1.5557  0.0100  0.3114  0.4342
-#>  -1.2274 -0.5697 -0.2482  1.1166  0.4830  0.0382
-#>  -0.2512 -0.8823 -0.7878 -0.5564  0.9122  0.7590
+#> -1.0213 -0.1896  0.4308 -1.3328  0.0413  0.8853
+#>   0.3063 -0.3278 -0.4513 -0.2965 -1.1542 -0.2603
+#>  -0.9090 -0.0836 -0.7598  0.6277 -0.8390 -0.0648
+#>  -0.7020  0.6911  0.1233 -0.2373 -0.8139  0.7105
+#>   0.0052 -0.2101  0.2878 -0.6586 -0.9191 -0.3964
+#>  -1.2067 -0.9607 -1.0429  0.8474 -0.5072 -0.0837
 #> 
 #> (1,2,.,.) = 
-#>   0.9581 -0.9677  0.2338  0.6412 -0.0823  0.4976
-#>   1.0141 -0.6241  0.5868 -0.3826 -1.5366  1.0756
-#>  -0.3438  1.1796 -0.1677  0.1625  0.4258  0.4032
-#>   0.2755  0.6711 -0.1059 -0.1254 -0.7835  0.1656
-#>   0.5504 -1.0331  0.4651  1.0914 -1.2006 -0.7333
-#>   0.0946 -0.3334  0.9184  0.2575  0.3255 -0.0063
+#>  0.1215  0.6305 -0.7692 -0.4920 -0.0901 -0.2398
+#>   0.0199  0.0737  0.4934 -0.0684  1.0296 -0.3462
+#>  -0.3116  0.2497 -0.2922 -0.2056  0.2432  0.2699
+#>  -0.1912  1.4981  0.2916  0.7890 -1.1812 -0.2580
+#>   0.0249  0.0175  0.1385  0.4516  0.0329  0.0544
+#>   0.1796  0.2636 -0.1888  0.1125  0.2138 -0.5006
 #> 
 #> (2,2,.,.) = 
-#>  -1.1901 -0.2435 -0.3367 -0.1403 -0.3108 -0.5342
-#>  -0.5139  0.0925 -0.2371 -0.2081  0.3345  0.3810
-#>  -0.1827 -0.8664  0.3034 -1.1434 -0.0145 -0.0024
-#>   0.9768 -0.6391 -0.2060 -1.3912  0.3894 -0.5615
-#>   1.2234 -1.2620 -0.2089 -0.2379  0.4680  0.7906
+#> -0.8596  0.3918 -0.6645  0.1422 -0.9759  0.5875
+#>  -0.6223  0.5362  0.0130 -0.2542  0.8328  0.6319
+#>  -0.6584 -0.0634 -0.5176 -1.2970 -0.0187 -0.1137
+#>   1.2424  0.3426  0.4458  0.0277 -0.2707 -0.6000
+#>   0.8371 -0.4469  0.1884  0.1536 -0.9254 -0.7581
 #> ... [the output was truncated (use n=-1 to disable)]
 #> [ CPUFloatType{2,3,6,6} ]
 ```

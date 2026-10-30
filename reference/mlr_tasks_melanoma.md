@@ -66,13 +66,12 @@ as the cache directory.
 
 ## References
 
-Rotemberg, V., Kurtansky, N., Betz-Stablein, B., Caffery, L., Chousakos,
-E., Codella, N., Combalia, M., Dusza, S., Guitera, P., Gutman, D.,
-Halpern, A., Helba, B., Kittler, H., Kose, K., Langer, S., Lioprys, K.,
-Malvehy, J., Musthaq, S., Nanda, J., Reiter, O., Shih, G., Stratigos,
-A., Tschandl, P., Weber, J., Soyer, P. (2021). “A patient-centric
-dataset of images and metadata for identifying melanomas using clinical
-context.” *Scientific Data*, **8**, 34.
+Rotemberg V, Kurtansky N, Betz-Stablein B, Caffery L, Chousakos E,
+Codella N, Combalia M, Dusza S, Guitera P, Gutman D, Halpern A, Helba B,
+Kittler H, Kose K, Langer S, Lioprys K, Malvehy J, Musthaq S, Nanda J,
+Reiter O, Shih G, Stratigos A, Tschandl P, Weber J, Soyer P (2021). “A
+patient-centric dataset of images and metadata for identifying melanomas
+using clinical context.” *Scientific Data*, **8**, 34.
 [doi:10.1038/s41597-021-00815-z](https://doi.org/10.1038/s41597-021-00815-z)
 .
 

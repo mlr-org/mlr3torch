@@ -13,11 +13,12 @@ first.
 We start by sampling some input tensor: 2 batches with 3 features:
 
 ``` r
+
 input = torch_randn(2, 3)
 input
 #> torch_tensor
-#> -0.3265 -1.2299 -0.0281
-#>  0.1250  0.1282 -0.6023
+#> -1.1814  0.3620 -0.9801
+#> -2.4515  0.5972  0.1334
 #> [ CPUFloatType{2,3} ]
 ```
 
@@ -25,17 +26,19 @@ A `nn_module` is constructed from a `nn_module_generator`. `nn_linear`
 is one of the simpler generators:
 
 ``` r
+
 module_1 = nn_linear(in_features = 3, out_features = 4, bias = TRUE)
 ```
 
 Applying this module gives a 2-batch of 4 units:
 
 ``` r
+
 output = module_1(input)
 output
 #> torch_tensor
-#> -0.4958 -0.3536  0.1816 -0.1524
-#> -0.1000  0.1588 -0.5347 -0.8121
+#>  0.8233 -0.4765 -0.1624 -0.0691
+#>  0.9416 -0.2891 -0.1064  0.0099
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -43,6 +46,7 @@ A neural network with one (4-unit) hidden layer and two outputs needs
 the following ingredients
 
 ``` r
+
 activation = nn_sigmoid()
 module_2 = nn_linear(4, 3, bias = TRUE)
 softmax = nn_softmax(2)
@@ -51,14 +55,15 @@ softmax = nn_softmax(2)
 We can pipe a tensor through the layers as follows.
 
 ``` r
+
 output = module_1(input)
 output = activation(output)
 output = module_2(output)
 output = softmax(output)
 output
 #> torch_tensor
-#>  0.3265  0.4173  0.2561
-#>  0.3363  0.4316  0.2321
+#>  0.5641  0.1991  0.2367
+#>  0.5696  0.1973  0.2331
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -85,6 +90,7 @@ will now continue to recreate the above network using `PipeOpModule`s.
 We can wrap the linear `module_1` layers like this:
 
 ``` r
+
 library(mlr3torch)
 po_module_1 = po("module_1", module = module_1)
 ```
@@ -96,11 +102,12 @@ ID clashes in graphs that contain the same `PipeOp` multiple times.
 We can use the generated `PipeOp` in the familiar way:
 
 ``` r
+
 output = po_module_1$train(list(input))[[1]]
 output
 #> torch_tensor
-#> -0.4958 -0.3536  0.1816 -0.1524
-#> -0.1000  0.1588 -0.5347 -0.8121
+#>  0.8233 -0.4765 -0.1624 -0.0691
+#>  0.9416 -0.2891 -0.1064  0.0099
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -111,6 +118,7 @@ The single hidden layer neural network can be constructed as a `Graph`,
 which can then do the training all at once.
 
 ``` r
+
 po_activation = po("module", id = "activation", activation)
 po_module_2 = po("module_2", module = module_2)
 po_softmax = po("module", id = "softmax", module = softmax)
@@ -127,15 +135,16 @@ We can now use the graph’s `$train()` method to pipe a tensor through
 the whole `Graph`.
 
 ``` r
+
 output = module_graph$train(input)[[1]]
 output
 #> torch_tensor
-#>  0.3265  0.4173  0.2561
-#>  0.3363  0.4316  0.2321
+#>  0.5641  0.1991  0.2367
+#>  0.5696  0.1973  0.2331
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
-While this object allows to easily perform a forward pass, it does not
+While this object makes it easy to perform a forward pass, it does not
 inherit from `nn_module`, which is useful for various reasons. Instead
 of having a class that inherits both from `nn_module` and `Graph` (which
 does not work in R6, since multiple inheritance is not available), there
@@ -154,6 +163,7 @@ subset of outputs to use, or change the output order, by giving the
 `output_map` argument.
 
 ``` r
+
 # the name of the single input is:
 module_graph$input
 #>              name        train predict    op.id channel.name
@@ -169,6 +179,7 @@ graph_module = nn_graph(
 This module gives us the convenience of torch `nn_module` objects, e.g.:
 
 ``` r
+
 graph_module$children
 #> $module_list
 #> An `nn_module` containing 31 parameters.
@@ -184,10 +195,11 @@ And it can be used to transform tensors just as any other
 [`torch::nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html):
 
 ``` r
+
 graph_module(input)
 #> torch_tensor
-#>  0.3265  0.4173  0.2561
-#>  0.3363  0.4316  0.2321
+#>  0.5641  0.1991  0.2367
+#>  0.5696  0.1973  0.2331
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -214,6 +226,7 @@ appropriate `PipeOpTorchIngress` for a given datatype. Below we use
 `PipeOpTorchIngressNumeric`, which is is is used for numeric data.
 
 ``` r
+
 task = tsk("iris")$select(colnames(iris)[1:3])
 
 po_torch_in = po("torch_ingress_num")
@@ -237,6 +250,7 @@ further information necessary to extend that graph along a given output
 (`$pointer` and `$pointer_shape`).
 
 ``` r
+
 unclass(md)
 #> $graph
 #> 
@@ -256,10 +270,10 @@ unclass(md)
 #> 
 #> ── <TaskClassif> (150x4): Iris Flowers ─────────────────────────────────────────
 #> • Target: Species
-#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> • Properties: multiclass
 #> • Features (3):
 #>   • dbl (3): Petal.Length, Sepal.Length, Sepal.Width
+#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> 
 #> $optimizer
 #> NULL
@@ -283,18 +297,19 @@ for example, adds a `PipeOpModule` wrapping a
 [`torch::nn_linear`](https://torch.mlverse.org/docs/reference/nn_linear.html).
 
 ``` r
-po_torch_linear = po("nn_linear", out_features = 4)
+
+po_torch_linear = nn("linear", out_features = 4)
 md = po_torch_linear$train(list(md))[[1]]
 
 md$graph
 #> 
 #> ── Graph with 2 PipeOps: ───────────────────────────────────────────────────────
-#>                 ID         State  sccssors         prdcssors
-#>             <char>        <char>    <char>            <char>
-#>  torch_ingress_num <<UNTRAINED>> nn_linear                  
-#>          nn_linear <<UNTRAINED>>           torch_ingress_num
+#>                 ID         State sccssors         prdcssors
+#>             <char>        <char>   <char>            <char>
+#>  torch_ingress_num <<UNTRAINED>>   linear                  
+#>             linear <<UNTRAINED>>          torch_ingress_num
 #> 
-#> ── Pipeline: <INPUT> -> torch_ingress_num -> nn_linear -> <OUTPUT>
+#> ── Pipeline: <INPUT> -> torch_ingress_num -> linear -> <OUTPUT>
 ```
 
 The `$pointer` is now updated to identify the output of that
@@ -302,8 +317,9 @@ The `$pointer` is now updated to identify the output of that
 changed to 4 units (was 3 for the input before).
 
 ``` r
+
 md$pointer
-#> [1] "nn_linear" "output"
+#> [1] "linear" "output"
 md$pointer_shape
 #> [1] NA  4
 ```
@@ -314,12 +330,13 @@ function converts this to an `nn_graph`, it is a functional
 [`torch::nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html).
 
 ``` r
+
 small_module = model_descriptor_to_module(md, list(md$pointer))
 
 small_module(input)
 #> torch_tensor
-#>  0.4109  0.5712  0.2516  0.1379
-#>  0.3131  0.7047  0.8287 -0.0295
+#>  0.0402  0.0692 -0.3574 -0.2948
+#> -1.0762  0.0351 -1.0164  0.6727
 #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -337,6 +354,7 @@ be created extra (if necessary), since it depends on the ultimate
 machine learning model, which we have not looked at so far.
 
 ``` r
+
 td = task_dataset(
   task = md$task,
   feature_ingress_tokens = md$ingress
@@ -350,10 +368,12 @@ td
 #>     .getitem: function (index) 
 #>     .length: function () 
 #>     all_features: Petal.Length Sepal.Length Sepal.Width Species
+#>     batch_constructor: function (data, cache = NULL) 
 #>     cache_lazy_tensors: FALSE
 #>     clone: function (deep = FALSE) 
+#>     data: data.table, data.frame
 #>     feature_ingress_tokens: list
-#>     initialize: function (task, feature_ingress_tokens, target_batchgetter = NULL) 
+#>     initialize: function (task, feature_ingress_tokens, target_batchgetter = NULL, 
 #>     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE) 
 #>     state_dict: function () 
 #>     target_batchgetter: NULL
@@ -367,6 +387,7 @@ also a `list`, since it should be able to handle NNs with multiple
 inputs (see below).
 
 ``` r
+
 batch = td$.getbatch(1:3)
 batch
 #> $x
@@ -387,9 +408,9 @@ batch
 
 small_module(batch$x[[1]])
 #> torch_tensor
-#> -3.4639 -1.5885 -0.3614 -2.8880
-#> -3.1350 -1.3451 -0.1451 -2.6492
-#> -3.1777 -1.4173 -0.2830 -2.6685
+#>  0.4564  1.4271 -2.5552  1.2478
+#>  0.6189  1.3355 -2.3530  1.0247
+#>  0.4591  1.3479 -2.3656  1.0987
 #> [ CPUFloatType{3,4} ][ grad_fn = <AddmmBackward0> ]
 ```
 
@@ -398,11 +419,12 @@ small_module(batch$x[[1]])
 The sequential NN from above can easily be implemented as follows:
 
 ``` r
+
 graph_generator = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 4, id = "linear1") %>>%
-    po("nn_sigmoid") %>>%
-  po("nn_linear", out_features = 3, id = "linear2") %>>%
-  po("nn_softmax", dim = 2)
+  nn("linear", out_features = 4, id = "linear1") %>>%
+    nn("sigmoid") %>>%
+  nn("linear", out_features = 3, id = "linear2") %>>%
+  nn("softmax", dim = 2)
 ```
 
 Note how the second `nn_linear` does not need to be informed about the
@@ -411,14 +433,15 @@ that is passed along the `Graph` edges knows this info (in the
 `$pointer_shape` slot).
 
 ``` r
+
 md_sequential = graph_generator$train(task)[[1]]
 
 graph_module = model_descriptor_to_module(md_sequential, list(md_sequential$pointer))
 
 graph_module(input)
 #> torch_tensor
-#>  0.3684  0.3011  0.3305
-#>  0.3362  0.3001  0.3638
+#>  0.3886  0.3796  0.2318
+#>  0.3838  0.4179  0.1983
 #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
 ```
 
@@ -438,32 +461,34 @@ that the wholly integrated `mlr3pipelines` pipeline can do this
 automatically.
 
 ``` r
+
 iris_petal = tsk("iris")$select(c("Petal.Length", "Petal.Width"))
 iris_sepal = tsk("iris")$select(c("Sepal.Length", "Sepal.Width"))
 ```
 
 ``` r
+
 graph_sepal = po("torch_ingress_num", id = "sepal.in") %>>%
-  po("nn_linear", out_features = 4, id = "linear1")
+  nn("linear", out_features = 4, id = "linear1")
 
 graph_petal = po("torch_ingress_num", id = "petal.in") %>>%
-  po("nn_linear", out_features = 3, id = "linear2") %>>%
-  po("nn_tanh") %>>%
-  po("nn_linear", out_features = 5, id = "linear3")
+  nn("linear", out_features = 3, id = "linear2") %>>%
+  nn("tanh") %>>%
+  nn("linear", out_features = 5, id = "linear3")
 
 graph_common = ppl("branch", graphs = list(
-    sigmoid = po("nn_sigmoid"),
-    relu = po("nn_relu")
+    sigmoid = nn("sigmoid"),
+    relu = nn("relu")
   )) %>>%
   gunion(list(
-    po("nn_linear", out_features = 1, id = "lin_out"),
-    po("nn_linear", out_features = 3, id = "cat_out") %>>%
-      po("nn_softmax", dim = 2)
+    nn("linear", out_features = 1, id = "lin_out"),
+    nn("linear", out_features = 3, id = "cat_out") %>>%
+      nn("softmax", dim = 2)
   ))
 
 
 graph_iris = gunion(list(graph_sepal, graph_petal)) %>>%
-  po("nn_merge_cat") %>>%
+  nn("merge_cat") %>>%
   graph_common
 
 graph_iris$plot(html = TRUE)
@@ -474,6 +499,7 @@ created above. We set the `$keep_results` debug flag here so we can do
 some inspection about what is happening:
 
 ``` r
+
 graph_iris$param_set$values$branch.selection = "relu"
 
 graph_iris$keep_results = TRUE
@@ -493,14 +519,14 @@ iris_mds
 #> * Loss:  N/A
 #> * pointer:  lin_out.output [(NA,1)]
 #> 
-#> $nn_softmax.output
+#> $softmax.output
 #> <ModelDescriptor: 11 ops>
 #> * Ingress:  sepal.in.input: [(NA,2)], petal.in.input: [(NA,2)]
 #> * Task:  iris [classif]
 #> * Callbacks:  N/A
 #> * Optimizer:  N/A
 #> * Loss:  N/A
-#> * pointer:  nn_softmax.output [(NA,3)]
+#> * pointer:  softmax.output [(NA,3)]
 ```
 
 We make multiple observations here:
@@ -514,6 +540,7 @@ We make multiple observations here:
     ones that take the `petal.in`-path:
 
     ``` r
+
     # sepal.in path
     graph_iris$pipeops$linear1$.result[[1]]$ingress
     #> $sepal.in.input
@@ -533,18 +560,19 @@ We make multiple observations here:
     #> [1] NA  5
     ```
 
-    `po("nn_merge_cat")` unites the two `ModelDescriptor`s and contains
-    the common ingress. The `pointer_shape` now reflects the output of
-    the “cat”-operation: the 2nd dimension is added up:
+    `nn("merge_cat")` unites the two `ModelDescriptor`s and contains the
+    common ingress. The `pointer_shape` now reflects the output of the
+    “cat”-operation: the 2nd dimension is added up:
 
     ``` r
-    graph_iris$pipeops$nn_merge_cat$.result[[1]]$ingress
+
+    graph_iris$pipeops$merge_cat$.result[[1]]$ingress
     #> $sepal.in.input
     #> Ingress: Task[selector_name(c("Sepal.Length", "Sepal.Width"), assert_present = TRUE)] --> Tensor(NA, 2)
     #> 
     #> $petal.in.input
     #> Ingress: Task[selector_name(c("Petal.Length", "Petal.Width"), assert_present = TRUE)] --> Tensor(NA, 2)
-    graph_iris$pipeops$nn_merge_cat$.result[[1]]$pointer_shape
+    graph_iris$pipeops$merge_cat$.result[[1]]$pointer_shape
     #> [1] NA  9
     ```
 
@@ -561,6 +589,7 @@ We make multiple observations here:
     has multiple outputs.
 
     ``` r
+
     iris_mds_union = model_descriptor_union(iris_mds[[1]], iris_mds[[2]])
     output_pointers = list(iris_mds[[1]]$pointer, iris_mds[[2]]$pointer)
     output_pointers
@@ -568,7 +597,7 @@ We make multiple observations here:
     #> [1] "lin_out" "output" 
     #> 
     #> [[2]]
-    #> [1] "nn_softmax" "output"
+    #> [1] "softmax" "output"
     iris_module = model_descriptor_to_module(iris_mds_union, output_pointers, list_output = TRUE)
     ```
 
@@ -580,6 +609,7 @@ We make multiple observations here:
     contains a `Graph` that does “relu” activation:
 
     ``` r
+
     iris_module$graph$plot(html = TRUE)
     ```
 
@@ -592,14 +622,15 @@ We make multiple observations here:
     used:
 
     ``` r
+
     iris_mds_union$task  # contains all features
     #> 
     #> ── <TaskClassif> (150x5): Iris Flowers ─────────────────────────────────────────
     #> • Target: Species
-    #> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
     #> • Properties: multiclass
     #> • Features (4):
     #>   • dbl (4): Petal.Length, Petal.Width, Sepal.Length, Sepal.Width
+    #> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 
     iris_td = task_dataset(
       task = iris_mds_union$task,
@@ -635,6 +666,7 @@ We make multiple observations here:
     `nn_module`’s `$graph`:
 
     ``` r
+
     iris_module$graph$keep_results = TRUE
 
     iris_module(
@@ -643,14 +675,15 @@ We make multiple observations here:
     )
     #> $lin_out.output
     #> torch_tensor
-    #>  0.2566
-    #>  0.2382
+    #> 0.01 *
+    #> -1.4997
+    #>  -1.4997
     #> [ CPUFloatType{2,1} ][ grad_fn = <AddmmBackward0> ]
     #> 
-    #> $nn_softmax.output
+    #> $softmax.output
     #> torch_tensor
-    #>  0.5039  0.2591  0.2370
-    #>  0.5012  0.2539  0.2449
+    #>  0.3295  0.4072  0.2633
+    #>  0.3295  0.4072  0.2633
     #> [ CPUFloatType{2,3} ][ grad_fn = <SoftmaxBackward0> ]
     ```
 
@@ -659,30 +692,20 @@ We make multiple observations here:
     layer has 2x5 output:
 
     ``` r
+
     iris_module$graph$pipeops$linear1$.result
-    #> $output
-    #> torch_tensor
-    #>  1.3065 -2.5302  1.6812 -2.2224
-    #>  1.2025 -2.4710  1.6596 -2.2358
-    #> [ CPUFloatType{2,4} ][ grad_fn = <AddmmBackward0> ]
+    #> NULL
     iris_module$graph$pipeops$linear3$.result
-    #> $output
-    #> torch_tensor
-    #> -0.0013 -0.0817  0.1641 -0.0469  0.0515
-    #> -0.0013 -0.0817  0.1641 -0.0469  0.0515
-    #> [ CPUFloatType{2,5} ][ grad_fn = <AddmmBackward0> ]
+    #> NULL
     ```
 
-    We observe that the `po("nn_merge_cat")` concatenates these, as
+    We observe that the `nn("merge_cat")` concatenates these, as
     expected:
 
     ``` r
-    iris_module$graph$pipeops$nn_merge_cat$.result
-    #> $output
-    #> torch_tensor
-    #>  1.3065 -2.5302  1.6812 -2.2224 -0.0013 -0.0817  0.1641 -0.0469  0.0515
-    #>  1.2025 -2.4710  1.6596 -2.2358 -0.0013 -0.0817  0.1641 -0.0469  0.0515
-    #> [ CPUFloatType{2,9} ][ grad_fn = <CatBackward0> ]
+
+    iris_module$graph$pipeops$merge_cat$.result
+    #> NULL
     ```
 
 ## Building Torch Learners
@@ -698,6 +721,7 @@ in the *Get Started* vignette. Here we use adam as the optimizer,
 cross-entropy as the loss function, and the history callback.
 
 ``` r
+
 adam = t_opt("adam", lr = 0.02)
 adam
 #> <TorchOptimizer:adam> Adaptive Moment Estimation
@@ -711,7 +735,7 @@ xe
 #> * Generator: function
 #> * Parameters: list()
 #> * Packages: torch,mlr3torch
-#> * Task Types: classif
+#> * Task Types: classif,torch
 
 history = t_clbk("history")
 history
@@ -733,6 +757,7 @@ works for the specific `Task` created. (Generally the full
 following uses the sequential NN from above:
 
 ``` r
+
 lr_sequential = lrn("classif.torch_model",
   task_type = "classif",
   network = model_descriptor_to_module(md_sequential, list(md_sequential$pointer)),
@@ -746,19 +771,18 @@ lr_sequential
 #> 
 #> ── <LearnerTorchModel> (classif.model): Torch Model ────────────────────────────
 #> • Model: -
-#> • Parameters: device=auto, num_threads=1, num_interop_threads=1, seed=random,
-#> eval_freq=1, measures_train=<list>, measures_valid=<list>, patience=0,
-#> min_delta=0, shuffle=TRUE, tensor_dataset=FALSE, jit_trace=FALSE, opt.lr=0.02
+#> • Parameters: device=auto, num_threads=1, seed=random, eval_freq=1,
+#> measures_train=<list>, measures_valid=<list>, patience=0, min_delta=0,
+#> restore_best_weights=FALSE, shuffle=TRUE, tensor_dataset=FALSE,
+#> cache_task_data=TRUE, jit_trace=FALSE, opt.lr=0.02
 #> • Validate: NULL
 #> • Packages: mlr3, mlr3torch, and torch
 #> • Predict Types: [response] and prob
 #> • Feature Types: logical, integer, numeric, character, factor, ordered,
 #> POSIXct, Date, and lazy_tensor
 #> • Encapsulation: none (fallback: -)
-#> • Properties: featureless, hotstart_backward, hotstart_forward, importance,
-#> internal_tuning, marshal, missings, multiclass, new_levels, offset, oob_error,
-#> selected_features, twoclass, validation, and weights
-#> • Other settings: use_weights = 'use'
+#> • Properties: internal_tuning, marshal, multiclass, twoclass, and validation
+#> • Other settings: use_weights = 'error', predict_raw = 'FALSE'
 #> • Optimizer: adam
 #> • Loss: cross_entropy
 #> • Callbacks: history
@@ -767,6 +791,7 @@ lr_sequential
 Before training the model, we set some more hyperparameters.
 
 ``` r
+
 lr_sequential$param_set$set_values(
   batch_size = 50,
   epochs = 100,
@@ -783,6 +808,7 @@ surface along the `Sepal.Width = mean(Sepal.Width)` plane, along with
 the ground-truth values:
 
 ``` r
+
 library(data.table)
 library(ggplot2)
 
@@ -796,8 +822,8 @@ predictions = lr_sequential$predict_newdata(newdata)
 plot_predictions = function(predictions) {
   ggplot(cbind(newdata, Species = predictions$response),
       aes(x = Sepal.Length, y = Petal.Length, fill = Species)) +
-    geom_tile(alpha = .3) +
-    geom_tile(alpha = .3) +
+    geom_tile(alpha = 0.3) +
+    geom_tile(alpha = 0.3) +
     geom_point(data = iris,
       aes(x = Sepal.Length, y = Petal.Length, fill = Species),
       color = "black", pch = 21, size = 3) +
@@ -829,6 +855,7 @@ an NN. They can be set by corresponding `PipeOpTorch` operators.
 construction and exports its `ParamSet`.
 
 ``` r
+
 po_adam = po("torch_optimizer", optimizer = adam)
 
 # hyperparameters are made available and can be changed:
@@ -848,6 +875,7 @@ md_sequential$optimizer
 This works analogously for the loss-function.
 
 ``` r
+
 po_xe = po("torch_loss", loss = xe)
 md_sequential = po_xe$train(list(md_sequential))[[1]]
 
@@ -856,12 +884,13 @@ md_sequential$loss
 #> * Generator: function
 #> * Parameters: list()
 #> * Packages: torch,mlr3torch
-#> * Task Types: classif
+#> * Task Types: classif,torch
 ```
 
 And also for callbacks:
 
 ``` r
+
 po_history = po("torch_callbacks", callbacks = t_clbk("history"))
 md_sequential = po_history$train(list(md_sequential))[[1]]
 
@@ -878,6 +907,7 @@ md_sequential$callbacks
 The `ModelDescriptor` can now be given to a `po("torch_model_classif")`.
 
 ``` r
+
 po_model = po("torch_model_classif", batch_size = 50, epochs = 50)
 
 po_model$train(list(md_sequential))
@@ -891,6 +921,7 @@ returns `NULL` during training, and the prediction on `$predict()`.
 returns `NULL` during training, and the prediction on `$predict()`.
 
 ``` r
+
 newtask = TaskClassif$new("newdata", cbind(newdata, Species = factor(NA, levels = levels(iris$Species))), target = "Species")
 
 predictions = po_model$predict(list(newtask))[[1]]
@@ -910,13 +941,14 @@ as a `GraphLearner`. The following uses one more hidden layer than
 before:
 
 ``` r
+
 graph_sequential_full = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 4, id = "linear1") %>>%
-    po("nn_sigmoid") %>>%
-    po("nn_linear", out_features = 3, id = "linear2") %>>%
-    po("nn_softmax", dim = 2, id = "softmax") %>>%
-    po("nn_linear", out_features = 3, id = "linear3") %>>%
-    po("nn_softmax", dim = 2, id = "softmax2") %>>%
+  nn("linear", out_features = 4, id = "linear1") %>>%
+    nn("sigmoid") %>>%
+    nn("linear", out_features = 3, id = "linear2") %>>%
+    nn("softmax", dim = 2, id = "softmax") %>>%
+    nn("linear", out_features = 3, id = "linear3") %>>%
+    nn("softmax", dim = 2, id = "softmax2") %>>%
     po("torch_optimizer", optimizer = adam) %>>%
     po("torch_loss", loss = xe) %>>%
     po("torch_callbacks", callbacks = history) %>>%
@@ -929,12 +961,14 @@ lr_sequential_full$train(task)
 Compare the resulting `Graph`
 
 ``` r
+
 graph_sequential_full$plot(html = TRUE)
 ```
 
 With the `Graph` of the trained model:
 
 ``` r
+
 model = lr_sequential_full$graph_model$state$torch_model_classif$model
 model$network$graph$plot(html = TRUE)
 ```
@@ -942,6 +976,7 @@ model$network$graph$plot(html = TRUE)
 Predictions, as before (we can use `predict_newdata` again):
 
 ``` r
+
 predictions = lr_sequential_full$predict_newdata(newdata)
 
 plot_predictions(predictions)
@@ -957,12 +992,13 @@ The following pipeline, for example, removes all but the `Petal.Length`
 columns from the `Task` and fits a model:
 
 ``` r
+
 gr = po("select", selector = selector_name("Petal.Length")) %>>%
   po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 5, id = "linear1") %>>%
-  po("nn_relu") %>>%
-  po("nn_linear", out_features = 3, id = "linear2") %>>%
-  po("nn_softmax", dim = 2) %>>%
+  nn("linear", out_features = 5, id = "linear1") %>>%
+  nn("relu") %>>%
+  nn("linear", out_features = 3, id = "linear2") %>>%
+  nn("softmax", dim = 2) %>>%
   po("torch_optimizer", optimizer = adam) %>>%
   po("torch_loss", loss = xe) %>>%
   po("torch_model_classif", batch_size = 50, epochs = 50)
@@ -971,6 +1007,7 @@ gr$plot(html = TRUE)
 ```
 
 ``` r
+
 lr = as_learner(gr)
 lr$train(task)
 predictions = lr$predict_newdata(newdata)
@@ -983,18 +1020,19 @@ plot_predictions(predictions)
 How about using `Petal.Length` and `Sepal.Length` separately at first?
 
 ``` r
+
 gr = gunion(list(
       po("select", selector = selector_name("Petal.Length"), id = "sel1") %>>%
         po("torch_ingress_num", id = "ingress.petal") %>>%
-        po("nn_linear", out_features = 3, id = "linear1"),
+        nn("linear", out_features = 3, id = "linear1"),
       po("select", selector = selector_name("Sepal.Length"), id = "sel2") %>>%
         po("torch_ingress_num", id = "ingress.sepal") %>>%
-        po("nn_linear", out_features = 3, id = "linear2")
+        nn("linear", out_features = 3, id = "linear2")
     )) %>>%
-    po("nn_merge_cat")  %>>%
-    po("nn_relu", id = "act1") %>>%
-    po("nn_linear", out_features = 3, id = "linear3") %>>%
-    po("nn_softmax", dim = 2, id = "act3") %>>%
+    nn("merge_cat")  %>>%
+    nn("relu", id = "act1") %>>%
+    nn("linear", out_features = 3, id = "linear3") %>>%
+    nn("softmax", dim = 2, id = "act3") %>>%
     po("torch_optimizer", optimizer = adam, lr = 0.1) %>>%
     po("torch_loss", loss = xe) %>>%
     po("torch_model_classif", batch_size = 50, epochs = 50)
@@ -1003,6 +1041,7 @@ gr$plot(html = TRUE)
 ```
 
 ``` r
+
 lr = as_learner(gr)
 lr$train(task)
 predictions = lr$predict_newdata(newdata)

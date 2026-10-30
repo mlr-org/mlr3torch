@@ -1,9 +1,9 @@
 # Custom Callbacks
 
-The torch callback mechanism allows to customize the training loop of a
-neural network. While `mlr3torch` has some predefined callbacks for
-common use-cases, this vignette will show you how to write your own
-custom callback.
+The torch callback mechanism makes it possible to customize the training
+loop of a neural network. While `mlr3torch` has some predefined
+callbacks for common use-cases, this vignette will show you how to write
+your own custom callback.
 
 ### Building Blocks
 
@@ -20,6 +20,7 @@ When using predefined callbacks, one usually only interacts with the
 `TorchCallback` class, which is constructed using `t_clbk(<id>)`:
 
 ``` r
+
 tc_hist = t_clbk("history")
 tc_hist
 ```
@@ -33,6 +34,7 @@ The wrapped `CallbackSet` is accessible via the field `$generator`, and
 we can create a new instance by calling `$new()`
 
 ``` r
+
 cbs_hist = tc_hist$generator$new()
 ```
 
@@ -42,6 +44,7 @@ available, but they are also described in the documentation of
 `CallbackSet`.
 
 ``` r
+
 mlr_reflections$torch$callback_stages
 ```
 
@@ -50,10 +53,19 @@ mlr_reflections$torch$callback_stages
     ##  [7] "on_batch_valid_begin" "on_batch_valid_end"   "on_valid_end"        
     ## [10] "on_epoch_end"         "on_end"               "on_exit"
 
+When a learner has more than one callback, they are called within a
+stage in the order in which they were passed to it. A callback that has
+to observe what the others did – like `t_clbk("checkpoint")`, which
+saves the network and the optimizer as the other callbacks left them –
+can override this through its `$weight`: a higher weight is called
+later, and callbacks with the same weight keep the order they were
+passed in.
+
 For the history callback, we see that it runs code at the beginning,
 before validation starts, and at the end of an epoch.
 
 ``` r
+
 cbs_hist
 ```
 
@@ -94,6 +106,7 @@ Note that we only do this here to have access to the final
 implement these methods.
 
 ``` r
+
 custom_logger = torch_callback("custom_logger",
   initialize = function(alpha = 0.1) {
     self$alpha = alpha
@@ -122,6 +135,7 @@ This created a `TorchCallback` object and and associated `CallbackSet`
 R6-class for us:
 
 ``` r
+
 custom_logger
 ```
 
@@ -131,6 +145,7 @@ custom_logger
     ## * Packages: mlr3torch,torch
 
 ``` r
+
 custom_logger$generator
 ```
 
@@ -142,7 +157,7 @@ custom_logger$generator
     ##     load_state_dict: function (state_dict) 
     ##     on_before_valid: function () 
     ##     on_batch_end: function () 
-    ##   Parent env: <environment: 0x56317e984620>
+    ##   Parent env: <environment: 0x6290f6c7be80>
     ##   Locked objects: FALSE
     ##   Locked class: FALSE
     ##   Portable: TRUE
@@ -154,6 +169,7 @@ perceptron and pass it the callback. We set the smoothing parameter
 `alpha` to 0.05.
 
 ``` r
+
 task = tsk("iris")
 mlp = lrn("classif.mlp",
   callbacks = custom_logger, cb.custom_logger.alpha = 0.05,
@@ -162,17 +178,18 @@ mlp = lrn("classif.mlp",
 mlp$train(task)
 ```
 
-    ## Epoch 1: 1.22
-    ## Epoch 2: 0.93
-    ## Epoch 3: 1.19
-    ## Epoch 4: 1.39
-    ## Epoch 5: 1.05
+    ## Epoch 1: 1.07
+    ## Epoch 2: 0.91
+    ## Epoch 3: 0.97
+    ## Epoch 4: 0.88
+    ## Epoch 5: 0.85
 
 The information that is returnede by `state_dict()` is now accessible
 via the `Learner`’s `$model`-slot:
 
 ``` r
+
 mlp$model$callbacks$custom_logger
 ```
 
-    ## [1] 1.047876
+    ## [1] 0.8472005
