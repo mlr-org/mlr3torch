@@ -53,10 +53,11 @@ nn_graph(graph, shapes_in, output_map = graph$output$name, list_output = FALSE)
   [`PipeOpNOP`](https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_nop.html)s,
   the order in which the modules are called is determined once and
   `$forward()` calls them directly, which is much faster than running
-  the graph. This is determined anew when a new graph is assigned to
-  this field or when PipeOps are added to or removed from it, but not
-  when only its edges are changed, so the graph should not be modified
-  in place.
+  the graph. This is determined anew when PipeOps are added to or
+  removed from the graph, but not when only its edges are changed, so
+  the graph should not be modified in place. The field cannot be set to
+  another graph, because the parameters of the modules are registered
+  when the network is created. Create a new `nn_graph` instead.
 
 - `input_map` ::
   [`character()`](https://rdrr.io/r/base/character.html)  
@@ -114,21 +115,21 @@ x = torch_randn(16, 10)
 
 network(module_1.input = x)
 #> torch_tensor
-#> -0.2036
-#> -0.2539
-#> -0.2449
-#> -0.3160
-#> -0.1171
-#>  0.5325
-#> -0.2769
-#>  0.1050
-#> -0.2511
-#>  0.2597
-#>  0.0197
-#> -0.1338
-#>  0.3244
-#>  0.0214
-#>  0.1358
-#> -0.0312
+#>  0.0140
+#>  0.0406
+#> -0.1097
+#>  0.2372
+#>  0.0750
+#>  0.1075
+#> -0.0838
+#>  0.2296
+#>  0.1479
+#>  0.0924
+#> -0.1769
+#>  0.2368
+#>  0.0989
+#> -0.1290
+#>  0.3738
+#>  0.1366
 #> [ CPUFloatType{16,1} ][ grad_fn = <AddmmBackward0> ]
 ```
