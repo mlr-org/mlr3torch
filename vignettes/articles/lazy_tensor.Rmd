@@ -154,8 +154,20 @@ In the next section, we will create a custom `PipeOp` to fit a polynomial regres
 
 ## Custom Preprocessing
 
-In order to create a custom preprocessing operator for a lazy tensor, we have to create a new `PipeOp` class.
-To make this as convenient as possible, `mlr3torch` offters a `pipeop_preproc_torch()` function that we recommend using for this purpose.
+The simplest way to apply a custom preprocessing function to a lazy tensor is `po("trafo_fn")`.
+The first argument of the function is the tensor, and its other arguments become parameters of the `PipeOp`.
+For data augmentation, i.e. preprocessing that is only applied during training, use `po("augment_fn")` instead.
+
+```{r}
+po_poly_fn = po("trafo_fn",
+  fn = function(x, degrees) torch_cat(lapply(degrees, function(d) torch_pow(x, d)), dim = 2L),
+  degrees = c(0, 1, 2, 3, 4, 7, 11)
+)
+po_poly_fn$param_set
+```
+
+To reuse a preprocessing operator, e.g. to provide it in a package, we can also create a new `PipeOp` class.
+To make this as convenient as possible, `mlr3torch` offers a `pipeop_preproc_torch()` function that we recommend using for this purpose.
 Its most important arguments are:
 
 * `id` - Used as the default identifier of the `PipeOp`
