@@ -207,8 +207,8 @@ test_that("cloning", {
   expect_true(identical(network1$graph$pipeops$nn_linear$module, network1$module_list$modules[[2]]))
 
   expect_deep_clone_mlr3torch(network$graph, network1$graph)
-  network$graph = NULL
-  network1$graph = NULL
+  get_private(network)$.graph = NULL
+  get_private(network1)$.graph = NULL
   expect_deep_clone_mlr3torch(network, network1)
 })
 
@@ -298,17 +298,20 @@ test_that("nn_graph falls back to Graph$train() for operators other than PipeOpM
   expect_equal(out[[1L]], out[[2L]])
 })
 
-test_that("assigning a graph resets the forward plan", {
+test_that("the graph cannot be replaced, and a nested assignment resets the forward plan", {
   graph = as_graph(po("module", id = "linear", module = nn_linear(2, 3)))
   network = nn_graph(graph, shapes_in = set_names(list(c(NA, 2)), graph$input$name))
   x = torch_randn(4, 2)
   network(x)
   expect_list(forward_plan(network))
-  network$graph = po("module", id = "linear", module = nn_linear(2, 3)) %>>% po("module", id = "relu", module = nn_relu())
+  # the parameters of the new graph's modules would not be registered
+  expect_error({
+    network$graph = as_graph(po("module", id = "linear", module = nn_linear(2, 3)))
+  }, "cannot be replaced")
+  expect_list(forward_plan(network))
+  network$graph$pipeops$linear$module = nn_relu()
   expect_null(forward_plan(network))
-  network$output_map = "relu.output"
-  expect_true(all(as_array(network(x)) >= 0))
-  expect_equal(forward_plan(network)$steps[[2L]]$id, "relu")
+  expect_true(torch_equal(network(x), nnf_relu(x)))
 })
 
 test_that("forward plan uses the modules of a deep clone", {
@@ -333,4 +336,37 @@ test_that("the forward plan is created anew when PipeOps are added to the graph 
   network$output_map = "double.output"
   expect_equal(network(x), network$graph$train(list(x), single_input = FALSE)[["double.output"]])
   expect_equal(forward_plan(network)$pipeop_ids, names(network$graph$pipeops))
+})
+
+test_that("deep clone uses the cloned modules when they have submodules", {
+  nn_residual = nn_module("nn_residual",
+    initialize = function(d) self$linear = nn_linear(d, d),
+    forward = function(x) x + self$linear(x)
+  )
+  # the module after the one with a submodule has the same shapes as that submodule
+  graph = po("module", id = "residual", module = nn_residual(3)) %>>%
+    po("module", id = "linear", module = nn_linear(3, 3))
+  network = nn_graph(graph, shapes_in = list(residual.input = c(NA, 3)))
+  x = torch_randn(2, 3)
+  y = network(x)
+
+  network1 = network$clone(deep = TRUE)
+  expect_class(network1$graph$pipeops$residual$module, "nn_residual")
+  expect_false(identical(network1$graph$pipeops$linear$module, network1$graph$pipeops$residual$module$linear))
+  expect_true(torch_equal(network1(x), y))
+
+  # the clone runs the modules whose parameters it has, and the original is left alone
+  with_no_grad(walk(network1$parameters, function(p) p$add_(1)))
+  expect_false(torch_equal(network1(x), y))
+  expect_true(torch_equal(network(x), y))
+})
+
+test_that("deep clone of a trained learner whose network has modules with submodules predicts the same", {
+  learner = lrn("classif.tab_resnet", n_blocks = 2, d_block = 5, d_hidden = 10, dropout1 = 0, dropout2 = 0,
+    epochs = 1, batch_size = 50, predict_type = "prob")
+  task = tsk("iris")
+  learner$train(task)
+  learner1 = learner$clone(deep = TRUE)
+  expect_false(identical(learner1$network, learner$network))
+  expect_equal(learner1$predict(task)$prob, learner$predict(task)$prob)
 })

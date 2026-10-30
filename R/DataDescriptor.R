@@ -131,9 +131,9 @@ DataDescriptor = R6Class("DataDescriptor",
       self$graph_input = graph$input$name
       self$pointer_shape_predict = pointer_shape_predict
 
-      # the pointer is not taken into account, because we save the whole output during caching (for which the
-      # hash is primarily used)
-      self$hash = calculate_hash(self$dataset_hash, self$graph$hash, self$input_map)
+      # the pointer is taken into account, because DataDescriptors that only differ in their pointer describe different
+      # data, e.g. for c() and == on lazy tensors (the cache of materialize() does not use the hash)
+      self$hash = calculate_hash(self$dataset_hash, self$graph$hash, self$input_map, self$pointer)
     },
     #' @description Prints the object
     #' @param ... (any)\cr

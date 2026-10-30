@@ -5,8 +5,19 @@
 \alias{CallbackSetLRSchedulerReduceOnPlateau}
 \title{Reduce On Plateau Learning Rate Scheduler}
 \description{
-Reduces the learning rate when the first validation metric stops improving for \code{patience} epochs.
-Wraps \code{\link[torch:lr_reduce_on_plateau]{torch::lr_reduce_on_plateau()}}
+Reduces the learning rate when the first validation measure, i.e. the first entry of the
+learner's \code{measures_valid}, stops improving for \code{patience} evaluation steps.
+Wraps \code{\link[torch:lr_reduce_on_plateau]{torch::lr_reduce_on_plateau()}}.
+
+Note that \code{patience} counts \emph{evaluation steps}, not epochs: when the learner's \code{eval_freq} is
+greater than \code{1}, the scheduler only steps in the epochs in which the validation measures are
+evaluated, so \code{patience} evaluation steps correspond to \code{patience * eval_freq} epochs.
+
+Unless \code{mode} is set, it is derived from the measure: \code{"min"} if the measure is minimized and
+\code{"max"} if it is maximized. Training fails when \code{mode} contradicts the measure.
+When the learner has no validation measure, e.g. in the final fit of an
+\code{\link[mlr3tuning:AutoTuner]{AutoTuner}} that tunes the epochs internally, a warning is given and
+the learning rate is not reduced.
 }
 \section{Resuming}{
 
@@ -22,6 +33,7 @@ of starting over.
 \subsection{Public methods}{
   \itemize{
     \item \href{#method-CallbackSetLRSchedulerReduceOnPlateau-initialize}{\code{CallbackSetLRSchedulerReduceOnPlateau$new()}}
+    \item \href{#method-CallbackSetLRSchedulerReduceOnPlateau-on_begin}{\code{CallbackSetLRSchedulerReduceOnPlateau$on_begin()}}
     \item \href{#method-CallbackSetLRSchedulerReduceOnPlateau-clone}{\code{CallbackSetLRSchedulerReduceOnPlateau$clone()}}
   }
 }
@@ -29,7 +41,6 @@ of starting over.
 <ul>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSetLRScheduler.html#method-CallbackSetLRScheduler-load_state_dict'><code>CallbackSetLRScheduler$load_state_dict()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="on_begin"><a href='../../mlr3torch/html/CallbackSetLRScheduler.html#method-CallbackSetLRScheduler-on_begin'><code>CallbackSetLRScheduler$on_begin()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSetLRScheduler.html#method-CallbackSetLRScheduler-state_dict'><code>CallbackSetLRScheduler$state_dict()</code></a></span></li>
 </ul>
 </details>}}
@@ -49,6 +60,19 @@ of starting over.
       \item{\code{...}}{(any)\cr
 The scheduler-specific initialization arguments.}
     }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetLRSchedulerReduceOnPlateau-on_begin"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetLRSchedulerReduceOnPlateau-on_begin}{}}}
+\subsection{\code{CallbackSetLRSchedulerReduceOnPlateau$on_begin()}}{
+  Creates the scheduler using the optimizer from the context, with the \code{mode} that fits the
+first validation measure.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetLRSchedulerReduceOnPlateau$on_begin()}
     \if{html}{\out{</div>}}
   }
 }

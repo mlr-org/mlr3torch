@@ -20,34 +20,35 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       if (is.null(self$ctx$last_scores_valid)) {
         return(NULL)
       }
-      if (is.null(self$best_score)) {
-        self$best_score = self$ctx$last_scores_valid[[1L]]
+      score = self$ctx$last_scores_valid[[1L]]
+      if (is.na(score)) {
+        lg$warn("Learner %s in epoch %s: The validation score is NA, which counts as no improvement.",
+          self$ctx$learner$id, self$ctx$epoch)
+      }
+      # A missing score is never an improvement, and any score improves on a missing best score:
+      # otherwise a first score of NA (e.g. the precision of a network that does not predict the
+      # positive class yet) would remain the best score forever, as nothing compares to it.
+      multiplier = if (self$ctx$measures_valid[[1L]]$minimize) -1 else 1
+      first = is.null(self$best_score)
+      improved = !is.na(score) &&
+        (first || is.na(self$best_score) || multiplier * (score - self$best_score) > self$min_delta)
+
+      # Until there is a score, the first evaluated epoch stands in for the best one, so that there
+      # always is an epoch to report and weights to restore.
+      if (improved || first) {
+        self$best_score = score
         self$epoch_at_best_score = self$ctx$epoch
         self$best_valid_scores = self$ctx$last_scores_valid
         private$.remember_weights()
-        return(NULL)
       }
-      multiplier = if (self$ctx$measures_valid[[1L]]$minimize) -1 else 1
-      improvement = multiplier * (self$ctx$last_scores_valid[[1L]] - self$best_score)
-
-      if (is.na(improvement)) {
-        lg$warn("Learner %s in epoch %s: Difference between subsequent validation performances is NA",
-          self$ctx$learner$id, self$ctx$epoch)
-        return(NULL)
-      }
-
-      if (improvement <= self$min_delta) {
+      if (improved) {
+        self$stagnation = 0L
+      } else {
         self$stagnation = self$stagnation + 1L
         # We need >= so it works with resuming
         if (self$stagnation >= self$patience) {
           self$ctx$terminate = TRUE
         }
-      } else {
-        self$stagnation = 0
-        self$best_score = self$ctx$last_scores_valid[[1L]]
-        self$epoch_at_best_score = self$ctx$epoch
-        self$best_valid_scores = self$ctx$last_scores_valid
-        private$.remember_weights()
       }
     },
     on_exit = function() {

@@ -964,17 +964,14 @@ test_that("internal tuned values is correct", {
 })
 
 test_that("trace-jitting works", {
-  l1 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = TRUE)
-  l2 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = FALSE)
+  # the learner's `seed` parameter (default "random") reseeds torch during $train(), so it has to be
+  # set for the two runs to be comparable
+  l1 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = TRUE, seed = 1)
+  l2 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = FALSE, seed = 1)
   task = tsk("iris")
 
-  n1 = with_torch_manual_seed({
-    l1$train(task)$network
-  }, seed = 1)
-
-  n2 = with_torch_manual_seed({
-    l2$train(task)$network
-  }, seed = 1)
+  n1 = l1$train(task)$network
+  n2 = l2$train(task)$network
 
   expect_equal(n1$parameters, n2$parameters)
   expect_class(n1, "script_module")
@@ -987,7 +984,7 @@ test_that("trace-jitting works", {
     po("nn_head") %>>%
     po("torch_optimizer") %>>%
     po("torch_loss", "cross_entropy") %>>%
-    po("torch_model_classif", epochs = 1, batch_size = 16, jit_trace = FALSE)
+    po("torch_model_classif", epochs = 1, batch_size = 16, jit_trace = FALSE, seed = 1)
 
   glrn1 = as_learner(graph, clone = TRUE)
   glrn2 = as_learner(graph, clone = TRUE)
@@ -995,13 +992,8 @@ test_that("trace-jitting works", {
     torch_model_classif.jit_trace = TRUE
   )
 
-  n3 = with_torch_manual_seed({
-    glrn1$train(task)$model$torch_model_classif$model$network
-  }, seed = 1)
-
-  n4 = with_torch_manual_seed({
-    glrn2$train(task)$model$torch_model_classif$model$network
-  }, seed = 1)
+  n3 = glrn1$train(task)$model$torch_model_classif$model$network
+  n4 = glrn2$train(task)$model$torch_model_classif$model$network
 
   expect_equal(n3$parameters, n4$parameters)
 
