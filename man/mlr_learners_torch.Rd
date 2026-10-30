@@ -478,6 +478,7 @@ To change the predict types, it is possible to overwrite the method below:
 (\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()} of them, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr
 Take in the raw predictions from \code{self$network} (\code{network_output}) and encode them into a
 format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
+For classification, \code{task} has its classes in the order of the training task.
 It is a \code{list()} of tensors when the network returns more than one, see section
 \emph{Network Head and Target Encoding}.
 This method must take \code{self$predict_type} into account.

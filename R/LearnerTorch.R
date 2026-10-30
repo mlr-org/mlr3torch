@@ -311,6 +311,7 @@
 #'   ([`torch_tensor`][torch::torch_tensor] or `list()` of them, [`Task`][mlr3::Task]) -> `list()`\cr
 #'   Take in the raw predictions from `self$network` (`network_output`) and encode them into a
 #'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
+#'   For classification, `task` has its classes in the order of the training task.
 #'   It is a `list()` of tensors when the network returns more than one, see section
 #'   *Network Head and Target Encoding*.
 #'   This method must take `self$predict_type` into account.

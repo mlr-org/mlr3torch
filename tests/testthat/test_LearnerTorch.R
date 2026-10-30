@@ -1875,6 +1875,51 @@ test_that("device with an index can be used for training, prediction and materia
   expect_error(materialize(as_lazy_tensor(1:2), device = "gpu:0"), "Must be one of")
 })
 
+test_that("the network output refers to the classes in the order of the training task", {
+  # the network predicts the classes in the order of the training task, while another task can have
+  # them in another order, e.g. with another positive class
+  learner = lrn("classif.mlp", batch_size = 50L, epochs = 10L, neurons = 10L, predict_type = "prob", seed = 1L)
+  task = tsk("sonar")
+  learner$train(task)
+  pred = learner$predict(task)
+  task_reordered = task$clone(deep = TRUE)
+  task_reordered$positive = "R"
+  pred_reordered = learner$predict(task_reordered)
+  expect_equal(colnames(pred_reordered$prob), c("R", "M"))
+  expect_equal(pred_reordered$prob[, c("M", "R")], pred$prob)
+  expect_equal(as.character(pred_reordered$response), as.character(pred$response))
+  learner$predict_type = "response"
+  expect_equal(as.character(learner$predict(task_reordered)$response), as.character(pred$response))
+
+  learner = lrn("classif.mlp", batch_size = 50L, epochs = 10L, neurons = 10L, predict_type = "prob", seed = 1L)
+  task = tsk("iris")
+  learner$train(task)
+  pred = learner$predict(task)
+  task_reordered = task$clone(deep = TRUE)$set_levels(list(Species = c("virginica", "setosa", "versicolor")))
+  pred_reordered = learner$predict(task_reordered)
+  expect_equal(pred_reordered$prob[, task$class_names], pred$prob)
+  expect_equal(as.character(pred_reordered$response), as.character(pred$response))
+
+  # the same holds for the internal validation task
+  learner = lrn("classif.mlp", batch_size = 50L, epochs = 10L, neurons = 10L, predict_type = "prob", seed = 1L,
+    validate = "predefined", measures_valid = msrs(c("classif.logloss", "classif.acc")))
+  task = tsk("sonar")
+  task$internal_valid_task = task$clone(deep = TRUE)$filter(1:60)
+  task$filter(61:208)
+  learner$train(task)
+  scores = learner$internal_valid_scores
+  task$internal_valid_task$positive = "R"
+  learner$train(task)
+  expect_equal(learner$internal_valid_scores, scores)
+
+  # a task with other classes cannot be predicted
+  task_other = task$clone(deep = TRUE)$set_levels(list(Class = c("M", "R", "X")))
+  expect_error(learner$predict(task_other), "trained to predict the classes 'M', 'R'")
+  # nor be the internal validation task
+  task$internal_valid_task$set_levels(list(Class = c("M", "R", "X")))
+  expect_error(learner$train(task), "internal validation task of task 'sonar' has the classes 'M', 'R', 'X'")
+})
+
 test_that("the internal validation task must have the factor levels of the training task", {
   task = as_task_regr(data.table(x = factor(c("a", "b", "a")), y = c(1, 2, 3)), target = "y")
   make_valid_task = function(levels) {

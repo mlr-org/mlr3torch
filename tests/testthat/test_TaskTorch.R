@@ -156,6 +156,25 @@ test_that("train and predict work for a single factor target", {
   expect_equal(unname(rowSums(pred$prob)), rep(1, task$nrow), tolerance = 1e-5)
 })
 
+test_that("a factor target must have the levels of the training task", {
+  # the target batchgetter and the encoder can rely on the order of the levels
+  d = tt_data(60L)
+  d$y = factor(rep(c("a", "b", "c"), length.out = nrow(d)))
+  d_reordered = copy(d)
+  d_reordered$y = factor(d$y, levels = c("c", "b", "a"))
+  task = tt_task(d, target = "y")
+
+  learner = tt_learner(t_loss("cross_entropy"))
+  learner$train(task)
+  expect_error(learner$predict(tt_task(d_reordered, target = "y")), "other levels than the training task")
+  expect_prediction(learner$predict(tt_task(d, target = "y")))
+
+  learner = tt_learner(t_loss("cross_entropy"))
+  learner$validate = "predefined"
+  task$internal_valid_task = tt_task(d_reordered, target = "y")
+  expect_error(learner$train(task), "internal validation task of task 't' has other levels")
+})
+
 test_that("train and predict work for a single numeric target", {
   d = tt_data(60L)
   d$y = d$x1 + rnorm(nrow(d))
