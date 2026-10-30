@@ -61,7 +61,8 @@ nn_graph(graph, shapes_in, output_map = graph$output$name, list_output = FALSE)
 
 - `input_map` ::
   [`character()`](https://rdrr.io/r/base/character.html)  
-  The names of the input arguments of the network.
+  The names of the input arguments of the network. Unnamed arguments of
+  `$forward()` are matched in this order.
 
 - `shapes_in` :: [`list()`](https://rdrr.io/r/base/list.html)  
   The shapes of the input tensors of the network.
@@ -115,21 +116,21 @@ x = torch_randn(16, 10)
 
 network(module_1.input = x)
 #> torch_tensor
-#>  0.5671
-#>  0.3368
-#>  0.2887
-#>  0.1402
-#>  0.4144
-#>  0.3011
-#>  0.1078
-#> -0.2606
-#>  0.0568
-#>  0.3112
-#>  0.0972
-#>  0.3058
-#>  0.4313
-#>  0.0024
-#>  0.2797
-#> -0.2398
+#>  0.3502
+#> -0.3352
+#>  0.3256
+#>  0.0061
+#>  0.2237
+#>  0.0332
+#> -0.0114
+#>  0.0057
+#> -0.2079
+#> -0.1433
+#>  0.2416
+#>  0.0393
+#> -0.0765
+#>  0.3644
+#> -0.1720
+#>  0.3730
 #> [ CPUFloatType{16,1} ][ grad_fn = <AddmmBackward0> ]
 ```

@@ -123,7 +123,8 @@ edges are changed, so the graph should not be modified in place.
 The field cannot be set to another graph, because the parameters of the modules are registered when the network
 is created. Create a new <code>nn_graph</code> instead.</p></li>
 <li><p><code>input_map</code> :: <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
-The names of the input arguments of the network.</p></li>
+The names of the input arguments of the network.
+Unnamed arguments of <code>$forward()</code> are matched in this order.</p></li>
 <li><p><code>shapes_in</code> :: <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 The shapes of the input tensors of the network.</p></li>
 <li><p><code>output_map</code> :: <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
@@ -169,22 +170,22 @@ Whether the output is a list of tensors.</p></li>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">network</span><span class="op">(</span>module_1.input <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5671</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3368</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2887</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1402</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4144</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3011</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1078</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2606</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0568</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3112</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0972</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3058</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4313</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2797</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2398</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3502</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3352</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3256</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0061</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2237</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0332</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0114</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2079</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1433</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2416</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0393</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0765</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3644</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1720</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3730</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{16,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span>
 </code></pre></div>
     </div>
