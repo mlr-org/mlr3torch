@@ -14,6 +14,7 @@
 #'   is created. Create a new `nn_graph` instead.
 #' * `input_map` :: `character()`\cr
 #'   The names of the input arguments of the network.
+#'   Unnamed arguments of `$forward()` are matched in this order.
 #' * `shapes_in` :: `list()`\cr
 #'   The shapes of the input tensors of the network.
 #' * `output_map` :: `character()`\cr
@@ -68,7 +69,8 @@ nn_graph = nn_module(
       stopf("If list_output is FALSE, output_map must have length 1.")
     }
 
-    self$argument_matcher = argument_matcher(names(self$shapes_in))
+    # the arguments are matched in the order of the graph inputs, which can differ from the order of `shapes_in`
+    self$argument_matcher = argument_matcher(self$input_map)
 
     # the following is necessary to make torch aware of all the included parameters
     # (some operators in the graph could be different from PipeOpModule, e.g. PipeOpBranch or PipeOpNOP

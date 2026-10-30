@@ -38,6 +38,7 @@ The field cannot be set to another graph, because the parameters of the modules 
 is created. Create a new \code{nn_graph} instead.
 \item \code{input_map} :: \code{character()}\cr
 The names of the input arguments of the network.
+Unnamed arguments of \verb{$forward()} are matched in this order.
 \item \code{shapes_in} :: \code{list()}\cr
 The shapes of the input tensors of the network.
 \item \code{output_map} :: \code{character()}\cr
