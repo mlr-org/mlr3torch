@@ -113,12 +113,6 @@ is also ensured to be the first factor level) is \code{1} and the negative class
 \item multi-class classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is a label-encoded
 \code{\link[torch:torch_long]{torch_long}} with shape \code{(batch_size)} where the label-encoding goes from \code{1} to \code{n_classes}.
 }
-
-The network output therefore refers to the classes in the order of the training task.
-A task to predict on (or an internal validation task) can have the same classes in another order, e.g. because
-another class is its \verb{$positive} class. Its predictions are still correct, as the network output is interpreted
-with respect to the order of the training task. A task with other classes than the training task cannot be
-predicted.
 }
 
 \section{Predicting Tensors}{
