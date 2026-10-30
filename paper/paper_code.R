@@ -16,8 +16,9 @@ rows
 
 str(materialize(rows$image))
 
-po_flat <- po("trafo_reshape", shape = c(-1, 28 * 28))
-mnist_flat <- po_flat$train(list(mnist))[[1L]]
+scale_flatten <- po("trafo_normalize", mean = 0, std = 255) %>>%
+  po("trafo_reshape", shape = c(-1, 28 * 28))
+mnist_flat <- scale_flatten$train(mnist)[[1L]]
 mnist_flat$head(2)
 
 str(materialize(mnist_flat$head(2)$image))
