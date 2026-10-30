@@ -105,7 +105,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
       # an nn_graph takes its inputs via `...` and matches unnamed ones in the order of its graph inputs
       example = if (inherits(network, "nn_graph")) example[network$input_map] else order_named_args(network, example)
       network = do.call(jit_trace, c(list(network), unname(example)))
-      # the traced network ignores the names of its arguments, see `network_inputs()`
+      # the traced network ignores the names of its arguments (https://github.com/mlverse/torch/issues/1495),
+      # see `network_inputs()`
       attr(network, "input_order") = names(example)
     }
   }
@@ -470,6 +471,8 @@ has_one_arg = function(network) {
 # network takes its inputs by position and ignores their names: it takes them in the order in which they
 # were passed to the tracer, which is that of the arguments of the original network and was recorded
 # in `learner_torch_train()`. Other networks receive the inputs by name.
+# This is partly a workaround for https://github.com/mlverse/torch/issues/1495: if torch recorded the argument
+# names when tracing and matched named arguments, the inputs could simply be passed by name.
 network_inputs = function(network, x) {
   input_order = attr(network, "input_order")
   if (is.null(input_order)) x else x[input_order]
