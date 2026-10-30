@@ -39,6 +39,7 @@ learner_torch_network_output = function(self, private, task, param_vals) {
 }
 
 learner_torch_predict = function(self, private, super, task, param_vals) {
+  assert_task_torch_target_levels(task, self$model$task_col_info, sprintf("Task '%s'", task$id))
   network_output = learner_torch_network_output(self, private, task, param_vals)
   encode_network_output(network_output, task, self$predict_type, private$.encode_prediction,
     class_names = model_class_names(self$model, task))
@@ -51,6 +52,24 @@ model_class_names = function(model, task) {
   }
   col_info = model$task_col_info
   col_info$levels[[match(task$target_names, col_info$id)]]
+}
+
+# A `TaskTorch` encodes its target and decodes the network output itself, which can depend on the order of the
+# levels of a factor target. Unlike for a `TaskClassif`, the network output cannot be reordered, so these levels
+# must be those of the training task, whose column info is `col_info`.
+assert_task_torch_target_levels = function(task, col_info, what) {
+  if (!inherits(task, "TaskTorch")) {
+    return(invisible(NULL))
+  }
+  target_info = task$col_info[list(task$target_names), on = "id"]
+  cols = target_info$id[target_info$type %in% c("factor", "ordered")]
+  differ = discard(cols, function(col) {
+    identical(target_info$levels[[match(col, target_info$id)]], col_info$levels[[match(col, col_info$id)]])
+  })
+  if (length(differ)) {
+    stopf("%s has other levels than the training task (or the same levels in another order) in the target column(s) %s.", what, paste0("'", differ, "'", collapse = ", ")) # nolint
+  }
+  invisible(NULL)
 }
 
 encode_network_output = function(network_output, task, predict_type, encoder, class_names = NULL) {
@@ -142,7 +161,11 @@ learner_torch_train = function(self, private, super, task, param_vals) {
       task$id, paste0("'", task_valid$class_names, "'", collapse = ", "),
       paste0("'", task$class_names, "'", collapse = ", "))
   }
-  if (!is.null(task_valid)) task_valid = task_in_train_order(task_valid, task$feature_names)
+  if (!is.null(task_valid)) {
+    assert_task_torch_target_levels(task_valid, task$col_info,
+      sprintf("The internal validation task of task '%s'", task$id))
+    task_valid = task_in_train_order(task_valid, task$feature_names)
+  }
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
     dataset_valid = private$.dataset(task_valid, param_vals)
     dataset_valid = as_multi_tensor_dataset(dataset_valid, param_vals)
