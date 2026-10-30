@@ -1782,3 +1782,15 @@ test_that("device with an index can be used for training, prediction and materia
   expect_class(materialize(as_lazy_tensor(1:2), device = "cpu:0", rbind = TRUE), "torch_tensor")
   expect_error(materialize(as_lazy_tensor(1:2), device = "gpu:0"), "Must be one of")
 })
+
+test_that("the internal validation task must have the factor levels of the training task", {
+  task = as_task_regr(data.table(x = factor(c("a", "b", "a")), y = c(1, 2, 3)), target = "y")
+  make_valid_task = function(levels) {
+    as_task_regr(data.table(x = factor(c("a", "b", "a"), levels = levels), y = c(1, 2, 3)), target = "y")
+  }
+  learner = lrn("regr.torch_featureless", epochs = 1L, batch_size = 3L, validate = "predefined")
+  task$internal_valid_task = make_valid_task(c("b", "a"))
+  expect_error(learner$train(task), "factor levels differ")
+  task$internal_valid_task = make_valid_task(c("a", "b"))
+  expect_no_error(learner$train(task))
+})
