@@ -73,7 +73,7 @@ where \(x\) and \(g\) are created by splitting the input tensor in half along th
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>GeGLU Module</h1>
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/main/R/PipeOpTorchActivation.R" class="external-link"><code>R/PipeOpTorchActivation.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/v0.4.0/R/PipeOpTorchActivation.R" class="external-link"><code>R/PipeOpTorchActivation.R</code></a></small>
       <div class="d-none name"><code>nn_geglu.Rd</code></div>
     </div>
 
@@ -101,16 +101,16 @@ where \(x\) and \(g\) are created by splitting the input tensor in half along th
 <span class="r-in"><span><span class="va">glu</span> <span class="op">=</span> <span class="fu">nn_geglu</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">glu</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.6432e-01 -6.5779e-02  9.6438e-05  2.1870e-02 -3.0953e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.9167e-01  2.4336e-02  4.4559e-01  8.1759e-02 -3.8840e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6.8213e-02 -4.8431e-02 -2.8230e-01  3.1460e-02  1.0474e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.3191e+00 -1.6823e-01 -2.4453e-01  5.3803e-02  1.3283e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -7.6123e-01 -1.0420e+00  5.7896e-02  3.4428e-02 -3.7097e-02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9.3492e-04 -7.0098e-01  8.7623e-03 -7.6976e-01 -2.3077e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5.5934e-02 -1.3855e+00 -2.9775e-02  1.0839e-01  3.3119e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.8112e-01 -2.6469e-01 -1.2652e-01  8.3165e-02 -1.6830e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5.5245e-01 -1.4820e-01 -1.0767e+00 -2.3434e-02  7.3383e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.7151e-01 -6.1896e-02  7.1306e-01  2.9800e-02 -1.2765e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0291 -0.0495 -0.3583  0.0152  0.0176</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0480 -0.5419  0.0998  0.0294  0.0570</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.0161 -0.0652  1.7884  0.1347  0.0166</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5959 -0.0843 -0.0169  0.2160 -0.1839</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.5984  0.0306 -0.1192  0.6546 -0.0741</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7050  0.0832  0.5323 -0.0262 -1.5737</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0526  1.5681 -0.0604 -0.0020 -0.0650</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0466  0.1461  0.0540  0.9824  0.0123</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0028 -0.4452 -1.8468  0.1185  0.2239</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1419  0.0429  0.1593 -0.0205 -0.5026</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,5} ]</span>
 </code></pre></div>
     </div>
