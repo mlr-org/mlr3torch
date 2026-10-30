@@ -96,6 +96,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     stopf("Learner '%s' uses a validation measure with minimize = NA for early stopping.", self$id)
   }
 
+  assert_valid_task_levels(self, task)
+
   dataset_train = private$.dataset(task, param_vals)
   dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
   loader_train = private$.dataloader(dataset_train, param_vals)
@@ -479,6 +481,24 @@ eval_train_in_epoch = function(ctx) {
 }
 eval_valid_in_epoch = function(ctx) {
   !is.null(ctx$loader_valid) && (!(ctx$epoch %% ctx$eval_freq) || ctx$epoch == ctx$total_epochs)
+}
+
+# Factor features are encoded by the position of their level, e.g. in `batchgetter_categ()`, so the internal
+# validation task must have the same levels in the same order as the training task. `mlr3` checks this for the
+# predict task, but not for the internal validation task.
+assert_valid_task_levels = function(learner, task) {
+  task_valid = task$internal_valid_task
+  if (is.null(task_valid) || "new_levels" %in% learner$properties) {
+    return(invisible(NULL))
+  }
+  cols = task$feature_types[get("type") %in% c("factor", "ordered"), "id"][[1L]]
+  levels_train = task$levels(cols)
+  levels_valid = task_valid$levels(cols)
+  differ = discard(cols, function(col) identical(levels_train[[col]], levels_valid[[col]]))
+  if (length(differ)) {
+    stopf("Learner '%s' received an internal validation task whose factor levels differ from those of the training task (or are in a different order) for the feature(s) %s.", learner$id, paste0("'", differ, "'", collapse = ", ")) # nolint
+  }
+  invisible(NULL)
 }
 
 has_one_arg = function(network) {
