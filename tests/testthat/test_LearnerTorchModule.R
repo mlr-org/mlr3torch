@@ -66,3 +66,34 @@ test_that("works with function", {
   expect_prediction(learner$predict(task))
 })
 
+test_that("LearnerTorchModule only claims the properties of every LearnerTorch by default", {
+  module_generator = function(task) nn_sequential(nn_embedding(3, 2), nn_flatten(), nn_linear(2, 1))
+  learner = lrn("classif.module", module_generator = module_generator, ingress_tokens = list(x = ingress_categ()),
+    epochs = 1L, batch_size = 30L)
+  expect_set_equal(learner$properties, c("marshal", "validation", "internal_tuning", "twoclass", "multiclass"))
+
+  # with "new_levels", mlr3 would not check that the factor levels are those of the train task, and
+  # the integer codes of a factor with its levels in another order would be fed to the network
+  task = as_task_classif(data.table(x = factor(rep(c("a", "b", "c"), 10)), y = factor(rep(c("p", "q"), 15))),
+    target = "y")
+  learner$train(task)
+  task_reordered = task$clone(deep = TRUE)$set_levels(list(x = c("c", "b", "a")))
+  expect_error(learner$predict(task_reordered), "different column info")
+
+  # with "missings", a missing value would silently turn all weights into NaN
+  task = tsk("mtcars")
+  task$cbind(data.table(x = c(NA, rnorm(31L))))
+  learner = lrn("regr.module", module_generator = function(task) nn_linear(task$n_features, 1),
+    ingress_tokens = list(x = ingress_num()), epochs = 1L, batch_size = 32L)
+  expect_set_equal(learner$properties, c("marshal", "validation", "internal_tuning"))
+  expect_error(learner$train(task), "missing")
+
+  # with "offset", the offset would be ignored without a warning
+  task = tsk("mtcars")
+  task$set_col_roles("am", roles = "offset")
+  expect_warning(learner$train(task), "offset")
+
+  learner = lrn("regr.module", module_generator = function(task) nn_linear(task$n_features, 1),
+    ingress_tokens = list(x = ingress_num()), properties = "missings")
+  expect_true("missings" %in% learner$properties)
+})
