@@ -67,6 +67,10 @@ This is initialized to \code{TRUE}. Set it to \code{FALSE} if a copy of the task
 Whether to trace the network with \code{\link[torch:jit_trace]{torch::jit_trace()}} once at the start of training and then
 train the traced module instead of the original one.
 Not all learners support this.
+A traced network takes its inputs by position and ignores their names
+(\href{https://github.com/mlverse/torch/issues/1495}{mlverse/torch#1495}).
+The learner passes the inputs in the right order, but when calling the traced \verb{$network} of a trained learner
+with several inputs directly, they must be passed by position in the order given by \code{attr(learner$network, "input_order")}.
 }
 
 \strong{Evaluation}:
