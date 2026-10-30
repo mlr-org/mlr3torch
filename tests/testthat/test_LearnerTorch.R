@@ -1003,6 +1003,98 @@ test_that("trace-jitting works", {
   expect_prediction(l1$predict(task))
 })
 
+test_that("a traced network with several inputs receives them by name", {
+  # the arguments of the network are not in the order of the ingress tokens, but a traced network
+  # takes its inputs by position
+  network = nn_module(
+    initialize = function() {
+      self$linear_a = nn_linear(2, 1)
+      self$linear_b = nn_linear(2, 1)
+    },
+    forward = function(b, a) self$linear_a(a) + 10 * self$linear_b(b)
+  )()
+  task = as_task_regr(data.table(a1 = rnorm(30), a2 = rnorm(30), b1 = rnorm(30, mean = 5), b2 = rnorm(30, mean = 5),
+    y = rnorm(30)), target = "y")
+  task$internal_valid_task = task$clone(deep = TRUE)$filter(21:30)
+  task$filter(1:20)
+  ingress_tokens = list(
+    a = TorchIngressToken(c("a1", "a2"), batchgetter_num, c(NA, 2L)),
+    b = TorchIngressToken(c("b1", "b2"), batchgetter_num, c(NA, 2L))
+  )
+  make_learner = function(jit_trace) {
+    lrn("regr.torch_model", network = network, ingress_tokens = ingress_tokens, batch_size = 10L, epochs = 2L,
+      shuffle = FALSE, optimizer = t_opt("sgd", lr = 0.01), jit_trace = jit_trace, validate = "predefined",
+      measures_valid = msr("regr.mse"))
+  }
+  learner = make_learner(FALSE)
+  learner$train(task)
+  learner_jit = make_learner(TRUE)
+  learner_jit$train(task)
+  expect_class(learner_jit$network, "script_module")
+
+  # training, validation and prediction pass the inputs in the order of the network's arguments
+  expect_equal(learner_jit$internal_valid_scores, learner$internal_valid_scores, tolerance = 1e-5)
+  pred = learner$predict(task)$response
+  expect_equal(learner_jit$predict(task)$response, pred, tolerance = 1e-5)
+  learner_jit$marshal()
+  learner_jit$unmarshal()
+  expect_equal(learner_jit$predict(task)$response, pred, tolerance = 1e-5)
+
+  # a deep clone keeps the order; a trained LearnerTorchModel cannot be deep cloned, so another learner is used
+  learner = R6Class("LearnerTorchTwoInputs",
+    inherit = LearnerTorch,
+    public = list(
+      initialize = function() {
+        super$initialize(task_type = "regr", id = "regr.two_inputs", param_set = ps(), feature_types = "numeric",
+          label = "Two Inputs", man = "some_man", jittable = TRUE)
+      }
+    ),
+    private = list(
+      .network = function(task, param_vals) network$clone(deep = TRUE),
+      .ingress_tokens = function(task, param_vals) ingress_tokens
+    )
+  )$new()
+  learner$param_set$set_values(batch_size = 10L, epochs = 2L, jit_trace = TRUE)
+  learner$train(task)
+  learner_clone = learner$clone(deep = TRUE)
+  expect_equal(attr(learner_clone$network, "input_order"), c("b", "a"))
+  # FIXME: the deep clone of a traced network is not callable as a function, so `has_one_arg()` warns
+  expect_equal(suppressWarnings(learner_clone$predict(task))$response, learner$predict(task)$response)
+})
+
+test_that("a traced nn_graph receives its inputs in the order of its graph inputs", {
+  # x feeds two merges, m1 = x + y and m2 = x + z, and the output is cat(m2, m1), so the ingress tokens
+  # are in the order x, z, y, while the graph inputs are in the order x, y, z
+  graph = Graph$new()
+  for (nm in c("x", "y", "z")) {
+    graph$add_pipeop(po("select", id = paste0("select_", nm), selector = selector_name(nm)))
+    graph$add_pipeop(po("torch_ingress_num", id = paste0("ingress_", nm)))
+    graph$add_edge(paste0("select_", nm), paste0("ingress_", nm))
+  }
+  graph$add_pipeop(po("nn_merge_sum", id = "m1", innum = 2L))
+  graph$add_pipeop(po("nn_merge_sum", id = "m2", innum = 2L))
+  graph$add_pipeop(po("nn_merge_cat", id = "cat", innum = 2L))
+  graph$add_edge("ingress_x", "m1", dst_channel = "input1")
+  graph$add_edge("ingress_y", "m1", dst_channel = "input2")
+  graph$add_edge("ingress_x", "m2", dst_channel = "input1")
+  graph$add_edge("ingress_z", "m2", dst_channel = "input2")
+  graph$add_edge("m2", "cat", dst_channel = "input1")
+  graph$add_edge("m1", "cat", dst_channel = "input2")
+  task = as_task_regr(data.table(x = c(1, 2), y = c(10, 20), z = c(100, 200), target = c(0, 0)), target = "target")
+  expect_equal(names(graph$train(task)[[1L]]$ingress), c("ingress_x.input", "ingress_z.input", "ingress_y.input"))
+
+  learner = as_learner(graph %>>% nn("linear", out_features = 1L) %>>% po("torch_loss", "mse") %>>%
+    po("torch_optimizer", "sgd", lr = 0) %>>% po("torch_model_regr", epochs = 0L, batch_size = 2L, jit_trace = TRUE))
+  learner$train(task)
+  network = learner$model$torch_model_regr$model$network
+  expect_class(network, "script_module")
+  weight = as.numeric(network$parameters[[1L]])
+  bias = as.numeric(network$parameters[[2L]])
+  # cat(x + z, x + y), followed by the linear layer
+  expected = weight[[1L]] * c(101, 202) + weight[[2L]] * c(11, 22) + bias
+  expect_equal(learner$predict(task)$response, expected, tolerance = 1e-5)
+})
+
 test_that("tensor_dataset works", {
   testcb = torch_callback("test",
     state_dict = function() {

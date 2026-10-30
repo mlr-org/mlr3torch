@@ -120,12 +120,16 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (isTRUE(param_vals$jit_trace) && !inherits(network, "script_module")) {
     example = get_example_batch(loader_train)$x
     example = lapply(example, function(x) x$to(device = param_vals$device))
-    # tracer requires arguments to be passed by name
+    # tracer requires arguments to be passed by position
     if (length(example) == 1) {
       network = jit_trace(network, example[[1L]])
     } else {
-      example = order_named_args(network, example)
+      # an nn_graph takes its inputs via `...` and matches unnamed ones in the order of its graph inputs
+      example = if (inherits(network, "nn_graph")) example[network$input_map] else order_named_args(network, example)
       network = do.call(jit_trace, c(list(network), unname(example)))
+      # the traced network ignores the names of its arguments (https://github.com/mlverse/torch/issues/1495),
+      # see `network_inputs()`
+      attr(network, "input_order") = names(example)
     }
   }
   loss_fn = self$loss$generate(task)
@@ -284,7 +288,7 @@ train_loop = function(ctx, cbs) {
       ctx$y_hats = if (length(ctx$batch$x) == 1L) {
         ctx$network(ctx$batch$x[[1L]])
       } else {
-        do.call(ctx$network, ctx$batch$x)
+        do.call(ctx$network, network_inputs(ctx$network, ctx$batch$x))
       }
       # A network can return more than one tensor, see the section 'Network Head and Target
       # Encoding' of `LearnerTorch`. `y_hats` is that complete output, which the loss is applied
@@ -485,6 +489,17 @@ has_one_arg = function(network) {
   length(fargs) == 1L && fargs != "..."
 }
 
+# The inputs `x` (a named `list()` of tensors) in the order in which `network` takes them. A traced
+# network takes its inputs by position and ignores their names: it takes them in the order in which they
+# were passed to the tracer, which is that of the arguments of the original network and was recorded
+# in `learner_torch_train()`. Other networks receive the inputs by name.
+# This is partly a workaround for https://github.com/mlverse/torch/issues/1495: if torch recorded the argument
+# names when tracing and matched named arguments, the inputs could simply be passed by name.
+network_inputs = function(network, x) {
+  input_order = attr(network, "input_order")
+  if (is.null(input_order)) x else x[input_order]
+}
+
 torch_network_predict_valid = function(ctx, callback_receiver = function(step_name) NULL) {
   network = ctx$network
   loader = ctx$loader_valid
@@ -501,7 +516,7 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
     predictions[[ctx$step_valid]] = if (one_arg) {
       with_no_grad(network$forward(ctx$batch$x[[1L]]))
     } else {
-      with_no_grad(invoke(network$forward, .args = ctx$batch$x))
+      with_no_grad(invoke(network$forward, .args = network_inputs(network, ctx$batch$x)))
     }
 
     callback_receiver("on_batch_valid_end")
@@ -524,7 +539,7 @@ torch_network_predict = function(network, loader, device) {
     predictions[[step]] = if (one_arg) {
       with_no_grad(network$forward(batch$x[[1L]]))
     } else {
-      with_no_grad(invoke(network$forward, .args = batch$x))
+      with_no_grad(invoke(network$forward, .args = network_inputs(network, batch$x)))
     }
 
   }
@@ -562,7 +577,7 @@ zero_row_network_output = function(learner, task) {
     output = if (has_one_arg(network)) {
       with_no_grad(network$forward(x[[1L]]))
     } else {
-      with_no_grad(invoke(network$forward, .args = x))
+      with_no_grad(invoke(network$forward, .args = network_inputs(network, x)))
     }
     # only the structure is wanted, so the one row is cut away again
     if (is.list(output)) lapply(output, drop_rows) else drop_rows(output)
