@@ -263,6 +263,30 @@ test_that("the empty prediction never builds an empty batch", {
   expect_length(learner$predict(task, row_ids = integer(0))$row_ids, 0L)
 })
 
+test_that("the empty prediction uses the training order of the features", {
+  # one embedding per categorical feature, sized by its cardinality: the probe row of a task with the
+  # features in another order would index the embedding of `a` (2 levels) with the code of `b` (4 of 4)
+  embeddings = nn_module("embeddings",
+    initialize = function(task) {
+      self$embs = nn_module_list(lapply(lengths(task$levels(task$feature_names)), nn_embedding, embedding_dim = 1L))
+    },
+    forward = function(x) Reduce(`+`, lapply(seq_along(self$embs), function(j) self$embs[[j]](x[, j])))
+  )
+  d = data.table(y = rnorm(20), a = factor(rep(c("p", "q"), 10)), b = factor(rep(c("u", "t", "s", "r"), 5)))
+  task = tt_task(d, target = "y")
+  learner = tt_learner(t_loss("mse"), module_generator = embeddings, ingress_tokens = list(x = ingress_categ()))
+  learner$train(task)
+  task_reversed = reverse_features(task)
+
+  pred = learner$predict(task_reversed, row_ids = integer(0))
+  expect_class(pred, "PredictionTorch")
+  expect_length(pred$row_ids, 0L)
+  expect_numeric(pred$response, len = 0L)
+  # ... and it can be combined with a non-empty prediction, which is in the training order as well
+  combined = c(pred$data, learner$predict(task_reversed)$data)
+  expect_equal(combined$response, learner$predict(task)$response)
+})
+
 test_that("an empty prediction is encoded from what the network really returns", {
   task = tt_task_2head()
   learner = tt_learner(tt_loss_2head(), module_generator = tt_module_2head,
