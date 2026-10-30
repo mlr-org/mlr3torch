@@ -84,3 +84,9 @@ test_that("error messages", {
   l$configure(shape = c(NA, 4))
   expect_error(l$train(nano_dogs_vs_cats()), NA)
 })
+
+test_that("lazy tensor and numeric features cannot be mixed", {
+  task = as_task_regr(data.table(a = c(1, 2, 3, 4), x = as_lazy_tensor(matrix(1:8, 4, 2)), y = c(1, 2, 3, 4)),
+    target = "y")
+  expect_error(lrn("regr.mlp", batch_size = 2, epochs = 0)$train(task), "single lazy_tensor")
+})
