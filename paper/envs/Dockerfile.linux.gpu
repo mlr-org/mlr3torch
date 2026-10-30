@@ -70,12 +70,7 @@ RUN R -q -e "options(renv.config.repos.override = c(pppm = 'https://packagemanag
 # Install the CUDA 12.6 build of libtorch, matching the base image and the PyTorch wheel above
 RUN CUDA=12.6 R -q -e "torch::install_torch()"
 
-# Install mlr3torch 0.4.0 from CRAN.
-# pak only upgrades dependencies from the renv.lock where required by mlr3torch.
-# dependencies = TRUE also installs the suggested packages (e.g., tfevents for the TensorBoard callback),
-# including their system requirements. ?reinstall is needed because renv already installed mlr3torch
-# from GitHub, and pak would otherwise keep that version without resolving its Suggests.
-RUN R -q -e "install.packages('pak', repos = sprintf('https://r-lib.github.io/p/pak/stable/%s/%s/%s', .Platform\$pkgType, R.Version()\$os, R.Version()\$arch))"
-RUN R -q -e "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux__/jammy/latest')); pak::pkg_install('mlr3torch?reinstall', dependencies = TRUE, upgrade = FALSE, ask = FALSE); stopifnot(requireNamespace('tfevents')); stopifnot(packageVersion('mlr3torch') == '0.4.0'); print(packageVersion('mlr3torch')); print(packageVersion('torch'))"
+# Check that renv.lock installed the mlr3torch release used in the paper.
+RUN R -q -e "stopifnot(packageVersion('mlr3torch') == '0.4.0'); print(packageVersion('mlr3torch')); print(packageVersion('torch'))"
 
 CMD ["bash"]
