@@ -6,13 +6,17 @@ Sys.time()
 ```
 
 ```
-## [1] "2026-10-20 14:17:39 CEST"
+## [1] "2026-10-30 19:32:16 UTC"
 ```
 
 ``` r
 options(width = 70, useFancyQuotes = FALSE)
 options(mlr3torch.cache = TRUE)
 lgr::get_logger("mlr3")$set_threshold("warn")
+
+# 4. Building blocks
+
+# 4.1 Data representation
 library("mlr3torch")
 ```
 
@@ -42,6 +46,22 @@ mnist
 ## • Properties: multiclass
 ## • Features (1):
 ##   • lt (1): image
+```
+
+```
+## Split "train" of dataset <mnist> (~12 MB) will be downloaded and
+## processed if not already available.
+```
+
+```
+## Downloading <mnist> ...
+## Processing <mnist>...
+## Dataset <mnist> downloaded and extracted successfully.
+## <mnist> dataset loaded with 60000 images across 10 classes.
+## <mnist> dataset loaded with 10000 images across 10 classes.
+```
+
+```
 ## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ```
 
@@ -68,8 +88,9 @@ str(materialize(rows$image))
 ```
 
 ``` r
-po_flat <- po("trafo_reshape", shape = c(-1, 28 * 28))
-mnist_flat <- po_flat$train(list(mnist))[[1L]]
+scale_flatten <- po("trafo_normalize", mean = 0, std = 255) %>>%
+  po("trafo_reshape", shape = c(-1, 28 * 28))
+mnist_flat <- scale_flatten$train(mnist)[[1L]]
 mnist_flat$head(2)
 ```
 
@@ -91,6 +112,7 @@ str(materialize(mnist_flat$head(2)$image))
 ```
 
 ``` r
+# 4.2 The LearnerTorch class
 mlp <- lrn("classif.mlp",
   loss = t_loss("cross_entropy"),
   optimizer = t_opt("adamw", lr = 0.001),
@@ -129,8 +151,8 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 ##    epoch train.classif.logloss
 ##    <num>                 <num>
-## 1:     1              4.169792
-## 2:     2              1.232116
+## 1:     1              2.073583
+## 2:     2              1.121466
 ```
 
 ``` r
@@ -140,7 +162,7 @@ pred$score(msr("classif.ce"))
 
 ```
 ## classif.ce 
-##       0.22
+##       0.15
 ```
 
 ``` r
@@ -151,7 +173,7 @@ rr$aggregate(msr("classif.ce"))
 
 ```
 ## classif.ce 
-##  0.1719953
+##  0.1170182
 ```
 
 ``` r
@@ -163,6 +185,7 @@ mlp2$unmarshal()
 
 set_validate(mlp, validate = 0.3)
 
+# 4.3 Neural networks as Graphs
 nn_simple <- nn_module("nn_simple",
   initialize = function(d_in, d_latent, d_out) {
     self$linear1 <- nn_linear(d_in, d_latent)
@@ -251,6 +274,9 @@ graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
 
 blocks <- nn("block", residual_layer, n_blocks = 5)
 
+# 5. Extending the package
+
+# 5.1 Loss and optimizer
 nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
   initialize = function(max_loss) {
     self$max_loss <- max_loss
@@ -272,6 +298,7 @@ tloss
 ```
 
 ``` r
+# 5.2 Callbacks
 gradient_clipper <- torch_callback("gradient_clipper",
   initialize = function(max_norm, norm_type) {
     self$norms <- numeric()
@@ -291,6 +318,7 @@ gradient_clipper <- torch_callback("gradient_clipper",
   }
 )
 
+# 5.3 Learners and task types
 nn_ffn <- nn_module("nn_ffn",
   initialize = function(task, latent_dim, n_layers) {
     dims <- c(task$n_features, rep(latent_dim, n_layers),
@@ -322,6 +350,9 @@ lrn_ffn <- lrn("classif.module",
   ingress_tokens = num_input,
   latent_dim = 100, n_layers = 5)
 
+# 6. Use cases
+
+# 6.1 Simple neural architecture search
 task <- tsk("mtcars")
 task
 ```
@@ -399,18 +430,19 @@ cat(paste("*", names(pvals), "=", pvals,
 ```
 
 ```
-## * tokenizer_num.d_token = 16
+## * tokenizer_num.d_token = 4
 ## * block.n_blocks = 1
-## * block.multihead_attention.num_heads = 2
-## * block.multihead_attention.dropout = 0.0139
+## * block.multihead_attention.num_heads = 1
+## * block.multihead_attention.dropout = 0.476
 ## * block.linear.out_features = 32
-## * block.branch.selection = sigmoid
-## * block.dropout.p = 0.871
-## * torch_optimizer.lr = 0.00705
-## * torch_model_regr.epochs = 13
+## * block.branch.selection = relu
+## * block.dropout.p = 0.66
+## * torch_optimizer.lr = 0.0465
+## * torch_model_regr.epochs = 12
 ```
 
 ``` r
+# 6.2 Fine-tuning an image network
 library("torchdatasets")
 dvc <- dogs_vs_cats_dataset("data", download = TRUE)
 
@@ -489,12 +521,13 @@ learner$model$classif.convnext_tiny_1k$model$callbacks$history
 ##    <num>             <num>
 ## 1:     1         0.3582090
 ## 2:     2         0.3731343
-## 3:     3         0.9402985
+## 3:     3         0.9552239
 ## 4:     4         1.0000000
 ## 5:     5         1.0000000
 ```
 
 ``` r
+# 6.3 Multimodal data
 task <- tsk("melanoma")
 task
 ```
@@ -613,7 +646,7 @@ Sys.time()
 ```
 
 ```
-## [1] "2026-10-20 14:27:17 CEST"
+## [1] "2026-10-30 19:40:54 UTC"
 ```
 
 ``` r
@@ -621,52 +654,57 @@ sessionInfo()
 ```
 
 ```
-## R version 4.5.3 (2026-03-11)
-## Platform: aarch64-apple-darwin20
-## Running under: macOS Tahoe 26.5.2
+## R version 4.5.1 (2025-06-13)
+## Platform: x86_64-pc-linux-gnu
+## Running under: Ubuntu 24.04.3 LTS
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib 
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 ## 
-## time zone: Europe/Berlin
-## tzcode source: internal
+## time zone: Etc/UTC
+## tzcode source: system (glibc)
 ## 
 ## attached base packages:
-## [1] stats     graphics  grDevices datasets  utils     methods  
+## [1] stats     graphics  grDevices utils     datasets  methods  
 ## [7] base     
 ## 
 ## other attached packages:
 ##  [1] ggplot2_4.0.3        mlr3viz_0.11.2       mlr3learners_0.16.0 
 ##  [4] torchdatasets_0.3.2  mlr3tuning_1.7.0     paradox_1.0.1       
-##  [7] future_1.80.0        mlr3torch_0.3.3.9000 torch_0.17.0        
+##  [7] future_1.80.0        mlr3torch_0.4.0      torch_0.17.0        
 ## [10] mlr3pipelines_0.12.0 mlr3_1.8.0          
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] gtable_0.3.6         xfun_0.61            processx_3.9.0      
-##  [4] callr_3.8.0          vctrs_0.7.3          tools_4.5.3         
-##  [7] Rdpack_2.6.6         safetensors_0.3.0    parallel_4.5.3      
-## [10] tibble_3.3.1         pkgconfig_2.0.3      data.table_1.18.6.1 
-## [13] checkmate_2.3.4      RColorBrewer_1.1-3   S7_0.2.2            
-## [16] uuid_1.2-2           lifecycle_1.0.5      compiler_4.5.3      
-## [19] farver_2.1.2         stringr_1.6.0        precrec_0.24.0      
-## [22] codetools_0.2-20     bbotk_1.13.1         pillar_1.11.1       
-## [25] crayon_1.5.3         parallelly_1.48.0    digest_0.6.39       
-## [28] stringi_1.8.9        listenv_1.1.0        labeling_0.4.3      
-## [31] mlr3measures_1.3.0   rprojroot_2.1.1      grid_4.5.3          
-## [34] here_1.0.2           cli_3.6.6            magrittr_2.0.5      
-## [37] future.apply_1.20.2  moocore_0.3.2        withr_3.0.3         
-## [40] scales_1.4.0         backports_1.5.1      rappdirs_0.3.4      
-## [43] bit64_4.8.6          matrixStats_1.5.0    globals_0.20.0      
-## [46] jpeg_0.1-11          bit_4.6.0            otel_0.2.0          
-## [49] evaluate_1.0.5       knitr_1.52           torchvision_0.10.0  
-## [52] rbibutils_2.4.1      viridisLite_0.4.3    mlr3misc_0.23.0     
-## [55] rlang_1.3.0          Rcpp_1.1.2           zeallot_0.2.0       
-## [58] glue_1.8.1           renv_1.3.1           palmerpenguins_0.1.1
-## [61] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.2           
-## [64] R6_2.6.1             fs_2.1.0
+##  [4] callr_3.8.0          vctrs_0.7.3          tools_4.5.1         
+##  [7] Rdpack_2.6.6         ps_1.9.3             safetensors_0.3.0   
+## [10] curl_8.0.0           parallel_4.5.1       tibble_3.3.1        
+## [13] pkgconfig_2.0.3      data.table_1.18.6.1  checkmate_2.3.4     
+## [16] RColorBrewer_1.1-3   S7_0.2.2             uuid_1.2-2          
+## [19] lifecycle_1.0.5      compiler_4.5.1       farver_2.1.2        
+## [22] stringr_1.6.0        precrec_0.24.0       codetools_0.2-20    
+## [25] bbotk_1.13.1         pillar_1.11.1        crayon_1.5.3        
+## [28] parallelly_1.48.0    digest_0.6.39        stringi_1.8.9       
+## [31] listenv_1.1.0        labeling_0.4.3       mlr3measures_1.3.0  
+## [34] rprojroot_2.1.1      grid_4.5.1           here_1.0.2          
+## [37] cli_3.6.6            magrittr_2.0.5       future.apply_1.20.2 
+## [40] moocore_0.3.2        withr_3.0.3          scales_1.4.0        
+## [43] backports_1.5.1      rappdirs_0.3.4       bit64_4.8.6         
+## [46] matrixStats_1.5.0    globals_0.20.0       jpeg_0.1-11         
+## [49] bit_4.6.0            otel_0.2.0           evaluate_1.0.5      
+## [52] knitr_1.52           torchvision_0.10.0   rbibutils_2.4.1     
+## [55] viridisLite_0.4.3    mlr3misc_0.23.0      rlang_1.3.0         
+## [58] Rcpp_1.1.2           zeallot_0.2.0        glue_1.8.1          
+## [61] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
+## [64] lgr_0.5.2            R6_2.6.1             fs_2.1.0
 ```
 
