@@ -80,8 +80,8 @@ encode_network_output = function(network_output, task, predict_type, encoder, cl
   if (is.null(class_names) || identical(class_names, task$class_names)) {
     return(check_encoded_prediction(encoder(network_output = network_output, task = task), task))
   }
-  # The network predicts the classes in the order of its training task (`class_names`), see section
-  # 'Network Head and Target Encoding' of `LearnerTorch`. `task` can have them in another order,
+  # The network predicts the classes in the order of its training task (`class_names`), because the
+  # targets were encoded in that order during training. `task` can have them in another order,
   # e.g. with another positive class, so the encoder gets a copy of `task` with the training order
   # and the encoded prediction is put back into the order of `task`.
   if (!test_permutation(class_names, task$class_names)) {
