@@ -14,6 +14,7 @@
 #'   is created. Create a new `nn_graph` instead.
 #' * `input_map` :: `character()`\cr
 #'   The names of the input arguments of the network.
+#'   Unnamed arguments of `$forward()` are matched in this order.
 #' * `shapes_in` :: `list()`\cr
 #'   The shapes of the input tensors of the network.
 #' * `output_map` :: `character()`\cr
@@ -28,7 +29,7 @@
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
 #'   The [`Graph`][mlr3pipelines::Graph] to wrap. Is **not** cloned.
 #' @param shapes_in (named `integer`)\cr
-#'   Shape info of tensors that go into `graph`. Names must be `graph$input$name`, in the same order.
+#'   Shape info of tensors that go into `graph`. Names must be `graph$input$name`, possibly in different order.
 #' @param output_map (`character`)\cr
 #'   Which of `graph`'s outputs to use. Must be a subset of `graph$output$name`.
 #' @param list_output (`logical(1)`)\cr
@@ -61,15 +62,15 @@ nn_graph = nn_module(
     # which have input and output type *.
 
     self$list_output = assert_flag(list_output)
-    # `$forward()` passes the inputs to the graph in the order of `shapes_in`
-    assert_names(names(shapes_in), identical.to = self$input_map)
+    assert_names(names(shapes_in), permutation.of = self$input_map)
     self$shapes_in = assert_list(shapes_in, types = "integerish")
     self$output_map = assert_subset(output_map, self$graph$output$name)
     if (!list_output && length(output_map) != 1) {
       stopf("If list_output is FALSE, output_map must have length 1.")
     }
 
-    self$argument_matcher = argument_matcher(names(self$shapes_in))
+    # the arguments are matched in the order of the graph inputs, which can differ from the order of `shapes_in`
+    self$argument_matcher = argument_matcher(self$input_map)
 
     # the following is necessary to make torch aware of all the included parameters
     # (some operators in the graph could be different from PipeOpModule, e.g. PipeOpBranch or PipeOpNOP
@@ -165,9 +166,9 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
   # ModelDescriptor allows Graph to grow by-reference and therefore may have
   # an incomplete $ingress-slot. However, by the time we create an nn_graph,
   # the `graph` must be final, so $ingress must be complete.
-  # The ingress tokens are not necessarily in the order of the graph inputs, e.g. when model descriptors are merged.
+  shapes_in = map(model_descriptor$ingress, "shape")
+
   graph = model_descriptor$graph
-  shapes_in = map(model_descriptor$ingress, "shape")[graph$input$name]
 
   graph_output = graph$output  # cache this, it is expensive
   output_map = map_chr(output_pointers, function(op) {

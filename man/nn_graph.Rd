@@ -11,7 +11,7 @@ nn_graph(graph, shapes_in, output_map = graph$output$name, list_output = FALSE)
 The \code{\link[mlr3pipelines:Graph]{Graph}} to wrap. Is \strong{not} cloned.}
 
 \item{shapes_in}{(named \code{integer})\cr
-Shape info of tensors that go into \code{graph}. Names must be \code{graph$input$name}, in the same order.}
+Shape info of tensors that go into \code{graph}. Names must be \code{graph$input$name}, possibly in different order.}
 
 \item{output_map}{(\code{character})\cr
 Which of \code{graph}'s outputs to use. Must be a subset of \code{graph$output$name}.}
@@ -38,6 +38,7 @@ The field cannot be set to another graph, because the parameters of the modules 
 is created. Create a new \code{nn_graph} instead.
 \item \code{input_map} :: \code{character()}\cr
 The names of the input arguments of the network.
+Unnamed arguments of \verb{$forward()} are matched in this order.
 \item \code{shapes_in} :: \code{list()}\cr
 The shapes of the input tensors of the network.
 \item \code{output_map} :: \code{character()}\cr
