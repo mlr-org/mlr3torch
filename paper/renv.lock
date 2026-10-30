@@ -278,6 +278,12 @@
       "Source": "Repository",
       "Repository": "CRAN"
     },
+    "base64enc": {
+      "Package": "base64enc",
+      "Version": "0.1-6",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "base64url": {
       "Package": "base64url",
       "Version": "1.4",
@@ -410,6 +416,12 @@
       "Source": "Repository",
       "Repository": "CRAN"
     },
+    "blob": {
+      "Package": "blob",
+      "Version": "1.3.0",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "boot": {
       "Package": "boot",
       "Version": "1.3-32",
@@ -436,6 +448,24 @@
       "NeedsCompilation": "no",
       "Author": "Jeffrey Horner [aut, cph], Greg Hunt [aut, cre, cph]",
       "Maintainer": "Greg Hunt <greg@firmansyah.com>"
+    },
+    "brio": {
+      "Package": "brio",
+      "Version": "1.1.5",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "bslib": {
+      "Package": "bslib",
+      "Version": "0.12.0",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "cachem": {
+      "Package": "cachem",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN"
     },
     "callr": {
       "Package": "callr",
@@ -679,6 +709,12 @@
       "Author": "Gábor Csárdi [aut, cre], Kirill Müller [aut], Jim Hester [aut], Maëlle Salmon [ctb] (<https://orcid.org/0000-0002-2815-0399>), Posit Software, PBC [cph, fnd]",
       "Repository": "CRAN"
     },
+    "diffobj": {
+      "Package": "diffobj",
+      "Version": "0.3.9",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "digest": {
       "Package": "digest",
       "Version": "0.6.39",
@@ -742,6 +778,18 @@
       "NeedsCompilation": "yes",
       "Author": "Thomas Lin Pedersen [cre, aut] (<https://orcid.org/0000-0002-5147-4711>), Berendea Nicolae [aut] (Author of the ColorSpace C++ library), Romain François [aut] (<https://orcid.org/0000-0002-2444-4226>), Posit, PBC [cph, fnd]",
       "Maintainer": "Thomas Lin Pedersen <thomas.pedersen@posit.co>",
+      "Repository": "CRAN"
+    },
+    "fastmap": {
+      "Package": "fastmap",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "fontawesome": {
+      "Package": "fontawesome",
+      "Version": "0.5.3",
+      "Source": "Repository",
       "Repository": "CRAN"
     },
     "foreign": {
@@ -973,9 +1021,27 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
+    "htmltools": {
+      "Package": "htmltools",
+      "Version": "0.5.9",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "htmlwidgets": {
+      "Package": "htmlwidgets",
+      "Version": "1.6.4",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "httr": {
       "Package": "httr",
       "Version": "1.4.9",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "igraph": {
+      "Package": "igraph",
+      "Version": "2.3.4",
       "Source": "Repository",
       "Repository": "CRAN"
     },
@@ -1002,6 +1068,12 @@
       "URL": "https://www.rforge.net/jpeg/",
       "BugReports": "https://github.com/s-u/jpeg/issues",
       "NeedsCompilation": "yes",
+      "Repository": "CRAN"
+    },
+    "jquerylib": {
+      "Package": "jquerylib",
+      "Version": "0.1.4",
+      "Source": "Repository",
       "Repository": "CRAN"
     },
     "jsonlite": {
@@ -1130,6 +1202,12 @@
     "matrixStats": {
       "Package": "matrixStats",
       "Version": "1.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "memoise": {
+      "Package": "memoise",
+      "Version": "2.0.1",
       "Source": "Repository",
       "Repository": "CRAN"
     },
@@ -1401,6 +1479,12 @@
       "Source": "Repository",
       "Repository": "CRAN"
     },
+    "pkgbuild": {
+      "Package": "pkgbuild",
+      "Version": "1.4.8",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "pkgconfig": {
       "Package": "pkgconfig",
       "Version": "2.0.3",
@@ -1425,9 +1509,21 @@
       "NeedsCompilation": "no",
       "Repository": "CRAN"
     },
+    "pkgload": {
+      "Package": "pkgload",
+      "Version": "1.5.3",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "png": {
       "Package": "png",
       "Version": "0.1-9",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "praise": {
+      "Package": "praise",
+      "Version": "1.0.0",
       "Source": "Repository",
       "Repository": "CRAN"
     },
@@ -1620,6 +1716,12 @@
       "Source": "Repository",
       "Repository": "CRAN"
     },
+    "rmarkdown": {
+      "Package": "rmarkdown",
+      "Version": "2.32",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "rpart": {
       "Package": "rpart",
       "Version": "4.1.27",
@@ -1663,6 +1765,12 @@
     "safetensors": {
       "Package": "safetensors",
       "Version": "0.3.0",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "sass": {
+      "Package": "sass",
+      "Version": "0.4.10",
       "Source": "Repository",
       "Repository": "CRAN"
     },
@@ -1823,6 +1931,18 @@
       "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
       "Repository": "CRAN"
     },
+    "testthat": {
+      "Package": "testthat",
+      "Version": "3.3.2",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "tfevents": {
+      "Package": "tfevents",
+      "Version": "0.0.5",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "tibble": {
       "Package": "tibble",
       "Version": "3.3.1",
@@ -1844,6 +1964,12 @@
       "SystemRequirements": "tiff and jpeg libraries",
       "URL": "https://www.rforge.net/tiff/",
       "NeedsCompilation": "yes",
+      "Repository": "CRAN"
+    },
+    "tinytex": {
+      "Package": "tinytex",
+      "Version": "0.61",
+      "Source": "Repository",
       "Repository": "CRAN"
     },
     "torch": {
@@ -1956,6 +2082,18 @@
     "viridisLite": {
       "Package": "viridisLite",
       "Version": "0.4.3",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "visNetwork": {
+      "Package": "visNetwork",
+      "Version": "2.1.4",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "waldo": {
+      "Package": "waldo",
+      "Version": "0.6.2",
       "Source": "Repository",
       "Repository": "CRAN"
     },

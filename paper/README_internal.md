@@ -16,6 +16,7 @@
 * [ ] upload mlr3torch to CRAN once bernd approves and benchmarks are reasonable
 * [ ] build final docker images + run final benchmark
 * [ ] confirm reproducbibilty of paper results
+* [ ] run the native check on macOS: `paper_code.R` via `renv::restore()` from `renv.lock` (without docker), compare with the docker results
 * [ ] Update the compute info (hardware description) in the paper
 
 * [ ] update zenodo link in paper

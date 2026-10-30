@@ -28,15 +28,13 @@ wget https://zenodo.org/records/18466801/files/IMAGE_CPU.tar.gz
 wget https://zenodo.org/records/18466801/files/IMAGE_GPU.tar.gz
 ```
 
-At the time of writing, the images are also hosted on dockerhub, but this is not a permanent storage:
-[https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general](https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general)
-
 The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
 
-When downloading the image from zenodo, you can register them with docker as follows:
+After downloading the images, register them with docker as follows:
 
 ```bash
 docker load -i /path/to/IMAGE_CPU.tar.gz
+docker load -i /path/to/IMAGE_GPU.tar.gz
 ```
 
 To start the CPU docker container, run:

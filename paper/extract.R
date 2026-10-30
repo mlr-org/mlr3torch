@@ -9,11 +9,41 @@ tex_file <- readLines("paper/paper.tex")
 in_code_block <- FALSE
 code_lines <- character(0)
 
+# Section numbers, used to precede the code with comments that link it to the sections of the paper.
+# The comment of a (sub)section is only written before its first code block.
+section <- 0L
+subsection <- 0L
+pending_headers <- character(0)
+
+# Title of a (sub)section, preferring the short title in [...], which has no LaTeX markup
+section_title <- function(line) {
+  title <- if (grepl("^\\\\(sub)?section\\[", line)) {
+    sub("^\\\\(sub)?section\\[([^]]*)\\].*", "\\2", line)
+  } else {
+    sub("^\\\\(sub)?section\\{([^}]*)\\}.*", "\\2", line)
+  }
+  gsub("\\\\code\\{([^}]*)\\}", "\\1", title)
+}
+
 # Process each line
 for (line in tex_file) {
+  # Track the (unstarred) sections and subsections
+  if (grepl("^\\\\section[[{]", line)) {
+    section <- section + 1L
+    subsection <- 0L
+    pending_headers <- c(sprintf("# %i. %s", section, section_title(line)), "")
+  } else if (grepl("^\\\\subsection[[{]", line)) {
+    subsection <- subsection + 1L
+    # keep the header of the section if none of its code was written yet
+    pending_headers <- c(pending_headers[startsWith(pending_headers, sprintf("# %i. ", section)) |
+      pending_headers == ""], sprintf("# %i.%i %s", section, subsection, section_title(line)))
+  }
+
   # Check if we're entering a code block
   if (grepl("\\\\begin\\{CodeInput\\}", line)) {
     in_code_block <- TRUE
+    code_lines <- c(code_lines, pending_headers)
+    pending_headers <- character(0)
     next
   }
 
@@ -68,6 +98,7 @@ code_lines <- c(
   "options(width = 70, useFancyQuotes = FALSE)",
   "options(mlr3torch.cache = TRUE)",
   "lgr::get_logger(\"mlr3\")$set_threshold(\"warn\")",
+  "",
   code_lines,
   "library(\"ggplot2\")",
   "plt = plt +",

@@ -19,10 +19,14 @@ RUN pip  install --no-cache-dir --upgrade pip \
 RUN Rscript --vanilla -e 'options(repos = c(CRAN = "https://cloud.r-project.org")); install.packages(c("renv", "stringi"))'
 COPY renv.lock .
 
+# System requirements of the packages in renv.lock (from pak::pkg_sysreqs()), e.g. for igraph, rmarkdown and tfevents
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      libglpk-dev libxml2-dev cmake make libuv1-dev pandoc libpng-dev libprotobuf-dev protobuf-compiler libprotoc-dev \
+ && rm -rf /var/lib/apt/lists/*
 RUN R -q -e "options(renv.config.repos.override = c(pppm = 'https://packagemanager.posit.co/cran/latest', cran = 'https://cloud.r-project.org/')); renv::restore(lockfile = 'renv.lock', library = .libPaths()[1], prompt = FALSE)"
 RUN R -q -e "torch::install_torch()"
 
-# Check that renv.lock installed the mlr3torch release used in the paper.
-RUN R -q -e "stopifnot(packageVersion('mlr3torch') == '0.4.0'); print(packageVersion('mlr3torch')); print(packageVersion('torch'))"
+# Check that renv.lock installed the mlr3torch release used in the paper, including all of its suggested packages.
+RUN R -q -e "stopifnot(packageVersion('mlr3torch') == '0.4.0'); suggests <- tools::package_dependencies('mlr3torch', db = installed.packages(), which = 'Suggests')[[1L]]; for (pkg in suggests) stopifnot(requireNamespace(pkg, quietly = TRUE)); print(packageVersion('mlr3torch')); print(packageVersion('torch'))"
 
 CMD ["bash"]

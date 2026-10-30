@@ -18,11 +18,11 @@ tbl_linux_cpu_all = tbl[device == "cpu" & os == "linux", ]
 # results are shown in a separate figure (appendix of the paper) below.
 tbl_linux_cpu = tbl_linux_cpu_all[n_threads == 16L, ]
 
-plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
+plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE, tbl_cpu = tbl_linux_cpu) {
   tbl = if (os == "linux" && gpu) {
     tbl_linux_cuda
   } else if (os == "linux" && !gpu) {
-    tbl_linux_cpu
+    tbl_cpu
   } else {
     stop()
   }
@@ -195,13 +195,13 @@ tbl_linux_cuda[optimizer == "adamw", mean(median(time_per_batch * 1000))]
 
 # Single-threaded vs. multi-threaded CPU results
 plots_threads = lapply(sort(unique(tbl_linux_cpu_all$n_threads)), function(nt) {
-  tbl_linux_cpu <<- tbl_linux_cpu_all[n_threads == nt, ]
-  bs = unique(tbl_linux_cpu$batch_size)
+  tbl_nt = tbl_linux_cpu_all[n_threads == nt, ]
+  bs = unique(tbl_nt$batch_size)
   suffix = sprintf(" (%i thread%s, batch size %s)", nt, if (nt == 1L) "" else "s", paste(bs, collapse = "/"))
   plot_grid(
-    plt("adamw", FALSE, "linux") + ggtitle(paste0("AdamW / CPU", suffix)) +
+    plt("adamw", FALSE, "linux", tbl_cpu = tbl_nt) + ggtitle(paste0("AdamW / CPU", suffix)) +
       theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
-    plt("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle(paste0("SGD / CPU", suffix)) +
+    plt("sgd", FALSE, "linux", show_y_label = FALSE, tbl_cpu = tbl_nt) + ggtitle(paste0("SGD / CPU", suffix)) +
       theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
     ncol = 2
   )

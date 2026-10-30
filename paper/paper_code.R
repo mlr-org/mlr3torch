@@ -5,6 +5,10 @@ Sys.time()
 options(width = 70, useFancyQuotes = FALSE)
 options(mlr3torch.cache = TRUE)
 lgr::get_logger("mlr3")$set_threshold("warn")
+
+# 4. Building blocks
+
+# 4.1 Data representation
 library("mlr3torch")
 set.seed(42)
 torch_manual_seed(42)
@@ -23,6 +27,7 @@ mnist_flat$head(2)
 
 str(materialize(mnist_flat$head(2)$image))
 
+# 4.2 The LearnerTorch class
 mlp <- lrn("classif.mlp",
   loss = t_loss("cross_entropy"),
   optimizer = t_opt("adamw", lr = 0.001),
@@ -57,6 +62,7 @@ mlp2$unmarshal()
 
 set_validate(mlp, validate = 0.3)
 
+# 4.3 Neural networks as Graphs
 nn_simple <- nn_module("nn_simple",
   initialize = function(d_in, d_latent, d_out) {
     self$linear1 <- nn_linear(d_in, d_latent)
@@ -115,6 +121,9 @@ graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
 
 blocks <- nn("block", residual_layer, n_blocks = 5)
 
+# 5. Extending the package
+
+# 5.1 Loss and optimizer
 nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
   initialize = function(max_loss) {
     self$max_loss <- max_loss
@@ -126,6 +135,7 @@ nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
 tloss <- as_torch_loss(nn_winsorized_mse)
 tloss
 
+# 5.2 Callbacks
 gradient_clipper <- torch_callback("gradient_clipper",
   initialize = function(max_norm, norm_type) {
     self$norms <- numeric()
@@ -145,6 +155,7 @@ gradient_clipper <- torch_callback("gradient_clipper",
   }
 )
 
+# 5.3 Learners and task types
 nn_ffn <- nn_module("nn_ffn",
   initialize = function(task, latent_dim, n_layers) {
     dims <- c(task$n_features, rep(latent_dim, n_layers),
@@ -169,6 +180,9 @@ lrn_ffn <- lrn("classif.module",
   ingress_tokens = num_input,
   latent_dim = 100, n_layers = 5)
 
+# 6. Use cases
+
+# 6.1 Simple neural architecture search
 task <- tsk("mtcars")
 task
 
@@ -226,6 +240,7 @@ pvals <- lapply(ti$result_learner_param_vals[tuned],
 cat(paste("*", names(pvals), "=", pvals,
   collapse = "\n"), "\n")
 
+# 6.2 Fine-tuning an image network
 library("torchdatasets")
 dvc <- dogs_vs_cats_dataset("data", download = TRUE)
 
@@ -278,6 +293,7 @@ set_validate(learner, 1 / 3)
 learner$train(task, 12401:12600)
 learner$model$classif.convnext_tiny_1k$model$callbacks$history
 
+# 6.3 Multimodal data
 task <- tsk("melanoma")
 task
 
