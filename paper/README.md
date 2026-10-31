@@ -20,23 +20,21 @@ torch::install_torch()
 ```
 
 We are providing two docker images, one for CPU and one for CUDA GPU that have the same packages from the `renv.lock` file installed.
-The images can be downloaded from Zenodo: [https://doi.org/10.5281/zenodo.17130368](https://doi.org/10.5281/zenodo.17130368), either via the web interface, or, for example, using `wget` or a similar tool:
+The images can be downloaded from Zenodo: [https://doi.org/10.5281/zenodo.23831328](https://doi.org/10.5281/zenodo.23831328), either via the web interface, or, for example, using `wget` or a similar tool:
 
 ```bash
 # Docker images
-wget https://zenodo.org/records/18466801/files/IMAGE_CPU.tar.gz
-wget https://zenodo.org/records/18466801/files/IMAGE_GPU.tar.gz
+wget https://zenodo.org/records/23831328/files/IMAGE_CPU.tar.gz
+wget https://zenodo.org/records/23831328/files/IMAGE_GPU.tar.gz
 ```
-
-At the time of writing, the images are also hosted on dockerhub, but this is not a permanent storage:
-[https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general](https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general)
 
 The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
 
-When downloading the image from zenodo, you can register them with docker as follows:
+After downloading the images, register them with docker as follows:
 
 ```bash
 docker load -i /path/to/IMAGE_CPU.tar.gz
+docker load -i /path/to/IMAGE_GPU.tar.gz
 ```
 
 To start the CPU docker container, run:
@@ -56,13 +54,16 @@ cd /mnt/data/paper
 ```
 
 Note that the `.Rprofile` file in `paper` ensures that when running R programs from the `paper` directory, the renv environment will be used unless the code is run in the docker container, where we are not relying on renv directly.
+It detects the container via the file `/.dockerenv` or via the mount point `/mnt/data/paper`.
+When the image is run with something other than docker (e.g., podman, apptainer, or enroot) and the `paper` directory is not mounted at `/mnt/data/paper`, neither heuristic applies, so renv is activated and the packages installed in the image are not found.
+In that case, adjust the condition in `.Rprofile` (or start R with `--no-init-file`).
 
 ## Running the Benchmark
 
 While the benchmark uses `batchtools` for experiment definition, we don't use it for job submission in order to ensure that all GPU and CPU benchmarks respectively are run on the same machine.
 For running the benchmarks, we strongly recommend using the docker images, because we need both PyTorch and (R-)torch, which can be somewhat tricky to setup, especially when using CUDA.
 
-If you want to run it without the docker image, you need to adjust the `PYTHON_PATH` variable in the benchmarking scripts to the path to your Python installation, ensure that `pytorch` is installed and the `"pytorch"` algorithm in `paper/benchmark/benchmark.R` initializes the correct python environment.
+If you want to run it without the docker image, you need to adjust the `PYTHON_PATH` variable in the benchmarking scripts to the path to your Python installation, and ensure that `pytorch` is installed for this Python installation. The `"pytorch"` algorithm in `paper/benchmark/benchmark.R` runs `paper/benchmark/time_pytorch.py` with this Python executable in a separate process.
 But again, we strongly recommend using the provided docker images for the benchmarks.
 
 You can still reproduce the results that compare (R) `torch` with `mlr3torch` without the python environment.
@@ -105,13 +106,16 @@ To run the CPU benchmarks (using the CPU docker image) on linux, run:
 Rscript benchmark/linux-cpu.R
 ```
 
+The CPU benchmark uses batch size 32 and is run both with a single thread (latent dimensions 100, 200 and 400) and with 16 threads (latent dimensions 800, 1600 and 3200), see the `n_threads` column of the results.
+The machine should therefore have at least 16 physical cores and should not be used by other processes during the benchmark.
+
 To run the benchmark that compares "ignite" with standard optimizers (using the CUDA docker image) on linux, run:
 
 ```bash
 Rscript benchmark/linux-gpu-optimizer.R
 ```
 
-The postprocessd results are stored in:
+The postprocessed results are stored in:
 
 * `paper/benchmark/result-linux-gpu.rds`
 * `paper/benchmark/result-linux-cpu.rds`
@@ -122,20 +126,23 @@ The scripts can, of course, also be run on different machines. The linux names j
 There are also some exemplary slurm scripts that need to be adapted to the specific cluster and job submission system.
 
 * `paper/benchmark/benchmark_gpu.sh`
+* `paper/benchmark/benchmark_cpu.sh` (LRZ Linux Cluster, running the CPU image with Apptainer)
 * `paper/benchmark/benchmark_gpu_optimizer.sh`
 
 ### Running a subset of the Jobs
 
-To run a subset of the jobs, modify the table `tbl` in scripts such as `paper/benchmark/linux-gpu.R` to only include the jobs that you want to run.
-For example:
+To run a subset of the jobs, replace the loop that submits the jobs in scripts such as `paper/benchmark/linux-gpu.R` with one that only submits the jobs that you want to run.
+For example, the following runs the first repetition of the networks with 4 hidden layers and latent dimension 1000 that are trained with AdamW, using only R `torch` and `mlr3torch` (i.e., without the `"pytorch"` algorithm):
 
 ```r
-ids = tbl[device == "cpu" & n_layers == 10 & latent == 250 & jit & optimizer == "adamw" & repl == 1, ]$job.id
+ids = tbl[n_layers == 4 & latent == 1000 & optimizer == "adamw" & algorithm != "pytorch" & repl == 1, ]$job.id
 for (id in sample(ids)) {
   submitJobs(id)
   Sys.sleep(0.1)
 }
 ```
+
+The summary that is created at the end of the script only contains the jobs that finished without errors.
 
 ### Generating the Benchmark Plots
 
@@ -145,6 +152,8 @@ For the main benchmark shown in the paper, run the following command from the `p
 Rscript benchmark/plot_benchmark.R
 Rscript benchmark/plot_optimizer.R
 ```
+
+The main figures `plot_benchmark.png` and `plot_benchmark_relative.png` show the CPU results with 16 threads, `plot_benchmark_cpu_single_thread.png` (appendix of the paper) shows the single-threaded CPU results, and `plot_benchmark_cpu_threads.png` compares the CPU results for 1 and 16 threads.
 
 ## Recreating the Paper Code
 
@@ -178,7 +187,7 @@ We also added some additional comments to make it easier to associate the code w
 The code shown in the paper downloads various datasets from standard resources.
 In the unlikely but possible event that these datasets are not available anymore, we include:
 
-1. the cache directory for `torch` (MNIST, ResNet-18) and `mlr3torch` (postprocessed MNIST, Melanoma)
+1. the cache directory for `torch` (MNIST, ConvNeXt-T) and `mlr3torch` (postprocessed MNIST, Melanoma)
 2. the dogs-vs-cats dataset
 
 in the Zenodo data.
@@ -187,7 +196,7 @@ If one of the downloads (1) fails, do the following (before starting the docker 
 
 1. Download the `cache.tar.gz` file, e.g. via:
    ```bash
-   wget https://zenodo.org/records/18466801/files/cache.tar.gz
+   wget https://zenodo.org/records/23831328/files/cache.tar.gz
    ```
 2. Unpack the file using `tar -xzf cache.tar.gz` which creates a folder named `cache`
 3. Move this folder into the parent directory of `paper`
@@ -204,12 +213,12 @@ If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it in
 
 ### Other errors
 
-When reproducing the results with `knitr` in the docker container, we sometimes encountered issues with the weight downloads for the ResNet-18 model.
+When reproducing the results with `knitr` in the docker container, we sometimes encountered issues with the weight downloads for the ConvNeXt-T model.
 This was not an issue when reproducing without `knitr`.
 If you also encounter this, delete the problematic model file (you can determine the torch cache directory via `rappdirs::user_cache_dir("torch")`) and download it by running.
 
 ```r
-torchvision::model_resnet18(pretrained = TRUE)
+torchvision::model_convnext_tiny_1k(pretrained = TRUE)
 ```
 
 Then, re-run the paper code.

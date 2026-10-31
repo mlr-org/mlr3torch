@@ -10,16 +10,19 @@ tbl2$os = "linux"
 
 TEXT_SIZE = 12
 
-tbl = rbindlist(list(tbl1, tbl2))
+tbl = rbindlist(list(tbl1, tbl2), fill = TRUE)
 
 tbl_linux_cuda = tbl[device == "cuda" & os == "linux", ]
-tbl_linux_cpu = tbl[device == "cpu" & os == "linux", ]
+tbl_linux_cpu_all = tbl[device == "cpu" & os == "linux", ]
+# The main figures show the CPU results with 16 threads; the single-threaded
+# results are shown in a separate figure (appendix of the paper) below.
+tbl_linux_cpu = tbl_linux_cpu_all[n_threads == 16L, ]
 
-plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
+plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE, tbl_cpu = tbl_linux_cpu) {
   tbl = if (os == "linux" && gpu) {
     tbl_linux_cuda
   } else if (os == "linux" && !gpu) {
-    tbl_linux_cpu
+    tbl_cpu
   } else {
     stop()
   }
@@ -27,7 +30,7 @@ plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
   # Calculate quantiles for each group
   tbl_summary = tbl[optimizer == opt_name,
     .(time_per_batch_med = median(time_per_batch * 1000),
-      time_per_batch_q10 = quantile(time_per_batch * 1000, 0.2),
+      time_per_batch_q10 = quantile(time_per_batch * 1000, 0.1),
       time_per_batch_q90 = quantile(time_per_batch * 1000, 0.9)),
     by = .(n_layers, algorithm, latent)]
 
@@ -50,6 +53,7 @@ plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
     labs(
       y = if (show_y_label) "Time per batch (ms)" else NULL,
       color = "Algorithm",
+      fill = "Algorithm",
       x = if (show_x_label) "Number of hidden layers" else NULL
     ) +
     theme_bw() +
@@ -100,7 +104,7 @@ plot_combined <- plot_grid(
 )
 
 ggsave(here::here("benchmark", "plot_benchmark.png"),
-  plot_combined, width = 12, height = 4, dpi = 300)
+  plot_combined, width = 12, height = 4, dpi = 300, bg = "white")
 
 plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
   tbl = if (os == "linux" && gpu) {
@@ -132,14 +136,16 @@ plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = 
     geom_line() +
     geom_point(size = 0.8) +
     facet_wrap(~latent) +
+    # the y-axis starts at 0.9 instead of at 0, so that small differences
+    # between mlr3torch and torch remain visible
+    scale_y_continuous(limits = c(0.9, NA)) +
     labs(
-      y = if (show_y_label) "Time per batch (ms)" else NULL,
+      y = if (show_y_label) "Relative median time\n per batch" else NULL,
       color = "Algorithm",
       x = if (show_x_label) "Number of hidden layers" else NULL
     ) +
     theme_bw() +
     theme(legend.position = if (!gpu) "left" else "none") +
-    ylim(0, NA) +
     scale_color_manual(
       values = c("rtorch" = "#66C2A5", "mlr3torch" = "#FC8D62")
     )
@@ -183,6 +189,56 @@ plot_combined <- plot_grid(
 plot_combined
 
 ggsave(here::here("benchmark", "plot_benchmark_relative.png"),
-  plot_combined, width = 12, height = 4, dpi = 300)
+  plot_combined, width = 12, height = 4, dpi = 300, bg = "white")
 
 tbl_linux_cuda[optimizer == "adamw", mean(median(time_per_batch * 1000))]
+
+# Single-threaded vs. multi-threaded CPU results
+plots_threads = lapply(sort(unique(tbl_linux_cpu_all$n_threads)), function(nt) {
+  tbl_nt = tbl_linux_cpu_all[n_threads == nt, ]
+  bs = unique(tbl_nt$batch_size)
+  suffix = sprintf(" (%i thread%s, batch size %s)", nt, if (nt == 1L) "" else "s", paste(bs, collapse = "/"))
+  plot_grid(
+    plt("adamw", FALSE, "linux", tbl_cpu = tbl_nt) + ggtitle(paste0("AdamW / CPU", suffix)) +
+      theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
+    plt("sgd", FALSE, "linux", show_y_label = FALSE, tbl_cpu = tbl_nt) + ggtitle(paste0("SGD / CPU", suffix)) +
+      theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
+    ncol = 2
+  )
+})
+tbl_linux_cpu = tbl_linux_cpu_all[n_threads == 1L, ]
+legend = get_legend(plt("adamw", FALSE, "linux") + theme(legend.position = "bottom"))
+
+plot_threads = plot_grid(
+  plotlist = c(plots_threads[1L], list(legend), plots_threads[-1L]),
+  ncol = 1,
+  rel_heights = c(1, 0.1, rep(1, length(plots_threads) - 1L))
+)
+
+ggsave(here::here("benchmark", "plot_benchmark_cpu_threads.png"),
+  plot_threads, width = 12, height = 4, dpi = 300, bg = "white")
+
+# Single-threaded CPU results (appendix of the paper): absolute and relative time per batch
+tbl_linux_cpu = tbl_linux_cpu_all[n_threads == 1L, ]
+plot_abs_1 = plot_grid(
+  plt("adamw", FALSE, "linux", show_x_label = FALSE) + ggtitle("AdamW / CPU (1 thread)") +
+    theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
+  plt("sgd", FALSE, "linux", show_y_label = FALSE, show_x_label = FALSE) + ggtitle("SGD / CPU (1 thread)") +
+    theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
+  ncol = 2
+)
+plot_rel_1 = plot_grid(
+  plt_relative("adamw", FALSE, "linux") + ggtitle("AdamW / CPU (1 thread), relative to PyTorch") +
+    theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)) +
+    labs(y = "Relative median time\n per batch") +
+    geom_hline(yintercept = 1, linetype = "dashed", alpha = 0.9, color = "grey"),
+  plt_relative("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle("SGD / CPU (1 thread), relative to PyTorch") +
+    theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)) +
+    geom_hline(yintercept = 1, linetype = "dashed", alpha = 0.9, color = "grey"),
+  ncol = 2
+)
+legend_abs = get_legend(plt("adamw", FALSE, "linux") + theme(legend.position = "bottom"))
+plot_single_thread = plot_grid(plot_abs_1, legend_abs, plot_rel_1, ncol = 1, rel_heights = c(1, 0.1, 1))
+
+ggsave(here::here("benchmark", "plot_benchmark_cpu_single_thread.png"),
+  plot_single_thread, width = 12, height = 4, dpi = 300, bg = "white")
