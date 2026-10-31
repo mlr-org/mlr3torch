@@ -2,69 +2,39 @@
 
 
 ``` r
-# Some setup code
 Sys.time()
 ```
 
 ```
-## [1] "2026-01-31 13:20:12 UTC"
+## [1] "2026-10-30 19:32:16 UTC"
 ```
 
 ``` r
+options(width = 70, useFancyQuotes = FALSE)
 options(mlr3torch.cache = TRUE)
 lgr::get_logger("mlr3")$set_threshold("warn")
-library("mlr3")
-set.seed(42)
-task <- tsk("mtcars")
-learner <- lrn("regr.rpart")
-split <- partition(task, ratio = 2/3)
-learner$train(task, split$train)
-pred <- learner$predict(task, split$test)
-pred$score(msr("regr.rmse"))
-```
 
-```
-## regr.rmse 
-##  4.736051
-```
+# 4. Building blocks
 
-``` r
-# mlr3pipelines
-library("mlr3pipelines")
-graph_learner <- as_learner(po("pca") %>>% lrn("regr.rpart"))
-
-resampling <- rsmp("cv", folds = 3)
-rr <- resample(task, graph_learner, resampling)
-rr$aggregate(msr("regr.rmse"))
-```
-
-```
-## regr.rmse 
-##  4.274766
-```
-
-``` r
-# torch
-library("torch")
-torch_manual_seed(42)
-x <- torch_tensor(1, device = "cpu")
-w <- torch_tensor(2, requires_grad = TRUE, device = "cpu")
-y <- w * x
-y$backward()
-w$grad
-```
-
-```
-## torch_tensor
-##  1
-## [ CPUFloatType{1} ]
-```
-
-``` r
-# 3. Building Blocks
-
-# 3.1 Data representation
+# 4.1 Data representation
 library("mlr3torch")
+```
+
+```
+## Loading required package: mlr3
+```
+
+```
+## Loading required package: mlr3pipelines
+```
+
+```
+## Loading required package: torch
+```
+
+``` r
+set.seed(42)
+torch_manual_seed(42)
 mnist <- tsk("mnist")
 mnist
 ```
@@ -73,22 +43,26 @@ mnist
 ## 
 ## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
+## • Properties: multiclass
+## • Features (1):
+##   • lt (1): image
 ```
 
 ```
-## Dataset <mnist> (~12 MB) will be downloaded and processed if not already available.
+## Split "train" of dataset <mnist> (~12 MB) will be downloaded and
+## processed if not already available.
+```
+
+```
 ## Downloading <mnist> ...
 ## Processing <mnist>...
 ## Dataset <mnist> downloaded and extracted successfully.
-## Dataset <mnist> loaded with 60000 images.
-## Dataset <mnist> loaded with 10000 images.
+## <mnist> dataset loaded with 60000 images across 10 classes.
+## <mnist> dataset loaded with 10000 images across 10 classes.
 ```
 
 ```
 ## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
-## • Properties: multiclass
-## • Features (1):
-##   • lt (1): image
 ```
 
 ``` r
@@ -114,8 +88,9 @@ str(materialize(rows$image))
 ```
 
 ``` r
-po_flat <- po("trafo_reshape", shape = c(-1, 28 * 28))
-mnist_flat <- po_flat$train(list(mnist))[[1L]]
+scale_flatten <- po("trafo_normalize", mean = 0, std = 255) %>>%
+  po("trafo_reshape", shape = c(-1, 28 * 28))
+mnist_flat <- scale_flatten$train(mnist)[[1L]]
 mnist_flat$head(2)
 ```
 
@@ -127,16 +102,26 @@ mnist_flat$head(2)
 ```
 
 ``` r
-# 3.2 The LearnerTorch class
+str(materialize(mnist_flat$head(2)$image))
+```
 
+```
+## List of 2
+##  $ :Float [1:784]
+##  $ :Float [1:784]
+```
+
+``` r
+# 4.2 The LearnerTorch class
 mlp <- lrn("classif.mlp",
- loss = t_loss("cross_entropy"),
- optimizer = t_opt("adamw", lr = 0.001),
- callbacks = t_clbk("history"))
+  loss = t_loss("cross_entropy"),
+  optimizer = t_opt("adamw", lr = 0.001),
+  callbacks = t_clbk("history"))
 
 mlp$param_set$set_values(
-  neurons = c(100, 200), activation = torch::nn_relu,
-  p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
+  neurons = c(100, 200), activation = nn_relu,
+  p = 0.3, opt.weight_decay = 0.01,
+  measures_train = msr("classif.logloss"),
   epochs = 10, batch_size = 32, device = "cpu")
 
 mlp$configure(predict_type = "prob")
@@ -166,8 +151,8 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 ##    epoch train.classif.logloss
 ##    <num>                 <num>
-## 1:     1              4.266895
-## 2:     2              1.296983
+## 1:     1              2.073583
+## 2:     2              1.121466
 ```
 
 ``` r
@@ -177,7 +162,18 @@ pred$score(msr("classif.ce"))
 
 ```
 ## classif.ce 
-##       0.21
+##       0.15
+```
+
+``` r
+mnist_small <- mnist_flat$clone()$filter(1:1000)
+rr <- resample(mnist_small, mlp, rsmp("cv", folds = 3))
+rr$aggregate(msr("classif.ce"))
+```
+
+```
+## classif.ce 
+##  0.1170182
 ```
 
 ``` r
@@ -189,17 +185,16 @@ mlp2$unmarshal()
 
 set_validate(mlp, validate = 0.3)
 
-# 3.3 Neural networks as Graphs
-
+# 4.3 Neural networks as Graphs
 nn_simple <- nn_module("nn_simple",
   initialize = function(d_in, d_latent, d_out) {
-    self$linear1 = nn_linear(d_in, d_latent)
-    self$activation = nn_relu()
-    self$linear2 = nn_linear(d_latent, d_out)
+    self$linear1 <- nn_linear(d_in, d_latent)
+    self$activation <- nn_relu()
+    self$linear2 <- nn_linear(d_latent, d_out)
   },
   forward = function(x) {
-    x = self$linear1(x)
-    x = self$activation(x)
+    x <- self$linear1(x)
+    x <- self$activation(x)
     self$linear2(x)
   }
 )
@@ -218,10 +213,11 @@ net(torch_randn(1, 10))
 
 ``` r
 module_graph <- po("module_1", module = nn_linear(10, 100)) %>>%
- po("module_2", module = nn_relu()) %>>%
- po("module_3", module = nn_linear(100, 1))
+  po("module_2", module = nn_relu()) %>>%
+  po("module_3", module = nn_linear(100, 1))
 
-net <- nn_graph(module_graph, shapes_in = list(module_1.input = c(NA, 10)))
+net <- nn_graph(module_graph,
+  shapes_in = list(module_1.input = c(NA, 10)))
 net(torch_randn(2, 10))
 ```
 
@@ -234,7 +230,7 @@ net(torch_randn(2, 10))
 
 ``` r
 graph <- po("torch_ingress_ltnsr") %>>%
-  nn("linear", out_features = 10) %>>% nn("relu") %>>% nn("head")
+  nn("linear", out_features = 100) %>>% nn("relu") %>>% nn("head")
 
 md <- graph$train(mnist_flat)[[1L]]
 md
@@ -255,9 +251,10 @@ graph <- graph %>>%
   po("torch_loss", t_loss("cross_entropy")) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.001))
 
-graph <- graph %>>% po("torch_model_classif", epochs = 10, batch_size = 16)
+graph <- graph %>>%
+  po("torch_model_classif", epochs = 10, batch_size = 16, device = "cpu")
 
-glrn <- as_learner(graph)
+glrn <- as_learner_torch(graph)
 glrn$train(mnist_flat, row_ids = 1:1000)
 
 path_lin <- nn("linear_1")
@@ -265,7 +262,8 @@ path_nonlin <- nn("linear_2") %>>% nn("relu")
 
 residual_layer <- list(path_lin, path_nonlin) %>>% nn("merge_sum")
 
-path_num <- po("select_1", selector = selector_type("numeric")) %>>%
+path_num <- po("select_1",
+  selector = selector_type(c("numeric", "integer"))) %>>%
   po("torch_ingress_num") %>>%
   nn("tokenizer_num", d_token = 10)
 path_categ <- po("select_2", selector = selector_type("factor")) %>>%
@@ -276,16 +274,15 @@ graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
 
 blocks <- nn("block", residual_layer, n_blocks = 5)
 
-# 4. Extending the package
+# 5. Extending the package
 
-# 4.1 Loss and optimizer
-
+# 5.1 Loss and optimizer
 nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
   initialize = function(max_loss) {
     self$max_loss <- max_loss
   },
   forward = function(input, target) {
-    torch_clamp(nnf_mse_loss(input, target), max = self$max_loss)
+    torch_mean(torch_clamp((input - target)^2, max = self$max_loss))
   }
 )
 tloss <- as_torch_loss(nn_winsorized_mse)
@@ -297,12 +294,11 @@ tloss
 ## * Generator: nn_winsorized_mse
 ## * Parameters: list()
 ## * Packages: torch,mlr3torch
-## * Task Types: classif,regr
+## * Task Types: classif,regr,torch
 ```
 
 ``` r
-# 4.2 Callbacks
-
+# 5.2 Callbacks
 gradient_clipper <- torch_callback("gradient_clipper",
   initialize = function(max_norm, norm_type) {
     self$norms <- numeric()
@@ -318,16 +314,15 @@ gradient_clipper <- torch_callback("gradient_clipper",
     self$norms
   },
   load_state_dict = function(state_dict) {
-    self$norms = state_dict
+    self$norms <- state_dict
   }
 )
 
-# 4.3 Learners and task types
-
+# 5.3 Learners and task types
 nn_ffn <- nn_module("nn_ffn",
   initialize = function(task, latent_dim, n_layers) {
     dims <- c(task$n_features, rep(latent_dim, n_layers),
-      length(task$class_names))
+      output_dim_for(task))
     modules <- unlist(lapply(seq_len(length(dims) - 1), function(i) {
       if (i < length(dims) - 1) {
         list(nn_linear(dims[i], dims[i + 1]), nn_relu())
@@ -355,11 +350,9 @@ lrn_ffn <- lrn("classif.module",
   ingress_tokens = num_input,
   latent_dim = 100, n_layers = 5)
 
+# 6. Use cases
 
-# 5. Use cases
-
-# 5.1 Simple neural architecture search
-
+# 6.1 Simple neural architecture search
 task <- tsk("mtcars")
 task
 ```
@@ -376,11 +369,16 @@ task
 ``` r
 ingress <- po("torch_ingress_num")
 
-block <- nn("linear", out_features = 32) %>>%
+embedding <- nn("tokenizer_num", d_token = 8)
+
+block <- nn("multihead_attention", num_heads = 2) %>>%
+  nn("layer_norm", dims = 1) %>>%
+  nn("linear", out_features = 16) %>>%
   ppl("branch", list(relu = nn("relu"), sigmoid = nn("sigmoid"))) %>>%
   nn("dropout")
 
-architecture <- nn("block", block) %>>% nn("head")
+architecture <- embedding %>>% nn("block", block) %>>%
+  nn("flatten") %>>% nn("head")
 
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
@@ -389,8 +387,8 @@ model <- po("torch_model_regr", device = "cpu", batch_size = 32)
 
 pipeline <- ingress %>>%
   architecture %>>% config %>>% model
-learner <- as_learner(pipeline)
-learner$id <- "custom_nn"
+learner <- as_learner_torch(pipeline)
+learner$id <- "attention_nn"
 
 library("mlr3tuning")
 ```
@@ -401,8 +399,11 @@ library("mlr3tuning")
 
 ``` r
 learner$param_set$set_values(
-  block.linear.out_features = to_tune(20, 500),
-  block.n_blocks = to_tune(1, 5),
+  tokenizer_num.d_token = to_tune(c(4, 8, 16)),
+  block.multihead_attention.num_heads = to_tune(c(1, 2, 4)),
+  block.multihead_attention.dropout = to_tune(0, 0.5),
+  block.linear.out_features = to_tune(c(8, 16, 32)),
+  block.n_blocks = to_tune(1, 3),
   block.branch.selection = to_tune(c("relu", "sigmoid")),
   block.dropout.p = to_tune(0.1, 0.9),
   torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE))
@@ -417,48 +418,34 @@ learner$param_set$set_values(
 ti <- tune(
   tuner = tnr("random_search"),
   resampling = rsmp("holdout"),
-  measure = msr("internal_valid_score", minimize = TRUE),
+  measure = msr("best_valid_score", minimize = TRUE),
   learner = learner,
-  term_evals = 30,
+  term_evals = 20,
   task = task)
-pvals <- ti$result_learner_param_vals[1:6]
+tuned <- learner$param_set$search_space()$ids()
+pvals <- lapply(ti$result_learner_param_vals[tuned],
+  function(x) if (is.numeric(x)) signif(x, 3) else x)
 cat(paste("*", names(pvals), "=", pvals,
- collapse = "\n"), "\n")
+  collapse = "\n"), "\n")
 ```
 
 ```
-## * block.n_blocks = 4
-## * block.linear.out_features = 248
-## * block.branch.selection = sigmoid
-## * block.dropout.p = 0.861211954243481
-## * torch_optimizer.lr = 0.00310737353560635
-## * torch_model_regr.epochs = 44
+## * tokenizer_num.d_token = 4
+## * block.n_blocks = 1
+## * block.multihead_attention.num_heads = 1
+## * block.multihead_attention.dropout = 0.476
+## * block.linear.out_features = 32
+## * block.branch.selection = relu
+## * block.dropout.p = 0.66
+## * torch_optimizer.lr = 0.0465
+## * torch_model_regr.epochs = 12
 ```
 
 ``` r
-# 5.2 Fine-tuning an image network
-
+# 6.2 Fine-tuning an image network
 library("torchdatasets")
-dogs_vs_cats_dataset("data", download = TRUE)
-```
+dvc <- dogs_vs_cats_dataset("data", download = TRUE)
 
-```
-## <dataset>
-##   Public:
-##     .getitem: function (i) 
-##     .length: function () 
-##     classes: dog cat
-##     clone: function (deep = FALSE) 
-##     images: data/dogs-vs-cats/train/cat.0.jpg data/dogs-vs-cats/trai ...
-##     initialize: function (root, split = "train", download = FALSE, ..., transform = NULL, 
-##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE) 
-##     state_dict: function () 
-##     target_transform: NULL
-##     targets: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2  ...
-##     transform: NULL
-```
-
-``` r
 ds <- torch::dataset("dogs_vs_cats",
   initialize = function(pths) {
     self$pths <- pths
@@ -498,54 +485,49 @@ task
 ## 
 ## ── <TaskClassif> (25000x2) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
-## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
 ## • Features (1):
 ##   • lt (1): image
+## • Target classes: cat (positive class, 50%), dog (50%)
 ```
 
 ``` r
-augment <- po("augment_random_vertical_flip", p = 0.5)
+augment <- po("augment_random_horizontal_flip", p = 0.5)
 
 preprocess <- po("trafo_resize", size = c(224, 224))
 
+normalize <- po("trafo_normalize",
+  mean = c(0.485, 0.456, 0.406), std = c(0.229, 0.224, 0.225))
+
 unfreezer <- t_clbk("unfreeze",
-  starting_weights = select_name(c("fc.weight", "fc.bias")),
+  starting_weights = select_name(c("head.weight", "head.bias")),
   unfreeze = data.table(epoch = 3, weights = select_all()))
 
-resnet <- lrn("classif.resnet18",
+convnext <- lrn("classif.convnext_tiny_1k",
   pretrained = TRUE, epochs = 5, device = "cpu", batch_size = 32,
   opt.lr = 1e-4, measures_valid = msr("classif.acc"),
   callbacks = list(unfreezer, t_clbk("history")))
 
-learner <- as_learner(augment %>>% preprocess %>>% resnet)
-learner$id <- "resnet"
+learner <- as_learner_torch(
+  augment %>>% preprocess %>>% normalize %>>% convnext)
+learner$id <- "convnext"
 set_validate(learner, 1 / 3)
-learner$train(task, c(12400:12600))
-```
-
-```
-## Model weights for <resnet18> (~45 MB) will be downloaded and processed if not
-## already available.
-```
-
-``` r
-learner$model$classif.resnet18$model$callbacks$history
+learner$train(task, 12401:12600)
+learner$model$classif.convnext_tiny_1k$model$callbacks$history
 ```
 
 ```
 ##    epoch valid.classif.acc
 ##    <num>             <num>
-## 1:     1         0.4179104
-## 2:     2         0.4477612
-## 3:     3         0.8955224
-## 4:     4         0.8955224
-## 5:     5         0.9253731
+## 1:     1         0.3582090
+## 2:     2         0.3731343
+## 3:     3         0.9552239
+## 4:     4         1.0000000
+## 5:     5         1.0000000
 ```
 
 ``` r
-# 5.3 Multi-modal data
-
+# 6.3 Multimodal data
 task <- tsk("melanoma")
 task
 ```
@@ -554,13 +536,13 @@ task
 ## 
 ## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
-## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
 ## • Features (4):
 ##   • fct (2): anatom_site_general_challenge, sex
 ##   • int (1): age_approx
 ##   • lt (1): image
 ## • Groups: patient_id
+## • Target classes: malignant (positive class, 2%), benign (98%)
 ```
 
 ``` r
@@ -583,35 +565,36 @@ task$missings("age_approx")
 ```
 
 ``` r
-block_ffn <- nn("linear", out_features = 500) %>>%
-  nn("relu") %>>% nn("dropout")
 path_tabular <- po("select_1",
     selector = selector_type(c("integer", "factor"))) %>>%
   po("imputehist") %>>%
   po("encode", method = "one-hot") %>>%
   po("torch_ingress_num") %>>%
-  nn("block_1", block = block_ffn, n_blocks = 3)
+  nn("tokenizer_num", d_token = 64)
 
+patchify <- function(x) {
+  nnf_unfold(x, kernel_size = 16, stride = 16)$transpose(2, 3)
+}
 path_image <- po("select_2", selector = selector_name("image")) %>>%
   po("torch_ingress_ltnsr", shape = c(NA, 3, 128, 128)) %>>%
-  nn("conv2d_1", out_channels = 16, kernel_size = 7, stride = 2,
-    padding = 3) %>>%
-  nn("batch_norm2d_1") %>>%
-  nn("relu_1") %>>%
-  nn("max_pool2d_1", kernel_size = 3, stride = 2, padding = 1) %>>%
-  nn("conv2d_2", out_channels = 32, kernel_size = 3, stride = 1,
-    padding = 1) %>>%
-  nn("batch_norm2d_2") %>>%
-  nn("relu_2") %>>%
-  nn("conv2d_3", out_channels = 64, kernel_size = 3, stride = 1,
-    padding = 1) %>>%
-  nn("batch_norm2d_3") %>>%
-  nn("relu_3") %>>%
-  nn("flatten")
+  nn("fn_1", fn = patchify) %>>%
+  nn("linear", out_features = 64)
+
+po_torch_pos_embedding <- pipeop_torch("nn_pos_embedding",
+  initialize = function(shapes_in) {
+    self$weight <- nn_parameter(torch_randn(shapes_in[[1]][-1]) * 0.02)
+  },
+  forward = function(input) input + self$weight,
+  shapes_out = function(shapes_in) shapes_in
+)
+path_image <- path_image %>>% po_torch_pos_embedding$new()
 
 architecture <- list(path_tabular, path_image) %>>%
-  nn("merge_cat") %>>% nn("linear_1", out_features = 500) %>>%
-  nn("relu_4") %>>% nn("dropout_2") %>>% nn("head")
+  nn("merge_cat", dim = 2) %>>%
+  nn("block", nn("transformer_encoder_layer", nhead = 4,
+    dim_feedforward = 128), n_blocks = 2) %>>%
+  nn("fn_2", fn = function(x) x$mean(dim = 2)) %>>%
+  nn("head")
 
 model <- architecture %>>%
   po("torch_loss",
@@ -624,16 +607,25 @@ preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
     adjust = "minor") %>>%
   po("augment_random_horizontal_flip") %>>%
   po("augment_random_vertical_flip") %>>%
-  po("augment_random_crop", size = c(128, 128), pad_if_needed = TRUE)
-glrn <- as_learner(preprocessing %>>% model)
+  po("augment_random_crop", size = c(128, 128), padding = 8)
+glrn <- as_learner_torch(preprocessing %>>% model)
 
-library("mlr3viz")
+library("mlr3learners")
+baseline <- as_learner(
+  po("select",
+    selector = selector_invert(selector_type("lazy_tensor"))) %>>%
+  po("imputehist") %>>%
+  lrn("classif.log_reg", predict_type = "prob"))
+baseline$id <- "tabular"
 glrn$id <- "multimodal"
 task_subset <- task$clone(deep = TRUE)
-subset <- partition(task_subset, ratio = 0.1)$train
-task_subset$filter(subset)
-rr <- resample(task_subset, glrn, rsmp("holdout"))
-plt <- autoplot(rr, type = "roc")
+ids <- partition(task_subset, ratio = 0.1)$train
+task_subset$filter(ids)
+design <- benchmark_grid(task_subset, list(glrn, baseline),
+  rsmp("holdout"))
+bmr <- benchmark(design)
+library("mlr3viz")
+plt <- autoplot(bmr, type = "roc")
 
 library("ggplot2")
 plt = plt +
@@ -654,7 +646,7 @@ Sys.time()
 ```
 
 ```
-## [1] "2026-01-31 13:36:35 UTC"
+## [1] "2026-10-30 19:40:54 UTC"
 ```
 
 ``` r
@@ -682,35 +674,37 @@ sessionInfo()
 ## tzcode source: system (glibc)
 ## 
 ## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## [1] stats     graphics  grDevices utils     datasets  methods  
+## [7] base     
 ## 
 ## other attached packages:
-##  [1] ggplot2_4.0.0       mlr3viz_0.10.1.9000 torchdatasets_0.3.1
-##  [4] mlr3tuning_1.4.0    paradox_1.0.1       mlr3torch_0.3.3    
-##  [7] torch_0.16.3        future_1.67.0       mlr3pipelines_0.9.0
-## [10] mlr3_1.2.0         
+##  [1] ggplot2_4.0.3        mlr3viz_0.11.2       mlr3learners_0.16.0 
+##  [4] torchdatasets_0.3.2  mlr3tuning_1.7.0     paradox_1.0.1       
+##  [7] future_1.80.0        mlr3torch_0.4.0      torch_0.17.0        
+## [10] mlr3pipelines_0.12.0 mlr3_1.8.0          
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] gtable_0.3.6         xfun_0.54            processx_3.8.6      
-##  [4] callr_3.7.6          vctrs_0.6.5          tools_4.5.1         
-##  [7] ps_1.9.1             safetensors_0.2.0    curl_7.0.0          
-## [10] parallel_4.5.1       tibble_3.3.0         pkgconfig_2.0.3     
-## [13] data.table_1.17.8    checkmate_2.3.3      RColorBrewer_1.1-3  
-## [16] S7_0.2.0             assertthat_0.2.1     uuid_1.2-1          
-## [19] lifecycle_1.0.4      compiler_4.5.1       farver_2.1.2        
-## [22] stringr_1.6.0        precrec_0.14.5       codetools_0.2-20    
-## [25] bbotk_1.7.1          pillar_1.11.1        crayon_1.5.3        
-## [28] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
-## [31] stringi_1.8.7        listenv_0.10.0       labeling_0.4.3      
-## [34] mlr3measures_1.1.0   rprojroot_2.1.1      grid_4.5.1          
-## [37] here_1.0.2           cli_3.6.5            magrittr_2.0.4      
-## [40] future.apply_1.20.0  withr_3.0.2          scales_1.4.0        
-## [43] backports_1.5.0      rappdirs_0.3.3       bit64_4.6.0-1       
-## [46] globals_0.18.0       jpeg_0.1-11          bit_4.6.0           
-## [49] evaluate_1.0.5       knitr_1.50           torchvision_0.8.0   
-## [52] viridisLite_0.4.2    mlr3misc_0.19.0      rlang_1.1.6         
-## [55] Rcpp_1.1.0           zeallot_0.2.0        glue_1.8.0          
-## [58] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
-## [61] lgr_0.5.0            R6_2.6.1             fs_1.6.6
+##  [1] gtable_0.3.6         xfun_0.61            processx_3.9.0      
+##  [4] callr_3.8.0          vctrs_0.7.3          tools_4.5.1         
+##  [7] Rdpack_2.6.6         ps_1.9.3             safetensors_0.3.0   
+## [10] curl_8.0.0           parallel_4.5.1       tibble_3.3.1        
+## [13] pkgconfig_2.0.3      data.table_1.18.6.1  checkmate_2.3.4     
+## [16] RColorBrewer_1.1-3   S7_0.2.2             uuid_1.2-2          
+## [19] lifecycle_1.0.5      compiler_4.5.1       farver_2.1.2        
+## [22] stringr_1.6.0        precrec_0.24.0       codetools_0.2-20    
+## [25] bbotk_1.13.1         pillar_1.11.1        crayon_1.5.3        
+## [28] parallelly_1.48.0    digest_0.6.39        stringi_1.8.9       
+## [31] listenv_1.1.0        labeling_0.4.3       mlr3measures_1.3.0  
+## [34] rprojroot_2.1.1      grid_4.5.1           here_1.0.2          
+## [37] cli_3.6.6            magrittr_2.0.5       future.apply_1.20.2 
+## [40] moocore_0.3.2        withr_3.0.3          scales_1.4.0        
+## [43] backports_1.5.1      rappdirs_0.3.4       bit64_4.8.6         
+## [46] matrixStats_1.5.0    globals_0.20.0       jpeg_0.1-11         
+## [49] bit_4.6.0            otel_0.2.0           evaluate_1.0.5      
+## [52] knitr_1.52           torchvision_0.10.0   rbibutils_2.4.1     
+## [55] viridisLite_0.4.3    mlr3misc_0.23.0      rlang_1.3.0         
+## [58] Rcpp_1.1.2           zeallot_0.2.0        glue_1.8.1          
+## [61] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
+## [64] lgr_0.5.2            R6_2.6.1             fs_2.1.0
 ```
 

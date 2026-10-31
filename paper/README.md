@@ -20,12 +20,12 @@ torch::install_torch()
 ```
 
 We are providing two docker images, one for CPU and one for CUDA GPU that have the same packages from the `renv.lock` file installed.
-The images can be downloaded from Zenodo: [https://doi.org/10.5281/zenodo.17130368](https://doi.org/10.5281/zenodo.17130368), either via the web interface, or, for example, using `wget` or a similar tool:
+The images can be downloaded from Zenodo: [https://doi.org/10.5281/zenodo.23831328](https://doi.org/10.5281/zenodo.23831328), either via the web interface, or, for example, using `wget` or a similar tool:
 
 ```bash
 # Docker images
-wget https://zenodo.org/records/18466801/files/IMAGE_CPU.tar.gz
-wget https://zenodo.org/records/18466801/files/IMAGE_GPU.tar.gz
+wget https://zenodo.org/records/23831328/files/IMAGE_CPU.tar.gz
+wget https://zenodo.org/records/23831328/files/IMAGE_GPU.tar.gz
 ```
 
 The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
@@ -115,7 +115,7 @@ To run the benchmark that compares "ignite" with standard optimizers (using the 
 Rscript benchmark/linux-gpu-optimizer.R
 ```
 
-The postprocessd results are stored in:
+The postprocessed results are stored in:
 
 * `paper/benchmark/result-linux-gpu.rds`
 * `paper/benchmark/result-linux-cpu.rds`
@@ -131,16 +131,18 @@ There are also some exemplary slurm scripts that need to be adapted to the speci
 
 ### Running a subset of the Jobs
 
-To run a subset of the jobs, modify the table `tbl` in scripts such as `paper/benchmark/linux-gpu.R` to only include the jobs that you want to run.
-For example:
+To run a subset of the jobs, replace the loop that submits the jobs in scripts such as `paper/benchmark/linux-gpu.R` with one that only submits the jobs that you want to run.
+For example, the following runs the first repetition of the networks with 4 hidden layers and latent dimension 1000 that are trained with AdamW, using only R `torch` and `mlr3torch` (i.e., without the `"pytorch"` algorithm):
 
 ```r
-ids = tbl[device == "cpu" & n_layers == 10 & latent == 250 & jit & optimizer == "adamw" & repl == 1, ]$job.id
+ids = tbl[n_layers == 4 & latent == 1000 & optimizer == "adamw" & algorithm != "pytorch" & repl == 1, ]$job.id
 for (id in sample(ids)) {
   submitJobs(id)
   Sys.sleep(0.1)
 }
 ```
+
+The summary that is created at the end of the script only contains the jobs that finished without errors.
 
 ### Generating the Benchmark Plots
 
@@ -194,7 +196,7 @@ If one of the downloads (1) fails, do the following (before starting the docker 
 
 1. Download the `cache.tar.gz` file, e.g. via:
    ```bash
-   wget https://zenodo.org/records/18466801/files/cache.tar.gz
+   wget https://zenodo.org/records/23831328/files/cache.tar.gz
    ```
 2. Unpack the file using `tar -xzf cache.tar.gz` which creates a folder named `cache`
 3. Move this folder into the parent directory of `paper`

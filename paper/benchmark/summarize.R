@@ -11,6 +11,13 @@ get_result = function(ids, what) {
 }
 
 summarize = function(ids) {
+  # Only jobs that finished without errors have results, e.g. when only a subset of the jobs was submitted.
+  done = findDone(ids)$job.id
+  if (!length(done)) stop("None of the jobs finished without errors.")
+  if (length(done) < length(ids)) {
+    warning(sprintf("Summarizing the %i of %i jobs that finished without errors.", length(done), length(ids)))
+  }
+  ids = done
   jt = getJobTable(ids) |> unwrap()
   if (is.null(jt$n_threads)) jt$n_threads = 1L
   jt = jt[, c("n_layers", "jit", "optimizer", "batch_size", "device", "opt_type", "algorithm", "repl", "latent", "epochs", "n", "p", "n_threads")]

@@ -15,12 +15,13 @@
 
 * [ ] upload mlr3torch to CRAN once bernd approves and benchmarks are reasonable
 * [ ] build final docker images + run final benchmark
+* [ ] wait for the GPU optimizer re-run (LRZ AI job 5890057, `optimizer-20261030/` in the project dir), then update `benchmark/result-linux-gpu-optimizer.rds`, `plot_optimizer*.png` and the optimizer numbers in the paper
 * [ ] confirm reproducbibilty of paper results
 * [ ] run the native check on macOS: `paper_code.R` via `renv::restore()` from `renv.lock` (without docker), compare with the docker results
 * [ ] Update the compute info (hardware description) in the paper
 
 * [ ] update zenodo link in paper
-* [ ] 1. Two footnotes link to /dev/ documentation; switch them after the CRAN release (the release URLs return 404 now).
+* [x] 1. Two footnotes link to /dev/ documentation; switch them after the CRAN release (the release URLs return 404 now).
 * [ ] check that our mechanism for the cache works (when data is no longer available)
 * [ ] Prepare all the additional data etc. (handle Mac weird files, gitignore etc.)
 * [ ] resubmit

@@ -9,7 +9,7 @@
 #SBATCH --exclusive
 #SBATCH --get-user-env
 #SBATCH --export=NONE
-#SBATCH --time=06:00:00
+#SBATCH --time=24:00:00
 #SBATCH --output=mlr3torch-benchmark-cpu-%j.out
 
 # CPU benchmark on the LRZ Linux Cluster (CoolMUC-4), using the CPU docker image converted to a squashfs image.
