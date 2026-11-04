@@ -1,7 +1,7 @@
-time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, seed, optimizer, mlr3torch = FALSE) {
+time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, seed, optimizer, n_threads = 1L, mlr3torch = FALSE) {
   library(mlr3torch)
   library(torch)
-  torch_set_num_threads(1)
+  torch_set_num_threads(n_threads)
   torch_manual_seed(seed)
 
   lr = 0.0001
@@ -70,6 +70,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
     function(epochs) {
       opt = opt_class(net$parameters, lr = lr)
       dataloader = torch::dataloader(dataset, batch_size = batch_size, shuffle = FALSE)
+      if (device == "cuda") cuda_synchronize()
       t0 = Sys.time()
       for (epoch in seq(epochs)) {
         step = 0
@@ -84,6 +85,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
           step = step + 1
         }
       }
+      if (device == "cuda") cuda_synchronize()
       as.numeric(difftime(Sys.time(), t0, units = "secs"))
     }
   }
@@ -97,9 +99,11 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
     )
     timer = torch_callback("timer",
       on_begin = function() {
+        if (self$ctx$device$type == "cuda") cuda_synchronize()
         self$t0 = Sys.time()
       },
       on_end = function() {
+        if (self$ctx$device$type == "cuda") cuda_synchronize()
         self$t1 = Sys.time()
       },
       state_dict = function() {
@@ -118,7 +122,9 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       shuffle = FALSE,
       callbacks = timer,
       jit_trace = jit,
-      tensor_dataset = "device"
+      tensor_dataset = "device",
+      # otherwise mlr3torch resets the number of threads to 1 during training
+      num_threads = n_threads
     )
 
     task = as_task_regr(data.table(
@@ -151,10 +157,10 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       mean_loss / steps
   }
   # warmup
-  # If we don't run the same warump code we get weird artifcats
-  # because one has more RAM than the other
-  train_run_torch(2)
-  train_run_mlr3torch(2)
+  # Both paths are warmed up, because otherwise we get artifacts from one using more memory than
+  # the other. Each path gets four epochs of warmup, like in PyTorch.
+  train_run_torch(4)
+  train_run_mlr3torch(4)
 
   if (device == "cuda") cuda_synchronize()
   time = if (mlr3torch) {
@@ -164,12 +170,5 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
   }
   if (device == "cuda") cuda_synchronize()
 
-  cuda_memory = if (device == "cuda") {
-    stats = cuda_memory_stats()
-    stats$reserved_bytes$all$current
-  } else {
-    NA
-  }
-
-  list(time = time, loss = eval_run(), cuda_memory = cuda_memory)
+  list(time = time, loss = eval_run())
 }

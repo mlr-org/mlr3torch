@@ -5,7 +5,7 @@ tbl = readRDS(here::here("benchmark", "result-linux-gpu-optimizer.rds"))
 
 tbl_summary = tbl[,
     .(time_per_batch_med = median(time_per_batch * 1000),
-      time_per_batch_q10 = quantile(time_per_batch * 1000, 0.2),
+      time_per_batch_q10 = quantile(time_per_batch * 1000, 0.1),
       time_per_batch_q90 = quantile(time_per_batch * 1000, 0.9)),
     by = .(n_layers, algorithm, jit, latent, optimizer, opt_type)]
 
@@ -17,22 +17,22 @@ ggplot(tbl_summary, aes(x = n_layers, y = time_per_batch_med, color = opt_type))
   theme_bw() +
   labs(
     y = "Time per batch (ms)",
-    x = "Optimizer"
+    x = "Number of hidden layers"
   )
-
-
 
 ggsave(here::here("benchmark", "plot_optimizer.png"), width = 12, height = 4, dpi = 300)
 
 
 # ignite relative to standard
 
-tbl_summary_relative = tbl_summary
+# copy(), as otherwise `:=` would also modify tbl_summary
+tbl_summary_relative = copy(tbl_summary)
 tbl_summary_relative[, time_per_batch_med_rel := time_per_batch_med / time_per_batch_med[opt_type == "ignite"], by = .(n_layers, optimizer, jit, latent)]
 tbl_summary_relative
 
-tbl_summary[opt_type == "standard" & optimizer == "sgd", range(time_per_batch_med_rel)]
-tbl_summary[opt_type == "standard" & optimizer == "adamw", range(time_per_batch_med_rel)]
+# range of the overhead of the standard optimizers relative to the ignite optimizers
+tbl_summary_relative[opt_type == "standard" & optimizer == "sgd", range(time_per_batch_med_rel)]
+tbl_summary_relative[opt_type == "standard" & optimizer == "adamw", range(time_per_batch_med_rel)]
 
 
 ggplot(tbl_summary_relative, aes(x = n_layers, y = time_per_batch_med_rel, color = opt_type)) +
@@ -41,9 +41,8 @@ ggplot(tbl_summary_relative, aes(x = n_layers, y = time_per_batch_med_rel, color
   geom_point() +
   theme_bw() +
   labs(
-    y = "Time per batch (ms)",
-    x = "Optimizer"
+    y = "Time per batch relative to ignite",
+    x = "Number of hidden layers"
   )
-
 
 ggsave(here::here("benchmark", "plot_optimizer_relative.png"), width = 12, height = 4, dpi = 300)

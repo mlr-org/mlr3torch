@@ -8,14 +8,23 @@
 #SBATCH --exclusive
 #SBATCH --output=mlr3torch-benchmark-%j.out
 
-cd /dss/dssmcmlfs01/pr74ze/pr74ze-dss-0001/ru48nas2/
-enroot create --force --name mlr3torch-jss sebffischer+mlr3torch-jss+gpu.sqsh
+# The whole node is requested (--exclusive) so that no other jobs interfere with the time measurements;
+# the benchmark itself only uses one GPU.
+DIR=/dss/dssmcmlfs01/pr74ze/pr74ze-dss-0001/ru48nas2/mlr3torch-paper-review
+cd $DIR
+
+echo "Node: $(hostname)"
+nvidia-smi
+lscpu
+
+enroot create --force --name mlr3torch-jss-gpu mlr3torch-jss+gpu.sqsh
 
 enroot start \
-  --mount /dss/dssmcmlfs01/pr74ze/pr74ze-dss-0001/ru48nas2/:/mnt/data \
-  mlr3torch-jss bash -c "
+  --mount $DIR:/mnt/data \
+  mlr3torch-jss-gpu bash -c "
+  # enroot mounts \$HOME, so ignore the user R library and Python site-packages there, which would
+  # otherwise shadow the packages installed in the image.
+  export R_LIBS_USER=/nonexistent PYTHONNOUSERSITE=1
   cd /mnt/data/paper
-  Rscript -e \"
-    source('benchmark/linux-gpu.R')
-  \"
+  Rscript benchmark/linux-gpu.R
 "

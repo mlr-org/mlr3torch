@@ -13,18 +13,27 @@ setup(
   here()
 )
 
-problem_design = expand.grid(
-  list(
-    n = N,
-    p = P,
-    epochs = EPOCHS,
-    optimizer = c("sgd", "adamw"),
-    batch_size = 32L,
-    device = "cpu",
-    n_layers = c(0L, 4L, 8L, 12L, 16L),
-    latent = c(100L, 200L, 400L)
-  ),
-  stringsAsFactors = FALSE
+make_design = function(n_threads, latent) {
+  expand.grid(
+    list(
+      n = N,
+      p = P,
+      epochs = EPOCHS,
+      optimizer = c("sgd", "adamw"),
+      batch_size = 32L,
+      device = "cpu",
+      n_layers = c(0L, 4L, 8L, 12L, 16L),
+      latent = latent,
+      n_threads = n_threads
+    ),
+    stringsAsFactors = FALSE
+  )
+}
+
+# Multi-threaded with wider networks, as multi-threading does not pay off for cheap computations.
+problem_design = rbind(
+  make_design(n_threads = 1L, latent = c(100L, 200L, 400L)),
+  make_design(n_threads = 16L, latent = c(800L, 1600L, 3200L))
 )
 
 addExperiments(

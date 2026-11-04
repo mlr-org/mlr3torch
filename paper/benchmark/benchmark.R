@@ -1,6 +1,14 @@
 library(batchtools)
 library(mlr3misc)
 
+# Environment for the benchmark subprocesses.
+# Workaround for what is already fixed in torch main: https://github.com/mlverse/torch/commit/748ea16dec598db0ebb0f447ade12413606c4ef0
+# Users don't usually hit this because the threads are set once at the beginning
+thread_env = function(n_threads) {
+  n_threads = as.character(n_threads)
+  c(callr::rcmd_safe_env(), OMP_NUM_THREADS = n_threads, MKL_NUM_THREADS = n_threads)
+}
+
 setup = function(reg_path, python_path, work_dir) {
 
   print_setup_info(reg_path, python_path, work_dir)
@@ -30,7 +38,8 @@ setup = function(reg_path, python_path, work_dir) {
   source(here::here("benchmark", "time_rtorch.R"))
 
   batchExport(list(
-    time_rtorch = time_rtorch # nolint
+    time_rtorch = time_rtorch, # nolint
+    thread_env = thread_env
   ))
 
   addProblem(
@@ -45,6 +54,7 @@ setup = function(reg_path, python_path, work_dir) {
       p,
       optimizer,
       device,
+      n_threads = 1L,
       ...
     ) {
       problem = list(
@@ -58,7 +68,8 @@ setup = function(reg_path, python_path, work_dir) {
           optimizer,
           c("ignite_adamw", "adamw", "sgd", "ignite_sgd")
         ),
-        device = assert_choice(device, c("cuda", "cpu", "mps"))
+        device = assert_choice(device, c("cuda", "cpu", "mps")),
+        n_threads = assert_int(n_threads, lower = 1L)
       )
 
       problem
@@ -67,23 +78,17 @@ setup = function(reg_path, python_path, work_dir) {
 
   addAlgorithm("pytorch", fun = function(instance, job, data, jit, ...) {
     print(instance)
-    f = function(..., python_path) {
-      library(reticulate)
-      x = try(
-        {
-          #reticulate::use_python("/opt/homebrew/Caskroom/mambaforge/base/bin/python3", required = TRUE)
-          reticulate::use_python(python_path, required = TRUE)
-          reticulate::source_python(here::here("benchmark", "time_pytorch.py"))
-          print(reticulate::py_config())
-          time_pytorch(...) # nolint
-        },
-        silent = TRUE
-      )
-      print(x)
-    }
-    args = c(instance, list(seed = job$seed, jit = jit, python_path = python_path))
-    #do.call(f, args)
-    callr::r(f, args = args)
+    # PyTorch runs in a separate Python process rather than inside of R (via reticulate), because running it inside of
+    # the R process made it slower in some configurations (e.g. SGD for large networks).
+    args = c(instance, list(seed = job$seed, jit = jit))
+    out = processx::run(
+      python_path,
+      c(here::here("benchmark", "time_pytorch.py"), jsonlite::toJSON(args, auto_unbox = TRUE)),
+      env = c("current", thread_env(instance$n_threads)[c("OMP_NUM_THREADS", "MKL_NUM_THREADS")]),
+      stderr_to_stdout = TRUE
+    )
+    lines = strsplit(out$stdout, "\n")[[1L]]
+    jsonlite::fromJSON(lines[length(lines)])
   })
 
   addAlgorithm("rtorch", fun = function(instance, job, opt_type, jit, ...) {
@@ -93,7 +98,7 @@ setup = function(reg_path, python_path, work_dir) {
       instance$optimizer = paste0("ignite_", instance$optimizer)
     }
     #do.call(time_rtorch, args = c(instance, list(seed = job$seed, jit = jit))) # nolint
-    callr::r(time_rtorch, args = c(instance, list(seed = job$seed, jit = jit))) # nolint
+    callr::r(time_rtorch, args = c(instance, list(seed = job$seed, jit = jit)), env = thread_env(instance$n_threads)) # nolint
   })
 
   addAlgorithm("mlr3torch", fun = function(instance, job, opt_type, jit, ...) {
@@ -103,7 +108,8 @@ setup = function(reg_path, python_path, work_dir) {
     }
     callr::r(
       time_rtorch, # nolint
-      args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit))
+      args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)),
+      env = thread_env(instance$n_threads)
     )
     #do.call(time_rtorch, args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)))
   })
