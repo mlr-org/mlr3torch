@@ -18,15 +18,7 @@ tbl_linux_cpu_all = tbl[device == "cpu" & os == "linux", ]
 # results are shown in a separate figure (appendix of the paper) below.
 tbl_linux_cpu = tbl_linux_cpu_all[n_threads == 16L, ]
 
-plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE, tbl_cpu = tbl_linux_cpu) {
-  tbl = if (os == "linux" && gpu) {
-    tbl_linux_cuda
-  } else if (os == "linux" && !gpu) {
-    tbl_cpu
-  } else {
-    stop()
-  }
-
+plt <- function(tbl, opt_name, gpu, show_y_label = TRUE, show_x_label = TRUE) {
   # Calculate quantiles for each group
   tbl_summary = tbl[optimizer == opt_name,
     .(time_per_batch_med = median(time_per_batch * 1000),
@@ -73,8 +65,8 @@ plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE, tbl
 }
 
 
-plot_cuda_adamw <- plt("adamw", TRUE, "linux", show_x_label = FALSE) + ggtitle("AdamW / CUDA") + theme(plot.title = element_text(size = TEXT_SIZE))
-plot_cuda_sgd <- plt("sgd", TRUE, "linux", show_y_label = FALSE, show_x_label = FALSE) + ggtitle("SGD / CUDA") + theme(plot.title = element_text(size = TEXT_SIZE))
+plot_cuda_adamw <- plt(tbl_linux_cuda, "adamw", TRUE, show_x_label = FALSE) + ggtitle("AdamW / CUDA") + theme(plot.title = element_text(size = TEXT_SIZE))
+plot_cuda_sgd <- plt(tbl_linux_cuda, "sgd", TRUE, show_y_label = FALSE, show_x_label = FALSE) + ggtitle("SGD / CUDA") + theme(plot.title = element_text(size = TEXT_SIZE))
 
 plot_cuda <- plot_grid(
   plot_cuda_adamw,
@@ -82,9 +74,9 @@ plot_cuda <- plot_grid(
   ncol = 2
 )
 
-plot_cpu_adamw <- plt("adamw", FALSE, "linux") + ggtitle("AdamW / CPU") + theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE))
-plot_cpu_sgd <- plt("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle("SGD / CPU") + theme(plot.title = element_text(size = TEXT_SIZE)) + theme(legend.position = "none")
-plot_legend = plt("adamw", FALSE, "linux") + theme(legend.position = "bottom")
+plot_cpu_adamw <- plt(tbl_linux_cpu, "adamw", FALSE) + ggtitle("AdamW / CPU") + theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE))
+plot_cpu_sgd <- plt(tbl_linux_cpu, "sgd", FALSE, show_y_label = FALSE) + ggtitle("SGD / CPU") + theme(plot.title = element_text(size = TEXT_SIZE)) + theme(legend.position = "none")
+plot_legend = plt(tbl_linux_cpu, "adamw", FALSE) + theme(legend.position = "bottom")
 
 
 legend = get_legend(plot_legend)
@@ -199,15 +191,15 @@ plots_threads = lapply(sort(unique(tbl_linux_cpu_all$n_threads)), function(nt) {
   bs = unique(tbl_nt$batch_size)
   suffix = sprintf(" (%i thread%s, batch size %s)", nt, if (nt == 1L) "" else "s", paste(bs, collapse = "/"))
   plot_grid(
-    plt("adamw", FALSE, "linux", tbl_cpu = tbl_nt) + ggtitle(paste0("AdamW / CPU", suffix)) +
+    plt(tbl_nt, "adamw", FALSE) + ggtitle(paste0("AdamW / CPU", suffix)) +
       theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
-    plt("sgd", FALSE, "linux", show_y_label = FALSE, tbl_cpu = tbl_nt) + ggtitle(paste0("SGD / CPU", suffix)) +
+    plt(tbl_nt, "sgd", FALSE, show_y_label = FALSE) + ggtitle(paste0("SGD / CPU", suffix)) +
       theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
     ncol = 2
   )
 })
-tbl_linux_cpu = tbl_linux_cpu_all[n_threads == 1L, ]
-legend = get_legend(plt("adamw", FALSE, "linux") + theme(legend.position = "bottom"))
+tbl_linux_cpu_1 = tbl_linux_cpu_all[n_threads == 1L, ]
+legend = get_legend(plt(tbl_linux_cpu_1, "adamw", FALSE) + theme(legend.position = "bottom"))
 
 plot_threads = plot_grid(
   plotlist = c(plots_threads[1L], list(legend), plots_threads[-1L]),
@@ -219,11 +211,12 @@ ggsave(here::here("benchmark", "plot_benchmark_cpu_threads.png"),
   plot_threads, width = 12, height = 4, dpi = 300, bg = "white")
 
 # Single-threaded CPU results (appendix of the paper): absolute and relative time per batch
-tbl_linux_cpu = tbl_linux_cpu_all[n_threads == 1L, ]
+# plt_relative() reads the global tbl_linux_cpu
+tbl_linux_cpu = tbl_linux_cpu_1
 plot_abs_1 = plot_grid(
-  plt("adamw", FALSE, "linux", show_x_label = FALSE) + ggtitle("AdamW / CPU (1 thread)") +
+  plt(tbl_linux_cpu_1, "adamw", FALSE, show_x_label = FALSE) + ggtitle("AdamW / CPU (1 thread)") +
     theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
-  plt("sgd", FALSE, "linux", show_y_label = FALSE, show_x_label = FALSE) + ggtitle("SGD / CPU (1 thread)") +
+  plt(tbl_linux_cpu_1, "sgd", FALSE, show_y_label = FALSE, show_x_label = FALSE) + ggtitle("SGD / CPU (1 thread)") +
     theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)),
   ncol = 2
 )
@@ -237,7 +230,7 @@ plot_rel_1 = plot_grid(
     geom_hline(yintercept = 1, linetype = "dashed", alpha = 0.9, color = "grey"),
   ncol = 2
 )
-legend_abs = get_legend(plt("adamw", FALSE, "linux") + theme(legend.position = "bottom"))
+legend_abs = get_legend(plt(tbl_linux_cpu_1, "adamw", FALSE) + theme(legend.position = "bottom"))
 plot_single_thread = plot_grid(plot_abs_1, legend_abs, plot_rel_1, ncol = 1, rel_heights = c(1, 0.1, 1))
 
 ggsave(here::here("benchmark", "plot_benchmark_cpu_single_thread.png"),
