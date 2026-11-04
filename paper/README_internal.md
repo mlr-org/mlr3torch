@@ -17,6 +17,7 @@
 * [ ] build final docker images + run final benchmark
 * [x] wait for the GPU optimizer re-run (LRZ AI job 5890057, `optimizer-20261030/` in the project dir), then update `benchmark/result-linux-gpu-optimizer.rds`, `plot_optimizer*.png` and the optimizer numbers in the paper
 * [ ] confirm reproducbibilty of paper results
+* [ ] when re-rendering `paper_results_expensive/paper_code_expensive.{md,html}`, check that the header comments in the output match `paper_code_expensive.R` (they were patched by hand to add the california_housing note)
 * [ ] run the native check on macOS: `paper_code.R` via `renv::restore()` from `renv.lock` (without docker), compare with the docker results
 * [ ] Update the compute info (hardware description) in the paper
 

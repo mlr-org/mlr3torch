@@ -4,12 +4,13 @@
 ``` r
 # More expensive version of paper_code.R: the networks are trained on a GPU (device = "cuda") and on the full
 # datasets instead of small subsets, and the hyperparameter tuning uses 100 instead of 20 evaluations.
+# The neural architecture search (Section 6.1) uses the california_housing task instead of mtcars.
 # Everything else is identical to paper_code.R.
 Sys.time()
 ```
 
 ```
-## [1] "2026-10-31 16:33:19 UTC"
+## [1] "2026-11-04 12:59:47 UTC"
 ```
 
 ``` r
@@ -49,6 +50,22 @@ mnist
 ## • Properties: multiclass
 ## • Features (1):
 ##   • lt (1): image
+```
+
+```
+## Split "train" of dataset <mnist> (~12 MB) will be downloaded and
+## processed if not already available.
+```
+
+```
+## Downloading <mnist> ...
+## Processing <mnist>...
+## Dataset <mnist> downloaded and extracted successfully.
+## <mnist> dataset loaded with 60000 images across 10 classes.
+## <mnist> dataset loaded with 10000 images across 10 classes.
+```
+
+```
 ## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0
 ## (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ```
@@ -139,8 +156,8 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 ##    epoch train.classif.logloss
 ##    <num>                 <num>
-## 1:     1             0.3549948
-## 2:     2             0.1825806
+## 1:     1             0.3551113
+## 2:     2             0.1831997
 ```
 
 ``` r
@@ -150,7 +167,7 @@ pred$score(msr("classif.ce"))
 
 ```
 ## classif.ce 
-##     0.0227
+##     0.0223
 ```
 
 ``` r
@@ -160,7 +177,7 @@ rr$aggregate(msr("classif.ce"))
 
 ```
 ## classif.ce 
-## 0.02581426
+##  0.0249857
 ```
 
 ``` r
@@ -340,17 +357,26 @@ lrn_ffn <- lrn("classif.module",
 # 6. Use cases
 
 # 6.1 Simple neural architecture search
-task <- tsk("mtcars")
+# The mtcars task from the paper has only 32 observations, which is far too few for a meaningful neural
+# architecture search, so we use the california_housing task with 20640 observations instead.
+# Its target is converted to units of 100,000 USD, so that it is on a scale that suits the network.
+task <- tsk("california_housing")
+data <- task$data()
+data$median_house_value <- data$median_house_value / 1e5
+task <- as_task_regr(data, target = "median_house_value",
+  id = "california_housing")
 task
 ```
 
 ```
 ## 
-## ── <TaskRegr> (32x11): Motor Trends ──────────────────────────────────
-## • Target: mpg
+## ── <TaskRegr> (20640x10) ─────────────────────────────────────────────
+## • Target: median_house_value
 ## • Properties: -
-## • Features (10):
-##   • dbl (10): am, carb, cyl, disp, drat, gear, hp, qsec, vs, wt
+## • Features (9):
+##   • dbl (8): households, housing_median_age, latitude, longitude,
+##   median_income, population, total_bedrooms, total_rooms
+##   • fct (1): ocean_proximity
 ```
 
 ``` r
@@ -370,10 +396,13 @@ architecture <- embedding %>>% nn("block", block) %>>%
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
 
-model <- po("torch_model_regr", device = "cuda", batch_size = 32)
+# batch size 256 instead of 32, to keep the runtime of the tuning on the larger task reasonable
+model <- po("torch_model_regr", device = "cuda", batch_size = 256)
 
-pipeline <- ingress %>>%
-  architecture %>>% config %>>% model
+# the missing values of total_bedrooms are imputed with the median, and the factor
+# ocean_proximity is one-hot encoded
+pipeline <- po("imputemedian") %>>% po("encode") %>>% po("scale") %>>%
+  ingress %>>% architecture %>>% config %>>% model
 learner <- as_learner_torch(pipeline)
 learner$id <- "attention_nn"
 
@@ -417,15 +446,15 @@ cat(paste("*", names(pvals), "=", pvals,
 ```
 
 ```
-## * tokenizer_num.d_token = 4
+## * tokenizer_num.d_token = 8
 ## * block.n_blocks = 1
 ## * block.multihead_attention.num_heads = 2
-## * block.multihead_attention.dropout = 0.0649
-## * block.linear.out_features = 8
+## * block.multihead_attention.dropout = 0.0914
+## * block.linear.out_features = 16
 ## * block.branch.selection = sigmoid
-## * block.dropout.p = 0.434
-## * torch_optimizer.lr = 0.0741
-## * torch_model_regr.epochs = 8
+## * block.dropout.p = 0.307
+## * torch_optimizer.lr = 0.0109
+## * torch_model_regr.epochs = 38
 ```
 
 ``` r
@@ -506,11 +535,11 @@ learner$model$classif.convnext_tiny_1k$model$callbacks$history
 ```
 ##    epoch valid.classif.acc
 ##    <num>             <num>
-## 1:     1         0.9921997
-## 2:     2         0.9932797
-## 3:     3         0.9947198
-## 4:     4         0.9949598
-## 5:     5         0.9923197
+## 1:     1         0.9927997
+## 2:     2         0.9936397
+## 3:     3         0.9957998
+## 4:     4         0.9942398
+## 5:     5         0.9944798
 ```
 
 ``` r
@@ -630,7 +659,7 @@ Sys.time()
 ```
 
 ```
-## [1] "2026-10-31 17:35:12 UTC"
+## [1] "2026-11-04 15:11:25 UTC"
 ```
 
 ``` r
@@ -671,24 +700,24 @@ sessionInfo()
 ##  [1] gtable_0.3.6         xfun_0.61            processx_3.9.0      
 ##  [4] callr_3.8.0          vctrs_0.7.3          tools_4.5.0         
 ##  [7] Rdpack_2.6.6         ps_1.9.3             safetensors_0.3.0   
-## [10] parallel_4.5.0       tibble_3.3.1         pkgconfig_2.0.3     
-## [13] data.table_1.18.6.1  checkmate_2.3.4      RColorBrewer_1.1-3  
-## [16] S7_0.2.2             uuid_1.2-2           lifecycle_1.0.5     
-## [19] farver_2.1.2         compiler_4.5.0       stringr_1.6.0       
-## [22] precrec_0.24.0       codetools_0.2-20     bbotk_1.13.1        
-## [25] pillar_1.11.1        crayon_1.5.3         parallelly_1.48.0   
-## [28] digest_0.6.39        stringi_1.8.9        listenv_1.1.0       
-## [31] labeling_0.4.3       mlr3measures_1.3.0   rprojroot_2.1.1     
-## [34] grid_4.5.0           here_1.0.2           cli_3.6.6           
-## [37] magrittr_2.0.5       future.apply_1.20.2  moocore_0.3.2       
-## [40] withr_3.0.3          scales_1.4.0         backports_1.5.1     
-## [43] rappdirs_0.3.4       bit64_4.8.6          matrixStats_1.5.0   
-## [46] globals_0.20.0       jpeg_0.1-11          bit_4.6.0           
-## [49] otel_0.2.0           evaluate_1.0.5       knitr_1.52          
-## [52] torchvision_0.10.0   rbibutils_2.4.1      viridisLite_0.4.3   
-## [55] mlr3misc_0.23.0      rlang_1.3.0          Rcpp_1.1.2          
-## [58] zeallot_0.2.0        glue_1.8.1           palmerpenguins_0.1.1
-## [61] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.2           
-## [64] R6_2.6.1             fs_2.1.0
+## [10] curl_8.0.0           parallel_4.5.0       tibble_3.3.1        
+## [13] pkgconfig_2.0.3      data.table_1.18.6.1  checkmate_2.3.4     
+## [16] RColorBrewer_1.1-3   S7_0.2.2             uuid_1.2-2          
+## [19] lifecycle_1.0.5      compiler_4.5.0       farver_2.1.2        
+## [22] stringr_1.6.0        precrec_0.24.0       codetools_0.2-20    
+## [25] bbotk_1.13.1         pillar_1.11.1        crayon_1.5.3        
+## [28] parallelly_1.48.0    digest_0.6.39        stringi_1.8.9       
+## [31] listenv_1.1.0        labeling_0.4.3       mlr3measures_1.3.0  
+## [34] rprojroot_2.1.1      grid_4.5.0           here_1.0.2          
+## [37] cli_3.6.6            magrittr_2.0.5       future.apply_1.20.2 
+## [40] moocore_0.3.2        withr_3.0.3          scales_1.4.0        
+## [43] backports_1.5.1      rappdirs_0.3.4       bit64_4.8.6         
+## [46] matrixStats_1.5.0    globals_0.20.0       jpeg_0.1-11         
+## [49] bit_4.6.0            otel_0.2.0           evaluate_1.0.5      
+## [52] knitr_1.52           torchvision_0.10.0   rbibutils_2.4.1     
+## [55] viridisLite_0.4.3    mlr3misc_0.23.0      rlang_1.3.0         
+## [58] Rcpp_1.1.2           zeallot_0.2.0        glue_1.8.1          
+## [61] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
+## [64] lgr_0.5.2            R6_2.6.1             fs_2.1.0
 ```
 
