@@ -44,3 +44,7 @@ paper/renv/staging/
 
 TODOS.md
 paper/Rplots.pdf
+paper/run_expensive_gpu.sh
+paper/run_paper_code_cpu.sh
+IMAGE_CPU.tar.gz
+IMAGE_GPU.tar.gz
