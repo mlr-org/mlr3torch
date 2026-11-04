@@ -4,7 +4,7 @@ Helper function to create a custom
 [`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
 class for the most common cases. A practical guide to this function is
 the article [Writing your own
-PipeOpTorch](https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.html).
+PipeOpTorch](https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.html).
 For more information and the more general case, see the *Inheriting*
 section of
 [`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md).

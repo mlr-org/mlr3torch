@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.3.3.9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,8 +74,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="mlr3torch-development-version">mlr3torch (development version)<a class="anchor" aria-label="anchor" href="#mlr3torch-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.0" id="mlr3torch-040">mlr3torch 0.4.0<a class="anchor" aria-label="anchor" href="#mlr3torch-040"></a></h2><p class="text-muted">CRAN release: 2026-10-30</p>
 <div class="section level3">
-<h3 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h3>
+<h3 id="breaking-changes-0-4-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-4-0"></a></h3>
 <ul><li>The <code>freq_type</code> parameter of <code>t_clbk("checkpoint")</code> was removed and checkpointing is always per epoch.</li>
 <li>The construction argument <code>only_batch_unknown</code> of <code>PipeOpTorch</code> was removed, as shape inference functions are now expected to handle multiple unknown dimensions.</li>
 <li>The dropout probability <code>p</code> of <code>lrn("classif.mlp")</code> / <code>lrn("regr.mlp")</code> is now initialized to <code>0.1</code> instead of <code>0.5</code>. Set <code>p = 0.5</code> explicitly to keep the old behaviour.</li>
@@ -87,11 +90,10 @@
 <li>The construction argument <code>return_indices</code> of <code>nn("max_pool*")</code> was removed. The indices are now requested via the new field <code>$outputs</code>, e.g. <code>nn("max_pool2d", outputs = c("output", "indices"))</code>.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="features-development-version">Features<a class="anchor" aria-label="anchor" href="#features-development-version"></a></h3>
+<h3 id="features-0-4-0">Features<a class="anchor" aria-label="anchor" href="#features-0-4-0"></a></h3>
 <ul><li>The <code>device</code> parameter of <code>LearnerTorch</code> now accepts an index, e.g. <code>"cuda:1"</code>, to train on a specific GPU. The new section <em>Multiple GPUs</em> in <code><a href="../reference/mlr_learners_torch.html">?LearnerTorch</a></code> shows how to spread resampling over several GPUs with <code>mirai</code>.</li>
 <li>The default loss of <code>LearnerTorch</code> for a task type is now taken from <code>mlr_reflections$torch$default_losses</code>, so extension packages can register a default loss for their own task types.</li>
 <li>The new article “Adding a New Task Type” shows all steps needed to extend mlr3torch to new task types.</li>
-<li>The training loop no longer calls <code>$item()</code> on the loss in every step, which avoids a device synchronization per batch on the GPU. <code>ctx$last_loss</code> is still a <code>numeric(1)</code>; it is only converted when a callback accesses it.</li>
 <li>With <code>drop_last = TRUE</code>, <code>LearnerTorch</code> now caps the training batch size at the number of training observations instead of dropping all of them.</li>
 <li>New function <code><a href="../reference/as_learner_torch.html">as_learner_torch()</a></code>, which converts a <code>Graph</code> of <code>PipeOpTorch</code> operators into a <code>Learner</code>. Its advantage over <code><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner()</a></code> is that the resulting learner exposes methods like <code>$network()</code> and <code>$dataset()</code>. Besides graphs of <code>PipeOpTorch</code> operators, it also accepts graphs whose base learner is a <code>LearnerTorch</code>, e.g. <code>po("scale") %&gt;&gt;% lrn("classif.mlp")</code>.</li>
 <li>
@@ -118,7 +120,6 @@
 <li>The new field <code>$outputs</code> of <code>PipeOpTorch</code> restricts the output channels to a subset of the outputs of the wrapped module.</li>
 <li>New layers: <code>nn("silu")</code>, <code>nn("softmin")</code>, <code>nn("log_softmax")</code>, <code>nn("softmax2d")</code>, <code>nn("dropout2d")</code>, <code>nn("dropout3d")</code>, <code>nn("group_norm")</code>, <code>nn("unflatten")</code> and <code>nn("adaptive_max_pool1d")</code> / <code>nn("adaptive_max_pool2d")</code> / <code>nn("adaptive_max_pool3d")</code>.</li>
 <li>Added the recurrent layers <code>nn("rnn")</code>, <code>nn("lstm")</code> and <code>nn("gru")</code>.</li>
-<li>Any dimension of an input shape can now be unknown (<code>NA</code>), not only the batch dimension.</li>
 <li>Improved error messages during <code>PipeOpTorch</code>’s shape inference.</li>
 <li>The <code>shape</code> parameter of <code>nn("reshape")</code> can now be a <code>function(shape)</code> of the input shape.</li>
 <li>Exported various helpers useful for implementing shape inference for custom <code>PipeOpTorch</code> classes.</li>
@@ -126,29 +127,25 @@
 <code>ContextTorch</code> has a new field <code>$callbacks</code>, which gives a callback access to the other callbacks of the training run.</li>
 <li>Callbacks can now be ordered via a <code>weight</code> field.</li>
 <li>A <code>LearnerTorch</code> can now be resumed from a checkpoint, which includes resuming the callbacks.</li>
-<li>
-<code>t_clbk("checkpoint")</code> now also writes the callback states, as well as the class behind each callback id, so a resumed run errors instead of restoring a state into a different callback.</li>
 <li>The <code>path</code> of <code>t_clbk("checkpoint")</code> can now be a <code>function()</code> that is called at the beginning of each training run and returns that run’s path.</li>
-<li>
-<code>t_clbk("checkpoint")</code> now checks each file immediately before writing it, so two runs writing into one folder error instead of mixing their checkpoints.</li>
-<li>Resuming a checkpoint that is already at <code>epochs</code> now returns its model instead of erroring, so a script that restarts itself can be run again after it succeeded.</li>
 <li>
 <code>t_clbk("checkpoint")</code> now reports its folder in <code>learner$model$callbacks$&lt;id&gt;$path</code>, so the folder a <code>path</code> function chose can be read off the trained learner.</li>
 <li>Resuming a run that early stopping had ended now warns and returns its model instead of training further, and <code>ctx$terminate</code> is checked before an epoch rather than after it.</li>
-<li>
-<code>t_clbk("progress")</code> now prints the epoch as <code>Epoch &lt;n&gt;/&lt;epochs&gt;</code>, so a resumed run shows how much of it is left.</li>
+<li>Hardened internal checks to prevent more user errors.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="performance-improvements-development-version">Performance Improvements<a class="anchor" aria-label="anchor" href="#performance-improvements-development-version"></a></h3>
-<ul><li>The execution time of <code>nn_graph</code> was improved for small networks.</li>
+<h3 id="performance-improvements-0-4-0">Performance Improvements<a class="anchor" aria-label="anchor" href="#performance-improvements-0-4-0"></a></h3>
+<ul><li>Improved the performance of the training loop.</li>
+<li>The execution time of <code>nn_graph</code> was improved for small networks.</li>
 <li>Added the parameter <code>cache_task_data</code> to <code>LearnerTorch</code>, which is <code>TRUE</code> by default and speeds up data loading.</li>
 <li>More preprocessing operators now operate batch-wise.</li>
 <li>Preprocessed lazy tensors now materialize faster.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>Resuming training from a checkpoint (parameter <code>resume</code>) on a GPU no longer fails because the optimizer state was loaded onto the CPU.</li>
-<li>The shape inference of <code>po("trafo_rgb_to_grayscale")</code> now supports <code>torchvision</code> 0.10.0, whose <code>transform_rgb_to_grayscale()</code> keeps the channel dimension, i.e. an image of shape <code>(3, H, W)</code> becomes <code>(1, H, W)</code> and not <code>(H, W)</code>.</li>
+<h3 id="bug-fixes-0-4-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-4-0"></a></h3>
+<ul><li>Resuming a checkpoint that is already at <code>epochs</code> now returns its model instead of erroring.</li>
+<li>Resuming training from a checkpoint (parameter <code>resume</code>) on a GPU no longer fails because the optimizer state was loaded onto the CPU.</li>
+<li>Updated the <code>torchvision</code> preprocessing/augmentation pipeops to work with <code>torchvision</code> version 0.10.0.</li>
 <li>
 <code>nn("block")</code> now copies the graph it is constructed from, so changing that graph afterwards no longer changes the block.</li>
 <li>Learners built from a graph via <code>po("torch_model_regr")</code> / <code>po("torch_model_classif")</code> now error when the predict task’s factor levels differ from the train task’s.</li>
@@ -163,8 +160,6 @@
 <code>ContextTorch$epoch</code> is now <code>0</code> during the <code>on_begin</code> stage instead of <code>NULL</code>.</li>
 <li>
 <code><a href="../reference/replace_head.html">replace_head()</a></code> for <code>mobilenet_v2</code> and <code>VGG</code> now works for <code>width_mult</code> above 1.</li>
-<li>
-<code>PipeOpTorch$shapes_out()</code> now always returns <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> shapes (and not sometimes logicals like <code>NA</code>).</li>
 <li>
 <code>po("torch_model_classif")</code> and <code>po("torch_model_regr")</code> now have the correct <code>$packages</code>.</li>
 <li>The <code>batch_sampler</code> parameter can now be used without setting <code>batch_size</code> for training.</li>
@@ -187,6 +182,7 @@
 <code>lrn("classif.tab_resnet")</code> / <code>lrn("regr.tab_resnet")</code> now apply batch normalization and ReLU before the output layer, as in the reference implementation.</li>
 <li>Fixed some issues in the documentation.</li>
 <li>Examples, vignettes and the README now use <code>nn("linear")</code> instead of the equivalent but longer <code>po("nn_linear")</code>.</li>
+<li>Various other bug fixes.</li>
 </ul></div>
 </div>
     <div class="section level2">

@@ -2,6 +2,10 @@
 
 ## mlr3torch (development version)
 
+## mlr3torch 0.4.0
+
+CRAN release: 2026-10-30
+
 ### Breaking changes
 
 - The `freq_type` parameter of `t_clbk("checkpoint")` was removed and
@@ -46,10 +50,6 @@
   register a default loss for their own task types.
 - The new article “Adding a New Task Type” shows all steps needed to
   extend mlr3torch to new task types.
-- The training loop no longer calls `$item()` on the loss in every step,
-  which avoids a device synchronization per batch on the GPU.
-  `ctx$last_loss` is still a `numeric(1)`; it is only converted when a
-  callback accesses it.
 - With `drop_last = TRUE`, `LearnerTorch` now caps the training batch
   size at the number of training observations instead of dropping all of
   them.
@@ -111,8 +111,6 @@
   `nn("group_norm")`, `nn("unflatten")` and `nn("adaptive_max_pool1d")`
   / `nn("adaptive_max_pool2d")` / `nn("adaptive_max_pool3d")`.
 - Added the recurrent layers `nn("rnn")`, `nn("lstm")` and `nn("gru")`.
-- Any dimension of an input shape can now be unknown (`NA`), not only
-  the batch dimension.
 - Improved error messages during `PipeOpTorch`’s shape inference.
 - The `shape` parameter of `nn("reshape")` can now be a
   `function(shape)` of the input shape.
@@ -123,29 +121,20 @@
 - Callbacks can now be ordered via a `weight` field.
 - A `LearnerTorch` can now be resumed from a checkpoint, which includes
   resuming the callbacks.
-- `t_clbk("checkpoint")` now also writes the callback states, as well as
-  the class behind each callback id, so a resumed run errors instead of
-  restoring a state into a different callback.
 - The `path` of `t_clbk("checkpoint")` can now be a `function()` that is
   called at the beginning of each training run and returns that run’s
   path.
-- `t_clbk("checkpoint")` now checks each file immediately before writing
-  it, so two runs writing into one folder error instead of mixing their
-  checkpoints.
-- Resuming a checkpoint that is already at `epochs` now returns its
-  model instead of erroring, so a script that restarts itself can be run
-  again after it succeeded.
 - `t_clbk("checkpoint")` now reports its folder in
   `learner$model$callbacks$<id>$path`, so the folder a `path` function
   chose can be read off the trained learner.
 - Resuming a run that early stopping had ended now warns and returns its
   model instead of training further, and `ctx$terminate` is checked
   before an epoch rather than after it.
-- `t_clbk("progress")` now prints the epoch as `Epoch <n>/<epochs>`, so
-  a resumed run shows how much of it is left.
+- Hardened internal checks to prevent more user errors.
 
 ### Performance Improvements
 
+- Improved the performance of the training loop.
 - The execution time of `nn_graph` was improved for small networks.
 - Added the parameter `cache_task_data` to `LearnerTorch`, which is
   `TRUE` by default and speeds up data loading.
@@ -154,12 +143,12 @@
 
 ### Bug fixes
 
+- Resuming a checkpoint that is already at `epochs` now returns its
+  model instead of erroring.
 - Resuming training from a checkpoint (parameter `resume`) on a GPU no
   longer fails because the optimizer state was loaded onto the CPU.
-- The shape inference of `po("trafo_rgb_to_grayscale")` now supports
-  `torchvision` 0.10.0, whose `transform_rgb_to_grayscale()` keeps the
-  channel dimension, i.e. an image of shape `(3, H, W)` becomes
-  `(1, H, W)` and not `(H, W)`.
+- Updated the `torchvision` preprocessing/augmentation pipeops to work
+  with `torchvision` version 0.10.0.
 - `nn("block")` now copies the graph it is constructed from, so changing
   that graph afterwards no longer changes the block.
 - Learners built from a graph via `po("torch_model_regr")` /
@@ -175,9 +164,6 @@
   `NULL`.
 - [`replace_head()`](https://mlr3torch.mlr-org.com/dev/reference/replace_head.md)
   for `mobilenet_v2` and `VGG` now works for `width_mult` above 1.
-- `PipeOpTorch$shapes_out()` now always returns
-  [`integer()`](https://rdrr.io/r/base/integer.html) shapes (and not
-  sometimes logicals like `NA`).
 - `po("torch_model_classif")` and `po("torch_model_regr")` now have the
   correct `$packages`.
 - The `batch_sampler` parameter can now be used without setting
@@ -211,6 +197,7 @@
 - Fixed some issues in the documentation.
 - Examples, vignettes and the README now use `nn("linear")` instead of
   the equivalent but longer `po("nn_linear")`.
+- Various other bug fixes.
 
 ## mlr3torch 0.3.3
 

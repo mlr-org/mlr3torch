@@ -7,7 +7,7 @@ that represent neural network layers in a
 you want to create your own `PipeOpTorch`, check out the
 [`pipeop_torch()`](https://mlr3torch.mlr-org.com/dev/reference/pipeop_torch.md)
 helper function and the article [Writing your own
-PipeOpTorch](https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.html).
+PipeOpTorch](https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.html).
 During **training**, it generates a
 [`PipeOpModule`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_module.md)
 that wraps an
@@ -466,8 +466,8 @@ network
 x = torch_tensor(as.matrix(task$data(1:2, task$feature_names)))
 with_no_grad(network(torch_ingress_num.input = x))
 #> torch_tensor
-#>  0.6021  1.6382 -0.7217
-#>  0.5498  1.5335 -0.6612
+#>  0.6999  0.4055  0.1994
+#>  0.6597  0.3444  0.1693
 #> [ CPUFloatType{2,3} ]
 
 
