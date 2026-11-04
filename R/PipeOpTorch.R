@@ -6,7 +6,7 @@
 #' `PipeOpTorch` is the base class for all [`PipeOp`][mlr3pipelines::PipeOp]s that represent
 #' neural network layers in a [`Graph`][mlr3pipelines::Graph].
 #' If you want to create your own `PipeOpTorch`, check out the [`pipeop_torch()`] helper function and the article
-#' [Writing your own PipeOpTorch](https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.html).
+#' [Writing your own PipeOpTorch](https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.html).
 #' During **training**, it generates a [`PipeOpModule`] that wraps an [`nn_module`][torch::nn_module] and attaches it
 #' to the architecture, which is also represented as a [`Graph`][mlr3pipelines::Graph] consisting mostly of [`PipeOpModule`]s
 #' an [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s.

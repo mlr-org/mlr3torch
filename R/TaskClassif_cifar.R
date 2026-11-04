@@ -14,7 +14,7 @@
 #'
 #' CIFAR-10 contains 10 classes. CIFAR-100 contains 100 classes, which may be partitioned into 20 superclasses of 5 classes each.
 #' The CIFAR-10 and CIFAR-100 classes are mutually exclusive.
-#' See Chapter 3.1 of [the technical report](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) for more details.
+#' See Chapter 3.1 of [the technical report](https://cave.cs.toronto.edu/kriz/learning-features-2009-TR.pdf) for more details.
 #'
 #' The data is obtained from [`torchvision::cifar10_dataset()`] (or `torchvision::cifar100_dataset()`).
 #'

@@ -3,7 +3,7 @@
 #' @description
 #' Helper function to create a custom [`PipeOpTorch`] class for the most common cases.
 #' A practical guide to this function is the article
-#' [Writing your own PipeOpTorch](https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.html).
+#' [Writing your own PipeOpTorch](https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.html).
 #' For more information and the more general case, see the *Inheriting* section of [`PipeOpTorch`].
 #' The function works similarly to [`nn_module()`][torch::nn_module], except that
 #' `$initialize()` can take two further arguments that the `PipeOp` supplies: `shapes_in` and `task`

@@ -8,7 +8,7 @@
 \code{PipeOpTorch} is the base class for all \code{\link[mlr3pipelines:PipeOp]{PipeOp}}s that represent
 neural network layers in a \code{\link[mlr3pipelines:Graph]{Graph}}.
 If you want to create your own \code{PipeOpTorch}, check out the \code{\link[=pipeop_torch]{pipeop_torch()}} helper function and the article
-\href{https://mlr3torch.mlr-org.com/articles/custom_pipeop_torch.html}{Writing your own PipeOpTorch}.
+\href{https://mlr3torch.mlr-org.com/dev/articles/custom_pipeop_torch.html}{Writing your own PipeOpTorch}.
 During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps an \code{\link[torch:nn_module]{nn_module}} and attaches it
 to the architecture, which is also represented as a \code{\link[mlr3pipelines:Graph]{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
 an \code{\link[mlr3pipelines:PipeOpNOP]{PipeOpNOP}}s.
