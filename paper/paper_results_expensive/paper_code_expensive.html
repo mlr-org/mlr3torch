@@ -123,7 +123,7 @@ section.footnotes {
 # Everything else is identical to paper_code.R.
 Sys.time()
 </code></pre>
-<pre><code>## [1] &quot;2026-11-04 12:59:47 UTC&quot;
+<pre><code>## [1] &quot;2026-11-04 13:35:38 UTC&quot;
 </code></pre>
 <pre><code class="language-r">options(width = 70, useFancyQuotes = FALSE)
 options(mlr3torch.cache = TRUE)
@@ -556,9 +556,9 @@ learner$model$classif.convnext_tiny_1k$model$callbacks$history
 ##    &lt;num&gt;             &lt;num&gt;
 ## 1:     1         0.9927997
 ## 2:     2         0.9936397
-## 3:     3         0.9957998
-## 4:     4         0.9942398
-## 5:     5         0.9944798
+## 3:     3         0.9959198
+## 4:     4         0.9920797
+## 5:     5         0.9935197
 </code></pre>
 <pre><code class="language-r"># 6.3 Multimodal data
 task &lt;- tsk(&quot;melanoma&quot;)
@@ -659,7 +659,7 @@ print(plt)
 <pre><code class="language-r">ggsave(here::here(&quot;roc_expensive.png&quot;), plt, width = 4, height = 4, dpi = 300)
 Sys.time()
 </code></pre>
-<pre><code>## [1] &quot;2026-11-04 15:11:25 UTC&quot;
+<pre><code>## [1] &quot;2026-11-04 15:43:09 UTC&quot;
 </code></pre>
 <pre><code class="language-r">sessionInfo()
 </code></pre>
