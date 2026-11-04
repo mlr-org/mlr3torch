@@ -6,27 +6,29 @@
 * [x] Run a cheaper version of the benchmarks with the new docker images with mlr3torch dev version
 * [x] Run claude as a deep review against the paper
 * [x] Address claude feedback
-* [ ] fact check run by claude again (ony grave mistakes)
+* [x] fact check run by claude again (ony grave mistakes)
 * [x] Add the 1-thread CPU results to the appendix and multi-thread in main
-* [ ] layout
-* [ ] Full read (including references)
-* [ ] add mlr3torch_paper to slds-lmu and send to Bernmd
+* [j] layout
+* [x] Full read (including references)
+* [x] add mlr3torch_paper to slds-lmu and send to Bernmd
 
 
-* [ ] upload mlr3torch to CRAN once bernd approves and benchmarks are reasonable
-* [ ] build final docker images + run final benchmark
+* [x] upload mlr3torch to CRAN once bernd approves and benchmarks are reasonable
+* [x] build final docker images + run final benchmark
 * [x] wait for the GPU optimizer re-run (LRZ AI job 5890057, `optimizer-20261030/` in the project dir), then update `benchmark/result-linux-gpu-optimizer.rds`, `plot_optimizer*.png` and the optimizer numbers in the paper
-* [ ] confirm reproducbibilty of paper results
-* [ ] when re-rendering `paper_results_expensive/paper_code_expensive.{md,html}`, check that the header comments in the output match `paper_code_expensive.R` (they were patched by hand to add the california_housing note)
-* [ ] run the native check on macOS: `paper_code.R` via `renv::restore()` from `renv.lock` (without docker), compare with the docker results
-* [ ] Update the compute info (hardware description) in the paper
+* [x] confirm reproducbibilty of paper results
+* [x] run the native check on macOS: `paper_code.R` via `renv::restore()` from `renv.lock` (without docker), compare with the docker results
+* [x] Update the compute info (hardware description) in the paper
 
-* [ ] update zenodo link in paper
+* [x] update zenodo link in paper
 * [x] 1. Two footnotes link to /dev/ documentation; switch them after the CRAN release (the release URLs return 404 now).
-* [ ] check that our mechanism for the cache works (when data is no longer available)
+* [x] check that our mechanism for the cache works (when data is no longer available)
+* [x] check that benchmark still run with final docker images
+* [x] final read
 * [ ] Prepare all the additional data etc. (handle Mac weird files, gitignore etc.)
+* [ ] merge paper-review branch
+* [ ] Let claude analyse the to-be-submitted folder
 * [ ] resubmit
-* [ ] check that benchmark still run with final docker images
 
 ## Building and Publishing the Docker Images
 
