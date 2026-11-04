@@ -6,7 +6,7 @@ Sys.time()
 ```
 
 ```
-## [1] "2026-10-30 19:32:16 UTC"
+## [1] "2026-11-04 08:13:49 UTC"
 ```
 
 ``` r
@@ -41,7 +41,7 @@ mnist
 
 ```
 ## 
-## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (70000x2): MNIST Digit Classification ───────────────
 ## • Target: label
 ## • Properties: multiclass
 ## • Features (1):
@@ -62,7 +62,8 @@ mnist
 ```
 
 ```
-## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
+## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0
+## (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ```
 
 ``` r
@@ -134,7 +135,7 @@ mlp$model$network
 ```
 ## An `nn_module` containing 100,710 parameters.
 ## 
-## ── Modules ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Modules ───────────────────────────────────────────────────────────
 ## • 0: <nn_linear> #78,500 parameters
 ## • 1: <nn_relu> #0 parameters
 ## • 2: <nn_dropout> #0 parameters
@@ -359,7 +360,7 @@ task
 
 ```
 ## 
-## ── <TaskRegr> (32x11): Motor Trends ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskRegr> (32x11): Motor Trends ──────────────────────────────────
 ## • Target: mpg
 ## • Properties: -
 ## • Features (10):
@@ -385,7 +386,7 @@ config <- po("torch_loss", loss = t_loss("mse")) %>>%
 
 model <- po("torch_model_regr", device = "cpu", batch_size = 32)
 
-pipeline <- ingress %>>%
+pipeline <- po("scale") %>>% ingress %>>%
   architecture %>>% config %>>% model
 learner <- as_learner_torch(pipeline)
 learner$id <- "attention_nn"
@@ -430,15 +431,15 @@ cat(paste("*", names(pvals), "=", pvals,
 ```
 
 ```
-## * tokenizer_num.d_token = 4
+## * tokenizer_num.d_token = 16
 ## * block.n_blocks = 1
-## * block.multihead_attention.num_heads = 1
-## * block.multihead_attention.dropout = 0.476
+## * block.multihead_attention.num_heads = 4
+## * block.multihead_attention.dropout = 0.246
 ## * block.linear.out_features = 32
-## * block.branch.selection = relu
-## * block.dropout.p = 0.66
-## * torch_optimizer.lr = 0.0465
-## * torch_model_regr.epochs = 12
+## * block.branch.selection = sigmoid
+## * block.dropout.p = 0.711
+## * torch_optimizer.lr = 0.0435
+## * torch_model_regr.epochs = 16
 ```
 
 ``` r
@@ -483,7 +484,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (25000x2) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (25000x2) ───────────────────────────────────────────
 ## • Target: class
 ## • Properties: twoclass
 ## • Features (1):
@@ -534,7 +535,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (32701x5): Melanoma Classification ──────────────────
 ## • Target: outcome
 ## • Properties: twoclass, groups
 ## • Features (4):
@@ -646,7 +647,7 @@ Sys.time()
 ```
 
 ```
-## [1] "2026-10-30 19:40:54 UTC"
+## [1] "2026-11-04 08:22:23 UTC"
 ```
 
 ``` r

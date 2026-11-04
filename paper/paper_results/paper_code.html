@@ -111,7 +111,7 @@ section.footnotes {
   body:not(.pagesjs) pre:has(.line-numbers):not(:hover) { white-space: pre; }
 }
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.136/css/prism-xcode.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.145/css/prism-xcode.min.css">
 </head>
 <body>
 <div class="frontmatter">
@@ -119,7 +119,7 @@ section.footnotes {
 <div class="body">
 <pre><code class="language-r">Sys.time()
 </code></pre>
-<pre><code>## [1] &quot;2026-10-30 19:32:16 UTC&quot;
+<pre><code>## [1] &quot;2026-11-04 08:13:49 UTC&quot;
 </code></pre>
 <pre><code class="language-r">options(width = 70, useFancyQuotes = FALSE)
 options(mlr3torch.cache = TRUE)
@@ -142,7 +142,7 @@ mnist &lt;- tsk(&quot;mnist&quot;)
 mnist
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskClassif&gt; (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskClassif&gt; (70000x2): MNIST Digit Classification ───────────────
 ## • Target: label
 ## • Properties: multiclass
 ## • Features (1):
@@ -157,7 +157,8 @@ mnist
 ## &lt;mnist&gt; dataset loaded with 60000 images across 10 classes.
 ## &lt;mnist&gt; dataset loaded with 10000 images across 10 classes.
 </code></pre>
-<pre><code>## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
+<pre><code>## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0
+## (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 </code></pre>
 <pre><code class="language-r">rows &lt;- mnist$data(1:2)
 rows
@@ -209,7 +210,7 @@ mlp$model$network
 </code></pre>
 <pre><code>## An `nn_module` containing 100,710 parameters.
 ## 
-## ── Modules ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Modules ───────────────────────────────────────────────────────────
 ## • 0: &lt;nn_linear&gt; #78,500 parameters
 ## • 1: &lt;nn_relu&gt; #0 parameters
 ## • 2: &lt;nn_dropout&gt; #0 parameters
@@ -398,7 +399,7 @@ task &lt;- tsk(&quot;mtcars&quot;)
 task
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskRegr&gt; (32x11): Motor Trends ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskRegr&gt; (32x11): Motor Trends ──────────────────────────────────
 ## • Target: mpg
 ## • Properties: -
 ## • Features (10):
@@ -422,7 +423,7 @@ config &lt;- po(&quot;torch_loss&quot;, loss = t_loss(&quot;mse&quot;)) %&gt;&gt
 
 model &lt;- po(&quot;torch_model_regr&quot;, device = &quot;cpu&quot;, batch_size = 32)
 
-pipeline &lt;- ingress %&gt;&gt;%
+pipeline &lt;- po(&quot;scale&quot;) %&gt;&gt;% ingress %&gt;&gt;%
   architecture %&gt;&gt;% config %&gt;&gt;% model
 learner &lt;- as_learner_torch(pipeline)
 learner$id &lt;- &quot;attention_nn&quot;
@@ -461,15 +462,15 @@ pvals &lt;- lapply(ti$result_learner_param_vals[tuned],
 cat(paste(&quot;*&quot;, names(pvals), &quot;=&quot;, pvals,
   collapse = &quot;\n&quot;), &quot;\n&quot;)
 </code></pre>
-<pre><code>## * tokenizer_num.d_token = 4
+<pre><code>## * tokenizer_num.d_token = 16
 ## * block.n_blocks = 1
-## * block.multihead_attention.num_heads = 1
-## * block.multihead_attention.dropout = 0.476
+## * block.multihead_attention.num_heads = 4
+## * block.multihead_attention.dropout = 0.246
 ## * block.linear.out_features = 32
-## * block.branch.selection = relu
-## * block.dropout.p = 0.66
-## * torch_optimizer.lr = 0.0465
-## * torch_model_regr.epochs = 12
+## * block.branch.selection = sigmoid
+## * block.dropout.p = 0.711
+## * torch_optimizer.lr = 0.0435
+## * torch_model_regr.epochs = 16
 </code></pre>
 <pre><code class="language-r"># 6.2 Fine-tuning an image network
 library(&quot;torchdatasets&quot;)
@@ -506,7 +507,7 @@ task &lt;- as_task_classif(tbl, target = &quot;class&quot;, id = &quot;dogs_vs_c
 task
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskClassif&gt; (25000x2) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskClassif&gt; (25000x2) ───────────────────────────────────────────
 ## • Target: class
 ## • Properties: twoclass
 ## • Features (1):
@@ -549,7 +550,7 @@ task &lt;- tsk(&quot;melanoma&quot;)
 task
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskClassif&gt; (32701x5): Melanoma Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskClassif&gt; (32701x5): Melanoma Classification ──────────────────
 ## • Target: outcome
 ## • Properties: twoclass, groups
 ## • Features (4):
@@ -646,7 +647,7 @@ print(plt)
 <pre><code class="language-r">ggsave(here::here(&quot;roc.png&quot;), plt, width = 4, height = 4, dpi = 300)
 Sys.time()
 </code></pre>
-<pre><code>## [1] &quot;2026-10-30 19:40:54 UTC&quot;
+<pre><code>## [1] &quot;2026-11-04 08:22:23 UTC&quot;
 </code></pre>
 <pre><code class="language-r">sessionInfo()
 </code></pre>

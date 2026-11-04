@@ -204,7 +204,7 @@ config <- po("torch_loss", loss = t_loss("mse")) %>>%
 
 model <- po("torch_model_regr", device = "cpu", batch_size = 32)
 
-pipeline <- ingress %>>%
+pipeline <- po("scale") %>>% ingress %>>%
   architecture %>>% config %>>% model
 learner <- as_learner_torch(pipeline)
 learner$id <- "attention_nn"

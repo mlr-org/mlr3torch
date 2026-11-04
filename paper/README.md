@@ -182,6 +182,28 @@ It was extracted from the tex manuscript almost fully programmatically but adjus
 
 We also added some additional comments to make it easier to associate the code with the paper.
 
+### More Expensive Version of the Paper Code
+
+To keep the runtime short, the examples in the paper train the networks on a CPU, mostly on small subsets of the data, and use a small tuning budget.
+The file `paper/paper_code_expensive.R` is a more expensive version of `paper_code.R`, which differs from it only in the following points:
+
+* All networks are trained on a GPU (`device = "cuda"`).
+* We train on the whole datasets and not subsets thereof
+* The neural architecture search uses the `california_housing` task (20640 observations) instead of `mtcars` (32 observations).
+* The hyperparameter tuning uses 100 instead of 20 evaluations.
+* The figures are written to `figure_expensive/` and the ROC plot to `roc_expensive.png`, so that they don't overwrite the results of `paper_code.R`.
+
+Run it from the `paper` directory in the CUDA docker image:
+
+```r
+options(bitmapType = "cairo")
+knitr::spin("paper_code_expensive.R")
+```
+
+Setting the `bitmapType` option is necessary because R in the CUDA image otherwise creates PNG files via X11, which fails without a display.
+
+We provide the results in `paper/paper_results_expensive`.
+
 ### Possible Data Unavailability
 
 The code shown in the paper downloads various datasets from standard resources.
