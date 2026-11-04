@@ -106,7 +106,7 @@ To run the CPU benchmarks (using the CPU docker image) on linux, run:
 Rscript benchmark/linux-cpu.R
 ```
 
-The CPU benchmark uses batch size 32 and is run both with a single thread (latent dimensions 100, 200 and 400) and with 16 threads (latent dimensions 800, 1600 and 3200), see the `n_threads` column of the results.
+The CPU benchmark is run both with a single thread and with 16 threads, see the `n_threads` column of the results.
 The machine should therefore have at least 16 physical cores and should not be used by other processes during the benchmark.
 
 To run the benchmark that compares "ignite" with standard optimizers (using the CUDA docker image) on linux, run:
@@ -126,7 +126,7 @@ The scripts can, of course, also be run on different machines. The linux names j
 There are also some exemplary slurm scripts that need to be adapted to the specific cluster and job submission system.
 
 * `paper/benchmark/benchmark_gpu.sh`
-* `paper/benchmark/benchmark_cpu.sh` (LRZ Linux Cluster, running the CPU image with Apptainer)
+* `paper/benchmark/benchmark_cpu.sh
 * `paper/benchmark/benchmark_gpu_optimizer.sh`
 
 ### Running a subset of the Jobs
