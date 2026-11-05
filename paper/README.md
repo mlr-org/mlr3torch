@@ -55,7 +55,6 @@ cd /mnt/data/paper
 
 Note that the `.Rprofile` file in `paper` ensures that when running R programs from the `paper` directory, the renv environment will be used unless the code is run in the docker container, where we are not relying on renv directly.
 It detects the container via the file `/.dockerenv` or via the mount point `/mnt/data/paper`.
-This means that renv is not activated in *any* docker container; if you want to use the renv environment inside another docker image (e.g., `rocker/r-ver:4.5.1`), run `source("renv/activate.R")` manually after starting R in the `paper` directory.
 When the image is run with something other than docker (e.g., podman, apptainer, or enroot) and the `paper` directory is not mounted at `/mnt/data/paper`, neither heuristic applies, so renv is activated and the packages installed in the image are not found.
 In that case, adjust the condition in `.Rprofile` (or start R with `--no-init-file`).
 
