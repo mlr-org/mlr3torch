@@ -118,6 +118,7 @@ Collate:
     'PipeOpModule.R'
     'PipeOpTorch.R'
     'PipeOpTaskPreprocTorch.R'
+    'PipeOpPreprocTorchFn.R'
     'PipeOpTorchActivation.R'
     'PipeOpTorchAdaptiveAvgPool.R'
     'PipeOpTorchAdaptiveMaxPool.R'
