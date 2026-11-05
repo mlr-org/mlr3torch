@@ -821,17 +821,11 @@
         "tools",
         "utils"
       ],
-      "LinkingTo": [
-        null
-      ],
       "Suggests": [
         "methods",
         "RhpcBLASctl",
         "R.rsp",
         "markdown"
-      ],
-      "Enhances": [
-        null
       ],
       "License": "Apache License (>= 2)",
       "License_is_FOSS": null,

@@ -126,7 +126,7 @@ The scripts can, of course, also be run on different machines. The linux names j
 There are also some exemplary slurm scripts that need to be adapted to the specific cluster and job submission system.
 
 * `paper/benchmark/benchmark_gpu.sh`
-* `paper/benchmark/benchmark_cpu.sh
+* `paper/benchmark/benchmark_cpu.sh`
 * `paper/benchmark/benchmark_gpu_optimizer.sh`
 
 ### Running a subset of the Jobs
@@ -146,9 +146,9 @@ The summary that is created at the end of the script only contains the jobs that
 
 ### Generating the Benchmark Plots
 
-For the main benchmark shown in the paper, run the following command from the `paper` directory:
+For the main benchmark shown in the paper, run the following commands from the `paper` directory:
 
-```r
+```bash
 Rscript benchmark/plot_benchmark.R
 Rscript benchmark/plot_optimizer.R
 ```
@@ -174,6 +174,7 @@ The file `paper_code.R` contains some very minor differences to the paper, which
 It was extracted from the tex manuscript almost fully programmatically but adjusted with the following modifications:
 
 * Time measurements (`Sys.time()`)
+* Setting `options(width = 70, useFancyQuotes = FALSE)` for the printed output
 * Deactivate knitr caching
 * Activating caching for `mlr3torch`
 * Changing the `mlr3` logging level to `warn` for cleaner output
@@ -190,6 +191,8 @@ The file `paper/paper_code_expensive.R` is a more expensive version of `paper_co
 * All networks are trained on a GPU (`device = "cuda"`).
 * We train on the whole datasets and not subsets thereof
 * The neural architecture search uses the `california_housing` task (20640 observations) instead of `mtcars` (32 observations).
+  Because of this, the pipeline additionally imputes the missing values of `total_bedrooms` (`po("imputemedian")`) and one-hot encodes the factor `ocean_proximity` (`po("encode")`),
+  the target `median_house_value` is divided by 100,000, and the batch size is increased from 32 to 256 to keep the runtime of the tuning reasonable.
 * The hyperparameter tuning uses 100 instead of 20 evaluations.
 * The figures are written to `figure_expensive/` and the ROC plot to `roc_expensive.png`, so that they don't overwrite the results of `paper_code.R`.
 
@@ -227,7 +230,7 @@ After starting the docker container with the correct mount instructions (like sh
 
 ```bash
 cp -r /mnt/data/cache/R/mlr3torch /root/.cache/R
-cp -r /mnt/data/cache/torch /root/.cache/torch
+cp -r /mnt/data/cache/torch /root/.cache
 ```
 
 If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into the `paper/data` subdirectory where you are running the `paper_code.R` (so the directory structure is `paper/data/dogs-vs-cats/`).

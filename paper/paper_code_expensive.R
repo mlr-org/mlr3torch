@@ -4,7 +4,8 @@
 # More expensive version of paper_code.R: the networks are trained on a GPU (device = "cuda") and on the full
 # datasets instead of small subsets, and the hyperparameter tuning uses 100 instead of 20 evaluations.
 # The neural architecture search (Section 6.1) uses the california_housing task instead of mtcars.
-# Everything else is identical to paper_code.R.
+# For the neural architecture search, the target is also rescaled, missing values are imputed, the categorical
+# feature is encoded, and the batch size is 256 instead of 32. All differences are listed in README.md.
 Sys.time()
 options(width = 70, useFancyQuotes = FALSE)
 options(mlr3torch.cache = TRUE)
