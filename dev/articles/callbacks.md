@@ -157,7 +157,7 @@ custom_logger$generator
     ##     load_state_dict: function (state_dict) 
     ##     on_before_valid: function () 
     ##     on_batch_end: function () 
-    ##   Parent env: <environment: 0x61939a36d490>
+    ##   Parent env: <environment: 0x570911b12aa0>
     ##   Locked objects: FALSE
     ##   Locked class: FALSE
     ##   Portable: TRUE
