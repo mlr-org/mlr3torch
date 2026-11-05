@@ -219,7 +219,7 @@ deep_learner$train(mnist)
 
 ## Contributing
 
-* To run the tests one needs to set the environment variable `TEST_TORCH = 1`, e.g. by adding it to `.Renviron`.
+* To run the tests one needs to set the environment variable `TORCH_TEST = 1`, e.g. by adding it to `.Renviron`.
 
 ## Acknowledgements
 
