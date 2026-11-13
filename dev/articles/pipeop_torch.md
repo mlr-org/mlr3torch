@@ -92,6 +92,9 @@ imagenet
 #> • Properties: multiclass
 #> • Features (1):
 #>   • lt (1): image
+#> Downloading <tiny_imagenet> ...
+#> Processing <tiny_imagenet> ...
+#> Dataset <tiny_imagenet> downloaded and extracted successfully.
 #> • Target classes: abacus (0%), academic gown, academic robe, judge's robe (0%),
 #> acorn (0%), African elephant, Loxodonta africana (0%), albatross, mollymawk
 #> (0%), alp (0%), altar (0%), American alligator, Alligator mississipiensis (0%),
